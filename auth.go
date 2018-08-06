@@ -41,12 +41,13 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	r.ParseForm()
 	if a.hash(r.PostFormValue("password")) == a.passwordHash {
-		if n := r.PostFormValue("new"); n != "" {
+		if n := r.PostFormValue("new"); n != "" && n == r.PostFormValue("confirm") {
 			a.updatePassword.Exec(a.hash(n))
 			Session.Refresh()
+		} else {
+			Session.SetAdmin(w)
+			http.Redirect(w, r, "/map.html", http.StatusFound)
 		}
-		Session.SetAdmin(w)
-		http.Redirect(w, r, "/map.html", http.StatusFound)
 		return
 	}
 	io.WriteString(w, loginPage)
@@ -62,6 +63,7 @@ const loginPage = `<!doctype html>
 		<form action="/" method="post">
 			<label for="password">Password: </label><input id="password" name="password" type="password" /><br />
 			<label for="new">New Password?: </label><input id="new" name="new" type="password" /><br />
+			<label for="confirm">Confirm Password?: </label><input id="confirm" name="confirm" type="password" /><br />
 			<input type="submit" value="Login" />
 		</form>
 	</body>
