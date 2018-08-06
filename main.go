@@ -27,10 +27,9 @@ func main() {
 	l, err := net.Listen("tcp", ":8080")
 	e(err)
 
-	srv := new(authServeMux)
-	srv.Handle("/socket", websocket.Handler(handleConn))
-	srv.Handle("/files", http.FileServer(http.Dir("./files/")))
-	srv.Handle("/assets", httpbuffer.Handler{&Assets})
-	srv.Handle("/", httpgzip.FileServer(dir))
-	http.Serve(l, srv)
+	Auth.Handle("/socket", websocket.Handler(handleConn))
+	Auth.Handle("/files", http.FileServer(http.Dir("./files/")))
+	Auth.Handle("/assets", httpbuffer.Handler{&Assets})
+	Auth.Handle("/", httpgzip.FileServer(dir))
+	http.Serve(l, &Auth)
 }
