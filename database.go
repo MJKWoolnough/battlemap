@@ -21,6 +21,9 @@ func (db *db) Init(filename string) error {
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error opening database file %q: ", filename), err)
 	}
+	if _, err = database.Exec("CREATE TABLE IF NOT EXISTS [Config]([Password] TEXT, [SessionKey] TEXT, [SessionData] TEXT);"); err != nil {
+		return errors.WithContext("error creating config table: ", err)
+	}
 	if err = Auth.Init(database); err != nil {
 		database.Close()
 		return errors.WithContext("error initialising authentication: ", err)
