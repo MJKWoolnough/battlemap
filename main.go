@@ -27,7 +27,7 @@ func main() {
 	l, err := net.Listen("tcp", ":8080")
 	e(err)
 
-	Auth.Handle("/socket", websocket.Handler(handleConn))
+	Auth.Handle("/socket", websocket.Handler(RPC.handleConn))
 	Auth.Handle("/files", http.FileServer(http.Dir("./files/")))
 	Auth.Handle("/assets", httpbuffer.Handler{&Assets})
 	Auth.Handle("/", httpgzip.FileServer(dir))
