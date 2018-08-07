@@ -26,6 +26,9 @@ func (a *auth) Init(db *sql.DB) error {
 	if err != nil {
 		return errors.WithContext("error creating prepared statement: ", err)
 	}
+	if a.passwordHash == "" {
+		a.passwordHash = a.hash("")
+	}
 	return nil
 }
 
@@ -40,15 +43,18 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	if a.hash(r.PostFormValue("password")) == a.passwordHash {
+	if _, ok := r.PostForm["submit"]; ok && a.hash(r.PostFormValue("password")) == a.passwordHash {
 		if n := r.PostFormValue("new"); n != "" && n == r.PostFormValue("confirm") {
-			a.updatePassword.Exec(a.hash(n))
+			a.passwordHash = a.hash(n)
+			DB.Lock()
+			a.updatePassword.Exec(a.passwordHash)
+			DB.Unlock()
 			Session.Refresh()
 		} else {
 			Session.SetAdmin(w)
 			http.Redirect(w, r, "/map.html", http.StatusFound)
+			return
 		}
-		return
 	}
 	io.WriteString(w, loginPage)
 }
@@ -64,7 +70,7 @@ const loginPage = `<!doctype html>
 			<label for="password">Password: </label><input id="password" name="password" type="password" /><br />
 			<label for="new">New Password?: </label><input id="new" name="new" type="password" /><br />
 			<label for="confirm">Confirm Password?: </label><input id="confirm" name="confirm" type="password" /><br />
-			<input type="submit" value="Login" />
+			<input type="submit" name="submit" value="Login" />
 		</form>
 	</body>
 </html>`
