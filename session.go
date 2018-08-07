@@ -15,7 +15,8 @@ import (
 var Session session
 
 type session struct {
-	store *sessions.CookieStore
+	store      *sessions.CookieStore
+	updateData *sql.Stmt
 
 	mu   sync.RWMutex
 	data []byte
@@ -23,9 +24,13 @@ type session struct {
 
 func (s *session) Init(db *sql.DB) error {
 	var key []byte
-	err := db.QueryRow("SELECT [Key], [Data] FROM [Config];").Scan(&key, &s.data)
+	err := db.QueryRow("SELECT [SessionKey], [SessionData] FROM [Config];").Scan(&key, &s.data)
 	if err != nil {
 		return errors.WithContext("error getting session data: ", err)
+	}
+	s.updateData, err = db.Prepare("UPDATE [Config] SET [SessionKey] = ?, [SessionData] = ?;")
+	if err != nil {
+		return errors.WithContext("error preparing session data update statement: ", err)
 	}
 	return s.Set(key)
 }
@@ -39,7 +44,12 @@ func (s *session) Set(key []byte) error {
 		s.data = make([]byte, 32)
 		rand.Read(s.data)
 	}
-	var err error
+	DB.Lock()
+	_, err := s.updateData.Exec(key, s.data)
+	if err != nil {
+		return errors.WithContext("error saving new session data: ", err)
+	}
+	DB.Unlock()
 	s.store, err = sessions.NewCookieStore(key, sessions.HTTPOnly(), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	return err
 }
