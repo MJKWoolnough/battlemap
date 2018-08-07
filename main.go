@@ -16,7 +16,7 @@ var dir http.FileSystem = httpdir.Default
 
 func e(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %s", err)
+		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		os.Exit(1)
 	}
 }
