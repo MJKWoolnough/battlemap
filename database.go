@@ -36,6 +36,7 @@ func (db *db) Init(filename string) error {
 	for name, init := range map[string]func(*sql.DB) error{
 		"authentication": Auth.Init,
 		"session":        Session.Init,
+		"assets":         Assets.Init,
 	} {
 		if err = init(database); err != nil {
 			database.Close()
