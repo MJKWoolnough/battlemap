@@ -26,6 +26,7 @@ func (r *rpcs) Init(db *sql.DB) error {
 	r.quit = make(chan struct{})
 	r.clients = make(map[*websocket.Conn]chan []byte)
 	rpc.Register(r)
+	return nil
 }
 
 func (r *rpcs) handleConn(conn *websocket.Conn) {
