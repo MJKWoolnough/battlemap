@@ -22,7 +22,7 @@ type session struct {
 	data []byte
 }
 
-func (s *session) Init(db *sql.DB) error {
+func (s *session) init(db *sql.DB) error {
 	var key []byte
 	err := db.QueryRow("SELECT [SessionKey], [SessionData] FROM [Config];").Scan(&key, &s.data)
 	if err != nil {

@@ -17,7 +17,7 @@ type auth struct {
 	http.ServeMux
 }
 
-func (a *auth) Init(db *sql.DB) error {
+func (a *auth) init(db *sql.DB) error {
 	err := db.QueryRow("SELECT [Password] FROM [Config];").Scan(&a.passwordHash)
 	if err != nil {
 		return errors.WithContext("error retrieving password hash: ", err)
