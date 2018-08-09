@@ -21,7 +21,7 @@ func (db *db) Init(filename string) error {
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error opening database file %q: ", filename), err)
 	}
-	if _, err = database.Exec("CREATE TABLE IF NOT EXISTS [Config]([Password] TEXT NOT NULL DEFAULT '', [SessionKey] TEXT NOT NULL DEFAULT '', [SessionData] TEXT NOT NULL DEFAULT '');"); err != nil {
+	if _, err = database.Exec("CREATE TABLE IF NOT EXISTS [Config]([Password] TEXT NOT NULL DEFAULT '', [Salt] TEXT NOT NULL DEFAULT '', [SessionKey] TEXT NOT NULL DEFAULT '', [SessionData] TEXT NOT NULL DEFAULT '');"); err != nil {
 		return errors.WithContext("error creating config table: ", err)
 	}
 	var num int
