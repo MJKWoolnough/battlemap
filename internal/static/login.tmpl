@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Login</title>
+		<style type="text/css">
+			#change:not(:checked) + div {
+				display: none;
+			}
+			.error {
+				color: #f00;
+			}
+		</style>
+	</head>
+	<body>
+		<a href="map.html">Load Map</a>
+		<form action="/" method="post">
+			{{if .PasswordChanged}}<h2>Password Changed!</h2>{{end}}
+				<label for="password">Password: </label><input id="password" name="password" type="password" />{{if .InvalidPassword}}<span class="error">Invalid Password</span>{{end}}<br />
+			<label for="change">Change Password?: </label><input type="checkbox" id="change" name="change" value="change" />
+			<div>
+				<label for="new">New Password: </label><input id="new" name="new" type="password" /><br />
+				<label for="confirm">Confirm Password: </label><input id="confirm" name="confirm" type="password" />
+			</div>
+			<input type="submit" name="submit" value="Login" />
+		</form>
+	</body>
+</html>
