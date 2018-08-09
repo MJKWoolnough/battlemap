@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
@@ -16,14 +17,17 @@ import (
 var Auth auth
 
 type auth struct {
-	password, salt string
+	mu       sync.RWMutex
+	password string
+
+	salt           string
 	login          *template.Template
 	updatePassword *sql.Stmt
 	http.ServeMux
 }
 
 func (a *auth) init(db *sql.DB) error {
-	err := db.QueryRow("SELECT [Password], [Salt] FROM [Config];").Scan(&a.passwordHash, &a.salt)
+	err := db.QueryRow("SELECT [Password], [Salt] FROM [Config];").Scan(&a.password, &a.salt)
 	if err != nil {
 		return errors.WithContext("error retrieving password hash: ", err)
 	}
@@ -52,7 +56,7 @@ func (a *auth) init(db *sql.DB) error {
 	} else {
 		sb.Grow(int(st.Size()))
 	}
-	_, err = io.Copy(sb, f)
+	_, err = io.Copy(&sb, f)
 	if err != nil {
 		return errors.WithContext("error reading login template: ", err)
 	}
@@ -79,11 +83,15 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		InvalidPassword, PasswordChanged bool
 	}
 	if _, ok := r.PostForm["submit"]; ok {
+		a.mu.RLock()
 		if a.hash(r.PostFormValue("password")) == a.password {
+			a.mu.RUnlock()
 			if n := r.PostFormValue("new"); r.PostFormValue("change") == "change" && n == r.PostFormValue("confirm") {
-				a.passwordHash = a.hash(n)
+				a.mu.Lock()
+				a.password = a.hash(n)
+				a.mu.Unlock()
 				DB.Lock()
-				a.updatePassword.Exec(a.passwordHash)
+				a.updatePassword.Exec(a.password)
 				DB.Unlock()
 				Session.Refresh()
 				vars.PasswordChanged = true
@@ -93,6 +101,7 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		} else {
+			a.mu.RUnlock()
 			vars.InvalidPassword = true
 		}
 	}
