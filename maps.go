@@ -12,9 +12,11 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
-var RPC rpcs
+var Maps maps
 
-type rpcs struct {
+type maps struct {
+	server *rpc.Server
+
 	quitMu sync.Mutex
 	quit   chan struct{}
 
@@ -22,21 +24,22 @@ type rpcs struct {
 	clients  map[*websocket.Conn]chan []byte
 }
 
-func (r *rpcs) Init(db *sql.DB) error {
-	r.quit = make(chan struct{})
-	r.clients = make(map[*websocket.Conn]chan []byte)
-	rpc.Register(r)
+func (m *maps) init(db *sql.DB) error {
+	m.quit = make(chan struct{})
+	m.clients = make(map[*websocket.Conn]chan []byte)
+	m.server = rpc.NewServer()
+	m.server.Register(m)
 	return nil
 }
 
-func (r *rpcs) handleConn(conn *websocket.Conn) {
+func (m *maps) handleConn(conn *websocket.Conn) {
 	if Session.GetAdmin(conn.Request()) {
-		r.quitMu.Lock()
-		close(r.quit)
-		r.quit = make(chan struct{})
-		myQuit := r.quit
+		m.quitMu.Lock()
+		close(m.quit)
+		m.quit = make(chan struct{})
+		myQuit := m.quit
 		done := make(chan struct{})
-		r.quitMu.Unlock()
+		m.quitMu.Unlock()
 		go func() {
 			select {
 			case <-myQuit:
@@ -45,14 +48,14 @@ func (r *rpcs) handleConn(conn *websocket.Conn) {
 			}
 		}()
 		io.WriteString(conn, "{\"Admin\": true}")
-		jsonrpc.ServeConn(conn)
+		m.server.ServeCodec(jsonrpc.NewServerCodec(conn))
 		close(done)
 	} else {
 		io.WriteString(conn, "{\"Admin\": false}")
 		data := make(chan []byte, 1024)
-		r.clientMu.Lock()
-		r.clients[conn] = data
-		r.clientMu.Unlock()
+		m.clientMu.Lock()
+		m.clients[conn] = data
+		m.clientMu.Unlock()
 		// send loadMap with data
 		for {
 			if _, err := conn.Write(<-data); err != nil {
@@ -60,19 +63,19 @@ func (r *rpcs) handleConn(conn *websocket.Conn) {
 				break
 			}
 		}
-		r.clientMu.Lock()
-		delete(r.clients, conn)
+		m.clientMu.Lock()
+		delete(m.clients, conn)
 		close(data)
-		r.clientMu.Unlock()
+		m.clientMu.Unlock()
 	}
 }
 
-func (r *rpcs) broadcast(v interface{}) {
+func (m *maps) broadcast(v interface{}) {
 	var buf memio.Buffer
 	json.NewEncoder(&buf).Encode(v)
-	r.clientMu.Lock()
-	for _, c := range r.clients {
+	m.clientMu.Lock()
+	for _, c := range m.clients {
 		c <- buf
 	}
-	r.clientMu.Unlock()
+	m.clientMu.Unlock()
 }
