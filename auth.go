@@ -84,8 +84,9 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if _, ok := r.PostForm["submit"]; ok {
 		a.mu.RLock()
-		if a.hash(r.PostFormValue("password")) == a.password {
-			a.mu.RUnlock()
+		good := a.hash(r.PostFormValue("password")) == a.password
+		a.mu.RUnlock()
+		if good {
 			if n := r.PostFormValue("new"); r.PostFormValue("change") == "change" && n == r.PostFormValue("confirm") {
 				a.mu.Lock()
 				a.password = a.hash(n)
@@ -101,7 +102,6 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		} else {
-			a.mu.RUnlock()
 			vars.InvalidPassword = true
 		}
 	}
