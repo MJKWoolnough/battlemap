@@ -36,12 +36,13 @@ type Tag struct {
 type Asset struct {
 	ID       int
 	Name     string
+	Type     string
 	Tags     []int
 	Uploaded time.Time
 }
 
 func (a *assets) init(database *sql.DB) error {
-	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [Assets]([ID] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] TEXT NOT NULL DEFAULT '', [Uploaded] INTEGER NOT NULL DEFAULT 0);"); err != nil {
+	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [Assets]([ID] INTEGER PRIMARY KEY AUTOINCREMENT, [Name] TEXT NOT NULL DEFAULT '', [Type] TEXT NOT NULL DEFAULT '', [Uploaded] INTEGER NOT NULL DEFAULT 0);"); err != nil {
 		return errors.WithContext("error creating Assets table: ", err)
 	}
 	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [Tags]([ID] INTEGER PRIMARY KEY AUTOINCREMENT, [Tag] TEXT NOT NULL DEFAULT '');"); err != nil {
@@ -53,7 +54,7 @@ func (a *assets) init(database *sql.DB) error {
 	var err error
 
 	for stmt, code := range map[**sql.Stmt]string{
-		&a.addAsset:                 "INSERT INTO [Assets]([Name], [Width], [Height]) VALUES (?, ?, ?);",
+		&a.addAsset:                 "INSERT INTO [Assets]([Name], [Type], [Uploaded]) VALUES (?, ?, ?);",
 		&a.renameAsset:              "UPDATE [Assets] SET [Name] = ? WHERE [ID] = ?;",
 		&a.removeAsset:              "DELETE FROM [Assets] WHERE [ID] = ?;",
 		&a.addTag:                   "INSERT INTO [Tags]([Tag]) VALUES (?);",
@@ -69,7 +70,7 @@ func (a *assets) init(database *sql.DB) error {
 		}
 	}
 
-	rows, err := database.Query("SELECT [ID], [Name], [Uploaded] FROM [Assets] ORDER BY [Uploaded] DESC;")
+	rows, err := database.Query("SELECT [ID], [Name], [Type], [Uploaded] FROM [Assets] ORDER BY [Uploaded] DESC;")
 	if err != nil {
 		return errors.WithContext("error loading Asset data: ", err)
 	}
@@ -77,7 +78,7 @@ func (a *assets) init(database *sql.DB) error {
 	for rows.Next() {
 		as := new(Asset)
 		var uploaded int64
-		if err = rows.Scan(&as.ID, &as.Name, &uploaded); err != nil {
+		if err = rows.Scan(&as.ID, &as.Name, &as.Type, &uploaded); err != nil {
 			return errors.WithContext("error getting Asset data: ", err)
 		}
 		as.Uploaded = time.Unix(uploaded, 0)
