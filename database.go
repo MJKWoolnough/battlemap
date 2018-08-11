@@ -37,6 +37,7 @@ func (db *db) Init(filename string) error {
 		"authentication": Auth.init,
 		"session":        Session.init,
 		"assets":         Assets.init,
+		"maps":           Maps.init,
 	} {
 		if err = init(database); err != nil {
 			database.Close()
