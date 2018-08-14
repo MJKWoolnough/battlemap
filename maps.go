@@ -100,7 +100,7 @@ func (m *maps) init(db *sql.DB) error {
 	m.quit = make(chan struct{})
 	m.clients = make(map[*websocket.Conn]chan []byte)
 	m.server = rpc.NewServer()
-	m.server.RegisterName("Map", m)
+	m.server.RegisterName("RPC", m)
 	return nil
 }
 
@@ -119,11 +119,11 @@ func (m *maps) handleConn(conn *websocket.Conn) {
 			case <-done:
 			}
 		}()
-		io.WriteString(conn, "{\"Admin\": true}")
+		io.WriteString(conn, "{\"id\": 0, \"result\": true}")
 		m.server.ServeCodec(jsonrpc.NewServerCodec(conn))
 		close(done)
 	} else {
-		io.WriteString(conn, "{\"Admin\": false}")
+		io.WriteString(conn, "{\"id\": 0, \"result\": false}")
 		data := make(chan []byte, 1024)
 		m.clientMu.Lock()
 		m.clients[conn] = data

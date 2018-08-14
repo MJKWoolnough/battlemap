@@ -129,7 +129,7 @@ func (a *assets) init(database *sql.DB) error {
 	}
 
 	a.server = rpc.NewServer()
-	a.server.RegisterName("Assets", a)
+	a.server.RegisterName("RPC", a)
 	return nil
 }
 
