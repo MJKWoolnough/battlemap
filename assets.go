@@ -48,7 +48,7 @@ func (a *assets) init(database *sql.DB) error {
 	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [Tags]([ID] INTEGER PRIMARY KEY AUTOINCREMENT, [Tag] TEXT NOT NULL DEFAULT '');"); err != nil {
 		return errors.WithContext("error creating Tags table: ", err)
 	}
-	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [AssetsTags]([Asset] INTEGER NOT NULL DEFAULT 0, [Tag] INTEGER NOT NULL DEFAULT 0);"); err != nil {
+	if _, err := database.Exec("CREATE TABLE IF NOT EXISTS [AssetTags]([Asset] INTEGER NOT NULL DEFAULT 0, [Tag] INTEGER NOT NULL DEFAULT 0);"); err != nil {
 		return errors.WithContext("error creating AssetTags table: ", err)
 	}
 	var err error
@@ -58,7 +58,7 @@ func (a *assets) init(database *sql.DB) error {
 		&a.renameAsset:              "UPDATE [Assets] SET [Name] = ? WHERE [ID] = ?;",
 		&a.removeAsset:              "DELETE FROM [Assets] WHERE [ID] = ?;",
 		&a.addTag:                   "INSERT INTO [Tags]([Tag]) VALUES (?);",
-		&a.renameTag:                "UPDATE [Tags] SET [Name] = ? WHERE [ID] = ?;",
+		&a.renameTag:                "UPDATE [Tags] SET [Tag] = ? WHERE [ID] = ?;",
 		&a.removeTag:                "DELETE FROM [Tags] WHERE [ID] = ?;",
 		&a.addAssetTag:              "INSERT INTO [AssetTags]([Asset], [Tag]) VALUES (?, ?);",
 		&a.removeAssetTag:           "DELETE FROM [AssetTags] WHERE [Asset] = ? AND [Tag] = ?;",
@@ -129,10 +129,14 @@ func (a *assets) init(database *sql.DB) error {
 	}
 
 	a.server = rpc.NewServer()
-	a.server.Register(a)
+	a.server.RegisterName("Assets", a)
 	return nil
 }
 
 func (a *assets) handleConn(conn *websocket.Conn) {
 	a.server.ServeCodec(jsonrpc.NewServerCodec(conn))
+}
+
+func (a *assets) Temp(i int64, j *int64) error {
+	return nil
 }

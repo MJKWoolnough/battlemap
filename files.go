@@ -5,5 +5,5 @@ package main
 import "net/http"
 
 func init() {
-	dir = http.Dir("data/")
+	dir = http.Dir("internal/static/")
 }

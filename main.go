@@ -32,7 +32,8 @@ func main() {
 	Auth.Handle("/assets/", Trim("/assets", http.FileServer(http.Dir("./assets"))))
 	Auth.Handle("/assets", websocket.Handler(Assets.handleConn))
 	Auth.Handle("/", httpgzip.FileServer(dir))
-	http.Serve(l, &Auth)
+	fmt.Println("Running...")
+	fmt.Println(http.Serve(l, &Auth))
 }
 
 type HTTPTrim struct {

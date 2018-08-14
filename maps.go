@@ -100,7 +100,7 @@ func (m *maps) init(db *sql.DB) error {
 	m.quit = make(chan struct{})
 	m.clients = make(map[*websocket.Conn]chan []byte)
 	m.server = rpc.NewServer()
-	m.server.Register(m)
+	m.server.RegisterName("Map", m)
 	return nil
 }
 
@@ -150,4 +150,8 @@ func (m *maps) broadcast(v interface{}) {
 		c <- buf
 	}
 	m.clientMu.Unlock()
+}
+
+func (m *maps) Temp(a int64, b *int64) error {
+	return nil
 }

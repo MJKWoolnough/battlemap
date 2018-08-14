@@ -11,7 +11,6 @@ import (
 	"sync"
 
 	"vimagination.zapto.org/errors"
-	"vimagination.zapto.org/httpdir"
 )
 
 var Auth auth
@@ -46,7 +45,7 @@ func (a *auth) init(db *sql.DB) error {
 	if a.password == "" {
 		a.password = a.hash("")
 	}
-	f, err := httpdir.Default.Open("login.tmpl")
+	f, err := dir.Open("login.tmpl")
 	if err != nil {
 		return errors.WithContext("error opening login template: ", err)
 	}
