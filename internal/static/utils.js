@@ -1,6 +1,6 @@
 "use strict";
-var createHTML = (function() {
-	var createElement = document.createElementNS.bind(document, document.getElementsByTagName("html")[0].namespaceURI);
+var createElements = function(namespace) {
+	var createElement = document.createElementNS.bind(document, namespace);
 	return function(element, properties, children, pre) {
 		var elem = createElement(element);
 		if (typeof properties === "object") {
@@ -38,7 +38,8 @@ var createHTML = (function() {
 		}
 		return elem;
 	};
-    }()),
+    },
+    createHTML = createElements(document.getElementsByTagName("html")[0].namespaceURI),
     waitGroup = function(callback) {
 	var state = 0;
 	this.add = function(amount) {
