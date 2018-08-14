@@ -1,3 +1,4 @@
+"use strict";
 var createHTML = (function() {
 	var createElement = document.createElementNS.bind(document, document.getElementsByTagName("html")[0].namespaceURI);
 	return function(element, properties, children, pre) {
