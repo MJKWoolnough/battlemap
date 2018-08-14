@@ -113,7 +113,7 @@ var createHTML = (function() {
 		nextID++;
 		ws.send(JSON.stringify(msg));
 	};
-	this.pseudoRequest = function(id, callback, keep) {
+	this.await = function(id, callback, keep) {
 		requests[id] = new request(callback, keep);
 		if (id > nextID) {
 			nextID = id + 1;
