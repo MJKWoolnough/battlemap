@@ -50,5 +50,5 @@ func Trim(dir string, handler http.Handler) http.Handler {
 
 func (h *HTTPTrim) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	r.URL.Path = strings.TrimPrefix(r.URL.Path, h.dir)
-	h.ServeHTTP(w, r)
+	h.Handler.ServeHTTP(w, r)
 }
