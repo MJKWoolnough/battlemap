@@ -6,6 +6,7 @@ import (
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"strings"
+	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -15,6 +16,9 @@ import (
 var Assets assets
 
 type assets struct {
+	quitMu sync.Mutex
+	quit   chan struct{}
+
 	server *rpc.Server
 
 	Tags    map[int]*Tag
@@ -134,7 +138,24 @@ func (a *assets) init(database *sql.DB) error {
 }
 
 func (a *assets) handleConn(conn *websocket.Conn) {
+	if !Session.GetAdmin(conn.Request()) {
+		return
+	}
+	a.quitMu.Lock()
+	close(a.quit)
+	a.quit = make(chan struct{})
+	myQuit := a.quit
+	done := make(chan struct{})
+	a.quitMu.Unlock()
+	go func() {
+		select {
+		case <-myQuit:
+			conn.WriteClose(4000)
+		case <-done:
+		}
+	}()
 	a.server.ServeCodec(jsonrpc.NewServerCodec(conn))
+	close(done)
 }
 
 func (a *assets) Temp(i int64, j *int64) error {
