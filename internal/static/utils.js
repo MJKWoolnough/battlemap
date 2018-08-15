@@ -4,7 +4,17 @@ var createElements = function(namespace) {
 	return function(element, properties, children, pre) {
 		var elem = createElement(element);
 		if (typeof properties === "object") {
-			Object.keys(properties).forEach(k => elem.setAttribute(k, properties[k]));
+			Object.keys(properties).forEach(k => {
+				var prop = properties[k];
+				if (k.substr(0, 2) === "on" && typeof prop === "function") {
+					elem.addEventListener(k.substr(2), prop.bind(elem));
+				} else {
+					if (typeof prop === "function") {
+						prop = prop(elem, k);
+					}
+					elem.setAttribute(k, prop)
+				}
+			});
 		}
 		if (typeof children === "function") {
 			children = children(elem);
@@ -22,9 +32,9 @@ var createElements = function(namespace) {
 			}
 		} else if (children) {
 			if (children.hasOwnProperty("length")) {
-				children.forEach(c => {
+				children.forEach((c, n) => {
 					if (typeof c === "function") {
-						c = c(elem);
+						c = c(elem, n);
 					}
 					if (typeof c === "string") {
 						elem.appendChild(document.createTextNode(c));
