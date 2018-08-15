@@ -62,7 +62,7 @@ var createElements = function(namespace) {
 		}
 	};
     },
-    RPC = function(path) {
+    RPC = function(path, onopen) {
 	var request = function(callback, keep) {
 		this.callback = callback;
 		this.keep = keep;
@@ -81,7 +81,7 @@ var createElements = function(namespace) {
 			return;
 		}
 		if (!req.keep) {
-			delete request[data["id"]];
+			delete requests[data["id"]];
 		}
 		if (data["error"] !== undefined && data["error"] !== null) {
 			error(data["error"]);
@@ -105,6 +105,9 @@ var createElements = function(namespace) {
 			}
 		}
 	}
+	if (typeof onopen === "function") {
+		ws.onopen = onopen;
+	}
 	window.addEventListener("beforeunload", function() {
 		if (!closed) {
 			closed = true;
@@ -120,7 +123,7 @@ var createElements = function(namespace) {
 			"id": nextID,
 			"params": [params]
 		};
-		request[nextID] = new request(callback, keep);
+		requests[nextID] = new request(callback, keep);
 		nextID++;
 		ws.send(JSON.stringify(msg));
 	};
