@@ -30,7 +30,7 @@ func main() {
 	Auth.Handle("/maps", websocket.Handler(Maps.handleConn))
 	Auth.Handle("/files/", Trim("/files", http.FileServer(http.Dir("./files"))))
 	Auth.Handle("/assets/", Trim("/assets", http.FileServer(http.Dir("./assets"))))
-	Auth.Handle("/assets", websocket.Handler(Assets.handleConn))
+	Auth.Handle("/assets", http.HandlerFunc(Assets.serveHTTP))
 	Auth.Handle("/", httpgzip.FileServer(dir))
 	fmt.Println("Running...")
 	fmt.Println(http.Serve(l, &Auth))

@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"net/http"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"strings"
@@ -18,6 +19,8 @@ var Assets assets
 type assets struct {
 	quitMu sync.Mutex
 	quit   chan struct{}
+
+	socket websocket.Handler
 
 	server *rpc.Server
 
@@ -134,13 +137,23 @@ func (a *assets) init(database *sql.DB) error {
 
 	a.server = rpc.NewServer()
 	a.server.RegisterName("RPC", a)
+	a.socket = websocket.Handler(a.handleConn)
 	return nil
 }
 
-func (a *assets) handleConn(conn *websocket.Conn) {
-	if !Session.GetAdmin(conn.Request()) {
+func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	if !Session.GetAdmin(r) {
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
+	if r.Method == http.MethodGet {
+		a.socket.ServeHTTP(w, r)
+		return
+	}
+	// upload
+}
+
+func (a *assets) handleConn(conn *websocket.Conn) {
 	a.quitMu.Lock()
 	close(a.quit)
 	a.quit = make(chan struct{})
