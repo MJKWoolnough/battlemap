@@ -138,6 +138,7 @@ func (a *assets) init(database *sql.DB) error {
 	a.server = rpc.NewServer()
 	a.server.RegisterName("RPC", a)
 	a.socket = websocket.Handler(a.handleConn)
+	a.quit = make(chan struct{})
 	return nil
 }
 
@@ -146,7 +147,7 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	if r.Method == http.MethodGet {
+	if r.Method != http.MethodPost {
 		a.socket.ServeHTTP(w, r)
 		return
 	}
@@ -171,6 +172,7 @@ func (a *assets) handleConn(conn *websocket.Conn) {
 	close(done)
 }
 
-func (a *assets) Temp(i int64, j *int64) error {
+func (a *assets) ListAssets(_ struct{}, list *map[int]*Asset) error {
+	*list = a.Assets
 	return nil
 }
