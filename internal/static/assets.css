@@ -18,3 +18,11 @@ form {
 .button:active {
 	border-color: #000 #fff #fff #000;
 }
+
+input[type=checkbox], input[type=checkbox]:not(:checked) + ul {
+	display: none;
+}
+
+.tag label {
+	cursor: pointer;
+}

@@ -1,8 +1,93 @@
 "use strict";
 window.addEventListener("load", function() {
-	var tags = {}, assets = {}, tagsOrdered = [],
+	var tags = {}, assets = {}, neg = -1,
+	    writeAssetLine = function(asset) {
+		return createHTML(
+			"li",
+			{},
+			[
+				asset.Name,
+				createHTML(
+					"span",
+					{
+						"class": "rename",
+
+						"onclick": function() {
+							alert("RENAME")
+						}
+					},
+					"✍"
+				),
+				createHTML(
+					"span",
+					{
+						"class": "delete",
+
+						"onclick": function() {
+							alert("DELETE")
+						}
+					},
+					"⌫"
+				)
+			]
+		)
+	    },
+	    writeTags = function(prefix) {
+		return Object.values(tags).filter(t => t.Name.substr(0, prefix.length) === prefix && t.Name.substr(prefix.length).indexOf('/') < 0).sort((a, b) => a.Name < b.Name ? -1 : 1).map(t => createHTML(
+			"li",
+			{
+				"class": "tag",
+			},
+			[
+				createHTML(
+					"label",
+					{
+						"for": "tag_" + t.Name
+					},
+					t.Name.substr(prefix.length),
+				)
+			].concat(
+				t.ID < 0 ? [] : [
+					createHTML(
+						"span",
+						{
+							"class": "rename",
+
+							"onclick": function() {
+								alert("RENAME")
+							}
+						},
+						"✍"
+					),
+					createHTML(
+						"span",
+						{
+							"class": "delete",
+
+							"onclick": function() {
+								alert("DELETE")
+							}
+						},
+						"⌫"
+					)
+				]
+			).concat([
+				createHTML(
+					"input",
+					{
+						"type": "checkbox",
+						"id": "tag_" + t.Name
+					},
+				),
+				createHTML(
+					"ul",
+					{},
+					writeTags(t.Name+"/").concat(t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(a)))
+				)
+			])
+		));
+	    },
 	    buildList = function() {
-		tagsOrdered = Object.values(tags).sort((a, b) => a.Name < b.Name ? -1 : 1);
 		clearElement(document.body);
 		[
 			createHTML(
@@ -14,9 +99,10 @@ window.addEventListener("load", function() {
 						var tag = prompt("Tag Name?", "");
 						if (tag !== null && tag !== "") {
 							var lTag = tag.toLowerCase();
-							if (tagsOrdered.filter(t => t.Name.toLowerCase() === tag).length == 0) {
+							if (Object.values(tags).filter(t => t.Name.toLowerCase() === lTag && t.ID >= 0).length == 0) {
 								rpc.request("AddTag", tag, function(tag) {
 									tags[tag.ID] = tag;
+									createPsuedoTags();
 									buildList();
 								});
 							} else {
@@ -30,7 +116,7 @@ window.addEventListener("load", function() {
 			createHTML(
 				"form",
 				{
-					"action": "?",
+					"action": "/assets",
 					"enctype": "multipart/form-data",
 					"method": "post",
 				},
@@ -62,19 +148,40 @@ window.addEventListener("load", function() {
 			createHTML(
 				"ul", 
 				{},
-				tagsOrdered.map(t => createHTML("li", {}, t.Name))
+				writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => assets[a].Uploaded > assets[b].Uploaded ? -1 : assets[a].Uploaded === assets[b].Uploaded ? 0 : 1).map(a => writeAssetLine(a))),
 			)
 		].forEach(e => document.body.appendChild(e));
+	    },
+	    createPsuedoTags = function() {
+		Object.values(tags).filter(t => t.ID < 0).forEach(t => delete tags[t.ID]);
+		Object.values(tags).forEach(t => {
+			var tName = t.Name, i;
+			while ((i = tName.lastIndexOf('/')) >= 0) {
+				tName = tName.substr(0, i);
+				var lName = tName.toLowerCase();
+				if (Object.values(tags).filter(t => t.Name.toLowerCase() === lName).length === 0) {
+					tags[neg] = {
+						"ID": neg,
+						"Name": tName,
+						"Assets": [],
+					}
+					neg--;
+				} else {
+					return;
+				}
+			}
+		})
 	    },
 	    rpc = new RPC("/assets", function() {
 		var wg = new waitGroup(buildList);
 		wg.add(2);
 		rpc.request("ListTags", null, function(data) {
 			tags = data;
+			createPsuedoTags();
 			wg.done();
 		});
 		rpc.request("ListAssets", null, function(data) {
-			tags = data;
+			assets = data;
 			wg.done();
 		});
 	});
