@@ -83,7 +83,9 @@ func (a *assets) init(database *sql.DB) error {
 	}
 	a.Assets = make(map[int]*Asset)
 	for rows.Next() {
-		as := new(Asset)
+		as := &Asset{
+			Tags: make([]int, 0, 0),
+		}
 		var uploaded int64
 		if err = rows.Scan(&as.ID, &as.Name, &as.Type, &uploaded); err != nil {
 			return errors.WithContext("error getting Asset data: ", err)
@@ -101,7 +103,9 @@ func (a *assets) init(database *sql.DB) error {
 	a.Tags = make(map[int]*Tag)
 	a.TagList = make(map[string]*Tag)
 	for rows.Next() {
-		tag := new(Tag)
+		tag := &Tag{
+			Assets: make([]int, 0, 0),
+		}
 		if err = rows.Scan(&tag.ID, &tag.Name); err != nil {
 			return errors.WithContext("error getting Tag data: ", err)
 		}
@@ -176,3 +180,32 @@ func (a *assets) ListAssets(_ struct{}, list *map[int]*Asset) error {
 	*list = a.Assets
 	return nil
 }
+
+func (a *assets) ListTags(_ struct{}, list *map[int]*Tag) error {
+	*list = a.Tags
+	return nil
+}
+
+func (a *assets) AddTag(tagName string, tag *Tag) error {
+	if _, ok := a.TagList[strings.ToLower(tagName)]; ok {
+		return ErrTagExists
+	}
+	if res, err := a.addTag.Exec(tagName); err != nil {
+		return errors.WithContext("error adding tag to database: ", err)
+	} else if id, err := res.LastInsertId(); err != nil {
+		return errors.WithContext("error getting tag ID: ", err)
+	} else {
+		*tag = Tag{
+			ID:     int(id),
+			Name:   tagName,
+			Assets: make([]int, 0, 0),
+		}
+		a.TagList[tagName] = tag
+		a.Tags[int(id)] = tag
+	}
+	return nil
+}
+
+const (
+	ErrTagExists errors.Error = "tag exists"
+)
