@@ -1,6 +1,6 @@
 "use strict";
 window.addEventListener("load", function() {
-	var tags = {}, assets = {}, neg = -1,
+	var tags = {}, tagList = {}, assets = {},
 	    writeAssetLine = function(asset) {
 		return createHTML(
 			"li",
@@ -99,9 +99,10 @@ window.addEventListener("load", function() {
 						var tag = prompt("Tag Name?", "");
 						if (tag !== null && tag !== "") {
 							var lTag = tag.toLowerCase();
-							if (Object.values(tags).filter(t => t.Name.toLowerCase() === lTag && t.ID >= 0).length == 0) {
+							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
 								rpc.request("AddTag", tag, function(tag) {
 									tags[tag.ID] = tag;
+									tags[tag.Name.toLowerCase()] = tag.ID;
 									createPsuedoTags();
 									buildList();
 								});
@@ -153,21 +154,23 @@ window.addEventListener("load", function() {
 		].forEach(e => document.body.appendChild(e));
 	    },
 	    createPsuedoTags = function() {
+		var neg = -1;
 		Object.values(tags).filter(t => t.ID < 0).forEach(t => delete tags[t.ID]);
 		Object.values(tags).forEach(t => {
 			var tName = t.Name, i;
 			while ((i = tName.lastIndexOf('/')) >= 0) {
 				tName = tName.substr(0, i);
 				var lName = tName.toLowerCase();
-				if (Object.values(tags).filter(t => t.Name.toLowerCase() === lName).length === 0) {
+				if (!tagList.hasOwnProperty(lName)) {
 					tags[neg] = {
 						"ID": neg,
 						"Name": tName,
 						"Assets": [],
 					}
+					tagList[lName] = neg;
 					neg--;
 				} else {
-					return;
+					break;
 				}
 			}
 		})
@@ -177,6 +180,7 @@ window.addEventListener("load", function() {
 		wg.add(2);
 		rpc.request("ListTags", null, function(data) {
 			tags = data;
+			Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
 			createPsuedoTags();
 			wg.done();
 		});
