@@ -26,6 +26,7 @@ func main() {
 
 	l, err := net.Listen("tcp", ":8080")
 	e(err)
+	Assets.dir = "./assets"
 
 	Auth.Handle("/maps", websocket.Handler(Maps.handleConn))
 	Auth.Handle("/files/", Trim("/files", http.FileServer(http.Dir("./files"))))
