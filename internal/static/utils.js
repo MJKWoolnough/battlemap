@@ -50,6 +50,11 @@ var createElements = function(namespace) {
 	};
     },
     createHTML = createElements(document.getElementsByTagName("html")[0].namespaceURI),
+    clearElement = function(elem) {
+	while (elem.hasChildNodes()) {
+		elem.removeChild(elem.lastChild);
+	}
+    },
     waitGroup = function(callback) {
 	var state = 0;
 	this.add = function(amount) {
