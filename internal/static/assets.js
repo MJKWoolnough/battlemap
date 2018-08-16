@@ -91,7 +91,7 @@ window.addEventListener("load", function() {
 		clearElement(document.body);
 		[
 			createHTML(
-				"button",
+				"label",
 				{
 					"class": "button",
 
