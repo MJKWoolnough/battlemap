@@ -111,7 +111,7 @@ var createElements = function(namespace) {
 		}
 	}
 	if (typeof onopen === "function") {
-		ws.onopen = onopen;
+		ws.onopen = onopen.bind(null, this);
 	}
 	window.addEventListener("beforeunload", function() {
 		if (!closed) {
