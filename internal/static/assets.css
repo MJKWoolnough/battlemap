@@ -1,0 +1,20 @@
+form {
+	display: inline;
+}
+
+.button {
+	background-color: #ccc;
+	border-color: #fff #000 #000 #fff;
+	border-width: 2px;
+	border-style: solid;
+	font-family: sans;
+	font-size: 20px;
+	padding: 0 5px;
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
+.button:active {
+	border-color: #000 #fff #fff #000;
+}
