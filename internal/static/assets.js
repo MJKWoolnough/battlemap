@@ -184,13 +184,7 @@ window.addEventListener("load", function() {
 				"ul", 
 				{},
 				writeTags("").concat(
-					Object.values(assets).filter(a => a.Tags.length === 0).sort(
-						(a, b) => a.Uploaded > b.Uploaded ? -1 : (
-							a.Uploaded === b.Uploaded ? (
-								a.ID < b.ID ? -1 : 0
-							) : 1
-						)
-					).map(a => writeAssetLine(a))),
+					Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a))),
 			),
 			overlay
 		].forEach(e => document.body.appendChild(e));
