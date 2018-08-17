@@ -1,6 +1,7 @@
 "use strict";
 window.addEventListener("load", function() {
 	var tags = {}, tagList = {}, assets = {},
+	    overlay = createHTML("div", {"id": "overlay"}),
 	    writeAssetLine = function(asset) {
 		return createHTML(
 			"li",
@@ -117,7 +118,6 @@ window.addEventListener("load", function() {
 			createHTML(
 				"form",
 				{
-					"action": "/assets",
 					"enctype": "multipart/form-data",
 					"method": "post",
 				},
@@ -133,15 +133,49 @@ window.addEventListener("load", function() {
 					createHTML(
 						"input",
 						{
+							"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript",
 							"id": "asset",
 							"multiple": "multiple",
 							"name": "asset",
 							"style": "display: none",
 							"type": "file",
 
-							"onchange": function(e) {
-								this.parentNode.submit();
-							}
+							"onchange": (function() {
+								var bar = createHTML("progress", {"style": "width: 100%"}),
+								    progress = createHTML(
+									"div",
+									{},
+									[
+										createHTML("h1", {}, "Uploading File(s)"),
+										bar,
+									]
+								    );
+								return function(e) {
+									bar.setAttribute("value", 0);
+									bar.setAttribute("max", 0);
+									clearElement(overlay);
+									overlay.appendChild(progress);
+									var xh = new XMLHttpRequest();
+									xh.upload.addEventListener("progress", function(e) {
+										bar.setAttribute("value", e.loaded);
+										bar.setAttribute("max", e.total);
+										bar.innerText = Math.floor(e.loaded*100/e.total) + "%";
+									});
+									xh.addEventListener("readystatechange", function() {
+										if(xh.readyState === 4) {
+											if (xh.status === 200) {
+												JSON.parse(xh.responseText).forEach(a => assets[a.ID] = a);
+												clearElement(overlay);
+												buildList();
+											} else {
+												progress.firstChild.innerText = "Upload Failed!"
+											}
+										}
+									});
+									xh.open("POST", "/assets");
+									xh.send(new FormData(this.parentNode));
+								};
+							}())
 						}
 					)
 				]
@@ -149,8 +183,16 @@ window.addEventListener("load", function() {
 			createHTML(
 				"ul", 
 				{},
-				writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => assets[a].Uploaded > assets[b].Uploaded ? -1 : assets[a].Uploaded === assets[b].Uploaded ? 0 : 1).map(a => writeAssetLine(a))),
-			)
+				writeTags("").concat(
+					Object.values(assets).filter(a => a.Tags.length === 0).sort(
+						(a, b) => a.Uploaded > b.Uploaded ? -1 : (
+							a.Uploaded === b.Uploaded ? (
+								a.ID < b.ID ? -1 : 0
+							) : 1
+						)
+					).map(a => writeAssetLine(a))),
+			),
+			overlay
 		].forEach(e => document.body.appendChild(e));
 	    },
 	    createPsuedoTags = function() {
