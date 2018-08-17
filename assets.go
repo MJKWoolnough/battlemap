@@ -6,28 +6,17 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/rpc"
-	"net/rpc/jsonrpc"
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 )
 
 var Assets assets
 
 type assets struct {
-	quitMu sync.Mutex
-	quit   chan struct{}
-
-	socket websocket.Handler
-
-	server *rpc.Server
-
 	Tags       map[int]*Tag
 	Assets     map[int]*Asset
 	TagList    map[string]*Tag
@@ -148,23 +137,10 @@ func (a *assets) init(database *sql.DB) error {
 	if err = rows.Close(); err != nil {
 		return errors.WithContext("error closing AssetTag data: ", err)
 	}
-
-	a.server = rpc.NewServer()
-	a.server.RegisterName("RPC", a)
-	a.socket = websocket.Handler(a.handleConn)
-	a.quit = make(chan struct{})
 	return nil
 }
 
-func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
-	if !Session.GetAdmin(r) {
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-	if r.Method != http.MethodPost {
-		a.socket.ServeHTTP(w, r)
-		return
-	}
+func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 	m, err := r.MultipartReader()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -278,24 +254,6 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (a *assets) generateThumbnail(asset *Asset) {
 
-}
-
-func (a *assets) handleConn(conn *websocket.Conn) {
-	a.quitMu.Lock()
-	close(a.quit)
-	a.quit = make(chan struct{})
-	myQuit := a.quit
-	done := make(chan struct{})
-	a.quitMu.Unlock()
-	go func() {
-		select {
-		case <-myQuit:
-			conn.WriteClose(4000)
-		case <-done:
-		}
-	}()
-	a.server.ServeCodec(jsonrpc.NewServerCodec(conn))
-	close(done)
 }
 
 func (a *assets) ListAssets(_ struct{}, list *map[int]*Asset) error {

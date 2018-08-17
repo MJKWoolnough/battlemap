@@ -101,7 +101,7 @@ window.addEventListener("load", function() {
 						if (tag !== null && tag !== "") {
 							var lTag = tag.toLowerCase();
 							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
-								rpc.request("AddTag", tag, function(tag) {
+								rpc.request("Assets.AddTag", tag, function(tag) {
 									tags[tag.ID] = tag;
 									tags[tag.Name.toLowerCase()] = tag.ID;
 									createPsuedoTags();
@@ -172,7 +172,7 @@ window.addEventListener("load", function() {
 											}
 										}
 									});
-									xh.open("POST", "/assets");
+									xh.open("POST", "/socket");
 									xh.send(new FormData(this.parentNode));
 								};
 							}())
@@ -217,16 +217,16 @@ window.addEventListener("load", function() {
 			}
 		})
 	    },
-	    rpc = new RPC("/assets", function() {
+	    rpc = new RPC("/socket", function() {
 		var wg = new waitGroup(buildList);
 		wg.add(2);
-		rpc.request("ListTags", null, function(data) {
+		rpc.request("Assets.ListTags", null, function(data) {
 			tags = data;
 			Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
 			createPsuedoTags();
 			wg.done();
 		});
-		rpc.request("ListAssets", null, function(data) {
+		rpc.request("Assets.ListAssets", null, function(data) {
 			assets = data;
 			wg.done();
 		});

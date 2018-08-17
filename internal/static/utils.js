@@ -124,7 +124,7 @@ var createElements = function(namespace) {
 	};
 	this.request = function(method, params, callback, keep) {
 		var msg = {
-			"method": "RPC." + method,
+			"method": method,
 			"id": nextID,
 			"params": [params]
 		};
@@ -134,7 +134,7 @@ var createElements = function(namespace) {
 	};
 	this.await = function(id, callback, keep) {
 		requests[id] = new request(callback, keep);
-		if (id > nextID) {
+		if (id >= nextID) {
 			nextID = id + 1;
 		}
 	};

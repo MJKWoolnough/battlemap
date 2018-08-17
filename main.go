@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
 )
@@ -27,11 +26,11 @@ func main() {
 	l, err := net.Listen("tcp", ":8080")
 	e(err)
 	Assets.dir = "./assets"
+	e(Socket.init())
 
-	Auth.Handle("/maps", websocket.Handler(Maps.handleConn))
+	Auth.Handle("/socket", &Socket)
 	Auth.Handle("/files/", Trim("/files", http.FileServer(http.Dir("./files"))))
 	Auth.Handle("/assets/", Trim("/assets", http.FileServer(http.Dir("./assets"))))
-	Auth.Handle("/assets", http.HandlerFunc(Assets.serveHTTP))
 	Auth.Handle("/", httpgzip.FileServer(dir))
 	fmt.Println("Running...")
 	fmt.Println(http.Serve(l, &Auth))

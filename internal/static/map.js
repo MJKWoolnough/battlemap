@@ -1,7 +1,7 @@
 "use strict";
 window.addEventListener("load", function() {
-	var rpc = new RPC("/maps");
-	rpc.await(0, function(admin) {
+	var rpc = new RPC("/socket");
+	rpc.await(-1, function(admin) {
 		document.head.appendChild(createHTML(
 			"script",
 			{
