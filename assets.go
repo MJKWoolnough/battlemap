@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -100,7 +101,7 @@ func (a *assets) init(database *sql.DB) error {
 		}
 		as.Uploaded = time.Unix(uploaded, 0)
 		a.Assets[as.ID] = as
-		a.AssetsList[as.Name] = as
+		a.AssetsList[strings.ToLower(as.Name)] = as
 	}
 	if err = rows.Close(); err != nil {
 		return errors.WithContext("error closing Asset data: ", err)
@@ -173,6 +174,7 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 	buf := make([]byte, 512)
 	now := time.Now()
 	nowU := now.Unix()
+	as := make([]*Asset, 0, 32)
 	for {
 		p, err := m.NextPart()
 		if err != nil {
@@ -197,7 +199,6 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
-		fmt.Println(name)
 		n, err := io.ReadFull(p, buf)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -247,16 +248,18 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 							if err = f.Close(); err == nil {
 								asset := &Asset{
 									ID:       int(id),
+									Ext:      ext,
 									Name:     name,
 									Tags:     make([]int, 0, 0),
 									Type:     ctype,
 									Uploaded: now,
 								}
 								a.Assets[int(id)] = asset
+								a.AssetsList[strings.ToLower(name)] = asset
+								as = append(as, asset)
 								if ctype == "image" {
 									//go a.generateThumbnail(asset)
 								}
-								fmt.Println(asset)
 								continue
 							}
 						}
@@ -269,7 +272,8 @@ func (a *assets) serveHTTP(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	http.Redirect(w, r, "/assets.html", http.StatusSeeOther)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(as)
 }
 
 func (a *assets) generateThumbnail(asset *Asset) {
