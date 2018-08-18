@@ -330,12 +330,7 @@ func (a *assets) RemoveTag(id int, _ *struct{}) error {
 		if !ok {
 			continue
 		}
-		for n, at := range asset.Tags {
-			if at == id {
-				asset.Tags = append(asset.Tags[:n], asset.Tags[n+1:]...)
-				break
-			}
-		}
+		asset.Tags = removeID(asset.Tags, id)
 	}
 	delete(a.Tags, id)
 	delete(a.TagList, strings.ToLower(t.Name))
@@ -386,18 +381,89 @@ func (a *assets) RemoveAsset(id int, _ *struct{}) error {
 		if !ok {
 			continue
 		}
-		for n, asset := range tag.Assets {
-			if asset == id {
-				tag.Assets = append(tag.Assets[:n], tag.Assets[n+1:]...)
-				break
-			}
-		}
+		tag.Assets = removeID(tag.Assets, id)
 	}
 	delete(a.Assets, id)
 	delete(a.AssetsList, strings.ToLower(u.Name))
 	os.Remove(filepath.Join(a.dir, fmt.Sprintf("%d.%s", u.ID, u.Ext)))
-	//os.Remove(filepath.Join(a.dir, "thumbnails", fmt.Sprintf("%d.png", u.ID)))
+	if u.Type == "image" {
+		//os.Remove(filepath.Join(a.dir, "thumbnails", fmt.Sprintf("%d.png", u.ID)))
+	}
 	return nil
+}
+
+type AssetTag struct {
+	AssetID, TagID int
+}
+
+func (a *assets) AddAssetTag(at AssetTag, _ *struct{}) error {
+	tag, ok := a.Tags[at.TagID]
+	if !ok {
+		return ErrTagNotExist
+	}
+	asset, ok := a.Assets[at.AssetID]
+	if !ok {
+		return ErrAssetNotExist
+	}
+	hasTag := false
+	for _, t := range asset.Tags {
+		if t == at.TagID {
+			hasTag = true
+			break
+		}
+	}
+	if hasTag {
+		return ErrTagExists
+	}
+
+	_, err := a.addAssetTag.Exec(at.AssetID, at.TagID)
+	if err != nil {
+		return errors.WithContext("error adding asset tag: ", err)
+	}
+
+	asset.Tags = append(asset.Tags, at.TagID)
+	tag.Assets = append(tag.Assets, at.AssetID)
+
+	return nil
+}
+
+func (a *assets) RemoveAssetTag(at AssetTag, _ *struct{}) error {
+	tag, ok := a.Tags[at.TagID]
+	if !ok {
+		return ErrTagNotExist
+	}
+	asset, ok := a.Assets[at.AssetID]
+	if !ok {
+		return ErrAssetNotExist
+	}
+	hasTag := false
+	for _, t := range asset.Tags {
+		if t == at.TagID {
+			hasTag = true
+			break
+		}
+	}
+	if !hasTag {
+		return ErrTagNotExist
+	}
+
+	_, err := a.removeAssetTag.Exec(at.AssetID, at.TagID)
+	if err != nil {
+		return errors.WithContext("error removing asset tag: ", err)
+	}
+
+	tag.Assets = removeID(tag.Assets, at.AssetID)
+	asset.Tags = removeID(asset.Tags, at.TagID)
+	return nil
+}
+
+func removeID(data []int, id int) []int {
+	for n, d := range data {
+		if d == id {
+			return append(data[:n], data[n+1:]...)
+		}
+	}
+	return data
 }
 
 const (

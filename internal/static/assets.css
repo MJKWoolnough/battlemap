@@ -41,8 +41,21 @@ input[type=checkbox], input[type=checkbox]:not(:checked) + ul {
 }
 
 #overlay > div {
+	position: relative;
 	background-color: #fff;
 	margin-left: auto;
 	margin-right: auto;
-	width: 50%;
+	min-width: 50%;
+}
+
+.closer {
+	cursor: pointer;
+	font-family: sans;
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+
+.closer:hover {
+	color: #f00;
 }
