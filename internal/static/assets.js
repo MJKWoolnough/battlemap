@@ -1,51 +1,46 @@
 "use strict";
 window.addEventListener("load", function() {
-	var tags = {}, tagList = {}, assets = {},
+	let tags = {}, tagList = {}, assets = {},
 	    overlay = createHTML("div", {"id": "overlay"}),
 	    writeAssetLine = function(asset) {
-		return createHTML(
-			"li",
-			{},
-			[
-				createHTML("span", {}, asset.Name),
-				createHTML(
-					"span",
-					{
-						"class": "rename",
+		return createHTML("li",	{}, [
+			createHTML("span", {}, asset.Name),
+			createHTML(
+				"span",
+				{
+					"class": "rename",
 
-						"onclick": function() {
-							var name = prompt("New Name?", asset.Name),
-							    self = this;
-							if (name === null || name === "" || name === asset.Name) {
-								return;
-							}
-							asset.Name = name;
-							rpc.request("Assets.RenameAsset", asset, function(n) {
-								asset.Name = n;
-								self.previousSibling.innerText = n;
-							});
+					"onclick": function() {
+						const name = prompt("New Name?", asset.Name);
+						if (name === null || name === "" || name === asset.Name) {
+							return;
 						}
-					},
-					"✍"
-				),
-				createHTML(
-					"span",
-					{
-						"class": "delete",
+						asset.Name = name;
+						rpc.request("Assets.RenameAsset", asset, n => {
+							asset.Name = n;
+							this.previousSibling.innerText = n;
+						});
+					}
+				},
+				"✍"
+			),
+			createHTML(
+				"span",
+				{
+					"class": "delete",
 
-						"onclick": function() {
-							if (confirm("Sure you want to delete?")) {
-								rpc.request("Assets.RemoveAsset", asset.ID);
-								delete assets[asset.ID];
-								Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
-								this.parentNode.parentNode.removeChild(this.parentNode);
-							}
+					"onclick": function() {
+						if (confirm("Sure you want to delete?")) {
+							rpc.request("Assets.RemoveAsset", asset.ID);
+							delete assets[asset.ID];
+							Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
+							this.parentNode.parentNode.removeChild(this.parentNode);
 						}
-					},
-					"⌫"
-				)
-			]
-		)
+					}
+				},
+				"⌫"
+			)
+		])
 	    },
 	    writeTags = function(prefix) {
 		return Object.values(tags).filter(t => t.Name.substr(0, prefix.length) === prefix && t.Name.substr(prefix.length).indexOf('/') < 0).sort((a, b) => a.Name < b.Name ? -1 : 1).map(t => createHTML(
@@ -54,13 +49,7 @@ window.addEventListener("load", function() {
 				"class": "tag",
 			},
 			[
-				createHTML(
-					"label",
-					{
-						"for": "tag_" + t.Name
-					},
-					t.Name.substr(prefix.length),
-				)
+				createHTML("label", {"for": "tag_" + t.Name}, t.Name.substr(prefix.length))
 			].concat(
 				t.ID < 0 ? [] : [
 					createHTML(
@@ -69,7 +58,7 @@ window.addEventListener("load", function() {
 							"class": "rename",
 
 							"onclick": function() {
-								var name = prompt("New Name?", t.Name);
+								const name = prompt("New Name?", t.Name);
 								if (name === null || name === "" || name === t.Name) {
 									return;
 								}
@@ -103,18 +92,8 @@ window.addEventListener("load", function() {
 					)
 				]
 			).concat([
-				createHTML(
-					"input",
-					{
-						"type": "checkbox",
-						"id": "tag_" + t.Name
-					},
-				),
-				createHTML(
-					"ul",
-					{},
-					writeTags(t.Name+"/").concat(t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(a)))
-				)
+				createHTML("input", {"type": "checkbox", "id": "tag_" + t.Name}),
+				createHTML("ul", {}, writeTags(t.Name+"/").concat(t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(assets[a]))))
 			])
 		));
 	    },
@@ -127,13 +106,13 @@ window.addEventListener("load", function() {
 					"class": "button",
 
 					"onclick": function() {
-						var tag = prompt("Tag Name?", "");
+						const tag = prompt("Tag Name?", "");
 						if (tag !== null && tag !== "") {
-							var lTag = tag.toLowerCase();
+							const lTag = tag.toLowerCase();
 							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
 								rpc.request("Assets.AddTag", tag, function(tag) {
 									tags[tag.ID] = tag;
-									var lName = tag.Name.toLowerCase();
+									const lName = tag.Name.toLowerCase();
 									if (tagList.hasOwnProperty(lName)) {
 										delete tags[tagList[lName]];
 									}
@@ -175,7 +154,7 @@ window.addEventListener("load", function() {
 							"type": "file",
 
 							"onchange": (function() {
-								var bar = createHTML("progress", {"style": "width: 100%"}),
+								const bar = createHTML("progress", {"style": "width: 100%"}),
 								    progress = createHTML(
 									"div",
 									{},
@@ -189,7 +168,7 @@ window.addEventListener("load", function() {
 									bar.setAttribute("max", 0);
 									clearElement(overlay);
 									overlay.appendChild(progress);
-									var xh = new XMLHttpRequest();
+									const xh = new XMLHttpRequest();
 									xh.upload.addEventListener("progress", function(e) {
 										bar.setAttribute("value", e.loaded);
 										bar.setAttribute("max", e.total);
@@ -214,23 +193,18 @@ window.addEventListener("load", function() {
 					)
 				]
 			),
-			createHTML(
-				"ul", 
-				{},
-				writeTags("").concat(
-					Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a))),
-			),
+			createHTML("ul", {}, writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a)))),
 			overlay
 		].forEach(e => document.body.appendChild(e));
 	    },
 	    createPsuedoTags = function() {
-		var neg = -1;
+		let neg = -1;
 		Object.values(tags).filter(t => t.ID < 0).forEach(t => {delete tags[t.ID]; delete tagList[t.Name.toLowerCase()]});
 		Object.values(tags).forEach(t => {
-			var tName = t.Name, i;
+			let tName = t.Name, i;
 			while ((i = tName.lastIndexOf('/')) >= 0) {
 				tName = tName.substr(0, i);
-				var lName = tName.toLowerCase();
+				const lName = tName.toLowerCase();
 				if (!tagList.hasOwnProperty(lName)) {
 					tags[neg] = {
 						"ID": neg,
@@ -246,7 +220,7 @@ window.addEventListener("load", function() {
 		})
 	    },
 	    rpc = new RPC("/socket", function() {
-		var wg = new waitGroup(buildList);
+		const wg = new waitGroup(buildList);
 		wg.add(2);
 		rpc.request("Assets.ListTags", null, function(data) {
 			tags = data;

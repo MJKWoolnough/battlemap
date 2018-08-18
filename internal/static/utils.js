@@ -1,11 +1,11 @@
 "use strict";
-var createElements = function(namespace) {
-	var createElement = document.createElementNS.bind(document, namespace);
+const createElements = function(namespace) {
+	const createElement = document.createElementNS.bind(document, namespace);
 	return function(element, properties, children, pre) {
-		var elem = createElement(element);
+		const elem = createElement(element);
 		if (typeof properties === "object") {
 			Object.keys(properties).forEach(k => {
-				var prop = properties[k];
+				let prop = properties[k];
 				if (k.substr(0, 2) === "on" && typeof prop === "function") {
 					elem.addEventListener(k.substr(2), prop.bind(elem));
 				} else {
@@ -56,7 +56,7 @@ var createElements = function(namespace) {
 	}
     },
     waitGroup = function(callback) {
-	var state = 0;
+	let state = 0;
 	this.add = function(amount) {
 		state += amount || 1;
 	};
@@ -68,19 +68,17 @@ var createElements = function(namespace) {
 	};
     },
     RPC = function(path, onopen) {
-	var request = function(callback, keep) {
+	const request = function(callback, keep) {
 		this.callback = callback;
 		this.keep = keep;
 	    },
 	    requests = [],
-	    ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path),
-	    nextID = 0,
-	    sendRequest = function(method, params, request) {
-	    },
+	    ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
+	let nextID = 0,
 	    error = alert,
 	    closed = false;
 	ws.addEventListener("message", function(event) {
-		var data = JSON.parse(event.data),
+		const data = JSON.parse(event.data),
 		    req = requests[data["id"]];
 		if (typeof req === "undefined") {
 			return;
@@ -123,7 +121,7 @@ var createElements = function(namespace) {
 		error = callback;
 	};
 	this.request = function(method, params, callback, keep) {
-		var msg = {
+		const msg = {
 			"method": method,
 			"id": nextID,
 			"params": [params]

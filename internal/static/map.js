@@ -1,6 +1,6 @@
 "use strict";
 window.addEventListener("load", function() {
-	var rpc = new RPC("/socket");
+	const rpc = new RPC("/socket");
 	rpc.await(-1, function(admin) {
 		document.head.appendChild(createHTML(
 			"script",
