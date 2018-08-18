@@ -14,7 +14,7 @@ window.addEventListener("load", function() {
 						"class": "rename",
 
 						"onclick": function() {
-							var name = prompt("New Name?", ""),
+							var name = prompt("New Name?", asset.Name),
 							    self = this;
 							if (name === null || name === "" || name === asset.Name) {
 								return;
@@ -69,7 +69,7 @@ window.addEventListener("load", function() {
 							"class": "rename",
 
 							"onclick": function() {
-								var name = prompt("New Name?", "");
+								var name = prompt("New Name?", t.Name);
 								if (name === null || name === "" || name === t.Name) {
 									return;
 								}
