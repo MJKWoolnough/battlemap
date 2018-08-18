@@ -7,14 +7,23 @@ window.addEventListener("load", function() {
 			"li",
 			{},
 			[
-				asset.Name,
+				createHTML("span", {}, asset.Name),
 				createHTML(
 					"span",
 					{
 						"class": "rename",
 
 						"onclick": function() {
-							alert("RENAME")
+							var name = prompt("New Name?", ""),
+							    self = this;
+							if (name === null || name === "" || name === asset.Name) {
+								return;
+							}
+							asset.Name = name;
+							rpc.request("Assets.RenameAsset", asset, function(n) {
+								asset.Name = n;
+								self.previousSibling.innerText = n;
+							});
 						}
 					},
 					"✍"
@@ -25,7 +34,12 @@ window.addEventListener("load", function() {
 						"class": "delete",
 
 						"onclick": function() {
-							alert("DELETE")
+							if (confirm("Sure you want to delete?")) {
+								rpc.request("Assets.RemoveAsset", asset.ID);
+								delete assets[asset.ID];
+								Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
+								this.parentNode.parentNode.removeChild(this.parentNode);
+							}
 						}
 					},
 					"⌫"
@@ -62,6 +76,7 @@ window.addEventListener("load", function() {
 								t.Name = name;
 								rpc.request("Assets.RenameTag", t, function(n) {
 									t.Name = n;
+									createPsuedoTags();
 									buildList();
 								});
 							}
@@ -78,7 +93,7 @@ window.addEventListener("load", function() {
 									rpc.request("Assets.RemoveTag", t.ID);
 									delete tags[t.ID];
 									delete tagList[t.Name.toLowerCase()];
-									Object.values(assets).forEach(a => a.Tags = a.Tags.filter(u => u.ID !== t.ID));
+									Object.values(assets).forEach(a => a.Tags = a.Tags.filter(u => u !== t.ID));
 									createPsuedoTags();
 									buildList();
 								}

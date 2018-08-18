@@ -293,10 +293,10 @@ func (a *assets) RenameTag(t *Tag, newName *string) error {
 	}
 	if u.Name != t.Name {
 		if !strings.EqualFold(u.Name, t.Name) {
-			if _, ok = a.AssetsList[strings.ToLower(t.Name)]; ok {
+			if _, ok = a.TagList[strings.ToLower(t.Name)]; ok {
 				for i := 1; ; i++ {
 					tName := fmt.Sprintf("%s-%d", t.Name, i)
-					if _, ok = a.AssetsList[strings.ToLower(tName)]; !ok {
+					if _, ok = a.TagList[strings.ToLower(tName)]; !ok {
 						t.Name = tName
 						break
 					}
@@ -342,7 +342,66 @@ func (a *assets) RemoveTag(id int, _ *struct{}) error {
 	return nil
 }
 
+func (a *assets) RenameAsset(asset *Asset, newName *string) error {
+	u, ok := a.Assets[asset.ID]
+	if !ok {
+		return ErrTagNotExist
+	}
+	if u.Name != asset.Name {
+		if !strings.EqualFold(u.Name, asset.Name) {
+			if _, ok = a.AssetsList[strings.ToLower(asset.Name)]; ok {
+				for i := 1; ; i++ {
+					tName := fmt.Sprintf("%s-%d", asset.Name, i)
+					if _, ok = a.AssetsList[strings.ToLower(tName)]; !ok {
+						asset.Name = tName
+						break
+					}
+				}
+			}
+		}
+		_, err := a.renameAsset.Exec(asset.Name, asset.ID)
+		if err != nil {
+			return errors.WithContext("error renaming asset: ", err)
+		}
+	}
+	u.Name = asset.Name
+	*newName = u.Name
+	return nil
+}
+
+func (a *assets) RemoveAsset(id int, _ *struct{}) error {
+	u, ok := a.Assets[id]
+	if !ok {
+		return ErrAssetNotExist
+	}
+	_, err := a.removeAssetFromAssetTags.Exec(id)
+	if err == nil {
+		_, err = a.removeAsset.Exec(id)
+	}
+	if err != nil {
+		return errors.WithContext("error removing asset: ", err)
+	}
+	for _, tid := range u.Tags {
+		tag, ok := a.Tags[tid]
+		if !ok {
+			continue
+		}
+		for n, asset := range tag.Assets {
+			if asset == id {
+				tag.Assets = append(tag.Assets[:n], tag.Assets[n+1:]...)
+				break
+			}
+		}
+	}
+	delete(a.Assets, id)
+	delete(a.AssetsList, strings.ToLower(u.Name))
+	os.Remove(filepath.Join(a.dir, fmt.Sprintf("%d.%s", u.ID, u.Ext)))
+	//os.Remove(filepath.Join(a.dir, "thumbnails", fmt.Sprintf("%d.png", u.ID)))
+	return nil
+}
+
 const (
-	ErrTagExists   errors.Error = "tag exists"
-	ErrTagNotExist errors.Error = "tag doesn't exist"
+	ErrTagExists     errors.Error = "tag exists"
+	ErrTagNotExist   errors.Error = "tag doesn't exist"
+	ErrAssetNotExist errors.Error = "asset doesn't exist"
 )
