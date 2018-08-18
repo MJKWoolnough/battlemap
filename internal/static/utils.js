@@ -79,7 +79,7 @@ var createElements = function(namespace) {
 	    },
 	    error = alert,
 	    closed = false;
-	ws.onmessage = function(event) {
+	ws.addEventListener("message", function(event) {
 		var data = JSON.parse(event.data),
 		    req = requests[data["id"]];
 		if (typeof req === "undefined") {
@@ -95,11 +95,11 @@ var createElements = function(namespace) {
 		if (req.callback) {
 			req.callback(data["result"]);
 		}
-	}
-	ws.onerror = function(event) {
+	});
+	ws.addEventListener("error", function(event) {
 		document.body.textContent = "An Error Occurred!";
-	}
-	ws.onclose = function(event) {
+	});
+	ws.addEventListener("close", function(event) {
 		if (!closed) {
 			switch (event.code) {
 			case 1006:
@@ -109,9 +109,9 @@ var createElements = function(namespace) {
 				document.body.textContent = "Lost Connection To Server! Code: " + event.code;
 			}
 		}
-	}
+	});
 	if (typeof onopen === "function") {
-		ws.onopen = onopen.bind(null, this);
+		ws.addEventListener("open", onopen.bind(null, this));
 	}
 	window.addEventListener("beforeunload", function() {
 		if (!closed) {
