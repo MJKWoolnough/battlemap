@@ -286,6 +286,63 @@ func (a *assets) AddTag(tagName string, tag *Tag) error {
 	return nil
 }
 
+func (a *assets) RenameTag(t *Tag, newName *string) error {
+	u, ok := a.Tags[t.ID]
+	if !ok {
+		return ErrTagNotExist
+	}
+	if u.Name != t.Name {
+		if !strings.EqualFold(u.Name, t.Name) {
+			if _, ok = a.AssetsList[strings.ToLower(t.Name)]; ok {
+				for i := 1; ; i++ {
+					tName := fmt.Sprintf("%s-%d", t.Name, i)
+					if _, ok = a.AssetsList[strings.ToLower(tName)]; !ok {
+						t.Name = tName
+						break
+					}
+				}
+			}
+		}
+		_, err := a.renameTag.Exec(t.Name, t.ID)
+		if err != nil {
+			return errors.WithContext("error renaming tag: ", err)
+		}
+	}
+	u.Name = t.Name
+	*newName = u.Name
+	return nil
+}
+
+func (a *assets) RemoveTag(id int, _ *struct{}) error {
+	t, ok := a.Tags[id]
+	if !ok {
+		return ErrTagNotExist
+	}
+	_, err := a.removeTagFromAssetTags.Exec(id)
+	if err == nil {
+		_, err = a.removeTag.Exec(id)
+	}
+	if err != nil {
+		return errors.WithContext("error removing tag: ", err)
+	}
+	for _, aid := range t.Assets {
+		asset, ok := a.Assets[aid]
+		if !ok {
+			continue
+		}
+		for n, at := range asset.Tags {
+			if at == id {
+				asset.Tags = append(asset.Tags[:n], asset.Tags[n+1:]...)
+				break
+			}
+		}
+	}
+	delete(a.Tags, id)
+	delete(a.TagList, strings.ToLower(t.Name))
+	return nil
+}
+
 const (
-	ErrTagExists errors.Error = "tag exists"
+	ErrTagExists   errors.Error = "tag exists"
+	ErrTagNotExist errors.Error = "tag doesn't exist"
 )

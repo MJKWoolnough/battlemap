@@ -55,7 +55,15 @@ window.addEventListener("load", function() {
 							"class": "rename",
 
 							"onclick": function() {
-								alert("RENAME")
+								var name = prompt("New Name?", "");
+								if (name === null || name === "" || name === t.Name) {
+									return;
+								}
+								t.Name = name;
+								rpc.request("Assets.RenameTag", t, function(n) {
+									t.Name = n;
+									buildList();
+								});
 							}
 						},
 						"✍"
@@ -66,7 +74,14 @@ window.addEventListener("load", function() {
 							"class": "delete",
 
 							"onclick": function() {
-								alert("DELETE")
+								if (confirm("Sure you want to delete?")) {
+									rpc.request("Assets.RemoveTag", t.ID);
+									delete tags[t.ID];
+									delete tagList[t.Name.toLowerCase()];
+									Object.values(assets).forEach(a => a.Tags = a.Tags.filter(u => u.ID !== t.ID));
+									createPsuedoTags();
+									buildList();
+								}
 							}
 						},
 						"⌫"
@@ -103,7 +118,11 @@ window.addEventListener("load", function() {
 							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
 								rpc.request("Assets.AddTag", tag, function(tag) {
 									tags[tag.ID] = tag;
-									tags[tag.Name.toLowerCase()] = tag.ID;
+									var lName = tag.Name.toLowerCase();
+									if (tagList.hasOwnProperty(lName)) {
+										delete tags[tagList[lName]];
+									}
+									tagList[tag.Name.toLowerCase()] = tag.ID;
 									createPsuedoTags();
 									buildList();
 								});
@@ -191,7 +210,7 @@ window.addEventListener("load", function() {
 	    },
 	    createPsuedoTags = function() {
 		var neg = -1;
-		Object.values(tags).filter(t => t.ID < 0).forEach(t => delete tags[t.ID]);
+		Object.values(tags).filter(t => t.ID < 0).forEach(t => {delete tags[t.ID]; delete tagList[t.Name.toLowerCase()]});
 		Object.values(tags).forEach(t => {
 			var tName = t.Name, i;
 			while ((i = tName.lastIndexOf('/')) >= 0) {
