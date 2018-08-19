@@ -48,14 +48,14 @@ const createElements = function(namespace) {
 		}
 		return elem;
 	};
-    },
-    createHTML = createElements(document.getElementsByTagName("html")[0].namespaceURI),
-    clearElement = function(elem) {
+      },
+      createHTML = createElements(document.getElementsByTagName("html")[0].namespaceURI),
+      clearElement = function(elem) {
 	while (elem.hasChildNodes()) {
 		elem.removeChild(elem.lastChild);
 	}
-    },
-    waitGroup = function(callback) {
+      },
+      waitGroup = function(callback) {
 	let state = 0;
 	this.add = function(amount) {
 		state += amount || 1;
@@ -66,8 +66,8 @@ const createElements = function(namespace) {
 			callback();
 		}
 	};
-    },
-    RPC = function(path, onopen) {
+      },
+      RPC = function(path, onopen) {
 	const request = function(callback, keep) {
 		this.callback = callback;
 		this.keep = keep;
@@ -140,4 +140,4 @@ const createElements = function(namespace) {
 		closed = true;
 		ws.close();
 	};
-    };
+      };

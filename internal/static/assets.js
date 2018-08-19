@@ -84,7 +84,8 @@ window.addEventListener("load", function() {
 						));
 					}
 				},
-				asset.Name),
+				asset.Name
+			),
 			createHTML(
 				"span",
 				{
