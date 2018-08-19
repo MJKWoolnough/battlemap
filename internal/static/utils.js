@@ -1,51 +1,39 @@
 "use strict";
 const createElements = function(namespace) {
-	const createElement = document.createElementNS.bind(document, namespace);
-	return function(element, properties, children, pre) {
-		const elem = createElement(element);
-		if (typeof properties === "object") {
-			Object.keys(properties).forEach(k => {
-				let prop = properties[k];
-				if (k.substr(0, 2) === "on" && typeof prop === "function") {
-					elem.addEventListener(k.substr(2), prop.bind(elem));
-				} else {
-					if (typeof prop === "function") {
-						prop = prop(elem, k);
-					}
-					elem.setAttribute(k, prop)
-				}
-			});
-		}
-		if (typeof children === "function") {
-			children = children(elem);
-		}
+	const childrenArr = function(elem, children, pre) {
 		if (typeof children === "string") {
-			if (!pre && children.indexOf("\n") >= 0) {
-				children.split("\n").forEach((t, n) => {
-					if (n !== 0) {
-						elem.appendChild(createElement("br"));
-					}
-					elem.appendChild(document.createTextNode(c));
-				});
-			} else {
-				elem.textContent = children;
-			}
+			children.split("\n").forEach((child, n) => {
+				if (n > 0 && !pre) {
+					elem.appendChild(document.createElementNS(ns, "br"))
+				}
+				elem.appendChild(document.createTextNode(child));
+			});
 		} else if (children) {
 			if (children.hasOwnProperty("length")) {
-				children.forEach((c, n) => {
-					if (typeof c === "function") {
-						c = c(elem, n);
-					}
-					if (typeof c === "string") {
-						elem.appendChild(document.createTextNode(c));
-					} else {
-						elem.appendChild(c);
-					}
-				});
+				Array.from(children).forEach(c => childrenArr(elem, c, pre));
 			} else {
 				elem.appendChild(children);
 			}
 		}
+	      };
+	return function(element, properties, children, pre) {
+		const elem = typeof element === "string" ? document.createElementNS(namespace, element) : element;
+		if (typeof properties === "string") {
+			[properties, children] = [children, properties];
+		}
+		if (typeof properties === "object") {
+			Object.keys(properties).forEach(k => {
+				let prop = properties[k];
+				if (prop !== undefined) {
+					if (k.substr(0, 2) === "on" && typeof prop === "function") {
+						elem.addEventListener(k.substr(2), prop.bind(elem));
+					} else {
+						elem.setAttribute(k, prop)
+					}
+				}
+			});
+		}
+		childrenArr(elem, children, pre);
 		return elem;
 	};
       },

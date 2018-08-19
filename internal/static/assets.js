@@ -8,9 +8,10 @@ window.addEventListener("load", function() {
 			"li",
 			{},
 			[
-				createHTML("span", {}, tag.Name),
+				createHTML("span", tag.Name),
 				createHTML(
 					"span",
+					"⌫",
 					{
 						"class": "removeTag",
 
@@ -22,8 +23,7 @@ window.addEventListener("load", function() {
 								this.parentNode.parentNode.removeChild(this.parentNode);
 							})
 						}
-					},
-					"⌫"
+					}
 				)
 			]
 		)
@@ -32,6 +32,7 @@ window.addEventListener("load", function() {
 		return createHTML("li",	{}, [
 			createHTML(
 				"span",
+				asset.Name,
 				{
 					"class": "assetName",
 
@@ -43,6 +44,7 @@ window.addEventListener("load", function() {
 							[
 								createHTML(
 									"div",
+									"X",
 									{
 										"class": "closer",
 										"onclick": function() {
@@ -51,9 +53,9 @@ window.addEventListener("load", function() {
 												buildList();
 											}
 										}
-									},
-									"X"),
-								createHTML("h1", {}, asset.Name),
+									}
+								),
+								createHTML("h1", asset.Name),
 								createHTML("label", {"for": "tags"}, "Add Tag: "),
 								createHTML(
 									"select",
@@ -72,9 +74,12 @@ window.addEventListener("load", function() {
 											}
 										},
 									},
-									[createHTML("option", {"value": "-1"}, "--Choose Tag--")].concat(Object.values(tags).filter(t => t.ID >= 0).map(t => createHTML("option", {"value": t.ID}, t.Name)))
+									[
+										createHTML("option", {"value": "-1"}, "--Choose Tag--"),
+										Object.values(tags).filter(t => t.ID >= 0).map(t => createHTML("option", {"value": t.ID}, t.Name))
+									]
 								),
-								createHTML("h2", {}, "Tags"),
+								createHTML("h2", "Tags"),
 								createHTML(
 									"ul",
 									{"id": "tagList"},
@@ -83,11 +88,11 @@ window.addEventListener("load", function() {
 							]
 						));
 					}
-				},
-				asset.Name
+				}
 			),
 			createHTML(
 				"span",
+				"✍",
 				{
 					"class": "rename",
 
@@ -102,11 +107,11 @@ window.addEventListener("load", function() {
 							this.previousSibling.innerText = n;
 						});
 					}
-				},
-				"✍"
+				}
 			),
 			createHTML(
 				"span",
+				"⌫",
 				{
 					"class": "delete",
 
@@ -118,8 +123,7 @@ window.addEventListener("load", function() {
 							this.parentNode.parentNode.removeChild(this.parentNode);
 						}
 					}
-				},
-				"⌫"
+				}
 			)
 		])
 	      },
@@ -130,11 +134,11 @@ window.addEventListener("load", function() {
 				"class": "tag",
 			},
 			[
-				createHTML("label", {"for": "tag_" + t.Name}, t.Name.substr(prefix.length))
-			].concat(
+				createHTML("label", {"for": "tag_" + t.Name}, t.Name.substr(prefix.length)),
 				t.ID < 0 ? [] : [
 					createHTML(
 						"span",
+						"✍",
 						{
 							"class": "rename",
 
@@ -150,11 +154,11 @@ window.addEventListener("load", function() {
 									buildList();
 								});
 							}
-						},
-						"✍"
+						}
 					),
 					createHTML(
 						"span",
+						"⌫",
 						{
 							"class": "delete",
 
@@ -168,14 +172,19 @@ window.addEventListener("load", function() {
 									buildList();
 								}
 							}
-						},
-						"⌫"
+						}
 					)
-				]
-			).concat([
+				],
 				createHTML("input", {"type": "checkbox", "id": "tag_" + t.Name}),
-				createHTML("ul", {}, writeTags(t.Name+"/").concat(t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(assets[a]))))
-			])
+				createHTML(
+					"ul",
+					{},
+					[
+						writeTags(t.Name+"/"),
+						t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(assets[a]))
+					]
+				)
+			]
 		));
 	      },
 	      buildList = function() {
@@ -183,6 +192,7 @@ window.addEventListener("load", function() {
 		[
 			createHTML(
 				"label",
+				"Add Tag",
 				{
 					"class": "button",
 
@@ -206,8 +216,7 @@ window.addEventListener("load", function() {
 							}
 						}
 					}
-				},
-				"Add Tag"
+				}
 			),
 			createHTML(
 				"form",
@@ -218,11 +227,11 @@ window.addEventListener("load", function() {
 				[
 					createHTML(
 						"label",
+						"Upload Asset",
 						{
 							"class": "button",
 							"for": "asset",
-						},
-						"Upload Asset"
+						}
 					),
 					createHTML(
 						"input",
