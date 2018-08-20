@@ -1,4 +1,4 @@
 "use strict";
-function start(rpc) {
+function mapStart(rpc) {
 	alert("admin");
 }

@@ -1,4 +1,4 @@
-"use strict"t d;
-function start(rpc) {
+"use strict";
+function mapStart(rpc) {
 	alert("user");
 }
