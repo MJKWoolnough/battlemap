@@ -4,9 +4,11 @@
 		<title>Assets</title>
 		<script type="text/javascript" src="utils.js"></script>
 		<script type="text/javascript" src="assets.js"></script>
+		<script type="text/javascript">window.addEventListener("load", function(){new RPC("/socket", assetStart.bind(null, document.body));});</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="assets.css" />
 	</head>
 	<body>
 		<h1>Loading...</h1>
+		<div id="overlay"></div>
 	</body>
 </html>

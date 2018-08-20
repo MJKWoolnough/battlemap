@@ -1,8 +1,8 @@
 "use strict";
-window.addEventListener("load", function() {
+var assetStart = function(base, rpc) {
 	let changed = false;
 	const tags = {}, tagList = {}, assets = {},
-	      overlay = createHTML("div", {"id": "overlay"}),
+	      overlay = document.getElementById("overlay"),
 	      createAssetTag = function(asset, tag) {
 		return createHTML(
 			"li",
@@ -109,7 +109,7 @@ window.addEventListener("load", function() {
 									"img",
 									{
 										"src": `assets/${asset.ID}.${asset.Ext}`,
-										"style": "max-width: 50%"
+										"style": "max-width: 50%; max-height: 50%;"
 									}
 								) : [],
 								createHTML("br"),
@@ -210,7 +210,7 @@ window.addEventListener("load", function() {
 		));
 	      },
 	      buildList = function() {
-		clearElement(document.body);
+		clearElement(base);
 		[
 			createHTML(
 				"label",
@@ -307,7 +307,7 @@ window.addEventListener("load", function() {
 			),
 			createHTML("ul", {}, writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a)))),
 			overlay
-		].forEach(e => document.body.appendChild(e));
+		].forEach(e => base.appendChild(e));
 	      },
 	      createPsuedoTags = function() {
 		let neg = -1;
@@ -330,19 +330,17 @@ window.addEventListener("load", function() {
 				}
 			}
 		})
-	      },
-	      rpc = new RPC("/socket", function() {
-		const wg = new waitGroup(buildList);
-		wg.add(2);
-		rpc.request("Assets.ListTags", null, function(data) {
-			Object.assign(tags, data);
-			Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
-			createPsuedoTags();
-			wg.done();
-		});
-		rpc.request("Assets.ListAssets", null, function(data) {
-			Object.assign(assets, data);
-			wg.done();
-		});
-	      });
-});
+	      };
+	const wg = new waitGroup(buildList);
+	wg.add(2);
+	rpc.request("Assets.ListTags", null, function(data) {
+		Object.assign(tags, data);
+		Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
+		createPsuedoTags();
+		wg.done();
+	});
+	rpc.request("Assets.ListAssets", null, function(data) {
+		Object.assign(assets, data);
+		wg.done();
+	});
+};
