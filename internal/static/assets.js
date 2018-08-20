@@ -37,6 +37,20 @@ var assetStart = function(base, rpc) {
 					"class": "assetName",
 
 					"onclick": function() {
+						const closeFn = function() {
+							window.removeEventListener("keypress", keyPress);
+							clearElement(overlay);
+							if (changed) {
+								writeList();
+							}
+						      },
+						      keyPress = function(e) {
+							e = e || window.event;
+							if (e.keyCode === 27) {
+								closeFn();
+							}
+						      };
+						window.addEventListener("keypress", keyPress);
 						changed = false;
 						clearElement(overlay);
 						overlay.appendChild(createHTML(
@@ -48,12 +62,7 @@ var assetStart = function(base, rpc) {
 									"X",
 									{
 										"class": "closer",
-										"onclick": function() {
-											clearElement(overlay)
-											if (changed) {
-												writeList();
-											}
-										}
+										"onclick": closeFn
 									}
 								),
 								createHTML("h1", 
