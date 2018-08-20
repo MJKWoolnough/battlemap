@@ -11,7 +11,7 @@ const createElements = function(namespace) {
 		} else if (children) {
 			if (children.hasOwnProperty("length")) {
 				Array.from(children).forEach(c => childrenArr(elem, c, pre));
-			} else {
+			} else if(children instanceof Node) {
 				elem.appendChild(children);
 			}
 		}
