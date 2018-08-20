@@ -51,7 +51,7 @@ var assetStart = function(base, rpc) {
 										"onclick": function() {
 											clearElement(overlay)
 											if (changed) {
-												buildList();
+												writeList();
 											}
 										}
 									}
@@ -173,7 +173,7 @@ var assetStart = function(base, rpc) {
 								rpc.request("Assets.RenameTag", t, function(n) {
 									t.Name = n;
 									createPsuedoTags();
-									buildList();
+									writeList();
 								});
 							}
 						}
@@ -191,7 +191,7 @@ var assetStart = function(base, rpc) {
 									delete tagList[t.Name.toLowerCase()];
 									Object.values(assets).forEach(a => a.Tags = a.Tags.filter(u => u !== t.ID));
 									createPsuedoTags();
-									buildList();
+									writeList();
 								}
 							}
 						}
@@ -209,8 +209,13 @@ var assetStart = function(base, rpc) {
 			]
 		));
 	      },
-	      buildList = function() {
-		clearElement(base);
+	      writeList = function() {
+		const container = document.getElementById("assetList");
+		clearElement(container);
+		writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a))).forEach(c => container.appendChild(c));
+	      },
+	      buildHTML = function() {
+		[document.getElementById("assetLoading")].filter(t => t != null).forEach(t => t.parentNode.removeChild(t));
 		[
 			createHTML(
 				"label",
@@ -231,7 +236,7 @@ var assetStart = function(base, rpc) {
 									}
 									tagList[tag.Name.toLowerCase()] = tag.ID;
 									createPsuedoTags();
-									buildList();
+									writeList();
 								});
 							} else {
 								alert("Tag already exists!");
@@ -291,7 +296,7 @@ var assetStart = function(base, rpc) {
 											if (xh.status === 200) {
 												JSON.parse(xh.responseText).forEach(a => assets[a.ID] = a);
 												clearElement(overlay);
-												buildList();
+												writeList();
 											} else {
 												progress.firstChild.innerText = "Upload Failed!"
 											}
@@ -302,12 +307,12 @@ var assetStart = function(base, rpc) {
 								};
 							}())
 						}
-					)
+					),
 				]
 			),
-			createHTML("ul", {}, writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a)))),
-			overlay
+			createHTML("ul", {"id": "assetList"})
 		].forEach(e => base.appendChild(e));
+		writeList();
 	      },
 	      createPsuedoTags = function() {
 		let neg = -1;
@@ -331,7 +336,7 @@ var assetStart = function(base, rpc) {
 			}
 		})
 	      };
-	const wg = new waitGroup(buildList);
+	const wg = new waitGroup(buildHTML);
 	wg.add(2);
 	rpc.request("Assets.ListTags", null, function(data) {
 		Object.assign(tags, data);
