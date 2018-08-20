@@ -38,6 +38,7 @@ window.addEventListener("load", function() {
 
 					"onclick": function() {
 						changed = false;
+						clearElement(overlay);
 						overlay.appendChild(createHTML(
 							"div",
 							{},
@@ -55,7 +56,63 @@ window.addEventListener("load", function() {
 										}
 									}
 								),
-								createHTML("h1", asset.Name),
+								createHTML("h1", 
+									{},
+									[
+										createHTML("span", asset.Name),
+										createHTML(
+											"span",
+											"✍",
+											{
+												"class": "rename",
+
+												"onclick": function() {
+													const name = prompt("New Name?", asset.Name);
+													if (name === null || name === "" || name === asset.Name) {
+														return;
+													}
+													asset.Name = name;
+													rpc.request("Assets.RenameAsset", asset, n => {
+														changed = true;
+														asset.Name = n;
+														this.previousSibling.innerText = n;
+													});
+												}
+											}
+										),
+										createHTML(
+											"span",
+											"⌫",
+											{
+												"class": "delete",
+
+												"onclick": function() {
+													if (confirm("Sure you want to delete?")) {
+														rpc.request("Assets.RemoveAsset", asset.ID);
+														delete assets[asset.ID];
+														Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
+														changed = true;
+														this.parentNode.parentNode.firstChild.click();
+													}
+												}
+											}
+										)
+									]
+								),
+								asset.Type === "audio" ? createHTML(
+									"audio",
+									{
+										"controls": "controls",
+										"src": `assets/${asset.ID}.${asset.Ext}`
+									}
+								) : asset.Type === "image" ? createHTML (
+									"img",
+									{
+										"src": `assets/${asset.ID}.${asset.Ext}`,
+										"style": "max-width: 50%"
+									}
+								) : [],
+								createHTML("br"),
 								createHTML("label", {"for": "tags"}, "Add Tag: "),
 								createHTML(
 									"select",
@@ -87,41 +144,6 @@ window.addEventListener("load", function() {
 								)
 							]
 						));
-					}
-				}
-			),
-			createHTML(
-				"span",
-				"✍",
-				{
-					"class": "rename",
-
-					"onclick": function() {
-						const name = prompt("New Name?", asset.Name);
-						if (name === null || name === "" || name === asset.Name) {
-							return;
-						}
-						asset.Name = name;
-						rpc.request("Assets.RenameAsset", asset, n => {
-							asset.Name = n;
-							this.previousSibling.innerText = n;
-						});
-					}
-				}
-			),
-			createHTML(
-				"span",
-				"⌫",
-				{
-					"class": "delete",
-
-					"onclick": function() {
-						if (confirm("Sure you want to delete?")) {
-							rpc.request("Assets.RemoveAsset", asset.ID);
-							delete assets[asset.ID];
-							Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
-							this.parentNode.parentNode.removeChild(this.parentNode);
-						}
 					}
 				}
 			)
