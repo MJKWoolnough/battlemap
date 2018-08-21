@@ -43,6 +43,25 @@ const createElements = function(namespace) {
 		elem.removeChild(elem.lastChild);
 	}
       },
+      include = function(url, successFn, errorFn) {
+	const css = url.substr(-3) === "css",
+	      elm = css ? "link" : "script",
+	      props = css ? {
+		      "href": url,
+		      "rel": "stylesheet",
+		      "type": "text/css"
+	      } : {
+		      "src": url,
+		      "type": "text/javascript"
+	      };
+	if (typeof successFn === "function") {
+		props["onload"] = successFn;
+	}
+	if (typeof successFn === "function") {
+		props["onerror"] = errorFn;
+	}
+	document.head.appendChild(createHTML(elm, props));
+      },
       waitGroup = function(callback) {
 	let state = 0;
 	this.add = function(amount) {
