@@ -13,6 +13,7 @@ type maps struct {
 	maps                                           map[int]*Map
 	characters                                     map[int]*Character
 	addMap, updateMapName, updateMapDim, removeMap *sql.Stmt
+	setLightLayer, setLightLevel                   *sql.Stmt
 }
 
 type Character struct {
@@ -37,6 +38,7 @@ type Token struct {
 	X, Y, Width, Height       int
 	Angle                     int
 	RepeatWidth, RepeatHeight int
+	LightLevel                int
 	Layer                     int
 	Data                      string
 }
@@ -46,6 +48,7 @@ type Layer struct {
 	Name           string
 	Order          int
 	Hidden, Locked bool
+	UseMask        bool
 	Tokens         map[int]*Token
 }
 
@@ -53,6 +56,8 @@ type MapStmts struct {
 	addToken, moveTokenPos, moveTokenLayer, resizeToken, rotateToken, removeToken *sql.Stmt
 
 	addLayer, renameLayer, swapLayerOrder, hideLayer, showLayer, lockLayer, unlockLayer, removeLayer *sql.Stmt
+
+	layerLightBlock, layerLightAllow, tokenLightLevel *sql.Stmt
 
 	removeAllTokens, removeAllLayers *sql.Stmt
 
@@ -70,10 +75,10 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		err error
 		m   MapStmts
 	)
-	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapTokens_%d]([ID] INTEGER PRIMARY KEY, [Asset] INTEGER, [Width] INTEGER, [Height] INTEGER, [X] INTGER NOT NULL DEFAULT 0, [Y] INTEGER NOT NULL DEFAULT 0, [Angle] INTEGER NOT NULL DEFAULT 0, [RepeatWidth] INTEGER NOT NULL DEFAULT 0, [RepeatHeight] INTEGER NOT NULL DEFAULT 0, [Layer] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');", table)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapTokens_%d]([ID] INTEGER PRIMARY KEY, [Asset] INTEGER, [Width] INTEGER, [Height] INTEGER, [X] INTGER NOT NULL DEFAULT 0, [Y] INTEGER NOT NULL DEFAULT 0, [Angle] INTEGER NOT NULL DEFAULT 0, [RepeatWidth] INTEGER NOT NULL DEFAULT 0, [RepeatHeight] INTEGER NOT NULL DEFAULT 0, [Layer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');", table)); err != nil {
 		return m, errors.WithContext("error creating MapTokens table: ", err)
 	}
-	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapLayers_%d]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Locked] BOOLEAN DEFAULT 0 IN (0, 1), [Hidden] BOOLEAN NOT NULL DEFAULT 0 CHECK([Hidden] IN (0, 1)), [Order] INTEGER);", table)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapLayers_%d]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Locked] BOOLEAN NOT NULL DEFAULT 0 ([Locked] IN (0, 1)), [Hidden] BOOLEAN NOT NULL DEFAULT 0 CHECK([Hidden] IN (0, 1)), [Mask] BOOLEAN NOT NULL DEFAULT 0 CHECK([Mask] IN (0, 1)), [LightBlock] BOOLEAN NOT NULL DEFAULT 0 CHECK([LightBlock] IN (0, 1)), [Order] INTEGER);", table)); err != nil {
 		return m, errors.WithContext("error creating MapLayers table: ", err)
 	}
 	var numRows int
@@ -103,6 +108,10 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		&m.unlockLayer: "UPDATE [MapLayers_%d] SET [Locked] = 0 WHERE [ID] = ?;",
 		&m.removeLayer: "DELETE FROM [MapLayers_%d] WHERE [ID] = ?;",
 
+		&m.layerLightBlock: "UPDATE [MapLayers_%d] SET [LightBlock] = 1 WHERE [ID] = ?;",
+		&m.layerLightAllow: "UPDATE [MapLayers_%d] SET [LightBlock] = 0 WHERE [ID] = ?;",
+		&m.tokenLightLevel: "UPDATE [MapTokens_%d] SET [LightLevel] = ? WHERE [ID] = ?;",
+
 		&m.removeAllTokens: "DELETE FROM [MapTokens_%d];",
 		&m.removeAllLayers: "DELETE FROM [MapLayers_%d] WHERE [ID] > 2;",
 
@@ -117,7 +126,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 
 func (m *maps) init(db *sql.DB) error {
 	var err error
-	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0);"); err != nil {
+	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0, [LightLayer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0);"); err != nil {
 		return errors.WithContext("error creating Maps table: ", err)
 	}
 	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Characters]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Icon] INTEGER, [Asset] INTEGER, [Width] INTEGER NOT NULL DEFAULT 0, [HEIGHT] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');"); err != nil {
@@ -128,6 +137,9 @@ func (m *maps) init(db *sql.DB) error {
 		&m.updateMapName: "UPDATE [Maps] SET [Name] = ? WHERE [ID] = ?;",
 		&m.updateMapDim:  "UPDATE [Maps] SET [Width] = ?, [Height] = ? WHERE [ID] = ?;",
 		&m.removeMap:     "DELETE FROM [Maps] WHERE [ID] = ?;",
+
+		&m.setLightLayer: "UPDATE [Maps] SET [LightLayer] = ? WHERE [ID] = ?;",
+		&m.setLightLevel: "UPDATE [Maps] SET [LightLevel] = ? WHERE [ID] = ?;",
 	} {
 		if *stmt, err = db.Prepare(code); err != nil {
 			return errors.WithContext("error preparing Map statement: ", err)
