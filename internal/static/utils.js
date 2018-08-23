@@ -1,22 +1,17 @@
 "use strict";
 const createElements = function(namespace) {
-	const childrenArr = function(elem, children, pre) {
+	const childrenArr = function(elem, children) {
 		if (typeof children === "string") {
-			children.split("\n").forEach((child, n) => {
-				if (n > 0 && !pre) {
-					elem.appendChild(document.createElementNS(ns, "br"))
-				}
-				elem.appendChild(document.createTextNode(child));
-			});
+			elem.textContent = children;
 		} else if (children) {
 			if (children.hasOwnProperty("length")) {
-				Array.from(children).forEach(c => childrenArr(elem, c, pre));
+				Array.from(children).forEach(c => childrenArr(elem, c));
 			} else if(children instanceof Node) {
 				elem.appendChild(children);
 			}
 		}
 	      };
-	return function(element, properties, children, pre) {
+	return function(element, properties, children) {
 		const elem = typeof element === "string" ? document.createElementNS(namespace, element) : element;
 		if (typeof properties === "string") {
 			[properties, children] = [children, properties];
@@ -33,11 +28,21 @@ const createElements = function(namespace) {
 				}
 			});
 		}
-		childrenArr(elem, children, pre);
+		childrenArr(elem, children);
 		return elem;
 	};
       },
       createHTML = createElements(document.getElementsByTagName("html")[0].namespaceURI),
+      formatText = function(text) {
+	const df = document.createDocumentFragment();
+	text.split("\n").forEach((t, n) => {
+		if (n > 0) {
+			df.appendChild(creatHTML("br"));
+		}
+		df.appendChild(document.createTextNode(child));
+	});
+	return df;
+      }
       clearElement = function(elem) {
 	while (elem.hasChildNodes()) {
 		elem.removeChild(elem.lastChild);
