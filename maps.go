@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"sort"
 
 	"vimagination.zapto.org/errors"
 )
@@ -29,7 +30,22 @@ type Map struct {
 	Name          string
 	Width, Height int
 	Layers        []Layer
+	Order         int
 	Stmts         MapStmts
+}
+
+type MapList []*Map
+
+func (m MapList) Len() int {
+	return len(m)
+}
+
+func (m MapList) Less(i, j int) bool {
+	return m[i].Order < m[j].Order
+}
+
+func (m MapList) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
 }
 
 type Token struct {
@@ -126,7 +142,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 
 func (m *maps) init(db *sql.DB) error {
 	var err error
-	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0, [LightLayer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0);"); err != nil {
+	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0, [LightLayer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0, [Order] INTEGER NOT NULL DEFAULT [ID]);"); err != nil {
 		return errors.WithContext("error creating Maps table: ", err)
 	}
 	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Characters]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Icon] INTEGER, [Asset] INTEGER, [Width] INTEGER NOT NULL DEFAULT 0, [HEIGHT] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');"); err != nil {
@@ -168,6 +184,10 @@ func (m *maps) init(db *sql.DB) error {
 	return nil
 }
 
-func (m *maps) Temp(a int64, b *int64) error {
+func (m *maps) ListMaps(_ struct{}, ms *MapList) error {
+	for _, mp := range m.maps {
+		*ms = append(*ms, mp)
+	}
+	sort.Sort(ms)
 	return nil
 }
