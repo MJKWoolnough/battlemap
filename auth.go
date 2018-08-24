@@ -90,9 +90,7 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				a.mu.Lock()
 				a.password = a.hash(n)
 				a.mu.Unlock()
-				DB.Lock()
 				a.updatePassword.Exec(a.password)
-				DB.Unlock()
 				Session.Refresh()
 				vars.PasswordChanged = true
 			} else {

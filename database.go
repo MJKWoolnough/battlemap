@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 	"vimagination.zapto.org/errors"
@@ -12,15 +11,15 @@ import (
 var DB db
 
 type db struct {
-	sync.Mutex
 	*sql.DB
 }
 
 func (db *db) Init(filename string) error {
-	database, err := sql.Open("sqlite3", filename)
+	database, err := sql.Open("sqlite3", filename+"?cache=shared&mode=rwc")
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error opening database file %q: ", filename), err)
 	}
+	database.SetMaxOpenConns(1)
 	if _, err = database.Exec("CREATE TABLE IF NOT EXISTS [Config]([Password] TEXT NOT NULL DEFAULT '', [Salt] TEXT NOT NULL DEFAULT '', [SessionKey] TEXT NOT NULL DEFAULT '', [SessionData] TEXT NOT NULL DEFAULT '');"); err != nil {
 		return errors.WithContext("error creating config table: ", err)
 	}
@@ -46,8 +45,4 @@ func (db *db) Init(filename string) error {
 	}
 	db.DB = database
 	return nil
-}
-
-func (db *db) Close() error {
-	return db.DB.Close()
 }

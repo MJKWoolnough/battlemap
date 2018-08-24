@@ -44,12 +44,10 @@ func (s *session) Set(key []byte) error {
 		s.data = make([]byte, 32)
 		rand.Read(s.data)
 	}
-	DB.Lock()
 	_, err := s.updateData.Exec(key, s.data)
 	if err != nil {
 		return errors.WithContext("error saving new session data: ", err)
 	}
-	DB.Unlock()
 	s.store, err = sessions.NewCookieStore(key, sessions.HTTPOnly(), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	return err
 }
