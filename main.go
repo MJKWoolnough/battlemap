@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strings"
 
 	"vimagination.zapto.org/httpdir"
@@ -23,8 +23,6 @@ func e(err error) {
 func main() {
 	e(DB.Init("database.db"))
 
-	l, err := net.Listen("tcp", ":8080")
-	e(err)
 	Assets.dir = "./assets"
 	e(Socket.init())
 
@@ -32,8 +30,27 @@ func main() {
 	Auth.Handle("/files/", Trim("/files", http.FileServer(http.Dir("./files"))))
 	Auth.Handle("/assets/", Trim("/assets", http.FileServer(http.Dir("./assets"))))
 	Auth.Handle("/", httpgzip.FileServer(dir))
+
+	srv := http.Server{
+		Addr:    ":8080",
+		Handler: &Auth,
+	}
+
+	c := make(chan os.Signal, 1)
+	go func() {
+		signal.Notify(c, os.Interrupt)
+		<-c
+		fmt.Println("...Closing")
+		signal.Stop(c)
+		close(c)
+		srv.Close()
+	}()
+
 	fmt.Println("Running...")
-	fmt.Println(http.Serve(l, &Auth))
+	err := srv.ListenAndServe()
+	if err != http.ErrServerClosed {
+		e(err)
+	}
 }
 
 type HTTPTrim struct {
