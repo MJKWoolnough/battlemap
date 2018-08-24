@@ -42,7 +42,7 @@ const createElements = function(namespace) {
 		df.appendChild(document.createTextNode(child));
 	});
 	return df;
-      }
+      },
       clearElement = function(elem) {
 	while (elem.hasChildNodes()) {
 		elem.removeChild(elem.lastChild);
