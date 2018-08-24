@@ -191,3 +191,23 @@ func (m *maps) ListMaps(_ struct{}, ms *MapList) error {
 	sort.Sort(ms)
 	return nil
 }
+
+func (m *maps) AddMap(nm Map, mp *Map) error {
+	res, err := m.addMap.Exec(nm.Name, nm.Width, nm.Height)
+	if err != nil {
+		return errors.WithContext("error creating new map: ", err)
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return errors.WithContext("error getting new map ID: ", err)
+	}
+	nm.ID = int(id)
+	nm.Stmts, err = NewMapStmts(&DB, nm.ID)
+	nm.Order = nm.ID
+	if err != nil {
+		return err
+	}
+	*mp = nm
+	m.maps[nm.ID] = mp
+	return nil
+}
