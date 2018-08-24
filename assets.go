@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"vimagination.zapto.org/errors"
@@ -17,9 +18,11 @@ import (
 var Assets assets
 
 type assets struct {
-	Tags       map[int]*Tag
+	Tags    map[int]*Tag
+	TagList map[string]*Tag
+
+	assetsMu   sync.RWMutex
 	Assets     map[int]*Asset
-	TagList    map[string]*Tag
 	AssetsList map[string]*Asset
 
 	addAsset, renameAsset, removeAsset               *sql.Stmt
@@ -166,6 +169,7 @@ func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 		if name == "" {
 			name = "asset"
 		}
+		a.assetsMu.RLock()
 		if _, ok := a.AssetsList[strings.ToLower(name)]; ok {
 			for i := 1; ; i++ {
 				tName := fmt.Sprintf("%s-%d", name, i)
@@ -175,6 +179,7 @@ func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+		a.assetsMu.RUnlock()
 		n, err := io.ReadFull(p, buf)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -230,8 +235,10 @@ func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 									Type:     ctype,
 									Uploaded: now,
 								}
+								a.assetsMu.Lock()
 								a.Assets[int(id)] = asset
 								a.AssetsList[strings.ToLower(name)] = asset
+								a.assetsMu.Unlock()
 								as = append(as, asset)
 								if ctype == "image" {
 									//go a.generateThumbnail(asset)
@@ -256,8 +263,13 @@ func (a *assets) generateThumbnail(asset *Asset) {
 
 }
 
-func (a *assets) ListAssets(_ struct{}, list *map[int]*Asset) error {
-	*list = a.Assets
+func (a *assets) ListAssets(_ struct{}, list *map[int]Asset) error {
+	a.assetsMu.RLock()
+	*list = make(map[int]Asset, len(a.Assets))
+	for id, a := range a.Assets {
+		(*list)[id] = *a
+	}
+	a.assetsMu.RUnlock()
 	return nil
 }
 
@@ -338,6 +350,8 @@ func (a *assets) RemoveTag(id int, _ *struct{}) error {
 }
 
 func (a *assets) RenameAsset(asset *Asset, newName *string) error {
+	a.assetsMu.Lock()
+	defer a.assetsMu.Unlock()
 	u, ok := a.Assets[asset.ID]
 	if !ok {
 		return ErrTagNotExist
@@ -365,6 +379,8 @@ func (a *assets) RenameAsset(asset *Asset, newName *string) error {
 }
 
 func (a *assets) RemoveAsset(id int, _ *struct{}) error {
+	a.assetsMu.Lock()
+	defer a.assetsMu.Unlock()
 	u, ok := a.Assets[id]
 	if !ok {
 		return ErrAssetNotExist
@@ -401,7 +417,9 @@ func (a *assets) AddAssetTag(at AssetTag, _ *struct{}) error {
 	if !ok {
 		return ErrTagNotExist
 	}
+	a.assetsMu.RLock()
 	asset, ok := a.Assets[at.AssetID]
+	a.assetsMu.RUnlock()
 	if !ok {
 		return ErrAssetNotExist
 	}
@@ -420,8 +438,9 @@ func (a *assets) AddAssetTag(at AssetTag, _ *struct{}) error {
 	if err != nil {
 		return errors.WithContext("error adding asset tag: ", err)
 	}
-
+	a.assetsMu.Lock()
 	asset.Tags = append(asset.Tags, at.TagID)
+	a.assetsMu.Unlock()
 	tag.Assets = append(tag.Assets, at.AssetID)
 
 	return nil
@@ -432,7 +451,9 @@ func (a *assets) RemoveAssetTag(at AssetTag, _ *struct{}) error {
 	if !ok {
 		return ErrTagNotExist
 	}
+	a.assetsMu.RLock()
 	asset, ok := a.Assets[at.AssetID]
+	a.assetsMu.RUnlock()
 	if !ok {
 		return ErrAssetNotExist
 	}
@@ -453,7 +474,9 @@ func (a *assets) RemoveAssetTag(at AssetTag, _ *struct{}) error {
 	}
 
 	tag.Assets = removeID(tag.Assets, at.AssetID)
+	a.assetsMu.Lock()
 	asset.Tags = removeID(asset.Tags, at.TagID)
+	a.assetsMu.Unlock()
 	return nil
 }
 

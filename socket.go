@@ -48,6 +48,22 @@ func (s *socket) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type exclusiveCodec struct {
+	mu sync.Mutex
+	rpc.ServerCodec
+}
+
+func (e *exclusiveCodec) ReadRequestHeader(r *rpc.Request) error {
+	e.mu.Lock()
+	return e.ServerCodec.ReadRequestHeader(r)
+}
+
+func (e *exclusiveCodec) WriteResponse(r *rpc.Response, v interface{}) error {
+	err := e.ServerCodec.WriteResponse(r, v)
+	e.mu.Unlock()
+	return err
+}
+
 func (s *socket) adminConn(conn *websocket.Conn) {
 	s.quitMu.Lock()
 	close(s.quit)
@@ -63,7 +79,7 @@ func (s *socket) adminConn(conn *websocket.Conn) {
 		}
 	}()
 	io.WriteString(conn, "{\"id\": -1, \"result\": true}")
-	s.server.ServeCodec(jsonrpc.NewServerCodec(conn))
+	s.server.ServeCodec(&exclusiveCodec{ServerCodec: jsonrpc.NewServerCodec(conn)})
 	close(done)
 }
 
