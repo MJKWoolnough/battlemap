@@ -1,4 +1,38 @@
 html, body {
+	background-color: #fff;
 	margin: 0;
 	padding: 0;
+}
+
+.loadSpinner {
+	display: inline-block;
+	height: 64px;
+	width: 64px;
+}
+
+.loadSpinner:after {
+	animation: loadSpinner 2.5s linear infinite;
+	border: 5px solid #fff;
+	border-color: #000 transparent #000 transparent;
+	border-radius: 50%;
+	content: " ";
+	display: block;
+	margin: 1px;
+	height: 46px;
+	width: 46px;
+}
+
+@keyframes loadSpinner {
+	0% {
+		transform: rotate(0deg);
+		border-color: #000 transparent #eee transparent;
+	}
+	50% {
+		transform: rotate(180deg);
+		border-color: #eee transparent #000 transparent;
+	}
+	100% {
+		transform: rotate(360deg);
+		border-color: #000 transparent #eee transparent;
+	}
 }
