@@ -48,6 +48,9 @@ func main() {
 
 	fmt.Println("Running...")
 	err := srv.ListenAndServe()
+	if err := DB.Close(); err != nil {
+		e(err)
+	}
 	if err != http.ErrServerClosed {
 		e(err)
 	}
