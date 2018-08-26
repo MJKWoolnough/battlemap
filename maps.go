@@ -101,7 +101,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 	if err = db.QueryRow(fmt.Sprintf("SELECT COUNT(1) FROM [MapLayers_%d];", table)).Scan(&numRows); err != nil {
 		return m, errors.WithContext("error counting MapLayers rows: ", err)
 	} else if numRows == 0 {
-		db.Exec(fmt.Sprintf("INSERT INTO [MapLayers_%d] ([Name], [Order]) VALUES ('Background', 0), ('Grid', 1), ('Foreground', 2);"))
+		db.Exec(fmt.Sprintf("INSERT INTO [MapLayers_%d] ([Name], [Order]) VALUES ('Background', 0), ('Grid', 1), ('Foreground', 2);", table))
 	}
 	for stmt, code := range map[**sql.Stmt]string{
 		&m.addToken:       "INSERT INTO [MapTokens_%d]([Token], [Width], [Height], [X], [Y], [Layer]) VALUES (?, ?, ?, ?, ?, ?);",
@@ -134,7 +134,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		&m.removeTables: "DROP TABLE [MapTokens_%d]; DROP TABLE [MapLayers_%d]",
 	} {
 		if *stmt, err = db.Prepare(fmt.Sprintf(code, table)); err != nil {
-			return m, errors.WithContext(fmt.Sprintf("error creating prepared statement for %s: ", table), err)
+			return m, errors.WithContext(fmt.Sprintf("error creating prepared statement for %d: ", table), err)
 		}
 	}
 	return m, nil
@@ -211,3 +211,31 @@ func (m *maps) AddMap(nm Map, mp *Map) error {
 	m.maps[nm.ID] = mp
 	return nil
 }
+
+func (m *maps) RenameMap(nm Map, _ *struct{}) error {
+	mp, ok := m.maps[nm.ID]
+	if !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.updateMapName.Exec(nm.Name, nm.ID); err != nil {
+		return errors.WithContext("error updating map name: ", err)
+	}
+	mp.Name = nm.Name
+	return nil
+}
+
+func (m *maps) RemoveMap(id int, _ *struct{}) error {
+	_, ok := m.maps[id]
+	if !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.removeMap.Exec(id); err != nil {
+		return errors.WithContext("error removing map: ", err)
+	}
+	delete(m.maps, id)
+	return nil
+}
+
+const (
+	ErrMapNotExist errors.Error = "map doesn't exist"
+)
