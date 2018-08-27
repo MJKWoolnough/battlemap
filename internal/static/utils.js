@@ -48,6 +48,55 @@ const createElements = function(namespace) {
 		elem.removeChild(elem.lastChild);
 	}
       },
+      layers = function(container) {
+	const layers = [],
+	      closer = function(closerFn) {
+		if (layers.length === 0) {
+			window.removeEventListener("keypress", kerPress);
+			return;
+		}
+		clearElement(container);
+		const elm = layers.pop();
+		if (elm !== undefined) {
+			container.appendChild(elm);
+		}
+		if (closerFn instanceof Function) {
+			closerFn();
+		}
+	      },
+	      keyPress = function(e) {
+		e = e || window.event;
+		if (e.keyCode === 27) {
+			closer();
+		}
+	      };
+	return Object.freeze({
+		addLayer: closerFn => {
+			if (layers.length === 0) {
+				window.addEventListener("keypress", keyPress);
+			}
+			if (container.hasChildNodes()) {
+				const df = document.createDocumentFragment();
+				while (container.hasChildNodes()) {
+					df.appendChild(container.firstChild);
+				}
+				layers.push(df);
+			}
+			return container.appendChild(createHTML(
+				"div",
+				{
+					"onclick": closer
+				},
+				createHTML(
+					"button",
+					{},
+					"X"
+				)
+			));
+		},
+		removeLayer: closer
+	});
+      },
       include = function(url, successFn, errorFn) {
 	const css = url.substr(-3) === "css",
 	      elm = css ? "link" : "script",
