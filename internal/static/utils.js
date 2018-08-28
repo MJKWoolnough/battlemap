@@ -1,5 +1,6 @@
 "use strict";
-const createElements = function(namespace) {
+const pageLoad = new Promise(successFn => window.addEventListener("load", successFn)),
+      createElements = function(namespace) {
 	const childrenArr = function(elem, children) {
 		if (typeof children === "string") {
 			elem.textContent = children;
@@ -51,10 +52,6 @@ const createElements = function(namespace) {
       layers = function(container) {
 	const layers = [],
 	      closer = function(closerFn) {
-		if (layers.length === 0) {
-			window.removeEventListener("keypress", kerPress);
-			return;
-		}
 		clearElement(container);
 		const elm = layers.pop();
 		if (elm !== undefined) {
@@ -62,6 +59,10 @@ const createElements = function(namespace) {
 		}
 		if (closerFn instanceof Function) {
 			closerFn();
+		}
+		if (layers.length === 0) {
+			window.removeEventListener("keypress", keyPress);
+			return;
 		}
 	      },
 	      keyPress = function(e) {
@@ -84,12 +85,14 @@ const createElements = function(namespace) {
 			}
 			return container.appendChild(createHTML(
 				"div",
-				{
-					"onclick": closer
-				},
+				{},
 				createHTML(
-					"button",
-					{},
+					"span",
+					{
+						"class": "closer",
+
+						"onclick": closer.bind(null, closerFn)
+					},
 					"X"
 				)
 			));
@@ -97,7 +100,7 @@ const createElements = function(namespace) {
 		removeLayer: closer
 	});
       },
-      include = function(url, successFn, errorFn) {
+      include = function(url) {
 	const css = url.substr(-3) === "css",
 	      elm = css ? "link" : "script",
 	      props = css ? {
@@ -108,97 +111,216 @@ const createElements = function(namespace) {
 		      "src": url,
 		      "type": "text/javascript"
 	      };
-	if (typeof successFn === "function") {
+	return new Promise((successFn, errorFn) => {
 		props["onload"] = successFn;
-	}
-	if (typeof successFn === "function") {
 		props["onerror"] = errorFn;
-	}
-	document.head.appendChild(createHTML(elm, props));
-      },
-      waitGroup = function(callback) {
-	let state = 0;
-	this.add = function(amount) {
-		state += amount || 1;
-	};
-	this.done = function() {
-		state--;
-		if (state === 0) {
-			callback();
-		}
-	};
-      },
-      RPC = function(path, onopen) {
-	const request = function(callback, keep) {
-		this.callback = callback;
-		this.keep = keep;
-	    },
-	    requests = [],
-	    ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
-	let nextID = 0,
-	    error = alert,
-	    closed = false;
-	ws.addEventListener("message", function(event) {
-		const data = JSON.parse(event.data),
-		    req = requests[data["id"]];
-		if (typeof req === "undefined") {
-			return;
-		}
-		if (!req.keep) {
-			delete requests[data["id"]];
-		}
-		if (data["error"] !== undefined && data["error"] !== null) {
-			error(data["error"]);
-			return;
-		}
-		if (req.callback) {
-			req.callback(data["result"]);
-		}
+		document.head.appendChild(createHTML(elm, props));
 	});
-	ws.addEventListener("error", function(event) {
-		document.body.textContent = "An Error Occurred!";
-	});
-	ws.addEventListener("close", function(event) {
-		if (!closed) {
-			switch (event.code) {
-			case 1006:
-				document.body.textContent = "The server unexpectedly closed the connection - this may be an error.";
-				break;
-			default:
-				document.body.textContent = "Lost Connection To Server! Code: " + event.code;
+      },
+      xmlHTTP = function(url, props = {}) {
+	return Promise((successFn, errorFn) => {
+		const xh = new XMLHttpRequest();
+		xh.open(
+			props.hasOwnProperty("method") ? props["method"] : "GET",
+			url,
+			true,
+			props.hasOwnProperty("user") ? props["user"] : null,
+			props.hasOwnProperty("password") ? props["password"] : null
+		);
+		if (props.hasOwnProperty("type")) {
+			xh.setRequestHeader("Content-Type", props["type"]);
+		}
+		xh.addEventListener("readystatechange", () => {
+			if (this.readyState === 4) {
+				if (this.status === 200) {
+					switch (props["response"]) {
+					case "text":
+					case "TEXT":
+						successFn.call(xh, xh.responseText);
+						break;
+					default:
+						successFn.call(xh, xh.response);
+					}
+				} else {
+					errorFn.call(xh, xh.responseText);
+				}
 			}
+		});
+		if (props.hasOwnProperty("onprogress")) {
+			xh.addEventListener("progress", props["onprogress"]);
 		}
+		xh.send(props.hasOwnProperty("data") ? props["data"] : null);
 	});
-	if (typeof onopen === "function") {
-		ws.addEventListener("open", onopen.bind(null, this));
-	}
-	window.addEventListener("beforeunload", function() {
-		if (!closed) {
-			closed = true;
-			ws.close();
+      },
+      RPC = (function() {
+	const connectWS = function(path, allowXH) {
+		return new Promise((successFn, errorFn) => {
+			const ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
+			ws.addEventListener("open", successFn.bind(null, ws));
+			ws.addEventListener("error", errorFn);
+		}).then(ws => Promise.resolve((function() {
+			const requests = [];
+			let nextID = 0, closed = false;
+			ws.addEventListener("close", e => {
+				if (!closed) {
+					switch (event.code) {
+					case 1006:
+						document.body.textContent = "The server unexpectedly closed the connection - this may be an error.";
+						break;
+					default:
+						document.body.textContent = "Lost Connection To Server! Code: " + event.code;
+					}
+				}
+			});
+			ws.addEventListener("message", e => {
+				const data = JSON.parse(e.data),
+				    req = requests[data["id"]];
+				if (typeof req === "undefined") {
+					return;
+				}
+				if (!req.keep) {
+					delete requests[data["id"]];
+				}
+				if (data["error"] !== undefined && data["error"] !== null) {
+					req["errorFn"](data["error"]);
+					return;
+				}
+				if (req["successFn"]) {
+					req["successFn"](data["result"]);
+				}
+			});
+			window.addEventListener("beforeunload", function() {
+				if (!closed) {
+					closed = true;
+					ws.close();
+				}
+			});
+			return Object.freeze({
+				"request": function(method, params = null) {
+					if (closed) {
+						return Promise.reject("RPC closed");
+					}
+					return new Promise((successFn, errorFn) => {
+						const msg = {
+							"method": method,
+							"id": nextID,
+							"params": [params]
+						};
+						requests[nextID] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
+						nextID++;
+						ws.send(JSON.stringify(msg));
+					});
+				},
+				"await": function(id, callback, keep = false) {
+					if (callback === undefined && keep === false) {
+						return Promise((successFn, errorFn) => {
+							requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
+							if (id >= nextID) {
+								nextID = id + 1;
+							}
+						});
+					} else {
+						requests[id] = {"successFn": callback, "errorFn": alert, "keep": keep};
+						if (id >= nextID) {
+							nextID = id + 1;
+						}
+					}
+				},
+				"close": function() {
+					closed = true;
+					ws.close();
+				}
+			});
+		}())),
+		() => {
+			if (allowXH) {
+				return connectXH();
+			} else {
+				return Promise.reject("error connecting to WebSocket");
+			}
+		});
+	      },
+	      connectXH = function(path) {
+		const requests = [],
+		      todo = [],
+		      readystatechange = function() {
+			this.responseText.split("\n").forEach(response => {
+				const data = JSON.parse(response),
+				      req = request[data["id"]];
+				if (typeof req === "undefined") {
+					return;
+				}
+				if (!req.keep) {
+					delete requests[data["id"]];
+				}
+				if (data["error"] !== undefined && data["error"] !== null) {
+					req["errorFn"](data["error"]);
+					return;
+				}
+				if (req["successFn"]) {
+					req["successFn"](data["result"]);
+				}
+			});
+		      },
+		      send = function() {
+			xmlHTTP(path, {
+				"method": "POST",
+				"type": "application/json",
+				"repsonse": "text",
+				"data": todo.join()
+			}).then(readystatechange);
+			todo.splice(0, todo.length);
+			sto = -1;
+		      };
+		let nextID = 0,
+		    sto = -1,
+		    closed = false;
+		//TODO: Set up a 'ping' function for 'await' request?
+		return Promise.resolve({
+			"request": function(method, params = null) {
+				if (closed) {
+					return Promise.reject("RPC closed");
+				}
+				return new Promise((successFn, errorFn) => {
+					const msg = {
+						"method": method,
+						"id": nextID,
+						"params": [params]
+					};
+					requests[nextID] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
+					nextID++;
+					todo.push(JSON.stringify(msg));
+					if (sto === -1) {
+						sto = window.setTimeout(send, 1);
+					}
+				});
+			},
+			"await": function(id, callback, keep = false) {
+				if (callback === undefined && keep === false) {
+					return Promise((successFn, errorFn) => {
+						requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
+						if (id >= nextID) {
+							nextID = id + 1;
+						}
+					});
+				} else {
+					requests[id] = {"successFn": callback, "errorFn": alert, "keep": keep};
+					if (id >= nextID) {
+						nextID = id + 1;
+					}
+				}
+			},
+			"close": function() {
+				closed = true;
+			}
+		});
+	      };
+	  return function(path, allowWS = true, allowXH = false) {
+		if (allowWS) {
+			return connectWS(path, allowXH);
+		} else if (allowXH) {
+			return connectXH(path);
 		}
-	});
-	this.errorFn = function(callback) {
-		error = callback;
-	};
-	this.request = function(method, params, callback, keep) {
-		const msg = {
-			"method": method,
-			"id": nextID,
-			"params": [params]
-		};
-		requests[nextID] = new request(callback, keep);
-		nextID++;
-		ws.send(JSON.stringify(msg));
-	};
-	this.await = function(id, callback, keep) {
-		requests[id] = new request(callback, keep);
-		if (id >= nextID) {
-			nextID = id + 1;
-		}
-	};
-	this.close = function() {
-		closed = true;
-		ws.close();
-	};
-      };
+		return Promise.reject("no connecion available");
+	  };
+      }());

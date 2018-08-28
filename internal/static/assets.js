@@ -1,8 +1,7 @@
 "use strict";
-var assetStart = function(base, rpc) {
+var assetStart = function(rpc, base, overlay) {
 	let changed = false;
 	const tags = {}, tagList = {}, assets = {},
-	      overlay = document.getElementById("overlay"),
 	      createAssetTag = function(asset, tag) {
 		return createHTML(
 			"li",
@@ -17,7 +16,7 @@ var assetStart = function(base, rpc) {
 
 						"onclick": function() {
 							changed = true;
-							rpc.request("Assets.RemoveAssetTag", {"AssetID": asset.ID, "TagID": tag.ID}, () => {
+							rpc.request("Assets.RemoveAssetTag", {"AssetID": asset.ID, "TagID": tag.ID}).then(() => {
 								asset.Tags = asset.Tags.filter(t => t !== tag.ID);
 								tag.Assets = tag.Assets.filter(a => a !== asset.ID);
 								this.parentNode.parentNode.removeChild(this.parentNode);
@@ -37,34 +36,11 @@ var assetStart = function(base, rpc) {
 					"class": "assetName",
 
 					"onclick": function() {
-						const closeFn = function() {
-							window.removeEventListener("keypress", keyPress);
-							clearElement(overlay);
-							if (changed) {
-								writeList();
-							}
-						      },
-						      keyPress = function(e) {
-							e = e || window.event;
-							if (e.keyCode === 27) {
-								closeFn();
-							}
-						      };
-						window.addEventListener("keypress", keyPress);
 						changed = false;
-						clearElement(overlay);
-						overlay.appendChild(createHTML(
-							"div",
+						createHTML(
+							overlay.addLayer(),
 							{},
 							[
-								createHTML(
-									"div",
-									"X",
-									{
-										"class": "closer",
-										"onclick": closeFn
-									}
-								),
 								createHTML("h1", 
 									{},
 									[
@@ -81,7 +57,7 @@ var assetStart = function(base, rpc) {
 														return;
 													}
 													asset.Name = name;
-													rpc.request("Assets.RenameAsset", asset, n => {
+													rpc.request("Assets.RenameAsset", asset).then(n => {
 														changed = true;
 														asset.Name = n;
 														this.previousSibling.innerText = n;
@@ -101,7 +77,7 @@ var assetStart = function(base, rpc) {
 														delete assets[asset.ID];
 														Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
 														changed = true;
-														this.parentNode.parentNode.firstChild.click();
+														overlay.removeLayer();
 													}
 												}
 											}
@@ -131,14 +107,14 @@ var assetStart = function(base, rpc) {
 										"onchange": function() {
 											const val = parseInt(this.value);
 											if (val >= 0 && !asset.Tags.includes(val)) {
-												rpc.request("Assets.AddAssetTag", {"AssetID": asset.ID, "TagID": val}, () => {
+												rpc.request("Assets.AddAssetTag", {"AssetID": asset.ID, "TagID": val}).then(() => {
 													changed = true;
 													asset.Tags.push(val);
 													tags[val].Assets.push(asset.ID);
 													document.getElementById("tagList").appendChild(createAssetTag(asset, tags[val]));
 												});
 											}
-										},
+										}
 									},
 									[
 										createHTML("option", {"value": "-1"}, "--Choose Tag--"),
@@ -152,7 +128,7 @@ var assetStart = function(base, rpc) {
 									asset.Tags.map(t => createAssetTag(asset, tags[t]))
 								)
 							]
-						));
+						);
 					}
 				}
 			)
@@ -179,7 +155,7 @@ var assetStart = function(base, rpc) {
 									return;
 								}
 								t.Name = name;
-								rpc.request("Assets.RenameTag", t, function(n) {
+								rpc.request("Assets.RenameTag", t).then(n => {
 									t.Name = n;
 									createPsuedoTags();
 									writeList();
@@ -237,7 +213,7 @@ var assetStart = function(base, rpc) {
 						if (tag !== null && tag !== "") {
 							const lTag = tag.toLowerCase();
 							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
-								rpc.request("Assets.AddTag", tag, function(tag) {
+								rpc.request("Assets.AddTag", tag).then(tag => {
 									tags[tag.ID] = tag;
 									const lName = tag.Name.toLowerCase();
 									if (tagList.hasOwnProperty(lName)) {
@@ -294,25 +270,22 @@ var assetStart = function(base, rpc) {
 									bar.setAttribute("max", 0);
 									clearElement(overlay);
 									overlay.appendChild(progress);
-									const xh = new XMLHttpRequest();
-									xh.upload.addEventListener("progress", function(e) {
-										bar.setAttribute("value", e.loaded);
-										bar.setAttribute("max", e.total);
-										bar.innerText = Math.floor(e.loaded*100/e.total) + "%";
-									});
-									xh.addEventListener("readystatechange", function() {
-										if(xh.readyState === 4) {
-											if (xh.status === 200) {
-												JSON.parse(xh.responseText).forEach(a => assets[a.ID] = a);
-												clearElement(overlay);
-												writeList();
-											} else {
-												progress.firstChild.innerText = "Upload Failed!"
-											}
+									xmlHTTP("/socket", {
+										"method": "POST",
+										"data": new FormData(this.parentNode),
+
+										"progress": e => {
+											bar.setAttribute("value", e.loaded);
+											bar.setAttribute("max", e.total);
+											bar.innerText = Math.floor(e.loaded*100/e.total) + "%";
 										}
+									}).then(responseText => {
+										JSON.parse(xh.responseText).forEach(a => assets[a.ID] = a);
+										clearElement(overlay);
+										writeList();
+									}, () => {
+										progress.firstChild.innerText = "Upload Failed!"
 									});
-									xh.open("POST", "/socket");
-									xh.send(new FormData(this.parentNode));
 								};
 							}())
 						}
@@ -345,16 +318,14 @@ var assetStart = function(base, rpc) {
 			}
 		})
 	      };
-	const wg = new waitGroup(buildHTML);
-	wg.add(2);
-	rpc.request("Assets.ListTags", null, function(data) {
-		Object.assign(tags, data);
+	Promise.all([
+		rpc.request("Assets.ListTags"),
+		rpc.request("Assets.ListAssets")
+	]).then(data => {
+		Object.assign(tags, data[0]);
 		Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
 		createPsuedoTags();
-		wg.done();
-	});
-	rpc.request("Assets.ListAssets", null, function(data) {
-		Object.assign(assets, data);
-		wg.done();
+		Object.assign(assets, data[1]);
+		buildHTML();
 	});
 };
