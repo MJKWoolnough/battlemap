@@ -276,7 +276,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 		    sto = -1,
 		    closed = false;
 		//TODO: Set up a 'ping' function for 'await' request?
-		return Promise.resolve({
+		return Promise.resolve(Object.freeze({
 			"request": function(method, params = null) {
 				if (closed) {
 					return new Promise.reject("RPC closed");
@@ -313,7 +313,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 			"close": function() {
 				closed = true;
 			}
-		});
+		}));
 	      };
 	  return function(path, allowWS = true, allowXH = false) {
 		if (allowWS) {
