@@ -4,7 +4,7 @@
 		<title>Assets</title>
 		<script type="text/javascript" src="utils.js"></script>
 		<script type="text/javascript" src="assets.js"></script>
-		<script type="text/javascript">pageLoad.then(() => RPC("/socket")).then(rpc => assetStart(rpc, document.body, layers(document.getElementById("overlay"))));</script>
+		<script type="text/javascript">pageLoad.then(() => RPC("/socket")).then(rpc => assetStart(rpc, document.body, new Layers(document.getElementById("overlay"))));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="assets.css" />
 	</head>
 	<body>

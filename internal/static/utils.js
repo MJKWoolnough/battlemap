@@ -49,7 +49,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 		elem.removeChild(elem.lastChild);
 	}
       },
-      layers = function(container) {
+      Layers = function(container) {
 	const layers = [],
 	      closer = function(closerFn) {
 		clearElement(container);
@@ -71,34 +71,32 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 			closer();
 		}
 	      };
-	return Object.freeze({
-		addLayer: closerFn => {
-			if (layers.length === 0) {
-				window.addEventListener("keypress", keyPress);
+	this.addLayer = closerFn => {
+		if (layers.length === 0) {
+			window.addEventListener("keypress", keyPress);
+		}
+		if (container.hasChildNodes()) {
+			const df = document.createDocumentFragment();
+			while (container.hasChildNodes()) {
+				df.appendChild(container.firstChild);
 			}
-			if (container.hasChildNodes()) {
-				const df = document.createDocumentFragment();
-				while (container.hasChildNodes()) {
-					df.appendChild(container.firstChild);
-				}
-				layers.push(df);
-			}
-			return container.appendChild(createHTML(
-				"div",
-				{},
-				createHTML(
-					"span",
-					{
-						"class": "closer",
+			layers.push(df);
+		}
+		return container.appendChild(createHTML(
+			"div",
+			{},
+			createHTML(
+				"span",
+				{
+					"class": "closer",
 
-						"onclick": closer.bind(null, closerFn)
-					},
-					"X"
-				)
-			));
-		},
-		removeLayer: closer
-	});
+					"onclick": closer.bind(null, closerFn)
+				},
+				"X"
+			)
+		));
+	};
+	this.removeLayer = closer
       },
       include = function(url) {
 	const css = url.substr(-3) === "css",
