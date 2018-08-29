@@ -3,7 +3,7 @@
 	<head>
 		<title>Map</title>
 		<script type="text/javascript" src="utils.js"></script>
-		<script type="text/javascript">pageLoad.then(() => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => include(admin ? "admin.js" : "user.js").then(() => mapStart(rpc)))) .catch(e => alert("error loading data: " + e));</script>
+		<script type="text/javascript">pageLoad.then(() => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => include(admin ? "admin.js" : "user.js").then(() => mapStart(rpc)))).catch(e => alert("error loading data: " + e));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="map.css" />
 	</head>
 	<body>

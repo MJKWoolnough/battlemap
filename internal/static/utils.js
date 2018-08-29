@@ -117,6 +117,19 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 		document.head.appendChild(createHTML(elm, props));
 	});
       },
+      Subscription = function(fn) {
+	const successFns = [],
+	      errorFns = [];
+	fn((...data) => successFns.forEach(f => f(...data)), (...data) => errorFns.forEach(f => f(...data)));
+	this.when = (successFn, errorFn) => {
+		if (successFn instanceof Function) {
+			successFns.push(successFn);
+		}
+		if (errorFn instanceof Function) {
+			errorFns.push(errorFn);
+		}
+	};
+      },
       xmlHTTP = function(url, props = {}) {
 	return new Promise((successFn, errorFn) => {
 		const xh = new XMLHttpRequest();
@@ -159,7 +172,13 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 			ws.addEventListener("open", successFn.bind(null, ws));
 			ws.addEventListener("error", errorFn);
 		}).then(ws => Promise.resolve((function() {
-			const requests = [];
+			const requests = [],
+			      awaitFn = (id, keep) => (successFn, errorFn) => {
+				requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": keep};
+				if (id >= nextID) {
+					nextID = id + 1;
+				}
+			};
 			let nextID = 0, closed = false;
 			ws.addEventListener("close", e => {
 				if (!closed) {
@@ -211,20 +230,11 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 						ws.send(JSON.stringify(msg));
 					});
 				},
-				"await": function(id, callback, keep = false) {
-					if (callback === undefined && keep === false) {
-						return new Promise((successFn, errorFn) => {
-							requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
-							if (id >= nextID) {
-								nextID = id + 1;
-							}
-						});
-					} else {
-						requests[id] = {"successFn": callback, "errorFn": alert, "keep": keep};
-						if (id >= nextID) {
-							nextID = id + 1;
-						}
+				"await": function(id, keep = false) {
+					if (keep) {
+						return new Subscription(awaitFn(id, true));
 					}
+					return new Promise(awaitFn(id, false));
 				},
 				"close": function() {
 					closed = true;
@@ -242,6 +252,12 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 	      },
 	      connectXH = function(path) {
 		const requests = [],
+		      awaitFn = (id, keep) => (successFn, errorFn) => {
+			requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": keep};
+			if (id >= nextID) {
+				nextID = id + 1;
+			}
+		      },
 		      todo = [],
 		      readystatechange = function() {
 			this.responseText.split("\n").forEach(response => {
@@ -295,20 +311,11 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 					}
 				});
 			},
-			"await": function(id, callback, keep = false) {
-				if (callback === undefined && keep === false) {
-					return Promise((successFn, errorFn) => {
-						requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
-						if (id >= nextID) {
-							nextID = id + 1;
-						}
-					});
-				} else {
-					requests[id] = {"successFn": callback, "errorFn": alert, "keep": keep};
-					if (id >= nextID) {
-						nextID = id + 1;
-					}
+			"await": function(id, keep = false) {
+				if (keep) {
+					return new Subscription(awaitFn(id, true));
 				}
+				return new Promise(awaitFn(id, false));
 			},
 			"close": function() {
 				closed = true;
