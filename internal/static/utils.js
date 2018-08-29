@@ -118,7 +118,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 	});
       },
       xmlHTTP = function(url, props = {}) {
-	return Promise((successFn, errorFn) => {
+	return new Promise((successFn, errorFn) => {
 		const xh = new XMLHttpRequest();
 		xh.open(
 			props.hasOwnProperty("method") ? props["method"] : "GET",
@@ -213,7 +213,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 				},
 				"await": function(id, callback, keep = false) {
 					if (callback === undefined && keep === false) {
-						return Promise((successFn, errorFn) => {
+						return new Promise((successFn, errorFn) => {
 							requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
 							if (id >= nextID) {
 								nextID = id + 1;
@@ -279,7 +279,7 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 		return Promise.resolve({
 			"request": function(method, params = null) {
 				if (closed) {
-					return Promise.reject("RPC closed");
+					return new Promise.reject("RPC closed");
 				}
 				return new Promise((successFn, errorFn) => {
 					const msg = {
