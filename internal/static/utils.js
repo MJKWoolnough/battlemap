@@ -182,12 +182,12 @@ const pageLoad = new Promise(successFn => window.addEventListener("load", succes
 			let nextID = 0, closed = false;
 			ws.addEventListener("close", e => {
 				if (!closed) {
-					switch (event.code) {
+					switch (e.code) {
 					case 1006:
 						document.body.textContent = "The server unexpectedly closed the connection - this may be an error.";
 						break;
 					default:
-						document.body.textContent = "Lost Connection To Server! Code: " + event.code;
+						document.body.textContent = "Lost Connection To Server! Code: " + e.code;
 					}
 				}
 			});
