@@ -1,7 +1,9 @@
 "use strict";
-var assetStart = function(rpc, base, overlay) {
+offer(async function(rpc, base, overlay) {
 	let changed = false;
-	const tags = {}, tagList = {}, assets = {},
+	const {createHTML, clearElement} = await include("html.js"),
+	      {xmlHTTP} = await include("conn.js"),
+	      tags = {}, tagList = {}, assets = {},
 	      createAssetTag = function(asset, tag) {
 		return createHTML(
 			"li",
@@ -327,5 +329,5 @@ var assetStart = function(rpc, base, overlay) {
 		createPsuedoTags();
 		Object.assign(assets, data[1]);
 		buildHTML();
-	});
-};
+	}, e => console.log(e));
+});

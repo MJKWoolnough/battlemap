@@ -1,4 +1,4 @@
 "use strict";
-function mapStart(rpc) {
+offer(rpc => {
 	alert("user");
-}
+});

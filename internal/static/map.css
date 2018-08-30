@@ -13,7 +13,7 @@ html, body {
 .loadSpinner:after {
 	animation: loadSpinner 2.5s linear infinite;
 	border: 5px solid #fff;
-	border-color: #000 transparent #000 transparent;
+	border-color: #000 #eee #eee #eee;
 	border-radius: 50%;
 	content: " ";
 	display: block;
@@ -25,14 +25,12 @@ html, body {
 @keyframes loadSpinner {
 	0% {
 		transform: rotate(0deg);
-		border-color: #000 transparent #eee transparent;
-	}
-	50% {
-		transform: rotate(180deg);
-		border-color: #eee transparent #000 transparent;
 	}
 	100% {
 		transform: rotate(360deg);
-		border-color: #000 transparent #eee transparent;
 	}
+}
+
+#maps ul li:first-child button:first-child, #maps ul li:last-child button + button {
+	display: none;
 }

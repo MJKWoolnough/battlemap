@@ -2,9 +2,8 @@
 <html lang="en">
 	<head>
 		<title>Assets</title>
-		<script type="text/javascript" src="utils.js"></script>
-		<script type="text/javascript" src="assets.js"></script>
-		<script type="text/javascript">pageLoad.then(() => RPC("/socket")).then(rpc => assetStart(rpc, document.body, new Layers(document.getElementById("overlay"))));</script>
+		<script type="text/javascript" src="load.js"></script>
+		<script type="text/javascript">pageLoad.then(() => include("conn.js")).then(conn => conn.RPC("/socket")).then(rpc => rpc.await(-1).then(admin => admin ? include("html.js") : Promise.reject("Need to be logged in")).then(html => include("assets.js").then(start => start(rpc, document.body, new html.Layers(document.getElementById("overlay")))))).catch(e => alert(e));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="assets.css" />
 	</head>
 	<body>
