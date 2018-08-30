@@ -2,8 +2,8 @@
 <html lang="en">
 	<head>
 		<title>Map</title>
-		<script type="text/javascript" src="load.js"></script>
-		<script type="text/javascript">pageLoad.then(() => include("conn.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => include(admin ? "admin.js" : "user.js").then(start => start(rpc)))).catch(e => alert("error loading data: " + e));</script>
+		<script type="application/javascript" src="load.js"></script>
+		<script type="application/javascript">pageLoad.then(() => include("conn.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => include(admin ? "admin.js" : "user.js").then(start => start(rpc)))).catch(e => alert("error loading data: " + e));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="map.css" />
 	</head>
 	<body>
