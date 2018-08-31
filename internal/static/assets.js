@@ -2,7 +2,7 @@
 offer(async function(rpc, base, overlay) {
 	let changed = false;
 	const {createHTML, clearElement} = await include("html.js"),
-	      {xmlHTTP} = await include("conn.js"),
+	      {HTTPRequest} = await include("conn.js"),
 	      tags = {}, tagList = {}, assets = {},
 	      createAssetTag = function(asset, tag) {
 		return createHTML(
@@ -272,7 +272,7 @@ offer(async function(rpc, base, overlay) {
 									bar.setAttribute("max", 0);
 									clearElement(overlay);
 									overlay.appendChild(progress);
-									xmlHTTP("/socket", {
+									HTTPRequest("/socket", {
 										"method": "POST",
 										"data": new FormData(this.parentNode),
 

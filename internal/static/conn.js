@@ -12,7 +12,7 @@ offer((function() {
 			}
 		};
 	      },
-	      xmlHTTP = function(url, props = {}) {
+	      HTTPRequest = function(url, props = {}) {
 		return new Promise((successFn, errorFn) => {
 			const xh = new XMLHttpRequest();
 			xh.open(
@@ -213,5 +213,5 @@ offer((function() {
 			return Promise.reject("no connecion available");
 		  };
 	      }());
-	return Object.freeze({xmlHTTP, RPC});
+	return Object.freeze({HTTPRequest, RPC});
 }()));
