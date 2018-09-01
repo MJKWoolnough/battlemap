@@ -47,6 +47,27 @@ offer((function() {
 			xh.send(props.hasOwnProperty("data") ? props["data"] : null);
 		});
 	      },
+	      WS = function(path) {
+			return new Promise((successFn, errorFn) => {
+				const ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
+				ws.addEventListener("open", () => successFn(Object.freeze({
+					close: ws.close.bind(ws),
+					send: ws.send.bind(ws),
+					when: new Subscription((successFn, errorFn) => {
+						ws.addEventListener("message", successFn);
+						ws.addEventListener("error", errorFn);
+						ws.addEventListener("close", errorFn);
+					}).when,
+					get type() {
+						return ws.type;
+					},
+					set type(t) {
+						ws.type = t;
+					},
+				})));
+				ws.addEventListener("error", errorFn);
+			});
+	      },
 	      RPC = (function() {
 		const connectWS = function(path, allowXH) {
 			return new Promise((successFn, errorFn) => {
@@ -213,5 +234,5 @@ offer((function() {
 			return Promise.reject("no connecion available");
 		  };
 	      }());
-	return Object.freeze({HTTPRequest, RPC});
+	return Object.freeze({HTTPRequest, RPC, WS});
 }()));
