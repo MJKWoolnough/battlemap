@@ -104,7 +104,7 @@ offer((function() {
 						delete requests[data["id"]];
 					}
 					if (data["error"] !== undefined && data["error"] !== null) {
-						req["errorFn"](data["error"]);
+						req["errorFn"](new Error(data["error"]));
 						return;
 					}
 					if (req["successFn"]) {
