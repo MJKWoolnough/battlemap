@@ -1,0 +1,27 @@
+.loadSpinner {
+	display: inline-block;
+	height: 64px;
+	width: 64px;
+}
+
+.loadSpinner:after {
+	animation: loadSpinner 2.5s linear infinite;
+	border: 5px solid #fff;
+	border-color: #000 #eee #eee #eee;
+	border-radius: 50%;
+	content: " ";
+	display: block;
+	margin: 1px;
+	height: 46px;
+	width: 46px;
+}
+
+@keyframes loadSpinner {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
