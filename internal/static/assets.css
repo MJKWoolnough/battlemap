@@ -63,3 +63,7 @@ input[type=checkbox], input[type=checkbox]:not(:checked) + ul {
 .closer:hover {
 	color: #f00;
 }
+
+.error {
+	color: #f00;
+}
