@@ -25,3 +25,14 @@
 	}
 }
 
+#overlay .loadSpinner {
+	background-color: rgba(127, 127, 127, 0.5);
+	bottom: 0;
+	display: block;
+	height: 100%;
+	left: 0;
+	position: fixed;
+	right: 0;
+	top: 0;
+	width: 100%;
+}

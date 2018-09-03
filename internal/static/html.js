@@ -49,28 +49,42 @@ offer((function() {
 			elem.removeChild(elem.lastChild);
 		}
 	      },
-	      Layers = function(container) {
+	      Layers = function(container, loadDiv) {
 		const layers = [],
 		      closer = function(closerFn) {
 			clearElement(container);
 			const elm = layers.pop();
 			if (elm !== undefined) {
 				container.appendChild(elm);
+			} else {
+				window.removeEventListener("keypress", keyPress);
 			}
 			if (closerFn instanceof Function) {
 				closerFn();
 			}
-			if (layers.length === 0) {
-				window.removeEventListener("keypress", keyPress);
-				return;
-			}
 		      },
 		      keyPress = function(e) {
+			if (loading) {
+				return false;
+			}
 			e = e || window.event;
 			if (e.keyCode === 27) {
 				closer();
 			}
+		      },
+		      addLoadingLayer = function() {
+			loading = true;
+			container.appendChild(loadingDiv);
+		      },
+		      closeLoadingLayer = function() {
+			loading = false;
+			container.removeChild(loadingDiv);
 		      };
+		let loadingDiv = loadDiv,
+		    loading = false;
+		if (loadDiv === undefined) {
+			loadingDiv = createHTML("div", {"class": "loadSpinner"});
+		}
 		this.addLayer = closerFn => {
 			if (layers.length === 0) {
 				window.addEventListener("keypress", keyPress);
@@ -96,7 +110,19 @@ offer((function() {
 				)
 			));
 		};
-		this.removeLayer = closer
+		this.removeLayer = closer;
+		this.loading = function(p) {
+			addLoadingLayer();
+			return new Promise(
+				(successFn, errorFn) => p.then((...args) => {
+					closeLoadingLayer();
+					successFn(...args);
+				}, (...args) => {
+					closeLoadingLayer();
+					errorFn(...args);
+				})
+			);
+		};
 	      };
 	return Object.freeze({createElements, createHTML, formatText, clearElement, Layers});
 }()));
