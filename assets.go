@@ -263,18 +263,21 @@ func (a *assets) generateThumbnail(asset *Asset) {
 
 }
 
-func (a *assets) ListAssets(_ struct{}, list *map[int]Asset) error {
+func (a *assets) ListAssets(_ struct{}, list *[]Asset) error {
 	a.assetsMu.RLock()
-	*list = make(map[int]Asset, len(a.Assets))
-	for id, a := range a.Assets {
-		(*list)[id] = *a
+	*list = make([]Asset, 0, len(a.Assets))
+	for _, a := range a.Assets {
+		*list = append(*list, *a)
 	}
 	a.assetsMu.RUnlock()
 	return nil
 }
 
-func (a *assets) ListTags(_ struct{}, list *map[int]*Tag) error {
-	*list = a.Tags
+func (a *assets) ListTags(_ struct{}, list *[]*Tag) error {
+	*list = make([]*Tag, 0, len(a.Tags))
+	for _, t := range a.Tags {
+		*list = append(*list, t)
+	}
 	return nil
 }
 
@@ -319,8 +322,10 @@ func (a *assets) RenameTag(t *Tag, newName *string) error {
 		if err != nil {
 			return errors.WithContext("error renaming tag: ", err)
 		}
+		delete(a.TagList, strings.ToLower(u.Name))
+		u.Name = t.Name
+		a.TagList[strings.ToLower(u.Name)] = u
 	}
-	u.Name = t.Name
 	*newName = u.Name
 	return nil
 }
@@ -357,23 +362,12 @@ func (a *assets) RenameAsset(asset *Asset, newName *string) error {
 		return ErrTagNotExist
 	}
 	if u.Name != asset.Name {
-		if !strings.EqualFold(u.Name, asset.Name) {
-			if _, ok = a.AssetsList[strings.ToLower(asset.Name)]; ok {
-				for i := 1; ; i++ {
-					tName := fmt.Sprintf("%s-%d", asset.Name, i)
-					if _, ok = a.AssetsList[strings.ToLower(tName)]; !ok {
-						asset.Name = tName
-						break
-					}
-				}
-			}
-		}
 		_, err := a.renameAsset.Exec(asset.Name, asset.ID)
 		if err != nil {
 			return errors.WithContext("error renaming asset: ", err)
 		}
+		u.Name = asset.Name
 	}
-	u.Name = asset.Name
 	*newName = u.Name
 	return nil
 }
