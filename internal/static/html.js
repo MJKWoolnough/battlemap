@@ -49,7 +49,7 @@ offer((function() {
 			elem.removeChild(elem.lastChild);
 		}
 	      },
-	      Layers = function(container, loadDiv) {
+	      Layers = function(container, loader) {
 		const layers = [],
 		      closer = function(closerFn) {
 			clearElement(container);
@@ -72,19 +72,12 @@ offer((function() {
 				closer();
 			}
 		      },
-		      addLoadingLayer = function() {
-			loading = true;
-			container.appendChild(loadingDiv);
-		      },
 		      closeLoadingLayer = function() {
 			loading = false;
-			container.removeChild(loadingDiv);
-		      };
-		let loadingDiv = loadDiv,
-		    loading = false;
-		if (loadDiv === undefined) {
-			loadingDiv = createHTML("div", {"class": "loadSpinner"});
-		}
+			container.removeChild(container.lastChild);
+		      },
+		      defaultLoader = loader ? loader : createHTML("div", {"class": "loadSpinner"});
+		let loading = false;
 		this.addLayer = closerFn => {
 			if (layers.length === 0) {
 				window.addEventListener("keypress", keyPress);
@@ -111,8 +104,12 @@ offer((function() {
 			));
 		};
 		this.removeLayer = closer;
-		this.loading = function(p) {
-			addLoadingLayer();
+		this.loading = function(p, loadDiv) {
+			if (loadDiv === undefined) {
+				loadDiv = defaultLoader;
+			}
+			loading = true;
+			container.appendChild(loadDiv);
 			return new Promise(
 				(successFn, errorFn) => p.then((...args) => {
 					closeLoadingLayer();
