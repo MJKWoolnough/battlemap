@@ -3,331 +3,575 @@ offer(async function(rpc, base, overlay) {
 	let changed = false;
 	const {createHTML, clearElement} = await include("html.js"),
 	      {HTTPRequest} = await include("conn.js"),
-	      tags = {}, tagList = {}, assets = {},
-	      createAssetTag = function(asset, tag) {
-		return createHTML(
-			"li",
-			{},
-			[
-				createHTML("span", tag.Name),
-				createHTML(
+	      showError = function(elm, e) {
+		if (elm.nextSibling !== null) {
+			if (elm.nextSibling.getAttribute("class") === "error") {
+				elm.nextSibling.textContent = e.message;
+			} else {
+				elm.parentNode.insertBefore(createHTML(
 					"span",
-					"⌫",
 					{
-						"class": "removeTag",
-
-						"onclick": function() {
-							changed = true;
-							rpc.request("Assets.RemoveAssetTag", {"AssetID": asset.ID, "TagID": tag.ID}).then(() => {
-								asset.Tags = asset.Tags.filter(t => t !== tag.ID);
-								tag.Assets = tag.Assets.filter(a => a !== asset.ID);
-								this.parentNode.parentNode.removeChild(this.parentNode);
-							})
-						}
-					}
-				)
-			]
-		)
-	      },
-	      writeAssetLine = function(asset) {
-		return createHTML("li",	{}, [
-			createHTML(
+						"class": "error"
+					},
+					e.message
+				), elm.nextSibling);
+			}
+		} else {
+			elm.parentNode.appendChild(createHTML(
 				"span",
-				asset.Name,
 				{
-					"class": "assetName",
-
-					"onclick": function() {
-						changed = false;
+					"class": "error"
+				},
+				e.message
+			));
+		}
+	      },
+	      assetList = (function() {
+		const asset = function(a) {
+			const details = function() {
+				const layer = overlay.addLayer(),
+				      title = layer.appendChild(createHTML(
+					      "h1",
+					      {},
+					      [
+						createHTML("span", a.Name),
 						createHTML(
-							overlay.addLayer(),
-							{},
-							[
-								createHTML("h1", 
-									{},
-									[
-										createHTML("span", asset.Name),
-										createHTML(
-											"span",
-											"✍",
-											{
-												"class": "rename",
+							"span",
+							"✍",
+							{
+								"class": "rename",
 
-												"onclick": function() {
-													const name = prompt("New Name?", asset.Name);
-													if (name === null || name === "" || name === asset.Name) {
-														return;
-													}
-													asset.Name = name;
-													rpc.request("Assets.RenameAsset", asset).then(n => {
-														changed = true;
-														asset.Name = n;
-														this.previousSibling.innerText = n;
-													});
+								"onclick": function() {
+									const layer = overlay.addLayer();
+									layer.appendChild(createHTML("h1", "Rename: " + a.Name));
+									layer.appendChild(createHTML("input", {"type": "text", "value": a.Name}));
+									layer.appendChild(createHTML(
+										"button",
+										"Rename",
+										{
+											"onclick": function() {
+												const oldName = a.Name,
+												      newName = this.previousSibling.value;
+												if (oldName === newName) {
+													overlay.removeLayer();
+													return;
 												}
-											}
-										),
-										createHTML(
-											"span",
-											"⌫",
-											{
-												"class": "delete",
-
-												"onclick": function() {
-													if (confirm("Sure you want to delete?")) {
-														rpc.request("Assets.RemoveAsset", asset.ID);
-														delete assets[asset.ID];
-														Object.values(tags).forEach(t => t.Assets = t.Assets.filter(b => b !== asset.ID));
-														changed = true;
-														overlay.removeLayer();
+												a.Name = newName;
+												overlay.loading(rpc.request("Assets.RenameAsset", a)).then(name => {
+													overlay.removeLayer();
+													a.Name = name;
+													if (name !== oldName) {
+														title.firstChild.textContent = name;
+														tagHTML.forEach(h => h.firstChild.textContent = name);
+														a.Tags.forEach(tid => {
+															const t = tagList.get(tid);
+															t.removeAsset(as)
+															t.addAsset(as)
+														});
 													}
-												}
-											}
-										)
-									]
-								),
-								asset.Type === "audio" ? createHTML(
-									"audio",
-									{
-										"controls": "controls",
-										"src": `assets/${asset.ID}.${asset.Ext}`
-									}
-								) : asset.Type === "image" ? createHTML (
-									"img",
-									{
-										"src": `assets/${asset.ID}.${asset.Ext}`,
-										"style": "max-width: 50%; max-height: 50%;"
-									}
-								) : [],
-								createHTML("br"),
-								createHTML("label", {"for": "tags"}, "Add Tag: "),
-								createHTML(
-									"select",
-									{
-										"id": "tags",
-
-										"onchange": function() {
-											const val = parseInt(this.value);
-											if (val >= 0 && !asset.Tags.includes(val)) {
-												rpc.request("Assets.AddAssetTag", {"AssetID": asset.ID, "TagID": val}).then(() => {
-													changed = true;
-													asset.Tags.push(val);
-													tags[val].Assets.push(asset.ID);
-													document.getElementById("tagList").appendChild(createAssetTag(asset, tags[val]));
+												}, e => {
+													a.Name = oldName;
+													showError(this, e);
 												});
 											}
 										}
-									},
-									[
-										createHTML("option", {"value": "-1"}, "--Choose Tag--"),
-										Object.values(tags).filter(t => t.ID >= 0).map(t => createHTML("option", {"value": t.ID}, t.Name))
-									]
-								),
-								createHTML("h2", "Tags"),
-								createHTML(
-									"ul",
-									{"id": "tagList"},
-									asset.Tags.map(t => createAssetTag(asset, tags[t]))
-								)
-							]
-						);
-					}
+									));
+								}
+							}
+						),
+						createHTML(
+							"span",
+							"⌫",
+							{
+								"class": "delete",
+
+								"onclick": function() {
+									createHTML(
+										overlay.addLayer(),
+										{
+											"class": "deleteLayer"
+										},
+										[
+											createHTML("span", `Are you sure you wish to delete this asset: ${a.Name}? This cannot be undone!`),
+											createHTML("br"),
+											createHTML(
+												"button",
+												"Yes",
+												{
+													"onclick": function() {
+														overlay.loading(rpc.request("Assets.RemoveAsset", a.ID)).then(() => {
+															if (a.Tags.length === 0) {
+																tagList.get(0).removeAsset(as);
+															} else {
+																a.Tags.forEach(tid => tagList.get(tid).removeAsset(as));
+															}
+															overlay.removeLayer();
+															overlay.removeLayer();
+														}).catch(showError.bind(null, this));
+													}
+												}
+											),
+											createHTML(
+												"button",
+												"No",
+												{
+													"onclick": overlay.removeLayer
+												}
+											)
+										]
+
+									)
+								}
+							}
+						)
+					      ]
+				      )),
+				      allTags = tagList.getAll(),
+				      tagOptions = () => {
+					const df = document.createDocumentFragment();
+					df.appendChild(createHTML("option", "Select a Tag"));
+					allTags.filter(t => t.id > 0 && !a.Tags.includes(t.id)).forEach(t => df.appendChild(createHTML("option", {"value": t.id}, t.name)))
+					return df;
+				      },
+				      createTagLine = function(t) {
+					return createHTML(
+						"li",
+						{},
+						[
+							createHTML("span", t.name),
+							createHTML(
+								"span",
+								{
+									"class": "delete",
+
+									"onclick": function() {
+										overlay.loading(rpc.request("Assets.RemoveAssetTag", {"AssetID": a.ID, "TagID": t.id})).then(() => {
+											const s = this.parentNode.parentNode.parentNode.getElementsByTagName("select")[0];
+											this.parentNode.parentNode.removeChild(this.parentNode);
+											clearElement(s);
+											t.removeAsset(as);
+											a.Tags.splice(a.Tags.indexOf(t.id), 1);
+											tagHTML.delete(t.id);
+											if (a.Tags.length === 0) {
+												tagList.get(0).addAsset(as);
+											}
+											s.appendChild(tagOptions());
+										}, showError.bind(null, this));
+									}
+								},
+								"⌫"
+							)
+						]
+					);
+				      };
+				if (a.Type === "image") {
+					layer.appendChild(createHTML(
+						"img",
+						{
+							"src": `assets/${a.ID}.${a.Ext}`,
+							"style": "max-width: 50%; max-height: 50%;"
+						}
+					));
+				} else if (a.Type === "audio") {
+					layer.appendChild(createHTML(
+						"audio",
+						{
+							"controls": "controls",
+							"src": `assets/${asset.ID}.${asset.Ext}`
+						}
+					));
 				}
-			)
-		])
-	      },
-	      writeTags = function(prefix) {
-		return Object.values(tags).filter(t => t.Name.substr(0, prefix.length) === prefix && t.Name.substr(prefix.length).indexOf('/') < 0).sort((a, b) => a.Name < b.Name ? -1 : 1).map(t => createHTML(
-			"li",
-			{
-				"class": "tag",
-			},
-			[
-				createHTML("label", {"for": "tag_" + t.Name}, t.Name.substr(prefix.length)),
-				t.ID < 0 ? [] : [
-					createHTML(
-						"span",
-						"✍",
-						{
-							"class": "rename",
-
-							"onclick": function() {
-								const name = prompt("New Name?", t.Name);
-								if (name === null || name === "" || name === t.Name) {
-									return;
+				layer.appendChild(createHTML("h2", "Tags"));
+				layer.appendChild(createHTML(
+					"select",
+					{
+						"onchange": function() {
+							const val = parseInt(this.value);
+							overlay.loading(rpc.request("Assets.AddAssetTag", {"AssetID": a.ID, "TagID": val})).then(() => {
+								if (a.Tags.length === 0) {
+									tagList.get(0).removeAsset(as);
 								}
-								t.Name = name;
-								rpc.request("Assets.RenameTag", t).then(n => {
-									t.Name = n;
-									createPsuedoTags();
-									writeList();
-								});
-							}
+								a.Tags.push(val);
+								const tag = tagList.get(val);
+								tagHTML.set(val, html());
+								tag.addAsset(as);
+								this.parentNode.getElementsByTagName("ul")[0].appendChild(createTagLine(tag));
+							}, showError.bind(null, this));
 						}
-					),
-					createHTML(
-						"span",
-						"⌫",
-						{
-							"class": "delete",
-
-							"onclick": function() {
-								if (confirm("Sure you want to delete?")) {
-									rpc.request("Assets.RemoveTag", t.ID);
-									delete tags[t.ID];
-									delete tagList[t.Name.toLowerCase()];
-									Object.values(assets).forEach(a => a.Tags = a.Tags.filter(u => u !== t.ID));
-									createPsuedoTags();
-									writeList();
-								}
-							}
-						}
-					)
-				],
-				createHTML("input", {"type": "checkbox", "id": "tag_" + t.Name}),
-				createHTML(
+					},
+					tagOptions()
+				));
+				layer.appendChild(createHTML(
 					"ul",
 					{},
-					[
-						writeTags(t.Name+"/"),
-						t.Assets.sort((a, b) => assets[a].Name < assets[b].Name ? -1 : 1).map(a => writeAssetLine(assets[a]))
-					]
-				)
-			]
-		));
-	      },
-	      writeList = function() {
-		const container = document.getElementById("assetList");
-		clearElement(container);
-		writeTags("").concat(Object.values(assets).filter(a => a.Tags.length === 0).sort((a, b) => a.ID < b.ID ? 1 : -1).map(a => writeAssetLine(a))).forEach(c => container.appendChild(c));
-	      },
-	      buildHTML = function() {
-		[document.getElementById("assetLoading")].filter(t => t != null).forEach(t => t.parentNode.removeChild(t));
-		[
-			createHTML(
-				"label",
-				"Add Tag",
-				{
-					"class": "button",
-
-					"onclick": function() {
-						const tag = prompt("Tag Name?", "");
-						if (tag !== null && tag !== "") {
-							const lTag = tag.toLowerCase();
-							if (!tagList.hasOwnProperty(lTag) || tagList[lTag] < 0) {
-								rpc.request("Assets.AddTag", tag).then(tag => {
-									tags[tag.ID] = tag;
-									const lName = tag.Name.toLowerCase();
-									if (tagList.hasOwnProperty(lName)) {
-										delete tags[tagList[lName]];
-									}
-									tagList[tag.Name.toLowerCase()] = tag.ID;
-									createPsuedoTags();
-									writeList();
-								});
-							} else {
-								alert("Tag already exists!");
-							}
-						}
+					allTags.filter(t => a.Tags.includes(t.id)).map(t => createTagLine(t))
+				));
+			      },
+			      html = function() {
+				return createHTML( 
+					"li",
+					{
+						"class": "assetName"
+					},
+					createHTML(
+						"span",
+						{
+							"onclick": details
+						},
+						a.Name
+					)
+				);
+			      },
+			      tagHTML = new Map(a.Tags.map(t => [t, html()])),
+			      as = Object.freeze({
+				"id": a.ID,
+				get name() {return a.Name;},
+				"removeTag": tid => {
+					a.Tags.splice(a.Tags.indexOf(tid), 1);
+					tagHTML.delete(tid);
+					if (a.Tags.length === 0) {
+						tagList.get(0).addAsset(as);
 					}
-				}
-			),
-			createHTML(
-				"form",
+				},
+				"html": tid => tagHTML.get(tid)
+			      });
+			tagHTML.set(0, html());
+			a.Tags.forEach(tid => tagList.get(tid).addAsset(as));
+			if (a.Tags.length === 0) {
+				tagList.get(0).addAsset(as);
+			}
+			return as;
+		      };
+		let base;
+		return Object.freeze({
+			"add": asset
+		});
+	      }()),
+	      tagList = (function() {
+		let uID = -1;
+		const tags = new Map(), tagNames = new Map(),
+		      tag = function(t) {
+			const s = createHTML("ul"),
+			      h = t.ID === 0 ? s : createHTML(
+				"li",
 				{
-					"enctype": "multipart/form-data",
-					"method": "post",
+					"class": "tag"
 				},
 				[
 					createHTML(
 						"label",
-						"Upload Asset",
+						t.Name.split("/").pop(),
 						{
-							"class": "button",
-							"for": "asset",
+							"for": "tag_" + t.ID
 						}
 					),
-					createHTML(
-						"input",
-						{
-							"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript",
-							"id": "asset",
-							"multiple": "multiple",
-							"name": "asset",
-							"style": "display: none",
-							"type": "file",
+					t.ID > 0 ? [
+						createHTML(
+							"span",
+							"✍",
+							{
+								"class": "rename",
 
-							"onchange": (function() {
-								const bar = createHTML("progress", {"style": "width: 100%"}),
-								    progress = createHTML(
-									"div",
-									{},
-									[
-										createHTML("h1", {}, "Uploading File(s)"),
-										bar,
-									]
-								    );
-								return function(e) {
-									bar.setAttribute("value", 0);
-									bar.setAttribute("max", 0);
-									clearElement(overlay);
-									overlay.appendChild(progress);
-									HTTPRequest("/socket", {
-										"method": "POST",
-										"data": new FormData(this.parentNode),
-
-										"progress": e => {
-											bar.setAttribute("value", e.loaded);
-											bar.setAttribute("max", e.total);
-											bar.innerText = Math.floor(e.loaded*100/e.total) + "%";
+								"onclick": function() {
+									const layer = overlay.addLayer();
+									layer.appendChild(createHTML("h1", "Rename: " + t.Name));
+									layer.appendChild(createHTML("input", {"type": "text", "value": t.Name}));
+									layer.appendChild(createHTML(
+										"button",
+										"Rename",
+										{
+											"onclick": function() {
+												const oldName = t.Name,
+												      newName = this.previousSibling.value;
+												if (oldName === newName) {
+													overlay.removeLayer();
+													return;
+												}
+												t.Name = newName;
+												overlay.loading(rpc.request("Assets.RenameTag", t)).then(name => {
+													overlay.removeLayer();
+													if (name !== oldName) {
+														p.removeTag(at);
+														tags.delete(t.ID);
+														tagNames.delete(oldName);
+														if (childTags.length === 0) {
+															t.Name = name;
+															tag(t);
+														} else {
+															tag({
+																"ID": t.ID,
+																"Name": name,
+																"Assets": t.Assets
+															});
+															t.ID = uID--;
+															t.Name = oldName;
+															t.Assets = [];
+															tags.set(t.ID, at);
+															assets.splice(0, assets.length);
+														}
+													}
+												}, e => {
+													t.Name = oldName;
+													showError(this, e);
+												});
+											}
 										}
-									}).then(responseText => {
-										JSON.parse(xh.responseText).forEach(a => assets[a.ID] = a);
-										clearElement(overlay);
-										writeList();
-									}, () => {
-										progress.firstChild.innerText = "Upload Failed!"
-									});
-								};
-							}())
-						}
-					),
+									));
+
+								}
+							}
+						),
+						createHTML(
+							"span",
+							"⌫",
+							{
+								"class": "delete",
+
+								"onclick": function() {
+									const layer = overlay.addLayer();
+									layer.appendChild(createHTML("div", `Are you sure you wish to delete this tag: ${t.Name}? This cannot be undone!`));
+									layer.appendChild(createHTML(
+										"button",
+										"Yes",
+										{
+											"onclick": () => {
+												overlay.loading(rpc.request("Assets.RemoveTag", t.ID)).then(() => {
+													overlay.removeLayer();
+													Array.from(assets).forEach(a => {
+														at.removeAsset(a);
+														a.removeTag(at)
+													});
+													tags.delete(t.ID);
+													if (childTags.length === 0) {
+														p.removeTag(at);
+														return;
+													}
+													this.parentNode.removeChild(this.previousSibling);
+													this.parentNode.removeChild(this);
+													assets.splice(0, assets.length);
+													t.ID = uID--;
+													tags.set(t.ID, at);
+												}, showError.bind(null, this));
+											}
+										}
+									));
+									layer.appendChild(createHTML(
+										"button",
+										"No",
+										{
+											"onclick": overlay.removeLayer
+										}
+									));
+								}
+							}
+						)
+					] : [],
+					createHTML("input", {"type": "checkbox", "id": "tag_" + t.ID}),
+					s
 				]
-			),
-			createHTML("ul", {"id": "assetList"})
-		].forEach(e => base.appendChild(e));
-		writeList();
-	      },
-	      createPsuedoTags = function() {
-		let neg = -1;
-		Object.values(tags).filter(t => t.ID < 0).forEach(t => {delete tags[t.ID]; delete tagList[t.Name.toLowerCase()]});
-		Object.values(tags).forEach(t => {
-			let tName = t.Name, i;
-			while ((i = tName.lastIndexOf('/')) >= 0) {
-				tName = tName.substr(0, i);
-				const lName = tName.toLowerCase();
-				if (!tagList.hasOwnProperty(lName)) {
-					tags[neg] = {
-						"ID": neg,
-						"Name": tName,
-						"Assets": [],
+			      ),
+			      childTags = [],
+			      assets = [],
+			      p = getParentTag(t.Name),
+			      at = Object.freeze({
+				get id() {return t.ID},
+				get parent() {return p;},
+				"childTags": childTags,
+				"addTag": at => {
+					let pos = 0;
+					for (; pos < childTags.length; pos++) {
+						if (at.name.localeCompare(childTags[pos].name) < 0) {
+							break;
+						}
 					}
-					tagList[lName] = neg;
-					neg--;
-				} else {
-					break;
+					if (pos === childTags.length) {
+						if (assets.length === 0) {
+							s.appendChild(at.html);
+						} else {
+							s.insertBefore(at.html, assets[0].html(t.ID));
+						}
+						childTags.push(at);
+					} else {
+						s.insertBefore(at.html, s.childNodes[pos]);
+						childTags.splice(pos, 0, at);
+					}
+				},
+				"removeTag": bt => {
+					s.removeChild(bt.html);
+					childTags.splice(childTags.indexOf(bt), 1);
+					if (t.ID < 0 && childTags.length === 0) {
+						tags.delete(t.ID);
+						tagNames.delete(t.Name);
+						p.removeTag(at);
+					}
+				},
+				"addAsset": a => {
+					let pos = 0;
+					for (; pos < assets.length; pos++) {
+						if (t.ID === 0) {
+							if (a.id > assets[pos].id)  {
+								break;
+							}
+						} else if (a.name.localeCompare(assets[pos].name) < 0) {
+							break;
+						}
+					}
+					if (pos === assets.length) {
+						s.appendChild(a.html(t.ID));
+					} else {
+						s.insertBefore(a.html(t.ID), assets[pos].html(t.ID));
+					}
+					assets.splice(pos, 0, a);
+				},
+				"removeAsset": a => {
+					assets.splice(assets.indexOf(a), 1);
+					s.removeChild(a.html(t.ID))
+				},
+				"html": h,
+				get name() { return t.Name;}
+			      });
+			if (tagNames.has(t.Name)) {
+				const oTag = tagNames.get(t.Name);
+				Array.from(oTag.childTags).forEach(ot => {
+					oTag.removeTag(ot);
+					at.addTag(ot);
+				});
+				tags.delete(oTag.id);
+				p.addTag(at);
+			} else if (p) {
+				p.addTag(at);
+			}
+			tags.set(t.ID, at);
+			tagNames.set(t.Name, at);
+			return at
+		      },
+		      getParentTag = function(name) {
+			if (!name.includes("/")) {
+				return tags.get(0);
+			}
+			const pName = name.substring(0, name.lastIndexOf("/"));
+			if (tagNames.has(pName)) {
+				return tagNames.get(pName);
+			}
+			const t = tag({
+				"ID": uID--,
+				"Name": pName,
+				"Assets": []
+			});
+			return t;
+		      };
+		tags.set(0, tag({
+		      "ID": 0,
+		      "Name": "",
+		      "Assets": []
+		}));
+		return Object.freeze({
+			"add": tag,
+			"get": tags.get.bind(tags),
+			"getAll": () => Array.from(tags.values())
+		});
+	      }());
+	return Promise.all([
+		rpc.request("Assets.ListAssets"),
+		rpc.request("Assets.ListTags")
+	]).then(([assets, tags]) => {
+		base.appendChild(createHTML(
+			"button",
+			"Add Tag",
+			{
+				"onclick": function() {
+					const layer = overlay.addLayer();
+					layer.appendChild(createHTML("h1", "Add Tag"));
+					layer.appendChild(createHTML("input"));
+					layer.appendChild(createHTML(
+						"button",
+						{
+							"onclick": function() {
+								overlay.loading(rpc.request("Assets.AddTag", this.previousSibling.value)).then(tag => {
+									tagList.add(tag);
+									overlay.removeLayer();
+								}, showError);
+							}
+						},
+						"Add Tag"
+					));
 				}
 			}
-		})
-	      };
-	Promise.all([
-		rpc.request("Assets.ListTags"),
-		rpc.request("Assets.ListAssets")
-	]).then(data => {
-		Object.assign(tags, data[0]);
-		Object.values(tags).forEach(t => tagList[t.Name.toLowerCase()] = t.ID);
-		createPsuedoTags();
-		Object.assign(assets, data[1]);
-		buildHTML();
+		));
+		base.appendChild(createHTML(
+			"button",
+			"Add Asset(s)",
+			{
+				"onclick": function() {
+					const layer = overlay.addLayer();
+					layer.appendChild(createHTML("h1", "Add Assets"));
+					layer.appendChild(createHTML(
+						"form",
+						{
+							"enctype": "multipart/form-data",
+							"method": "post"
+						},
+						[
+							createHTML(
+								"label",
+								"Add Asset(s)",
+								{
+									"for": "asset"
+								}
+							),
+							createHTML(
+								"input",
+								{
+									"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript",
+									"id": "asset",
+									"multiple": "multiple",
+									"name": "asset",
+									"type": "file",
+
+									"onchange": function() {
+										const bar = createHTML("progress", {"style": "width: 100%"});
+										overlay.loading(
+											HTTPRequest("/socket", {
+												"data": new FormData(this.parentNode),
+												"method": "POST",
+												"response": "JSON",
+
+												"onprogress": e => {
+													if (e.lengthComputable) {
+														bar.setAttribute("value", e.loaded);
+														bar.setAttribute("max", e.total);
+														bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+													}
+												}
+											}),
+											createHTML(
+												"div",
+												{
+													"class": "loadBar"
+												},
+												[
+													createHTML("div", {}, "Uploading file(s)"),
+													bar
+												]
+											)
+										).then(assets => {
+											assets.forEach(a => assetList.add(a));
+											overlay.removeLayer();
+										}, showError.bind(null, this));
+									}
+								}
+							)
+						]
+					));
+				}
+			}
+		));
+		const al = document.getElementById("assetLoading");
+		if (al) {
+			al.textContent = "Assets";
+		}
+		tags.forEach(t => tagList.add(t));
+		assets.forEach(a => assetList.add(a));
+		base.appendChild(tagList.get(0).html);
 	}, e => console.log(e));
 });
