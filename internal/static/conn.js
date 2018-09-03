@@ -37,7 +37,7 @@ offer((function() {
 							successFn.call(xh, xh.response);
 						}
 					} else {
-						errorFn.call(xh, xh.responseText);
+						errorFn.call(xh, new Error(xh.responseText));
 					}
 				}
 			});
