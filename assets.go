@@ -21,9 +21,8 @@ type assets struct {
 	Tags    map[int]*Tag
 	TagList map[string]*Tag
 
-	assetsMu   sync.RWMutex
-	Assets     map[int]*Asset
-	AssetsList map[string]*Asset
+	assetsMu sync.RWMutex
+	Assets   map[int]*Asset
 
 	addAsset, renameAsset, removeAsset               *sql.Stmt
 	addTag, renameTag, removeTag                     *sql.Stmt
@@ -82,7 +81,6 @@ func (a *assets) init(database *sql.DB) error {
 		return errors.WithContext("error loading Asset data: ", err)
 	}
 	a.Assets = make(map[int]*Asset)
-	a.AssetsList = make(map[string]*Asset)
 	for rows.Next() {
 		as := &Asset{
 			Tags: make([]int, 0, 0),
@@ -93,7 +91,6 @@ func (a *assets) init(database *sql.DB) error {
 		}
 		as.Uploaded = time.Unix(uploaded, 0)
 		a.Assets[as.ID] = as
-		a.AssetsList[strings.ToLower(as.Name)] = as
 	}
 	if err = rows.Close(); err != nil {
 		return errors.WithContext("error closing Asset data: ", err)
@@ -169,17 +166,6 @@ func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 		if name == "" {
 			name = "asset"
 		}
-		a.assetsMu.RLock()
-		if _, ok := a.AssetsList[strings.ToLower(name)]; ok {
-			for i := 1; ; i++ {
-				tName := fmt.Sprintf("%s-%d", name, i)
-				if _, ok = a.AssetsList[strings.ToLower(tName)]; !ok {
-					name = tName
-					break
-				}
-			}
-		}
-		a.assetsMu.RUnlock()
 		n, err := io.ReadFull(p, buf)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -237,7 +223,6 @@ func (a *assets) handleUpload(w http.ResponseWriter, r *http.Request) {
 								}
 								a.assetsMu.Lock()
 								a.Assets[int(id)] = asset
-								a.AssetsList[strings.ToLower(name)] = asset
 								a.assetsMu.Unlock()
 								as = append(as, asset)
 								if ctype == "image" {
@@ -394,7 +379,6 @@ func (a *assets) RemoveAsset(id int, _ *struct{}) error {
 		tag.Assets = removeID(tag.Assets, id)
 	}
 	delete(a.Assets, id)
-	delete(a.AssetsList, strings.ToLower(u.Name))
 	os.Remove(filepath.Join(a.dir, fmt.Sprintf("%d.%s", u.ID, u.Ext)))
 	if u.Type == "image" {
 		//os.Remove(filepath.Join(a.dir, "thumbnails", fmt.Sprintf("%d.png", u.ID)))
