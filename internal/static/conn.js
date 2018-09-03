@@ -26,8 +26,8 @@ offer((function() {
 				xh.setRequestHeader("Content-Type", props["type"]);
 			}
 			xh.addEventListener("readystatechange", () => {
-				if (this.readyState === 4) {
-					if (this.status === 200) {
+				if (xh.readyState === 4) {
+					if (xh.status === 200) {
 						switch (props["response"]) {
 						case "text":
 						case "TEXT":
