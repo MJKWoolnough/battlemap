@@ -47,7 +47,9 @@ input[type=checkbox], input[type=checkbox]:not(:checked) + ul {
 	background-color: #fff;
 	margin-left: auto;
 	margin-right: auto;
+	max-height: 100%;
 	min-width: 50%;
+	overflow: scroll;
 }
 
 .closer {
