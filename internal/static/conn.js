@@ -46,7 +46,7 @@ offer((function() {
 				}
 			});
 			if (props.hasOwnProperty("onprogress")) {
-				xh.addEventListener("progress", props["onprogress"]);
+				xh.upload.addEventListener("progress", props["onprogress"]);
 			}
 			xh.send(props.hasOwnProperty("data") ? props["data"] : null);
 		});
