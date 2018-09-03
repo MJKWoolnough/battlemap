@@ -33,6 +33,10 @@ offer((function() {
 						case "TEXT":
 							successFn.call(xh, xh.responseText);
 							break;
+						case "json":
+						case "JSON":
+							successFn.call(xh, JSON.parse(xh.responseText));
+							break
 						default:
 							successFn.call(xh, xh.response);
 						}
