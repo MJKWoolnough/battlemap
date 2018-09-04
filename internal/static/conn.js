@@ -10,7 +10,9 @@ offer((function() {
 			if (errorFn instanceof Function) {
 				errorFns.push(errorFn);
 			}
+			return this;
 		};
+		this.catch = this.when.bind(this, undefined);
 	      },
 	      HTTPRequest = function(url, props = {}) {
 		return new Promise((successFn, errorFn) => {
