@@ -76,7 +76,7 @@ offer((function() {
 			loading = false;
 			container.removeChild(container.lastChild);
 		      },
-		      defaultLoader = loader ? loader : createHTML("div", {"class": "loadSpinner"});
+		      defaultLoader = loader ? loader : createHTML("div", {"class": "loading"});
 		let loading = false;
 		this.addLayer = closerFn => {
 			if (layers.length === 0) {
