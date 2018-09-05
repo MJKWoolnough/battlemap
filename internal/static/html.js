@@ -49,7 +49,7 @@ offer((function() {
 			elem.removeChild(elem.lastChild);
 		}
 	      },
-	      Layers = function(container, loader) {
+	      layers = function(container, loader) {
 		const layers = [],
 		      closer = function(closerFn) {
 			clearElement(container);
@@ -78,48 +78,50 @@ offer((function() {
 		      },
 		      defaultLoader = loader ? loader : createHTML("div", {"class": "loading"});
 		let loading = false;
-		this.addLayer = closerFn => {
-			if (layers.length === 0) {
-				window.addEventListener("keypress", keyPress);
-			}
-			if (container.hasChildNodes()) {
-				const df = document.createDocumentFragment();
-				while (container.hasChildNodes()) {
-					df.appendChild(container.firstChild);
+		return Object.freeze({
+			"addLayer": closerFn => {
+				if (layers.length === 0) {
+					window.addEventListener("keypress", keyPress);
 				}
-				layers.push(df);
-			}
-			return container.appendChild(createHTML(
-				"div",
-				{},
-				createHTML(
-					"span",
-					{
-						"class": "closer",
+				if (container.hasChildNodes()) {
+					const df = document.createDocumentFragment();
+					while (container.hasChildNodes()) {
+						df.appendChild(container.firstChild);
+					}
+					layers.push(df);
+				}
+				return container.appendChild(createHTML(
+					"div",
+					{},
+					createHTML(
+						"span",
+						{
+							"class": "closer",
 
-						"onclick": closer.bind(null, closerFn)
-					},
-					"X"
-				)
-			));
-		};
-		this.removeLayer = closer;
-		this.loading = function(p, loadDiv) {
-			if (loadDiv === undefined) {
-				loadDiv = defaultLoader;
+							"onclick": closer.bind(null, closerFn)
+						},
+						"X"
+					)
+				));
+			},
+			"removeLayer": closer,
+			"loading": function(p, loadDiv) {
+				if (loadDiv === undefined) {
+					loadDiv = defaultLoader;
+				}
+				loading = true;
+				container.appendChild(loadDiv);
+				return new Promise(
+					(successFn, errorFn) => p.then((...args) => {
+						closeLoadingLayer();
+						successFn(...args);
+					}, (...args) => {
+						closeLoadingLayer();
+						errorFn(...args);
+					})
+				);
 			}
-			loading = true;
-			container.appendChild(loadDiv);
-			return new Promise(
-				(successFn, errorFn) => p.then((...args) => {
-					closeLoadingLayer();
-					successFn(...args);
-				}, (...args) => {
-					closeLoadingLayer();
-					errorFn(...args);
-				})
-			);
-		};
+		});
 	      };
-	return Object.freeze({createElements, createHTML, formatText, clearElement, Layers});
+	return Object.freeze({createElements, createHTML, formatText, clearElement, layers});
 }()));
