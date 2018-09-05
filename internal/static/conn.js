@@ -99,6 +99,21 @@ offer((function() {
 		const closedErr = Object.freeze(new Error("RPC Closed")),
 		      Request = class {
 			constructor() {
+				this.success = null;
+				this.error = null;
+			}
+			getPromise() {
+				const p = new Promise((successFn, errorFn) => {
+					this.success = successFn;
+					this.error = errorFn;
+				}
+			}
+			subscribed() {
+				return false;
+			}
+		      },
+		      AwaitRequest = class {
+			constructor() {
 				this.promise = null;
 				this.promiseSuccess = null;
 				this.promiseError = null;
@@ -192,7 +207,7 @@ offer((function() {
 				if (this.requests.has(id)) {
 					return this.requests.get(id);
 				}
-				const r = new Request();
+				const r = id >= 0 ? new Request() : new AwaitRequest();
 				this.requests.set(id, r);
 				return r;
 			}
