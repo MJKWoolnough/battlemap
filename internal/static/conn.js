@@ -180,7 +180,7 @@ offer((function() {
 						err.name = "closed";
 						this.requests.forEach(r => r.error(err));
 					} else {
-						const err = new Error("error");
+						const err = e instanceof Error ? e : new Error("error");
 						this.requests.forEach(r => r.error(err));
 					}
 					this.requests.clear();
