@@ -1,18 +1,8 @@
 offer((function() {
 	const Subscription = function(fn) {
 		const successFns = [],
-		      errorFns = [],
-		      afterFns = [];
-		fn(
-			(...data) => {
-				successFns.forEach(f => f(...data));
-				afterFns.forEach(f => f());
-			},
-			(...data) => {
-				errorFns.forEach(f => f(...data));
-				afterFns.forEach(f => f());
-			}
-		);
+		      errorFns = [];
+		fn((...data) => successFns.forEach(f => f(...data)), (...data) => errorFns.forEach(f => f(...data)));
 		this.then = (successFn, errorFn) => {
 			if (successFn instanceof Function) {
 				successFns.push(successFn);
@@ -22,13 +12,8 @@ offer((function() {
 			}
 			return this;
 		};
-		this.catch = this.then.bind(this, undefined);
-		this.finally = afterFn => {
-			if (afterFn instanceof Function) {
-				this.afterFns.push(afterFn);
-			}
-			return this;
-		};
+		this.catch = errorFn => this.then(undefined, errorFn);
+		this.finally = afterFn => this.then(afterFn, afterFn);
 	      },
 	      HTTPRequest = function(url, props = {}) {
 		return new Promise((successFn, errorFn) => {
@@ -46,13 +31,11 @@ offer((function() {
 			xh.addEventListener("readystatechange", () => {
 				if (xh.readyState === 4) {
 					if (xh.status === 200) {
-						switch (props["response"]) {
+						switch (props["response"].toLowerCase()) {
 						case "text":
-						case "TEXT":
 							successFn.call(xh, xh.responseText);
 							break;
 						case "json":
-						case "JSON":
 							successFn.call(xh, JSON.parse(xh.responseText));
 							break
 						default:
@@ -73,10 +56,10 @@ offer((function() {
 			const url = (function() {
 				const a = document.createElement("a");
 				a.setAttribute("href", path);
-				return a.href;
+				return a.href.replace(/^http/, "ws");
 			}());
 			return new Promise((successFn, errorFn) => {
-				const ws = new WebSocket(url.replace(/^http/, "ws"));
+				const ws = new WebSocket(url);
 				ws.addEventListener("open", () => successFn(Object.freeze({
 					close: ws.close.bind(ws),
 					send: ws.send.bind(ws),
