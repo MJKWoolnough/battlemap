@@ -54,8 +54,13 @@ offer((function() {
 		});
 	      },
 	      WS = function(path) {
+			const url = (function() {
+				const a = document.createElement("a");
+				a.setAttribute("href", path);
+				return a.href;
+			}());
 			return new Promise((successFn, errorFn) => {
-				const ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
+				const ws = new WebSocket(url.replace(/^http/, "ws"));
 				ws.addEventListener("open", () => successFn(Object.freeze({
 					close: ws.close.bind(ws),
 					send: ws.send.bind(ws),
