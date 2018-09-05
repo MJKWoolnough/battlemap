@@ -279,7 +279,7 @@ offer((function() {
 					"type": "application/json",
 					"repsonse": "text",
 					"data": todo.join()
-				}).then(() => this.responseText.split("\n").forEach(msg => rh.handleMessage({"data": msg})));
+				}).then(() => this.responseText.split("\n").forEach(msg => rh.handleMessage({"data": msg})), rh.handleError);
 				todo.splice(0, todo.length);
 				sto = -1;
 			      },
@@ -293,7 +293,12 @@ offer((function() {
 			return Promise.resolve(Object.freeze({
 				"request": rh.request.bind(rh),
 				"await": rh.await.bind(rh),
-				"close": rh.close.bind(rh)
+				"close": () => {
+					if (rh.close() && sto !== -1) {
+						window.clearTimeout(sto);
+						sto = -1;
+					}
+				}
 			}));
 		      };
 		  return function(path, allowWS = true, allowXH = false) {
