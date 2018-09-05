@@ -555,7 +555,7 @@ offer(async function(rpc, base, overlay) {
 												]
 											)
 										).then(assets => {
-											assets.forEach(a => assetList.add(a));
+											assets.forEach(assetList.add);
 											overlay.removeLayer();
 										}, showError.bind(null, this));
 									}
@@ -570,8 +570,8 @@ offer(async function(rpc, base, overlay) {
 		if (al) {
 			al.textContent = "Assets";
 		}
-		tags.forEach(t => tagList.add(t));
-		assets.forEach(a => assetList.add(a));
+		tags.forEach(tagList.add);
+		assets.forEach(assetList.add);
 		base.appendChild(tagList.get(0).html);
 	}, e => console.log(e));
 });
