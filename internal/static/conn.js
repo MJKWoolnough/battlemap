@@ -1,9 +1,19 @@
 offer((function() {
 	const Subscription = function(fn) {
 		const successFns = [],
-		      errorFns = [];
-		fn((...data) => successFns.forEach(f => f(...data)), (...data) => errorFns.forEach(f => f(...data)));
-		this.when = (successFn, errorFn) => {
+		      errorFns = [],
+		      afterFns = [];
+		fn(
+			(...data) => {
+				successFns.forEach(f => f(...data));
+				afterFns.forEach(f => f());
+			},
+			(...data) => {
+				errorFns.forEach(f => f(...data));
+				afterFns.forEach(f => f());
+			}
+		);
+		this.then = (successFn, errorFn) => {
 			if (successFn instanceof Function) {
 				successFns.push(successFn);
 			}
@@ -12,7 +22,11 @@ offer((function() {
 			}
 			return this;
 		};
-		this.catch = this.when.bind(this, undefined);
+		this.catch = this.then.bind(this, undefined);
+		this.finally = afterFn => {
+			this.afterFns.push(afterFn);
+			return this;
+		};
 	      },
 	      HTTPRequest = function(url, props = {}) {
 		return new Promise((successFn, errorFn) => {
@@ -68,7 +82,7 @@ offer((function() {
 						ws.addEventListener("message", successFn);
 						ws.addEventListener("error", errorFn);
 						ws.addEventListener("close", errorFn);
-					}).when,
+					}).then,
 					get type() {
 						return ws.type;
 					},
@@ -80,160 +94,189 @@ offer((function() {
 			});
 	      },
 	      RPC = (function() {
-		const connectWS = function(path, allowXH) {
-			return new Promise((successFn, errorFn) => {
-				const ws = new WebSocket((window.location.protocol == "https:" ? "wss:" : "ws:") + "//" + window.location.host + path);
-				ws.addEventListener("open", successFn.bind(null, ws));
-				ws.addEventListener("error", errorFn);
-			}).then(ws => Promise.resolve((function() {
-				const requests = [],
-				      awaitFn = (id, keep) => (successFn, errorFn) => {
-					requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": keep};
-					if (id >= nextID) {
-						nextID = id + 1;
-					}
-				};
-				let nextID = 0, closed = false;
-				ws.addEventListener("close", e => {
-					if (!closed) {
-						switch (e.code) {
-						case 1006:
-							document.body.textContent = "The server unexpectedly closed the connection - this may be an error.";
-							break;
-						default:
-							document.body.textContent = "Lost Connection To Server! Code: " + e.code;
-						}
-					}
-				});
-				ws.addEventListener("message", e => {
-					const data = JSON.parse(e.data),
-					    req = requests[data["id"]];
-					if (typeof req === "undefined") {
-						return;
-					}
-					if (!req.keep) {
-						delete requests[data["id"]];
-					}
-					if (data["error"] !== undefined && data["error"] !== null) {
-						req["errorFn"](new Error(data["error"]));
-						return;
-					}
-					if (req["successFn"]) {
-						req["successFn"](data["result"]);
-					}
-				});
-				window.addEventListener("beforeunload", function() {
-					if (!closed) {
-						closed = true;
-						ws.close();
-					}
-				});
-				return Object.freeze({
-					"request": function(method, params = null) {
-						if (closed) {
-							return Promise.reject("RPC closed");
-						}
-						return new Promise((successFn, errorFn) => {
-							const msg = {
-								"method": method,
-								"id": nextID,
-								"params": [params]
-							};
-							requests[nextID] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
-							nextID++;
-							ws.send(JSON.stringify(msg));
-						});
-					},
-					"await": function(id, keep = false) {
-						if (keep) {
-							return new Subscription(awaitFn(id, true));
-						}
-						return new Promise(awaitFn(id, false));
-					},
-					"close": function() {
-						closed = true;
-						ws.close();
-					}
-				});
-			}())),
-			() => {
-				if (allowXH) {
-					return connectXH();
-				} else {
-					return Promise.reject("error connecting to WebSocket");
+		const closedErr = Object.freeze(new Error("RPC Closed")),
+		      Request = class {
+			constructor() {
+				this.promise = null;
+				this.promiseSuccess = null;
+				this.promiseError = null;
+				this.subscription = null;
+				this.subscriptionSuccess = null;
+				this.subscriptionError = null;
+			}
+			getPromise() {
+				if (this.promise !== null) {
+					return this.promise;
 				}
+				return new Promise((successFn, errorFn) => {
+					this.promiseSuccess = successFn;
+					this.promiseError = errorFn;
+				});
+			}
+			getSubscription() {
+				if (this.subscription !== null) {
+					return this.subscription;
+				}
+				return new Subscription((successFn, errorFn) => {
+					this.subscriptionSuccess = successFn;
+					this.subscriptionError = errorFn;
+				});
+			}
+			clearPromise() {
+				this.promise = null;
+				this.promiseSuccess = null;
+				this.promiseError = null;
+			}
+			success(data) {
+				if (this.promiseSuccess !== null) {
+					this.promiseSuccess(data);
+					this.clearPromise();
+				}
+				if (this.subscriptionSuccess !== null) {
+					this.subscriptionSuccess(data);
+				}
+			}
+			error(e) {
+				if (this.promiseError !== null) {
+					this.promiseError(e);
+					this.clearPromise();
+				}
+				if (this.subscriptionError !== null) {
+					this.subscriptionError(e);
+				}
+			}
+			subscribed() {
+				return this.subscription !== null;
+			}
+		      },
+		      RequestHandler = class {
+			constructor(sender) {
+				this.closed = false;
+				this.nextID = 0;
+				this.requests = new Map();
+				this.sender = sender;
+			}
+			handleMessage(e) {
+				const data = JSON.parse(e.data),
+				      id = parseInt(data["id"]);
+				if (!this.requests.has(id)) {
+					return;
+				}
+				const req = this.requests.get(id);
+				if (data["error"] !== undefined && data["error"] !== null) {
+					req.error(new Error(data["error"]));
+				} else {
+					req.success(data["result"]);
+				}
+				if (!req.subscribed()) {
+					this.requests.delete(id)
+				}
+			}
+			handleError(e) {
+				if (!this.closed) {
+					this.closed = true;
+					if (e.hasOwnProperty("type") && e["type"] === "close") {
+						const err = new Error("Closed: " + e.code);
+						err.name = "closed";
+						this.requests.forEach(r => r.error(err));
+					} else {
+						const err = new Error("error");
+						this.requests.forEach(r => r.error(err));
+					}
+					this.requests.clear();
+				}
+			}
+			getRequest(id) {
+				if (this.requests.has(id)) {
+					return this.requests.get(id);
+				}
+				const r = new Request();
+				this.requests.set(id, r);
+				return r;
+			}
+			request(method, data = null) {
+				if (this.closed) {
+					return Promise.reject(closedErr);
+				}
+				this.sender(JSON.stringify({
+					"method": method,
+					"id": this.nextID,
+					"params": [data]
+				}));
+				return this.getRequest(this.nextID++).getPromise();
+			}
+			await(id, keep = false) {
+				if (this.closed) {
+					return Promise.reject(closedErr);
+				}
+				if (id >= 0) {
+					return Promise.reject(new Error("await IDs must be < 0"))
+				}
+				if (keep) {
+					return this.getRequest(id).getSubscription();
+				}
+				return this.getRequest(id).getPromise();
+			}
+			close() {
+				if (this.closed) {
+					return false;
+				}
+				this.closed = true;
+				this.requests.forEach(r => r.error(closedErr));
+				return true;
+			}
+		      },
+		      connectWS = function(path, allowXH) {
+			return WS(path).then(ws => {
+				const rh = new RequestHandler(ws.send),
+				      closer = function() {
+					if (rh.close()) {
+						ws.close();
+					}
+				      };
+				ws.when(rh.handleMessage.bind(rh), rh.handleError.bind(rh));
+				window.addEventListener("beforeunload", closer);
+				return Object.freeze({
+					"request": rh.request.bind(rh),
+					"await": rh.await.bind(rh),
+					"close": (...data) => {
+						if (rh.close()) {
+							ws.close(...data);
+							window.removeEventListener("beforeunload", closer);
+						}
+					}
+				});
+			}, e => {
+				if (allowXH) {
+					return connectXH(path);
+				}
+				return Promise.reject(new Error("error connecting to WebSocket"));
 			});
 		      },
 		      connectXH = function(path) {
-			const requests = [],
-			      awaitFn = (id, keep) => (successFn, errorFn) => {
-				requests[id] = {"successFn": successFn, "errorFn": errorFn, "keep": keep};
-				if (id >= nextID) {
-					nextID = id + 1;
-				}
-			      },
-			      todo = [],
-			      readystatechange = function() {
-				this.responseText.split("\n").forEach(response => {
-					const data = JSON.parse(response),
-					      req = request[data["id"]];
-					if (typeof req === "undefined") {
-						return;
-					}
-					if (!req.keep) {
-						delete requests[data["id"]];
-					}
-					if (data["error"] !== undefined && data["error"] !== null) {
-						req["errorFn"](data["error"]);
-						return;
-					}
-					if (req["successFn"]) {
-						req["successFn"](data["result"]);
-					}
-				});
-			      },
-			      send = function() {
-				xmlHTTP(path, {
+			const todo = [],
+			      sto = -1,
+			      sender = function() {
+				HTTPRequest(path, {
 					"method": "POST",
 					"type": "application/json",
 					"repsonse": "text",
 					"data": todo.join()
-				}).then(readystatechange);
+				}).then(() => this.responseText.split("\n").forEach(msg => rh.handleMessage({"data": msg})));
 				todo.splice(0, todo.length);
 				sto = -1;
-			      };
-			let nextID = 0,
-			    sto = -1,
-			    closed = false;
+			      },
+			      rh = new RequestHandler(function(msg) {
+				todo.push(msg);
+				if (sto === -1) {
+					sto = window.setTimeout(sender, 1);
+				}
+			      });
 			//TODO: Set up a 'ping' function for 'await' request?
 			return Promise.resolve(Object.freeze({
-				"request": function(method, params = null) {
-					if (closed) {
-						return new Promise.reject("RPC closed");
-					}
-					return new Promise((successFn, errorFn) => {
-						const msg = {
-							"method": method,
-							"id": nextID,
-							"params": [params]
-						};
-						requests[nextID] = {"successFn": successFn, "errorFn": errorFn, "keep": false};
-						nextID++;
-						todo.push(JSON.stringify(msg));
-						if (sto === -1) {
-							sto = window.setTimeout(send, 1);
-						}
-					});
-				},
-				"await": function(id, keep = false) {
-					if (keep) {
-						return new Subscription(awaitFn(id, true));
-					}
-					return new Promise(awaitFn(id, false));
-				},
-				"close": function() {
-					closed = true;
-				}
+				"request": rh.request.bind(rh),
+				"await": rh.await.bind(rh),
+				"close": rh.close.bind(rh)
 			}));
 		      };
 		  return function(path, allowWS = true, allowXH = false) {
