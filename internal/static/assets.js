@@ -248,9 +248,10 @@ offer(async function(rpc, base, overlay) {
 		});
 	      }()),
 	      tagList = (function() {
-		let uID = -1;
+		let uID = -1, bID = 0;
 		const tags = new Map(), tagNames = new Map(),
 		      tag = function(t) {
+			bID++;
 			const s = createHTML("ul"),
 			      h = t.ID === 0 ? s : createHTML(
 				"li",
@@ -262,7 +263,7 @@ offer(async function(rpc, base, overlay) {
 						"label",
 						t.Name.split("/").pop(),
 						{
-							"for": "tag_" + t.ID
+							"for": "tag_" + bID
 						}
 					),
 					t.ID > 0 ? [
@@ -273,7 +274,8 @@ offer(async function(rpc, base, overlay) {
 								"class": "rename",
 
 								"onclick": function() {
-									const layer = overlay.addLayer();
+									const layer = overlay.addLayer(),
+									      renamer = this;
 									layer.appendChild(createHTML("h1", "Rename: " + t.Name));
 									layer.appendChild(createHTML("input", {"type": "text", "value": t.Name}));
 									layer.appendChild(createHTML(
@@ -291,23 +293,27 @@ offer(async function(rpc, base, overlay) {
 												overlay.loading(rpc.request("Assets.RenameTag", t)).then(name => {
 													overlay.removeLayer();
 													if (name !== oldName) {
-														p.removeTag(at);
 														tags.delete(t.ID);
-														tagNames.delete(oldName);
 														if (childTags.length === 0) {
+															p.removeTag(at);
+															tagNames.delete(oldName);
 															t.Name = name;
-															tag(t);
+															const bt = tag(t);
+															assets.forEach(bt.addAsset);
 														} else {
-															tag({
+															t.Name = oldName;
+															const bt = tag({
 																"ID": t.ID,
 																"Name": name,
 																"Assets": t.Assets
 															});
+															assets.forEach(bt.addAsset);
 															t.ID = uID--;
-															t.Name = oldName;
 															t.Assets = [];
 															tags.set(t.ID, at);
 															assets.splice(0, assets.length);
+															renamer.parentNode.removeChild(renamer.nextSibling);
+															renamer.parentNode.removeChild(renamer);
 														}
 													}
 												}, e => {
@@ -366,7 +372,7 @@ offer(async function(rpc, base, overlay) {
 							}
 						)
 					] : [],
-					createHTML("input", {"type": "checkbox", "id": "tag_" + t.ID}),
+					createHTML("input", {"type": "checkbox", "id": "tag_" + bID}),
 					s
 				]
 			      ),
