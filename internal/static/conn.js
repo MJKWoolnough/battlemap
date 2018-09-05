@@ -24,7 +24,9 @@ offer((function() {
 		};
 		this.catch = this.then.bind(this, undefined);
 		this.finally = afterFn => {
-			this.afterFns.push(afterFn);
+			if (afterFN instanceof Function) {
+				this.afterFns.push(afterFn);
+			}
 			return this;
 		};
 	      },
