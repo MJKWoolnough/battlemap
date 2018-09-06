@@ -86,10 +86,10 @@ offer((function() {
 				this.error = null;
 			}
 			getPromise() {
-				const p = new Promise((successFn, errorFn) => {
+				return new Promise((successFn, errorFn) => {
 					this.success = successFn;
 					this.error = errorFn;
-				}
+				});
 			}
 			subscribed() {
 				return false;
