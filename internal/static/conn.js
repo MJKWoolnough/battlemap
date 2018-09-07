@@ -80,10 +80,11 @@ offer((function() {
 	      },
 	      RPC = (function() {
 		const closedErr = Object.freeze(new Error("RPC Closed")),
+		      nop = () => {},
 		      Request = class {
 			constructor() {
-				this.success = null;
-				this.error = null;
+				this.success = nop;
+				this.error = nop;
 			}
 			getPromise() {
 				return new Promise((successFn, errorFn) => {
@@ -97,53 +98,43 @@ offer((function() {
 		      },
 		      AwaitRequest = class {
 			constructor() {
-				this.promise = null;
-				this.promiseSuccess = null;
-				this.promiseError = null;
+				this.clearPromise()
 				this.subscription = null;
-				this.subscriptionSuccess = null;
-				this.subscriptionError = null;
+				this.subscriptionSuccess = nop;
+				this.subscriptionError = nop;
 			}
 			getPromise() {
-				if (this.promise !== null) {
-					return this.promise;
+				if (this.promise === null) {
+					this.promise =  new Promise((successFn, errorFn) => {
+						this.promiseSuccess = successFn;
+						this.promiseError = errorFn;
+					});
 				}
-				return new Promise((successFn, errorFn) => {
-					this.promiseSuccess = successFn;
-					this.promiseError = errorFn;
-				});
+				return this.promise;
 			}
 			getSubscription() {
-				if (this.subscription !== null) {
-					return this.subscription;
+				if (this.subscription === null) {
+					this.subscription = new Subscription((successFn, errorFn) => {
+						this.subscriptionSuccess = successFn;
+						this.subscriptionError = errorFn;
+					});
 				}
-				return new Subscription((successFn, errorFn) => {
-					this.subscriptionSuccess = successFn;
-					this.subscriptionError = errorFn;
-				});
+				return this.subscription;
 			}
 			clearPromise() {
 				this.promise = null;
-				this.promiseSuccess = null;
-				this.promiseError = null;
+				this.promiseSuccess = nop;
+				this.promiseError = nop;
 			}
 			success(data) {
-				if (this.promiseSuccess !== null) {
-					this.promiseSuccess(data);
-					this.clearPromise();
-				}
-				if (this.subscriptionSuccess !== null) {
-					this.subscriptionSuccess(data);
-				}
+				this.promiseSuccess(data);
+				this.clearPromise();
+				this.subscriptionSuccess(data);
 			}
 			error(e) {
-				if (this.promiseError !== null) {
-					this.promiseError(e);
-					this.clearPromise();
-				}
-				if (this.subscriptionError !== null) {
-					this.subscriptionError(e);
-				}
+				this.promiseError(e);
+				this.clearPromise();
+				this.subscriptionError(e);
 			}
 			subscribed() {
 				return this.subscription !== null;
