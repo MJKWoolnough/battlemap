@@ -548,7 +548,7 @@ offer(async function(rpc, base, overlay) {
 										overlay.loading(rpc.request("Assets.AddTag", this.previousSibling.value)).then(tag => {
 											tagList.add(tag);
 											overlay.removeLayer();
-										}, showError);
+										}, showError.bind(null, this));
 									}
 								},
 								"Add Tag"
