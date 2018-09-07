@@ -3,34 +3,7 @@ offer(async function(rpc, base, overlay) {
 	let changed = false;
 	const {createHTML, clearElement} = await include("html.js"),
 	      {HTTPRequest} = await include("conn.js"),
-	      enter = function(e) {
-		if (e.keyCode === 13) {
-			this.nextSibling.click();
-		}
-	      },
-	      showError = function(elm, e) {
-		if (elm.nextSibling !== null) {
-			if (elm.nextSibling.getAttribute("class") === "error") {
-				elm.nextSibling.textContent = e.message;
-			} else {
-				elm.parentNode.insertBefore(createHTML(
-					"span",
-					{
-						"class": "error"
-					},
-					e.message
-				), elm.nextSibling);
-			}
-		} else {
-			elm.parentNode.appendChild(createHTML(
-				"span",
-				{
-					"class": "error"
-				},
-				e.message
-			));
-		}
-	      },
+	      {showError, enterKey} = await include("misc.js"),
 	      assetList = (function() {
 		const asset = function(a) {
 			const details = function() {
@@ -111,7 +84,7 @@ offer(async function(rpc, base, overlay) {
 														"type": "text",
 														"value": a.Name,
 
-														"onkeypress": enter
+														"onkeypress": enterKey
 													}
 												),
 												createHTML(
@@ -326,7 +299,7 @@ offer(async function(rpc, base, overlay) {
 													"type": "text",
 													"value": t.Name,
 
-													"onkeypress": enter
+													"onkeypress": enterKey
 												}
 											),
 											createHTML(
@@ -565,7 +538,7 @@ offer(async function(rpc, base, overlay) {
 								{
 									"id": "newTagName",
 
-									"onkeypress": enter
+									"onkeypress": enterKey
 								}
 							),
 							createHTML(
