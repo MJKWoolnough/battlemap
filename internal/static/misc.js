@@ -1,5 +1,6 @@
-offer((function() {
-	const enterKey = function(e) {
+offer((async function() {
+	const {createHTML} = await include("html.js"),
+	      enterKey = function(e) {
 		if (e.keyCode === 13) {
 			this.nextSibling.click();
 		}
@@ -28,4 +29,4 @@ offer((function() {
 		}
 	      };
 	return Object.freeze({enterKey, showError});
-}());
+}()));
