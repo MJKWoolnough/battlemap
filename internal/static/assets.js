@@ -3,6 +3,11 @@ offer(async function(rpc, base, overlay) {
 	let changed = false;
 	const {createHTML, clearElement} = await include("html.js"),
 	      {HTTPRequest} = await include("conn.js"),
+	      enter = function(e) {
+		if (e.keyCode === 13) {
+			this.nextSibling.click();
+		}
+	      },
 	      showError = function(elm, e) {
 		if (elm.nextSibling !== null) {
 			if (elm.nextSibling.getAttribute("class") === "error") {
@@ -44,7 +49,23 @@ offer(async function(rpc, base, overlay) {
 								"onclick": function() {
 									const layer = overlay.addLayer();
 									layer.appendChild(createHTML("h1", "Rename: " + a.Name));
-									layer.appendChild(createHTML("input", {"type": "text", "value": a.Name}));
+									layer.appendChild(createHTML(
+										"label",
+										{
+											"for": "assetRename"
+										},
+										"New Name"
+									));
+									layer.appendChild(createHTML(
+										"input",
+										{
+											"id": "assetRename",
+											"type": "text",
+											"value": a.Name,
+
+											"onkeypress": enter
+										}
+									));
 									layer.appendChild(createHTML(
 										"button",
 										"Rename",
@@ -277,7 +298,22 @@ offer(async function(rpc, base, overlay) {
 									const layer = overlay.addLayer(),
 									      renamer = this;
 									layer.appendChild(createHTML("h1", "Rename: " + t.Name));
-									layer.appendChild(createHTML("input", {"type": "text", "value": t.Name}));
+									layer.appendChild(createHTML(
+										"label",
+										{
+											"for": "tagRename"
+										},
+										"New Name"
+									));
+									layer.appendChild(createHTML(
+										"input", {
+											"id": "tagRename",
+											"type": "text",
+											"value": t.Name,
+
+											"onkeypress": enter
+										}
+									));
 									layer.appendChild(createHTML(
 										"button",
 										"Rename",
@@ -488,7 +524,21 @@ offer(async function(rpc, base, overlay) {
 				"onclick": function() {
 					const layer = overlay.addLayer();
 					layer.appendChild(createHTML("h1", "Add Tag"));
-					layer.appendChild(createHTML("input"));
+					layer.appendChild(createHTML(
+						"label",
+						{
+							"for": "newTagName"
+						},
+						"New Name"
+					));
+					layer.appendChild(createHTML(
+						"input",
+						{
+							"id": "newTagName",
+
+							"onkeypress": enter
+						}
+					));
 					layer.appendChild(createHTML(
 						"button",
 						{
@@ -522,14 +572,14 @@ offer(async function(rpc, base, overlay) {
 								"label",
 								"Add Asset(s)",
 								{
-									"for": "asset"
+									"for": "addAssets"
 								}
 							),
 							createHTML(
 								"input",
 								{
 									"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript",
-									"id": "asset",
+									"id": "addAssets",
 									"multiple": "multiple",
 									"name": "asset",
 									"type": "file",
