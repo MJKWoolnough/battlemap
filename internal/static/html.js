@@ -14,7 +14,7 @@ offer((function() {
 		      };
 		return function(element, properties, children) {
 			const elem = typeof element === "string" ? document.createElementNS(namespace, element) : element;
-			if (typeof properties === "string") {
+			if (typeof properties === "string" || properties instanceof Array || properties instanceof Node || (typeof children === "object" && !(children instanceof Array) && !(children instanceof Node))) {
 				[properties, children] = [children, properties];
 			}
 			if (typeof properties === "object") {
