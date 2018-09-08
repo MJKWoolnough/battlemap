@@ -42,31 +42,30 @@ offer(async function(rpc, base, overlay) {
 								createHTML("label", {"for": "assetRename"}, "New Name"),
 								createHTML("input", {"id": "assetRename", "type": "text", "value": a.Name, "onkeypress": enterKey}),
 								createHTML("button", "Rename", {"onclick": function() {
-										const oldName = a.Name,
-										      newName = this.previousSibling.value;
-										if (oldName === newName) {
-											overlay.removeLayer();
-											return;
+									const oldName = a.Name,
+									      newName = this.previousSibling.value;
+									if (oldName === newName) {
+										overlay.removeLayer();
+										return;
+									}
+									a.Name = newName;
+									overlay.loading(rpc.request("Assets.RenameAsset", a)).then(name => {
+										overlay.removeLayer();
+										a.Name = name;
+										if (name !== oldName) {
+											this.previousSibling.textContent = name;
+											tagHTML.forEach(h => h.firstChild.textContent = name);
+											a.Tags.forEach(tid => {
+												const t = tagList.get(tid);
+												t.removeAsset(as)
+												t.addAsset(as)
+											});
 										}
-										a.Name = newName;
-										overlay.loading(rpc.request("Assets.RenameAsset", a)).then(name => {
-											overlay.removeLayer();
-											a.Name = name;
-											if (name !== oldName) {
-												this.previousSibling.textContent = name;
-												tagHTML.forEach(h => h.firstChild.textContent = name);
-												a.Tags.forEach(tid => {
-													const t = tagList.get(tid);
-													t.removeAsset(as)
-													t.addAsset(as)
-												});
-											}
-										}, e => {
-											a.Name = oldName;
-											showError(this, e);
-										});
-									}}
-								)
+									}, e => {
+										a.Name = oldName;
+										showError(this, e);
+									});
+								}})
 							]);
 						}}),
 						createHTML("span", "⌫", {"class": "delete", "onclick": function() {
@@ -196,27 +195,25 @@ offer(async function(rpc, base, overlay) {
 						createHTML("span", "⌫", {"class": "delete", "onclick": function() {
 							createHTML(overlay.addLayer(), {"class": "tagDelete"}, [
 								createHTML("div", `Are you sure you wish to delete this tag: ${t.Name}? This cannot be undone!`),
-								createHTML("button", "Yes", {
-									"onclick": () => {
-										overlay.loading(rpc.request("Assets.RemoveTag", t.ID)).then(() => {
-											overlay.removeLayer();
-											Array.from(assets).forEach(a => {
-												at.removeAsset(a);
-												a.removeTag(at)
-											});
-											tags.delete(t.ID);
-											if (childTags.length === 0) {
-												p.removeTag(at);
-												return;
-											}
-											this.parentNode.removeChild(this.previousSibling);
-											this.parentNode.removeChild(this);
-											assets.splice(0, assets.length);
-											t.ID = uID--;
-											tags.set(t.ID, at);
-										}, showError.bind(null, this));
-									}
-								}),
+								createHTML("button", "Yes", {"onclick": () => {
+									overlay.loading(rpc.request("Assets.RemoveTag", t.ID)).then(() => {
+										overlay.removeLayer();
+										Array.from(assets).forEach(a => {
+											at.removeAsset(a);
+											a.removeTag(at)
+										});
+										tags.delete(t.ID);
+										if (childTags.length === 0) {
+											p.removeTag(at);
+											return;
+										}
+										this.parentNode.removeChild(this.previousSibling);
+										this.parentNode.removeChild(this);
+										assets.splice(0, assets.length);
+										t.ID = uID--;
+										tags.set(t.ID, at);
+									}, showError.bind(null, this));
+								}}),
 								createHTML("button", "No", {"onclick": overlay.removeLayer})
 							]);
 						}})
@@ -355,7 +352,6 @@ offer(async function(rpc, base, overlay) {
 								"data": new FormData(this.parentNode),
 								"method": "POST",
 								"response": "JSON",
-
 								"onprogress": e => {
 									if (e.lengthComputable) {
 										bar.setAttribute("value", e.loaded);
