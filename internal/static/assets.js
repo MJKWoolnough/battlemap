@@ -331,53 +331,55 @@ offer(async function(rpc, overlay, base) {
 		if (al) {
 			al.textContent = "Assets";
 		}
-		base.appendChild(createHTML("button", "Add Tag", {"onclick": function() {
-			createHTML(overlay.addLayer(), {"class": "tagAdd"}, [
-				createHTML("h1", "Add Tag"),
-				createHTML("label", {"for": "newTagName"}, "New Name"),
-				createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
-				createHTML("button", "Add Tag", {"onclick": function() {
-					overlay.loading(rpc.request("Assets.AddTag", this.previousSibling.value)).then(tag => {
-						tagList.add(tag);
-						overlay.removeLayer();
-					}, showError.bind(null, this));
-				}})
-			]);
-		}}));
-		base.appendChild(createHTML("button", "Add Asset(s)", {"onclick": function() {
-			createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-				createHTML("h1", "Add Assets"),
-				createHTML("form", {"enctype": "multipart/form-data", "method": "post" }, [
-					createHTML("label", "Add Asset(s)", {"for": "addAssets"}),
-					createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function() {
-						const bar = createHTML("progress", {"style": "width: 100%"});
-						overlay.loading(
-							HTTPRequest("/socket", {
-								"data": new FormData(this.parentNode),
-								"method": "POST",
-								"response": "JSON",
-								"onprogress": e => {
-									if (e.lengthComputable) {
-										bar.setAttribute("value", e.loaded);
-										bar.setAttribute("max", e.total);
-										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-									}
-								}
-							}),
-							createHTML("div", {"class": "loadBar"}, [
-								createHTML("div", "Uploading file(s)"),
-								bar
-							])
-						).then(assets => {
-							assets.forEach(assetList.add);
+		tags.forEach(tagList.add);
+		assets.forEach(assetList.add);
+		createHTML(base, {"id": "assets"}, [
+			createHTML("button", "Add Tag", {"onclick": function() {
+				createHTML(overlay.addLayer(), {"class": "tagAdd"}, [
+					createHTML("h1", "Add Tag"),
+					createHTML("label", {"for": "newTagName"}, "New Name"),
+					createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
+					createHTML("button", "Add Tag", {"onclick": function() {
+						overlay.loading(rpc.request("Assets.AddTag", this.previousSibling.value)).then(tag => {
+							tagList.add(tag);
 							overlay.removeLayer();
 						}, showError.bind(null, this));
 					}})
-				])
-			]);
-		}}));
-		tags.forEach(tagList.add);
-		assets.forEach(assetList.add);
-		base.appendChild(tagList.get(0).html);
+				]);
+			}}),
+			createHTML("button", "Add Asset(s)", {"onclick": function() {
+				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+					createHTML("h1", "Add Assets"),
+					createHTML("form", {"enctype": "multipart/form-data", "method": "post" }, [
+						createHTML("label", "Add Asset(s)", {"for": "addAssets"}),
+						createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function() {
+							const bar = createHTML("progress", {"style": "width: 100%"});
+							overlay.loading(
+								HTTPRequest("/socket", {
+									"data": new FormData(this.parentNode),
+									"method": "POST",
+									"response": "JSON",
+									"onprogress": e => {
+										if (e.lengthComputable) {
+											bar.setAttribute("value", e.loaded);
+											bar.setAttribute("max", e.total);
+											bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+										}
+									}
+								}),
+								createHTML("div", {"class": "loadBar"}, [
+									createHTML("div", "Uploading file(s)"),
+									bar
+								])
+							).then(assets => {
+								assets.forEach(assetList.add);
+								overlay.removeLayer();
+							}, showError.bind(null, this));
+						}})
+					])
+				]);
+			}}),
+			tagList.get(0).html
+		]);
 	}, e => console.log(e));
 });
