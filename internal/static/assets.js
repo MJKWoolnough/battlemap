@@ -327,6 +327,10 @@ offer(async function(rpc, overlay, base) {
 		rpc.request("Assets.ListAssets"),
 		rpc.request("Assets.ListTags")
 	]).then(([assets, tags]) => {
+		const al = document.getElementById("assetLoading");
+		if (al) {
+			al.textContent = "Assets";
+		}
 		base.appendChild(createHTML("button", "Add Tag", {"onclick": function() {
 			createHTML(overlay.addLayer(), {"class": "tagAdd"}, [
 				createHTML("h1", "Add Tag"),
@@ -372,10 +376,6 @@ offer(async function(rpc, overlay, base) {
 				])
 			]);
 		}}));
-		const al = document.getElementById("assetLoading");
-		if (al) {
-			al.textContent = "Assets";
-		}
 		tags.forEach(tagList.add);
 		assets.forEach(assetList.add);
 		base.appendChild(tagList.get(0).html);

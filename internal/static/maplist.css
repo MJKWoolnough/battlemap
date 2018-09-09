@@ -1,0 +1,7 @@
+@import url("error.css");
+@import url("loader.css");
+@import url("overlay.css");
+
+#mapList ul li:first-child button:first-child, #mapList ul li:last-child button + button {
+	display: none;
+}

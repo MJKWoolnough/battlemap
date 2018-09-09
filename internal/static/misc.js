@@ -8,24 +8,16 @@ offer((async function() {
 	      showError = function(elm, e) {
 		if (elm.nextSibling !== null) {
 			if (elm.nextSibling.getAttribute("class") === "error") {
-				elm.nextSibling.textContent = e.message;
-			} else {
-				elm.parentNode.insertBefore(createHTML(
-					"span",
-					{
-						"class": "error"
-					},
-					e.message
-				), elm.nextSibling);
+				if (e !== null) {
+					elm.nextSibling.textContent = e.message;
+				} else {
+					elm.parentNode.removeChild(elm.nextSibling);
+				}
+			} else if (e !== null) {
+				elm.parentNode.insertBefore(createHTML("span", {"class": "error"}, e.message), elm.nextSibling);
 			}
-		} else {
-			elm.parentNode.appendChild(createHTML(
-				"span",
-				{
-					"class": "error"
-				},
-				e.message
-			));
+		} else if (e !== null) {
+			elm.parentNode.appendChild(createHTML("span", {"class": "error"}, e.message));
 		}
 	      };
 	return Object.freeze({enterKey, showError});

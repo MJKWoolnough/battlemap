@@ -1,5 +1,7 @@
 @import url("assets.css");
+@import url("error.css");
 @import url("loader.css");
+@import url("maplist.css");
 @import url("overlay.css");
 
 html, body {
@@ -8,6 +10,3 @@ html, body {
 	padding: 0;
 }
 
-#maps ul li:first-child button:first-child, #maps ul li:last-child button + button {
-	display: none;
-}
