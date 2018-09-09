@@ -1,5 +1,5 @@
 "use strict";
-offer(async function(rpc, base, overlay) {
+offer(async function(rpc, overlay, base) {
 	let changed = false;
 	const {createHTML, clearElement} = await include("html.js"),
 	      {HTTPRequest} = await include("conn.js"),
