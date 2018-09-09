@@ -24,7 +24,7 @@ offer((function() {
 						if (k.substr(0, 2) === "on" && typeof prop === "function") {
 							elem.addEventListener(k.substr(2), prop.bind(elem));
 						} else if (k === "class") {
-							elm.classList.add(...prop.split(" "));
+							elem.classList.add(...prop.split(" "));
 						} else {
 							elem.setAttribute(k, prop)
 						}
