@@ -3,7 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"sort"
+	"os"
 
 	"vimagination.zapto.org/errors"
 )
@@ -31,21 +31,7 @@ type Map struct {
 	Width, Height int
 	Layers        []Layer
 	Order         int
-	Stmts         MapStmts
-}
-
-type MapList []*Map
-
-func (m MapList) Len() int {
-	return len(m)
-}
-
-func (m MapList) Less(i, j int) bool {
-	return m[i].Order < m[j].Order
-}
-
-func (m MapList) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+	Stmts         MapStmts `json:"-"`
 }
 
 type Token struct {
@@ -94,7 +80,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapTokens_%d]([ID] INTEGER PRIMARY KEY, [Asset] INTEGER, [Width] INTEGER, [Height] INTEGER, [X] INTGER NOT NULL DEFAULT 0, [Y] INTEGER NOT NULL DEFAULT 0, [Angle] INTEGER NOT NULL DEFAULT 0, [RepeatWidth] INTEGER NOT NULL DEFAULT 0, [RepeatHeight] INTEGER NOT NULL DEFAULT 0, [Layer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');", table)); err != nil {
 		return m, errors.WithContext("error creating MapTokens table: ", err)
 	}
-	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapLayers_%d]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Locked] BOOLEAN NOT NULL DEFAULT 0 ([Locked] IN (0, 1)), [Hidden] BOOLEAN NOT NULL DEFAULT 0 CHECK([Hidden] IN (0, 1)), [Mask] BOOLEAN NOT NULL DEFAULT 0 CHECK([Mask] IN (0, 1)), [LightBlock] BOOLEAN NOT NULL DEFAULT 0 CHECK([LightBlock] IN (0, 1)), [Order] INTEGER);", table)); err != nil {
+	if _, err = db.Exec(fmt.Sprintf("CREATE TABLE IF NOT EXISTS [MapLayers_%d]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Locked] BOOLEAN NOT NULL DEFAULT 0 CHECK([Locked] IN (0, 1)), [Hidden] BOOLEAN NOT NULL DEFAULT 0 CHECK([Hidden] IN (0, 1)), [Mask] BOOLEAN NOT NULL DEFAULT 0 CHECK([Mask] IN (0, 1)), [LightBlock] BOOLEAN NOT NULL DEFAULT 0 CHECK([LightBlock] IN (0, 1)), [Order] INTEGER);", table)); err != nil {
 		return m, errors.WithContext("error creating MapLayers table: ", err)
 	}
 	var numRows int
@@ -104,18 +90,18 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		db.Exec(fmt.Sprintf("INSERT INTO [MapLayers_%d] ([Name], [Order]) VALUES ('Background', 0), ('Grid', 1), ('Foreground', 2);", table))
 	}
 	for stmt, code := range map[**sql.Stmt]string{
-		&m.addToken:       "INSERT INTO [MapTokens_%d]([Token], [Width], [Height], [X], [Y], [Layer]) VALUES (?, ?, ?, ?, ?, ?);",
+		&m.addToken:       "INSERT INTO [MapTokens_%d]([Asset], [Width], [Height], [X], [Y], [Layer]) VALUES (?, ?, ?, ?, ?, ?);",
 		&m.moveTokenPos:   "UPDATE [MapTokens_%d] SET [X] = ?, [Y] = ? WHERE [ID] = ?;",
 		&m.moveTokenLayer: "UPDATE [MapTokens_%d] SET [Layer] = ? WHERE [ID] = ?;",
 		&m.resizeToken:    "UPDATE [MapTokens_%d] SET [Width] = ?, [Height] = ? WHERE [ID] = ?;",
 		&m.rotateToken:    "UPDATE [MapTokens_%d] SET [Angle] = ? WHERE [ID] = ?;",
 		&m.removeToken:    "DELETE FROM [MapTokens_%d] WHERE [ID] = ?;",
 
-		&m.addLayer:    "INSERT INTO [MapLayers_%d]([Name], [Order]) VALUES (?, MAX([Order] + 1);",
+		&m.addLayer:    "INSERT INTO [MapLayers_%[1]d]([Name], [Order]) VALUES (?, (SELECT COALESCE(MAX([Order]), 0) FROM [MapLayers_%[1]d]) + 1);",
 		&m.renameLayer: "UPDATE [MapLayers_%d] SET [Name] = ? WHERE [ID] = ?;",
-		&m.swapLayerOrder: "UPDATE [MapLayers_%[0]d] SET [Order] = CASE [ID] " +
-			"	WHEN ?1 THEN (SELECT [Order] FROM [MapLayers_%[0]d] WHERE [ID] = ?2) " +
-			"	WHEN ?2 THEN (SELECT [Order] FROM [MapLayers_%[0]d] WHERE [ID] = ?1)" +
+		&m.swapLayerOrder: "UPDATE [MapLayers_%[1]d] SET [Order] = CASE [ID] " +
+			"	WHEN ?1 THEN (SELECT [Order] FROM [MapLayers_%[1]d] WHERE [ID] = ?2) " +
+			"	WHEN ?2 THEN (SELECT [Order] FROM [MapLayers_%[1]d] WHERE [ID] = ?1)" +
 			"END " +
 			"WHERE [ID] IN (?1, ?2);", // TODO:Needs checking
 		&m.hideLayer:   "UPDATE [MapLayers_%d] SET [Hidden] = 1 WHERE [ID] = ?;",
@@ -134,6 +120,7 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		&m.removeTables: "DROP TABLE [MapTokens_%d]; DROP TABLE [MapLayers_%d]",
 	} {
 		if *stmt, err = db.Prepare(fmt.Sprintf(code, table)); err != nil {
+			fmt.Fprintf(os.Stderr, fmt.Sprintf(code, table))
 			return m, errors.WithContext(fmt.Sprintf("error creating prepared statement for %d: ", table), err)
 		}
 	}
@@ -142,14 +129,14 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 
 func (m *maps) init(db *sql.DB) error {
 	var err error
-	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0, [LightLayer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0, [Order] INTEGER NOT NULL DEFAULT [ID]);"); err != nil {
+	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Maps]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Width] INTEGER NOT NULL DEFAULT 0, [Height] INTEGER NOT NULL DEFAULT 0, [LightLayer] INTEGER NOT NULL DEFAULT 0, [LightLevel] INTEGER NOT NULL DEFAULT 0, [Order] INTEGER NOT NULL DEFAULT 0);"); err != nil {
 		return errors.WithContext("error creating Maps table: ", err)
 	}
 	if _, err = db.Exec("CREATE TABLE IF NOT EXISTS [Characters]([ID] INTEGER PRIMARY KEY, [Name] TEXT NOT NULL DEFAULT '', [Icon] INTEGER, [Asset] INTEGER, [Width] INTEGER NOT NULL DEFAULT 0, [HEIGHT] INTEGER NOT NULL DEFAULT 0, [Data] TEXT NOT NULL DEFAULT '{}');"); err != nil {
 		return errors.WithContext("error creating Characters table: ", err)
 	}
 	for stmt, code := range map[**sql.Stmt]string{
-		&m.addMap:        "INSERT INTO [Maps]([Name], [Width], [Height]) VALUES (?, ?, ?);",
+		&m.addMap:        "INSERT INTO [Maps]([Name], [Width], [Height], [Order]) VALUES (?, ?, ?, (SELECT COALESCE(MAX([Order]), 0) FROM [Maps]) + 1);",
 		&m.updateMapName: "UPDATE [Maps] SET [Name] = ? WHERE [ID] = ?;",
 		&m.updateMapDim:  "UPDATE [Maps] SET [Width] = ?, [Height] = ? WHERE [ID] = ?;",
 		&m.removeMap:     "DELETE FROM [Maps] WHERE [ID] = ?;",
@@ -162,33 +149,35 @@ func (m *maps) init(db *sql.DB) error {
 		}
 	}
 
-	rows, err := db.Query("SELECT [ID], [Name], [Width], [Height] FROM [Maps];")
+	rows, err := db.Query("SELECT [ID], [Name], [Width], [Height], [Order] FROM [Maps];")
 	if err != nil {
 		return errors.WithContext("error getting Maps data: ", err)
 	}
 	m.maps = make(map[int]*Map)
 	for rows.Next() {
 		ms := new(Map)
-		if err = rows.Scan(&ms.ID, &ms.Name, &ms.Width, &ms.Height); err != nil {
+		if err = rows.Scan(&ms.ID, &ms.Name, &ms.Width, &ms.Height, &ms.Order); err != nil {
 			return errors.WithContext("error loading Map data: ", err)
 		}
-		ms.Stmts, err = NewMapStmts(db, ms.ID)
-		if err != nil {
-			return errors.WithContext("error creating Map statements: ", err)
-		}
+		ms.Layers = make([]Layer, 0)
 		m.maps[ms.ID] = ms
 	}
 	if err = rows.Close(); err != nil {
 		return errors.WithContext("error closing Maps data: ", err)
 	}
+	for _, ms := range m.maps {
+		ms.Stmts, err = NewMapStmts(db, ms.ID)
+		if err != nil {
+			return errors.WithContext("error creating Map statements: ", err)
+		}
+	}
 	return nil
 }
 
-func (m *maps) ListMaps(_ struct{}, ms *MapList) error {
+func (m *maps) ListMaps(_ struct{}, ms *[]*Map) error {
 	for _, mp := range m.maps {
 		*ms = append(*ms, mp)
 	}
-	sort.Sort(ms)
 	return nil
 }
 
@@ -204,6 +193,7 @@ func (m *maps) AddMap(nm Map, mp *Map) error {
 	nm.ID = int(id)
 	nm.Stmts, err = NewMapStmts(&DB, nm.ID)
 	nm.Order = nm.ID
+	nm.Layers = make([]Layer, 0)
 	if err != nil {
 		return err
 	}
