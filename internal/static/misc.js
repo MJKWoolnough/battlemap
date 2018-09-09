@@ -7,17 +7,18 @@ offer((async function() {
 	      },
 	      showError = function(elm, e) {
 		if (elm.nextSibling !== null) {
-			if (elm.nextSibling.getAttribute("class") === "error") {
-				if (e !== null) {
-					elm.nextSibling.textContent = e.message;
-				} else {
-					elm.parentNode.removeChild(elm.nextSibling);
-				}
-			} else if (e !== null) {
+			if (elm.nextSibling.classlist.contains("error")){
+				elm.nextSibling.textContent = e.message;
+			} else {
 				elm.parentNode.insertBefore(createHTML("span", {"class": "error"}, e.message), elm.nextSibling);
 			}
-		} else if (e !== null) {
+		} else {
 			elm.parentNode.appendChild(createHTML("span", {"class": "error"}, e.message));
+		}
+	      },
+	      clearError = function(elm) {
+		if (elm.nextSibling !== null && elm.nextSibling.classList.contains("error")) {
+			elm.parentNode.removeChild(elm.nextSibling);
 		}
 	      };
 	return Object.freeze({enterKey, showError});
