@@ -48,6 +48,10 @@ offer(async function(rpc, overlay, base) {
 										overlay.removeLayer();
 										return;
 									}
+									if (newName === "") {
+										showError(this, new Error("name cannot be nothing"));
+										return;
+									}
 									a.Name = newName;
 									overlay.loading(rpc.request("Assets.RenameAsset", a)).then(name => {
 										overlay.removeLayer();
@@ -156,6 +160,10 @@ offer(async function(rpc, overlay, base) {
 									      newName = this.previousSibling.value;
 									if (oldName === newName) {
 										overlay.removeLayer();
+										return;
+									}
+									if (newName === "") {
+										showError(this, new Error("name cannot be nothing"));
 										return;
 									}
 									t.Name = newName;

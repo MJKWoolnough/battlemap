@@ -291,6 +291,9 @@ func (a *assets) RenameTag(t *Tag, newName *string) error {
 	if !ok {
 		return ErrTagNotExist
 	}
+	if t.Name == "" {
+		return ErrNoName
+	}
 	if u.Name != t.Name {
 		if !strings.EqualFold(u.Name, t.Name) {
 			if _, ok = a.TagList[strings.ToLower(t.Name)]; ok {
@@ -345,6 +348,9 @@ func (a *assets) RenameAsset(asset *Asset, newName *string) error {
 	u, ok := a.Assets[asset.ID]
 	if !ok {
 		return ErrTagNotExist
+	}
+	if t.Name == "" {
+		return ErrNoName
 	}
 	if u.Name != asset.Name {
 		_, err := a.renameAsset.Exec(asset.Name, asset.ID)
@@ -471,4 +477,5 @@ const (
 	ErrTagExists     errors.Error = "tag exists"
 	ErrTagNotExist   errors.Error = "tag doesn't exist"
 	ErrAssetNotExist errors.Error = "asset doesn't exist"
+	ErrNoName        errors.Error = "no name specified"
 )
