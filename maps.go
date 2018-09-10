@@ -13,8 +13,11 @@ var Maps maps
 type maps struct {
 	maps                                           map[int]*Map
 	characters                                     map[int]*Character
+	currentAdminMap, currentUserMap                int
 	addMap, updateMapName, updateMapDim, removeMap *sql.Stmt
 	setLightLayer, setLightLevel                   *sql.Stmt
+	setCurrentAdminMap, setCurrentUserMap          *sql.Stmt
+	swapMapOrder                                   *sql.Stmt
 }
 
 type Character struct {
@@ -143,10 +146,23 @@ func (m *maps) init(db *sql.DB) error {
 
 		&m.setLightLayer: "UPDATE [Maps] SET [LightLayer] = ? WHERE [ID] = ?;",
 		&m.setLightLevel: "UPDATE [Maps] SET [LightLevel] = ? WHERE [ID] = ?;",
+
+		&m.setCurrentAdminMap: "UPDATE [Config] SET [CurrentAdminMap] = ?;",
+		&m.setCurrentUserMap:  "UPDATE [Config] SET [CurrentUserMap] = ?;",
+
+		&m.swapMapOrder: "UPDATE [Maps] SET [Order] = CASE [ID] " +
+			"	WHEN ?1 THEN (SELECT [Order] FROM [Maps] WHERE [ID] = ?2) " +
+			"	WHEN ?2 THEN (SELECT [Order] FROM [Maps] WHERE [ID] = ?1)" +
+			"END " +
+			"WHERE [ID] IN (?1, ?2);", // TODO:Needs checking
 	} {
 		if *stmt, err = db.Prepare(code); err != nil {
 			return errors.WithContext("error preparing Map statement: ", err)
 		}
+	}
+
+	if err = db.QueryRow("SELECT [CurrentAdminMap], [CurrentUserMap] FROM [Config];").Scan(&m.currentAdminMap, &m.currentUserMap); err != nil {
+		return errors.WithContext("error getting current map values: ", err)
 	}
 
 	rows, err := db.Query("SELECT [ID], [Name], [Width], [Height], [Order] FROM [Maps];")
@@ -182,6 +198,9 @@ func (m *maps) ListMaps(_ struct{}, ms *[]*Map) error {
 }
 
 func (m *maps) AddMap(nm Map, mp *Map) error {
+	if nm.Width < 10 || nm.Height < 10 {
+		return ErrInvalidDimensions
+	}
 	res, err := m.addMap.Exec(nm.Name, nm.Width, nm.Height)
 	if err != nil {
 		return errors.WithContext("error creating new map: ", err)
@@ -215,6 +234,11 @@ func (m *maps) RenameMap(nm Map, _ *struct{}) error {
 }
 
 func (m *maps) RemoveMap(id int, _ *struct{}) error {
+	if id == m.currentAdminMap {
+		return ErrCurrentAdminMap
+	} else if id == m.currentUserMap {
+		return ErrCurrentUserMap
+	}
 	_, ok := m.maps[id]
 	if !ok {
 		return ErrMapNotExist
@@ -226,6 +250,75 @@ func (m *maps) RemoveMap(id int, _ *struct{}) error {
 	return nil
 }
 
+func (m *maps) CurrentAdminMap(_ struct{}, id *int) error {
+	*id = m.currentAdminMap
+	return nil
+}
+
+func (m *maps) CurrentUserMap(_ struct{}, id *int) error {
+	*id = m.currentUserMap
+	return nil
+}
+
+func (m *maps) SetCurrentAdminMap(id int, _ *struct{}) error {
+	if _, ok := m.maps[id]; !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.setCurrentAdminMap.Exec(id); err != nil {
+		return errors.WithContext("error setting admin map: ", err)
+	}
+	m.currentAdminMap = id
+	return nil
+}
+
+func (m *maps) SetCurrentUserMap(id int, _ *struct{}) error {
+	if _, ok := m.maps[id]; !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.setCurrentUserMap.Exec(id); err != nil {
+		return errors.WithContext("error setting user map: ", err)
+	}
+	m.currentUserMap = id
+	return nil
+}
+
+func (m *maps) SwapMapOrder(ids [2]int, orders *[2]int) error {
+	mo, ok := m.maps[ids[0]]
+	if !ok {
+		return ErrMapNotExist
+	}
+	mt, ok := m.maps[ids[1]]
+	if !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.swapMapOrder.Exec(ids[0], ids[1]); err != nil {
+		return errors.WithContext("error swapping map orders: ", err)
+	}
+	mo.Order, mt.Order = mt.Order, mo.Order
+	orders[0] = mo.Order
+	orders[1] = mt.Order
+	return nil
+}
+
+func (m *maps) AlterMapSize(nm Map, _ *struct{}) error {
+	if nm.Width < 10 || nm.Height < 10 {
+		return ErrInvalidDimensions
+	}
+	mm, ok := m.maps[nm.ID]
+	if !ok {
+		return ErrMapNotExist
+	}
+	if _, err := m.updateMapDim.Exec(nm.Width, nm.Height, nm.ID); err != nil {
+		return errors.WithContext("error updating map dimensions: ", err)
+	}
+	mm.Width = nm.Width
+	nm.Height = nm.Height
+	return nil
+}
+
 const (
-	ErrMapNotExist errors.Error = "map doesn't exist"
+	ErrMapNotExist       errors.Error = "map doesn't exist"
+	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
+	ErrCurrentUserMap    errors.Error = "map is currently set as user map"
+	ErrInvalidDimensions errors.Error = "invalid map dimensions"
 )
