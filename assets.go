@@ -349,7 +349,7 @@ func (a *assets) RenameAsset(asset *Asset, newName *string) error {
 	if !ok {
 		return ErrTagNotExist
 	}
-	if t.Name == "" {
+	if asset.Name == "" {
 		return ErrNoName
 	}
 	if u.Name != asset.Name {
