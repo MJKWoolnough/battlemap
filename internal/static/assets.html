@@ -2,8 +2,8 @@
 <html lang="en">
 	<head>
 		<title>Assets</title>
-		<script type="application/javascript" src="load.js"></script>
-		<script type="application/javascript">pageLoad.then(() => include("conn.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => admin ? include("html.js") : Promise.reject("Need to be logged in")).then(({createHTML, layers}) => include("assets.js").then(start => start(rpc, layers(document.getElementById("overlay"), createHTML("div", {"class": "loadSpinner"})), document.body)))).catch(e => alert(e));</script>
+		<script type="application/javascript" src="jslib/load.js"></script>
+		<script type="application/javascript">pageLoad.then(() => include("jslib/conn.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => admin ? include("jslib/html.js") : Promise.reject("Need to be logged in")).then(({createHTML, layers}) => include("assets.js").then(start => start(rpc, layers(document.getElementById("overlay"), createHTML("div", {"class": "loadSpinner"})), document.body)))).catch(e => alert(e));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="assets.css" />
 	</head>
 	<body>

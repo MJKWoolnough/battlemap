@@ -1,6 +1,6 @@
 "use strict";
 offer(async function(rpc, overlay, base, loader) {
-	const {createHTML, clearElement} = await include("html.js"),
+	const {createHTML, clearElement} = await include("jslib/html.js"),
 	      {showError, clearError, enterKey} = await include("misc.js"),
 	      mapList = (function() {
 		const h = createHTML("ul"),

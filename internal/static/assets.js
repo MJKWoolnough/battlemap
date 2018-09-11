@@ -1,8 +1,8 @@
 "use strict";
 offer(async function(rpc, overlay, base) {
 	let changed = false;
-	const {createHTML, clearElement} = await include("html.js"),
-	      {HTTPRequest} = await include("conn.js"),
+	const {createHTML, clearElement} = await include("jslib/html.js"),
+	      {HTTPRequest} = await include("jslib/conn.js"),
 	      {showError, enterKey} = await include("misc.js"),
 	      assetList = (function() {
 		const asset = function(a) {

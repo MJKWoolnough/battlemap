@@ -1,0 +1,3 @@
+[submodule "jslib"]
+	path = internal/static/jslib
+	url = https://vimagination.zapto.org/jslib/.git
