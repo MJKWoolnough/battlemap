@@ -37,8 +37,9 @@ offer(async function(rpc, overlay, base) {
 					createHTML("h1", [
 						createHTML("span", a.Name),
 						createHTML("span", "✍", {"class": "rename", "onclick": function() {
+							const that = this;
 							createHTML(overlay.addLayer(), {"class": "assetRename"}, [
-								createHTML("h1", "Rename: " + a.Name),
+								createHTML("h1", "Rename Asset: " + a.Name),
 								createHTML("label", {"for": "assetRename"}, "New Name"),
 								createHTML("input", {"id": "assetRename", "type": "text", "value": a.Name, "onkeypress": enterKey}),
 								createHTML("button", "Rename", {"onclick": function() {
@@ -57,7 +58,7 @@ offer(async function(rpc, overlay, base) {
 										overlay.removeLayer();
 										a.Name = name;
 										if (name !== oldName) {
-											this.previousSibling.textContent = name;
+											that.previousSibling.textContent = name;
 											tagHTML.forEach(h => h.firstChild.textContent = name);
 											a.Tags.forEach(tid => {
 												const t = tagList.get(tid);
@@ -85,7 +86,7 @@ offer(async function(rpc, overlay, base) {
 											}
 											overlay.removeLayer();
 											overlay.removeLayer();
-										}).catch(showError.bind(null, this));
+										}, showError.bind(null, this.nextSibling));
 									}}),
 									createHTML("button", "No", {"onclick": overlay.removeLayer})
 								]
