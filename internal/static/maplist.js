@@ -1,5 +1,5 @@
 "use strict";
-offer(async function(rpc, overlay, base, loader) {
+offer(async function(rpc, overlay, base, loader, dimChanger) {
 	const {createHTML, clearElement} = await include("jslib/html.js"),
 	      {showError, clearError, enterKey} = await include("misc.js"),
 	      mapList = (function() {
@@ -33,7 +33,7 @@ offer(async function(rpc, overlay, base, loader) {
 						mapList.add(other);
 					}).catch(alert);
 				}}),
-				createHTML("span", m.Name, {"onclick": function() {
+				createHTML("span", m.Name, {"class": "mapName", "onclick": function() {
 					if (currentAdminMap !== m.ID) {
 						overlay.loading(rpc.request("Maps.SetCurrentAdminMap", m.ID)).then(() => {
 							if (currentAdminMap >= 0) {
@@ -51,10 +51,47 @@ offer(async function(rpc, overlay, base, loader) {
 							createHTML("span", "Alter Map Settings: "),
 							createHTML("span", m.Name),
 							createHTML("span", "✍", {"class": "mapRename", "onclick": function() {
-
+								const that = this;
+								createHTML(overlay.addLayer(), {"class": "mapRenamer"}, [
+									createHTML("h1", "Rename Map: " + m.Name),
+									createHTML("label", {"for": "mapRename"}, "New Name"),
+									createHTML("input", {"id": "mapRename", "type": "text", "value": m.Name, "onkeypress": enterKey}),
+									createHTML("button", "Rename", {"onclick": function() {
+										const oldName = m.Name,
+										      newName = this.previousSibling.value;
+										if (oldName === newName) {
+											overlay.removeLayer();
+											return;
+										}
+										if (newName === "") {
+											showError(this, new Error("name cannot be nothing"));
+											return;
+										}
+										m.Name = newName;
+										overlay.loading(rpc.request("Maps.RenameMap", m)).then(name => {
+											overlay.removeLayer();
+											m.Name = name;
+											h.childNodes[2].textContent = name;
+										}, e => {
+											m.Name = oldName;
+											showError(this, e);
+										});
+									}})
+								]);
 							}}),
 							currentAdminMap === m.ID || currentUserMap === m.ID ? [] : createHTML("span", "⌫", {"class": "mapDelete", "onclick": function() {
-
+								createHTML(overlay.addLayer(), {"class": "mapDeleter"}, [
+									createHTML("span", `Are you sure you wish to delete this map: ${m.Name}? This cannot be undone!`),
+									createHTML("br"),
+									createHTML("button", "Yes", {"onclick": function() {
+										overlay.loading(rpc.request("Maps.RemoveMap", m.ID)).then(() => {
+											mapList.remove(am);
+											overlay.removeLayer();
+											overlay.removeLayer();
+										}, showError.bind(null, this.nextSibling));
+									}}),
+									createHTML("button", "No", {"onclick": overlay.removeLayer})
+								]);
 							}})
 						]),
 						createHTML("label", {"for": "mapWidth"}, "Map Width"),
@@ -64,8 +101,35 @@ offer(async function(rpc, overlay, base, loader) {
 						createHTML("input", {"id": "mapHeight", "minimum": "10", "step": "1", "type": "number", "value": "50"}),
 						createHTML("br"),
 						createHTML("button", "Update", {"onclick": function() {
+							const [mapWidthElm, mapHeightElm] = Array.from(this.parentNode.getElementsByTagName("input")),
+							      width = parseInt(widthElm.value),
+							      height = parseInt(heightElm.value);
+						let error = false;
+							if (width < 10 || width !== width) {
+								showError(widthElm, new Error("Width must be Greater Than or Equal To 10"));
+								error = true;
+							} else {
+								clearError(widthElm);
+							}
+							if (height < 10 || height !== height) {
+								showError(heightElm, new Error("Height must be Greater Than or Equal To 10"));
+								error = true;
+							} else {
+								clearError(heightElm);
+							}
+							if (!error) {
+								const oldWidth = m.Width,
+								      oldHeight = m.Height;
+								m.Width = width;
+								m.Height = height;
+								overlay.loading(rpc.request("AlterMapSize", m)).then(overlay.removeLayer, e => {
+									m.Width = oldWidth;
+									m.Height = oldHeight;
+									showError(this, e)
+								});
+							}
 
-						}})
+							}})
 					]);
 				}}),
 				createHTML("span", "🖧", {"onclick": function() {
