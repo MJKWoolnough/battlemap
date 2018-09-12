@@ -1,5 +1,5 @@
 "use strict";
-offer(async function(rpc, overlay, base, loader, dimChanger) {
+offer(async function(rpc, overlay, base, loader) {
 	const {createHTML, clearElement} = await include("jslib/html.js"),
 	      {showError, clearError, enterKey} = await include("misc.js"),
 	      mapList = (function() {
@@ -41,7 +41,7 @@ offer(async function(rpc, overlay, base, loader, dimChanger) {
 							}
 							h.classList.add("adminMap");
 							currentAdminMap = m.ID;
-							loader(m.ID);
+							loader(m);
 						});
 					}
 				}}, alert),
@@ -104,7 +104,7 @@ offer(async function(rpc, overlay, base, loader, dimChanger) {
 							const [mapWidthElm, mapHeightElm] = Array.from(this.parentNode.getElementsByTagName("input")),
 							      width = parseInt(widthElm.value),
 							      height = parseInt(heightElm.value);
-						let error = false;
+							let error = false;
 							if (width < 10 || width !== width) {
 								showError(widthElm, new Error("Width must be Greater Than or Equal To 10"));
 								error = true;
@@ -122,7 +122,10 @@ offer(async function(rpc, overlay, base, loader, dimChanger) {
 								      oldHeight = m.Height;
 								m.Width = width;
 								m.Height = height;
-								overlay.loading(rpc.request("AlterMapSize", m)).then(overlay.removeLayer, e => {
+								overlay.loading(rpc.request("AlterMapSize", m)).then(() => {
+									overlay.removeLayer();
+									loader(m);
+								}, e => {
 									m.Width = oldWidth;
 									m.Height = oldHeight;
 									showError(this, e)
@@ -260,6 +263,8 @@ offer(async function(rpc, overlay, base, loader, dimChanger) {
 			}}),
 			base.appendChild(mapList.html)
 		]);
-		loader(currentAdminMap);
+		if (currentAdminMap >= 0) {
+			loader(maps.find(m => m.ID === currentAdminMap));
+		}
 	}, alert);
 });
