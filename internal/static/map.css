@@ -10,3 +10,18 @@ html, body {
 	padding: 0;
 }
 
+#mapList {
+	position: fixed;
+	width: 200px;
+	left: 0;
+	top: 0;
+	border: 1px solid #000;
+}
+
+#assets {
+	position: fixed;
+	width: 200px;
+	right: 0;
+	top: 0;
+	border: 1px solid #000;
+}

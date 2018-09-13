@@ -27,6 +27,19 @@ input[type=checkbox], input[type=checkbox]:not(:checked) + ul {
 	display: none;
 }
 
+.tag {
+	background-color: #eee;
+}
+
 .tag label {
 	cursor: pointer;
+}
+
+#assets ul {
+	list-style: none;
+	padding-left: 1em;
+}
+
+.assetName {
+	background-color: #fff;
 }

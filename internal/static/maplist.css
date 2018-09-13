@@ -20,3 +20,8 @@
 #mapList li.userMap {
 	border-right-color: #00f;
 }
+
+#mapList ul {
+	list-style: none;
+	padding-left: 0;
+}
