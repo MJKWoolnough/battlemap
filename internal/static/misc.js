@@ -1,5 +1,5 @@
 offer((async function() {
-	const {createHTML} = await include("html.js"),
+	const {createHTML} = await include("jslib/html.js"),
 	      enterKey = function(e) {
 		if (e.keyCode === 13) {
 			this.nextSibling.click();
