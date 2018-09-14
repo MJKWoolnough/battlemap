@@ -342,7 +342,7 @@ offer(async function(rpc, overlay, base) {
 		}
 		tags.forEach(tagList.add);
 		assets.forEach(assetList.add);
-		createHTML(base, {"id": "assets"}, [
+		createHTML(base, [
 			createHTML("button", "Add Tag", {"onclick": function() {
 				createHTML(overlay.addLayer(), {"class": "tagAdd"}, [
 					createHTML("h1", "Add Tag"),

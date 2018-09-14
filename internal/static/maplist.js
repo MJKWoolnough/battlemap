@@ -3,7 +3,7 @@ offer(async function(rpc, overlay, base, loader) {
 	const {createHTML, clearElement} = await include("jslib/html.js"),
 	      {showError, clearError, enterKey} = await include("misc.js"),
 	      mapList = (function() {
-		const h = createHTML("ul"),
+		const h = createHTML("ul", {"id": "mapList"}),
 		      maps = [],
 		      map = function(m) {
 			const h = createHTML("li", [
@@ -216,7 +216,7 @@ offer(async function(rpc, overlay, base, loader) {
 		maps.forEach(mapList.add);
 		mapList.currentAdminMap(currentAdminMap);
 		mapList.currentUserMap(currentUserMap);
-		createHTML(base, {"id": "mapList"}, [
+		createHTML(base, [
 			createHTML("button", "Add Map", {"onclick": function() {
 				createHTML(overlay.addLayer(), {"class": "mapAdd"}, [
 					createHTML("h1", "Add Map"),

@@ -10,18 +10,109 @@ html, body {
 	padding: 0;
 }
 
-#mapList {
+#panels {
 	position: fixed;
-	width: 200px;
-	left: 0;
 	top: 0;
+	right: 0;
+	bottom: 0;
+	width: 300px;
+	border-left: 1px solid #000;
+}
+
+#panels > input, #panelContainer > div {
+	display: none;
+}
+
+#tabSelector_assets:checked ~ #panelContainer #panel_assets, #tabSelector_maps:checked ~ #panelContainer #panel_maps {
+	display: block;
+}
+
+#tabs {
+	list-style: none;
+	padding-left: 0;
+}
+
+#tabs {
+	display: ;
+	line-height: 24px;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	margin: 0;
+	padding: 0 0 0 20px;
+}
+
+#tabs:after {
+	position: absolute;
+	content: "";
+	width: 100%;
+	bottom: 0;
+	left: 0;
+	border-bottom: 1px solid #000;
+	z-index: 1;
+	overflow: hidden;
+	text-align: center;
+	transform: translateX(-20px);
+}
+
+#tabs > label {
+	border: 1px solid #000;
+	display: inline-block;
+	position: relative;
+	z-index: 1;
+	margin: 0 -5px;
+	padding: 0 20px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	background: linear-gradient(to bottom, #ececec 50%, #d1d1d1 100%);
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 #fff;
+	text-shadow: 0 1px #fff;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
+#tabs > label:hover {
+	background : linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
+	cursor : pointer;
+}
+
+#tabs > label:before, #tabs > label:after {
+	position: absolute;
+	bottom: -1px;
+	width: 6px;
+	height: 6px;
+	content: " ";
 	border: 1px solid #000;
 }
 
-#assets {
-	position: fixed;
-	width: 200px;
-	right: 0;
-	top: 0;
-	border: 1px solid #000;
+#tabs > label:before {
+	left: -7px;
+	border-bottom-right-radius: 6px;
+	border-width: 0 1px 1px 0;
+	box-shadow: 2px 2px 0 #d1d1d1;
+}
+
+#tabs > label:after {
+	right: -7px;
+	border-bottom-left-radius: 6px;
+	border-width: 0 0 1px 1px;
+	box-shadow: -2px 2px 0 #d1d1d1;
+}
+
+#tabSelector_assets:checked ~ #tabs > #tab_assets, #tabSelector_maps:checked ~ #tabs > #tab_maps {
+	border-bottom-color: #fff;
+	z-index: 2;
+	background : #fff !important;
+}
+
+#tabSelector_assets:checked ~ #tabs > #tab_assets:hover, #tabSelector_maps:checked ~ #tabs > #tab_maps:hover {
+	cursor : default;
+}
+
+#tabSelector_assets:checked ~ #tabs > #tab_assets:before, #tabSelector_maps:checked ~ #tabs > #tab_maps:before {
+	box-shadow: 2px 2px 0 #fff;
+}
+
+#tabSelector_assets:checked ~ #tabs > #tab_assets:after, #tabSelector_maps:checked ~ #tabs > #tab_maps:after {
+	box-shadow: -2px 2px 0 #fff;
 }
