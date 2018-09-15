@@ -31,12 +31,13 @@ html, body {
 
 #tabs {
 	padding-left: 0;
-	margin-top: -20px;
+	margin-top: -24px;
 	line-height: 24px;
 	position: relative;
 	width: 100%;
 	overflow: hidden;
 	padding: 0 0 0 20px;
+	white-space: nowrap;
 }
 
 #tabs:after {
@@ -120,6 +121,10 @@ html, body {
 	border-color: transparent;
 }
 
+#panelHider:checked ~ #panels > #panelGrabber {
+	background-color: #000;
+}
+
 #panelGrabber {
 	background: #fff;
 	border: 2px solid #f00;
@@ -129,4 +134,6 @@ html, body {
 	display: block;
 	width: 20px;
 	height: 20px;
+	transition: background 1s;
+	z-index: 9;
 }

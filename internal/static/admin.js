@@ -18,6 +18,7 @@ offer(async function(rpc) {
 			window.removeEventListener("mousemove", mousemove);
 			window.removeEventListener("mouseup", mouseup);
 		      },
+		      c = createHTML("input", {"id": "panelHider", "type": "checkbox"}),
 		      t = createHTML("div", {"id": "tabs"}),
 		      p = createHTML("div", {"id": "panelContainer"}),
 		      h = createHTML("div", {"id": "panels"}, [
@@ -34,7 +35,7 @@ offer(async function(rpc) {
 				t.appendChild(createHTML("label", {"id": "tab_" + id, "for": "tabSelector_" + id}, title));
 				return p.appendChild(createHTML("div", {"id": "panel_" + id}, contents));
 			},
-			"html": createHTML(document.createDocumentFragment(), [createHTML("input", {"id": "panelHider", "type": "checkbox"}) , h])
+			get html() {return createHTML(document.createDocumentFragment(), [c , h]);}
 		});
 	      }()),
 	      mapLoadPipe = new Pipe();
