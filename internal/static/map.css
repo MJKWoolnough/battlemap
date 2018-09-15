@@ -11,19 +11,21 @@ html, body {
 }
 
 #panels {
+	--panel-width: 300px;
 	position: fixed;
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: 300px;
+	width: var(--panel-width);
 	border-left: 1px solid #000;
+	transition: right 1s, border-color 1s;
 }
 
 #panels > input, #panelContainer > div {
 	display: none;
 }
 
-#tabSelector_assets:checked ~ #panelContainer #panel_assets, #tabSelector_maps:checked ~ #panelContainer #panel_maps {
+#tabSelector_assets:checked ~ #panelContainer #panel_assets, #tabSelector_maps:checked ~ #panelContainer #panel_maps, #tabSelector_layers:checked ~ #panelContainer #panel_layers, #tabSelector_tools:checked ~ #panelContainer #panel_tools {
 	display: block;
 }
 
@@ -33,13 +35,12 @@ html, body {
 }
 
 #tabs {
-	display: ;
 	line-height: 24px;
 	position: relative;
 	width: 100%;
 	overflow: hidden;
 	margin: 0;
-	padding: 0 0 0 20px;
+	padding: 0 0 0 10px;
 }
 
 #tabs:after {
@@ -52,7 +53,7 @@ html, body {
 	z-index: 1;
 	overflow: hidden;
 	text-align: center;
-	transform: translateX(-20px);
+	transform: translateX(-10px);
 }
 
 #tabs > label {
@@ -99,20 +100,37 @@ html, body {
 	box-shadow: -2px 2px 0 #d1d1d1;
 }
 
-#tabSelector_assets:checked ~ #tabs > #tab_assets, #tabSelector_maps:checked ~ #tabs > #tab_maps {
+#tabSelector_assets:checked ~ #tabs > #tab_assets, #tabSelector_maps:checked ~ #tabs > #tab_maps, #tabSelector_layers:checked ~ #tabs > #tab_layers, #tabSelector_tools:checked ~ #tabs > #tab_tools{
 	border-bottom-color: #fff;
 	z-index: 2;
 	background : #fff !important;
+	cursor: default !important;
 }
 
-#tabSelector_assets:checked ~ #tabs > #tab_assets:hover, #tabSelector_maps:checked ~ #tabs > #tab_maps:hover {
-	cursor : default;
-}
-
-#tabSelector_assets:checked ~ #tabs > #tab_assets:before, #tabSelector_maps:checked ~ #tabs > #tab_maps:before {
+#tabSelector_assets:checked ~ #tabs > #tab_assets:before, #tabSelector_maps:checked ~ #tabs > #tab_maps:before, #tabSelector_layers:checked ~ #tabs > #tab_layers:before, #tabSelector_tools:checked ~ #tabs > #tab_tools:before {
 	box-shadow: 2px 2px 0 #fff;
 }
 
-#tabSelector_assets:checked ~ #tabs > #tab_assets:after, #tabSelector_maps:checked ~ #tabs > #tab_maps:after {
+#tabSelector_assets:checked ~ #tabs > #tab_assets:after, #tabSelector_maps:checked ~ #tabs > #tab_maps:after, #tabSelector_layers:checked ~ #tabs > #tab_layers:after, #tabSelector_tools:checked ~ #tabs > #tab_tools:after {
 	box-shadow: -2px 2px 0 #fff;
+}
+
+#panelHider {
+	display: none;
+}
+
+#panelHider:checked ~ #panels {
+	right: calc(-1 * var(--panel-width));
+	border-color: transparent;
+}
+
+#panelGrabber {
+	background: #fff;
+	border: 2px solid #f00;
+	border-radius: 20px;
+	position: relative;
+	left: -12px;
+	display: block;
+	width: 20px;
+	height: 20px;
 }
