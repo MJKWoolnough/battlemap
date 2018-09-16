@@ -316,6 +316,15 @@ func (m *maps) AlterMapSize(nm Map, _ *struct{}) error {
 	return nil
 }
 
+func (m *maps) GetMapData(id int, mp *Map) error {
+	tm, ok := m.maps[id]
+	if !ok {
+		return ErrMapNotExist
+	}
+	*mp = *tm
+	return nil
+}
+
 const (
 	ErrMapNotExist       errors.Error = "map doesn't exist"
 	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
