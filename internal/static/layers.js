@@ -1,6 +1,8 @@
-offer(async function(rpc, overlay, base, layersFn, loader) {
+offer(async function(rpc, overlay, base, mapFn, loader) {
 	const {createHTML, clearLayers} = await include("jslib/html.js");
-	layersFn(layers => {
-		alert(layers);
+	mapFn(currentAdminMap => {
+		rpc.request("Maps.GetLayers", currentAdminMap).then(layers => {
+			
+		});
 	});
 });

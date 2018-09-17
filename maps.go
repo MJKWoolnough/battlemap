@@ -316,12 +316,12 @@ func (m *maps) AlterMapSize(nm Map, _ *struct{}) error {
 	return nil
 }
 
-func (m *maps) GetMapData(id int, mp *Map) error {
+func (m *maps) GetMapLayers(id int, l *[]Layer) error {
 	tm, ok := m.maps[id]
 	if !ok {
 		return ErrMapNotExist
 	}
-	*mp = *tm
+	*l = *tm.Layers
 	return nil
 }
 
