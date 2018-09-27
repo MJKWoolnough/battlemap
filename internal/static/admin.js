@@ -1,13 +1,7 @@
 "use strict";
 offer(async function(rpc) {
 	const {createHTML, clearElement, layers} = await include("jslib/html.js"),
-	      Pipe = function() {
-		const out = [];
-		this.send = function(...data) {
-			out.forEach(o => o(...data));
-		};
-		this.receive = out.push.bind(out);
-	      },
+	      {Pipe} = await include("jslib/inter.js"),
 	      tabs = (function() {
 		const mousemove = function(e) {
 			if (getComputedStyle(h).getPropertyValue("right") === "0px" && e.clientX > 0) {
@@ -38,17 +32,15 @@ offer(async function(rpc) {
 			get html() {return createHTML(document.createDocumentFragment(), [c , h]);}
 		});
 	      }()),
-	      mapLoadPipe = new Pipe();
-	Promise.all([
-		include("assets.js"),
-		include("maplist.js")
-	]).then(([assetFn, mapListFn]) => {
-		clearElement(document.body);
-		const overlay = layers(document.body.appendChild(createHTML("div", {"id": "overlay"})), createHTML("div", {"class": "loadSpinner"}));
-		assetFn(rpc, overlay, tabs.add("assets", "Assets", createHTML("h2", {"id": "assetLoading"}, ["Loading...", createHTML("div", {"class": "loadSpinner"})])));
-		mapListFn(rpc, overlay, tabs.add("maps", "Maps", createHTML("h2", {"id": "mapListLoading"}, ["Loading...", createHTML("div", {"class": "loadSpinner"})])), mapLoadPipe.send);
-		tabs.add("layers", "Layers", []);
-		tabs.add("tools", "Tools", []);
-		document.body.appendChild(tabs.html);
-	}, alert);
+	      mapLoadPipe = new Pipe(),
+	      assetsFn = await include("assets.js"),
+	      mapListFn = await include("maplist.js"),
+	      layersFn = await include("layers.js");
+	clearElement(document.body);
+	const overlay = layers(document.body.appendChild(createHTML("div", {"id": "overlay"})), createHTML("div", {"class": "loadSpinner"}));
+	assetsFn(rpc, overlay, tabs.add("assets", "Assets", createHTML("h2", {"id": "assetLoading"}, ["Loading...", createHTML("div", {"class": "loadSpinner"})])));
+	mapListFn(rpc, overlay, tabs.add("maps", "Maps", createHTML("h2", {"id": "mapListLoading"}, ["Loading...", createHTML("div", {"class": "loadSpinner"})])), mapLoadPipe.send);
+	layersFn(rpc, overlay, tabs.add("layers", "Layers", createHTML("h2", {"id": "layersLoading"}, ["Loading...", createHTML("div", {"class": "loadSpinner"})])), mapLoadPipe.receive);
+	tabs.add("tools", "Tools", []);
+	document.body.appendChild(tabs.html);
 });
