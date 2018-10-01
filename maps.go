@@ -321,7 +321,7 @@ func (m *maps) GetMapLayers(id int, l *[]Layer) error {
 	if !ok {
 		return ErrMapNotExist
 	}
-	*l = *tm.Layers
+	*l = tm.Layers
 	return nil
 }
 
