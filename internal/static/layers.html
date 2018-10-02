@@ -3,7 +3,7 @@
 	<head>
 		<title>Layers</title>
 		<script type="application/javascript" src="jslib/load.js"></script>
-		<script type="application/javascript">pageLoad.then(() => include("jslib/conn.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => admin ? include("jslib/html.js") : Promise.reject("Need to be logged in")).then(({createHTML, layers}) => include("layers.js").then(start => start(rpc, layers(document.getElementById("overlay"), createHTML("div", {"class": "loadSpinner"})), document.body, Promise.prototype.then.bind(rpc.request("Maps.CurrentAdminMap")), alert)))).catch(e => alert(e));</script>
+		<script type="application/javascript">pageLoad.then(() => include("jslib/rpc.js")).then(({RPC}) => RPC("/socket")).then(rpc => rpc.await(-1).then(admin => admin ? include("jslib/html.js") : Promise.reject("Need to be logged in")).then(({createHTML, layers}) => include("layers.js").then(start => start(rpc, layers(document.getElementById("overlay"), createHTML("div", {"class": "loadSpinner"})), document.body, Promise.prototype.then.bind(rpc.request("Maps.CurrentAdminMap")), alert)))).catch(e => alert(e));</script>
 		<link rel="stylesheet" type="text/css" media="screen" href="layers.css" />
 	</head>
 	<body>
