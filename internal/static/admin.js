@@ -1,6 +1,7 @@
 "use strict";
 offer(async function(rpc) {
-	const {createHTML, clearElement, layers} = await include("jslib/html.js"),
+	const {createHTML, clearElement} = await include("jslib/html.js"),
+	      {layers} = await include("jslib/layers.js"),
 	      {Pipe} = await include("jslib/inter.js"),
 	      tabs = (function() {
 		const mousemove = function(e) {
