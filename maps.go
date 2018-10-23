@@ -54,6 +54,7 @@ type Layer struct {
 	Order          int
 	Hidden, Locked bool
 	UseMask        bool
+	BlockLight     bool
 	Tokens         map[int]*Token
 }
 
@@ -186,6 +187,20 @@ func (m *maps) init(db *sql.DB) error {
 		if err != nil {
 			return errors.WithContext("error creating Map statements: ", err)
 		}
+		rows, err = db.Query(fmt.Sprintf("SELECT [ID], [Name], [Locked], [Hidden], [Mask], [LightBlock], [Order] FROM [MapLayers_%d] ORDER BY [Order] ASC;", ms.ID))
+		if err != nil {
+			return errors.WithContext("error read Map Layers: ", err)
+		}
+		for rows.Next() {
+			var l Layer
+			if err = rows.Scan(&l.ID, &l.Name, &l.Locked, &l.Hidden, &l.Mask, &l.BlockLight, &l.Order); err != nil {
+				return errors.WithContext("error loading Map Layer: ", err)
+			}
+			ms.Layers = append(ms.Layers, l)
+		}
+		if err = rows.Close(); err != nil {
+			return errors.WithContext("error closing Map Layers: ", err)
+		}
 	}
 	return nil
 }
@@ -316,7 +331,7 @@ func (m *maps) AlterMapSize(nm Map, _ *struct{}) error {
 	return nil
 }
 
-func (m *maps) GetMapLayers(id int, l *[]Layer) error {
+func (m *maps) GetLayers(id int, l *[]Layer) error {
 	tm, ok := m.maps[id]
 	if !ok {
 		return ErrMapNotExist
