@@ -340,6 +340,31 @@ func (m *maps) GetLayers(id int, l *[]Layer) error {
 	return nil
 }
 
+type SwapLayer struct {
+	MapID  int
+	Layers [2]int
+}
+
+func (m *maps) SwapLayers(s SwapLayer, positions *[2]int) error {
+	mp, ok := m.maps[s.MapID]
+	if !ok {
+		return ErrMapNotExist
+	}
+	var lo, lt *Layer
+	for n := range mp.Layers {
+		if mp.Layers[n] == s.Layers[0] {
+			lo = &mp.Layers[n]
+		} else if mp.Layers[n] == s.Layers[1] {
+			lt = &mp.Layers[n]
+		}
+	}
+	if _, err := mp.Stmts.swapLayerOrder.Exec(s.Layers[0], s.Layers[1]); err != nil {
+		return errors.WithContext("error swapping layers: ", err)
+	}
+	lo.Order, lt.Order = lt.Order, lo.Order
+	return nil
+}
+
 const (
 	ErrMapNotExist       errors.Error = "map doesn't exist"
 	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
