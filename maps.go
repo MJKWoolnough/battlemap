@@ -340,13 +340,8 @@ func (m *maps) GetLayers(id int, l *[]Layer) error {
 	return nil
 }
 
-type SwapLayer struct {
-	MapID  int
-	Layers [2]int
-}
-
-func (m *maps) SwapLayers(s SwapLayer, positions *[2]int) error {
-	mp, ok := m.maps[s.MapID]
+func (m *maps) SwapLayers(s [2]int, positions *[2]int) error {
+	mp, ok := m.maps[m.currentAdminMap]
 	if !ok {
 		return ErrMapNotExist
 	}
