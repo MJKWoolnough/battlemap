@@ -61,7 +61,7 @@ type Layer struct {
 type MapStmts struct {
 	addToken, moveTokenPos, moveTokenLayer, resizeToken, rotateToken, removeToken *sql.Stmt
 
-	addLayer, renameLayer, swapLayerOrder, hideLayer, showLayer, lockLayer, unlockLayer, removeLayer *sql.Stmt
+	addLayer, getLayerOrder, renameLayer, swapLayerOrder, hideLayer, showLayer, lockLayer, unlockLayer, removeLayer *sql.Stmt
 
 	layerLightBlock, layerLightAllow, tokenLightLevel *sql.Stmt
 
@@ -101,8 +101,9 @@ func NewMapStmts(db di, table int) (MapStmts, error) {
 		&m.rotateToken:    "UPDATE [MapTokens_%d] SET [Angle] = ? WHERE [ID] = ?;",
 		&m.removeToken:    "DELETE FROM [MapTokens_%d] WHERE [ID] = ?;",
 
-		&m.addLayer:    "INSERT INTO [MapLayers_%[1]d]([Name], [Order]) VALUES (?, (SELECT COALESCE(MAX([Order]), 0) FROM [MapLayers_%[1]d]) + 1);",
-		&m.renameLayer: "UPDATE [MapLayers_%d] SET [Name] = ? WHERE [ID] = ?;",
+		&m.addLayer:      "INSERT INTO [MapLayers_%[1]d]([Name], [Order]) VALUES (?, (SELECT COALESCE(MAX([Order]), 0) FROM [MapLayers_%[1]d]) + 1);",
+		&m.getLayerOrder: "SELECT [Order] FROM [MapLayers_%d] WHERE [ID] = ?;",
+		&m.renameLayer:   "UPDATE [MapLayers_%d] SET [Name] = ? WHERE [ID] = ?;",
 		&m.swapLayerOrder: "UPDATE [MapLayers_%[1]d] SET [Order] = CASE [ID] " +
 			"	WHEN ?1 THEN (SELECT [Order] FROM [MapLayers_%[1]d] WHERE [ID] = ?2) " +
 			"	WHEN ?2 THEN (SELECT [Order] FROM [MapLayers_%[1]d] WHERE [ID] = ?1)" +
@@ -360,6 +361,33 @@ func (m *maps) SwapLayers(s [2]int, positions *[2]int) error {
 		return errors.WithContext("error swapping layers: ", err)
 	}
 	lo.Order, lt.Order = lt.Order, lo.Order
+	return nil
+}
+
+func (m *maps) AddLayer(name string, layer *Layer) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	res, err := mp.Stmts.addLayer.Exec(name)
+	if err != nil {
+		return errors.WithContext("error adding layer: ", err)
+	}
+	*id = res.LastInsertId()
+	var order int
+	if err := mp.Stmts.getLayerOrder.QueryRow(*id).Scan(&order); err != nil {
+		return errors.WithContext("error getting layer order: ", err)
+	}
+	*layer = Layer{
+		ID:     *id,
+		Name:   name,
+		Order:  order,
+		Tokens: make(map[int]*Token),
+	}
+	mp.Layers = append(mp.Layers, *layer)
 	return nil
 }
 
