@@ -391,6 +391,26 @@ func (m *maps) AddLayer(name string, layer *Layer) error {
 	return nil
 }
 
+func (m *maps) RemoveLayer(id int, _ *struct{}) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			if _, err := mp.Stmts.removeLayer.Exec(id); err != nil {
+				return errors.WithContext("error removing layer: ", err)
+			}
+			mp.Layers = append(mp.Layers[:n], mp.Layers[n+1:]...)
+			break
+		}
+	}
+	return nil
+}
+
 const (
 	ErrMapNotExist       errors.Error = "map doesn't exist"
 	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
