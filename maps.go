@@ -237,7 +237,12 @@ func (m *maps) AddMap(nm Map, mp *Map) error {
 	return nil
 }
 
-func (m *maps) RenameMap(nm Map, _ *struct{}) error {
+type Rename struct {
+	ID   int
+	Name string
+}
+
+func (m *maps) RenameMap(nm Rename, _ *struct{}) error {
 	mp, ok := m.maps[nm.ID]
 	if !ok {
 		return ErrMapNotExist
@@ -405,10 +410,29 @@ func (m *maps) RemoveLayer(id int, _ *struct{}) error {
 				return errors.WithContext("error removing layer: ", err)
 			}
 			mp.Layers = append(mp.Layers[:n], mp.Layers[n+1:]...)
-			break
+			return nil
 		}
 	}
-	return nil
+	return ErrLayerNotExist
+}
+
+func (m *maps) RenameLayer(nl Rename, _ *struct{}) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			if _, err := mp.Stmts.renameLayer(nl.Name, nl.ID); err != nil {
+				return errors.WithContext("error renaming layer: ", err)
+			}
+			mp.Layers[n].Name = nl.Name
+		}
+	}
+	return ErrLayerNotExist
 }
 
 const (
@@ -416,4 +440,5 @@ const (
 	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
 	ErrCurrentUserMap    errors.Error = "map is currently set as user map"
 	ErrInvalidDimensions errors.Error = "invalid map dimensions"
+	ErrLayerNotExist     errors.Error = "layer doesn't exist"
 )
