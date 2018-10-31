@@ -435,6 +435,144 @@ func (m *maps) RenameLayer(nl Rename, _ *struct{}) error {
 	return ErrLayerNotExist
 }
 
+func (m *maps) HideLayer(id int, hidden *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*hidden = !l.Hidden
+			if !l.Hidden {
+				if _, err := mp.Stmts.hideLayer.Exec(id); err != nil {
+					return errors.WithContext("error hiding layer: ", err)
+				}
+				l.Hidden = true
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
+func (m *maps) ShowLayer(id int, shown *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*shown = l.Hidden
+			if l.Hidden {
+				if _, err := mp.Stmts.showLayer.Exec(id); err != nil {
+					return errors.WithContext("error showing layer: ", err)
+				}
+				l.Hidden = false
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
+func (m *maps) LockLayer(id int, locked *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*locked = !l.Locked
+			if !l.Locked {
+				if _, err := mp.Stmts.lockLayer.Exec(id); err != nil {
+					return errors.WithContext("error locking layer: ", err)
+				}
+				l.Locked = true
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
+func (m *maps) UnlockLayer(id int, unlocked *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*unlocked = l.Locked
+			if l.Locked {
+				if _, err := mp.Stmts.unlockLayer.Exec(id); err != nil {
+					return errors.WithContext("error unlocking layer: ", err)
+				}
+				l.Locked = false
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
+func (m *maps) OpaqueLayer(id int, opaque *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*opaque = !l.BlockLight
+			if !l.BlockLight {
+				if _, err := mp.Stmts.layerLightBlock.Exec(id); err != nil {
+					return errors.WithContext("error opaquing layer: ", err)
+				}
+				l.BlockLight = true
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
+func (m *maps) TransparentLayer(id int, transparent *bool) error {
+	if m.currentAdminMap < 0 {
+		return ErrMapNotExist
+	}
+	mp, ok := m.maps[m.currentAdminMap]
+	if !ok {
+		return ErrMapNotExist
+	}
+	for n, l := range mp.Layers {
+		if l.ID == id {
+			*opaque = l.BlockLight
+			if l.BlockLight {
+				if _, err := mp.Stmts.layerLightBlock.Exec(id); err != nil {
+					return errors.WithContext("error tansparenting layer: ", err)
+				}
+				l.BlockLight = false
+			}
+			return nil
+		}
+	}
+	return ErrLayerNotExist
+}
+
 const (
 	ErrMapNotExist       errors.Error = "map doesn't exist"
 	ErrCurrentAdminMap   errors.Error = "map is currently set as admin map"
