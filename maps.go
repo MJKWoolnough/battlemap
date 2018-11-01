@@ -194,7 +194,7 @@ func (m *maps) init(db *sql.DB) error {
 		}
 		for rows.Next() {
 			var l Layer
-			if err = rows.Scan(&l.ID, &l.Name, &l.Locked, &l.Hidden, &l.Mask, &l.BlockLight, &l.Order); err != nil {
+			if err = rows.Scan(&l.ID, &l.Name, &l.Locked, &l.Hidden, &l.UseMask, &l.BlockLight, &l.Order); err != nil {
 				return errors.WithContext("error loading Map Layer: ", err)
 			}
 			ms.Layers = append(ms.Layers, l)
@@ -356,13 +356,13 @@ func (m *maps) SwapLayers(s [2]int, positions *[2]int) error {
 	}
 	var lo, lt *Layer
 	for n := range mp.Layers {
-		if mp.Layers[n] == s.Layers[0] {
+		if mp.Layers[n].ID == s[0] {
 			lo = &mp.Layers[n]
-		} else if mp.Layers[n] == s.Layers[1] {
+		} else if mp.Layers[n].ID == s[1] {
 			lt = &mp.Layers[n]
 		}
 	}
-	if _, err := mp.Stmts.swapLayerOrder.Exec(s.Layers[0], s.Layers[1]); err != nil {
+	if _, err := mp.Stmts.swapLayerOrder.Exec(s[0], s[1]); err != nil {
 		return errors.WithContext("error swapping layers: ", err)
 	}
 	lo.Order, lt.Order = lt.Order, lo.Order
@@ -381,13 +381,16 @@ func (m *maps) AddLayer(name string, layer *Layer) error {
 	if err != nil {
 		return errors.WithContext("error adding layer: ", err)
 	}
-	*id = res.LastInsertId()
+	id, err := res.LastInsertId()
+	if err != nil {
+		return errors.WithContext("error getting layer ID: ", err)
+	}
 	var order int
-	if err := mp.Stmts.getLayerOrder.QueryRow(*id).Scan(&order); err != nil {
+	if err := mp.Stmts.getLayerOrder.QueryRow(id).Scan(&order); err != nil {
 		return errors.WithContext("error getting layer order: ", err)
 	}
 	*layer = Layer{
-		ID:     *id,
+		ID:     int(id),
 		Name:   name,
 		Order:  order,
 		Tokens: make(map[int]*Token),
@@ -425,8 +428,8 @@ func (m *maps) RenameLayer(nl Rename, _ *struct{}) error {
 		return ErrMapNotExist
 	}
 	for n, l := range mp.Layers {
-		if l.ID == id {
-			if _, err := mp.Stmts.renameLayer(nl.Name, nl.ID); err != nil {
+		if l.ID == nl.ID {
+			if _, err := mp.Stmts.renameLayer.Exec(nl.Name, nl.ID); err != nil {
 				return errors.WithContext("error renaming layer: ", err)
 			}
 			mp.Layers[n].Name = nl.Name
@@ -450,7 +453,7 @@ func (m *maps) HideLayer(id int, hidden *bool) error {
 				if _, err := mp.Stmts.hideLayer.Exec(id); err != nil {
 					return errors.WithContext("error hiding layer: ", err)
 				}
-				l.Hidden = true
+				mp.Layers[n].Hidden = true
 			}
 			return nil
 		}
@@ -473,7 +476,7 @@ func (m *maps) ShowLayer(id int, shown *bool) error {
 				if _, err := mp.Stmts.showLayer.Exec(id); err != nil {
 					return errors.WithContext("error showing layer: ", err)
 				}
-				l.Hidden = false
+				mp.Layers[n].Hidden = false
 			}
 			return nil
 		}
@@ -496,7 +499,7 @@ func (m *maps) LockLayer(id int, locked *bool) error {
 				if _, err := mp.Stmts.lockLayer.Exec(id); err != nil {
 					return errors.WithContext("error locking layer: ", err)
 				}
-				l.Locked = true
+				mp.Layers[n].Locked = true
 			}
 			return nil
 		}
@@ -519,7 +522,7 @@ func (m *maps) UnlockLayer(id int, unlocked *bool) error {
 				if _, err := mp.Stmts.unlockLayer.Exec(id); err != nil {
 					return errors.WithContext("error unlocking layer: ", err)
 				}
-				l.Locked = false
+				mp.Layers[n].Locked = false
 			}
 			return nil
 		}
@@ -542,7 +545,7 @@ func (m *maps) OpaqueLayer(id int, opaque *bool) error {
 				if _, err := mp.Stmts.layerLightBlock.Exec(id); err != nil {
 					return errors.WithContext("error opaquing layer: ", err)
 				}
-				l.BlockLight = true
+				mp.Layers[n].BlockLight = true
 			}
 			return nil
 		}
@@ -560,12 +563,12 @@ func (m *maps) TransparentLayer(id int, transparent *bool) error {
 	}
 	for n, l := range mp.Layers {
 		if l.ID == id {
-			*opaque = l.BlockLight
+			*transparent = l.BlockLight
 			if l.BlockLight {
 				if _, err := mp.Stmts.layerLightBlock.Exec(id); err != nil {
 					return errors.WithContext("error tansparenting layer: ", err)
 				}
-				l.BlockLight = false
+				mp.Layers[n].BlockLight = false
 			}
 			return nil
 		}
