@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
@@ -27,8 +26,8 @@ func main() {
 	e(Socket.init())
 
 	Auth.Handle("/socket", &Socket)
-	Auth.Handle("/files/", Trim("/files", http.FileServer(http.Dir("./files"))))
-	Auth.Handle("/assets/", Trim("/assets", http.FileServer(http.Dir("./assets"))))
+	Auth.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir("./files"))))
+	Auth.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./assets"))))
 	Auth.Handle("/", httpgzip.FileServer(dir))
 
 	srv := http.Server{
@@ -54,21 +53,4 @@ func main() {
 	if err != http.ErrServerClosed {
 		e(err)
 	}
-}
-
-type HTTPTrim struct {
-	dir string
-	http.Handler
-}
-
-func Trim(dir string, handler http.Handler) http.Handler {
-	return &HTTPTrim{
-		dir:     dir,
-		Handler: handler,
-	}
-}
-
-func (h *HTTPTrim) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	r.URL.Path = strings.TrimPrefix(r.URL.Path, h.dir)
-	h.Handler.ServeHTTP(w, r)
 }
