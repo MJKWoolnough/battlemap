@@ -41,7 +41,7 @@ offer(async function(rpc, overlay, base, loader) {
 							}
 							h.classList.add("adminMap");
 							currentAdminMap = m.ID;
-							loader(m);
+							loader(currentAdminMap);
 						});
 					}
 				}}, alert),
@@ -264,7 +264,7 @@ offer(async function(rpc, overlay, base, loader) {
 			base.appendChild(mapList.html)
 		]);
 		if (currentAdminMap >= 0) {
-			loader(maps.find(m => m.ID === currentAdminMap));
+			loader(currentAdminMap);
 		}
 	}, alert);
 });
