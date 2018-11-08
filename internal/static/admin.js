@@ -5,7 +5,7 @@ offer(async function(rpc) {
 	      {Pipe} = await include("jslib/inter.js"),
 	      tabs = (function() {
 		const mousemove = function(e) {
-			if (getComputedStyle(h).getPropertyValue("right") === "0px" && e.clientX > 0) {
+			if (e.clientX > 0) {
 				h.style.setProperty("--panel-width", (document.body.clientWidth - e.clientX) + "px");
 			}
 		      },
@@ -18,8 +18,10 @@ offer(async function(rpc) {
 		      p = createHTML("div", {"id": "panelContainer"}),
 		      h = createHTML("div", {"id": "panels"}, [
 			createHTML("label", {"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
-				window.addEventListener("mousemove", mousemove);
-				window.addEventListener("mouseup", mouseup);
+				if (!c.checked) {
+					window.addEventListener("mousemove", mousemove);
+					window.addEventListener("mouseup", mouseup);
+				}
 			}}),
 			t,
 			p
