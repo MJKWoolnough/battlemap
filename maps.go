@@ -346,7 +346,7 @@ func (m *maps) GetLayers(id int, l *[]Layer) error {
 	return nil
 }
 
-func (m *maps) SwapLayers(s [2]int, positions *[2]int) error {
+func (m *maps) SwapLayerOrder(s [2]int, positions *[2]int) error {
 	if m.currentAdminMap < 0 {
 		return ErrMapNotExist
 	}
