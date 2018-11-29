@@ -1,10 +1,11 @@
 "use strict";
 offer(async function(rpc, overlay, base, loader) {
 	const {createHTML, clearElement} = await include("jslib/html.js"),
+	      {sortHTML} = await include("jslib/ordered.js"),
 	      {showError, clearError, enterKey} = await include("misc.js"),
 	      mapList = (function() {
 		const h = createHTML("ul", {"id": "mapList"}),
-		      maps = [],
+		      maps = sortHTML(h, (a, b) => a.order - b.order),
 		      map = function(m) {
 			const h = createHTML("li", [
 				createHTML("span", "▲", {"class": "mapMoveUp", "onclick": function() {
@@ -16,8 +17,7 @@ offer(async function(rpc, overlay, base, loader) {
 					overlay.loading(rpc.request("Maps.SwapMapOrder", [m.ID, other.id])).then(([thisOrder, otherOrder]) => {
 						m.Order = thisOrder;
 						other.order = otherOrder;
-						maps.splice(maps.indexOf(am), 1);
-						mapList.add(am);
+						maps.push(am);
 					}).catch(alert);
 				}}),
 				createHTML("span", "▼", {"class": "mapMoveDown", "onclick": function() {
@@ -29,8 +29,7 @@ offer(async function(rpc, overlay, base, loader) {
 					overlay.loading(rpc.request("Maps.SwapMapOrder", [m.ID, other.id])).then(([thisOrder, otherOrder]) => {
 						m.Order = thisOrder;
 						other.order = otherOrder;
-						maps.splice(maps.indexOf(other), 1);
-						mapList.add(other);
+						maps.push(other);
 					}).catch(alert);
 				}}),
 				createHTML("span", m.Name, {"class": "mapName", "onclick": function() {
@@ -85,7 +84,7 @@ offer(async function(rpc, overlay, base, loader) {
 									createHTML("br"),
 									createHTML("button", "Yes", {"onclick": function() {
 										overlay.loading(rpc.request("Maps.RemoveMap", m.ID)).then(() => {
-											mapList.remove(am);
+											delete maps[maps.indexOf(am)];
 											overlay.removeLayer();
 											overlay.removeLayer();
 										}, showError.bind(null, this.nextSibling));
@@ -154,27 +153,10 @@ offer(async function(rpc, overlay, base, loader) {
 				get html() {return h;}
 			      });
 			return am;
-		      },
-		      am = Object.freeze({
-			"add": m => {
-				const am = m.hasOwnProperty("id") ? m : map(m);
-				let pos = 0;
-				for (; pos < maps.length; pos++) {
-					if (am.order < maps[pos].order) {
-						break;
-					}
-				}
-				if (pos === maps.length) {
-					h.appendChild(am.html)
-				} else {
-					h.insertBefore(am.html, h.childNodes[pos]);
-				}
-				maps.splice(pos, 0, am)
-			},
-			"remove": am => {
-				h.removeChild(am.html);
-				maps.splice(maps.indexOf(am), 1);
-			},
+		      };
+		let currentUserMap = -1, currentAdminMap = -1;
+		return Object.freeze({
+			"add": maps.push.bind(maps),
 			"currentAdminMap": function(mid) {
 				if (currentAdminMap >= 0) {
 					maps.find(m => m.ID === currentAdminMap).html.classList.remove("adminMap");
@@ -200,9 +182,7 @@ offer(async function(rpc, overlay, base, loader) {
 				}
 			},
 			get html() {return h;}
-		      });
-		let currentUserMap = -1, currentAdminMap = -1;
-		return am;
+		});
 	      }());
 	Promise.all([
 		rpc.request("Maps.ListMaps"),
