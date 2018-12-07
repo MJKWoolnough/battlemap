@@ -1,0 +1,19 @@
+#!/bin/bash
+
+bm="$(dirname "$0")";
+data="$bm/internal/static/";
+
+(
+	cd "$data";
+	head -n4 map.html | tr -d '\n	';
+	echo -n "<script type=\"application/javascript\">";
+	(
+		jslib $(xmlpath "//script[not(@src)]" < map.html | tr ' )' '\n' | grep "^include(\"" | sed -e 's/.*"\(.*\)"/-i \1/' | tr '\n' ' ');
+		xmlpath "//script[not(@src)]" < map.html;
+	) | uglifyjs -c --mangle toplevel | tr -d '\n'; # --mangle-props <- TODO:test this
+	echo -n "</script><style type=\"text/css\">";
+	grep -hv "^@import" *.css | uglifycss | tr -d '\n';
+	echo -n "</style>";
+	tail -n5 map.html | tr -d '\n	';
+) | httpdir -g -f -s -i - -d "$(stat -c %Y "$(ls -t "$data"/*.js | head -n1)")" -o "$bm/file_map.go" -w "map.html";
+httpdir -i "$data/login.tmpl" -d "$(stat -c %Y "$data/login.tmpl")" -o "$bm/file_login.go" -w "login.tmpl";
