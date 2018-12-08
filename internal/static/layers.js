@@ -1,9 +1,10 @@
 offer(async function(rpc, overlay, base, mapFn, loader) {
 	const {createHTML, clearElement} = await include("jslib/html.js"),
+	      {sortHTML} = await include("jslib/ordered.js"),
 	      layerList = (function() {
 		let currentSelectedLayer = -1;
 		const h = createHTML("ul", {"id": "layerList"}),
-		      layers = [],
+		      layers = sortHTML(h, (a, b) => a.order - b.order),
 		      layer = function(l) {
 			const h = createHTML("li", [
 				createHTML("span", "▲", {"class": "layerMoveUp", "onclick": function() {
@@ -15,6 +16,7 @@ offer(async function(rpc, overlay, base, mapFn, loader) {
 					overlay.loading(rpc.request("Maps.SwapLayerOrder", [l.ID, other.id])).then(([thisOrder, otherOrder]) => {
 						l.Order = thisOrder;
 						other.order = otherOrder;
+
 						layers.splice(layers.indexOf(al), 1);
 						layerList.add(al);
 					}).catch(alert);
@@ -96,27 +98,7 @@ offer(async function(rpc, overlay, base, mapFn, loader) {
 			      });
 			      return al;
 		      };
-		return Object.freeze({
-			"add": l => {
-				const al = l.hasOwnProperty("id") ? l : layer(id);
-				let pos = 0;
-				for (; pos < layers.length; pos++) {
-					if (al.order < layers[pos].order) {
-						break;
-					}
-				}
-				if (pos === layers.length) {
-					h.appendChild(al.html)
-				} else {
-					h.insertBefore(al.html, h.childNodes[pos]);
-				}
-				layers.splice(pos, 0, al)
-			},
-			"remove": l => {
-				h.removeChild(l.html);
-				layers.splice(layers.indexOf(l), 1);
-			}
-		});
+		return Object.freeze({"add": layers.push.bind(l)});
 	      }());
 	mapFn(currentAdminMap => rpc.request("Maps.GetLayers", currentAdminMap).then(layers => {
 		document.getElementById("layersLoading").innerText = "Layers";
