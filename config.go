@@ -10,22 +10,22 @@ import (
 )
 
 type userConfig struct {
-	CurrentUserMap uint `json:"currentUserMap"`
+	CurrentUserMap uint
 }
 
 type adminConfig struct {
 	userConfig
-	CurrentAdminMap uint `json:"currentAdminMap"`
+	CurrentAdminMap uint
 }
 
 type config struct {
 	sync.RWMutex `json:"-"`
 
 	adminConfig
-	Password    []byte `json:"password"`
-	Salt        []byte `json:"salt"`
-	SessionKey  []byte `json:"sessionKey"`
-	SessionData []byte `json:"sessionData"`
+
+	Password, Salt, SessionKey, SessionData []byte
+	ServerPort                              uint16
+	AssetsDir, CharDir, MapDir, FilesDir    string
 }
 
 func (c *config) Load(filename string) error {
