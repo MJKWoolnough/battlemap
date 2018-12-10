@@ -64,3 +64,5 @@ func (c *config) Save(filename string) error {
 	}
 	return nil
 }
+
+var Config config
