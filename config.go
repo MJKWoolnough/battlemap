@@ -25,7 +25,7 @@ type config struct {
 
 	Password, Salt, SessionKey, SessionData []byte
 	ServerPort                              uint16
-	AssetsDir, CharDir, MapDir, FilesDir    string
+	AssetsDir, CharsDir, MapsDir, FilesDir  string
 }
 
 func (c *config) Load(filename string) error {
