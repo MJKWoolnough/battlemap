@@ -78,6 +78,7 @@ func (a *auth) UpdatePassword(password []byte) {
 	rand.Read(Config.SessionData)
 	Config.Unlock()
 	Config.Save(configFile)
+	Socket.KickAdmins()
 }
 
 var Auth auth
