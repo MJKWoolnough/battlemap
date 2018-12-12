@@ -60,7 +60,7 @@ func (c *config) Save(filename string) error {
 		f.Close()
 	}
 	if err != nil {
-		return errors.WithContext(fmt.Spritnf("error writing config file (%q): ", filename), err)
+		return errors.WithContext(fmt.Sprintf("error writing config file (%q): ", filename), err)
 	}
 	return nil
 }
