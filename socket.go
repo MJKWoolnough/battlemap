@@ -88,3 +88,5 @@ func (s *socket) Broadcast(data []byte, requireAdmin bool) {
 	}
 	s.userMu.Unlock()
 }
+
+var Socket socket
