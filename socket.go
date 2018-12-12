@@ -89,4 +89,12 @@ func (s *socket) Broadcast(data []byte, requireAdmin bool) {
 	s.userMu.Unlock()
 }
 
+func (s *socket) KickAdmins() {
+	s.userMu.Lock()
+	for _, c := range s.admins {
+		go c.WriteClose(4000)
+	}
+	s.userMu.Unlock()
+}
+
 var Socket socket
