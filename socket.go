@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io"
 	"net"
 	"net/rpc"
 	"sync"
@@ -36,8 +38,19 @@ func (s *socket) ServeConn(conn *websocket.Conn) {
 	admin := Auth.IsAdmin(r)
 	var list userMap
 	if admin {
+		_, err := io.WriteString(conn, "{\"id\": -1, \"result\": {\"admin\": true}}")
+		if err != nil {
+			return
+		}
 		list = s.admins
 	} else {
+		Config.RLock()
+		currentMap := Config.CurrentUserMap
+		Config.RUnlock()
+		_, err := fmt.Fprintf(conn, "{\"id\": -1, \"result\": {\"admin\": false, \"map\": %d]}", currentMap)
+		if err != nil {
+			return
+		}
 		list = s.users
 	}
 	s.userMu.Lock()
