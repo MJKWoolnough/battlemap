@@ -43,6 +43,21 @@ func (c *config) Load(filename string) error {
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error decoding config file (%q): ", filename), err)
 	}
+	if c.ServerPort == "" {
+		c.ServerPort = 8080
+	}
+	if c.AssetsDir == "" {
+		c.AssetsDir = "./assets"
+	}
+	if c.CharsDir == "" {
+		c.CharsDir = "./characters"
+	}
+	if c.MapsDir == "" {
+		c.MapsDir = "./maps"
+	}
+	if c.FilesDir == "" {
+		c.FilesDir = "./files"
+	}
 	return nil
 }
 
