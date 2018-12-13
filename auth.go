@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"hash"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -58,27 +59,67 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 	return isAdmin
 }
 
-func (a *auth) Login(password []byte, w http.ResponseWriter) bool {
+func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
+	a.store.Set(w, nil)
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	if !a.IsAdmin(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	r.ParseForm()
+	password := []byte(r.PostFormValue(passwordField))
+	confirm := []byte(r.PostFormValue("confirmPassword"))
+	if !bytes.Equal(password, confirm) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	Config.Lock()
+	Config.Password = hashPass(password, Config.Salt)
+	rand.Read(Config.SessionData)
+	a.store.Set(w, Config.SessionData)
+	Config.Unlock()
+	Config.Save(configFile)
+	Socket.KickAdmins()
+	if r.Header.Get(contentType) == jsonType {
+		w.Header().Set(contentType, jsonType)
+		io.WriteString(w, "{\"updated\": true}")
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
+func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	var password []byte
+	if _, ok := r.PostForm[passwordField]; ok {
+		password = []byte(r.PostFormValue(passwordField))
+	} else {
+		_, pass, _ := r.BasicAuth()
+		password = []byte(pass)
+	}
 	Config.RLock()
 	same := bytes.Equal(Config.Password, hashPass(password, Config.Salt))
 	if same {
 		a.store.Set(w, Config.SessionData)
 	}
 	Config.RUnlock()
-	return same
-}
-
-func (a *auth) Logout(w http.ResponseWriter) {
-	a.store.Set(w, nil)
-}
-
-func (a *auth) UpdatePassword(password []byte) {
-	Config.Lock()
-	Config.Password = hashPass(password, Config.Salt)
-	rand.Read(Config.SessionData)
-	Config.Unlock()
-	Config.Save(configFile)
-	Socket.KickAdmins()
+	if same {
+		if r.Header.Get(contentType) == jsonType {
+			w.Header().Set(contentType, jsonType)
+			io.WriteString(w, "{\"admin\": true}")
+			return
+		}
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+	}
+	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
+	w.WriteHeader(http.StatusUnauthorized)
 }
 
 var Auth auth
@@ -98,3 +139,9 @@ func hashPass(password, salt []byte) []byte {
 	hashPool.Put(h)
 	return res
 }
+
+const (
+	passwordField = "password"
+	contentType   = "Content-Type"
+	jsonType      = "application/json"
+)
