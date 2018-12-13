@@ -20,15 +20,13 @@ type socket struct {
 	admins, users userMap
 }
 
-func (s *socket) Init(types ...interface{}) error {
+func (s *socket) Init() error {
 	s.admins = make(userMap)
 	s.users = make(userMap)
 	s.server = rpc.NewServer()
-	for _, t := range types {
-		err := s.server.Register(t)
-		if err != nil {
-			return errors.WithContext("error registering RPC type: ", err)
-		}
+	err := s.server.Register(&Config)
+	if err != nil {
+		return errors.WithContext("error registering RPC type: ", err)
 	}
 	return nil
 }
@@ -98,3 +96,31 @@ func (s *socket) KickAdmins() {
 }
 
 var Socket socket
+
+func (c *config) GetAdminMap(_ struct{}, id *uint) error {
+	c.RLock()
+	*id = Config.CurrentAdminMap
+	c.RUnlock()
+	return nil
+}
+
+func (c *config) GetUserMap(_ struct{}, id *uint) error {
+	c.RLock()
+	*id = Config.CurrentUserMap
+	c.RUnlock()
+	return nil
+}
+
+func (c *config) SetAdminMap(id uint, _ *struct{}) error {
+	Config.Lock()
+	Config.CurrentAdminMap = id
+	Config.Unlock()
+	return nil
+}
+
+func (c *config) SetUserMap(id uint, _ *struct{}) error {
+	Config.Lock()
+	Config.CurrentUserMap = id
+	Config.Unlock()
+	return nil
+}

@@ -28,9 +28,9 @@ type config struct {
 	AssetsDir, CharsDir, MapsDir, FilesDir  string
 }
 
-func (c *config) Load(filename string) error {
-	c.Lock()
-	defer c.Unlock()
+func LoadConfig(filename string) error {
+	Config.Lock()
+	defer Config.Unlock()
 	f, err := os.Open(filename)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -38,37 +38,37 @@ func (c *config) Load(filename string) error {
 		}
 		return errors.WithContext(fmt.Sprintf("error opening config file (%q): ", filename), err)
 	}
-	err = json.NewDecoder(f).Decode(c)
+	err = json.NewDecoder(f).Decode(Config)
 	f.Close()
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error decoding config file (%q): ", filename), err)
 	}
-	if c.ServerPort == "" {
-		c.ServerPort = 8080
+	if Config.ServerPort == "" {
+		Config.ServerPort = 8080
 	}
-	if c.AssetsDir == "" {
-		c.AssetsDir = "./assets"
+	if Config.AssetsDir == "" {
+		Config.AssetsDir = "./assets"
 	}
-	if c.CharsDir == "" {
-		c.CharsDir = "./characters"
+	if Config.CharsDir == "" {
+		Config.CharsDir = "./characters"
 	}
-	if c.MapsDir == "" {
-		c.MapsDir = "./maps"
+	if Config.MapsDir == "" {
+		Config.MapsDir = "./maps"
 	}
-	if c.FilesDir == "" {
-		c.FilesDir = "./files"
+	if Config.FilesDir == "" {
+		Config.FilesDir = "./files"
 	}
 	return nil
 }
 
-func (c *config) Save(filename string) error {
-	c.RLock()
-	defer c.RUnlock()
+func SaveConfig(filename string) error {
+	Config.RLock()
+	defer Config.RUnlock()
 	f, err := os.Create(filename)
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error creating config file (%q): ", filename), err)
 	}
-	err = json.NewEncoder(f).Encode(c)
+	err = json.NewEncoder(f).Encode(Config)
 	if err == nil {
 		err = f.Close()
 	} else {
