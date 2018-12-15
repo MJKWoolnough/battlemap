@@ -43,7 +43,7 @@ func LoadConfig(filename string) error {
 	if err != nil {
 		return errors.WithContext(fmt.Sprintf("error decoding config file (%q): ", filename), err)
 	}
-	if Config.ServerPort == "" {
+	if Config.ServerPort == 0 {
 		Config.ServerPort = 8080
 	}
 	if Config.AssetsDir == "" {
