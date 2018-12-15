@@ -19,7 +19,7 @@ func (f *files) Init() {
 	Config.RLock()
 	f.location = Config.FilesDir
 	Config.RUnlock()
-	files.Handler = http.FileServer(http.Dir(f.location))
+	f.Handler = http.FileServer(http.Dir(f.location))
 }
 
 func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -40,7 +40,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPut:
 		if r.URL.Path != "/" && Auth.IsAdmin(r) {
 			filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-			_, err := os.Stat(newFile)
+			_, err := os.Stat(filename)
 			newFile := os.IsNotExist(err)
 			err = uploadFile(r.Body, filename)
 			r.Body.Close()
@@ -88,6 +88,16 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		if Auth.IsAdmin(r) && r.URL.Path != "/" {
 			file := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+			if err := os.Remove(file); err != nil {
+				if os.IsNotExist(err) {
+					http.NotFound(w, r)
+					return
+				}
+				w.WriteHeader(http.StatusInternalServerError)
+				io.WriteString(w, err.Error())
+				return
+			}
+			w.WriteHeader(http.StatusNoContent)
 			return
 		}
 	}
@@ -102,17 +112,19 @@ func uploadFile(r io.Reader, location string) error {
 		return err
 	}
 	tfName := tf.Name()
-	_, err = io.Copy(tf, r.Body)
+	_, err = io.Copy(tf, r)
 	if err == nil {
 		err = tf.Close()
 	} else {
 		tf.Close()
 	}
-	err = os.Rename(tfName, location)
 	if err != nil {
 		os.Remove(tfName)
-		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, err.Error())
+		return err
+	}
+	err = os.Rename(tfName, location)
+	if err != nil {
+		return err
 	}
 	return nil
 }
