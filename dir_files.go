@@ -22,6 +22,7 @@ func (f *files) Init() {
 }
 
 func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 	switch r.Method {
 	case http.MethodOptions:
 		if Auth.IsAdmin(r) {
@@ -29,6 +30,9 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 			} else {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
+				if !fileExists(filename) {
+					w.WriteHeader(http.StatusNotFound)
+				}
 			}
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
@@ -38,10 +42,8 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		f.Handler.ServeHTTP(w, r)
 	case http.MethodPut:
 		if r.URL.Path != "/" && Auth.IsAdmin(r) {
-			filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-			_, err := os.Stat(filename)
-			newFile := os.IsNotExist(err)
-			err = uploadFile(r.Body, filename)
+			newFile := !fileExists(filename)
+			err := uploadFile(r.Body, filename)
 			r.Body.Close()
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
