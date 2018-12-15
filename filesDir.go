@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -38,15 +39,22 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		f.Handler.ServeHTTP(w, r)
 	case http.MethodPut:
 		if r.URL.Path != "/" && Auth.IsAdmin(r) {
-			newFile := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-			err := uploadFile(r.Body, newFile)
+			filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+			_, err := os.Stat(newFile)
+			newFile := os.IsNotExist(err)
+			err = uploadFile(r.Body, filename)
 			r.Body.Close()
 			if err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				io.WriteString(w, err.Error())
 				return
 			}
-			w.WriteHeader(http.StatusNoContent)
+			w.Header().Set("Content-Location", path.Join("/files", r.URL.Path))
+			if newFile {
+				w.WriteHeader(http.StatusCreated)
+			} else {
+				w.WriteHeader(http.StatusNoContent)
+			}
 			return
 		}
 	case http.MethodPost:
@@ -85,6 +93,8 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 }
+
+var Files files
 
 func uploadFile(r io.Reader, location string) error {
 	tf, err := ioutil.TempFile("", "battlemap-upload")
