@@ -46,8 +46,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			err := uploadFile(r.Body, filename)
 			r.Body.Close()
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				io.WriteString(w, err.Error())
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			w.Header().Set("Content-Location", path.Join("/files", r.URL.Path))
@@ -81,8 +80,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					continue
 				}
 				if err := uploadFile(p, filepath.Join(f.location, name)); err != nil {
-					w.WriteHeader(http.StatusInternalServerError)
-					io.WriteString(w, err.Error())
+					http.Error(w, err.Error(), http.StatusInternalServerError)
 				}
 			}
 		}
@@ -94,8 +92,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					http.NotFound(w, r)
 					return
 				}
-				w.WriteHeader(http.StatusInternalServerError)
-				io.WriteString(w, err.Error())
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			w.WriteHeader(http.StatusNoContent)
