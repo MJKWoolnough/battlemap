@@ -46,7 +46,7 @@ func (a *auth) Init() error {
 		return errors.WithContext("error creating Cookie Store: ", err)
 	}
 	if save {
-		Config.Save(configFile)
+		SaveConfig(configFile)
 	}
 	return nil
 }
@@ -85,7 +85,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	rand.Read(Config.SessionData)
 	a.store.Set(w, Config.SessionData)
 	Config.Unlock()
-	Config.Save(configFile)
+	SaveConfig(configFile)
 	Socket.KickAdmins()
 	if r.Header.Get(contentType) == jsonType {
 		w.Header().Set(contentType, jsonType)
