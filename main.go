@@ -29,26 +29,32 @@ func main() {
 	port := Config.ServerPort
 
 	e(Socket.Init(), "error initialising Socket module")
+	mux := http.NewServeMux()
+	srv := http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}
+
 	http.Handle("/socket", websocket.Handler(Socket.ServeConn))
 
 	e(Auth.Init(), "error initialising Auth module")
-	http.HandleFunc("/login/update", Auth.UpdatePassword)
-	http.HandleFunc("/login/logout", Auth.Logout)
-	http.HandleFunc("/login/login", Auth.Login)
+	mux.HandleFunc("/login/update", Auth.UpdatePassword)
+	mux.HandleFunc("/login/logout", Auth.Logout)
+	mux.HandleFunc("/login/login", Auth.Login)
 
 	Assets.Init()
-	http.Handle("/assets/", http.StripPrefix("/assets/", &Assets))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", &Assets))
 
 	Chars.Init()
-	http.Handle("/characters/", http.StripPrefix("/characters/", &Chars))
+	mux.Handle("/characters/", http.StripPrefix("/characters/", &Chars))
 
 	Maps.Init()
-	http.Handle("/maps/", http.StripPrefix("/maps/", &Maps))
+	mux.Handle("/maps/", http.StripPrefix("/maps/", &Maps))
 
 	Files.Init()
-	http.Handle("/files/", http.StripPrefix("/files/", &Files))
+	mux.Handle("/files/", http.StripPrefix("/files/", &Files))
 
-	http.Handle("/", httpgzip.FileServer(dir))
+	mux.Handle("/", httpgzip.FileServer(dir))
 
 	c := make(chan os.Signal, 1)
 
@@ -62,7 +68,7 @@ func main() {
 	}()
 
 	log.Println("Running...")
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := srv.ListenAndServe()
 
 	e(SaveConfig(configFile), "error saving config")
 
