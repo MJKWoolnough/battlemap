@@ -28,3 +28,8 @@ func uploadFile(r io.Reader, location string) error {
 	}
 	return nil
 }
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	return !os.IsNotExist(err)
+}
