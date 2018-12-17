@@ -81,6 +81,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 				if err := uploadFile(p, filepath.Join(f.location, name)); err != nil {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
 				}
 			}
 		}
