@@ -84,6 +84,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 			}
+			return
 		}
 	case http.MethodDelete:
 		if Auth.IsAdmin(r) && r.URL.Path != "/" {
