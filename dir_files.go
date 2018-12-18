@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -8,6 +9,16 @@ import (
 	"path/filepath"
 	"strings"
 )
+
+var linkTemplate = template.Must(template.New("").Parse(`<html>
+	<head>
+		<title>Uploads</title>
+	</head>
+	<body>
+		{{range .}}<a href="{{.}}">{{.}}</a><br />
+{{end}}
+	</body>
+</html>`))
 
 type files struct {
 	location string
@@ -65,6 +76,7 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				io.WriteString(w, err.Error())
 				return
 			}
+			var uploaded []string
 			for {
 				p, err := m.NextPart()
 				if err != nil {
@@ -83,7 +95,10 @@ func (f *files) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
+				uploaded = append(uploaded, name)
 			}
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			linkTemplate.Execute(w, uploaded)
 			return
 		}
 	case http.MethodDelete:
