@@ -42,13 +42,15 @@ func (a *assets) Init() {
 }
 
 func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) {
-		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+	if !fileExists(filename) {
+		http.NotFound(w, r)
+	} else if Auth.IsAdmin(r) {
 		if r.URL.Path == "/" {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else if r.URL.Path == tagsPath {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
-		} else if fileExists(filename) {
+		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
 		}
 	} else {
@@ -275,7 +277,67 @@ func (t *TagPatch) Parse(r io.Reader) error {
 	}
 }
 
+type AssetPatch struct {
+	AddTag    []uint `json:"addTag" xml:"addTag"`
+	RemoveTag []uint `json:"removeTag" xml:"removeTag"`
+	Rename    string `json:"rename" xml:"rename"`
+}
+
+func (a *AssetPatch) Parse(r io.Reader) error {
+	b := bufio.NewReader(r)
+	for {
+		c, err := b.ReadByte()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return errors.WithContext("error reading method byte: ", err)
+		}
+		switch c {
+		case '>':
+			idStr, err := b.ReadBytes('\n')
+			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			a.AddTag = append(a.AddTag, uint(id))
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error reading tag id:", err)
+			} else if errb != nil {
+				return errors.WithContext("error parsing tag id: ", errb)
+			}
+		case '<':
+			idStr, err := b.ReadBytes('\n')
+			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			a.RemoveTag = append(a.RemoveTag, uint(id))
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error reading tag id:", err)
+			} else if errb != nil {
+				return errors.WithContext("error parsing tag id: ", errb)
+			}
+		case '~':
+			if a.Rename != "" {
+				return ErrCannotMultiRename
+			}
+			newName, err := b.ReadBytes('\n')
+			a.Rename = strings.TrimSuffix(string(newName), "\n")
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error reading new asset name: ", err)
+			}
+		default:
+			return ErrInvalidMethodByte
+		}
+	}
+}
+
 const (
 	tagsPath                          = "/tags"
 	ErrInvalidMethodByte errors.Error = "invalid method byte"
+	ErrCannotMultiRename errors.Error = "cannot rename multiple times"
 )
