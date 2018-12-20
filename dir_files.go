@@ -39,6 +39,7 @@ func (f *files) Options(w http.ResponseWriter, r *http.Request) bool {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
+			filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 			if !fileExists(filename) {
 				w.WriteHeader(http.StatusNotFound)
 			}
