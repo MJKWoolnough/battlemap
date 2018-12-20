@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -16,8 +17,8 @@ import (
 )
 
 type Asset struct {
-	Name, Filename, Type string
-	Tags                 []int
+	Name, Mime string
+	Tags       []int
 }
 
 type assets struct {
@@ -34,11 +35,83 @@ type assets struct {
 	tags      map[uint]string
 }
 
-func (a *assets) Init() {
+func (a *assets) Init() error {
 	Config.RLock()
 	a.location = Config.AssetsDir
 	Config.RUnlock()
+	err := os.MkdirAll(a.location, os.ModeDir|0755)
+	if err != nil {
+		return errors.WithContext("error creating asset directory: ", err)
+	}
+	d, err := os.Open(a.location)
+	if err != nil {
+		return errors.WithContext("error open asset directory: ", err)
+	}
+	files, err := d.Readdirnames(-1)
+	d.Close()
+	if err != nil {
+		return errors.WithContext("error reading asset directory:", err)
+	}
+	a.assets = make(map[uint]Asset)
+	var largestAssetID, largestTagID uint
+	for _, file := range files {
+		id, err := strconv.ParseUint(file, 10, 0)
+		if err != nil {
+			continue
+		}
+		f, err := os.Open(filepath.Join(a.location, file+".meta"))
+		if err == nil {
+			var as Asset
+			err = json.NewDecoder(f).Decode(&as)
+			if err == nil {
+				a.assets[uint(id)] = as
+			}
+		}
+		if err != nil {
+			f, err = os.Open(filepath.Join(a.location, file))
+			if err != nil {
+				continue
+			}
+			buf := make([]byte, 512)
+			n, err := io.ReadFull(f, buf)
+			if err != nil && err != io.EOF {
+				continue
+			}
+			mime := http.DetectContentType(buf[:n])
+			if goodMime(mime) {
+				a.assets[uint(id)] = Asset{
+					Name: file,
+					Mime: mime,
+				}
+			}
+		}
+		if uint(id) > largestAssetID {
+			largestAssetID = uint(id)
+		}
+		f.Close()
+	}
+	f, err := os.Open(filepath.Join(a.location, a.location))
+	if err == nil {
+		json.NewDecoder(f).Decode(a.tags)
+		f.Close()
+		for id := range a.tags {
+			if id > largestTagID {
+				largestTagID = id
+			}
+		}
+	}
+	a.nextAssetID = largestAssetID + 1
+	a.nextTagID = largestTagID + 1
 	a.Handler = http.FileServer(http.Dir(a.location))
+	return nil
+}
+
+func goodMime(mime string) bool {
+	switch mime {
+	case "image/gif", "image/png", "image/jpeg", "image/webp", "application/ogg", "audio/mpeg", "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript", "video/mp4", "video/webm":
+		return true
+	}
+	return false
 }
 
 func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
@@ -60,18 +133,28 @@ func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
-	if r.Header.Get(contentType) == jsonType && Auth.IsAdmin(r) {
+	if strings.HasSuffix(r.URL.Path, ".meta") {
+		http.NotFound(w, r)
+	} else if Auth.IsAdmin(r) {
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-		if r.URL.Path == "/" {
+		if r.Header.Get(contentType) == jsonType {
+			if r.URL.Path == "/" {
 
-		} else if fileExists(filename) {
+			} else if r.URL.Path == tagsPath {
 
+			} else if fileExists(filename) {
+
+			} else {
+				http.NotFound(w, r)
+			}
 		} else {
-			http.NotFound(w, r)
+			a.Handler.ServeHTTP(w, r)
 		}
 	} else {
-		if r.URL.Path == tagsPath {
-			w.WriteHeader(http.StatusUnauthorized)
+		if r.URL.Path == "/" {
+			w.WriteHeader(http.StatusForbidden)
+		} else if r.URL.Path == tagsPath {
+			w.WriteHeader(http.StatusForbidden)
 		} else {
 			a.Handler.ServeHTTP(w, r)
 		}
@@ -87,6 +170,7 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		buf := make(memio.Buffer, 512)
+		var added []Tag
 		for {
 			p, err := m.NextPart()
 			if err != nil {
@@ -101,62 +185,43 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
-			var ctype, ext string
-			switch http.DetectContentType(buf[:n]) {
-			case "image/gif":
-				ext = "gif"
-				ctype = "image"
-			case "image/png":
-				ext = "png"
-				ctype = "image"
-			case "image/jpeg":
-				ext = "jpg"
-				ctype = "image"
-			case "image/webp":
-				ext = "webp"
-				ctype = "image"
-			case "application/ogg":
-				ext = "ogg"
-				ctype = "audio"
-			case "audio/mpeg":
-				ext = "mp3"
-				ctype = "audio"
-			case "text/html; charset=utf-8":
-				ext = "html"
-				ctype = "document"
-			case "text/plain; charset=utf-8":
-				ext = "txt"
-				ctype = "document"
-			case "application/pdf", "application/postscript":
-				ext = "pdf"
-				ctype = "document"
-			case "video/mp4":
-				ext = "mp4"
-				ctype = "video"
-			case "video/webm":
-				ext = "webm"
-				ctype = "video"
-			default:
+			var mime = http.DetectContentType(buf[:n])
+			if !goodMime(mime) {
 				continue
 			}
 			a.assetMu.Lock()
 			id := a.nextAssetID
 			a.nextAssetID++
 			a.assetMu.Unlock()
-			filename := strconv.FormatUint(uint64(id), 10) + "." + ext
+			filename := strconv.FormatUint(uint64(id), 10)
 			mBuf := buf[:n]
-			if err := uploadFile(io.MultiReader(&mBuf, p), filepath.Join(a.location, filename)); err != nil {
+			fp := filepath.Join(a.location, filename)
+			if err := uploadFile(io.MultiReader(&mBuf, p), fp); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
-			a.assetMu.Lock()
-			a.assets[id] = Asset{
-				Name:     p.FileName(),
-				Filename: filename,
-				Type:     ctype,
+			f, err := os.Create(fp + ".meta")
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return true
 			}
+			as := Asset{
+				Name: filename,
+				Mime: mime,
+			}
+			err = json.NewEncoder(f).Encode(as)
+			f.Close()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return true
+			}
+			a.assetMu.Lock()
+			a.assets[id] = as
 			a.assetMu.Unlock()
+			added = append(added, Tag{ID: id, Name: filename})
 		}
+		w.Header().Set(contentType, jsonType)
+		json.NewEncoder(w).Encode(added)
 		return true
 	}
 	return false
