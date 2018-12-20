@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 
+	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/memio"
 )
 
@@ -44,8 +48,11 @@ func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/" {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 				return
+			} else if r.URL.Path == tagsPath {
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
+				return
 			} else if fileExists(filename) {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST, DELETE")
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
 				return
 			}
 		}
@@ -61,7 +68,12 @@ func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.NotFound(w, r)
 			}
 		} else {
-			a.Handler.ServeHTTP(w, r)
+			if r.URL.Path == tagsPath {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			} else {
+				a.Handler.ServeHTTP(w, r)
+			}
 		}
 		return
 	case http.MethodPost:
@@ -130,7 +142,8 @@ func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					a.nextAssetID++
 					a.assetMu.Unlock()
 					filename := strconv.FormatUint(uint64(id), 10) + "." + ext
-					if err := uploadFile(io.MultiReader(buf[:n], p), filepath.Joing(a.location, filename)); err != nil {
+					mBuf := buf[:n]
+					if err := uploadFile(io.MultiReader(&mBuf, p), filepath.Join(a.location, filename)); err != nil {
 						http.Error(w, err.Error(), http.StatusBadRequest)
 						return
 					}
@@ -147,8 +160,10 @@ func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		return
+	case http.MethodPatch:
+	case http.MethodPut:
 	case http.MethodDelete:
-		if Auth.IsAdmin(r) && r.URL.Path != "/" {
+		if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
 			if err := os.Remove(filename); err != nil {
 				if os.IsNotExist(err) {
 					http.NotFound(w, r)
@@ -166,3 +181,103 @@ func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 var Assets assets
+
+type Tag struct {
+	ID   uint   `json:"id" xml:"id,attr"`
+	Name string `json:"name" xml:",chardata"`
+}
+
+type Tags []Tag
+
+func (t Tags) WriteTo(w io.Writer) (int64, error) {
+	var total int64
+	for _, tag := range t {
+		n, err := fmt.Fprintf(w, "%d,%s\n", tag.ID, tag.Name)
+		total += int64(n)
+		if err != nil {
+			return total, err
+		}
+	}
+	return total, nil
+}
+
+func (t Tags) Len() int {
+	return len(t)
+}
+
+func (t Tags) Less(i, j int) bool {
+	return t[i].ID < t[j].ID
+}
+
+func (t Tags) Swap(i, j int) {
+	t[i], t[j] = t[j], t[i]
+}
+
+type TagPatch struct {
+	Add    []string `json:"add" xml:"add"`
+	Remove []uint   `json:"remove" xml:"remove"`
+	Rename Tags     `json:"rename" xml:"rename"`
+}
+
+func (t *TagPatch) Parse(r io.Reader) error {
+	b := bufio.NewReader(r)
+	for {
+		c, err := b.ReadByte()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return errors.WithContext("error reading method byte: ", err)
+		}
+		switch c {
+		case '>':
+			newTag, err := b.ReadBytes('\n')
+			newTagStr := strings.TrimSuffix(string(newTag), "\n")
+			if len(newTagStr) > 0 {
+				t.Add = append(t.Add, newTagStr)
+			}
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error reading new tag name: ", err)
+			}
+		case '<':
+			idStr, err := b.ReadBytes('\n')
+			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			t.Remove = append(t.Remove, uint(id))
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error read remove id: ", err)
+			} else if errb != nil {
+				return errors.WithContext("error parsing remove id: ", errb)
+			}
+		case '~':
+			idStr, err := b.ReadBytes(',')
+			var newName []byte
+			if err == nil {
+				newName, err = b.ReadBytes('\n')
+			}
+			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			newNameStr := strings.TrimSuffix(string(newName), "\n")
+			t.Rename = append(t.Rename, Tag{ID: uint(id), Name: newNameStr})
+			if err != nil {
+				if err == io.EOF {
+					return nil
+				}
+				return errors.WithContext("error parsing rename id:", errb)
+			} else if errb != nil {
+				return errors.WithContext("error read tag new name: ", errb)
+			}
+		default:
+			return ErrInvalidMethodByte
+		}
+	}
+}
+
+const (
+	tagsPath                          = "/tags"
+	ErrInvalidMethodByte errors.Error = "invalid method byte"
+)
