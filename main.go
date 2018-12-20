@@ -43,7 +43,7 @@ func main() {
 	mux.HandleFunc("/login/login", Auth.Login)
 
 	Assets.Init()
-	mux.Handle("/assets/", http.StripPrefix("/assets/", &Assets))
+	mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&Assets}))
 
 	Chars.Init()
 	mux.Handle("/characters/", http.StripPrefix("/characters/", &Chars))

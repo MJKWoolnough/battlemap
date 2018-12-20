@@ -21,6 +21,7 @@ type Asset struct {
 }
 
 type assets struct {
+	DefaultMethods
 	location string
 	http.Handler
 
@@ -40,144 +41,141 @@ func (a *assets) Init() {
 	a.Handler = http.FileServer(http.Dir(a.location))
 }
 
-func (a *assets) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-	switch r.Method {
-	case http.MethodOptions:
-		if Auth.IsAdmin(r) {
-			if r.URL.Path == "/" {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-				return
-			} else if r.URL.Path == tagsPath {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
-				return
-			} else if fileExists(filename) {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
-				return
-			}
+func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
+	if Auth.IsAdmin(r) {
+		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+		if r.URL.Path == "/" {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
+		} else if r.URL.Path == tagsPath {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
+		} else if fileExists(filename) {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
 		}
+	} else {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
-		return
-	case http.MethodGet, http.MethodHead:
-		if r.Header.Get(contentType) == jsonType && Auth.IsAdmin(r) {
-			if r.URL.Path == "/" {
+	}
+	return true
+}
 
-			} else if fileExists(filename) {
+func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
+	if r.Header.Get(contentType) == jsonType && Auth.IsAdmin(r) {
+		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+		if r.URL.Path == "/" {
 
-			} else {
-				http.NotFound(w, r)
-			}
+		} else if fileExists(filename) {
+
 		} else {
-			if r.URL.Path == tagsPath {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			} else {
-				a.Handler.ServeHTTP(w, r)
-			}
+			http.NotFound(w, r)
 		}
-		return
-	case http.MethodPost:
-		if Auth.IsAdmin(r) {
-			if r.URL.Path == "/" {
-				m, err := r.MultipartReader()
-				if err != nil {
-					http.Error(w, err.Error(), http.StatusBadRequest)
-					return
-				}
-				buf := make(memio.Buffer, 512)
-				for {
-					p, err := m.NextPart()
-					if err != nil {
-						if err == io.EOF {
-							break
-						}
-						http.Error(w, err.Error(), http.StatusBadRequest)
-						return
-					}
-					n, err := io.ReadFull(p, buf)
-					if err != nil {
-						http.Error(w, err.Error(), http.StatusBadRequest)
-						return
-					}
-					var ctype, ext string
-					switch http.DetectContentType(buf[:n]) {
-					case "image/gif":
-						ext = "gif"
-						ctype = "image"
-					case "image/png":
-						ext = "png"
-						ctype = "image"
-					case "image/jpeg":
-						ext = "jpg"
-						ctype = "image"
-					case "image/webp":
-						ext = "webp"
-						ctype = "image"
-					case "application/ogg":
-						ext = "ogg"
-						ctype = "audio"
-					case "audio/mpeg":
-						ext = "mp3"
-						ctype = "audio"
-					case "text/html; charset=utf-8":
-						ext = "html"
-						ctype = "document"
-					case "text/plain; charset=utf-8":
-						ext = "txt"
-						ctype = "document"
-					case "application/pdf", "application/postscript":
-						ext = "pdf"
-						ctype = "document"
-					case "video/mp4":
-						ext = "mp4"
-						ctype = "video"
-					case "video/webm":
-						ext = "webm"
-						ctype = "video"
-					default:
-						continue
-					}
-					a.assetMu.Lock()
-					id := a.nextAssetID
-					a.nextAssetID++
-					a.assetMu.Unlock()
-					filename := strconv.FormatUint(uint64(id), 10) + "." + ext
-					mBuf := buf[:n]
-					if err := uploadFile(io.MultiReader(&mBuf, p), filepath.Join(a.location, filename)); err != nil {
-						http.Error(w, err.Error(), http.StatusBadRequest)
-						return
-					}
-					a.assetMu.Lock()
-					a.assets[id] = Asset{
-						Name:     p.FileName(),
-						Filename: filename,
-						Type:     ctype,
-					}
-					a.assetMu.Unlock()
-				}
-			} else if fileExists(filename) {
-
-			}
-		}
-		return
-	case http.MethodPatch:
-	case http.MethodPut:
-	case http.MethodDelete:
-		if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
-			if err := os.Remove(filename); err != nil {
-				if os.IsNotExist(err) {
-					http.NotFound(w, r)
-					return
-				}
-				w.WriteHeader(http.StatusInternalServerError)
-				io.WriteString(w, err.Error())
-				return
-			}
-			w.WriteHeader(http.StatusNoContent)
-			return
+	} else {
+		if r.URL.Path == tagsPath {
+			w.WriteHeader(http.StatusUnauthorized)
+		} else {
+			a.Handler.ServeHTTP(w, r)
 		}
 	}
-	w.WriteHeader(http.StatusMethodNotAllowed)
+	return true
+}
+
+func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
+	if Auth.IsAdmin(r) && r.URL.Path == "/" {
+		m, err := r.MultipartReader()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return true
+		}
+		buf := make(memio.Buffer, 512)
+		for {
+			p, err := m.NextPart()
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return true
+			}
+			n, err := io.ReadFull(p, buf)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return true
+			}
+			var ctype, ext string
+			switch http.DetectContentType(buf[:n]) {
+			case "image/gif":
+				ext = "gif"
+				ctype = "image"
+			case "image/png":
+				ext = "png"
+				ctype = "image"
+			case "image/jpeg":
+				ext = "jpg"
+				ctype = "image"
+			case "image/webp":
+				ext = "webp"
+				ctype = "image"
+			case "application/ogg":
+				ext = "ogg"
+				ctype = "audio"
+			case "audio/mpeg":
+				ext = "mp3"
+				ctype = "audio"
+			case "text/html; charset=utf-8":
+				ext = "html"
+				ctype = "document"
+			case "text/plain; charset=utf-8":
+				ext = "txt"
+				ctype = "document"
+			case "application/pdf", "application/postscript":
+				ext = "pdf"
+				ctype = "document"
+			case "video/mp4":
+				ext = "mp4"
+				ctype = "video"
+			case "video/webm":
+				ext = "webm"
+				ctype = "video"
+			default:
+				continue
+			}
+			a.assetMu.Lock()
+			id := a.nextAssetID
+			a.nextAssetID++
+			a.assetMu.Unlock()
+			filename := strconv.FormatUint(uint64(id), 10) + "." + ext
+			mBuf := buf[:n]
+			if err := uploadFile(io.MultiReader(&mBuf, p), filepath.Join(a.location, filename)); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return true
+			}
+			a.assetMu.Lock()
+			a.assets[id] = Asset{
+				Name:     p.FileName(),
+				Filename: filename,
+				Type:     ctype,
+			}
+			a.assetMu.Unlock()
+		}
+		return true
+	}
+	return false
+}
+
+func (a *assets) Delete(w http.ResponseWriter, r *http.Request) bool {
+	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
+		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+		if err := os.Remove(filename); err != nil {
+			if os.IsNotExist(err) {
+				http.NotFound(w, r)
+				return true
+			}
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, err.Error())
+			return true
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return true
+	}
+	return false
 }
 
 var Assets assets
