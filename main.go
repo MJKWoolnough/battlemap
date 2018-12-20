@@ -68,7 +68,7 @@ func main() {
 	}()
 
 	log.Println("Running...")
-	e(srv.ListenAndServe(), "error running server")
+	err := srv.ListenAndServe()
 
 	e(SaveConfig(configFile), "error saving config")
 
