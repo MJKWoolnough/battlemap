@@ -28,13 +28,13 @@ func main() {
 
 	port := Config.ServerPort
 
-	e(Socket.Init(), "error initialising Socket module")
 	mux := http.NewServeMux()
 	srv := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: mux,
 	}
 
+	e(Socket.Init(), "error initialising Socket module")
 	http.Handle("/socket", websocket.Handler(Socket.ServeConn))
 
 	e(Auth.Init(), "error initialising Auth module")
@@ -52,7 +52,7 @@ func main() {
 	mux.Handle("/maps/", http.StripPrefix("/maps/", &Maps))
 
 	Files.Init()
-	mux.Handle("/files/", http.StripPrefix("/files/", &Files))
+	mux.Handle("/files/", http.StripPrefix("/files/", Dir{&Files}))
 
 	mux.Handle("/", httpgzip.FileServer(dir))
 
@@ -68,7 +68,7 @@ func main() {
 	}()
 
 	log.Println("Running...")
-	err := srv.ListenAndServe()
+	e(srv.ListenAndServe(), "error running server")
 
 	e(SaveConfig(configFile), "error saving config")
 
