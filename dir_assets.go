@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -53,7 +54,7 @@ func (a *assets) Init() error {
 		return errors.WithContext("error reading asset directory:", err)
 	}
 	a.assets = make(map[uint]Asset)
-	var largestAssetID, largestTagID uint
+	var largestAssetID, largestTagID uint64
 	for _, file := range files {
 		id, err := strconv.ParseUint(file, 10, 0)
 		if err != nil {
@@ -85,26 +86,44 @@ func (a *assets) Init() error {
 				}
 			}
 		}
-		if uint(id) > largestAssetID {
-			largestAssetID = uint(id)
+		if id > largestAssetID {
+			largestAssetID = id
 		}
 		f.Close()
 	}
 	f, err := os.Open(filepath.Join(a.location, a.location))
 	if err == nil {
-		json.NewDecoder(f).Decode(a.tags)
-		f.Close()
-		for id := range a.tags {
+		b := bufio.NewReader(f)
+		for {
+			line, err := b.ReadBytes('\n')
+			if err != nil {
+				break
+			}
+			parts := bytes.SplitN(line, sep, 2)
+			if len(parts) != 2 {
+				continue
+			}
+			id, err := strconv.ParseUint(string(parts[0]), 10, 0)
+			if err != nil {
+				continue
+			}
+			a.tags[uint(id)] = string(bytes.TrimSuffix(parts[2], newLine))
 			if id > largestTagID {
 				largestTagID = id
 			}
 		}
+		f.Close()
 	}
-	a.nextAssetID = largestAssetID + 1
-	a.nextTagID = largestTagID + 1
+	a.nextAssetID = uint(largestAssetID) + 1
+	a.nextTagID = uint(largestTagID) + 1
 	a.Handler = http.FileServer(http.Dir(a.location))
 	return nil
 }
+
+var (
+	sep     = []byte{':'}
+	newLine = []byte{'\n'}
+)
 
 func goodMime(mime string) bool {
 	switch mime {
