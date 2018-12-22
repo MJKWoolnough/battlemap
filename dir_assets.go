@@ -18,8 +18,8 @@ import (
 )
 
 type Asset struct {
-	Name, Mime string
-	Tags       []int
+	Name, Type string
+	Tags       []uint
 }
 
 type assets struct {
@@ -29,11 +29,11 @@ type assets struct {
 
 	assetMu     sync.RWMutex
 	nextAssetID uint
-	assets      map[uint]Asset
+	assets      map[uint]*Asset
 
 	tagMu     sync.RWMutex
 	nextTagID uint
-	tags      map[uint]Tag
+	tags      map[uint]*Tag
 }
 
 func (a *assets) Init() error {
@@ -61,7 +61,7 @@ func (a *assets) InitTags() error {
 	}
 	defer f.Close()
 
-	a.tags = make(map[uint]Tag)
+	a.tags = make(map[uint]*Tag)
 	b := bufio.NewReader(f)
 	var largestTagID uint64
 	for {
@@ -77,7 +77,9 @@ func (a *assets) InitTags() error {
 		if err != nil {
 			return ErrInvalidTagFile
 		}
-		a.tags[uint(id)] = string(bytes.TrimSuffix(parts[2], newLine))
+		a.tags[uint(id)] = &Tag{
+			Name: string(bytes.TrimSuffix(parts[2], newLine)),
+		}
 		if id > largestTagID {
 			largestTagID = id
 		}
@@ -96,43 +98,62 @@ func (a *assets) InitAssets() error {
 	if err != nil {
 		return errors.WithContext("error reading asset directory:", err)
 	}
-	a.assets = make(map[uint]Asset)
+	a.assets = make(map[uint]*Asset)
 	var largestAssetID uint64
+	buf := make([]byte, 512)
 	for _, file := range files {
 		id, err := strconv.ParseUint(file, 10, 0)
 		if err != nil {
 			continue
 		}
+		as := new(Asset)
 		f, err := os.Open(filepath.Join(a.location, file+".meta"))
-		if err == nil {
-			var as Asset
-			err = json.NewDecoder(f).Decode(&as)
-			if err == nil {
-				a.assets[uint(id)] = as
-			}
-		}
 		if err != nil {
-			f, err = os.Open(filepath.Join(a.location, file))
-			if err != nil {
-				continue
+			if !os.IsNotExist(err) {
+				return errors.WithContext("error opening meta file "+file+".meta: ", err)
 			}
-			buf := make([]byte, 512)
-			n, err := io.ReadFull(f, buf)
+			as.Name = file
+		} else {
+			b := bufio.NewReader(f)
+			name, err := b.ReadBytes('\n')
 			if err != nil && err != io.EOF {
-				continue
+				return errors.WithContext("error reading asset name "+file+": ", err)
 			}
-			mime := http.DetectContentType(buf[:n])
-			if goodMime(mime) {
-				a.assets[uint(id)] = Asset{
-					Name: file,
-					Mime: mime,
+			as.Name = string(bytes.TrimRight(name, "\n"))
+			for err == nil {
+				var tagIDStr []byte
+				tagIDStr, err = b.ReadBytes('\n')
+				if err == nil {
+					var tagID uint64
+					tagID, err = strconv.ParseUint(string(tagIDStr), 10, 0)
+					if tag, ok := a.tags[uint(tagID)]; ok {
+						tag.Assets = append(tag.Assets, uint(id))
+						as.Tags = append(as.Tags, uint(tagID))
+					} // ErrInvalidTagID??
 				}
 			}
+			if err != nil && err != io.EOF {
+				return errors.WithContext("error reading tad ID "+file+": ", err)
+			}
+			f.Close()
 		}
+		f, err = os.Open(filepath.Join(a.location, file))
+		if err != nil {
+			return errors.WithContext("error opening asset file "+file+": ", err)
+		}
+		n, err := io.ReadFull(f, buf)
+		f.Close()
+		if err != nil && err != io.EOF {
+			return errors.WithContext("error reading asset file "+file+": ", err)
+		}
+		as.Type = getType(http.DetectContentType(buf[:n]))
+		if as.Type == "" {
+			return errors.WithContext("error detecting or invalid file type of "+file+": ", ErrInvalidFileType)
+		}
+		a.assets[uint(id)] = as
 		if id > largestAssetID {
 			largestAssetID = id
 		}
-		f.Close()
 	}
 	a.nextAssetID = uint(largestAssetID) + 1
 	return nil
@@ -143,12 +164,18 @@ var (
 	newLine = []byte{'\n'}
 )
 
-func goodMime(mime string) bool {
+func getType(mime string) string {
 	switch mime {
-	case "image/gif", "image/png", "image/jpeg", "image/webp", "application/ogg", "audio/mpeg", "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript", "video/mp4", "video/webm":
-		return true
+	case "image/gif", "image/png", "image/jpeg", "image/webp":
+		return "image"
+	case "application/ogg", "audio/mpeg":
+		return "audio"
+	case "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript":
+		return "document"
+	case "video/mp4", "video/webm":
+		return "video"
 	}
-	return false
+	return ""
 }
 
 func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
@@ -222,8 +249,8 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
-			var mime = http.DetectContentType(buf[:n])
-			if !goodMime(mime) {
+			var typ = getMime(http.DetectContentType(buf[:n]))
+			if typ == "" {
 				continue
 			}
 			a.assetMu.Lock()
@@ -242,11 +269,7 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return true
 			}
-			as := Asset{
-				Name: filename,
-				Mime: mime,
-			}
-			err = json.NewEncoder(f).Encode(as)
+			io.WriteString(f, filename)
 			f.Close()
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -444,4 +467,5 @@ const (
 	ErrInvalidMethodByte errors.Error = "invalid method byte"
 	ErrCannotMultiRename errors.Error = "cannot rename multiple times"
 	ErrInvalidTagFile    errors.Error = "invalid tag file"
+	ErrInvalidFileType   errors.Error = "invalid file type"
 )
