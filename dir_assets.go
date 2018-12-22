@@ -33,17 +33,60 @@ type assets struct {
 
 	tagMu     sync.RWMutex
 	nextTagID uint
-	tags      map[uint]string
+	tags      map[uint]Tag
 }
 
 func (a *assets) Init() error {
 	Config.RLock()
 	a.location = Config.AssetsDir
 	Config.RUnlock()
-	err := os.MkdirAll(a.location, os.ModeDir|0755)
+	err := os.MkdirAll(a.location, 0755)
 	if err != nil {
 		return errors.WithContext("error creating asset directory: ", err)
 	}
+	if err = a.InitTags(); err != nil {
+		return err
+	}
+	if err = a.InitAssets(); err != nil {
+		return err
+	}
+	a.Handler = http.FileServer(http.Dir(a.location))
+	return nil
+}
+
+func (a *assets) InitTags() error {
+	f, err := os.Open(filepath.Join(a.location, "tags"))
+	if err != nil {
+		return errors.WithContext("error opening tags file: ", err)
+	}
+	defer f.Close()
+
+	a.tags = make(map[uint]Tag)
+	b := bufio.NewReader(f)
+	var largestTagID uint64
+	for {
+		line, err := b.ReadBytes('\n')
+		if err != nil {
+			return errors.WithContext("error reading tags file: ", err)
+		}
+		parts := bytes.SplitN(line, sep, 2)
+		if len(parts) != 2 {
+			return ErrInvalidTagFile
+		}
+		id, err := strconv.ParseUint(string(parts[0]), 10, 0)
+		if err != nil {
+			return ErrInvalidTagFile
+		}
+		a.tags[uint(id)] = string(bytes.TrimSuffix(parts[2], newLine))
+		if id > largestTagID {
+			largestTagID = id
+		}
+	}
+	a.nextTagID = uint(largestTagID) + 1
+	return nil
+}
+
+func (a *assets) InitAssets() error {
 	d, err := os.Open(a.location)
 	if err != nil {
 		return errors.WithContext("error open asset directory: ", err)
@@ -54,7 +97,7 @@ func (a *assets) Init() error {
 		return errors.WithContext("error reading asset directory:", err)
 	}
 	a.assets = make(map[uint]Asset)
-	var largestAssetID, largestTagID uint64
+	var largestAssetID uint64
 	for _, file := range files {
 		id, err := strconv.ParseUint(file, 10, 0)
 		if err != nil {
@@ -91,32 +134,7 @@ func (a *assets) Init() error {
 		}
 		f.Close()
 	}
-	f, err := os.Open(filepath.Join(a.location, a.location))
-	if err == nil {
-		b := bufio.NewReader(f)
-		for {
-			line, err := b.ReadBytes('\n')
-			if err != nil {
-				break
-			}
-			parts := bytes.SplitN(line, sep, 2)
-			if len(parts) != 2 {
-				continue
-			}
-			id, err := strconv.ParseUint(string(parts[0]), 10, 0)
-			if err != nil {
-				continue
-			}
-			a.tags[uint(id)] = string(bytes.TrimSuffix(parts[2], newLine))
-			if id > largestTagID {
-				largestTagID = id
-			}
-		}
-		f.Close()
-	}
 	a.nextAssetID = uint(largestAssetID) + 1
-	a.nextTagID = uint(largestTagID) + 1
-	a.Handler = http.FileServer(http.Dir(a.location))
 	return nil
 }
 
@@ -267,8 +285,9 @@ func (a *assets) Delete(w http.ResponseWriter, r *http.Request) bool {
 var Assets assets
 
 type Tag struct {
-	ID   uint   `json:"id" xml:"id,attr"`
-	Name string `json:"name" xml:",chardata"`
+	ID     uint   `json:"id" xml:"id,attr"`
+	Name   string `json:"name" xml:",chardata"`
+	Assets []uint `json:"-" xml:"-"`
 }
 
 type Tags []Tag
@@ -424,4 +443,5 @@ const (
 	tagsPath                          = "/tags"
 	ErrInvalidMethodByte errors.Error = "invalid method byte"
 	ErrCannotMultiRename errors.Error = "cannot rename multiple times"
+	ErrInvalidTagFile    errors.Error = "invalid tag file"
 )
