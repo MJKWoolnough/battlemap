@@ -276,7 +276,10 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 				return true
 			}
 			a.assetMu.Lock()
-			a.assets[id] = as
+			a.assets[id] = &Asset{
+				Name: filename,
+				Type: typ,
+			}
 			a.assetMu.Unlock()
 			added = append(added, Tag{ID: id, Name: filename})
 		}
