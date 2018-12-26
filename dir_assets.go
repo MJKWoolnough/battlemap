@@ -166,14 +166,14 @@ var (
 
 func getType(mime string) string {
 	switch mime {
+	//case "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript":
+	//	return "document"
 	case "image/gif", "image/png", "image/jpeg", "image/webp":
-		return "image"
+		return "visual"
 	case "application/ogg", "audio/mpeg":
 		return "audio"
-	case "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript":
-		return "document"
 	case "video/mp4", "video/webm":
-		return "video"
+		return "visual"
 	}
 	return ""
 }
@@ -249,7 +249,7 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
-			var typ = getMime(http.DetectContentType(buf[:n]))
+			var typ = getType(http.DetectContentType(buf[:n]))
 			if typ == "" {
 				continue
 			}
