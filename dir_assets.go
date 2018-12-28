@@ -109,8 +109,9 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		<title>Tags</title>
 	</head>
 	<body>
-{{range .}}		<a href="{{.ID}}">{{.Name}}</a><br />
-{{end}}
+		<table>
+{{range .}}			<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
+{{end}}		</table>
 	</body>
 </html>`))
 
