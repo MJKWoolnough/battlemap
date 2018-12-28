@@ -3,17 +3,25 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
+	"html/template"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/httpaccept"
+	"vimagination.zapto.org/httpdir"
+	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/memio"
 )
 
@@ -25,15 +33,21 @@ type Asset struct {
 type assets struct {
 	DefaultMethods
 	location string
-	http.Handler
+	handler  http.Handler
 
 	assetMu     sync.RWMutex
 	nextAssetID uint
 	assets      map[uint]*Asset
 
+	assetHandlerMu sync.RWMutex
+	assetHandler   http.Handler
+
 	tagMu     sync.RWMutex
 	nextTagID uint
 	tags      map[uint]*Tag
+
+	tagHandlerMu sync.RWMutex
+	tagHandler   http.Handler
 }
 
 func (a *assets) Init() error {
@@ -44,17 +58,17 @@ func (a *assets) Init() error {
 	if err != nil {
 		return errors.WithContext("error creating asset directory: ", err)
 	}
-	if err = a.InitTags(); err != nil {
+	if err = a.initTags(); err != nil {
 		return err
 	}
-	if err = a.InitAssets(); err != nil {
+	if err = a.initAssets(); err != nil {
 		return err
 	}
-	a.Handler = http.FileServer(http.Dir(a.location))
+	a.handler = http.FileServer(http.Dir(a.location))
 	return nil
 }
 
-func (a *assets) InitTags() error {
+func (a *assets) initTags() error {
 	f, err := os.Open(filepath.Join(a.location, "tags"))
 	if err != nil {
 		return errors.WithContext("error opening tags file: ", err)
@@ -85,10 +99,65 @@ func (a *assets) InitTags() error {
 		}
 	}
 	a.nextTagID = uint(largestTagID) + 1
+	a.genTagsHandler()
 	return nil
 }
 
-func (a *assets) InitAssets() error {
+var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
+<html>
+	<head>
+		<title>Tags</title>
+	</head>
+	<body>
+{{range .}}		<a href="{{.ID}}">{{.Name}}</a><br />
+{{end}}
+	</body>
+</html>`))
+
+func (a *assets) genTagsHandler() {
+	var tags Tags
+	for _, tag := range a.tags {
+		tags = append(tags, tag)
+	}
+	sort.Sort(tags)
+	var tagsHTML, tagsHTMLGzip, tagsPlain, tagsPlainGzip, tagsJSON, tagsJSONGzip, tagsXML, tagsXMLGzip memio.Buffer
+
+	tagsTemplate.Execute(&tagsHTML, tags)
+	tags.WriteTo(&tagsPlain)
+	json.NewEncoder(&tagsJSON).Encode(tags)
+	xml.NewEncoder(&tagsXML).EncodeElement(tags, xml.StartElement{Name: xml.Name{Local: "tags"}})
+
+	gw, _ := gzip.NewWriterLevel(&tagsHTMLGzip, gzip.BestCompression)
+	gw.Write(tagsHTML)
+	gw.Close()
+
+	gw.Reset(&tagsPlainGzip)
+	gw.Write(tagsPlain)
+	gw.Close()
+
+	gw.Reset(&tagsJSONGzip)
+	gw.Write(tagsJSON)
+	gw.Close()
+
+	gw.Reset(&tagsXMLGzip)
+	gw.Write(tagsXML)
+	gw.Close()
+
+	t := time.Now()
+	d := httpdir.New(t)
+	d.Create("tags", httpdir.FileBytes(tagsHTML, t))
+	d.Create("tags.gz", httpdir.FileBytes(tagsHTMLGzip, t))
+	d.Create("tags.txt", httpdir.FileBytes(tagsPlain, t))
+	d.Create("tags.txt.gz", httpdir.FileBytes(tagsPlainGzip, t))
+	d.Create("tags.json", httpdir.FileBytes(tagsJSON, t))
+	d.Create("tags.json.gz", httpdir.FileBytes(tagsJSONGzip, t))
+	d.Create("tags.xml", httpdir.FileBytes(tagsXML, t))
+	d.Create("tags.xml.gz", httpdir.FileBytes(tagsXMLGzip, t))
+
+	a.tagHandler = httpgzip.FileServer(d)
+}
+
+func (a *assets) initAssets() error {
 	d, err := os.Open(a.location)
 	if err != nil {
 		return errors.WithContext("error open asset directory: ", err)
@@ -180,7 +249,7 @@ func getType(mime string) string {
 
 func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
 	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-	if !fileExists(filename) {
+	if strings.HasSuffix(filename, ".meta") || !fileExists(filename) {
 		http.NotFound(w, r)
 	} else if Auth.IsAdmin(r) {
 		if r.URL.Path == "/" {
@@ -191,9 +260,29 @@ func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
 		}
 	} else {
-		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
+		if r.URL.Path == tagsPath {
+			http.NotFound(w, r)
+		} else {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
+		}
 	}
 	return true
+}
+
+type AcceptType string
+
+func (a *AcceptType) Handle(m httpaccept.Mime) bool {
+	if m.Match("text/plain") {
+		*a = "txt"
+		return true
+	} else if m.Match("text/xml") {
+		*a = "xml"
+		return true
+	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
+		*a = "json"
+		return true
+	}
+	return false
 }
 
 func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
@@ -201,26 +290,29 @@ func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
 		http.NotFound(w, r)
 	} else if Auth.IsAdmin(r) {
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-		if r.Header.Get(contentType) == jsonType {
-			if r.URL.Path == "/" {
-
-			} else if r.URL.Path == tagsPath {
-
-			} else if fileExists(filename) {
-
-			} else {
-				http.NotFound(w, r)
-			}
-		} else {
-			a.Handler.ServeHTTP(w, r)
-		}
-	} else {
+		handler := a.handler
 		if r.URL.Path == "/" {
-			w.WriteHeader(http.StatusForbidden)
+			at := AcceptType("html")
+			httpaccept.HandleAccept(r, &at)
+			r.URL.Path += "index." + string(at)
+			a.assetHandlerMu.RLock()
+			handler = a.assetHandler
+			a.assetHandlerMu.RUnlock()
 		} else if r.URL.Path == tagsPath {
+			var at AcceptType
+			if httpaccept.HandleAccept(r, &at) {
+				r.URL.Path += string(at)
+			}
+			a.tagHandlerMu.RLock()
+			handler = a.tagHandler
+			a.tagHandlerMu.RUnlock()
+		}
+		handler.ServeHTTP(w, r)
+	} else {
+		if r.URL.Path == "/" || r.URL.Path == tagsPath {
 			w.WriteHeader(http.StatusForbidden)
 		} else {
-			a.Handler.ServeHTTP(w, r)
+			a.handler.ServeHTTP(w, r)
 		}
 	}
 	return true
@@ -316,12 +408,12 @@ type Tag struct {
 	Assets []uint `json:"-" xml:"-"`
 }
 
-type Tags []Tag
+type Tags []*Tag
 
 func (t Tags) WriteTo(w io.Writer) (int64, error) {
 	var total int64
 	for _, tag := range t {
-		n, err := fmt.Fprintf(w, "%d,%s\n", tag.ID, tag.Name)
+		n, err := fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
 		total += int64(n)
 		if err != nil {
 			return total, err
@@ -384,14 +476,14 @@ func (t *TagPatch) Parse(r io.Reader) error {
 				return errors.WithContext("error parsing remove id: ", errb)
 			}
 		case '~':
-			idStr, err := b.ReadBytes(',')
+			idStr, err := b.ReadBytes(':')
 			var newName []byte
 			if err == nil {
 				newName, err = b.ReadBytes('\n')
 			}
 			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
 			newNameStr := strings.TrimSuffix(string(newName), "\n")
-			t.Rename = append(t.Rename, Tag{ID: uint(id), Name: newNameStr})
+			t.Rename = append(t.Rename, &Tag{ID: uint(id), Name: newNameStr})
 			if err != nil {
 				if err == io.EOF {
 					return nil
