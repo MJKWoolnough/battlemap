@@ -74,6 +74,10 @@ func (a *assets) initTags() error {
 		return errors.WithContext("error opening tags file: ", err)
 	}
 	defer f.Close()
+	fsinfo, err := f.Stat()
+	if err != nil {
+		return errors.WithContext("error statting tag file: ", err)
+	}
 
 	a.tags = make(map[uint]*Tag)
 	b := bufio.NewReader(f)
@@ -99,7 +103,7 @@ func (a *assets) initTags() error {
 		}
 	}
 	a.nextTagID = uint(largestTagID) + 1
-	a.genTagsHandler()
+	a.genTagsHandler(fsinfo.ModTime())
 	return nil
 }
 
@@ -115,7 +119,7 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</body>
 </html>`))
 
-func (a *assets) genTagsHandler() {
+func (a *assets) genTagsHandler(t time.Time) {
 	var tags Tags
 	for _, tag := range a.tags {
 		tags = append(tags, tag)
@@ -144,7 +148,6 @@ func (a *assets) genTagsHandler() {
 	gw.Write(tagsXML)
 	gw.Close()
 
-	t := time.Now()
 	d := httpdir.New(t)
 	d.Create("tags", httpdir.FileBytes(tagsHTML, t))
 	d.Create("tags.gz", httpdir.FileBytes(tagsHTMLGzip, t))
