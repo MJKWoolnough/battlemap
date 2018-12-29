@@ -533,7 +533,7 @@ func (a *AssetPatch) Parse(r io.Reader) error {
 			}
 		case '<':
 			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
 			a.RemoveTag = append(a.RemoveTag, uint(id))
 			if err != nil {
 				if err == io.EOF {
