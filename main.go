@@ -42,17 +42,20 @@ func main() {
 	mux.HandleFunc("/login/logout", Auth.Logout)
 	mux.HandleFunc("/login/login", Auth.Login)
 
-	Assets.Init()
+	e(Assets.Init(), "error initialising Assets module")
 	mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&Assets}))
 
-	Chars.Init()
-	mux.Handle("/characters/", http.StripPrefix("/characters/", &Chars))
+	CharsDir.Init()
+	mux.Handle("/characters/", http.StripPrefix("/characters/", Dir{&CharsDir}))
 
-	Maps.Init()
-	mux.Handle("/maps/", http.StripPrefix("/maps/", &Maps))
+	MapsDir.Init()
+	mux.Handle("/maps/", http.StripPrefix("/maps/", Dir{&MapsDir}))
 
-	Files.Init()
-	mux.Handle("/files/", http.StripPrefix("/files/", Dir{&Files}))
+	MasksDir.Init()
+	mux.Handle("/masks/", http.StripPrefix("/masks/", Dir{&MasksDir}))
+
+	FilesDir.Init()
+	mux.Handle("/files/", http.StripPrefix("/files/", Dir{&FilesDir}))
 
 	mux.Handle("/", httpgzip.FileServer(dir))
 

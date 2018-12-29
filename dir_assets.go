@@ -30,7 +30,7 @@ type Asset struct {
 	Tags       []uint
 }
 
-type assets struct {
+type assetsDir struct {
 	DefaultMethods
 	location string
 	handler  http.Handler
@@ -50,7 +50,7 @@ type assets struct {
 	tagHandler   http.Handler
 }
 
-func (a *assets) Init() error {
+func (a *assetsDir) Init() error {
 	Config.RLock()
 	a.location = Config.AssetsDir
 	Config.RUnlock()
@@ -68,7 +68,7 @@ func (a *assets) Init() error {
 	return nil
 }
 
-func (a *assets) initTags() error {
+func (a *assetsDir) initTags() error {
 	f, err := os.Open(filepath.Join(a.location, "tags"))
 	if err != nil {
 		return errors.WithContext("error opening tags file: ", err)
@@ -119,7 +119,7 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</body>
 </html>`))
 
-func (a *assets) genTagsHandler(t time.Time) {
+func (a *assetsDir) genTagsHandler(t time.Time) {
 	var tags Tags
 	for _, tag := range a.tags {
 		tags = append(tags, tag)
@@ -161,7 +161,7 @@ func (a *assets) genTagsHandler(t time.Time) {
 	a.tagHandler = httpgzip.FileServer(d)
 }
 
-func (a *assets) initAssets() error {
+func (a *assetsDir) initAssets() error {
 	d, err := os.Open(a.location)
 	if err != nil {
 		return errors.WithContext("error open asset directory: ", err)
@@ -251,7 +251,7 @@ func getType(mime string) string {
 	return ""
 }
 
-func (a *assets) Options(w http.ResponseWriter, r *http.Request) bool {
+func (a *AssetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
 	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 	if strings.HasSuffix(filename, ".meta") || !fileExists(filename) {
 		http.NotFound(w, r)
@@ -289,7 +289,7 @@ func (a *AcceptType) Handle(m httpaccept.Mime) bool {
 	return false
 }
 
-func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
+func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if strings.HasSuffix(r.URL.Path, ".meta") {
 		http.NotFound(w, r)
 	} else if Auth.IsAdmin(r) {
@@ -322,7 +322,7 @@ func (a *assets) Get(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
+func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path == "/" {
 		m, err := r.MultipartReader()
 		if err != nil {
@@ -386,7 +386,7 @@ func (a *assets) Post(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-func (a *assets) Delete(w http.ResponseWriter, r *http.Request) bool {
+func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		if err := os.Remove(filename); err != nil {
@@ -404,7 +404,7 @@ func (a *assets) Delete(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-var Assets assets
+var AssetsDir assetsDir
 
 type Tag struct {
 	ID     uint   `json:"id" xml:"id,attr"`

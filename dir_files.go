@@ -20,20 +20,20 @@ var linkTemplate = template.Must(template.New("").Parse(`<html>
 	</body>
 </html>`))
 
-type files struct {
+type filesDir struct {
 	DefaultMethods
 	location string
 	http.Handler
 }
 
-func (f *files) Init() {
+func (f *filesDir) Init() {
 	Config.RLock()
 	f.location = Config.FilesDir
 	Config.RUnlock()
 	f.Handler = http.FileServer(http.Dir(f.location))
 }
 
-func (f *files) Options(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) {
 		if r.URL.Path == "/" {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
@@ -50,12 +50,12 @@ func (f *files) Options(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func (f *files) Get(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	f.Handler.ServeHTTP(w, r)
 	return true
 }
 
-func (f *files) Put(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Path != "/" && Auth.IsAdmin(r) {
 		filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		newFile := !fileExists(filename)
@@ -76,7 +76,7 @@ func (f *files) Put(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-func (f *files) Post(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Path == "/" && Auth.IsAdmin(r) {
 		m, err := r.MultipartReader()
 		if err != nil {
@@ -110,7 +110,7 @@ func (f *files) Post(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-func (f *files) Delete(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" {
 		filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		if err := os.Remove(filename); err != nil {
@@ -127,4 +127,4 @@ func (f *files) Delete(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
-var Files files
+var FilesDir filesDir
