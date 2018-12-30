@@ -25,11 +25,6 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
-type Asset struct {
-	Name, Type string
-	Tags       []uint
-}
-
 type assetsDir struct {
 	DefaultMethods
 	location string
@@ -120,17 +115,22 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 </html>`))
 
 func (a *assetsDir) genTagsHandler(t time.Time) {
-	var tags Tags
+	tags := make(Tags, 0, len(a.tags))
 	for _, tag := range a.tags {
 		tags = append(tags, tag)
 	}
 	sort.Sort(tags)
+
 	var tagsHTML, tagsHTMLGzip, tagsPlain, tagsPlainGzip, tagsJSON, tagsJSONGzip, tagsXML, tagsXMLGzip memio.Buffer
 
 	tagsTemplate.Execute(&tagsHTML, tags)
 	tags.WriteTo(&tagsPlain)
 	json.NewEncoder(&tagsJSON).Encode(tags)
-	xml.NewEncoder(&tagsXML).EncodeElement(tags, xml.StartElement{Name: xml.Name{Local: "tags"}})
+	x := xml.NewEncoder(&tagsXML)
+	var se = xml.StartElement{Name: xml.Name{Local: "tags"}}
+	x.EncodeToken(se)
+	x.EncodeElement(tags, xml.StartElement{Name: xml.Name{Local: "tag"}})
+	x.EncodeToken(se.End())
 
 	gw, _ := gzip.NewWriterLevel(&tagsHTMLGzip, gzip.BestCompression)
 	gw.Write(tagsHTML)
@@ -172,7 +172,10 @@ func (a *assetsDir) initAssets() error {
 		return errors.WithContext("error reading asset directory:", err)
 	}
 	a.assets = make(map[uint]*Asset)
-	var largestAssetID uint64
+	var (
+		largestAssetID uint64
+		latestTime     time.Time
+	)
 	buf := make([]byte, 512)
 	for _, file := range files {
 		id, err := strconv.ParseUint(file, 10, 0)
@@ -180,6 +183,7 @@ func (a *assetsDir) initAssets() error {
 			continue
 		}
 		as := new(Asset)
+		as.ID = uint(id)
 		f, err := os.Open(filepath.Join(a.location, file+".meta"))
 		if err != nil {
 			if !os.IsNotExist(err) {
@@ -187,6 +191,14 @@ func (a *assetsDir) initAssets() error {
 			}
 			as.Name = file
 		} else {
+			fi, err := f.Stat()
+			if err != nil {
+				return errors.WithContext("error stating meta file "+file+".meta: ", err)
+			}
+			mt := fi.ModTime()
+			if latestTime.Before(mt) {
+				latestTime = mt
+			}
 			b := bufio.NewReader(f)
 			name, err := b.ReadBytes('\n')
 			if err != nil && err != io.EOF {
@@ -214,6 +226,14 @@ func (a *assetsDir) initAssets() error {
 		if err != nil {
 			return errors.WithContext("error opening asset file "+file+": ", err)
 		}
+		fi, err := f.Stat()
+		if err != nil {
+			return errors.WithContext("error stating asset file "+file+": ", err)
+		}
+		mt := fi.ModTime()
+		if latestTime.Before(mt) {
+			latestTime = mt
+		}
 		n, err := io.ReadFull(f, buf)
 		f.Close()
 		if err != nil && err != io.EOF {
@@ -229,7 +249,67 @@ func (a *assetsDir) initAssets() error {
 		}
 	}
 	a.nextAssetID = uint(largestAssetID) + 1
+	a.genAssetsHandler(latestTime)
 	return nil
+}
+
+var assetsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
+<html>
+	<head>
+		<title>Assets</title>
+	</head>
+	<body>
+		<table>
+{{range .}}			<tr><td><a href="{{.ID}}">{{.Name}}</td><td>{{.Type}}</td></tr>
+{{end}}		</table>
+	</body>
+</html>`))
+
+func (a *assetsDir) genAssetsHandler(t time.Time) {
+	as := make(Assets, 0, len(a.assets))
+	for _, asset := range a.assets {
+		as = append(as, *asset)
+	}
+	sort.Sort(as)
+
+	var assetsHTML, assetsHTMLGzip, assetsPlain, assetsPlainGzip, assetsJSON, assetsJSONGzip, assetsXML, assetsXMLGzip memio.Buffer
+
+	assetsTemplate.Execute(&assetsHTML, as)
+	as.WriteTo(&assetsPlain)
+	json.NewEncoder(&assetsJSON).Encode(as)
+	x := xml.NewEncoder(&assetsXML)
+	var se = xml.StartElement{Name: xml.Name{Local: "assets"}}
+	x.EncodeToken(se)
+	x.EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
+	x.EncodeToken(se.End())
+
+	gw, _ := gzip.NewWriterLevel(&assetsHTMLGzip, gzip.BestCompression)
+	gw.Write(assetsHTML)
+	gw.Close()
+
+	gw.Reset(&assetsPlainGzip)
+	gw.Write(assetsPlain)
+	gw.Close()
+
+	gw.Reset(&assetsJSONGzip)
+	gw.Write(assetsJSON)
+	gw.Close()
+
+	gw.Reset(&assetsXMLGzip)
+	gw.Write(assetsXML)
+	gw.Close()
+
+	d := httpdir.New(t)
+	d.Create("index.html", httpdir.FileBytes(assetsHTML, t))
+	d.Create("index.html.gz", httpdir.FileBytes(assetsHTMLGzip, t))
+	d.Create("index.txt", httpdir.FileBytes(assetsPlain, t))
+	d.Create("index.txt.gz", httpdir.FileBytes(assetsPlainGzip, t))
+	d.Create("index.json", httpdir.FileBytes(assetsJSON, t))
+	d.Create("index.json.gz", httpdir.FileBytes(assetsJSONGzip, t))
+	d.Create("index.xml", httpdir.FileBytes(assetsXML, t))
+	d.Create("index.xml.gz", httpdir.FileBytes(assetsXMLGzip, t))
+
+	a.assetHandler = httpgzip.FileServer(d)
 }
 
 var (
@@ -251,7 +331,7 @@ func getType(mime string) string {
 	return ""
 }
 
-func (a *AssetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
+func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
 	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 	if strings.HasSuffix(filename, ".meta") || !fileExists(filename) {
 		http.NotFound(w, r)
@@ -293,7 +373,6 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if strings.HasSuffix(r.URL.Path, ".meta") {
 		http.NotFound(w, r)
 	} else if Auth.IsAdmin(r) {
-		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		handler := a.handler
 		if r.URL.Path == "/" {
 			at := AcceptType("html")
@@ -405,6 +484,55 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 }
 
 var AssetsDir assetsDir
+
+type Asset struct {
+	ID   uint   `json:"id" xml:"id,attr"`
+	Name string `json:"name" xml:"name"`
+	Type string `json:"type" xml:"type"`
+	Tags []uint `json:"tags" xml:"tags>tag"`
+}
+
+type Assets []Asset
+
+func (a Assets) WriteTo(w io.Writer) (int64, error) {
+	var total int64
+	for _, asset := range a {
+		n, err := fmt.Fprintf(w, "%d:%s\n", asset.ID, asset.Name)
+		total += int64(n)
+		if err != nil {
+			return total, err
+		}
+		for m, tid := range asset.Tags {
+			if m == 0 {
+				n, err = fmt.Fprintf(w, "%d", tid)
+			} else {
+				n, err = fmt.Fprintf(w, ",%d", tid)
+			}
+			total += int64(n)
+			if err != nil {
+				return total, err
+			}
+		}
+		n, err = w.Write(newLine)
+		total += int64(n)
+		if err != nil {
+			return total, err
+		}
+	}
+	return total, nil
+}
+
+func (a Assets) Len() int {
+	return len(a)
+}
+
+func (a Assets) Less(i, j int) bool {
+	return a[i].ID < a[j].ID
+}
+
+func (a Assets) Swap(i, j int) {
+	a[i], a[j] = a[j], a[i]
+}
 
 type Tag struct {
 	ID     uint   `json:"id" xml:"id,attr"`
