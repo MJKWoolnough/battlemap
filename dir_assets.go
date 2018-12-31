@@ -345,7 +345,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
 		}
 	} else {
 		if r.URL.Path == tagsPath {
-			http.NotFound(w, r)
+			w.WriteHeader(http.StatusUnauthorized)
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 		}
