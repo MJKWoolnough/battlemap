@@ -120,45 +120,7 @@ func (a *assetsDir) genTagsHandler(t time.Time) {
 		tags = append(tags, tag)
 	}
 	sort.Sort(tags)
-
-	var tagsHTML, tagsHTMLGzip, tagsPlain, tagsPlainGzip, tagsJSON, tagsJSONGzip, tagsXML, tagsXMLGzip memio.Buffer
-
-	tagsTemplate.Execute(&tagsHTML, tags)
-	tags.WriteTo(&tagsPlain)
-	json.NewEncoder(&tagsJSON).Encode(tags)
-	x := xml.NewEncoder(&tagsXML)
-	var se = xml.StartElement{Name: xml.Name{Local: "tags"}}
-	x.EncodeToken(se)
-	x.EncodeElement(tags, xml.StartElement{Name: xml.Name{Local: "tag"}})
-	x.EncodeToken(se.End())
-
-	gw, _ := gzip.NewWriterLevel(&tagsHTMLGzip, gzip.BestCompression)
-	gw.Write(tagsHTML)
-	gw.Close()
-
-	gw.Reset(&tagsPlainGzip)
-	gw.Write(tagsPlain)
-	gw.Close()
-
-	gw.Reset(&tagsJSONGzip)
-	gw.Write(tagsJSON)
-	gw.Close()
-
-	gw.Reset(&tagsXMLGzip)
-	gw.Write(tagsXML)
-	gw.Close()
-
-	d := httpdir.New(t)
-	d.Create("tags", httpdir.FileBytes(tagsHTML, t))
-	d.Create("tags.gz", httpdir.FileBytes(tagsHTMLGzip, t))
-	d.Create("tags.txt", httpdir.FileBytes(tagsPlain, t))
-	d.Create("tags.txt.gz", httpdir.FileBytes(tagsPlainGzip, t))
-	d.Create("tags.json", httpdir.FileBytes(tagsJSON, t))
-	d.Create("tags.json.gz", httpdir.FileBytes(tagsJSONGzip, t))
-	d.Create("tags.xml", httpdir.FileBytes(tagsXML, t))
-	d.Create("tags.xml.gz", httpdir.FileBytes(tagsXMLGzip, t))
-
-	a.tagHandler = httpgzip.FileServer(d)
+	genPages(t, tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler)
 }
 
 func (a *assetsDir) initAssets() error {
@@ -271,45 +233,33 @@ func (a *assetsDir) genAssetsHandler(t time.Time) {
 		as = append(as, *asset)
 	}
 	sort.Sort(as)
+	genPages(t, as, assetsTemplate, "index", "assets", "asset", &a.assetHandler)
+}
 
-	var assetsHTML, assetsHTMLGzip, assetsPlain, assetsPlainGzip, assetsJSON, assetsJSONGzip, assetsXML, assetsXMLGzip memio.Buffer
+var exts = [...]string{".html", ".txt", ".json", ".xml"}
 
-	assetsTemplate.Execute(&assetsHTML, as)
-	as.WriteTo(&assetsPlain)
-	json.NewEncoder(&assetsJSON).Encode(as)
-	x := xml.NewEncoder(&assetsXML)
-	var se = xml.StartElement{Name: xml.Name{Local: "assets"}}
+func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) {
+	var buffers [2 * len(exts)]memio.Buffer
+	htmlTemplate.Execute(&buffers[0], list)
+	list.WriteTo(&buffers[1])
+	json.NewEncoder(&buffers[2]).Encode(list)
+	x := xml.NewEncoder(&buffers[3])
+	var se = xml.StartElement{Name: xml.Name{Local: topTag}}
 	x.EncodeToken(se)
-	x.EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
+	x.EncodeElement(list, xml.StartElement{Name: xml.Name{Local: tag}})
 	x.EncodeToken(se.End())
-
-	gw, _ := gzip.NewWriterLevel(&assetsHTMLGzip, gzip.BestCompression)
-	gw.Write(assetsHTML)
-	gw.Close()
-
-	gw.Reset(&assetsPlainGzip)
-	gw.Write(assetsPlain)
-	gw.Close()
-
-	gw.Reset(&assetsJSONGzip)
-	gw.Write(assetsJSON)
-	gw.Close()
-
-	gw.Reset(&assetsXMLGzip)
-	gw.Write(assetsXML)
-	gw.Close()
+	x.Flush()
 
 	d := httpdir.New(t)
-	d.Create("index.html", httpdir.FileBytes(assetsHTML, t))
-	d.Create("index.html.gz", httpdir.FileBytes(assetsHTMLGzip, t))
-	d.Create("index.txt", httpdir.FileBytes(assetsPlain, t))
-	d.Create("index.txt.gz", httpdir.FileBytes(assetsPlainGzip, t))
-	d.Create("index.json", httpdir.FileBytes(assetsJSON, t))
-	d.Create("index.json.gz", httpdir.FileBytes(assetsJSONGzip, t))
-	d.Create("index.xml", httpdir.FileBytes(assetsXML, t))
-	d.Create("index.xml.gz", httpdir.FileBytes(assetsXMLGzip, t))
-
-	a.assetHandler = httpgzip.FileServer(d)
+	gw, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
+	for i, ext := range exts {
+		gw.Reset(&buffers[i+len(exts)])
+		gw.Write(buffers[i])
+		gw.Close()
+		d.Create(baseName+ext, httpdir.FileBytes(buffers[i], t))
+		d.Create(baseName+ext+".gz", httpdir.FileBytes(buffers[i], t))
+	}
+	*handler = httpgzip.FileServer(d)
 }
 
 var (
