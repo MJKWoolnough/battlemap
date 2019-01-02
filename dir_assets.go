@@ -420,7 +420,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		if !fileExists(filename) || strings.HasSuffix(filename, ".meta") {
 			http.NotFound(w, r)
-			return
+			return true
 		}
 		if err := os.Remove(filename); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
