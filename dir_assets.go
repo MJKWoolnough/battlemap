@@ -418,15 +418,21 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
+		if !fileExists(filename) || strings.HasSuffix(filename, ".meta") {
+			http.NotFound(w, r)
+			return
+		}
 		if err := os.Remove(filename); err != nil {
-			if os.IsNotExist(err) {
-				http.NotFound(w, r)
-				return true
-			}
 			w.WriteHeader(http.StatusInternalServerError)
 			io.WriteString(w, err.Error())
 			return true
 		}
+		if err := os.Remove(filename + ".meta"); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, err.Error())
+			return true
+		}
+
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
