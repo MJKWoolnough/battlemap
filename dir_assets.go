@@ -417,6 +417,11 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
+		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path), "/")
+		if err != nil {
+			http.NotFound(w, r)
+			return true
+		}
 		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 		if !fileExists(filename) || strings.HasSuffix(filename, ".meta") {
 			http.NotFound(w, r)
@@ -432,7 +437,10 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			io.WriteString(w, err.Error())
 			return true
 		}
-
+		a.assetMu.Lock()
+		delete(a.assets, uint(id))
+		a.genAssetsHandler(time.Now())
+		a.assetMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
