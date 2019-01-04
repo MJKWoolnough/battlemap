@@ -438,13 +438,31 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		a.assetMu.Lock()
-		delete(a.assets, uint(id))
+		if as, ok := a.assets[uint(id)]; ok {
+			delete(a.assets, uint(id))
+			a.tagMu.Lock()
+			for _, tid := range as.Tags {
+				tag := a.tags[tid]
+				tag.Assets = removeID(tag.Assets, uint(id))
+			}
+			a.tagMu.Unlock()
+		}
 		a.genAssetsHandler(time.Now())
 		a.assetMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
 	return false
+}
+
+func removeID(ids []uint, remove uint) []uint {
+	for i := range ids {
+		if ids[i] == remove {
+			ids = append(ids[:i], ids[i+1:]...)
+			break
+		}
+	}
+	return ids
 }
 
 var AssetsDir assetsDir
