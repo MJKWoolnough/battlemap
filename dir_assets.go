@@ -455,6 +455,97 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	return false
 }
 
+func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
+	if Auth.IsAdmin(r) {
+		if r.URL.Path == tagsPath {
+			a.patchTags(w, r)
+			return true
+		} else if r.URL.Path != "/" {
+			a.patchAssets(w, r)
+			return true
+		}
+	}
+	return false
+
+}
+
+func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
+	var (
+		at  AcceptType
+		tp  TagPatch
+		err error
+	)
+	httpaccept.HandleAccept(r, &at)
+	switch at {
+	case "txt":
+		err = tp.Parse(r.Body)
+	case "json":
+		err = json.NewDecoder(r.Body).Decode(&tp)
+	case "xml":
+		err = xml.NewDecoder(r.Body).Decode(&tp)
+	default:
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
+	}
+	r.Body.Close()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		io.WriteString(w, err.Error())
+		return
+	}
+	if len(tp.Remove) > 0 {
+		a.assetMu.Lock() //need to lock in this order!
+		a.tagMu.Lock()
+		for _, tid := range tp.Remove {
+			if tag, ok := a.tags[tid]; ok {
+				for _, aid := range tag.Assets {
+					if as, ok := a.assets[aid]; ok {
+						as.Tags = removeID(as.Tags, tid)
+					}
+					// write asset meta data
+				}
+				delete(a.tags, tid)
+			}
+		}
+		a.assetMu.Unlock()
+	} else {
+		a.tagMu.Lock()
+	}
+	newIds := make([]uint, 0, len(tp.Add))
+	for _, tag := range tp.Add {
+		tid := a.nextTagID
+		a.nextTagID++
+		a.tags[tid] = &Tag{
+			ID:   tid,
+			Name: tag,
+		}
+		newIds = append(newIds, tid)
+	}
+	for _, tag := range tp.Rename {
+
+	}
+	// write tag data to file
+	a.tagMu.Unlock()
+	switch at {
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		for _, id := range newIds {
+			fmt.Fprintln(w, id)
+		}
+	case "json":
+		w.Header().Set(contentType, "application/json")
+		json.NewEncoder(w).Encode(newIds)
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		xml.NewEncoder(w).EncodeElement(struct {
+			Tag []uint `xml:"tag"`
+		}{newIds}, xml.StartElement{Name: xml.Name{Local: "tags"}})
+	}
+}
+
+func (a *assetDir) patchAssets(w http.ResponseWriter, r *http.Request) {
+}
+
 func removeID(ids []uint, remove uint) []uint {
 	for i := range ids {
 		if ids[i] == remove {
