@@ -511,35 +511,41 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	} else {
 		a.tagMu.Lock()
 	}
-	newIds := make([]uint, 0, len(tp.Add))
+	newTags := make([]Tag, 0, len(tp.Add)+len(tp.Rename))
+	for _, tag := range tp.Rename {
+		t, ok := a.tags[tag.ID]
+		if !ok {
+			continue
+		}
+		t.Name = strings.Replace(tag.Name, "\n", "", -1)
+		newTags = append(newTags, *t)
+	}
 	for _, tag := range tp.Add {
+		tag = strings.Replace(tag, "\n", "", -1)
 		tid := a.nextTagID
 		a.nextTagID++
 		a.tags[tid] = &Tag{
 			ID:   tid,
 			Name: tag,
 		}
-		newIds = append(newIds, tid)
-	}
-	for _, tag := range tp.Rename {
-
+		newTags = append(newTags, Tag{ID: tid, Name: tag})
 	}
 	// write tag data to file
 	a.tagMu.Unlock()
 	switch at {
 	case "txt":
 		w.Header().Set(contentType, "text/plain")
-		for _, id := range newIds {
-			fmt.Fprintln(w, id)
+		for _, tag := range newTags {
+			fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
 		}
 	case "json":
 		w.Header().Set(contentType, "application/json")
-		json.NewEncoder(w).Encode(newIds)
+		json.NewEncoder(w).Encode(newTags)
 	case "xml":
 		w.Header().Set(contentType, "text/xml")
 		xml.NewEncoder(w).EncodeElement(struct {
-			Tag []uint `xml:"tag"`
-		}{newIds}, xml.StartElement{Name: xml.Name{Local: "tags"}})
+			Tag []Tag `xml:"tag"`
+		}{newTags}, xml.StartElement{Name: xml.Name{Local: "tags"}})
 	}
 }
 
