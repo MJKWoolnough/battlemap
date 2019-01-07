@@ -656,14 +656,21 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 				change = true
 			}
 		}
+		for _, tag := range ap.AddTag {
+			as.Tags = removeID(as.Tags, tag)
+			if _, ok := a.tags[tag]; ok {
+				as.Tags = append(as.Tags, tag)
+				change = true
+			}
+		}
 		a.tagMu.Unlock()
-	}
-	if len(ap.AddTag) > 0 {
+	} else if len(ap.AddTag) > 0 {
 		a.tagMu.Lock()
 		for _, tag := range ap.AddTag {
 			as.Tags = removeID(as.Tags, tag)
 			if _, ok := a.tags[tag]; ok {
 				as.Tags = append(as.Tags, tag)
+				change = true
 			}
 		}
 		a.tagMu.Unlock()
