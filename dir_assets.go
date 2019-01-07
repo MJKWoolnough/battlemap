@@ -611,6 +611,86 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
+	id, err := strconv.ParseUint(r.URL.Path[1:], 10, 0)
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+	var (
+		at AcceptType
+		ap AssetPatch
+	)
+	httpaccept.HandleAccept(r, &at)
+	switch at {
+	case "txt":
+		err = ap.Parse(r.Body)
+	case "json":
+		err = json.NewDecoder(r.Body).Decode(&ap)
+	case "xml":
+		err = xml.NewDecoder(r.Body).Decode(&ap)
+	default:
+		w.WriteHeader(http.StatusNotAcceptable)
+		return
+	}
+	r.Body.Close()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		io.WriteString(w, err.Error())
+		return
+	}
+
+	a.assetMu.Lock()
+	as, ok := a.assets[uint(id)]
+	if !ok {
+		a.assetMu.Unlock()
+		http.NotFound(w, r)
+		return
+	}
+	change := false
+	if len(ap.RemoveTag) > 0 {
+		a.tagMu.Lock()
+		for _, tag := range ap.RemoveTag {
+			if t, ok := a.tags[tag]; ok {
+				removeID(t.Assets, as.ID)
+				removeID(as.Tags, tag)
+				change = true
+			}
+		}
+		a.tagMu.Unlock()
+	}
+	if len(ap.AddTag) > 0 {
+		a.tagMu.Lock()
+		for _, tag := range ap.AddTag {
+			if _, ok := a.tags[tag]; ok {
+				as.Tags = append(as.Tags, tag)
+			}
+		}
+		a.tagMu.Unlock()
+	}
+	if ap.Rename == "" {
+		as.Name = ap.Rename
+		change = true
+	}
+	if change {
+		a.writeAsset(as.ID, true)
+		var buf memio.Buffer
+		switch at {
+		case "txt":
+			w.Header().Set(contentType, "text/plain")
+			as.WriteTo(&buf)
+		case "json":
+			w.Header().Set(contentType, "application/json")
+			json.NewEncoder(&buf).Encode(as)
+		case "xml":
+			w.Header().Set(contentType, "text/xml")
+			xml.NewEncoder(&buf).EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
+		}
+		a.assetMu.Unlock()
+		w.Write(buf)
+	} else {
+		a.assetMu.Unlock()
+		w.WriteHeader(http.StatusNoContent)
+	}
 }
 
 func removeID(ids []uint, remove uint) []uint {
@@ -632,29 +712,36 @@ type Asset struct {
 	Tags []uint `json:"tags" xml:"tags>tag"`
 }
 
+func (a Asset) WriteTo(w io.Writer) (int64, error) {
+	var total int64
+	n, err := fmt.Fprintf(w, "%d:%s\n", a.ID, a.Name)
+	total += int64(n)
+	if err != nil {
+		return total, err
+	}
+	for m, tid := range a.Tags {
+		if m == 0 {
+			n, err = fmt.Fprintf(w, "%d", tid)
+		} else {
+			n, err = fmt.Fprintf(w, ",%d", tid)
+		}
+		total += int64(n)
+		if err != nil {
+			return total, err
+		}
+	}
+	n, err = w.Write(newLine)
+	total += int64(n)
+	return total, err
+}
+
 type Assets []Asset
 
 func (a Assets) WriteTo(w io.Writer) (int64, error) {
 	var total int64
 	for _, asset := range a {
-		n, err := fmt.Fprintf(w, "%d:%s\n", asset.ID, asset.Name)
-		total += int64(n)
-		if err != nil {
-			return total, err
-		}
-		for m, tid := range asset.Tags {
-			if m == 0 {
-				n, err = fmt.Fprintf(w, "%d", tid)
-			} else {
-				n, err = fmt.Fprintf(w, ",%d", tid)
-			}
-			total += int64(n)
-			if err != nil {
-				return total, err
-			}
-		}
-		n, err = w.Write(newLine)
-		total += int64(n)
+		t, err := asset.WriteTo(w)
+		total += t
 		if err != nil {
 			return total, err
 		}
