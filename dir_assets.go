@@ -128,16 +128,18 @@ func (a *assetsDir) initAssets() error {
 	if err != nil {
 		return errors.WithContext("error open asset directory: ", err)
 	}
+	fi, err := d.Stat()
+	if err != nil {
+		return errors.WithContext("error reading asset directory stats: ", err)
+	}
+	latestTime := fi.ModTime()
 	files, err := d.Readdirnames(-1)
 	d.Close()
 	if err != nil {
 		return errors.WithContext("error reading asset directory:", err)
 	}
 	a.assets = make(map[uint]*Asset)
-	var (
-		largestAssetID uint64
-		latestTime     time.Time
-	)
+	var largestAssetID uint64
 	buf := make([]byte, 512)
 	for _, file := range files {
 		id, err := strconv.ParseUint(file, 10, 0)
