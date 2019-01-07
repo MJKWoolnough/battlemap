@@ -288,7 +288,7 @@ func (a *assetsDir) writeAsset(id uint, regen bool) error {
 	if !ok {
 		return ErrUnknownAsset
 	}
-	file := filepath.Join(a.location, strconv.FormatUint(uint64(id))+".meta")
+	file := filepath.Join(a.location, strconv.FormatUint(uint64(id), 10)+".meta")
 	f, err := os.Create(file)
 	if err != nil {
 		return errors.WithContext("error creating meta file: ", err)
@@ -325,7 +325,7 @@ func (a *assetsDir) writeTags() error {
 			return errors.WithContext("error writing tags file: ", err)
 		}
 	}
-	if _, err = f.Close(); err != nil {
+	if err = f.Close(); err != nil {
 		return errors.WithContext("error closing tags file: ", err)
 	}
 	fi, err := os.Stat(file)
@@ -472,7 +472,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
-		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path), "/")
+		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if err != nil {
 			http.NotFound(w, r)
 			return true
@@ -610,7 +610,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *assetDir) patchAssets(w http.ResponseWriter, r *http.Request) {
+func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 }
 
 func removeID(ids []uint, remove uint) []uint {
