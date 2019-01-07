@@ -281,6 +281,59 @@ func getType(mime string) string {
 	return ""
 }
 
+func (a *assetsDir) writeAsset(id uint, regen bool) error {
+	as, ok := a.assets[id]
+	if !ok {
+		return ErrUnknownAsset
+	}
+	file := filepath.Join(a.location, strconv.FormatUint(uint64(id))+".meta")
+	f, err := os.Create(file)
+	if err != nil {
+		return errors.WithContext("error creating meta file: ", err)
+	}
+	if _, err = fmt.Fprintln(f, as.Name); err != nil {
+		return errors.WithContext("error writing asset name: ", err)
+	}
+	for _, tag := range as.Tags {
+		if _, err = fmt.Fprintf(f, "%d\n", tag); err != nil {
+			return errors.WithContext("error writing tag data for asset: ", err)
+		}
+	}
+	if err = f.Close(); err != nil {
+		return errors.WithContext("error closing asset meta file: ", err)
+	}
+	if regen {
+		fi, err := os.Stat(file)
+		if err != nil {
+			return errors.WithContext("error reading asset meta file stats: ", err)
+		}
+		a.genAssetsHandler(fi.ModTime())
+	}
+	return nil
+}
+
+func (a *assetsDir) writeTags() error {
+	file := filepath.Join(a.location, "tags")
+	f, err := os.Create(file)
+	if err != nil {
+		return errors.WithContext("error creating tags file: ", err)
+	}
+	for _, tag := range a.tags {
+		if _, err = fmt.Fprintf(f, "%d:%s\n", tag.ID, tag.Name); err != nil {
+			return errors.WithContext("error writing tags file: ", err)
+		}
+	}
+	if _, err = f.Close(); err != nil {
+		return errors.WithContext("error closing tags file: ", err)
+	}
+	fi, err := os.Stat(file)
+	if err != nil {
+		return errors.WithContext("error reading tag file stats: ", err)
+	}
+	a.genTagsHandler(fi.ModTime())
+	return nil
+}
+
 func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
 	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 	if strings.HasSuffix(filename, ".meta") || !fileExists(filename) {
@@ -496,16 +549,22 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
 		a.tagMu.Lock()
+		assets := make(map[uint]struct{})
 		for _, tid := range tp.Remove {
 			if tag, ok := a.tags[tid]; ok {
 				for _, aid := range tag.Assets {
 					if as, ok := a.assets[aid]; ok {
 						as.Tags = removeID(as.Tags, tid)
+						assets[aid] = struct{}{}
 					}
-					// write asset meta data
 				}
 				delete(a.tags, tid)
 			}
+		}
+		n := len(assets)
+		for aid := range assets {
+			n--
+			a.writeAsset(aid, n == 0)
 		}
 		a.assetMu.Unlock()
 	} else {
@@ -530,7 +589,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		}
 		newTags = append(newTags, Tag{ID: tid, Name: tag})
 	}
-	// write tag data to file
+	a.writeTags() // handle error??
 	a.tagMu.Unlock()
 	switch at {
 	case "txt":
@@ -774,4 +833,5 @@ const (
 	ErrCannotMultiRename errors.Error = "cannot rename multiple times"
 	ErrInvalidTagFile    errors.Error = "invalid tag file"
 	ErrInvalidFileType   errors.Error = "invalid file type"
+	ErrUnknownAsset      errors.Error = "unknown asset"
 )
