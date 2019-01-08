@@ -530,17 +530,16 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		tp  TagPatch
 		err error
 	)
-	httpaccept.HandleAccept(r, &at)
-	switch at {
-	case "txt":
-		err = tp.Parse(r.Body)
-	case "json":
+	switch r.Header.Get(contentType) {
+	case "application/json", "text/json":
+		at = "json"
 		err = json.NewDecoder(r.Body).Decode(&tp)
-	case "xml":
+	case "text/xml":
+		at = "xml"
 		err = xml.NewDecoder(r.Body).Decode(&tp)
 	default:
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+		at = "txt"
+		err = tp.Parse(r.Body)
 	}
 	r.Body.Close()
 	if err != nil {
@@ -548,6 +547,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
+	httpaccept.HandleAccept(r, &at)
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
 		a.tagMu.Lock()
@@ -620,17 +620,16 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		at AcceptType
 		ap AssetPatch
 	)
-	httpaccept.HandleAccept(r, &at)
-	switch at {
-	case "txt":
-		err = ap.Parse(r.Body)
-	case "json":
+	switch r.Header.Get(contentType) {
+	case "application/json", "text/json":
+		at = "json"
 		err = json.NewDecoder(r.Body).Decode(&ap)
-	case "xml":
+	case "text/xml":
+		at = "xml"
 		err = xml.NewDecoder(r.Body).Decode(&ap)
 	default:
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
+		at = "txt"
+		err = ap.Parse(r.Body)
 	}
 	r.Body.Close()
 	if err != nil {
@@ -638,7 +637,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-
+	httpaccept.HandleAccept(r, &at)
 	a.assetMu.Lock()
 	as, ok := a.assets[uint(id)]
 	if !ok {
