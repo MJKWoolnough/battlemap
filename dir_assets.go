@@ -548,6 +548,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpaccept.HandleAccept(r, &at)
+	change := false
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
 		a.tagMu.Lock()
@@ -561,6 +562,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 				delete(a.tags, tid)
+				change = true
 			}
 		}
 		n := len(assets)
@@ -580,6 +582,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		}
 		t.Name = strings.Replace(tag.Name, "\n", "", -1)
 		newTags = append(newTags, *t)
+		change = true
 	}
 	for _, tag := range tp.Add {
 		tag = strings.Replace(tag, "\n", "", -1)
@@ -590,23 +593,29 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 			Name: tag,
 		}
 		newTags = append(newTags, Tag{ID: tid, Name: tag})
+		change = true
 	}
-	a.writeTags() // handle error??
-	a.tagMu.Unlock()
-	switch at {
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		for _, tag := range newTags {
-			fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
+	if change {
+		a.writeTags() // handle error??
+		a.tagMu.Unlock()
+		switch at {
+		case "txt":
+			w.Header().Set(contentType, "text/plain")
+			for _, tag := range newTags {
+				fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
+			}
+		case "json":
+			w.Header().Set(contentType, "application/json")
+			json.NewEncoder(w).Encode(newTags)
+		case "xml":
+			w.Header().Set(contentType, "text/xml")
+			xml.NewEncoder(w).EncodeElement(struct {
+				Tag []Tag `xml:"tag"`
+			}{newTags}, xml.StartElement{Name: xml.Name{Local: "tags"}})
 		}
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		json.NewEncoder(w).Encode(newTags)
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		xml.NewEncoder(w).EncodeElement(struct {
-			Tag []Tag `xml:"tag"`
-		}{newTags}, xml.StartElement{Name: xml.Name{Local: "tags"}})
+	} else {
+		a.tagMu.Unlock()
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 
