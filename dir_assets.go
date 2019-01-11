@@ -18,6 +18,7 @@ import (
 	"sync"
 	"time"
 
+	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/httpdir"
@@ -36,6 +37,7 @@ type assetsDir struct {
 
 	assetHandlerMu sync.RWMutex
 	assetHandler   http.Handler
+	assetJSON      json.RawMessage
 
 	tagMu     sync.RWMutex
 	nextTagID uint
@@ -43,6 +45,9 @@ type assetsDir struct {
 
 	tagHandlerMu sync.RWMutex
 	tagHandler   http.Handler
+	tagJSON      json.RawMessage
+
+	websocket websocket.Handler
 }
 
 func (a *assetsDir) Init() error {
@@ -60,6 +65,7 @@ func (a *assetsDir) Init() error {
 		return err
 	}
 	a.handler = http.FileServer(http.Dir(a.location))
+	a.websocket = websocket.Handler(a.WebSocket)
 	return nil
 }
 
@@ -120,7 +126,7 @@ func (a *assetsDir) genTagsHandler(t time.Time) {
 		tags = append(tags, tag)
 	}
 	sort.Sort(tags)
-	genPages(t, tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler)
+	a.tagJSON = json.RawMessage(genPages(t, tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler))
 }
 
 func (a *assetsDir) initAssets() error {
@@ -235,12 +241,12 @@ func (a *assetsDir) genAssetsHandler(t time.Time) {
 		as = append(as, *asset)
 	}
 	sort.Sort(as)
-	genPages(t, as, assetsTemplate, "index", "assets", "asset", &a.assetHandler)
+	a.assetJSON = json.RawMessage(genPages(t, as, assetsTemplate, "index", "assets", "asset", &a.assetHandler))
 }
 
 var exts = [...]string{".html", ".txt", ".json", ".xml"}
 
-func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) {
+func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) []byte {
 	var buffers [2 * len(exts)]memio.Buffer
 	htmlTemplate.Execute(&buffers[0], list)
 	list.WriteTo(&buffers[1])
@@ -262,6 +268,7 @@ func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, ba
 		d.Create(baseName+ext+".gz", httpdir.FileBytes(buffers[i], t))
 	}
 	*handler = httpgzip.FileServer(d)
+	return buffers[2]
 }
 
 var (
@@ -380,12 +387,16 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	} else if Auth.IsAdmin(r) {
 		handler := a.handler
 		if r.URL.Path == "/" {
-			at := AcceptType("html")
-			httpaccept.HandleAccept(r, &at)
-			r.URL.Path += "index." + string(at)
-			a.assetHandlerMu.RLock()
-			handler = a.assetHandler
-			a.assetHandlerMu.RUnlock()
+			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
+				a.websocket.ServeHTTP(w, r)
+			} else {
+				at := AcceptType("html")
+				httpaccept.HandleAccept(r, &at)
+				r.URL.Path += "index." + string(at)
+				a.assetHandlerMu.RLock()
+				handler = a.assetHandler
+				a.assetHandlerMu.RUnlock()
+			}
 		} else if r.URL.Path == tagsPath {
 			var at AcceptType
 			if httpaccept.HandleAccept(r, &at) {
@@ -404,6 +415,169 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		}
 	}
 	return true
+}
+
+func (a *assetsDir) WebSocket(conn *websocket.Conn) {
+	NewRPC(conn, a.RPC).Handle()
+}
+
+func (a *assetsDir) RPC(method string, data []byte) (interface{}, error) {
+	switch strings.TrimPrefix(method, "assets.") {
+	case "deleteAsset":
+		var id uint
+		if err := json.Unmarshal(data, &id); err != nil {
+			return nil, err
+		}
+		a.assetMu.Lock()
+		var err error
+		if asset, ok := a.assets[id]; ok {
+			err = a.deleteAsset(asset)
+			if err == nil {
+				var fs os.FileInfo
+				fs, err = os.Stat(a.location)
+				if err == nil {
+					a.genAssetsHandler(fs.ModTime())
+				}
+			}
+		} else {
+			err = ErrUnknownAsset
+		}
+		a.assetMu.Lock()
+		return id, err
+	case "renameAsset":
+		var idName struct {
+			ID   uint   `json:"id"`
+			Name string `json:"name"`
+		}
+		if err := json.Unmarshal(data, &idName); err != nil {
+			return nil, err
+		}
+		a.assetMu.Lock()
+		asset, ok := a.assets[idName.ID]
+		if ok {
+			if a.renameAsset(asset, idName.Name) {
+				a.writeAsset(idName.ID, true)
+			}
+		}
+		newName := asset.Name
+		a.assetMu.Unlock()
+		if !ok {
+			return nil, ErrUnknownAsset
+		}
+
+		return newName, nil
+	case "addTagsToAsset":
+		var idTags struct {
+			ID   uint   `json:"id"`
+			Tags []uint `json:"tags"`
+		}
+		if err := json.Unmarshal(data, &idTags); err != nil {
+			return nil, err
+		}
+		a.assetMu.Lock()
+		a.tagMu.Lock()
+		asset, ok := a.assets[idTags.ID]
+		var change bool
+		if ok {
+			change = a.addTagsToAsset(asset, idTags.Tags...)
+			if change {
+				a.writeAsset(idTags.ID, true)
+			}
+		}
+		a.tagMu.Unlock()
+		a.assetMu.Unlock()
+		if !ok {
+			return nil, ErrUnknownAsset
+		}
+		return change, nil
+	case "removeTagsFromAsset":
+		var idTags struct {
+			ID   uint   `json:"id"`
+			Tags []uint `json:"tags"`
+		}
+		if err := json.Unmarshal(data, &idTags); err != nil {
+			return nil, err
+		}
+		a.assetMu.Lock()
+		a.tagMu.Lock()
+		asset, ok := a.assets[idTags.ID]
+		var change bool
+		if ok {
+			change = a.removeTagsFromAsset(asset, idTags.Tags...)
+			if change {
+				a.writeAsset(idTags.ID, true)
+			}
+		}
+		a.tagMu.Unlock()
+		a.assetMu.Unlock()
+		if !ok {
+			return nil, ErrUnknownAsset
+		}
+		return change, nil
+	case "getAssets":
+		a.assetHandlerMu.RLock()
+		ret := a.assetJSON
+		a.assetHandlerMu.RUnlock()
+		return ret, nil
+	case "addTag":
+		var tagName string
+		if err := json.Unmarshal(data, &tagName); err != nil {
+			return nil, err
+		}
+		a.tagMu.Lock()
+		tag := a.addTag(tagName)
+		a.writeTags()
+		a.tagMu.Unlock()
+		return tag.ID, nil
+	case "deleteTag":
+		var id uint
+		err := json.Unmarshal(data, &id)
+		if err != nil {
+			return nil, err
+		}
+		a.assetMu.Lock() // must lock in this order
+		a.tagMu.Lock()
+		tag, ok := a.tags[id]
+		if ok {
+			a.deleteTags(tag)
+			a.assetMu.Unlock()
+			a.writeTags()
+		} else {
+			a.assetMu.Unlock()
+		}
+		a.tagMu.Unlock()
+		if !ok {
+			return nil, ErrUnknownTag
+		}
+		return id, nil
+	case "renameTag":
+		var idName struct {
+			ID   uint   `json:"id"`
+			Name string `json:"name"`
+		}
+		if err := json.Unmarshal(data, &idName); err != nil {
+			return nil, err
+		}
+		a.tagMu.Lock()
+		tag, ok := a.tags[idName.ID]
+		if ok {
+			if a.renameTag(tag, idName.Name) {
+				a.writeTags()
+			}
+		}
+		newName := tag.Name
+		a.tagMu.Unlock()
+		if !ok {
+			return nil, ErrUnknownTag
+		}
+		return newName, nil
+	case "getTags":
+		a.tagHandlerMu.RLock()
+		ret := a.tagJSON
+		a.tagHandlerMu.RUnlock()
+		return ret, nil
+	}
+	return nil, ErrUnknownEndpoint
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
@@ -477,37 +651,46 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			http.NotFound(w, r)
 			return true
 		}
-		filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-		if !fileExists(filename) || strings.HasSuffix(filename, ".meta") {
-			http.NotFound(w, r)
-			return true
-		}
-		if err := os.Remove(filename); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, err.Error())
-			return true
-		}
-		if err := os.Remove(filename + ".meta"); err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, err.Error())
-			return true
-		}
 		a.assetMu.Lock()
 		if as, ok := a.assets[uint(id)]; ok {
-			delete(a.assets, uint(id))
 			a.tagMu.Lock()
-			for _, tid := range as.Tags {
-				tag := a.tags[tid]
-				tag.Assets = removeID(tag.Assets, uint(id))
-			}
+			err = a.deleteAsset(as)
 			a.tagMu.Unlock()
+		} else {
+			err = ErrUnknownAsset
 		}
-		a.genAssetsHandler(time.Now())
 		a.assetMu.Unlock()
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, err.Error())
+			return true
+		}
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
 	return false
+}
+
+func (a *assetsDir) deleteAsset(asset *Asset) error {
+	filename := filepath.Join(a.location, strconv.FormatUint(uint64(asset.ID), 10))
+	if err := os.Remove(filename); err != nil {
+		if !os.IsNotExist(err) {
+			return errors.WithContext("error removing asset file: ", err)
+		}
+	}
+	if err := os.Remove(filename + ".meta"); err != nil {
+		if !os.IsNotExist(err) {
+			return errors.WithContext("error removing asset meta file: ", err)
+		}
+	}
+	delete(a.assets, asset.ID)
+	for _, tid := range asset.Tags {
+		if tag, ok := a.tags[tid]; ok {
+			tag.Assets = removeID(tag.Assets, asset.ID)
+		}
+	}
+	a.genAssetsHandler(time.Now())
+	return nil
 }
 
 func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
@@ -548,28 +731,17 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpaccept.HandleAccept(r, &at)
-	change := false
+	var change bool
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
 		a.tagMu.Lock()
-		assets := make(map[uint]struct{})
+		tags := make([]*Tag, 0, len(tp.Remove))
 		for _, tid := range tp.Remove {
 			if tag, ok := a.tags[tid]; ok {
-				for _, aid := range tag.Assets {
-					if as, ok := a.assets[aid]; ok {
-						as.Tags = removeID(as.Tags, tid)
-						assets[aid] = struct{}{}
-					}
-				}
-				delete(a.tags, tid)
-				change = true
+				tags = append(tags, tag)
 			}
 		}
-		n := len(assets)
-		for aid := range assets {
-			n--
-			a.writeAsset(aid, n == 0)
-		}
+		change = a.deleteTags(tags...)
 		a.assetMu.Unlock()
 	} else {
 		a.tagMu.Lock()
@@ -580,19 +752,14 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		if !ok {
 			continue
 		}
-		t.Name = strings.Replace(tag.Name, "\n", "", -1)
-		newTags = append(newTags, *t)
-		change = true
-	}
-	for _, tag := range tp.Add {
-		tag = strings.Replace(tag, "\n", "", -1)
-		tid := a.nextTagID
-		a.nextTagID++
-		a.tags[tid] = &Tag{
-			ID:   tid,
-			Name: tag,
+		if a.renameTag(t, tag.Name) {
+			change = true
+			newTags = append(newTags, *t)
 		}
-		newTags = append(newTags, Tag{ID: tid, Name: tag})
+	}
+	for _, tagName := range tp.Add {
+		tag := a.addTag(tagName)
+		newTags = append(newTags, *tag)
 		change = true
 	}
 	if change {
@@ -617,6 +784,48 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		a.tagMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
 	}
+}
+
+func (a *assetsDir) addTag(name string) *Tag {
+	name = strings.Replace(name, "\n", "", -1)
+	id := a.nextTagID
+	a.nextTagID++
+	t := &Tag{
+		ID:   id,
+		Name: name,
+	}
+	a.tags[id] = t
+	return t
+}
+
+func (a *assetsDir) deleteTags(tags ...*Tag) bool {
+	assets := make(map[uint]struct{})
+	var change bool
+	for _, tag := range tags {
+		for _, aid := range tag.Assets {
+			if as, ok := a.assets[aid]; ok {
+				as.Tags = removeID(as.Tags, tag.ID)
+				assets[aid] = struct{}{}
+			}
+		}
+		delete(a.tags, tag.ID)
+		change = true
+	}
+	n := len(assets)
+	for aid := range assets {
+		n--
+		a.writeAsset(aid, n == 0)
+	}
+	return change
+}
+
+func (a *assetsDir) renameTag(tag *Tag, newName string) bool {
+	newName = strings.Replace(newName, "\n", "", -1)
+	if newName == "" || newName == tag.Name {
+		return false
+	}
+	tag.Name = newName
+	return true
 }
 
 func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
@@ -654,28 +863,12 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	change := false
+	change := a.renameAsset(as, ap.Rename)
 	if len(ap.RemoveTag) > 0 || len(ap.AddTag) > 0 {
 		a.tagMu.Lock()
-		for _, tag := range ap.RemoveTag {
-			if t, ok := a.tags[tag]; ok {
-				t.Assets = removeID(t.Assets, as.ID)
-				as.Tags = removeID(as.Tags, tag)
-				change = true
-			}
-		}
-		for _, tag := range ap.AddTag {
-			as.Tags = removeID(as.Tags, tag)
-			if _, ok := a.tags[tag]; ok {
-				as.Tags = append(as.Tags, tag)
-				change = true
-			}
-		}
+		change = a.removeTagsFromAsset(as, ap.RemoveTag...)
+		change = change || a.addTagsToAsset(as, ap.AddTag...)
 		a.tagMu.Unlock()
-	}
-	if ap.Rename == "" {
-		as.Name = ap.Rename
-		change = true
 	}
 	if change {
 		a.writeAsset(as.ID, true)
@@ -699,6 +892,31 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (a *assetsDir) removeTagsFromAsset(asset *Asset, tagIDs ...uint) bool {
+	var change bool
+	for _, tagID := range tagIDs {
+		if tag, ok := a.tags[tagID]; ok {
+			tag.Assets = removeID(tag.Assets, asset.ID)
+			l := len(asset.Tags)
+			asset.Tags = removeID(asset.Tags, tagID)
+			change = change || l == len(asset.Tags)
+		}
+	}
+	return change
+}
+
+func (a *assetsDir) addTagsToAsset(asset *Asset, tagIDs ...uint) bool {
+	var change bool
+	for _, tagID := range tagIDs {
+		if _, ok := a.tags[tagID]; ok {
+			l := len(asset.Tags)
+			asset.Tags = append(removeID(asset.Tags, tagID), tagID)
+			change = change || l == len(asset.Tags)
+		}
+	}
+	return change
+}
+
 func removeID(ids []uint, remove uint) []uint {
 	for i := range ids {
 		if ids[i] == remove {
@@ -707,6 +925,15 @@ func removeID(ids []uint, remove uint) []uint {
 		}
 	}
 	return ids
+}
+
+func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {
+	newName = strings.Replace(newName, "\n", "", -1)
+	if newName == "" || newName == asset.Name {
+		return false
+	}
+	asset.Name = newName
+	return true
 }
 
 var AssetsDir assetsDir
@@ -929,4 +1156,6 @@ const (
 	ErrInvalidTagFile    errors.Error = "invalid tag file"
 	ErrInvalidFileType   errors.Error = "invalid file type"
 	ErrUnknownAsset      errors.Error = "unknown asset"
+	ErrUnknownEndpoint   errors.Error = "unknown endpoint"
+	ErrUnknownTag        errors.Error = "unknown tag"
 )
