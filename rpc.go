@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"net"
+	"io"
 	"sync"
 
 	"vimagination.zapto.org/errors"
@@ -32,7 +32,7 @@ type RPC struct {
 	encoder     *json.Encoder
 }
 
-func NewRPC(conn net.Conn, handler RPCHandler) *RPC {
+func NewRPC(conn io.ReadWriter, handler RPCHandler) *RPC {
 	return &RPC{
 		handler: handler,
 		decoder: json.NewDecoder(conn),
