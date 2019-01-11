@@ -9,19 +9,10 @@ import (
 	"vimagination.zapto.org/errors"
 )
 
-type userConfig struct {
-	CurrentUserMap uint
-}
-
-type adminConfig struct {
-	userConfig
-	CurrentAdminMap uint
-}
-
 type config struct {
 	sync.RWMutex `json:"-"`
 
-	adminConfig
+	CurrentUserMap uint
 
 	Password, Salt, SessionKey, SessionData []byte
 	ServerPort                              uint16

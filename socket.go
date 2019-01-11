@@ -97,24 +97,10 @@ func (s *socket) KickAdmins() {
 
 var Socket socket
 
-func (c *config) GetAdminMap(_ struct{}, id *uint) error {
-	c.RLock()
-	*id = Config.CurrentAdminMap
-	c.RUnlock()
-	return nil
-}
-
 func (c *config) GetUserMap(_ struct{}, id *uint) error {
 	c.RLock()
 	*id = Config.CurrentUserMap
 	c.RUnlock()
-	return nil
-}
-
-func (c *config) SetAdminMap(id uint, _ *struct{}) error {
-	Config.Lock()
-	Config.CurrentAdminMap = id
-	Config.Unlock()
 	return nil
 }
 
