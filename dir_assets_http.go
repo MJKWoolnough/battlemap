@@ -177,6 +177,44 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
+	if !Auth.IsAdmin(r) || r.URL.Path == "/" {
+		return false
+	}
+	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+	if err != nil {
+		http.NotFound(w, r)
+		return true
+	}
+	a.assetMu.Lock()
+	as, ok := a.assets[uint(id)]
+	mime := as.Type
+	a.assetMu.Unlock()
+	if !ok {
+		http.NotFound(w, r)
+		return true
+	}
+	buf := make(memio.Buffer, 512)
+	n, err := io.ReadFull(r.Body, buf)
+	defer r.Body.Close()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return true
+	}
+	if getType(http.DetectContentType(buf[:n])) != mime {
+		http.Error(w, "incorrect file type", http.StatusUnsupportedMediaType)
+		return true
+	}
+	mBuf := buf[:n]
+	fp := filepath.Join(a.location, r.URL.Path)
+	if err = uploadFile(io.MultiReader(&mBuf, r.Body), fp); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return true
+	}
+	w.WriteHeader(http.StatusNoContent)
+	return true
+}
+
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
 		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
