@@ -92,67 +92,89 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) && r.URL.Path == "/" {
-		m, err := r.MultipartReader()
+	if !Auth.IsAdmin(r) || r.URL.Path != "/" {
+		return false
+	}
+	m, err := r.MultipartReader()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return true
+	}
+	buf := make(memio.Buffer, 512)
+	var added Assets
+	for {
+		p, err := m.NextPart()
+		if err != nil {
+			if err == io.EOF {
+				break
+			}
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return true
+		}
+		n, err := io.ReadFull(p, buf)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
-		buf := make(memio.Buffer, 512)
-		var added []Tag
-		for {
-			p, err := m.NextPart()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
-			}
-			n, err := io.ReadFull(p, buf)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
-			}
-			var typ = getType(http.DetectContentType(buf[:n]))
-			if typ == "" {
-				continue
-			}
-			a.assetMu.Lock()
-			id := a.nextAssetID
-			a.nextAssetID++
-			a.assetMu.Unlock()
-			filename := strconv.FormatUint(uint64(id), 10)
-			mBuf := buf[:n]
-			fp := filepath.Join(a.location, filename)
-			if err := uploadFile(io.MultiReader(&mBuf, p), fp); err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
-			}
-			f, err := os.Create(fp + ".meta")
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return true
-			}
-			io.WriteString(f, filename)
-			f.Close()
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return true
-			}
-			a.assetMu.Lock()
-			a.assets[id] = &Asset{
-				Name: filename,
-				Type: typ,
-			}
-			a.assetMu.Unlock()
-			added = append(added, Tag{ID: id, Name: filename})
+		var typ = getType(http.DetectContentType(buf[:n]))
+		if typ == "" {
+			continue
 		}
-		w.Header().Set(contentType, jsonType)
-		json.NewEncoder(w).Encode(added)
+		a.assetMu.Lock()
+		id := a.nextAssetID
+		a.nextAssetID++
+		a.assetMu.Unlock()
+		filename := strconv.FormatUint(uint64(id), 10)
+		mBuf := buf[:n]
+		fp := filepath.Join(a.location, filename)
+		if err := uploadFile(io.MultiReader(&mBuf, p), fp); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return true
+		}
+		f, err := os.Create(fp + ".meta")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return true
+		}
+		io.WriteString(f, filename)
+		f.Close()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return true
+		}
+		a.assetMu.Lock()
+		a.assets[id] = &Asset{
+			Name: filename,
+			Type: typ,
+		}
+		a.assetMu.Unlock()
+		added = append(added, Asset{ID: id, Name: filename})
+	}
+	if len(added) == 0 {
+		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
-	return false
+	a.assetMu.Lock()
+	for n, asset := range added {
+		a.writeAsset(asset.ID, n == len(added))
+	}
+	a.assetMu.Unlock()
+	at := AcceptType("txt")
+	httpaccept.HandleAccept(r, &at)
+	switch at {
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		added.WriteTo(w)
+	case "json":
+		w.Header().Set(contentType, "application/json")
+		json.NewEncoder(w).Encode(added)
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		xml.NewEncoder(w).EncodeElement(struct {
+			Asset Assets `xml:"asset"`
+		}{added}, xml.StartElement{Name: xml.Name{Local: "assets"}})
+	}
+	return true
 }
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
@@ -235,7 +257,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	} else {
 		a.tagMu.Lock()
 	}
-	newTags := make([]Tag, 0, len(tp.Add)+len(tp.Rename))
+	newTags := make(Tags, 0, len(tp.Add)+len(tp.Rename))
 	for _, tag := range tp.Rename {
 		t, ok := a.tags[tag.ID]
 		if !ok {
