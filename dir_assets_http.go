@@ -257,7 +257,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	} else {
 		a.tagMu.Lock()
 	}
-	newTags := make(Tags, 0, len(tp.Add)+len(tp.Rename))
+	newTags := make([]Tag, 0, len(tp.Add)+len(tp.Rename))
 	for _, tag := range tp.Rename {
 		t, ok := a.tags[tag.ID]
 		if !ok {
@@ -410,7 +410,7 @@ func (t *TagPatch) Parse(r io.Reader) error {
 			}
 			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
 			newNameStr := strings.TrimSuffix(string(newName), "\n")
-			t.Rename = append(t.Rename, &Tag{ID: uint(id), Name: newNameStr})
+			t.Rename = append(t.Rename, Tag{ID: uint(id), Name: newNameStr})
 			if err != nil {
 				if err == io.EOF {
 					return nil

@@ -122,7 +122,7 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 func (a *assetsDir) genTagsHandler(t time.Time) {
 	tags := make(Tags, 0, len(a.tags))
 	for _, tag := range a.tags {
-		tags = append(tags, tag)
+		tags = append(tags, *tag)
 	}
 	sort.Sort(tags)
 	a.tagJSON = json.RawMessage(genPages(t, tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler))
@@ -514,7 +514,7 @@ type Tag struct {
 	Assets []uint `json:"-" xml:"-"`
 }
 
-type Tags []*Tag
+type Tags []Tag
 
 func (t Tags) WriteTo(w io.Writer) (int64, error) {
 	var total int64
