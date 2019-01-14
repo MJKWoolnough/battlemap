@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -295,7 +294,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	} else {
 		a.tagMu.Lock()
 	}
-	newTags := make([]Tag, 0, len(tp.Add)+len(tp.Rename))
+	newTags := make(Tags, 0, len(tp.Add)+len(tp.Rename))
 	for _, tag := range tp.Rename {
 		t, ok := a.tags[tag.ID]
 		if !ok {
@@ -317,9 +316,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		switch at {
 		case "txt":
 			w.Header().Set(contentType, "text/plain")
-			for _, tag := range newTags {
-				fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
-			}
+			newTags.WriteTo(w)
 		case "json":
 			w.Header().Set(contentType, "application/json")
 			json.NewEncoder(w).Encode(newTags)
