@@ -30,6 +30,7 @@ type RPC struct {
 
 	encoderLock sync.Mutex
 	encoder     *json.Encoder
+	writer      io.Writer
 }
 
 func NewRPC(conn io.ReadWriter, handler RPCHandler) *RPC {
@@ -37,6 +38,7 @@ func NewRPC(conn io.ReadWriter, handler RPCHandler) *RPC {
 		handler: handler,
 		decoder: json.NewDecoder(conn),
 		encoder: json.NewEncoder(conn),
+		writer:  conn,
 	}
 }
 
@@ -63,5 +65,11 @@ func (r *RPC) handleRequest(req rpcRequest) {
 func (r *RPC) Send(resp RPCResponse) {
 	r.encoderLock.Lock()
 	r.encoder.Encode(resp)
+	r.encoderLock.Unlock()
+}
+
+func (r *RPC) SendData(data []byte) {
+	r.encoderLock.Lock()
+	r.writer.Write(data)
 	r.encoderLock.Unlock()
 }
