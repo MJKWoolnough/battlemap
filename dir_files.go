@@ -33,7 +33,7 @@ func (f *filesDir) Init() {
 	f.Handler = http.FileServer(http.Dir(f.location))
 }
 
-func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) bool {
+func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
 	if Auth.IsAdmin(r) {
 		if r.URL.Path == "/" {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
@@ -47,7 +47,6 @@ func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 	}
-	return true
 }
 
 func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {

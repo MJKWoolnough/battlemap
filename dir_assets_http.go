@@ -16,7 +16,7 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
-func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
+func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 	filename := filepath.Join(a.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
 	if strings.HasSuffix(filename, ".meta") || !fileExists(filename) {
 		http.NotFound(w, r)
@@ -35,7 +35,6 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) bool {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 		}
 	}
-	return true
 }
 
 type AcceptType string

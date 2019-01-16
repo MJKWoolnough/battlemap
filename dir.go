@@ -11,7 +11,7 @@ import (
 type Methods interface {
 	Delete(http.ResponseWriter, *http.Request) bool
 	Get(http.ResponseWriter, *http.Request) bool
-	Options(http.ResponseWriter, *http.Request) bool
+	Options(http.ResponseWriter, *http.Request)
 	Patch(http.ResponseWriter, *http.Request) bool
 	Post(http.ResponseWriter, *http.Request) bool
 	Put(http.ResponseWriter, *http.Request) bool
@@ -32,6 +32,9 @@ type Dir struct {
 func (d Dir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var success bool
 	switch r.Method {
+	case http.MethodOptions:
+		d.Methods.Options(w, r)
+		return
 	case http.MethodDelete:
 		success = d.Methods.Delete(w, r)
 	case http.MethodGet, http.MethodHead:
