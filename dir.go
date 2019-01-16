@@ -69,6 +69,7 @@ func uploadFile(r io.Reader, location string) error {
 	}
 	err = os.Rename(tfName, location)
 	if err != nil {
+		os.Remove(tfName)
 		return err
 	}
 	return nil
