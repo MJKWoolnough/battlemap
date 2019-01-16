@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 type Methods interface {
@@ -48,7 +49,7 @@ func (d Dir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func uploadFile(r io.Reader, location string) error {
-	tf, err := ioutil.TempFile("", "battlemap-upload")
+	tf, err := ioutil.TempFile(filepath.Dir(location), "battlemap-upload")
 	if err != nil {
 		return err
 	}
