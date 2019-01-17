@@ -1,112 +1,134 @@
 package main
 
 import (
-	"fmt"
-	"io"
-	"net"
-	"net/rpc"
+	"strings"
 	"sync"
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 )
 
-type userMap map[string]*websocket.Conn
-
 type socket struct {
-	server *rpc.Server
-
-	userMu        sync.Mutex
-	admins, users userMap
+	mu    sync.RWMutex
+	conns map[*conn]uint8
 }
 
 func (s *socket) Init() error {
-	s.admins = make(userMap)
-	s.users = make(userMap)
-	s.server = rpc.NewServer()
-	err := s.server.Register(&Config)
-	if err != nil {
-		return errors.WithContext("error registering RPC type: ", err)
-	}
+	s.conns = make(map[*conn]uint8)
 	return nil
 }
 
 func (s *socket) ServeConn(conn *websocket.Conn) {
-	r := conn.Request()
-	admin := Auth.IsAdmin(r)
-	var list userMap
-	if admin {
-		_, err := io.WriteString(conn, "{\"id\": -1, \"result\": {\"admin\": true}}")
-		if err != nil {
-			return
-		}
-		list = s.admins
-	} else {
-		Config.RLock()
-		currentMap := Config.CurrentUserMap
-		Config.RUnlock()
-		_, err := fmt.Fprintf(conn, "{\"id\": -1, \"result\": {\"admin\": false, \"map\": %d]}", currentMap)
-		if err != nil {
-			return
-		}
-		list = s.users
-	}
-	s.userMu.Lock()
-	list[r.RemoteAddr] = conn
-	s.userMu.Unlock()
-	if admin {
-		s.server.ServeConn(conn)
-	} else {
-		var (
-			buf [1]byte
-			err error
-		)
-		for {
-			_, err = conn.Read(buf[:])
-			if ne := err.(net.Error); ne.Temporary() || ne.Timeout() {
-				continue
-			}
-			break
-		}
-	}
-	s.userMu.Lock()
-	delete(list, r.RemoteAddr)
-	s.userMu.Unlock()
+	s.RunConn(conn, nil, 0xff)
 }
 
-func (s *socket) Broadcast(data []byte, requireAdmin bool) {
-	s.userMu.Lock()
-	for _, c := range s.admins {
-		go c.Write(data)
+func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) {
+	Config.Lock()
+	currentMap := Config.CurrentUserMap
+	Config.Unlock()
+	c := conn{
+		isAdmin:    Auth.IsAdmin(wconn.Request()),
+		currentMap: currentMap,
 	}
-	if !requireAdmin {
-		for _, c := range s.users {
-			go c.Write(data)
+	if handler == nil {
+		handler = &c
+	}
+	c.rpc = NewRPC(wconn, handler)
+	s.mu.Lock()
+	s.conns[&c] = mask
+	s.mu.Unlock()
+	c.rpc.Handle()
+	s.mu.Lock()
+	delete(s.conns, &c)
+	s.mu.Unlock()
+}
+
+func (s *socket) Broadcast(mask uint8, data []byte) {
+	s.mu.RLock()
+	for c, m := range s.conns {
+		if mask&m > 0 {
+			go c.rpc.SendData(data)
 		}
 	}
-	s.userMu.Unlock()
+	s.mu.RUnlock()
 }
 
 func (s *socket) KickAdmins() {
-	s.userMu.Lock()
-	for _, c := range s.admins {
-		go c.WriteClose(4000)
+	s.mu.RLock()
+	for c := range s.conns {
+		go c.kickAdmin()
+
 	}
-	s.userMu.Unlock()
+	s.mu.RUnlock()
+}
+
+type conn struct {
+	rpc *RPC
+
+	mu         sync.RWMutex
+	currentMap uint
+	isAdmin    bool
+}
+
+func (c *conn) RPC(method string, data []byte) (interface{}, error) {
+	pos := strings.IndexByte(method, '.')
+	submethod := method[pos+1:]
+	method = method[:pos]
+	c.mu.RLock()
+	isAdmin := c.isAdmin
+	currentMap := c.currentMap
+	c.mu.RUnlock()
+	switch method {
+	case "auth":
+		if isAdmin {
+			if submethod == "logout" {
+				c.mu.Lock()
+				c.isAdmin = false
+				c.mu.Unlock()
+				return loggedOut, nil
+			}
+		} else if submethod == "login" {
+
+		}
+	case "config":
+	case "assets":
+		if isAdmin {
+			return AssetsDir.RPC(submethod, data)
+		}
+	case "maps":
+		_ = currentMap
+	case "characters":
+	}
+	return nil, ErrUnknownMethod
+}
+
+func (c *conn) kickAdmin() {
+	c.mu.RLock()
+	isAdmin := c.isAdmin
+	c.mu.RUnlock()
+	if isAdmin {
+		c.mu.Lock()
+		c.isAdmin = false
+		c.mu.Unlock()
+		c.rpc.SendData(adminKick)
+	}
 }
 
 var Socket socket
 
-func (c *config) GetUserMap(_ struct{}, id *uint) error {
-	c.RLock()
-	*id = Config.CurrentUserMap
-	c.RUnlock()
-	return nil
-}
+var (
+	loggedOut = []byte("{\"isAdmin\": false}")
+	loggedIn  = []byte("{\"isAdmin\": true}")
+	adminKick = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
+)
 
-func (c *config) SetUserMap(id uint, _ *struct{}) error {
-	Config.Lock()
-	Config.CurrentUserMap = id
-	Config.Unlock()
-	return nil
-}
+const (
+	SocketConfig uint8 = iota + 1
+	SocketAssets
+	SocketMaps
+	SocketCharacters
+)
+
+const (
+	ErrUnknownMethod errors.Error = "unknown method"
+)
