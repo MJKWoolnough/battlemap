@@ -9,7 +9,7 @@ import (
 )
 
 func (a *assetsDir) WebSocket(conn *websocket.Conn) {
-	NewRPC(conn, a.RPC).Handle()
+	NewRPC(conn, a).Handle()
 }
 
 func (a *assetsDir) RPC(method string, data []byte) (interface{}, error) {

@@ -20,9 +20,17 @@ type RPCResponse struct {
 	Error  string      `json:"error"`
 }
 
-// RPC handler takes a method name and a byte slice representing JSON encoded
+// RPCHandler takes a method name and a byte slice representing JSON encoded
 // data and should return data OR an error
-type RPCHandler func(string, []byte) (interface{}, error)
+type RPCHandler interface {
+	RPC(method string, data []byte) (interface{}, error)
+}
+
+type RPCHandlerFunc func(string, []byte) (interface{}, error)
+
+func (r RPCHandlerFunc) RPC(method string, data []byte) (interface{}, error) {
+	return r(method, data)
+}
 
 type RPC struct {
 	handler RPCHandler
@@ -55,7 +63,7 @@ func (r *RPC) Handle() error {
 func (r *RPC) handleRequest(req rpcRequest) {
 	resp := RPCResponse{ID: req.ID}
 	var err error
-	resp.Result, err = r.handler(req.Method, req.Params)
+	resp.Result, err = r.handler.RPC(req.Method, req.Params)
 	if err != nil {
 		resp.Error = err.Error()
 	}
