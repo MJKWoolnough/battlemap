@@ -37,6 +37,17 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	s.mu.Lock()
 	s.conns[&c] = mask
 	s.mu.Unlock()
+	if c.isAdmin {
+		c.rpc.SendData(loggedIn)
+	} else {
+		c.rpc.SendData(loggedOut)
+	}
+	if mask&SocketMaps > 0 {
+		c.rpc.Send(RPCResponse{
+			ID:     -2,
+			Result: currentMap,
+		})
+	}
 	c.rpc.Handle()
 	s.mu.Lock()
 	delete(s.conns, &c)
