@@ -16,8 +16,8 @@ type rpcRequest struct {
 
 type RPCResponse struct {
 	ID     int         `json:"id"`
-	Result interface{} `json:"result"`
-	Error  string      `json:"error"`
+	Result interface{} `json:"result,omitempty"`
+	Error  string      `json:"error,omitempty"`
 }
 
 // RPCHandler takes a method name and a byte slice representing JSON encoded
