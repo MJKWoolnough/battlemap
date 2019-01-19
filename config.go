@@ -14,9 +14,9 @@ type config struct {
 
 	CurrentUserMap uint
 
-	Password, Salt, SessionKey, SessionData []byte
-	ServerPort                              uint16
-	AssetsDir, CharsDir, MapsDir, FilesDir  string
+	Password, Salt, SessionKey, SessionData           []byte
+	ServerPort                                        uint16
+	AssetsDir, CharsDir, MapsDir, FilesDir, PluginDir string
 }
 
 func LoadConfig(filename string) error {
@@ -48,6 +48,9 @@ func LoadConfig(filename string) error {
 	}
 	if Config.FilesDir == "" {
 		Config.FilesDir = "./files"
+	}
+	if Config.PluginDir == "" {
+		Config.PluginDir = "./pluins"
 	}
 	return nil
 }
