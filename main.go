@@ -45,6 +45,9 @@ func main() {
 	e(AssetsDir.Init(), "error initialising Assets module")
 	mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&AssetsDir}))
 
+	TokensDir.Init()
+	mux.Handle("/tokens/", http.StripPrefix("/tokens", Dir{&TokensDir}))
+
 	CharsDir.Init()
 	mux.Handle("/characters/", http.StripPrefix("/characters/", Dir{&CharsDir}))
 
@@ -57,7 +60,7 @@ func main() {
 	FilesDir.Init()
 	mux.Handle("/files/", http.StripPrefix("/files/", Dir{&FilesDir}))
 
-	PluginsDir.Init()
+	e(PluginsDir.Init(), "error initialising plugins")
 	mux.Handle("/plugins/", http.StripPrefix("/plugins/", Dir{&PluginsDir}))
 
 	mux.Handle("/", httpgzip.FileServer(dir))
