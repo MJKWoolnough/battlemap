@@ -246,6 +246,13 @@ func (a *assetsDir) genAssetsHandler(t time.Time) {
 var exts = [...]string{".html", ".txt", ".json", ".xml"}
 
 func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) []byte {
+	d := httpdir.New(t)
+	buf := genPagesDir(t, list, htmlTemplate, baseName, topTag, tag, &d)
+	*handler = httpgzip.FileServer(d)
+	return buf
+}
+
+func genPagesDir(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, d *httpdir.Dir) []byte {
 	var buffers [2 * len(exts)]memio.Buffer
 	htmlTemplate.Execute(&buffers[0], list)
 	list.WriteTo(&buffers[1])
@@ -257,7 +264,6 @@ func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, ba
 	x.EncodeToken(se.End())
 	x.Flush()
 
-	d := httpdir.New(t)
 	gw, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
 	for i, ext := range exts {
 		gw.Reset(&buffers[i+len(exts)])
@@ -266,7 +272,6 @@ func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, ba
 		d.Create(baseName+ext, httpdir.FileBytes(buffers[i], t))
 		d.Create(baseName+ext+".gz", httpdir.FileBytes(buffers[i], t))
 	}
-	*handler = httpgzip.FileServer(d)
 	return buffers[2]
 }
 
