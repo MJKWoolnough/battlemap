@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"strings"
 	"sync"
 
@@ -92,14 +93,29 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 	switch method {
 	case "auth":
 		if isAdmin {
-			if submethod == "logout" {
+			switch submethod {
+			case "logout":
 				c.mu.Lock()
 				c.isAdmin = false
 				c.mu.Unlock()
-				return loggedOut, nil
+				return json.RawMessage(loggedOut), nil
+			case "changePassword":
+				var password string
+				json.Unmarshal(data, &password)
+				Auth.updatePassword(password)
+				return json.RawMessage(loggedOut), nil
 			}
 		} else if submethod == "login" {
-
+			var password string
+			json.Unmarshal(data, &password)
+			sessionData := Auth.LoginGetData(password)
+			if len(sessionData) == 0 {
+				return nil, ErrInvalidPassword
+			}
+			c.mu.Lock()
+			c.isAdmin = true
+			c.mu.Unlock()
+			return sessionData, nil
 		}
 	case "config":
 	case "assets":
@@ -141,5 +157,6 @@ const (
 )
 
 const (
-	ErrUnknownMethod errors.Error = "unknown method"
+	ErrUnknownMethod   errors.Error = "unknown method"
+	ErrInvalidPassword errors.Error = "invalid password"
 )

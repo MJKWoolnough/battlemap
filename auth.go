@@ -74,19 +74,13 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	r.ParseForm()
-	password := []byte(r.PostFormValue(passwordField))
-	confirm := []byte(r.PostFormValue("confirmPassword"))
-	if !bytes.Equal(password, confirm) {
+	password := r.PostFormValue(passwordField)
+	confirm := r.PostFormValue("confirmPassword")
+	if password != confirm {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	Config.Lock()
-	Config.Password = hashPass(password, Config.Salt)
-	rand.Read(Config.SessionData)
-	a.store.Set(w, Config.SessionData)
-	Config.Unlock()
-	SaveConfig(configFile)
-	Socket.KickAdmins()
+	a.store.Set(w, a.updatePassword(password))
 	if r.Header.Get(contentType) == jsonType {
 		w.Header().Set(contentType, jsonType)
 		io.WriteString(w, "{\"updated\": true}")
@@ -95,32 +89,64 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func (a *auth) updatePassword(newPassword string) []byte {
+	Config.Lock()
+	Config.Password = hashPass([]byte(newPassword), Config.Salt)
+	rand.Read(Config.SessionData)
+	data := Config.SessionData
+	Config.Unlock()
+	SaveConfig(configFile)
+	Socket.KickAdmins()
+	return data
+}
+
 func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	var password []byte
+	var password string
 	if _, ok := r.PostForm[passwordField]; ok {
-		password = []byte(r.PostFormValue(passwordField))
+		password = r.PostFormValue(passwordField)
 	} else {
-		_, pass, _ := r.BasicAuth()
-		password = []byte(pass)
+		_, password, _ = r.BasicAuth()
 	}
-	Config.RLock()
-	same := bytes.Equal(Config.Password, hashPass(password, Config.Salt))
-	if same {
-		a.store.Set(w, Config.SessionData)
-	}
-	Config.RUnlock()
-	if same {
+	if sessionData := a.login(password); len(sessionData) > 0 {
+		a.store.Set(w, sessionData)
 		if r.Header.Get(contentType) == jsonType {
 			w.Header().Set(contentType, jsonType)
 			io.WriteString(w, "{\"admin\": true}")
 			return
 		}
 		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
 	}
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
 	w.WriteHeader(http.StatusUnauthorized)
 }
+
+func (a *auth) login(password string) []byte {
+	var toRet []byte
+	Config.RLock()
+	if bytes.Equal(Config.Password, hashPass([]byte(password), Config.Salt)) {
+		toRet = Config.SessionData
+	}
+	Config.RUnlock()
+	return toRet
+}
+
+func (a *auth) LoginGetData(password string) string {
+	sessionData := a.login(password)
+	if len(sessionData) == 0 {
+		return ""
+	}
+	pw := make([]string, 0, 1)
+	a.store.Set(psuedoHeaders{"Set-Cookie": pw}, sessionData)
+	return pw[0]
+}
+
+type psuedoHeaders http.Header
+
+func (psuedoHeaders) Write([]byte) (int, error) { return 0, nil }
+func (psuedoHeaders) WriteHeader(int)           {}
+func (p psuedoHeaders) Header() http.Header     { return http.Header(p) }
 
 var Auth auth
 
