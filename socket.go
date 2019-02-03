@@ -68,8 +68,12 @@ func (s *socket) Broadcast(mask uint8, data []byte) {
 func (s *socket) KickAdmins() {
 	s.mu.RLock()
 	for c := range s.conns {
-		go c.kickAdmin()
-
+		c.mu.RLock()
+		isAdmin := c.isAdmin
+		c.mu.RUnlock()
+		if isAdmin {
+			go c.kickAdmin()
+		}
 	}
 	s.mu.RUnlock()
 }
@@ -102,8 +106,14 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 			case "changePassword":
 				var password string
 				json.Unmarshal(data, &password)
-				Auth.updatePassword(password)
-				return json.RawMessage(loggedOut), nil
+				c.mu.Lock()
+				c.isAdmin = false
+				c.mu.Unlock()
+				sessionData := Auth.UpdatePasswordGetData(password)
+				c.mu.Lock()
+				c.isAdmin = true
+				c.mu.Unlock()
+				return sessionData, nil
 			}
 		} else if submethod == "login" {
 			var password string
@@ -130,15 +140,10 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 }
 
 func (c *conn) kickAdmin() {
-	c.mu.RLock()
-	isAdmin := c.isAdmin
-	c.mu.RUnlock()
-	if isAdmin {
-		c.mu.Lock()
-		c.isAdmin = false
-		c.mu.Unlock()
-		c.rpc.SendData(adminKick)
-	}
+	c.mu.Lock()
+	c.isAdmin = false
+	c.mu.Unlock()
+	c.rpc.SendData(adminKick)
 }
 
 var Socket socket

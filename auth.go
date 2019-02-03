@@ -80,7 +80,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	a.store.Set(w, a.updatePassword(password))
+	a.store.Set(w, a.UpdatePasswordGetData(password))
 	if r.Header.Get(contentType) == jsonType {
 		w.Header().Set(contentType, jsonType)
 		io.WriteString(w, "{\"updated\": true}")
@@ -89,7 +89,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
-func (a *auth) updatePassword(newPassword string) []byte {
+func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
 	Config.Lock()
 	Config.Password = hashPass([]byte(newPassword), Config.Salt)
 	rand.Read(Config.SessionData)
