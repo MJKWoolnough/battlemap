@@ -96,6 +96,7 @@ func (a *assetsDir) initTags() error {
 			return ErrInvalidTagFile
 		}
 		a.tags[uint(id)] = &Tag{
+			ID:   uint(id),
 			Name: string(bytes.TrimSuffix(parts[2], newLine)),
 		}
 		if id > largestTagID {
