@@ -10,6 +10,7 @@ import (
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
+	"vimagination.zapto.org/keystore"
 )
 
 var dir http.FileSystem = httpdir.Default
@@ -21,12 +22,13 @@ func e(err error, reason string) {
 	}
 }
 
-const configFile = "config.json"
+const configDir = "./data"
 
 func main() {
-	e(LoadConfig(configFile), "error loading config")
+	e(Config.Init(configDir), "error loading config")
 
-	port := Config.ServerPort
+	var port keystore.Uint16
+	Config.Get("port", &port)
 
 	mux := http.NewServeMux()
 	srv := http.Server{
@@ -45,19 +47,19 @@ func main() {
 	e(AssetsDir.Init(), "error initialising Assets module")
 	mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&AssetsDir}))
 
-	TokensDir.Init()
+	e(TokensDir.Init(), "error initialising Tokens module")
 	mux.Handle("/tokens/", http.StripPrefix("/tokens", Dir{&TokensDir}))
 
-	CharsDir.Init()
+	e(CharsDir.Init(), "error initialising Characters module")
 	mux.Handle("/characters/", http.StripPrefix("/characters/", Dir{&CharsDir}))
 
-	MapsDir.Init()
+	e(MapsDir.Init(), "error initialising Maps module")
 	mux.Handle("/maps/", http.StripPrefix("/maps/", Dir{&MapsDir}))
 
-	MasksDir.Init()
+	e(MasksDir.Init(), "error initialising Masks module")
 	mux.Handle("/masks/", http.StripPrefix("/masks/", Dir{&MasksDir}))
 
-	FilesDir.Init()
+	e(FilesDir.Init(), "error initialising Files module")
 	mux.Handle("/files/", http.StripPrefix("/files/", Dir{&FilesDir}))
 
 	e(PluginsDir.Init(), "error initialising plugins")
@@ -77,11 +79,5 @@ func main() {
 	}()
 
 	log.Println("Running...")
-	err := srv.ListenAndServe()
-
-	e(SaveConfig(configFile), "error saving config")
-
-	if err != http.ErrServerClosed {
-		e(err, "fatal error")
-	}
+	e(srv.ListenAndServe(), "fatal error")
 }

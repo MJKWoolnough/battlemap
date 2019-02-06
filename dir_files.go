@@ -8,6 +8,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"vimagination.zapto.org/keystore"
 )
 
 var linkTemplate = template.Must(template.New("").Parse(`<html>
@@ -27,9 +29,9 @@ type filesDir struct {
 }
 
 func (f *filesDir) Init() {
-	Config.RLock()
-	f.location = Config.FilesDir
-	Config.RUnlock()
+	var location keystore.String
+	Config.Get("filesDir", &location)
+	f.location = string(location)
 	f.Handler = http.FileServer(http.Dir(f.location))
 }
 

@@ -22,6 +22,7 @@ import (
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
+	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 )
 
@@ -50,9 +51,9 @@ type assetsDir struct {
 }
 
 func (a *assetsDir) Init() error {
-	Config.RLock()
-	a.location = Config.AssetsDir
-	Config.RUnlock()
+	var location keystore.String
+	Config.Get("assetDir", &location)
+	a.location = string(location)
 	err := os.MkdirAll(a.location, 0755)
 	if err != nil {
 		return errors.WithContext("error creating asset directory: ", err)

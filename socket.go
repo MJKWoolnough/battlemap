@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/keystore"
 )
 
 type socket struct {
@@ -24,12 +25,11 @@ func (s *socket) ServeConn(conn *websocket.Conn) {
 }
 
 func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) {
-	Config.Lock()
-	currentMap := Config.CurrentUserMap
-	Config.Unlock()
+	var cu keystore.Uint
+	Config.Get("currentUserMap", &cu)
 	c := conn{
 		isAdmin:    Auth.IsAdmin(wconn.Request()),
-		currentMap: currentMap,
+		currentMap: uint(cu),
 	}
 	if handler == nil {
 		handler = &c
@@ -46,7 +46,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	if mask&SocketMaps > 0 {
 		c.rpc.Send(RPCResponse{
 			ID:     -2,
-			Result: currentMap,
+			Result: uint(cu),
 		})
 	}
 	c.rpc.Handle()

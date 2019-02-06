@@ -11,51 +11,73 @@ import (
 	"time"
 
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/sessions"
 )
 
 type auth struct {
 	store *sessions.CookieStore
+
+	mu                                  sync.RWMutex
+	passwordSalt, password, sessionData memio.Buffer
 }
 
 func (a *auth) Init() error {
 	var save bool
-	Config.Lock()
-	if len(Config.Salt) == 0 {
-		Config.Salt = make([]byte, 16)
-		rand.Read(Config.Salt)
-		Config.Password = hashPass(nil, Config.Salt)
+
+	salt := make(memio.Buffer, 0, 16)
+	password := make(memio.Buffer, 0, sha256.Size)
+	Config.Get("passwordSalt", &salt)
+	Config.Get("password", &password)
+	if len(salt) == 0 {
+		salt = salt[:16]
+		rand.Read(salt)
+		password = hashPass(nil, salt)
 		save = true
-	} else if len(Config.Password) == 0 {
-		Config.Password = hashPass(nil, Config.Salt)
+	} else if len(password) == 0 {
+		password = hashPass(nil, salt)
 	}
-	if len(Config.SessionKey) != 16 {
-		Config.SessionKey = make([]byte, 16)
-		rand.Read(Config.SessionKey)
+
+	sessionKey := make(memio.Buffer, 0, 16)
+	Config.Get("sessionKey", &sessionKey)
+	if len(sessionKey) != 16 {
+		sessionKey = sessionKey[:16]
+		rand.Read(sessionKey)
 		save = true
 	}
-	if len(Config.SessionData) < 16 {
-		Config.SessionData = make([]byte, 32)
-		rand.Read(Config.SessionData)
+	sessionData := make(memio.Buffer, 0, 32)
+	Config.Get("sessionData", &sessionData)
+	if len(sessionData) < 16 {
+		sessionData = sessionData[:32]
+		rand.Read(sessionData)
 		save = true
 	}
 	var err error
-	a.store, err = sessions.NewCookieStore(Config.SessionKey, sessions.HTTPOnly(), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
-	Config.Unlock()
+	a.store, err = sessions.NewCookieStore(sessionKey, sessions.HTTPOnly(), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	if err != nil {
 		return errors.WithContext("error creating Cookie Store: ", err)
 	}
+	a.passwordSalt = salt
+	a.password = password
+	a.sessionData = sessionData
 	if save {
-		SaveConfig(configFile)
+		if err = Config.SetAll(map[string]io.WriterTo{
+			"passwordSalt": &salt,
+			"password":     &password,
+			"sessionKey":   &sessionKey,
+			"sessionData":  &sessionData,
+		}); err != nil {
+			return errors.WithContext("error setting auth config: ", err)
+		}
 	}
 	return nil
 }
 
 func (a *auth) IsAdmin(r *http.Request) bool {
 	rData := a.store.Get(r)
-	Config.RLock()
-	isAdmin := bytes.Equal(rData, Config.SessionData)
-	Config.RUnlock()
+	a.mu.RLock()
+	isAdmin := bytes.Equal(rData, a.sessionData)
+	a.mu.RUnlock()
 	return isAdmin
 }
 
@@ -90,12 +112,15 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
-	Config.Lock()
-	Config.Password = hashPass([]byte(newPassword), Config.Salt)
-	rand.Read(Config.SessionData)
-	data := Config.SessionData
-	Config.Unlock()
-	SaveConfig(configFile)
+	a.mu.Lock()
+	a.password = hashPass([]byte(newPassword), a.passwordSalt)
+	rand.Read(a.sessionData)
+	data := a.sessionData
+	Config.SetAll(map[string]io.WriterTo{
+		"password":    &a.password,
+		"sessionData": &a.sessionData,
+	})
+	a.mu.Unlock()
 	Socket.KickAdmins()
 	return data
 }
@@ -124,11 +149,11 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 
 func (a *auth) login(password string) []byte {
 	var toRet []byte
-	Config.RLock()
-	if bytes.Equal(Config.Password, hashPass([]byte(password), Config.Salt)) {
-		toRet = Config.SessionData
+	a.mu.RLock()
+	if bytes.Equal(a.password, hashPass([]byte(password), a.passwordSalt)) {
+		toRet = a.sessionData
 	}
-	Config.RUnlock()
+	a.mu.RUnlock()
 	return toRet
 }
 

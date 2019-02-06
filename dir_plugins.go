@@ -15,6 +15,7 @@ import (
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/jslib/checker"
+	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/parser"
 )
@@ -25,12 +26,13 @@ type pluginsDir struct {
 }
 
 func (p *pluginsDir) Init() error {
-	pd := Config.PluginDir
+	var pd keystore.String
+	Config.Get("pluginsDir", &pd)
 	if pd == "" {
 		p.Handler = http.NotFoundHandler()
 		return nil
 	}
-	d, err := os.Open(pd)
+	d, err := os.Open(string(pd))
 	if os.IsNotExist(err) {
 		p.Handler = http.NotFoundHandler()
 		return nil
