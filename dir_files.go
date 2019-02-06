@@ -28,11 +28,12 @@ type filesDir struct {
 	http.Handler
 }
 
-func (f *filesDir) Init() {
+func (f *filesDir) Init() error {
 	var location keystore.String
 	Config.Get("filesDir", &location)
 	f.location = string(location)
 	f.Handler = http.FileServer(http.Dir(f.location))
+	return nil
 }
 
 func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
