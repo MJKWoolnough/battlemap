@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -31,7 +32,7 @@ func (p *pluginsDir) Init() error {
 		p.Handler = http.NotFoundHandler()
 		return nil
 	}
-	d, err := os.Open(string(pd))
+	d, err := os.Open(filepath.Join(Config.BaseDir, string(pd)))
 	if os.IsNotExist(err) {
 		p.Handler = http.NotFoundHandler()
 		return nil
