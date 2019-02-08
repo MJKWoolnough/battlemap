@@ -176,7 +176,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) || r.URL.Path == "/" {
 		return false
 	}
-	idStr := strings.TrimPrefix(r.URL.Path, "/")
+	idStr := strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0")
 	id, err := strconv.ParseUint(idStr, 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
@@ -211,7 +211,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
-		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+		id, err := strconv.ParseUint(strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0"), 10, 0)
 		if err != nil {
 			http.NotFound(w, r)
 			return true
@@ -328,7 +328,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseUint(r.URL.Path[1:], 10, 0)
+	id, err := strconv.ParseUint(strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0"), 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -422,7 +422,7 @@ func (t *TagPatch) Parse(r io.Reader) error {
 			}
 		case '<':
 			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
 			t.Remove = append(t.Remove, uint(id))
 			if err != nil {
 				if err == io.EOF {
@@ -438,7 +438,7 @@ func (t *TagPatch) Parse(r io.Reader) error {
 			if err == nil {
 				newName, err = b.ReadBytes('\n')
 			}
-			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
 			newNameStr := strings.TrimSuffix(string(newName), "\n")
 			t.Rename[uint(id)] = &Tag{ID: uint(id), Name: newNameStr}
 			if err != nil {
@@ -474,7 +474,7 @@ func (a *AssetPatch) Parse(r io.Reader) error {
 		switch c {
 		case '>':
 			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(string(strings.TrimSuffix(string(idStr), "\n")), 10, 0)
+			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
 			a.AddTag = append(a.AddTag, uint(id))
 			if err != nil {
 				if err == io.EOF {

@@ -127,9 +127,12 @@ func (a *assetsDir) initAssets() error {
 		gft            getFileType
 	)
 	for _, file := range a.assetStore.Keys() {
-		id, err := strconv.ParseUint(file, 10, 0)
+		id, err := strconv.ParseUint(strings.TrimLeft(file, "0"), 10, 0)
 		if err != nil {
 			continue
+		}
+		if _, ok := a.assets[uint(id)]; ok {
+			return ErrDuplicateAsset
 		}
 		if fi, err = a.assetStore.Stat(file); err != nil {
 			continue
@@ -497,4 +500,5 @@ const (
 	ErrUnknownAsset      errors.Error = "unknown asset"
 	ErrUnknownEndpoint   errors.Error = "unknown endpoint"
 	ErrUnknownTag        errors.Error = "unknown tag"
+	ErrDuplicateAsset    errors.Error = "asset already loaded"
 )
