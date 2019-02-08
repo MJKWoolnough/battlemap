@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,10 +23,11 @@ func e(err error, reason string) {
 	}
 }
 
-const configDir = "./data"
+var dataDir = flag.String("data", "./data", "directory containing all battlemap data")
 
 func main() {
-	e(Config.Init(configDir), "error loading config")
+	flag.Parse()
+	e(Config.Init(*dataDir), "error loading config")
 
 	var port keystore.Uint16
 	Config.Get("port", &port)

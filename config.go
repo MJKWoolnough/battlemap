@@ -11,12 +11,6 @@ type config struct {
 	BaseDir   string
 	memStore  *keystore.MemStore
 	fileStore *keystore.FileStore
-	/*
-		CurrentUserMap uint
-		Password, Salt, SessionKey, SessionData           []byte
-		ServerPort                                        uint16
-		AssetsDir, CharsDir, MapsDir, FilesDir, PluginDir string
-	*/
 }
 
 const configFile = "config"
@@ -25,12 +19,14 @@ func (c *config) Init(baseDir string) error {
 	c.BaseDir = baseDir
 	c.memStore = keystore.NewMemStore()
 	c.memStore.SetAll(map[string]io.WriterTo{
-		"ServerPort": keystore.Uint16(8080),
-		"AssetsDir":  keystore.String("./assets"),
-		"CharsDir":   keystore.String("./characters"),
-		"MapsDir":    keystore.String("./maps"),
-		"FilesDir":   keystore.String("./files"),
-		"PluginsDir": keystore.String("./plugins"),
+		"ServerPort":    keystore.Uint16(8080),
+		"AssetsDir":     keystore.String("./assets"),
+		"AssetsMetaDir": keystore.String("./assetsMeta"),
+		"CharsDir":      keystore.String("./characters"),
+		"MapsDir":       keystore.String("./maps"),
+		"FilesDir":      keystore.String("./files"),
+		"PluginsDir":    keystore.String("./plugins"),
+		"TokensDir":     keystore.String("./tokens"),
 	})
 	var err error
 	c.fileStore, err = keystore.NewFileStore(baseDir, baseDir, keystore.NoMangle)

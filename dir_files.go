@@ -34,7 +34,7 @@ func (f *filesDir) Init() error {
 		err      error
 	)
 	Config.Get("filesDir", &location)
-	f.files, err = keystore.NewFileStore(string(location), "", keystore.NoMangle)
+	f.files, err = keystore.NewFileStore(filepath.Join(Config.BaseDir, string(location)), "", keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating file store: ", err)
 	}

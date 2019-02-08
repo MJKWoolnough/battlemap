@@ -50,8 +50,14 @@ type assetsDir struct {
 }
 
 func (a *assetsDir) Init() error {
-	var err error
-	sp := filepath.Join(Config.BaseDir, "assets")
+	var (
+		metaLocation keystore.String
+		err          error
+	)
+	if err := Config.Get("AssetsMetaDir", &metaLocation); err != nil {
+		return errors.WithContext("error getting asset meta data directory: ", err)
+	}
+	sp := filepath.Join(Config.BaseDir, string(metaLocation))
 	a.metaStore, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating asset meta store: ", err)
