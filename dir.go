@@ -2,10 +2,7 @@ package main
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
-	"os"
-	"path/filepath"
 )
 
 type Methods interface {
@@ -51,31 +48,48 @@ func (d Dir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func uploadFile(r io.Reader, location string) error {
-	tf, err := ioutil.TempFile(filepath.Dir(location), "battlemap-upload")
-	if err != nil {
-		return err
-	}
-	tfName := tf.Name()
-	_, err = io.Copy(tf, r)
-	if err == nil {
-		err = tf.Close()
-	} else {
-		tf.Close()
-	}
-	if err != nil {
-		os.Remove(tfName)
-		return err
-	}
-	err = os.Rename(tfName, location)
-	if err != nil {
-		os.Remove(tfName)
-		return err
-	}
-	return nil
+type readerWriterTo struct {
+	Reader io.Reader
 }
 
-func fileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	return !os.IsNotExist(err)
+func (r readerWriterTo) WriteTo(w io.Writer) (int64, error) {
+	return io.Copy(w, r.Reader)
+}
+
+type writerReaderFrom struct {
+	Writer io.Writer
+}
+
+func (w writerReaderFrom) ReadFrom(r io.Reader) (int64, error) {
+	return io.Copy(w.Writer, r)
+}
+
+type getFileType struct {
+	Buffer [512]byte
+	BufLen int
+	Type   string
+}
+
+func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
+	n, err := io.ReadFull(r, g.Buffer[:])
+	if err != nil {
+		return int64(n), err
+	}
+	g.BufLen = n
+	g.Type = getType(http.DetectContentType(g.Buffer[:n]))
+	return int64(n), nil
+}
+
+type bufReaderWriterTo struct {
+	Buf    []byte
+	Reader io.Reader
+}
+
+func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(b.Buf)
+	if err != nil {
+		return int64(n), err
+	}
+	m, err := io.Copy(w, b.Reader)
+	return int64(n) + m, err
 }

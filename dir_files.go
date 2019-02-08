@@ -4,11 +4,11 @@ import (
 	"html/template"
 	"io"
 	"net/http"
-	"os"
 	"path"
 	"path/filepath"
 	"strings"
 
+	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -24,15 +24,21 @@ var linkTemplate = template.Must(template.New("").Parse(`<html>
 
 type filesDir struct {
 	DefaultMethods
-	location string
+	files *keystore.FileStore
 	http.Handler
 }
 
 func (f *filesDir) Init() error {
-	var location keystore.String
+	var (
+		location keystore.String
+		err      error
+	)
 	Config.Get("filesDir", &location)
-	f.location = string(location)
-	f.Handler = http.FileServer(http.Dir(f.location))
+	f.files, err = keystore.NewFileStore(string(location), "", keystore.NoMangle)
+	if err != nil {
+		return errors.WithContext("error creating file store: ", err)
+	}
+	f.Handler = http.FileServer(http.Dir(location))
 	return nil
 }
 
@@ -42,8 +48,7 @@ func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
-			filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-			if !fileExists(filename) {
+			if !f.files.Exists(filepath.FromSlash(strings.TrimLeft(r.URL.Path, "/"))) {
 				w.WriteHeader(http.StatusNotFound)
 			}
 		}
@@ -59,9 +64,9 @@ func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {
 
 func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Path != "/" && Auth.IsAdmin(r) {
-		filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-		newFile := !fileExists(filename)
-		err := uploadFile(r.Body, filename)
+		filename := filepath.FromSlash(r.URL.Path)
+		newFile := !f.files.Exists(filename)
+		err := f.files.Set(filename, readerWriterTo{r.Body})
 		r.Body.Close()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -99,7 +104,7 @@ func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			if name == "" || strings.IndexByte(name, '/') >= 0 {
 				continue
 			}
-			if err := uploadFile(p, filepath.Join(f.location, name)); err != nil {
+			if err := f.files.Set(name, readerWriterTo{p}); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return true
 			}
@@ -114,9 +119,8 @@ func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
 
 func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" {
-		filename := filepath.Join(f.location, filepath.Clean(filepath.FromSlash(r.URL.Path)))
-		if err := os.Remove(filename); err != nil {
-			if os.IsNotExist(err) {
+		if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
+			if err == keystore.ErrUnknownKey {
 				http.NotFound(w, r)
 				return true
 			}

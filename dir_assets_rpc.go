@@ -47,7 +47,7 @@ func (a *assetsDir) rpcDeleteAsset(data []byte) (interface{}, error) {
 		err = a.deleteAsset(asset)
 		if err == nil {
 			var fs os.FileInfo
-			fs, err = os.Stat(a.location)
+			fs, err = a.assetStore.Stat("")
 			if err == nil {
 				a.genAssetsHandler(fs.ModTime())
 			}

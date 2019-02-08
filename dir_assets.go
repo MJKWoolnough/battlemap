@@ -1,9 +1,8 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"compress/gzip"
+	"encoding"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -12,13 +11,13 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"golang.org/x/net/websocket"
+	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
@@ -28,12 +27,12 @@ import (
 
 type assetsDir struct {
 	DefaultMethods
-	location string
-	handler  http.Handler
+	metaStore, assetStore *keystore.FileStore
+	handler               http.Handler
 
 	assetMu     sync.RWMutex
 	nextAssetID uint
-	assets      map[uint]*Asset
+	assets      Assets
 
 	assetHandlerMu sync.RWMutex
 	assetHandler   http.Handler
@@ -41,7 +40,7 @@ type assetsDir struct {
 
 	tagMu     sync.RWMutex
 	nextTagID uint
-	tags      map[uint]*Tag
+	tags      Tags
 
 	tagHandlerMu sync.RWMutex
 	tagHandler   http.Handler
@@ -51,12 +50,11 @@ type assetsDir struct {
 }
 
 func (a *assetsDir) Init() error {
-	var location keystore.String
-	Config.Get("assetDir", &location)
-	a.location = string(location)
-	err := os.MkdirAll(a.location, 0755)
+	var err error
+	sp := filepath.Join(Config.BaseDir, "assets")
+	a.metaStore, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating asset directory: ", err)
+		return errors.WithContext("error creating asset meta store: ", err)
 	}
 	if err = a.initTags(); err != nil {
 		return err
@@ -64,47 +62,25 @@ func (a *assetsDir) Init() error {
 	if err = a.initAssets(); err != nil {
 		return err
 	}
-	a.handler = http.FileServer(http.Dir(a.location))
 	a.websocket = websocket.Handler(a.WebSocket)
 	return nil
 }
 
 func (a *assetsDir) initTags() error {
-	f, err := os.Open(filepath.Join(a.location, "tags"))
-	if err != nil {
-		return errors.WithContext("error opening tags file: ", err)
+	a.tags = make(Tags)
+	var fsinfo os.FileInfo
+	if err := a.metaStore.Get("tags", &a.tags); err != nil && err != keystore.ErrUnknownKey {
+		return errors.WithContext("error reading tags file: ", err)
+	} else if fsinfo, err = a.metaStore.Stat("tags"); err != nil {
+		return errors.WithContext("error stating tags file: ", err)
 	}
-	defer f.Close()
-	fsinfo, err := f.Stat()
-	if err != nil {
-		return errors.WithContext("error statting tag file: ", err)
-	}
-
-	a.tags = make(map[uint]*Tag)
-	b := bufio.NewReader(f)
-	var largestTagID uint64
-	for {
-		line, err := b.ReadBytes('\n')
-		if err != nil {
-			return errors.WithContext("error reading tags file: ", err)
-		}
-		parts := bytes.SplitN(line, sep, 2)
-		if len(parts) != 2 {
-			return ErrInvalidTagFile
-		}
-		id, err := strconv.ParseUint(string(parts[0]), 10, 0)
-		if err != nil {
-			return ErrInvalidTagFile
-		}
-		a.tags[uint(id)] = &Tag{
-			ID:   uint(id),
-			Name: string(bytes.TrimSuffix(parts[2], newLine)),
-		}
+	var largestTagID uint
+	for id := range a.tags {
 		if id > largestTagID {
 			largestTagID = id
 		}
 	}
-	a.nextTagID = uint(largestTagID) + 1
+	a.nextTagID = largestTagID + 1
 	a.genTagsHandler(fsinfo.ModTime())
 	return nil
 }
@@ -122,105 +98,61 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 </html>`))
 
 func (a *assetsDir) genTagsHandler(t time.Time) {
-	tags := make(Tags, 0, len(a.tags))
-	for _, tag := range a.tags {
-		tags = append(tags, *tag)
-	}
-	sort.Sort(tags)
-	a.tagJSON = json.RawMessage(genPages(t, tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler))
+	a.tagJSON = json.RawMessage(genPages(t, a.tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler))
 }
 
 func (a *assetsDir) initAssets() error {
-	d, err := os.Open(a.location)
+	var (
+		location keystore.String
+		err      error
+	)
+	Config.Get("assetDir", &location)
+	a.assetStore, err = keystore.NewFileStore(string(location), string(location), keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error open asset directory: ", err)
+		return errors.WithContext("error creating asset store: ", err)
 	}
-	fi, err := d.Stat()
+	fi, err := a.assetStore.Stat("")
 	if err != nil {
 		return errors.WithContext("error reading asset directory stats: ", err)
 	}
 	latestTime := fi.ModTime()
-	files, err := d.Readdirnames(-1)
-	d.Close()
-	if err != nil {
-		return errors.WithContext("error reading asset directory:", err)
-	}
-	a.assets = make(map[uint]*Asset)
-	var largestAssetID uint64
-	buf := make([]byte, 512)
-	for _, file := range files {
+	var (
+		largestAssetID uint64
+		gft            getFileType
+	)
+	for _, file := range a.assetStore.Keys() {
 		id, err := strconv.ParseUint(file, 10, 0)
 		if err != nil {
 			continue
 		}
-		as := new(Asset)
-		as.ID = uint(id)
-		f, err := os.Open(filepath.Join(a.location, file+".meta"))
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return errors.WithContext("error opening meta file "+file+".meta: ", err)
-			}
+		if fi, err = a.assetStore.Stat(file); err != nil {
+			continue
+		}
+		gft.Type = ""
+		a.assetStore.Get(file, &gft)
+		if gft.Type == "" {
+			continue
+		}
+		as := &Asset{
+			Type: gft.Type,
+		}
+		a.metaStore.Get(file, as)
+		if as.ID != uint(id) {
+			as.ID = uint(id)
 			as.Name = file
-		} else {
-			fi, err := f.Stat()
-			if err != nil {
-				return errors.WithContext("error stating meta file "+file+".meta: ", err)
-			}
-			mt := fi.ModTime()
-			if latestTime.Before(mt) {
-				latestTime = mt
-			}
-			b := bufio.NewReader(f)
-			name, err := b.ReadBytes('\n')
-			if err != nil && err != io.EOF {
-				return errors.WithContext("error reading asset name "+file+": ", err)
-			}
-			as.Name = string(bytes.TrimRight(name, "\n"))
-			for err == nil {
-				var tagIDStr []byte
-				tagIDStr, err = b.ReadBytes('\n')
-				if err == nil {
-					var tagID uint64
-					tagID, err = strconv.ParseUint(string(tagIDStr), 10, 0)
-					if tag, ok := a.tags[uint(tagID)]; ok {
-						tag.Assets = append(tag.Assets, uint(id))
-						as.Tags = append(as.Tags, uint(tagID))
-					} // ErrInvalidTagID??
-				}
-			}
-			if err != nil && err != io.EOF {
-				return errors.WithContext("error reading tad ID "+file+": ", err)
-			}
-			f.Close()
 		}
-		f, err = os.Open(filepath.Join(a.location, file))
-		if err != nil {
-			return errors.WithContext("error opening asset file "+file+": ", err)
-		}
-		fi, err := f.Stat()
-		if err != nil {
-			return errors.WithContext("error stating asset file "+file+": ", err)
-		}
-		mt := fi.ModTime()
-		if latestTime.Before(mt) {
-			latestTime = mt
-		}
-		n, err := io.ReadFull(f, buf)
-		f.Close()
-		if err != nil && err != io.EOF {
-			return errors.WithContext("error reading asset file "+file+": ", err)
-		}
-		as.Type = getType(http.DetectContentType(buf[:n]))
-		if as.Type == "" {
-			return errors.WithContext("error detecting or invalid file type of "+file+": ", ErrInvalidFileType)
-		}
-		a.assets[uint(id)] = as
+		a.assets[as.ID] = as
 		if id > largestAssetID {
 			largestAssetID = id
+		}
+		ct := fi.ModTime()
+		if ct.After(latestTime) {
+			latestTime = ct
 		}
 	}
 	a.nextAssetID = uint(largestAssetID) + 1
 	a.genAssetsHandler(latestTime)
+	a.handler = http.FileServer(http.Dir(location))
 	return nil
 }
 
@@ -237,27 +169,23 @@ var assetsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 </html>`))
 
 func (a *assetsDir) genAssetsHandler(t time.Time) {
-	as := make(Assets, 0, len(a.assets))
-	for _, asset := range a.assets {
-		as = append(as, *asset)
-	}
-	sort.Sort(as)
-	a.assetJSON = json.RawMessage(genPages(t, as, assetsTemplate, "index", "assets", "asset", &a.assetHandler))
+	a.assetJSON = json.RawMessage(genPages(t, a.assets, assetsTemplate, "index", "assets", "asset", &a.assetHandler))
 }
 
 var exts = [...]string{".html", ".txt", ".json", ".xml"}
 
-func genPages(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) []byte {
+func genPages(t time.Time, list encoding.TextMarshaler, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) []byte {
 	d := httpdir.New(t)
 	buf := genPagesDir(t, list, htmlTemplate, baseName, topTag, tag, &d)
 	*handler = httpgzip.FileServer(d)
 	return buf
 }
 
-func genPagesDir(t time.Time, list io.WriterTo, htmlTemplate *template.Template, baseName, topTag, tag string, d *httpdir.Dir) []byte {
+func genPagesDir(t time.Time, list encoding.TextMarshaler, htmlTemplate *template.Template, baseName, topTag, tag string, d *httpdir.Dir) []byte {
 	var buffers [2 * len(exts)]memio.Buffer
 	htmlTemplate.Execute(&buffers[0], list)
-	list.WriteTo(&buffers[1])
+	tbuf, _ := list.MarshalText()
+	buffers[1] = memio.Buffer(tbuf)
 	json.NewEncoder(&buffers[2]).Encode(list)
 	x := xml.NewEncoder(&buffers[3])
 	var se = xml.StartElement{Name: xml.Name{Local: topTag}}
@@ -301,24 +229,12 @@ func (a *assetsDir) writeAsset(id uint, regen bool) error {
 	if !ok {
 		return ErrUnknownAsset
 	}
-	file := filepath.Join(a.location, strconv.FormatUint(uint64(id), 10)+".meta")
-	f, err := os.Create(file)
-	if err != nil {
-		return errors.WithContext("error creating meta file: ", err)
-	}
-	if _, err = fmt.Fprintln(f, as.Name); err != nil {
-		return errors.WithContext("error writing asset name: ", err)
-	}
-	for _, tag := range as.Tags {
-		if _, err = fmt.Fprintf(f, "%d\n", tag); err != nil {
-			return errors.WithContext("error writing tag data for asset: ", err)
-		}
-	}
-	if err = f.Close(); err != nil {
-		return errors.WithContext("error closing asset meta file: ", err)
+	idStr := strconv.FormatUint(uint64(id), 10)
+	if err := a.metaStore.Set(idStr, as); err != nil {
+		return errors.WithContext("error setting asset metadata: ", err)
 	}
 	if regen {
-		fi, err := os.Stat(file)
+		fi, err := a.metaStore.Stat(idStr)
 		if err != nil {
 			return errors.WithContext("error reading asset meta file stats: ", err)
 		}
@@ -328,20 +244,11 @@ func (a *assetsDir) writeAsset(id uint, regen bool) error {
 }
 
 func (a *assetsDir) writeTags() error {
-	file := filepath.Join(a.location, "tags")
-	f, err := os.Create(file)
+	err := a.metaStore.Set("tags", a.tags)
 	if err != nil {
-		return errors.WithContext("error creating tags file: ", err)
+		return errors.WithContext("error setting tags data: ", err)
 	}
-	for _, tag := range a.tags {
-		if _, err = fmt.Fprintf(f, "%d:%s\n", tag.ID, tag.Name); err != nil {
-			return errors.WithContext("error writing tags file: ", err)
-		}
-	}
-	if err = f.Close(); err != nil {
-		return errors.WithContext("error closing tags file: ", err)
-	}
-	fi, err := os.Stat(file)
+	fi, err := a.metaStore.Stat("tags")
 	if err != nil {
 		return errors.WithContext("error reading tag file stats: ", err)
 	}
@@ -350,14 +257,14 @@ func (a *assetsDir) writeTags() error {
 }
 
 func (a *assetsDir) deleteAsset(asset *Asset) error {
-	filename := filepath.Join(a.location, strconv.FormatUint(uint64(asset.ID), 10))
-	if err := os.Remove(filename); err != nil {
-		if !os.IsNotExist(err) {
+	idStr := strconv.FormatUint(uint64(asset.ID), 10)
+	if err := a.assetStore.Remove(idStr); err != nil {
+		if err != keystore.ErrUnknownKey {
 			return errors.WithContext("error removing asset file: ", err)
 		}
 	}
-	if err := os.Remove(filename + ".meta"); err != nil {
-		if !os.IsNotExist(err) {
+	if err := a.metaStore.Remove(idStr); err != nil {
+		if err != keystore.ErrUnknownKey {
 			return errors.WithContext("error removing asset meta file: ", err)
 		}
 	}
@@ -466,53 +373,61 @@ type Asset struct {
 	Tags []uint `json:"tags" xml:"tags>tag"`
 }
 
-func (a Asset) WriteTo(w io.Writer) (int64, error) {
-	var total int64
-	n, err := fmt.Fprintf(w, "%d:%s\n", a.ID, a.Name)
-	total += int64(n)
-	if err != nil {
-		return total, err
+func (a *Asset) WriteTo(w io.Writer) (int64, error) {
+	lw := byteio.StickyLittleEndianWriter{Writer: w}
+	lw.WriteUintX(uint64(a.ID))
+	lw.WriteStringX(a.Name)
+	lw.WriteUintX(uint64(len(a.Tags)))
+	for _, tid := range a.Tags {
+		lw.WriteUintX(uint64(tid))
 	}
-	for m, tid := range a.Tags {
-		if m == 0 {
-			n, err = fmt.Fprintf(w, "%d", tid)
-		} else {
-			n, err = fmt.Fprintf(w, ",%d", tid)
+	return lw.Count, lw.Err
+}
+
+func (a *Asset) ReadFrom(r io.Reader) (int64, error) {
+	lr := byteio.StickyLittleEndianReader{Reader: r}
+	a.ID = uint(lr.ReadUintX())
+	a.Name = lr.ReadStringX()
+	a.Tags = make([]uint, lr.ReadUintX())
+	for n := range a.Tags {
+		a.Tags[n] = uint(lr.ReadUintX())
+	}
+	return lr.Count, lr.Err
+}
+
+func (a *Asset) MarshalText() ([]byte, error) {
+	var buf memio.Buffer
+	fmt.Fprintf(&buf, "%d:%s\n%s\n%v\n\n", a.ID, a.Name, a.Type, a.Tags)
+	return buf, nil
+}
+
+type Assets map[uint]*Asset
+
+func (a Assets) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	for _, asset := range a {
+		if err := e.EncodeElement(asset, start); err != nil {
+			return err
 		}
+	}
+	return nil
+}
+
+func (a Assets) MarshalText() ([]byte, error) {
+	var buf memio.Buffer
+	a.WriteTo(&buf)
+	return buf, nil
+}
+
+func (a Assets) WriteTo(w io.Writer) (int64, error) {
+	var total int64
+	for id, asset := range a {
+		n, err := fmt.Fprintf(w, "%d:%s\n%s\n%v\n\n", id, asset.Name, asset.Type, asset.Tags)
 		total += int64(n)
 		if err != nil {
 			return total, err
 		}
 	}
-	n, err = w.Write(newLine)
-	total += int64(n)
-	return total, err
-}
-
-type Assets []Asset
-
-func (a Assets) WriteTo(w io.Writer) (int64, error) {
-	var total int64
-	for _, asset := range a {
-		t, err := asset.WriteTo(w)
-		total += t
-		if err != nil {
-			return total, err
-		}
-	}
 	return total, nil
-}
-
-func (a Assets) Len() int {
-	return len(a)
-}
-
-func (a Assets) Less(i, j int) bool {
-	return a[i].ID < a[j].ID
-}
-
-func (a Assets) Swap(i, j int) {
-	a[i], a[j] = a[j], a[i]
 }
 
 type Tag struct {
@@ -521,30 +436,50 @@ type Tag struct {
 	Assets []uint `json:"-" xml:"-"`
 }
 
-type Tags []Tag
+type Tags map[uint]*Tag
 
-func (t Tags) WriteTo(w io.Writer) (int64, error) {
-	var total int64
+func (t Tags) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	for _, tag := range t {
-		n, err := fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
-		total += int64(n)
-		if err != nil {
-			return total, err
+		if err := e.EncodeElement(tag, start); err != nil {
+			return err
 		}
 	}
-	return total, nil
+	return nil
 }
 
-func (t Tags) Len() int {
-	return len(t)
+func (t Tags) MarshalText() ([]byte, error) {
+	var buf memio.Buffer
+	for id, tag := range t {
+		fmt.Fprintf(&buf, "%d:%s\n", id, tag.Name)
+	}
+	return buf, nil
 }
 
-func (t Tags) Less(i, j int) bool {
-	return t[i].ID < t[j].ID
+func (t Tags) WriteTo(w io.Writer) (int64, error) {
+	lw := byteio.StickyLittleEndianWriter{Writer: w}
+	for id, tag := range t {
+		lw.WriteUintX(uint64(id))
+		lw.WriteStringX(tag.Name)
+	}
+	return lw.Count, lw.Err
 }
 
-func (t Tags) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
+func (t Tags) ReadFrom(r io.Reader) (int64, error) {
+	lr := byteio.StickyLittleEndianReader{Reader: r}
+	for {
+		id := lr.ReadUintX()
+		name := lr.ReadStringX()
+		if lr.Err != nil {
+			if lr.Err == io.EOF {
+				lr.Err = nil
+			}
+			return lr.Count, lr.Err
+		}
+		t[uint(id)] = &Tag{
+			ID:   uint(id),
+			Name: name,
+		}
+	}
 }
 
 const (

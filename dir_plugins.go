@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"html/template"
-	"io"
 	"net/http"
 	"os"
 	"sort"
@@ -103,21 +102,13 @@ func (p *pluginsDir) Init() error {
 
 type PluginList []Plugin
 
-func (pl PluginList) WriteTo(w io.Writer) (int64, error) {
-	var total int64
+func (pl PluginList) MarshalText() ([]byte, error) {
+	var buf memio.Buffer
 	for _, p := range pl {
-		n, err := io.WriteString(w, p.File)
-		total += int64(n)
-		if err != nil {
-			return total, err
-		}
-		n, err = w.Write(newLine)
-		total += int64(n)
-		if err != nil {
-			return total, err
-		}
+		buf.WriteString(p.File)
+		buf.WriteByte('\n')
 	}
-	return total, nil
+	return buf, nil
 }
 
 type Plugin struct {
