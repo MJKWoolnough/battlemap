@@ -49,7 +49,7 @@ func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
 			if !f.files.Exists(filepath.FromSlash(strings.TrimLeft(r.URL.Path, "/"))) {
-				w.WriteHeader(http.StatusNotFound)
+				http.NotFound(w, r)
 			}
 		}
 	} else {
