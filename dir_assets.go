@@ -127,7 +127,7 @@ func (a *assetsDir) initAssets() error {
 		gft            getFileType
 	)
 	for _, file := range a.assetStore.Keys() {
-		id, err := strconv.ParseUint(strings.TrimLeft(file, "0"), 10, 0)
+		id, err := strconv.ParseUint(file, 10, 0)
 		if err != nil {
 			continue
 		}

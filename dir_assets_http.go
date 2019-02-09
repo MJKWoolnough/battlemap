@@ -176,7 +176,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) || r.URL.Path == "/" {
 		return false
 	}
-	idStr := strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0")
+	idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")
 	id, err := strconv.ParseUint(idStr, 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
@@ -211,7 +211,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) && r.URL.Path != "/" && r.URL.Path != tagsPath {
-		id, err := strconv.ParseUint(strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0"), 10, 0)
+		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if err != nil {
 			http.NotFound(w, r)
 			return true
@@ -328,7 +328,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseUint(strings.TrimPrefix(strings.TrimPrefix(r.URL.Path, "/"), "0"), 10, 0)
+	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
 		return
