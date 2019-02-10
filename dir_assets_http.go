@@ -35,22 +35,6 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type AcceptType string
-
-func (a *AcceptType) Handle(m httpaccept.Mime) bool {
-	if m.Match("text/plain") {
-		*a = "txt"
-		return true
-	} else if m.Match("text/xml") {
-		*a = "xml"
-		return true
-	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
-		*a = "json"
-		return true
-	}
-	return false
-}
-
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) {
 		handler := a.handler

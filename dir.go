@@ -3,6 +3,8 @@ package main
 import (
 	"io"
 	"net/http"
+
+	"vimagination.zapto.org/httpaccept"
 )
 
 type Methods interface {
@@ -92,4 +94,20 @@ func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
 	}
 	m, err := io.Copy(w, b.Reader)
 	return int64(n) + m, err
+}
+
+type AcceptType string
+
+func (a *AcceptType) Handle(m httpaccept.Mime) bool {
+	if m.Match("text/plain") {
+		*a = "txt"
+		return true
+	} else if m.Match("text/xml") {
+		*a = "xml"
+		return true
+	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
+		*a = "json"
+		return true
+	}
+	return false
 }
