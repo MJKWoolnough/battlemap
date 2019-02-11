@@ -4,13 +4,13 @@ import (
 	"bufio"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 )
@@ -236,8 +236,12 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	var (
-		at  AcceptType
-		tp  TagPatch
+		at AcceptType
+		tp struct {
+			Add    []string `json:"add" xml:"add"`
+			Remove []uint   `json:"remove" xml:"remove"`
+			Rename Tags     `json:"rename" xml:"rename"`
+		}
 		err error
 	)
 	switch r.Header.Get(contentType) {
@@ -248,8 +252,36 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		at = "xml"
 		err = xml.NewDecoder(r.Body).Decode(&tp)
 	default:
-		at = "txt"
-		err = tp.Parse(r.Body)
+		br := bufio.NewReader(r.Body)
+	Loop:
+		for {
+			switch method, _ := br.ReadByte(); method {
+			case '>':
+				var tag string
+				_, err = fmt.Fscanf(br, "%q", &tag)
+				if err != nil {
+					break Loop
+				}
+				tp.Add = append(tp.Add, tag)
+			case '<':
+				var tid uint
+				_, err = fmt.Fscanf(br, "%d", &tid)
+				if err != nil {
+					break Loop
+				}
+				tp.Remove = append(tp.Remove, tid)
+			case '~':
+				tag := new(Tag)
+				_, err = fmt.Fscanf(br, "%d:%q", &tag.ID, &tag.Name)
+				if err != nil {
+					break Loop
+				}
+				tp.Rename[tag.ID] = tag
+			case '\n':
+			default:
+				break Loop
+			}
+		}
 	}
 	r.Body.Close()
 	if err != nil {
@@ -293,9 +325,6 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		a.writeTags() // handle error??
 		a.tagMu.Unlock()
 		switch at {
-		case "txt":
-			w.Header().Set(contentType, "text/plain")
-			newTags.WriteTo(w)
 		case "json":
 			w.Header().Set(contentType, "application/json")
 			json.NewEncoder(w).Encode(newTags)
@@ -304,6 +333,11 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 			xml.NewEncoder(w).EncodeElement(struct {
 				Tags `xml:"tag"`
 			}{newTags}, xml.StartElement{Name: xml.Name{Local: "tags"}})
+		default:
+			w.Header().Set(contentType, "text/plain")
+			for _, tag := range newTags {
+				fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
+			}
 		}
 	} else {
 		a.tagMu.Unlock()
@@ -319,7 +353,11 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 	}
 	var (
 		at AcceptType
-		ap AssetPatch
+		ap struct {
+			AddTag    []uint `json:"addTag" xml:"addTag"`
+			RemoveTag []uint `json:"removeTag" xml:"removeTag"`
+			Rename    string `json:"rename" xml:"rename"`
+		}
 	)
 	switch r.Header.Get(contentType) {
 	case "application/json", "text/json":
@@ -329,8 +367,36 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		at = "xml"
 		err = xml.NewDecoder(r.Body).Decode(&ap)
 	default:
-		at = "txt"
-		err = ap.Parse(r.Body)
+		br := bufio.NewReader(r.Body)
+	Loop:
+		for {
+			switch method, _ := br.ReadByte(); method {
+			case '>':
+				var tid uint
+				_, err = fmt.Fscanf(br, "%d", &tid)
+				if err != nil {
+					break Loop
+				}
+				ap.AddTag = append(ap.AddTag, tid)
+			case '<':
+				var tid uint
+				_, err = fmt.Fscanf(br, "%d", &tid)
+				if err != nil {
+					break Loop
+				}
+				ap.RemoveTag = append(ap.RemoveTag, tid)
+			case '~':
+				var newName string
+				_, err = fmt.Fscanf(br, "%q", &newName)
+				if err != nil {
+					break Loop
+				}
+				ap.Rename = newName
+			case '\n':
+			default:
+				break Loop
+			}
+		}
 	}
 	r.Body.Close()
 	if err != nil {
@@ -357,143 +423,20 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		a.writeAsset(as.ID, true)
 		var buf memio.Buffer
 		switch at {
-		case "txt":
-			w.Header().Set(contentType, "text/plain")
-			as.WriteTo(&buf)
 		case "json":
 			w.Header().Set(contentType, "application/json")
 			json.NewEncoder(&buf).Encode(as)
 		case "xml":
 			w.Header().Set(contentType, "text/xml")
 			xml.NewEncoder(&buf).EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
+		default:
+			w.Header().Set(contentType, "text/plain")
+			fmt.Fprintf(w, "%d:%s\n%v\n", as.ID, as.Name, as.Tags)
 		}
 		a.assetMu.Unlock()
 		w.Write(buf)
 	} else {
 		a.assetMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
-	}
-}
-
-type TagPatch struct {
-	Add    []string `json:"add" xml:"add"`
-	Remove []uint   `json:"remove" xml:"remove"`
-	Rename Tags     `json:"rename" xml:"rename"`
-}
-
-func (t *TagPatch) Parse(r io.Reader) error {
-	b := bufio.NewReader(r)
-	for {
-		c, err := b.ReadByte()
-		if err != nil {
-			if err == io.EOF {
-				return nil
-			}
-			return errors.WithContext("error reading method byte: ", err)
-		}
-		switch c {
-		case '>':
-			newTag, err := b.ReadBytes('\n')
-			newTagStr := strings.TrimSuffix(string(newTag), "\n")
-			if len(newTagStr) > 0 {
-				t.Add = append(t.Add, newTagStr)
-			}
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error reading new tag name: ", err)
-			}
-		case '<':
-			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
-			t.Remove = append(t.Remove, uint(id))
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error read remove id: ", err)
-			} else if errb != nil {
-				return errors.WithContext("error parsing remove id: ", errb)
-			}
-		case '~':
-			idStr, err := b.ReadBytes(':')
-			var newName []byte
-			if err == nil {
-				newName, err = b.ReadBytes('\n')
-			}
-			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
-			newNameStr := strings.TrimSuffix(string(newName), "\n")
-			t.Rename[uint(id)] = &Tag{ID: uint(id), Name: newNameStr}
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error parsing rename id:", errb)
-			} else if errb != nil {
-				return errors.WithContext("error read tag new name: ", errb)
-			}
-		default:
-			return ErrInvalidMethodByte
-		}
-	}
-}
-
-type AssetPatch struct {
-	AddTag    []uint `json:"addTag" xml:"addTag"`
-	RemoveTag []uint `json:"removeTag" xml:"removeTag"`
-	Rename    string `json:"rename" xml:"rename"`
-}
-
-func (a *AssetPatch) Parse(r io.Reader) error {
-	b := bufio.NewReader(r)
-	for {
-		c, err := b.ReadByte()
-		if err != nil {
-			if err == io.EOF {
-				return nil
-			}
-			return errors.WithContext("error reading method byte: ", err)
-		}
-		switch c {
-		case '>':
-			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
-			a.AddTag = append(a.AddTag, uint(id))
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error reading tag id:", err)
-			} else if errb != nil {
-				return errors.WithContext("error parsing tag id: ", errb)
-			}
-		case '<':
-			idStr, err := b.ReadBytes('\n')
-			id, errb := strconv.ParseUint(strings.TrimSuffix(string(idStr), "\n"), 10, 0)
-			a.RemoveTag = append(a.RemoveTag, uint(id))
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error reading tag id:", err)
-			} else if errb != nil {
-				return errors.WithContext("error parsing tag id: ", errb)
-			}
-		case '~':
-			if a.Rename != "" {
-				return ErrCannotMultiRename
-			}
-			newName, err := b.ReadBytes('\n')
-			a.Rename = strings.TrimSuffix(string(newName), "\n")
-			if err != nil {
-				if err == io.EOF {
-					return nil
-				}
-				return errors.WithContext("error reading new asset name: ", err)
-			}
-		default:
-			return ErrInvalidMethodByte
-		}
 	}
 }
