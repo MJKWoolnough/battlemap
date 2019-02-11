@@ -138,12 +138,9 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		a.writeAsset(id, l == 0)
 	}
 	a.assetMu.Unlock()
-	at := AcceptType("txt")
+	var at AcceptType
 	httpaccept.HandleAccept(r, &at)
 	switch at {
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		added.WriteTo(w)
 	case "json":
 		w.Header().Set(contentType, "application/json")
 		json.NewEncoder(w).Encode(added)
@@ -152,6 +149,9 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		xml.NewEncoder(w).EncodeElement(struct {
 			Asset Assets `xml:"asset"`
 		}{added}, xml.StartElement{Name: xml.Name{Local: "assets"}})
+	default:
+		w.Header().Set(contentType, "text/plain")
+		added.WriteTo(w)
 	}
 	return true
 }
@@ -236,7 +236,6 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	var (
-		at AcceptType
 		tp struct {
 			Add    []string `json:"add" xml:"add"`
 			Remove []uint   `json:"remove" xml:"remove"`
@@ -289,7 +288,6 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, err.Error())
 		return
 	}
-	httpaccept.HandleAccept(r, &at)
 	var change bool
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
@@ -324,6 +322,8 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	if change {
 		a.writeTags() // handle error??
 		a.tagMu.Unlock()
+		var at AcceptType
+		httpaccept.HandleAccept(r, &at)
 		switch at {
 		case "json":
 			w.Header().Set(contentType, "application/json")
