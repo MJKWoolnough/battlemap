@@ -236,6 +236,7 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 
 func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	var (
+		at AcceptType
 		tp struct {
 			Add    []string `json:"add" xml:"add"`
 			Remove []uint   `json:"remove" xml:"remove"`
@@ -322,7 +323,6 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	if change {
 		a.writeTags() // handle error??
 		a.tagMu.Unlock()
-		var at AcceptType
 		httpaccept.HandleAccept(r, &at)
 		switch at {
 		case "json":
