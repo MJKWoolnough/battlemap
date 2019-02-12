@@ -26,9 +26,11 @@ type masksDir struct {
 
 func (m *masksDir) Init() error {
 	var location keystore.String
-	Config.Get("MasksDir", &location)
+	err := Config.Get("MasksDir", &location)
+	if err != nil {
+		return errors.WithContext("error getting masks directory: ", err)
+	}
 	mp := filepath.Join(Config.BaseDir, string(location))
-	var err error
 	m.store, err = keystore.NewFileStore(mp, mp, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating mask store: ", err)
