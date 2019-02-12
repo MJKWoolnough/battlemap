@@ -27,5 +27,7 @@ func testMain(m *testing.M, dataDir string) int {
 		return 1
 	}
 	srv = httptest.NewServer(initMux())
-	return m.Run()
+	r := m.Run()
+	srv.Close()
+	return r
 }
