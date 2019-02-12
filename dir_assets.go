@@ -75,8 +75,12 @@ func (a *assetsDir) Init() error {
 func (a *assetsDir) initTags() error {
 	a.tags = make(Tags)
 	var fsinfo os.FileInfo
-	if err := a.metaStore.Get("tags", &a.tags); err != nil && err != keystore.ErrUnknownKey {
-		return errors.WithContext("error reading tags file: ", err)
+	if err := a.metaStore.Get("tags", &a.tags); err != nil {
+		if err == keystore.ErrUnknownKey {
+			return nil
+		} else {
+			return errors.WithContext("error reading tags file: ", err)
+		}
 	} else if fsinfo, err = a.metaStore.Stat("tags"); err != nil {
 		return errors.WithContext("error stating tags file: ", err)
 	}
