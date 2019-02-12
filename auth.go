@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/sessions"
 )
@@ -133,17 +134,37 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, password, _ = r.BasicAuth()
 	}
+	var at AcceptType
+	httpaccept.HandleAccept(r, &at)
 	if sessionData := a.login(password); len(sessionData) > 0 {
 		a.store.Set(w, sessionData)
-		if r.Header.Get(contentType) == jsonType {
-			w.Header().Set(contentType, jsonType)
+		switch at {
+		case "json":
+			w.Header().Set(contentType, "application/json")
 			io.WriteString(w, "{\"admin\": true}")
-			return
+		case "xml":
+			w.Header().Set(contentType, "text/xml")
+			io.WriteString(w, "<login>true</login>")
+		case "txt":
+			w.Header().Set(contentType, "application/json")
+			io.WriteString(w, "logged in")
+		default:
+			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
-		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
+	switch at {
+	case "json":
+		w.Header().Set(contentType, "application/json")
+		io.WriteString(w, "{\"admin\": false}")
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		io.WriteString(w, "<login>false</login>")
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		io.WriteString(w, "logged out")
+	}
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
