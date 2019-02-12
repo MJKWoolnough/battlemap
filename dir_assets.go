@@ -116,8 +116,9 @@ func (a *assetsDir) initAssets() error {
 		location keystore.String
 		err      error
 	)
-	Config.Get("assetDir", &location)
-	a.assetStore, err = keystore.NewFileStore(string(location), string(location), keystore.NoMangle)
+	Config.Get("AssetsDir", &location)
+	ap := filepath.Join(Config.BaseDir, string(location))
+	a.assetStore, err = keystore.NewFileStore(ap, ap, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating asset store: ", err)
 	}
