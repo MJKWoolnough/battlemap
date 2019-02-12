@@ -149,6 +149,10 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 
 func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {
 	if a.IsAdmin(r) {
+		a.mu.RLock()
+		sessionData := a.sessionData
+		a.mu.RUnlock()
+		a.store.Set(w, sessionData)
 		io.WriteString(w, "true")
 	} else {
 		w.WriteHeader(http.StatusUnauthorized)
