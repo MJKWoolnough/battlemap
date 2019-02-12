@@ -23,6 +23,7 @@ func (c *config) Init(baseDir string) error {
 		"AssetsDir":     keystore.String("./assets"),
 		"AssetsMetaDir": keystore.String("./assetsMeta"),
 		"CharsDir":      keystore.String("./characters"),
+		"MasksDir":      keystore.String("./masks"),
 		"MapsDir":       keystore.String("./maps"),
 		"FilesDir":      keystore.String("./files"),
 		"PluginsDir":    keystore.String("./plugins"),
