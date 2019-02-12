@@ -135,6 +135,13 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 	case "maps":
 		_ = currentMap
 	case "characters":
+		if isAdmin {
+			return CharsDir.RPC(submethod, data)
+		}
+	case "tokens":
+		if isAdmin {
+			return TokensDir.RPC(submethod, data)
+		}
 	}
 	return nil, ErrUnknownMethod
 }
@@ -158,7 +165,7 @@ const (
 	SocketConfig uint8 = iota + 1
 	SocketAssets
 	SocketMaps
-	SocketCharacters
+	SocketKeystore
 )
 
 const (
