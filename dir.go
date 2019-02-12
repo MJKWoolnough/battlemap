@@ -111,3 +111,7 @@ func (a *AcceptType) Handle(m httpaccept.Mime) bool {
 	}
 	return false
 }
+
+func isRoot(path string) bool {
+	return path == "/" || path == ""
+}

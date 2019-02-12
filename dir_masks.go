@@ -51,7 +51,7 @@ func (m *masksDir) Init() error {
 }
 
 func (m *masksDir) Options(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		if Auth.IsAdmin(r) {
 			w.Header().Set("Accept", "POST")
 		} else {
@@ -69,7 +69,7 @@ func (m *masksDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *masksDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else {
 		m.fileserver.ServeHTTP(w, r)
@@ -78,7 +78,7 @@ func (m *masksDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		im, _, err := image.Decode(r.Body)
 		r.Body.Close()
 		if err != nil {
@@ -120,7 +120,7 @@ func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
 		im, _, err := image.Decode(r.Body)
@@ -147,7 +147,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *masksDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
 		m.store.Remove(idStr)

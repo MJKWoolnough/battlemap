@@ -68,7 +68,7 @@ func (k *keystoreDir) Init() error {
 func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
 	if !Auth.IsAdmin(r) {
 		w.WriteHeader(http.StatusUnauthorized)
-	} else if r.URL.Path == "/" {
+	} else if isRoot(r.URL.Path) {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
 		http.NotFound(w, r)
@@ -82,7 +82,7 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		w.WriteHeader(http.StatusUnauthorized)
 		return true
 	}
-	if r.URL.Path == "/" {
+	if isRoot(r.URL.Path) {
 		if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
 			k.websocket.ServeHTTP(w, r)
 		} else {
@@ -105,7 +105,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
 		w.WriteHeader(http.StatusUnauthorized)
 		return true
-	} else if r.URL.Path == "/" {
+	} else if isRoot(r.URL.Path) {
 		var at AcceptType
 		httpaccept.HandleAccept(r, &at)
 		format := "%d"
@@ -207,7 +207,7 @@ func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint
 func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
 		w.WriteHeader(http.StatusUnauthorized)
-	} else if r.URL.Path == "/" {
+	} else if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
 		http.NotFound(w, r)

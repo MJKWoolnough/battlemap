@@ -44,7 +44,7 @@ func (f *filesDir) Init() error {
 
 func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
 	if Auth.IsAdmin(r) {
-		if r.URL.Path == "/" {
+		if isRoot(r.URL.Path) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
@@ -63,7 +63,7 @@ func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path != "/" && Auth.IsAdmin(r) {
+	if !isRoot(r.URL.Path) && Auth.IsAdmin(r) {
 		filename := filepath.FromSlash(r.URL.Path)
 		newFile := !f.files.Exists(filename)
 		err := f.files.Set(filename, readerWriterTo{r.Body})
@@ -84,7 +84,7 @@ func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == "/" && Auth.IsAdmin(r) {
+	if isRoot(r.URL.Path) && Auth.IsAdmin(r) {
 		m, err := r.MultipartReader()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -118,7 +118,7 @@ func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) && r.URL.Path != "/" {
+	if Auth.IsAdmin(r) && !isRoot(r.URL.Path) {
 		if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
 			if err == keystore.ErrUnknownKey {
 				http.NotFound(w, r)
