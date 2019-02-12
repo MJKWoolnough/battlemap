@@ -80,6 +80,7 @@ func initMux() *http.ServeMux {
 	mux.HandleFunc("/login/update", Auth.UpdatePassword)
 	mux.HandleFunc("/login/logout", Auth.Logout)
 	mux.HandleFunc("/login/login", Auth.Login)
+	mux.HandleFunc("/login/loggedin", Auth.LoggedIn)
 	mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&AssetsDir}))
 	mux.Handle("/tokens/", http.StripPrefix("/tokens", Dir{&TokensDir}))
 	mux.Handle("/characters/", http.StripPrefix("/characters/", Dir{&CharsDir}))

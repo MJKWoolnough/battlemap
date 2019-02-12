@@ -147,6 +147,15 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusUnauthorized)
 }
 
+func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {
+	if a.IsAdmin(r) {
+		io.WriteString(w, "true")
+	} else {
+		w.WriteHeader(http.StatusUnauthorized)
+		io.WriteString(w, "false")
+	}
+}
+
 func (a *auth) login(password string) []byte {
 	var toRet []byte
 	a.mu.RLock()
