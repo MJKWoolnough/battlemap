@@ -83,6 +83,10 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 }
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
+	if !a.IsAdmin(r) {
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	a.store.Set(w, nil)
 	var at AcceptType
 	httpaccept.HandleAccept(r, &at)
@@ -97,7 +101,6 @@ func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set(contentType, "text/plain")
 		io.WriteString(w, "logged out")
 	}
-	w.WriteHeader(http.StatusUnauthorized)
 }
 
 func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
