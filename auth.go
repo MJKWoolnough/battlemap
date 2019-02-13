@@ -150,13 +150,15 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
 	a.mu.Lock()
 	a.password = hashPass([]byte(newPassword), a.passwordSalt)
+	password := a.password
 	rand.Read(a.sessionData)
 	data := a.sessionData
-	Config.SetAll(map[string]io.WriterTo{
-		"password":    &a.password,
-		"sessionData": &a.sessionData,
-	})
 	a.mu.Unlock()
+	d := data
+	Config.SetAll(map[string]io.WriterTo{
+		"password":    &password,
+		"sessionData": &d,
+	})
 	Socket.KickAdmins()
 	return data
 }
