@@ -33,7 +33,7 @@ func (a *auth) Init() error {
 	if len(salt) == 0 {
 		salt = salt[:16]
 		rand.Read(salt)
-		password = hashPass(nil, salt)
+		password = hashPass(password, salt)
 		save = true
 	} else if len(password) == 0 {
 		password = hashPass(nil, salt)
@@ -84,7 +84,20 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 	a.store.Set(w, nil)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	var at AcceptType
+	httpaccept.HandleAccept(r, &at)
+	switch at {
+	case "json":
+		w.Header().Set(contentType, "application/json")
+		io.WriteString(w, "{\"admin\": false}")
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		io.WriteString(w, "<login>false</login>")
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		io.WriteString(w, "logged out")
+	}
+	w.WriteHeader(http.StatusUnauthorized)
 }
 
 func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
@@ -99,17 +112,39 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	password := r.PostFormValue(passwordField)
 	confirm := r.PostFormValue("confirmPassword")
+	var at AcceptType
+	httpaccept.HandleAccept(r, &at)
 	if password != confirm {
 		w.WriteHeader(http.StatusBadRequest)
+		switch at {
+		case "json":
+			w.Header().Set(contentType, "application/json")
+			io.WriteString(w, "{\"updated\": false}")
+		case "xml":
+			w.Header().Set(contentType, "text/xml")
+			io.WriteString(w, "<updated>false</login>")
+		case "txt":
+			w.Header().Set(contentType, "text/plain")
+			io.WriteString(w, "passwords don't match")
+		default:
+			io.WriteString(w, "passwords don't match")
+		}
 		return
 	}
 	a.store.Set(w, a.UpdatePasswordGetData(password))
-	if r.Header.Get(contentType) == jsonType {
-		w.Header().Set(contentType, jsonType)
+	switch at {
+	case "json":
+		w.Header().Set(contentType, "application/json")
 		io.WriteString(w, "{\"updated\": true}")
-		return
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		io.WriteString(w, "<updated>true</login>")
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		io.WriteString(w, "password updated")
+	default:
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
-	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
@@ -134,10 +169,10 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, password, _ = r.BasicAuth()
 	}
-	var at AcceptType
-	httpaccept.HandleAccept(r, &at)
 	if sessionData := a.login(password); len(sessionData) > 0 {
 		a.store.Set(w, sessionData)
+		var at AcceptType
+		httpaccept.HandleAccept(r, &at)
 		switch at {
 		case "json":
 			w.Header().Set(contentType, "application/json")
@@ -146,7 +181,7 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(contentType, "text/xml")
 			io.WriteString(w, "<login>true</login>")
 		case "txt":
-			w.Header().Set(contentType, "application/json")
+			w.Header().Set(contentType, "application/text")
 			io.WriteString(w, "logged in")
 		default:
 			http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -154,18 +189,7 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
-	switch at {
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		io.WriteString(w, "{\"admin\": false}")
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		io.WriteString(w, "<login>false</login>")
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		io.WriteString(w, "logged out")
-	}
-	w.WriteHeader(http.StatusUnauthorized)
+	a.Logout(w, r)
 }
 
 func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {
