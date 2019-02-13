@@ -134,13 +134,17 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 				return false, nil
 			}
 		}
-	case "config":
 	case "assets":
 		if isAdmin {
 			return AssetsDir.RPC(submethod, data)
 		}
 	case "maps":
-		_ = currentMap
+		if submethod == "getUserMap" {
+			return currentMap, nil
+		} else if isAdmin {
+			switch submethod {
+			}
+		}
 	case "characters":
 		if isAdmin {
 			return CharsDir.RPC(submethod, data)
