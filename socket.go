@@ -96,7 +96,9 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 	c.mu.RUnlock()
 	switch method {
 	case "auth":
-		if isAdmin {
+		if submethod == "loggedin" {
+			return isAdmin, nil
+		} else if isAdmin {
 			switch submethod {
 			case "logout":
 				c.mu.Lock()
@@ -114,25 +116,18 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 				c.isAdmin = true
 				c.mu.Unlock()
 				return sessionData, nil
-			case "loggedin":
-				return true, nil
 			}
-		} else {
-			switch submethod {
-			case "login":
-				var password string
-				json.Unmarshal(data, &password)
-				sessionData := Auth.LoginGetData(password)
-				if len(sessionData) == 0 {
-					return nil, ErrInvalidPassword
-				}
-				c.mu.Lock()
-				c.isAdmin = true
-				c.mu.Unlock()
-				return sessionData, nil
-			case "loggedin":
-				return false, nil
+		} else if submethod == "login" {
+			var password string
+			json.Unmarshal(data, &password)
+			sessionData := Auth.LoginGetData(password)
+			if len(sessionData) == 0 {
+				return nil, ErrInvalidPassword
 			}
+			c.mu.Lock()
+			c.isAdmin = true
+			c.mu.Unlock()
+			return sessionData, nil
 		}
 	case "assets":
 		if isAdmin {
