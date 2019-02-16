@@ -329,7 +329,7 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 		}
 		return nil, k.delete(m)
 	}
-	return nil, ErrUnknownEndpoint
+	return nil, ErrUnknownMethod
 }
 
 func (k *keystoreDir) create() uint {

@@ -503,7 +503,6 @@ const (
 	ErrInvalidTagFile    errors.Error = "invalid tag file"
 	ErrInvalidFileType   errors.Error = "invalid file type"
 	ErrUnknownAsset      errors.Error = "unknown asset"
-	ErrUnknownEndpoint   errors.Error = "unknown endpoint"
 	ErrUnknownTag        errors.Error = "unknown tag"
 	ErrDuplicateAsset    errors.Error = "asset already loaded"
 )

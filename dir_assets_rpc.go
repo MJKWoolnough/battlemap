@@ -33,7 +33,7 @@ func (a *assetsDir) RPC(method string, data []byte) (interface{}, error) {
 	case "getTags":
 		return a.rpcGetTags(data)
 	}
-	return nil, ErrUnknownEndpoint
+	return nil, ErrUnknownMethod
 }
 
 func (a *assetsDir) rpcDeleteAsset(data []byte) (interface{}, error) {
