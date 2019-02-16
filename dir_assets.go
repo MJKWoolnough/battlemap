@@ -224,20 +224,6 @@ var (
 	newLine = []byte{'\n'}
 )
 
-func getType(mime string) string {
-	switch mime {
-	//case "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript":
-	//	return "document"
-	case "image/gif", "image/png", "image/jpeg", "image/webp":
-		return "visual"
-	case "application/ogg", "audio/mpeg":
-		return "audio"
-	case "video/mp4", "video/webm":
-		return "visual"
-	}
-	return ""
-}
-
 func (a *assetsDir) writeAsset(id uint, regen bool) error {
 	as, ok := a.assets[id]
 	if !ok {

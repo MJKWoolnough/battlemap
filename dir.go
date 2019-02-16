@@ -66,6 +66,20 @@ func (w writerReaderFrom) ReadFrom(r io.Reader) (int64, error) {
 	return io.Copy(w.Writer, r)
 }
 
+func getType(mime string) string {
+	switch mime {
+	//case "text/html; charset=utf-8", "text/plain; charset=utf-8", "application/pdf", "application/postscript":
+	//	return "document"
+	case "image/gif", "image/png", "image/jpeg", "image/webp":
+		return "image"
+	case "application/ogg", "audio/mpeg":
+		return "audio"
+	case "video/mp4", "video/webm":
+		return "video"
+	}
+	return ""
+}
+
 type getFileType struct {
 	Buffer [512]byte
 	BufLen int
