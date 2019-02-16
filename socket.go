@@ -104,7 +104,8 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 				c.mu.Lock()
 				c.isAdmin = false
 				c.mu.Unlock()
-				return json.RawMessage(loggedOut), nil
+				c.rpc.SendData(loggedOut)
+				return nil, nil
 			case "changePassword":
 				var password string
 				json.Unmarshal(data, &password)
@@ -127,6 +128,7 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 			c.mu.Lock()
 			c.isAdmin = true
 			c.mu.Unlock()
+			c.rpc.SendData(loggedIn)
 			return sessionData, nil
 		}
 	case "assets":
@@ -135,10 +137,11 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 		}
 	case "maps":
 		if submethod == "getUserMap" {
-			return currentMap, nil
+			var currentUserMap keystore.Uint64
+			Config.Get("currentUserMap", &currentUserMap)
+			return uint(currentUserMap), nil
 		} else if isAdmin {
-			switch submethod {
-			}
+			_ = currentMap
 		}
 	case "characters":
 		if isAdmin {
@@ -156,15 +159,14 @@ func (c *conn) kickAdmin() {
 	c.mu.Lock()
 	c.isAdmin = false
 	c.mu.Unlock()
-	c.rpc.SendData(adminKick)
+	c.rpc.SendData(loggedOut)
 }
 
 var Socket socket
 
 var (
-	loggedOut = []byte("{\"isAdmin\": false}")
-	loggedIn  = []byte("{\"isAdmin\": true}")
-	adminKick = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
+	loggedOut = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
+	loggedIn  = []byte("{\"id\": -1, \"result\": {\"isAdmin\": true}}")
 )
 
 const (
