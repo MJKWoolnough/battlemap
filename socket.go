@@ -29,7 +29,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	Config.Get("currentUserMap", &cu)
 	c := conn{
 		isAdmin:    Auth.IsAdmin(wconn.Request()),
-		currentMap: uint(cu),
+		currentMap: currentMap(cu),
 	}
 	if handler == nil {
 		handler = &c
@@ -53,6 +53,23 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	s.mu.Lock()
 	delete(s.conns, &c)
 	s.mu.Unlock()
+}
+
+func (s *socket) SetCurrentUserMap(currentUserMap CurrentMap) {
+	data, _ := json.Marshal(RPCResponse{
+		ID:     -2,
+		Result: uint(currentUserMap),
+	})
+	s.mu.RLock()
+	for c := range s.conns {
+		c.mu.Lock()
+		if !c.isAdmin {
+			c.currentMap = currentUserMap
+		}
+		c.mu.Unlock()
+	}
+	s.mu.RUnlock()
+	s.Broadcast(SocketMaps, data)
 }
 
 func (s *socket) Broadcast(mask uint8, data []byte) {
@@ -82,7 +99,7 @@ type conn struct {
 	rpc *RPC
 
 	mu         sync.RWMutex
-	currentMap uint
+	currentMap CurrentMap
 	isAdmin    bool
 }
 
@@ -141,7 +158,7 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 			Config.Get("currentUserMap", &currentUserMap)
 			return uint(currentUserMap), nil
 		} else if isAdmin {
-			_ = currentMap
+			return currentMap.RPC(method, data)
 		}
 	case "characters":
 		if isAdmin {
