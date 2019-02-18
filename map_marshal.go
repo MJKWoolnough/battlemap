@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"strconv"
+	"strings"
 
 	"vimagination.zapto.org/errors"
 )
@@ -38,84 +39,88 @@ func (x *Pattern) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	return e.EncodeElement((*PatternX)(x), s)
 }
 
-type Image Token
+type tokenType uint8
 
-var ImageAttrs = [...]xml.Attr{
-	{
-		Name:  xml.Name{Local: "preserveAspectRation"},
-		Value: "none",
-	},
-}
+const (
+	tokenImage tokenType = iota + 1
+	tokenPattern
+)
 
-type Video Token
-
-var VideoAttrs = [...]xml.Attr{
-	{
-		Name:  xml.Name{Local: "xmlns"},
-		Value: "http://www.w3.org/1999/xhtml",
-	}, {
-		Name:  xml.Name{Local: "autoplay"},
-		Value: "autoplay",
-	}, {
-		Name:  xml.Name{Local: "loop"},
-		Value: "loop",
-	}, {
-		Name:  xml.Name{Local: "muted"},
-		Value: "muted",
-	}, {
-		Name:  xml.Name{Local: "style"},
-		Value: "object-fit: fill",
-	}, {
-		Name:  xml.Name{Local: "width"},
-		Value: "100%",
-	}, {
-		Name:  xml.Name{Local: "height"},
-		Value: "100%",
-	},
-}
-
-func (x *Video) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	if err := e.EncodeToken(xml.StartElement{
-		Name: xml.Name{Local: "foreignObject"},
-		Attr: []xml.Attr{
-			{
-				Name:  xml.Name{Local: "x"},
-				Value: strconv.FormatInt(x.X, 10),
+func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+	if s.Name.Local == "image" {
+		x.tokenType = tokenImage
+	}
+	switch x.tokenType {
+	case tokenImage:
+		s = xml.StartElement{
+			Name: xml.Name{Local: "image"},
+			Attr: []xml.Attr{
+				{
+					Name:  xml.Name{Local: "x"},
+					Value: strconv.FormatInt(x.X, 10),
+				},
+				{
+					Name:  xml.Name{Local: "y"},
+					Value: strconv.FormatInt(x.Y, 10),
+				},
+				{
+					Name:  xml.Name{Local: "width"},
+					Value: strconv.FormatUint(x.Width, 10),
+				},
+				{
+					Name:  xml.Name{Local: "height"},
+					Value: strconv.FormatUint(x.Height, 10),
+				},
+				{
+					Name:  xml.Name{Local: "xlink:href"},
+					Value: x.Source,
+				},
+				{
+					Name:  xml.Name{Local: "preserveAspectRatio"},
+					Value: "none",
+				},
 			},
-			{
-				Name:  xml.Name{Local: "y"},
-				Value: strconv.FormatInt(x.Y, 10),
+		}
+	case tokenPattern:
+		s = xml.StartElement{
+			Name: xml.Name{Local: "rect"},
+			Attr: []xml.Attr{
+				{
+					Name:  xml.Name{Local: "fill"},
+					Value: "url(#" + x.Source + ")",
+				},
+				{
+					Name:  xml.Name{Local: "tranform"},
+					Value: "translate(" + strconv.FormatInt(x.X, 10) + ", " + strconv.FormatInt(x.Y, 10) + ")",
+				},
+				{
+					Name:  xml.Name{Local: "width"},
+					Value: strconv.FormatUint(x.Width, 10),
+				},
+				{
+					Name:  xml.Name{Local: "height"},
+					Value: strconv.FormatUint(x.Height, 10),
+				},
 			},
-			{
-				Name:  xml.Name{Local: "width"},
-				Value: strconv.FormatUint(x.Width, 10),
-			},
-			{
-				Name:  xml.Name{Local: "height"},
-				Value: strconv.FormatUint(x.Height, 10),
-			},
-		},
-	}); err != nil {
+		}
+	default:
+		return errors.Error("invalid token type")
+	}
+	if err := e.EncodeToken(s); err != nil {
 		return err
 	}
-	if err := e.EncodeToken(xml.StartElement{
-		Name: xml.Name{Local: "video"},
-		Attr: VideoAttrs,
-	}); err != nil {
-		return err
-	}
-	err := e.EncodeToken(xml.StartElement{
-		Name: xml.Name{Local: "source"},
-		Attr: []xml.Attr{
-			{
-				Name:  xml.Name{Local: "src"},
-				Value: x.Source,
-			},
-		},
-	})
+	return e.EncodeToken(s.End())
 }
 
-func (x *Video) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+	switch s.Name.Local {
+	case "image":
+		x.tokenType = tokenImage
+	case "rect":
+		x.tokenType = tokenVideo
+	default:
+		return nil
+	}
 	var err error
 	for _, attr := range s.Attr {
 		switch attr.Name.Local {
@@ -123,71 +128,22 @@ func (x *Video) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 			x.X, err = strconv.ParseInt(attr.Value, 10, 64)
 		case "y":
 			x.Y, err = strconv.ParseInt(attr.Value, 10, 64)
+		case "transform":
 		case "width":
 			x.Width, err = strconv.ParseUint(attr.Value, 10, 64)
 		case "height":
 			x.Height, err = strconv.ParseUint(attr.Value, 10, 64)
+		case "xlink:href", "href":
+			x.Source = attr.Value
+		case "fill":
+			x.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
 		}
 		if err != nil {
-			return err
-		}
-	}
-Loop:
-	for {
-		t, err := d.Token()
-		if err != nil {
-			return err
-		}
-		switch t := t.(type) {
-		case xml.StartElement:
-			if t.Name.Local == "source" {
-				for _, attr := range t.Attr {
-					if attr.Name.Local == "src" {
-						x.Source = attr.Value
-					}
-				}
-			}
-		case xml.EndElement:
-			if t.Name.Local == s.Name.Local {
-				break Loop
-			}
+			return errors.WithContext("error unmarshling token: ", err)
 		}
 	}
 	if x.Source == "" {
-		return errors.Error("invalid video source")
-	}
-	return nil
-}
-
-type tokenType uint
-
-const (
-	tokenImage tokenType = iota + 1
-	tokenVideo
-)
-
-func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	switch x.tokenType {
-	case tokenImage:
-		return e.EncodeElement((*Image)(x), xml.StartElement{
-			Name: xml.Name{Local: "image"},
-			Attr: ImageAttrs[:],
-		})
-	case tokenVideo:
-		return e.EncodeElement((*Video)(x), xml.StartElement{})
-	default:
-		return errors.Error("invalid token type")
-	}
-}
-
-func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
-	switch s.Name.Local {
-	case "image":
-		x.tokenType = tokenImage
-		return d.DecodeElement((*Image)(x), s)
-	case "foreignObject":
-		x.tokenType = tokenVideo
-		return d.DecodeElement((*Video)(x), s)
+		return errors.Error("invalid token source")
 	}
 	return nil
 }
