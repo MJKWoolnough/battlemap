@@ -10,11 +10,9 @@ import (
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
 type MapX struct {
-	SVGNS   SVGNS   `xml:"xmlns,attr"`
-	XlinkNS XlinkNS `xml:"xmlns:xlink,attr"`
-	Width   uint    `xml:"width,attr"`
-	Height  uint    `xml:"height,attr"`
-	Defs    struct {
+	Width  uint `xml:"width,attr"`
+	Height uint `xml:"height,attr"`
+	Defs   struct {
 		Patterns []Patterns `json:"pattern"`
 	} `xml:"defs"`
 	Layers []Layer `xml:"g"`
