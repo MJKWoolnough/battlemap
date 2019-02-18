@@ -20,14 +20,14 @@ func (c *config) Init(baseDir string) error {
 	c.memStore = keystore.NewMemStore()
 	c.memStore.SetAll(map[string]io.WriterTo{
 		"ServerPort":    keystore.Uint16(8080),
-		"AssetsDir":     keystore.String("./assets"),
-		"AssetsMetaDir": keystore.String("./assetsMeta"),
-		"CharsDir":      keystore.String("./characters"),
-		"MasksDir":      keystore.String("./masks"),
-		"MapsDir":       keystore.String("./maps"),
-		"FilesDir":      keystore.String("./files"),
-		"PluginsDir":    keystore.String("./plugins"),
-		"TokensDir":     keystore.String("./tokens"),
+		"AssetsDir":     keystore.String("assets"),
+		"AssetsMetaDir": keystore.String("assetsMeta"),
+		"CharsDir":      keystore.String("characters"),
+		"MasksDir":      keystore.String("masks"),
+		"MapsDir":       keystore.String("maps"),
+		"FilesDir":      keystore.String("files"),
+		"PluginsDir":    keystore.String("plugins"),
+		"TokensDir":     keystore.String("tokens"),
 	})
 	var err error
 	c.fileStore, err = keystore.NewFileStore(baseDir, baseDir, keystore.NoMangle)
