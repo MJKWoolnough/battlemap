@@ -29,7 +29,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	Config.Get("currentUserMap", &cu)
 	c := conn{
 		isAdmin:    Auth.IsAdmin(wconn.Request()),
-		currentMap: currentMap(cu),
+		currentMap: CurrentMap(cu),
 	}
 	if handler == nil {
 		handler = &c
