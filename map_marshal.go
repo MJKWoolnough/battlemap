@@ -117,7 +117,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	case "image":
 		x.tokenType = tokenImage
 	case "rect":
-		x.tokenType = tokenVideo
+		x.tokenType = tokenPattern
 	default:
 		return nil
 	}
