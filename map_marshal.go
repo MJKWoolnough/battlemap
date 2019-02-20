@@ -50,19 +50,42 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	if s.Name.Local == "image" {
 		x.tokenType = tokenImage
 	}
+	var transform string
+	translateX := x.X
+	translateY := x.Y
+	if x.Flip {
+		translateY = -x.Height - translateY
+	}
+	if x.Flop {
+		translateX = -x.Width - translateX
+	}
+	if translateX != 0 || translateY != 0 {
+		if translateY == 0 {
+			transform = "translate(" + strconv.FormatInt(translateX, 10) + ") "
+		} else if translateX == 0 {
+			transform = "translate(0, " + strconv.FormateInt(translateY, 10) + ") "
+		} else {
+			transform = "translate(" + strconv.FormatInt(translateX, 10) + ", " + strconv.FormateInt(translateY, 10) + ") "
+		}
+	}
+	if Flip {
+		if Flop {
+			transform += "scale(-1, -1) "
+		} else {
+			transform += "scale(1, -1) "
+		}
+	} else if Flop {
+		transform += "scale(-1, 1) "
+	}
+	if x.Rotate != 0 {
+		transform += "rotate(" + strconv.FormatUint(uint64(x.Rotate)*360/256, 10) + ", " + strconv.FormatUint(x.Width>>1, 10) + ", " + strconv.FormatUint(x.Height>>1, 10) + ")"
+	}
+	tranform = strings.TrimSuffix(" ")
 	switch x.tokenType {
 	case tokenImage:
 		s = xml.StartElement{
 			Name: xml.Name{Local: "image"},
 			Attr: []xml.Attr{
-				{
-					Name:  xml.Name{Local: "x"},
-					Value: strconv.FormatInt(x.X, 10),
-				},
-				{
-					Name:  xml.Name{Local: "y"},
-					Value: strconv.FormatInt(x.Y, 10),
-				},
 				{
 					Name:  xml.Name{Local: "width"},
 					Value: strconv.FormatUint(x.Width, 10),
@@ -79,20 +102,16 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 					Name:  xml.Name{Local: "preserveAspectRatio"},
 					Value: "none",
 				},
+				{
+					Name:  xml.Name{Local: "transform"},
+					Value: transform,
+				},
 			},
 		}
 	case tokenPattern:
 		s = xml.StartElement{
 			Name: xml.Name{Local: "rect"},
 			Attr: []xml.Attr{
-				{
-					Name:  xml.Name{Local: "fill"},
-					Value: "url(#" + x.Source + ")",
-				},
-				{
-					Name:  xml.Name{Local: "tranform"},
-					Value: "translate(" + strconv.FormatInt(x.X, 10) + ", " + strconv.FormatInt(x.Y, 10) + ")",
-				},
 				{
 					Name:  xml.Name{Local: "width"},
 					Value: strconv.FormatUint(x.Width, 10),
@@ -101,16 +120,29 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 					Name:  xml.Name{Local: "height"},
 					Value: strconv.FormatUint(x.Height, 10),
 				},
+				{
+					Name:  xml.Name{Local: "fill"},
+					Value: "url(#" + x.Source + ")",
+				},
+				{
+					Name:  xml.Name{Local: "transform"},
+					Value: transform,
+				},
 			},
 		}
 	default:
 		return errors.Error("invalid token type")
+	}
+	if transform == "" {
+		s.Attr = s.Attr[:len(s.Attr)-1]
 	}
 	if err := e.EncodeToken(s); err != nil {
 		return err
 	}
 	return e.EncodeToken(s.End())
 }
+
+const numbers = "0123456789"
 
 func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	switch s.Name.Local {
@@ -121,14 +153,68 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	default:
 		return nil
 	}
-	var err error
+	var (
+		err                    error
+		translateX, translateY int64
+	)
 	for _, attr := range s.Attr {
 		switch attr.Name.Local {
-		case "x":
-			x.X, err = strconv.ParseInt(attr.Value, 10, 64)
-		case "y":
-			x.Y, err = strconv.ParseInt(attr.Value, 10, 64)
 		case "transform":
+			t := parser.NewStringTokeniser(attr.Value)
+			for {
+				if t.ExceptRun("(") == -1 {
+					break
+				}
+				method := strings.TrimLeft(t.Get(), " ")
+				t.Accept("(")
+				t.AcceptRun(" ")
+				t.Get()
+				switch method {
+				case "translate":
+					t.Accept("-")
+					t.AcceptRun(numbers)
+					var err error
+					if translateX, err = strconv.ParseInt(t.Get(), 10, 64); err != nil {
+						return errors.WithContext("error parsing translate X: ", err)
+					}
+					t.AcceptRun(" ")
+					if t.Accept(")") {
+						t.Get()
+						continue
+					}
+					t.Accept(",")
+					t.AcceptRun(" ")
+					t.Get()
+					t.Accept("-")
+					t.AcceptRun(numbers)
+					if translateY, err = strconv.ParseInt(t.Get(), 10, 64); err != nil {
+						return errors.WithContext("error parsing translate Y: ", err)
+					}
+					t.AcceptRun(" ")
+					t.Accept(")")
+					t.Get()
+				case "scale":
+					if t.Accept("-") {
+						x.Flop = true
+					}
+					if t.ExceptRun(")-") == '-' {
+						x.Flip = true
+						t.ExceptRun(")")
+						t.Accept(")")
+					}
+					t.Get()
+				case "rotate":
+					t.AcceptRun(numbers)
+					r, err := strconv.ParseUint(t.Get(), 10, 64)
+					if err != nil {
+						return errors.WithContext("error parsing rotation: ", err)
+					}
+					x.Rotate = uint8(r % 360 * 256 / 360)
+					t.ExceptRun(")")
+					t.Accept(")")
+					t.Get()
+				}
+			}
 		case "width":
 			x.Width, err = strconv.ParseUint(attr.Value, 10, 64)
 		case "height":
@@ -142,6 +228,14 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 			return errors.WithContext("error unmarshling token: ", err)
 		}
 	}
+	if x.Flop {
+		translateX = -translateX - x.Width
+	}
+	if x.Flip {
+		translateY = -translateY - x.Height
+	}
+	x.X = translateX
+	x.Y = translateY
 	if x.Source == "" {
 		return errors.Error("invalid token source")
 	}
