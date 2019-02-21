@@ -44,6 +44,8 @@ type tokenType uint8
 const (
 	tokenImage tokenType = iota + 1
 	tokenPattern
+	tokenRect
+	tokenCircle
 )
 
 func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
@@ -130,6 +132,74 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 				},
 			},
 		}
+	case tokenRect:
+		attrs := make([]xml.Attr, 0, 6)
+		attrs = append(attrs, xml.Attr{
+			Name:  xml.Name{Local: "width"},
+			Value: strconv.FormatUint(x.Width, 10),
+		}, xml.Attr{
+			Name:  xml.Name{Local: "height"},
+			Value: strconv.FormatUint(x.Height, 10),
+		})
+		if x.Source != "" {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "fill"},
+				Value: x.Source,
+			})
+		}
+		if x.Stroke != "" {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "stroke"},
+				Value: x.Stroke,
+			})
+			if x.StrokeWidth != 0 {
+				attrs = append(attrs, xml.Attr{
+					Name:  xml.Name{Local: "stroke-width"},
+					Value: strconv.FormatUint(x.StrokeWidth, 10),
+				})
+			}
+		}
+		s = xml.StartElement{
+			Name: xml.Name{Local: "rect"},
+			Attr: append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "transform"},
+				Value: transform,
+			}),
+		}
+	case tokenCircle:
+		attrs := make([]xml.Attr, 0, 6)
+		attrs = append(attrs, xml.Attr{
+			Name:  xml.Name{Local: "rx"},
+			Value: strconv.FormatUint(x.Width, 10),
+		}, xml.Attr{
+			Name:  xml.Name{Local: "ry"},
+			Value: strconv.FormatUint(x.Height, 10),
+		})
+		if x.Source != "" {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "fill"},
+				Value: x.Source,
+			})
+		}
+		if x.Stroke != "" {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "stroke"},
+				Value: x.Stroke,
+			})
+			if x.StrokeWidth != 0 {
+				attrs = append(attrs, xml.Attr{
+					Name:  xml.Name{Local: "stroke-width"},
+					Value: strconv.FormatUint(x.StrokeWidth, 10),
+				})
+			}
+		}
+		s = xml.StartElement{
+			Name: xml.Name{Local: "ellipse"},
+			Attr: append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "transform"},
+				Value: transform,
+			}),
+		}
 	default:
 		return errors.Error("invalid token type")
 	}
@@ -150,6 +220,8 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 		x.tokenType = tokenImage
 	case "rect":
 		x.tokenType = tokenPattern
+	case "circle":
+		x.tokenType = tokenCircle
 	default:
 		return nil
 	}
@@ -222,7 +294,18 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 		case "xlink:href", "href":
 			x.Source = attr.Value
 		case "fill":
-			x.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
+			if strings.HasPrefix(attr.Value, "url(") {
+				x.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
+			} else {
+				x.Source = attr.Value
+				if x.tokenType == tokenPattern {
+					x.tokenType = tokenRect
+				}
+			}
+		case "stroke":
+			x.Stroke = attr.Value
+		case "stroke-width":
+			x.StrokeWidth, err = strconv.ParseUint(attr.Value, 10, 64)
 		}
 		if err != nil {
 			return errors.WithContext("error unmarshling token: ", err)
