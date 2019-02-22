@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/parser"
 )
 
 type Map MapX
@@ -56,33 +57,33 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	translateX := x.X
 	translateY := x.Y
 	if x.Flip {
-		translateY = -x.Height - translateY
+		translateY = -int64(x.Height) - translateY
 	}
 	if x.Flop {
-		translateX = -x.Width - translateX
+		translateX = -int64(x.Width) - translateX
 	}
 	if translateX != 0 || translateY != 0 {
 		if translateY == 0 {
 			transform = "translate(" + strconv.FormatInt(translateX, 10) + ") "
 		} else if translateX == 0 {
-			transform = "translate(0, " + strconv.FormateInt(translateY, 10) + ") "
+			transform = "translate(0, " + strconv.FormatInt(translateY, 10) + ") "
 		} else {
-			transform = "translate(" + strconv.FormatInt(translateX, 10) + ", " + strconv.FormateInt(translateY, 10) + ") "
+			transform = "translate(" + strconv.FormatInt(translateX, 10) + ", " + strconv.FormatInt(translateY, 10) + ") "
 		}
 	}
-	if Flip {
-		if Flop {
+	if x.Flip {
+		if x.Flop {
 			transform += "scale(-1, -1) "
 		} else {
 			transform += "scale(1, -1) "
 		}
-	} else if Flop {
+	} else if x.Flop {
 		transform += "scale(-1, 1) "
 	}
-	if x.Rotate != 0 {
-		transform += "rotate(" + strconv.FormatUint(uint64(x.Rotate)*360/256, 10) + ", " + strconv.FormatUint(x.Width>>1, 10) + ", " + strconv.FormatUint(x.Height>>1, 10) + ")"
+	if x.Rotation != 0 {
+		transform += "rotate(" + strconv.FormatUint(uint64(x.Rotation)*360/256, 10) + ", " + strconv.FormatUint(x.Width>>1, 10) + ", " + strconv.FormatUint(x.Height>>1, 10) + ")"
 	}
-	tranform = strings.TrimSuffix(" ")
+	transform = strings.TrimSuffix(transform, " ")
 	switch x.tokenType {
 	case tokenImage:
 		s = xml.StartElement{
@@ -281,7 +282,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 					if err != nil {
 						return errors.WithContext("error parsing rotation: ", err)
 					}
-					x.Rotate = uint8(r % 360 * 256 / 360)
+					x.Rotation = uint8(r % 360 * 256 / 360)
 					t.ExceptRun(")")
 					t.Accept(")")
 					t.Get()
@@ -312,10 +313,10 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 		}
 	}
 	if x.Flop {
-		translateX = -translateX - x.Width
+		translateX = -translateX - int64(x.Width)
 	}
 	if x.Flip {
-		translateY = -translateY - x.Height
+		translateY = -translateY - int64(x.Height)
 	}
 	x.X = translateX
 	x.Y = translateY
