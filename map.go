@@ -90,13 +90,13 @@ func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	for _, mp := range m {
 		s.Attr[0].Value = strconv.FormatUint(mp.ID, 10)
 		s.Attr[1].Value = strconv.FormatUint(mp.Order, 10)
-		if err = e.EncodeToken(s); err != nil {
+		if err := e.EncodeToken(s); err != nil {
 			return err
 		}
-		if err = e.EncodeToken(xml.CharData(mp.Name)); err != nil {
+		if err := e.EncodeToken(xml.CharData(mp.Name)); err != nil {
 			return err
 		}
-		if err = e.EncodeToken(se); err != nil {
+		if err := e.EncodeToken(se); err != nil {
 			return err
 		}
 	}
