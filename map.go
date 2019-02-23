@@ -2,29 +2,32 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
+	"strconv"
 
+	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/rwcount"
 )
 
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
 type MapX struct {
-	ID       uint64    `xml:"id,attr"`
-	Name     string    `xml:"name,attr"`
-	Order    uint64    `xml:"order,attr"`
-	Width    uint64    `xml:"width,attr"`
-	Height   uint64    `xml:"height,attr"`
-	Patterns []Pattern `json:"defs>pattern"`
-	Masks    []Mask    `json:"defs>mask"`
-	Layers   []Layer   `xml:"g"`
+	ID       uint64    `xml:"id,attr" json:"-"`
+	Name     string    `xml:"name,attr" json:"name"`
+	Order    uint64    `xml:"order,attr" json:"order"`
+	Width    uint64    `xml:"width,attr" json:"-"`
+	Height   uint64    `xml:"height,attr" json:"-"`
+	Patterns []Pattern `json:"defs>pattern" json:"-"`
+	Masks    []Mask    `json:"defs>mask" json:"-"`
+	Layers   []Layer   `xml:"g" json:"-"`
 }
 
 type PatternX struct {
 	ID     string `xml:"id,attr"`
 	Width  uint64 `xml:"width,attr"`
 	Height uint64 `xml:"height,attr"`
-	Image  *Token `xml:"image,omitempty,any"`
+	Image  *Token `xml:"image,omitempty"`
 	Path   *Path  `xml:"path,omitempty"`
 }
 
@@ -58,7 +61,7 @@ type Token struct {
 	Height      uint64
 	Rotation    uint8
 	Flip, Flop  bool
-	tokenType
+	TokenType
 }
 
 func (m *Map) WriteTo(w io.Writer) (int64, error) {
@@ -74,4 +77,39 @@ func (m *Map) ReadFrom(r io.Reader) (int64, error) {
 	cr := rwcount.Reader{Reader: r}
 	cr.Err = xml.NewDecoder(&cr).Decode(m)
 	return cr.Count, cr.Err
+}
+
+type Maps map[uint64]Map
+
+func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+	err := e.EncodeToken(s)
+	if err != nil {
+		return err
+	}
+	t := s
+	s.Name.Local = "map"
+	s.Attr = []xml.Attr{
+		{Name: xml.Name{Local: "id"}},
+		{Name: xml.Name{Local: "order"}},
+	}
+	se := xml.EndElement{Name: s.Name}
+	for _, mp := range m {
+		t.Attr[0].Value = strconv.FormatUint(mp.ID, 10)
+		t.Attr[1].Value = strconv.FormatUint(mp.Order, 10)
+		if err = e.EncodeToken(s); err != nil {
+			return err
+		}
+		if err = e.EncodeToken(se); err != nil {
+			return err
+		}
+	}
+	return e.EncodeToken(s.End())
+}
+
+func (m Maps) MarshalText() ([]byte, error) {
+	var buf memio.Buffer
+	for _, m := range m {
+		fmt.Fprintf(&buf, "%d:%d:%q", m.ID, m.Order, m.Name)
+	}
+	return buf, nil
 }
