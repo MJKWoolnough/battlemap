@@ -82,28 +82,25 @@ func (m *Map) ReadFrom(r io.Reader) (int64, error) {
 type Maps map[uint64]*Map
 
 func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	err := e.EncodeToken(s)
-	if err != nil {
-		return err
-	}
-	t := s
-	s.Name.Local = "map"
 	s.Attr = []xml.Attr{
 		{Name: xml.Name{Local: "id"}},
 		{Name: xml.Name{Local: "order"}},
 	}
-	se := xml.EndElement{Name: s.Name}
+	se := s.End()
 	for _, mp := range m {
-		t.Attr[0].Value = strconv.FormatUint(mp.ID, 10)
-		t.Attr[1].Value = strconv.FormatUint(mp.Order, 10)
+		s.Attr[0].Value = strconv.FormatUint(mp.ID, 10)
+		s.Attr[1].Value = strconv.FormatUint(mp.Order, 10)
 		if err = e.EncodeToken(s); err != nil {
+			return err
+		}
+		if err = e.EncodeToken(xml.CharData(mp.Name)); err != nil {
 			return err
 		}
 		if err = e.EncodeToken(se); err != nil {
 			return err
 		}
 	}
-	return e.EncodeToken(s.End())
+	return nil
 }
 
 func (m Maps) MarshalText() ([]byte, error) {
