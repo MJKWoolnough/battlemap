@@ -79,7 +79,7 @@ func (m *Map) ReadFrom(r io.Reader) (int64, error) {
 	return cr.Count, cr.Err
 }
 
-type Maps map[uint64]Map
+type Maps map[uint64]*Map
 
 func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	err := e.EncodeToken(s)
