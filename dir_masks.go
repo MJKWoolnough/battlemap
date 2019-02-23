@@ -55,7 +55,7 @@ func (m *masksDir) Options(w http.ResponseWriter, r *http.Request) {
 		if Auth.IsAdmin(r) {
 			w.Header().Set("Accept", "POST")
 		} else {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		}
 	} else if m.store.Exists(strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")) {
 		if Auth.IsAdmin(r) {
