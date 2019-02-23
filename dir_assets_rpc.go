@@ -37,7 +37,7 @@ func (a *assetsDir) RPC(method string, data []byte) (interface{}, error) {
 }
 
 func (a *assetsDir) rpcDeleteAsset(data []byte) (interface{}, error) {
-	var id uint
+	var id uint64
 	if err := json.Unmarshal(data, &id); err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (a *assetsDir) rpcDeleteAsset(data []byte) (interface{}, error) {
 
 func (a *assetsDir) rpcRenameAsset(data []byte) (interface{}, error) {
 	var idName struct {
-		ID   uint   `json:"id"`
+		ID   uint64 `json:"id"`
 		Name string `json:"name"`
 	}
 	if err := json.Unmarshal(data, &idName); err != nil {
@@ -85,8 +85,8 @@ func (a *assetsDir) rpcRenameAsset(data []byte) (interface{}, error) {
 
 func (a *assetsDir) rpcAddTagsToAsset(data []byte) (interface{}, error) {
 	var idTags struct {
-		ID   uint   `json:"id"`
-		Tags []uint `json:"tags"`
+		ID   uint64   `json:"id"`
+		Tags []uint64 `json:"tags"`
 	}
 	if err := json.Unmarshal(data, &idTags); err != nil {
 		return nil, err
@@ -111,8 +111,8 @@ func (a *assetsDir) rpcAddTagsToAsset(data []byte) (interface{}, error) {
 
 func (a *assetsDir) rpcRemoveTagsFromAsset(data []byte) (interface{}, error) {
 	var idTags struct {
-		ID   uint   `json:"id"`
-		Tags []uint `json:"tags"`
+		ID   uint64   `json:"id"`
+		Tags []uint64 `json:"tags"`
 	}
 	if err := json.Unmarshal(data, &idTags); err != nil {
 		return nil, err
@@ -155,7 +155,7 @@ func (a *assetsDir) rpcAddTag(data []byte) (interface{}, error) {
 }
 
 func (a *assetsDir) rpcDeleteTag(data []byte) (interface{}, error) {
-	var id uint
+	var id uint64
 	err := json.Unmarshal(data, &id)
 	if err != nil {
 		return nil, err
@@ -179,7 +179,7 @@ func (a *assetsDir) rpcDeleteTag(data []byte) (interface{}, error) {
 
 func (a *assetsDir) rpcRenameTag(data []byte) (interface{}, error) {
 	var idName struct {
-		ID   uint   `json:"id"`
+		ID   uint64 `json:"id"`
 		Name string `json:"name"`
 	}
 	if err := json.Unmarshal(data, &idName); err != nil {

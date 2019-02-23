@@ -27,7 +27,7 @@ type assetsDir struct {
 	handler               http.Handler
 
 	assetMu     sync.RWMutex
-	nextAssetID uint
+	nextAssetID uint64
 	assets      Assets
 
 	assetHandlerMu sync.RWMutex
@@ -35,7 +35,7 @@ type assetsDir struct {
 	assetJSON      json.RawMessage
 
 	tagMu     sync.RWMutex
-	nextTagID uint
+	nextTagID uint64
 	tags      Tags
 
 	tagHandlerMu sync.RWMutex
@@ -78,7 +78,7 @@ func (a *assetsDir) initTags() error {
 	} else if fsinfo, err = a.metaStore.Stat("tags"); err != nil {
 		return errors.WithContext("error stating tags file: ", err)
 	}
-	var largestTagID uint
+	var largestTagID uint64
 	for id := range a.tags {
 		if id > largestTagID {
 			largestTagID = id
@@ -135,7 +135,7 @@ func (a *assetsDir) initAssets() error {
 		if err != nil {
 			continue
 		}
-		if _, ok := a.assets[uint(id)]; ok {
+		if _, ok := a.assets[id]; ok {
 			return ErrDuplicateAsset
 		}
 		if fi, err = a.assetStore.Stat(file); err != nil {
@@ -150,8 +150,8 @@ func (a *assetsDir) initAssets() error {
 			Type: gft.Type,
 		}
 		a.metaStore.Get(file, as)
-		if as.ID != uint(id) {
-			as.ID = uint(id)
+		if as.ID != id {
+			as.ID = id
 			as.Name = file
 		}
 		a.assets[as.ID] = as
@@ -163,7 +163,7 @@ func (a *assetsDir) initAssets() error {
 			latestTime = ct
 		}
 	}
-	a.nextAssetID = uint(largestAssetID) + 1
+	a.nextAssetID = largestAssetID + 1
 	a.genAssetsHandler(latestTime)
 	a.handler = http.FileServer(http.Dir(location))
 	return nil
@@ -190,7 +190,7 @@ func (a *assetsDir) genAssetsHandler(t time.Time) {
 	a.assetJSON = json.RawMessage(genPages(t, a.assets, assetsTemplate, "index", "assets", "asset", &a.assetHandler))
 }
 
-func (a *assetsDir) writeAsset(id uint, regen bool) error {
+func (a *assetsDir) writeAsset(id uint64, regen bool) error {
 	as, ok := a.assets[id]
 	if !ok {
 		return ErrUnknownAsset
@@ -223,7 +223,7 @@ func (a *assetsDir) writeTags() error {
 }
 
 func (a *assetsDir) deleteAsset(asset *Asset) error {
-	idStr := strconv.FormatUint(uint64(asset.ID), 10)
+	idStr := strconv.FormatUint(asset.ID, 10)
 	if err := a.assetStore.Remove(idStr); err != nil {
 		if err != keystore.ErrUnknownKey {
 			return errors.WithContext("error removing asset file: ", err)
@@ -257,7 +257,7 @@ func (a *assetsDir) addTag(name string) *Tag {
 }
 
 func (a *assetsDir) deleteTags(tags ...*Tag) bool {
-	assets := make(map[uint]struct{})
+	assets := make(map[uint64]struct{})
 	var change bool
 	for _, tag := range tags {
 		for _, aid := range tag.Assets {
@@ -286,7 +286,7 @@ func (a *assetsDir) renameTag(tag *Tag, newName string) bool {
 	return true
 }
 
-func (a *assetsDir) removeTagsFromAsset(asset *Asset, tagIDs ...uint) bool {
+func (a *assetsDir) removeTagsFromAsset(asset *Asset, tagIDs ...uint64) bool {
 	var change bool
 	for _, tagID := range tagIDs {
 		if tag, ok := a.tags[tagID]; ok {
@@ -299,7 +299,7 @@ func (a *assetsDir) removeTagsFromAsset(asset *Asset, tagIDs ...uint) bool {
 	return change
 }
 
-func (a *assetsDir) addTagsToAsset(asset *Asset, tagIDs ...uint) bool {
+func (a *assetsDir) addTagsToAsset(asset *Asset, tagIDs ...uint64) bool {
 	var change bool
 	for _, tagID := range tagIDs {
 		if _, ok := a.tags[tagID]; ok {
@@ -311,7 +311,7 @@ func (a *assetsDir) addTagsToAsset(asset *Asset, tagIDs ...uint) bool {
 	return change
 }
 
-func removeID(ids []uint, remove uint) []uint {
+func removeID(ids []uint64, remove uint64) []uint64 {
 	for i := range ids {
 		if ids[i] == remove {
 			ids = append(ids[:i], ids[i+1:]...)
@@ -333,15 +333,15 @@ func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {
 var AssetsDir assetsDir
 
 type Asset struct {
-	ID   uint   `json:"id" xml:"id,attr"`
-	Name string `json:"name" xml:"name"`
-	Type string `json:"type" xml:"type"`
-	Tags []uint `json:"tags" xml:"tags>tag"`
+	ID   uint64   `json:"id" xml:"id,attr"`
+	Name string   `json:"name" xml:"name"`
+	Type string   `json:"type" xml:"type"`
+	Tags []uint64 `json:"tags" xml:"tags>tag"`
 }
 
 func (a *Asset) WriteTo(w io.Writer) (int64, error) {
 	lw := byteio.StickyLittleEndianWriter{Writer: w}
-	lw.WriteUintX(uint64(a.ID))
+	lw.WriteUintX(a.ID)
 	lw.WriteStringX(a.Name)
 	lw.WriteUintX(uint64(len(a.Tags)))
 	for _, tid := range a.Tags {
@@ -352,11 +352,11 @@ func (a *Asset) WriteTo(w io.Writer) (int64, error) {
 
 func (a *Asset) ReadFrom(r io.Reader) (int64, error) {
 	lr := byteio.StickyLittleEndianReader{Reader: r}
-	a.ID = uint(lr.ReadUintX())
+	a.ID = lr.ReadUintX()
 	a.Name = lr.ReadStringX()
-	a.Tags = make([]uint, lr.ReadUintX())
+	a.Tags = make([]uint64, lr.ReadUintX())
 	for n := range a.Tags {
-		a.Tags[n] = uint(lr.ReadUintX())
+		a.Tags[n] = lr.ReadUintX()
 	}
 	return lr.Count, lr.Err
 }
@@ -367,7 +367,7 @@ func (a *Asset) MarshalText() ([]byte, error) {
 	return buf, nil
 }
 
-type Assets map[uint]*Asset
+type Assets map[uint64]*Asset
 
 func (a Assets) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	for _, asset := range a {
@@ -397,12 +397,12 @@ func (a Assets) WriteTo(w io.Writer) (int64, error) {
 }
 
 type Tag struct {
-	ID     uint   `json:"id" xml:"id,attr"`
-	Name   string `json:"name" xml:",chardata"`
-	Assets []uint `json:"-" xml:"-"`
+	ID     uint64   `json:"id" xml:"id,attr"`
+	Name   string   `json:"name" xml:",chardata"`
+	Assets []uint64 `json:"-" xml:"-"`
 }
 
-type Tags map[uint]*Tag
+type Tags map[uint64]*Tag
 
 func (t Tags) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	for _, tag := range t {
@@ -441,8 +441,8 @@ func (t Tags) ReadFrom(r io.Reader) (int64, error) {
 			}
 			return lr.Count, lr.Err
 		}
-		t[uint(id)] = &Tag{
-			ID:   uint(id),
+		t[id] = &Tag{
+			ID:   id,
 			Name: name,
 		}
 	}

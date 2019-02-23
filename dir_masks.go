@@ -21,7 +21,7 @@ type masksDir struct {
 	fileserver http.Handler
 	store      *keystore.FileStore
 	mu         sync.Mutex
-	nextID     uint
+	nextID     uint64
 }
 
 func (m *masksDir) Init() error {
@@ -36,14 +36,14 @@ func (m *masksDir) Init() error {
 		return errors.WithContext("error creating mask store: ", err)
 	}
 	m.fileserver = http.FileServer(http.Dir(mp))
-	var largestID uint
+	var largestID uint64
 	for _, key := range m.store.Keys() {
 		id, err := strconv.ParseUint(key, 10, 0)
 		if err != nil {
 			continue
 		}
-		if uint(id) > largestID {
-			largestID = uint(id)
+		if id > largestID {
+			largestID = id
 		}
 	}
 	m.nextID = largestID + 1
@@ -99,7 +99,7 @@ func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		id := m.nextID
 		m.nextID++
 		m.mu.Unlock()
-		m.store.Set(strconv.FormatUint(uint64(id), 10), pngWriterTo{im})
+		m.store.Set(strconv.FormatUint(id, 10), pngWriterTo{im})
 		var at AcceptType
 		httpaccept.HandleAccept(r, &at)
 		switch at {

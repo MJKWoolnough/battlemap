@@ -167,7 +167,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 		return true
 	}
 	a.assetMu.Lock()
-	as, ok := a.assets[uint(id)]
+	as, ok := a.assets[id]
 	mime := as.Type
 	a.assetMu.Unlock()
 	if !ok {
@@ -201,7 +201,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		a.assetMu.Lock()
-		if as, ok := a.assets[uint(id)]; ok {
+		if as, ok := a.assets[id]; ok {
 			a.tagMu.Lock()
 			err = a.deleteAsset(as)
 			a.tagMu.Unlock()
@@ -239,7 +239,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		at AcceptType
 		tp struct {
 			Add    []string `json:"add" xml:"add"`
-			Remove []uint   `json:"remove" xml:"remove"`
+			Remove []uint64 `json:"remove" xml:"remove"`
 			Rename Tags     `json:"rename" xml:"rename"`
 		}
 		err error
@@ -264,7 +264,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 				}
 				tp.Add = append(tp.Add, tag)
 			case '<':
-				var tid uint
+				var tid uint64
 				_, err = fmt.Fscanf(br, "%d", &tid)
 				if err != nil {
 					break Loop
@@ -354,9 +354,9 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 	var (
 		at AcceptType
 		ap struct {
-			AddTag    []uint `json:"addTag" xml:"addTag"`
-			RemoveTag []uint `json:"removeTag" xml:"removeTag"`
-			Rename    string `json:"rename" xml:"rename"`
+			AddTag    []uint64 `json:"addTag" xml:"addTag"`
+			RemoveTag []uint64 `json:"removeTag" xml:"removeTag"`
+			Rename    string   `json:"rename" xml:"rename"`
 		}
 	)
 	switch r.Header.Get(contentType) {
@@ -372,14 +372,14 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		for {
 			switch method, _ := br.ReadByte(); method {
 			case '>':
-				var tid uint
+				var tid uint64
 				_, err = fmt.Fscanf(br, "%d", &tid)
 				if err != nil {
 					break Loop
 				}
 				ap.AddTag = append(ap.AddTag, tid)
 			case '<':
-				var tid uint
+				var tid uint64
 				_, err = fmt.Fscanf(br, "%d", &tid)
 				if err != nil {
 					break Loop
@@ -406,7 +406,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 	}
 	httpaccept.HandleAccept(r, &at)
 	a.assetMu.Lock()
-	as, ok := a.assets[uint(id)]
+	as, ok := a.assets[id]
 	if !ok {
 		a.assetMu.Unlock()
 		http.NotFound(w, r)

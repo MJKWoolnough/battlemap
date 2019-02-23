@@ -25,7 +25,7 @@ func (s *socket) ServeConn(conn *websocket.Conn) {
 }
 
 func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) {
-	var cu keystore.Uint
+	var cu keystore.Uint64
 	Config.Get("currentUserMap", &cu)
 	c := conn{
 		isAdmin:    Auth.IsAdmin(wconn.Request()),
@@ -46,7 +46,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 	if mask&SocketMaps > 0 {
 		c.rpc.Send(RPCResponse{
 			ID:     -2,
-			Result: uint(cu),
+			Result: cu,
 		})
 	}
 	c.rpc.Handle()
@@ -58,7 +58,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler RPCHandler, mask uint8) 
 func (s *socket) SetCurrentUserMap(currentUserMap CurrentMap) {
 	data, _ := json.Marshal(RPCResponse{
 		ID:     -2,
-		Result: uint(currentUserMap),
+		Result: currentUserMap,
 	})
 	s.mu.RLock()
 	for c := range s.conns {
@@ -156,7 +156,7 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 		if submethod == "getUserMap" {
 			var currentUserMap keystore.Uint64
 			Config.Get("currentUserMap", &currentUserMap)
-			return uint(currentUserMap), nil
+			return currentUserMap, nil
 		} else if isAdmin {
 			return currentMap.RPC(method, data)
 		}

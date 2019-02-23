@@ -25,8 +25,8 @@ type keystoreDir struct {
 	websocket websocket.Handler
 
 	mu     sync.RWMutex
-	nextID uint
-	data   map[uint]*keystore.MemStore
+	nextID uint64
+	data   map[uint64]*keystore.MemStore
 }
 
 func (k *keystoreDir) Init() error {
@@ -41,23 +41,23 @@ func (k *keystoreDir) Init() error {
 	if err != nil {
 		return errors.WithContext("error creating keystore: ", err)
 	}
-	k.data = make(map[uint]*keystore.MemStore)
-	var largestID uint
+	k.data = make(map[uint64]*keystore.MemStore)
+	var largestID uint64
 	for _, key := range k.store.Keys() {
 		id, err := strconv.ParseUint(key, 10, 0)
 		if err != nil {
 			continue
 		}
-		if _, ok := k.data[uint(id)]; ok {
+		if _, ok := k.data[id]; ok {
 			return ErrDuplicateKey
 		}
 		var s *keystore.MemStore
 		if err := k.store.Get(key, s); err != nil {
 			return errors.WithContext("error reading memstore: ", err)
 		}
-		k.data[uint(id)] = s
-		if uint(id) > largestID {
-			largestID = uint(id)
+		k.data[id] = s
+		if id > largestID {
+			largestID = id
 		}
 	}
 	k.nextID = largestID + 1
@@ -96,7 +96,7 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 			w.WriteHeader(http.StatusBadRequest)
 			return true
 		}
-		k.printStore(w, r, uint(id), nil, "")
+		k.printStore(w, r, id, nil, "")
 	}
 	return true
 }
@@ -161,14 +161,14 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			}
 			r.Body.Close()
 		}
-		k.printStore(w, r, uint(id), keys, at)
+		k.printStore(w, r, id, keys, at)
 	} else {
 		http.NotFound(w, r)
 	}
 	return true
 }
 
-func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint, keys []string, at AcceptType) {
+func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint64, keys []string, at AcceptType) {
 	values, err := k.get(id, keys)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -225,8 +225,8 @@ func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 			}
 			json.NewDecoder(r.Body).Decode(&p)
 			r.Body.Close()
-			k.remove(uint(id), p.Remove)
-			k.set(uint(id), p.Set)
+			k.remove(id, p.Remove)
+			k.set(id, p.Set)
 		case "text/xml":
 			var p struct {
 				Remove []string `xml:"remove"`
@@ -241,8 +241,8 @@ func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 			for _, s := range p.Set {
 				sets[s.Key] = s.Value
 			}
-			k.remove(uint(id), p.Remove)
-			k.set(uint(id), sets)
+			k.remove(id, p.Remove)
+			k.set(id, sets)
 		default:
 			remove := make([]string, 0, 32)
 			sets := make(map[string]string)
@@ -266,8 +266,8 @@ func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 				}
 			}
 			r.Body.Close()
-			k.remove(uint(id), remove)
-			k.set(uint(id), sets)
+			k.remove(id, remove)
+			k.set(id, sets)
 		}
 		w.WriteHeader(http.StatusNoContent)
 	}
@@ -278,7 +278,7 @@ func (k *keystoreDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
-	} else if err = k.delete(uint(id)); err != nil {
+	} else if err = k.delete(id); err != nil {
 		http.NotFound(w, r)
 	} else {
 		w.WriteHeader(http.StatusNoContent)
@@ -296,7 +296,7 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 		return k.create(), nil
 	case "set":
 		var m struct {
-			ID   uint              `json:"id"`
+			ID   uint64            `json:"id"`
 			Data map[string]string `json:"data"`
 		}
 		if err := json.Unmarshal(data, &m); err != nil {
@@ -305,7 +305,7 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 		return nil, k.set(m.ID, m.Data)
 	case "get":
 		var m struct {
-			ID   uint     `json:"id"`
+			ID   uint64   `json:"id"`
 			Keys []string `json:"keys"`
 		}
 		if err := json.Unmarshal(data, &m); err != nil {
@@ -314,7 +314,7 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 		return k.get(m.ID, m.Keys)
 	case "remove":
 		var m struct {
-			ID   uint     `json:"id"`
+			ID   uint64   `json:"id"`
 			Keys []string `json:"keys"`
 		}
 		if err := json.Unmarshal(data, &m); err != nil {
@@ -323,7 +323,7 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 		k.remove(m.ID, m.Keys)
 		return nil, nil
 	case "delete":
-		var m uint
+		var m uint64
 		if err := json.Unmarshal(data, &m); err != nil {
 			return nil, err
 		}
@@ -332,18 +332,18 @@ func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
 	return nil, ErrUnknownMethod
 }
 
-func (k *keystoreDir) create() uint {
+func (k *keystoreDir) create() uint64 {
 	m := keystore.NewMemStore()
 	k.mu.Lock()
 	kid := k.nextID
 	k.nextID++
 	k.data[kid] = m
 	k.mu.Unlock()
-	k.store.Set(strconv.FormatUint(uint64(kid), 10), m)
+	k.store.Set(strconv.FormatUint(kid, 10), m)
 	return kid
 }
 
-func (k *keystoreDir) set(id uint, data map[string]string) error {
+func (k *keystoreDir) set(id uint64, data map[string]string) error {
 	k.mu.RLock()
 	s, ok := k.data[id]
 	k.mu.RUnlock()
@@ -353,10 +353,10 @@ func (k *keystoreDir) set(id uint, data map[string]string) error {
 	for key, val := range data {
 		s.Set(key, keystore.String(val))
 	}
-	return k.store.Set(strconv.FormatUint(uint64(id), 10), s)
+	return k.store.Set(strconv.FormatUint(id, 10), s)
 }
 
-func (k *keystoreDir) get(id uint, keys []string) (map[string]string, error) {
+func (k *keystoreDir) get(id uint64, keys []string) (map[string]string, error) {
 	k.mu.RLock()
 	s, ok := k.data[id]
 	k.mu.RUnlock()
@@ -376,7 +376,7 @@ func (k *keystoreDir) get(id uint, keys []string) (map[string]string, error) {
 	return data, nil
 }
 
-func (k *keystoreDir) remove(id uint, keys []string) error {
+func (k *keystoreDir) remove(id uint64, keys []string) error {
 	k.mu.RLock()
 	s, ok := k.data[id]
 	k.mu.RUnlock()
@@ -384,10 +384,10 @@ func (k *keystoreDir) remove(id uint, keys []string) error {
 		return keystore.ErrUnknownKey
 	}
 	s.RemoveAll(keys...)
-	return k.store.Set(strconv.FormatUint(uint64(id), 10), s)
+	return k.store.Set(strconv.FormatUint(id, 10), s)
 }
 
-func (k *keystoreDir) delete(id uint) error {
+func (k *keystoreDir) delete(id uint64) error {
 	k.mu.Lock()
 	_, ok := k.data[id]
 	if !ok {
@@ -396,7 +396,7 @@ func (k *keystoreDir) delete(id uint) error {
 	}
 	delete(k.data, id)
 	k.mu.Unlock()
-	return k.store.Remove(strconv.FormatUint(uint64(id), 10))
+	return k.store.Remove(strconv.FormatUint(id, 10))
 }
 
 var (
