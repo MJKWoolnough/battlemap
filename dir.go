@@ -55,7 +55,8 @@ func (d Dir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		success = d.Methods.Put(w, r)
 	}
 	if !success {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		d.Methods.Options(w, r)
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
 }
 
