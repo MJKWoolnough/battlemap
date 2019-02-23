@@ -18,8 +18,7 @@ var linkTemplate = template.Must(template.New("").Parse(`<html>
 	</head>
 	<body>
 		{{range .}}<a href="{{.}}">{{.}}</a><br />
-{{end}}
-	</body>
+{{end}}	</body>
 </html>`))
 
 type filesDir struct {

@@ -125,8 +125,13 @@ var pluginsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</head>
 	<body>
 		<table>
-{{range .}}			<tr><td><a href="{{.File}}">{{.File}}</a></td><td>{{.Size}}</td><td>{{.Updated}}</td></tr>
-{{end}}		</table>
+			<thead>
+				<tr><th>Name</th><th>Size</th><th>Last Updated</th></tr>
+			</thead>
+			<tbody>
+{{range .}}				<tr><td><a href="{{.File}}">{{.File}}</a></td><td>{{.Size}}</td><td>{{.Updated}}</td></tr>
+{{end}}			</tbody>
+		</table>
 	</body>
 </html>`))
 

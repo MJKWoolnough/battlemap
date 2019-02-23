@@ -96,8 +96,13 @@ var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</head>
 	<body>
 		<table>
-{{range .}}			<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
-{{end}}		</table>
+			<thead>
+				<tr><th>ID</th></tr><td>Name</td></tr>
+			</thead>
+			<tbody>
+{{range .}}				<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
+{{end}}			</tbody>
+		</table>
 	</body>
 </html>`))
 
@@ -171,8 +176,13 @@ var assetsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</head>
 	<body>
 		<table>
+			<thead>
+				<tr><th>Name</th><th>Type</th></tr>
+			</thead>
+			<tbody>
 {{range .}}			<tr><td><a href="{{.ID}}">{{.Name}}</td><td>{{.Type}}</td></tr>
-{{end}}		</table>
+{{end}}			</tbody>
+		</table>
 	</body>
 </html>`))
 
