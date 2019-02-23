@@ -40,19 +40,16 @@ func (x *Pattern) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	return e.EncodeElement((*PatternX)(x), s)
 }
 
-type tokenType uint8
+type TokenType uint8
 
 const (
-	tokenImage tokenType = iota + 1
+	tokenImage TokenType = iota + 1
 	tokenPattern
 	tokenRect
 	tokenCircle
 )
 
 func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	if s.Name.Local == "image" {
-		x.tokenType = tokenImage
-	}
 	var transform string
 	translateX := x.X
 	translateY := x.Y
@@ -84,7 +81,7 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 		transform += "rotate(" + strconv.FormatUint(uint64(x.Rotation)*360/256, 10) + ", " + strconv.FormatUint(x.Width>>1, 10) + ", " + strconv.FormatUint(x.Height>>1, 10) + ")"
 	}
 	transform = strings.TrimSuffix(transform, " ")
-	switch x.tokenType {
+	switch x.TokenType {
 	case tokenImage:
 		s = xml.StartElement{
 			Name: xml.Name{Local: "image"},
@@ -218,11 +215,11 @@ const numbers = "0123456789"
 func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	switch s.Name.Local {
 	case "image":
-		x.tokenType = tokenImage
+		x.TokenType = tokenImage
 	case "rect":
-		x.tokenType = tokenPattern
+		x.TokenType = tokenPattern
 	case "circle":
-		x.tokenType = tokenCircle
+		x.TokenType = tokenCircle
 	default:
 		return nil
 	}
@@ -299,8 +296,8 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 				x.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
 			} else {
 				x.Source = attr.Value
-				if x.tokenType == tokenPattern {
-					x.tokenType = tokenRect
+				if x.TokenType == tokenPattern {
+					x.TokenType = tokenRect
 				}
 			}
 		case "stroke":
@@ -320,7 +317,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	}
 	x.X = translateX
 	x.Y = translateY
-	if x.Source == "" {
+	if (x.TokenType == tokenImage || x.TokenType == tokenPattern) && x.Source == "" {
 		return errors.Error("invalid token source")
 	}
 	return nil
