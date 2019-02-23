@@ -28,7 +28,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		if r.URL.Path == tagsPath {
-			w.WriteHeader(http.StatusUnauthorized)
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 		}
@@ -61,7 +61,7 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		handler.ServeHTTP(w, r)
 	} else {
 		if isRoot(r.URL.Path) || r.URL.Path == tagsPath {
-			w.WriteHeader(http.StatusForbidden)
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		} else {
 			a.handler.ServeHTTP(w, r)
 		}

@@ -67,7 +67,7 @@ func (k *keystoreDir) Init() error {
 
 func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
 	if !Auth.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else if isRoot(r.URL.Path) {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
@@ -79,7 +79,7 @@ func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
 
 func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return true
 	}
 	if isRoot(r.URL.Path) {
@@ -103,7 +103,7 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 
 func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return true
 	} else if isRoot(r.URL.Path) {
 		var at AcceptType
@@ -206,7 +206,7 @@ func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint
 
 func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
