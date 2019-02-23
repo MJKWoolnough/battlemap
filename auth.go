@@ -83,10 +83,6 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 }
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
-	if !a.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
 	a.store.Set(w, nil)
 	var at AcceptType
 	httpaccept.HandleAccept(r, &at)
@@ -109,7 +105,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !a.IsAdmin(r) {
-		w.WriteHeader(http.StatusUnauthorized)
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return
 	}
 	r.ParseForm()
@@ -194,6 +190,7 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
+	w.WriteHeader(http.StatusUnauthorized)
 	a.Logout(w, r)
 }
 
@@ -205,7 +202,6 @@ func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {
 		a.store.Set(w, sessionData)
 		io.WriteString(w, "true")
 	} else {
-		w.WriteHeader(http.StatusUnauthorized)
 		io.WriteString(w, "false")
 	}
 }
