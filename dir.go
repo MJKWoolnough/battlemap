@@ -1,10 +1,19 @@
 package main
 
 import (
+	"compress/gzip"
+	"encoding"
+	"encoding/json"
+	"encoding/xml"
+	"html/template"
 	"io"
 	"net/http"
+	"time"
 
 	"vimagination.zapto.org/httpaccept"
+	"vimagination.zapto.org/httpdir"
+	"vimagination.zapto.org/httpgzip"
+	"vimagination.zapto.org/memio"
 )
 
 type Methods interface {
@@ -124,4 +133,37 @@ func (a *AcceptType) Handle(m httpaccept.Mime) bool {
 
 func isRoot(path string) bool {
 	return path == "/" || path == ""
+}
+
+var exts = [...]string{".html", ".txt", ".json", ".xml"}
+
+func genPages(t time.Time, list encoding.TextMarshaler, htmlTemplate *template.Template, baseName, topTag, tag string, handler *http.Handler) []byte {
+	d := httpdir.New(t)
+	buf := genPagesDir(t, list, htmlTemplate, baseName, topTag, tag, &d)
+	*handler = httpgzip.FileServer(d)
+	return buf
+}
+
+func genPagesDir(t time.Time, list encoding.TextMarshaler, htmlTemplate *template.Template, baseName, topTag, tag string, d *httpdir.Dir) []byte {
+	var buffers [2 * len(exts)]memio.Buffer
+	htmlTemplate.Execute(&buffers[0], list)
+	tbuf, _ := list.MarshalText()
+	buffers[1] = memio.Buffer(tbuf)
+	json.NewEncoder(&buffers[2]).Encode(list)
+	x := xml.NewEncoder(&buffers[3])
+	var se = xml.StartElement{Name: xml.Name{Local: topTag}}
+	x.EncodeToken(se)
+	x.EncodeElement(list, xml.StartElement{Name: xml.Name{Local: tag}})
+	x.EncodeToken(se.End())
+	x.Flush()
+
+	gw, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
+	for i, ext := range exts {
+		gw.Reset(&buffers[i+len(exts)])
+		gw.Write(buffers[i])
+		gw.Close()
+		d.Create(baseName+ext, httpdir.FileBytes(buffers[i], t))
+		d.Create(baseName+ext+".gz", httpdir.FileBytes(buffers[i], t))
+	}
+	return buffers[2]
 }
