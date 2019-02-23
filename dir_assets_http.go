@@ -104,7 +104,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		id := a.nextAssetID
 		a.nextAssetID++
 		a.assetMu.Unlock()
-		idStr := strconv.FormatUint(uint64(id), 10)
+		idStr := strconv.FormatUint(id, 10)
 		if err = a.assetStore.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true

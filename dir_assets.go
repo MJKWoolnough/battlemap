@@ -195,7 +195,7 @@ func (a *assetsDir) writeAsset(id uint64, regen bool) error {
 	if !ok {
 		return ErrUnknownAsset
 	}
-	idStr := strconv.FormatUint(uint64(id), 10)
+	idStr := strconv.FormatUint(id, 10)
 	if err := a.metaStore.Set(idStr, as); err != nil {
 		return errors.WithContext("error setting asset metadata: ", err)
 	}
@@ -345,7 +345,7 @@ func (a *Asset) WriteTo(w io.Writer) (int64, error) {
 	lw.WriteStringX(a.Name)
 	lw.WriteUintX(uint64(len(a.Tags)))
 	for _, tid := range a.Tags {
-		lw.WriteUintX(uint64(tid))
+		lw.WriteUintX(tid)
 	}
 	return lw.Count, lw.Err
 }
@@ -424,7 +424,7 @@ func (t Tags) MarshalText() ([]byte, error) {
 func (t Tags) WriteTo(w io.Writer) (int64, error) {
 	lw := byteio.StickyLittleEndianWriter{Writer: w}
 	for id, tag := range t {
-		lw.WriteUintX(uint64(id))
+		lw.WriteUintX(id)
 		lw.WriteStringX(tag.Name)
 	}
 	return lw.Count, lw.Err
