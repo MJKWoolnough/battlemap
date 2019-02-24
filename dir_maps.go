@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -114,6 +115,31 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		}
 	}
+}
+
+func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
+	if Auth.IsAdmin(r) {
+		if isRoot(r.URL.Path) {
+			at := AcceptType("html")
+			httpaccept.HandleAccept(r, &at)
+			r.URL.Path += "index." + string(at)
+			m.mu.RLock()
+			m.indexes.ServeHTTP(w, r)
+			m.mu.RUnlock()
+		} else {
+			m.handler.ServeHTTP(w, r)
+		}
+	} else {
+		var currentUserMap keystore.Uint
+		Config.Get("currentUserMap", &currentUserMap)
+		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+		if id == uint64(currentUserMap) {
+			m.handler.ServeHTTP(w, r)
+		} else {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		}
+	}
+	return true
 }
 
 func (m *mapsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
