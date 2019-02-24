@@ -116,6 +116,25 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (m *mapsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
+	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) {
+		return false
+	}
+	key := strings.TrimPrefix(r.URL.Path, "/")
+	var currentUserMap keystore.Uint
+	Config.Get("currentUserMap", &currentUserMap)
+	id, _ := strconv.ParseUint(key, 10, 0)
+	if id == uint64(currentUserMap) {
+		return false
+	}
+	m.mu.Lock()
+	delete(m.maps, id)
+	m.mu.Unlock()
+	m.store.Remove(key)
+	w.WriteHeader(http.StatusNoContent)
+	return true
+}
+
 type CurrentMap uint64
 
 func (c CurrentMap) RPC(method string, data []byte) (interface{}, error) {
