@@ -18,10 +18,10 @@ type mapsDir struct {
 
 	store *keystore.FileStore
 
-	mu      sync.RWMutex
-	maps    Maps
-	nextID  uint64
-	handler http.Handler
+	mu               sync.RWMutex
+	maps             Maps
+	nextID           uint64
+	handler, indexes http.Handler
 }
 
 func (m *mapsDir) Init() error {
@@ -66,7 +66,8 @@ func (m *mapsDir) Init() error {
 		}
 		m.maps[id] = mp
 	}
-	genPages(t, m.maps, mapsTemplate, "index", "maps", "map", &m.handler)
+	genPages(t, m.maps, mapsTemplate, "index", "maps", "map", &m.indexes)
+	m.handler = http.FileServer(http.Dir(sp))
 	return nil
 }
 
@@ -88,7 +89,31 @@ var mapsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 </html>`))
 
 func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
-
+	if Auth.IsAdmin(r) {
+		if isRoot(r.URL.Path) {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
+		} else if m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
+			var currentUserMap keystore.Uint
+			Config.Get("currentUserMap", &currentUserMap)
+			id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+			if id == uint64(currentUserMap) {
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
+			} else {
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, DELETE")
+			}
+		} else {
+			http.NotFound(w, r)
+		}
+	} else {
+		var currentUserMap keystore.Uint
+		Config.Get("currentUserMap", &currentUserMap)
+		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+		if id == uint64(currentUserMap) {
+			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
+		} else {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		}
+	}
 }
 
 type CurrentMap uint64
@@ -96,7 +121,7 @@ type CurrentMap uint64
 func (c CurrentMap) RPC(method string, data []byte) (interface{}, error) {
 	switch strings.TrimPrefix(method, "maps.") {
 	case "getCurrentMap":
-		return uint64(c), nil
+		return c, nil
 	}
 	return nil, ErrUnknownMethod
 }
