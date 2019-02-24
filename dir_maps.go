@@ -101,7 +101,9 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
 			} else {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, DELETE")
+
 			}
+			w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
 		} else {
 			http.NotFound(w, r)
 		}

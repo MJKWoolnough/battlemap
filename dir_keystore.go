@@ -74,6 +74,7 @@ func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	} else {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST, PATCH, DELETE")
+		w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
 	}
 }
 
