@@ -26,6 +26,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
 		} else {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
+			w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
 		}
 	} else {
 		if r.URL.Path == tagsPath {
