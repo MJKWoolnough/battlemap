@@ -27,9 +27,7 @@ func (m Maps) Move(mp *Map, j int) Maps {
 	if j < 0 || j >= len(m) {
 		return nil
 	}
-	i := sort.Search(len(m), func(i int) bool {
-		return m[i].Order >= mp.Order
-	})
+	i := m.getPos(mp)
 	if i >= len(m) || i == j {
 		return nil
 	}
@@ -59,6 +57,20 @@ func (m Maps) Move(mp *Map, j int) Maps {
 		m[most].Order = order
 	}
 	return m[j:most]
+}
+
+func (m *Maps) Remove(mp *Map) {
+	i := m.getPos(mp)
+	if i >= len(m) {
+		return
+	}
+	*m = append((*m)[:i], (*m)[i+1:]...)
+}
+
+func (m Maps) getPos(m *Map) int {
+	return sort.Search(len(m), func(i int) bool {
+		return m[i].Order >= mp.Order
+	})
 }
 
 func (m Maps) Fix() {
@@ -110,6 +122,10 @@ func (l Layers) Move(i, j int) {
 	l[j] = e
 }
 
+func (l *Layers) Remove(i int) {
+	*l = append((*l)[:i], (*l)[i+1:])
+}
+
 type Tokens []*Token
 
 func (t Tokens) Move(i, j int) {
@@ -123,4 +139,8 @@ func (t Tokens) Move(i, j int) {
 		copy(t[j+1:i], t[j:i-1])
 	}
 	t[j] = e
+}
+
+func (t *Tokens) Remove(i int) {
+	*t = append((*t)[:i], (*t)[i+1:])
 }
