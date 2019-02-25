@@ -17,7 +17,7 @@ type MapX struct {
 	Height   uint64    `xml:"height,attr" json:"-"`
 	Patterns []Pattern `json:"defs>pattern,omitempty" json:"-"`
 	Masks    []Mask    `json:"defs>mask,omitempty" json:"-"`
-	Layers   []Layer   `xml:"g,omitempty" json:"-"`
+	Layers   Layers    `xml:"g,omitempty" json:"-"`
 }
 
 type PatternX struct {
@@ -41,10 +41,10 @@ type Path struct {
 }
 
 type Layer struct {
-	ID     string  `xml:"id,attr"`
-	Name   string  `xml:"name,attr"`
-	Mask   string  `xml:"mask,attr,omitempty"`
-	Tokens []Token `xml:",omitempty,any"`
+	ID     string `xml:"id,attr"`
+	Name   string `xml:"name,attr"`
+	Mask   string `xml:"mask,attr,omitempty"`
+	Tokens Tokens `xml:",omitempty,any"`
 }
 
 type Token struct {
@@ -75,5 +75,3 @@ func (m *Map) ReadFrom(r io.Reader) (int64, error) {
 	cr.Err = xml.NewDecoder(&cr).Decode(m)
 	return cr.Count, cr.Err
 }
-
-type Maps map[uint64]*Map

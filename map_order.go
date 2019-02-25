@@ -9,21 +9,21 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
-type MapsOrder []*Map
+type Maps []*Map
 
-func (m MapsOrder) Len() int {
+func (m Maps) Len() int {
 	return len(m)
 }
 
-func (m MapsOrder) Less(i, j int) bool {
+func (m Maps) Less(i, j int) bool {
 	return m[i].Order < m[j].Order
 }
 
-func (mo MapsOrder) Swap(i, j int) {
+func (m Maps) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
 
-func (m MapsOrder) Move(mp *Map, j int) MapsOrder {
+func (m Maps) Move(mp *Map, j int) Maps {
 	if j < 0 || j >= len(m) {
 		return nil
 	}
@@ -61,13 +61,13 @@ func (m MapsOrder) Move(mp *Map, j int) MapsOrder {
 	return m[j:most]
 }
 
-func (m MapsOrder) Fix() {
+func (m Maps) Fix() {
 	for n, mp := range m {
-		m.Order = uint64(n) + 1
+		mp.Order = int64(n) + 1
 	}
 }
 
-func (m MapsOrder) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	s.Attr = []xml.Attr{
 		{Name: xml.Name{Local: "id"}},
 	}
@@ -87,10 +87,40 @@ func (m MapsOrder) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	return nil
 }
 
-func (m MapsOrder) MarshalText() ([]byte, error) {
+func (m Maps) MarshalText() ([]byte, error) {
 	var buf memio.Buffer
 	for _, m := range m {
 		fmt.Fprintf(&buf, "%d:%q", m.ID, m.Name)
 	}
 	return buf, nil
+}
+
+type Layers []*Layer
+
+func (l Layers) Move(i, j int) {
+	if i < 0 || i >= len(l) || j < 0 || j >= len(l) || i == j {
+		return
+	}
+	e := l[i]
+	if i < j {
+		copy(l[i:j-1], l[i+1:j])
+	} else {
+		copy(l[j+1:i], l[j:i-1])
+	}
+	l[j] = e
+}
+
+type Tokens []*Token
+
+func (t Tokens) Move(i, j int) {
+	if i < 0 || i >= len(t) || j < 0 || j >= len(t) || i == j {
+		return
+	}
+	e := t[i]
+	if i < j {
+		copy(t[i:j-1], t[i+1:j])
+	} else {
+		copy(t[j+1:i], t[j:i-1])
+	}
+	t[j] = e
 }

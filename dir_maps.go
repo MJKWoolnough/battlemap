@@ -21,7 +21,8 @@ type mapsDir struct {
 	store *keystore.FileStore
 
 	mu               sync.RWMutex
-	maps             Maps
+	maps             map[uint64]*Map
+	order            Maps
 	nextID           uint64
 	handler, indexes http.Handler
 }
@@ -37,14 +38,14 @@ func (m *mapsDir) Init() error {
 	if err != nil {
 		return errors.WithContext("error creating map store: ", err)
 	}
-	m.maps = make(Maps)
 	stat, err := m.store.Stat("")
 	if err != nil {
 		return errors.WithContext("error getting map directory stat: ", err)
 	}
 	t := stat.ModTime()
 	keys := m.store.Keys()
-	order := make(MapsOrder, 0, len(keys))
+	m.maps = make(map[uint64]*Map, len(keys))
+	m.order = make(Maps, 0, len(keys))
 	for _, key := range keys {
 		id, err := strconv.ParseUint(key, 10, 0)
 		if err != nil {
@@ -69,10 +70,10 @@ func (m *mapsDir) Init() error {
 			return MapIDError{id, mp.ID}
 		}
 		m.maps[id] = mp
-		order = append(order, mp)
+		m.order = append(m.order, mp)
 	}
-	sort.Sort(order)
-	genPages(t, order, mapsTemplate, "index", "maps", "map", &m.indexes)
+	sort.Sort(m.order)
+	genPages(t, m.order, mapsTemplate, "index", "maps", "map", &m.indexes)
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
 }
