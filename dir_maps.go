@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -42,7 +43,9 @@ func (m *mapsDir) Init() error {
 		return errors.WithContext("error getting map directory stat: ", err)
 	}
 	t := stat.ModTime()
-	for _, key := range m.store.Keys() {
+	keys := m.store.Keys()
+	order := make(MapsOrder, 0, len(keys))
+	for _, key := range keys {
 		id, err := strconv.ParseUint(key, 10, 0)
 		if err != nil {
 			continue
@@ -66,8 +69,10 @@ func (m *mapsDir) Init() error {
 			return MapIDError{id, mp.ID}
 		}
 		m.maps[id] = mp
+		order = append(order, mp)
 	}
-	genPages(t, m.maps, mapsTemplate, "index", "maps", "map", &m.indexes)
+	sort.Sort(order)
+	genPages(t, order, mapsTemplate, "index", "maps", "map", &m.indexes)
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
 }
@@ -80,10 +85,10 @@ var mapsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	<body>
 		<table>
 			<thead>
-				<tr><th>ID</th><th>Order</th><th>Name</th></tr>
+				<tr><th>ID</th><th>Name</th></tr>
 			</thead>
 			<tbody>
-{{range .}}				<tr><td>{{.ID}}</td><td>{{.Order}}</td><td>{{.Name}}</td></tr>
+{{range .}}				<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
 {{end}}			</tbody>
 		</table>
 	</body>
