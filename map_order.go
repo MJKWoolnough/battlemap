@@ -61,13 +61,13 @@ func (m Maps) Move(mp *Map, j int) Maps {
 
 func (m *Maps) Remove(mp *Map) {
 	i := m.getPos(mp)
-	if i >= len(m) {
+	if i >= len(*m) {
 		return
 	}
 	*m = append((*m)[:i], (*m)[i+1:]...)
 }
 
-func (m Maps) getPos(m *Map) int {
+func (m Maps) getPos(mp *Map) int {
 	return sort.Search(len(m), func(i int) bool {
 		return m[i].Order >= mp.Order
 	})
@@ -123,7 +123,7 @@ func (l Layers) Move(i, j int) {
 }
 
 func (l *Layers) Remove(i int) {
-	*l = append((*l)[:i], (*l)[i+1:])
+	*l = append((*l)[:i], (*l)[i+1:]...)
 }
 
 type Tokens []*Token
@@ -142,5 +142,5 @@ func (t Tokens) Move(i, j int) {
 }
 
 func (t *Tokens) Remove(i int) {
-	*t = append((*t)[:i], (*t)[i+1:])
+	*t = append((*t)[:i], (*t)[i+1:]...)
 }
