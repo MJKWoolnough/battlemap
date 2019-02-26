@@ -321,7 +321,6 @@ func removeID(ids []uint64, remove uint64) []uint64 {
 }
 
 func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {
-	newName = strings.Replace(newName, "\n", "", -1)
 	if newName == "" || newName == asset.Name {
 		return false
 	}
