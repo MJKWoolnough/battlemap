@@ -212,8 +212,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 		}
 		a.assetMu.Unlock()
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return true
 		}
 		w.WriteHeader(http.StatusNoContent)
@@ -287,8 +286,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	var change bool
@@ -402,8 +400,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 	}
 	r.Body.Close()
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	httpaccept.HandleAccept(r, &at)

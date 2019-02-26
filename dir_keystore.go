@@ -94,7 +94,7 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		id, err := strconv.ParseUint(idStr, 10, 0)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
 		k.printStore(w, r, id, nil, "")
@@ -123,7 +123,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); k.store.Exists(idStr) {
 		id, err := strconv.ParseUint(idStr, 10, 0)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
 		var (
@@ -136,7 +136,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			err := json.NewDecoder(r.Body).Decode(&keys)
 			r.Body.Close()
 			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
+				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
 		case "text/xml":
@@ -147,7 +147,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			err := xml.NewDecoder(r.Body).DecodeElement(&d, nil)
 			r.Body.Close()
 			if err != nil {
-				w.WriteHeader(http.StatusBadRequest)
+				http.Error(w, err.Error(), http.StatusBadRequest)
 				return true
 			}
 			keys = d.Keys
@@ -172,7 +172,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint64, keys []string, at AcceptType) {
 	values, err := k.get(id, keys)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 	httpaccept.HandleAccept(r, &at)
@@ -209,13 +209,13 @@ func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else if isRoot(r.URL.Path) {
-		w.WriteHeader(http.StatusMethodNotAllowed)
+		return false
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
 		http.NotFound(w, r)
 	} else {
 		id, err := strconv.ParseUint(idStr, 10, 0)
 		if err != nil {
-			w.WriteHeader(http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
 		switch r.Header.Get(contentType) {
