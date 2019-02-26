@@ -291,44 +291,46 @@ func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, k, SocketKeystore)
 }
 
-func (k *keystoreDir) RPC(method string, data []byte) (interface{}, error) {
-	switch strings.TrimPrefix(method, k.prefix) {
-	case "create":
-		return k.create(), nil
-	case "set":
-		var m struct {
-			ID   uint64            `json:"id"`
-			Data map[string]string `json:"data"`
+func (k *keystoreDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+	if cd.IsAdmin {
+		switch strings.TrimPrefix(method, k.prefix) {
+		case "create":
+			return k.create(), nil
+		case "set":
+			var m struct {
+				ID   uint64            `json:"id"`
+				Data map[string]string `json:"data"`
+			}
+			if err := json.Unmarshal(data, &m); err != nil {
+				return nil, err
+			}
+			return nil, k.set(m.ID, m.Data)
+		case "get":
+			var m struct {
+				ID   uint64   `json:"id"`
+				Keys []string `json:"keys"`
+			}
+			if err := json.Unmarshal(data, &m); err != nil {
+				return nil, err
+			}
+			return k.get(m.ID, m.Keys)
+		case "remove":
+			var m struct {
+				ID   uint64   `json:"id"`
+				Keys []string `json:"keys"`
+			}
+			if err := json.Unmarshal(data, &m); err != nil {
+				return nil, err
+			}
+			k.remove(m.ID, m.Keys)
+			return nil, nil
+		case "delete":
+			var m uint64
+			if err := json.Unmarshal(data, &m); err != nil {
+				return nil, err
+			}
+			return nil, k.delete(m)
 		}
-		if err := json.Unmarshal(data, &m); err != nil {
-			return nil, err
-		}
-		return nil, k.set(m.ID, m.Data)
-	case "get":
-		var m struct {
-			ID   uint64   `json:"id"`
-			Keys []string `json:"keys"`
-		}
-		if err := json.Unmarshal(data, &m); err != nil {
-			return nil, err
-		}
-		return k.get(m.ID, m.Keys)
-	case "remove":
-		var m struct {
-			ID   uint64   `json:"id"`
-			Keys []string `json:"keys"`
-		}
-		if err := json.Unmarshal(data, &m); err != nil {
-			return nil, err
-		}
-		k.remove(m.ID, m.Keys)
-		return nil, nil
-	case "delete":
-		var m uint64
-		if err := json.Unmarshal(data, &m); err != nil {
-			return nil, err
-		}
-		return nil, k.delete(m)
 	}
 	return nil, ErrUnknownMethod
 }

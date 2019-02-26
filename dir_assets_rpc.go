@@ -12,26 +12,28 @@ func (a *assetsDir) WebSocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, a, SocketAssets)
 }
 
-func (a *assetsDir) RPC(method string, data []byte) (interface{}, error) {
-	switch strings.TrimPrefix(method, "assets.") {
-	case "deleteAsset":
-		return a.rpcDeleteAsset(data)
-	case "renameAsset":
-		return a.rpcRenameAsset(data)
-	case "addTagsToAsset":
-		return a.rpcAddTagsToAsset(data)
-	case "removeTagsFromAsset":
-		return a.rpcRemoveTagsFromAsset(data)
-	case "getAssets":
-		return a.rpcGetAssets(data)
-	case "addTag":
-		return a.rpcAddTag(data)
-	case "deleteTag":
-		return a.rpcDeleteTag(data)
-	case "renameTag":
-		return a.rpcRenameTag(data)
-	case "getTags":
-		return a.rpcGetTags(data)
+func (a *assetsDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+	if cd.IsAdmin {
+		switch strings.TrimPrefix(method, "assets.") {
+		case "deleteAsset":
+			return a.rpcDeleteAsset(data)
+		case "renameAsset":
+			return a.rpcRenameAsset(data)
+		case "addTagsToAsset":
+			return a.rpcAddTagsToAsset(data)
+		case "removeTagsFromAsset":
+			return a.rpcRemoveTagsFromAsset(data)
+		case "getAssets":
+			return a.rpcGetAssets(data)
+		case "addTag":
+			return a.rpcAddTag(data)
+		case "deleteTag":
+			return a.rpcDeleteTag(data)
+		case "renameTag":
+			return a.rpcRenameTag(data)
+		case "getTags":
+			return a.rpcGetTags(data)
+		}
 	}
 	return nil, ErrUnknownMethod
 }

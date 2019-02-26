@@ -169,12 +169,10 @@ func (m *mapsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-type CurrentMap uint64
-
-func (c CurrentMap) RPC(method string, data []byte) (interface{}, error) {
+func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
 	switch strings.TrimPrefix(method, "maps.") {
 	case "getCurrentMap":
-		return c, nil
+		return cd.CurrentMap, nil
 	}
 	return nil, ErrUnknownMethod
 }
