@@ -336,7 +336,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		default:
 			w.Header().Set(contentType, "text/plain")
 			for _, tag := range newTags {
-				fmt.Fprintf(w, "%d:%s\n", tag.ID, tag.Name)
+				fmt.Fprintf(w, "%d:%q\n", tag.ID, tag.Name)
 			}
 		}
 	} else {
@@ -430,7 +430,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 			xml.NewEncoder(&buf).EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
 		default:
 			w.Header().Set(contentType, "text/plain")
-			fmt.Fprintf(w, "%d:%s\n%v\n", as.ID, as.Name, as.Tags)
+			fmt.Fprintf(w, "%d:%q\n%v\n", as.ID, as.Name, as.Tags)
 		}
 		a.assetMu.Unlock()
 		w.Write(buf)

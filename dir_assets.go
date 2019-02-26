@@ -278,7 +278,6 @@ func (a *assetsDir) deleteTags(tags ...*Tag) bool {
 }
 
 func (a *assetsDir) renameTag(tag *Tag, newName string) bool {
-	newName = strings.Replace(newName, "\n", "", -1)
 	if newName == "" || newName == tag.Name {
 		return false
 	}
@@ -363,7 +362,7 @@ func (a *Asset) ReadFrom(r io.Reader) (int64, error) {
 
 func (a *Asset) MarshalText() ([]byte, error) {
 	var buf memio.Buffer
-	fmt.Fprintf(&buf, "%d:%s\n%s\n%v\n\n", a.ID, a.Name, a.Type, a.Tags)
+	fmt.Fprintf(&buf, "%d:%q\n%s\n%v\n\n", a.ID, a.Name, a.Type, a.Tags)
 	return buf, nil
 }
 
@@ -387,7 +386,7 @@ func (a Assets) MarshalText() ([]byte, error) {
 func (a Assets) WriteTo(w io.Writer) (int64, error) {
 	var total int64
 	for id, asset := range a {
-		n, err := fmt.Fprintf(w, "%d:%s\n%s\n%v\n\n", id, asset.Name, asset.Type, asset.Tags)
+		n, err := fmt.Fprintf(w, "%d:%q\n%s\n%v\n\n", id, asset.Name, asset.Type, asset.Tags)
 		total += int64(n)
 		if err != nil {
 			return total, err
@@ -416,7 +415,7 @@ func (t Tags) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 func (t Tags) MarshalText() ([]byte, error) {
 	var buf memio.Buffer
 	for id, tag := range t {
-		fmt.Fprintf(&buf, "%d:%s\n", id, tag.Name)
+		fmt.Fprintf(&buf, "%d:%q\n", id, tag.Name)
 	}
 	return buf, nil
 }
