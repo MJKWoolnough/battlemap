@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"strings"
 	"sync"
@@ -37,14 +38,25 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 			CurrentMap: uint64(cu),
 		},
 	}
+	rand.Read(c.ID[:])
 	if handler == nil {
 		handler = &c
 	}
 	c.rpc = NewRPC(wconn, RPCHandlerFunc(func(method string, data []byte) (interface{}, error) {
-		c.mu.RLock()
-		cd := c.ConnData
-		c.mu.RUnlock()
-		return handler.RPC(cd, method, data)
+		switch method {
+		case "auth.loggedin":
+			c.mu.RLock()
+			isAdmin := c.IsAdmin
+			c.mu.RUnlock()
+			return isAdmin, nil
+		case "conn.connid":
+			return c.ID[:], nil
+		default:
+			c.mu.RLock()
+			cd := c.ConnData
+			c.mu.RUnlock()
+			return handler.RPC(cd, method, data)
+		}
 	}))
 	s.mu.Lock()
 	s.conns[&c] = mask
@@ -116,6 +128,8 @@ type conn struct {
 type ConnData struct {
 	CurrentMap uint64
 	IsAdmin    bool
+
+	ID [64]byte
 }
 
 func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -124,9 +138,7 @@ func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error)
 	method = method[:pos]
 	switch method {
 	case "auth":
-		if submethod == "loggedin" {
-			return cd.IsAdmin, nil
-		} else if cd.IsAdmin {
+		if cd.IsAdmin {
 			switch submethod {
 			case "logout":
 				c.mu.Lock()
