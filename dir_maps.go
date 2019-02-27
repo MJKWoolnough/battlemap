@@ -93,6 +93,79 @@ var mapsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</body>
 </html>`))
 
+type newMap struct {
+	Width         uint64 `json:"width" xml:"width,attr"`
+	Height        uint64 `json:"height" xml:"height,attr"`
+	SquaresWidth  uint64 `json:"square" xml:"square,attr"`
+	SquaresColour uint32 `json:"colour" xml:"colour,attr"`
+	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
+	Name          string `json:"name" xml:",chardata"`
+}
+
+func (m *mapsDir) NewMap(nm newMap) (uint64, error) {
+	if nm.Width == 0 || nm.Height == 0 {
+		return 0, errors.Error("invalid dimensions")
+	}
+	sqStr := strconv.FormatUint(nn.SquaresWidth, 10)
+	m.mu.Lock()
+	id := m.nextID
+	m.nextID++
+	if nn.Name == "" {
+		nn.Name = "Map " + strconv.FormatUint(id, 10)
+	}
+	mp := &Map{
+		ID:     id,
+		Name:   nn.Name,
+		Order:  m.order[len(m.order)-1].Order + 1,
+		Width:  nm.Width,
+		Height: nm.Height,
+		Patterns: []Pattern{
+			Pattern{
+				ID:     "gridPattern",
+				Width:  nm.SquaresWidth,
+				Height: nm.SquaresWidth,
+				Path: &Path{
+					Path:        "M 0 " + sqStr + " V 0 H " + sqStr,
+					Fill:        "rgba(0, 0, 0, 0)",
+					Stroke:      fmt.Sprintf("rgba(%d, %d, %d, %.2f)", nm.SquaresColour>>24, nm.SquaresColour>>16&255, nm.SquaresColour>>8&255, float32(nm.SquaresColour&255)/255),
+					StrokeWidth: nm.SquaresStroke,
+				},
+			},
+		},
+		Layers: Layers{
+			&Layer{
+				ID:   "Layer_1",
+				Name: "Layer",
+			},
+			&Layer{
+				ID:   "Light",
+				Name: "Light",
+				Tokens: Tokens{
+					&Token{
+						Source:    "rgba(0, 0, 0, 0)",
+						TokenType: tokenRect,
+					},
+				},
+			},
+			&Layer{
+				ID:   "Grid",
+				Name: "Grid",
+				Tokens: Tokens{
+					&Token{
+						Source:    "gridPattern",
+						TokenType: tokenPattern,
+					},
+				},
+			},
+		},
+	}
+	m.maps[id] = mp
+	m.order = append(m.order, mp)
+	m.mu.Unlock()
+	m.store.Set(strconv.FormatUint(id, 10), mp)
+	return id, nil
+}
+
 var MapsDir mapsDir
 
 type MapIDError struct {
