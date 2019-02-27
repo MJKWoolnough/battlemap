@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
-	"strings"
 	"sync"
 
 	"vimagination.zapto.org/errors"
@@ -93,14 +92,6 @@ var mapsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 		</table>
 	</body>
 </html>`))
-
-func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
-	switch strings.TrimPrefix(method, "maps.") {
-	case "getCurrentMap":
-		return cd.CurrentMap, nil
-	}
-	return nil, ErrUnknownMethod
-}
 
 var MapsDir mapsDir
 
