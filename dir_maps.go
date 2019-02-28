@@ -102,7 +102,7 @@ type newMap struct {
 	Name          string `json:"name" xml:",chardata"`
 }
 
-func (m *mapsDir) NewMap(nm newMap) (uint64, error) {
+func (m *mapsDir) new(nm newMap) (uint64, error) {
 	if nm.Width == 0 || nm.Height == 0 {
 		return 0, errors.Error("invalid dimensions")
 	}
