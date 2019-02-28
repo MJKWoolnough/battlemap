@@ -113,10 +113,16 @@ func (m *mapsDir) NewMap(nm newMap) (uint64, error) {
 	if nn.Name == "" {
 		nn.Name = "Map " + strconv.FormatUint(id, 10)
 	}
+	var order uint64
+	if len(m.order) == 0 {
+		order = 1
+	} else {
+		order = m.order[len(m.order)-1].Order + 1
+	}
 	mp := &Map{
 		ID:     id,
 		Name:   nn.Name,
-		Order:  m.order[len(m.order)-1].Order + 1,
+		Order:  order,
 		Width:  nm.Width,
 		Height: nm.Height,
 		Patterns: []Pattern{
