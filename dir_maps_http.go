@@ -86,7 +86,7 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		err = xml.NewDecoder(r.Body).Decode(&nm)
 	default:
 		at = "txt"
-		_, err = fmt.Fscanf(r.Body, "%d:%d:%d:%d:%d:%d:%d:%d:%q", &nm.Width, &nm.Height, &nm.SquaresWidth, &nm.SquaresColour.R, &nm.SquaresColour.G, &nm.SquaresColour.B, &nm.SquaresColour.A, &nm.SquaresStroke, &nm.Name)
+		_, err = fmt.Fscanf(r.Body, "%d:%d:%d:{%d,%d,%d,%d}:%d:%q", &nm.Width, &nm.Height, &nm.SquaresWidth, &nm.SquaresColour.R, &nm.SquaresColour.G, &nm.SquaresColour.B, &nm.SquaresColour.A, &nm.SquaresStroke, &nm.Name)
 	}
 	r.Body.Close()
 	if err != nil {
