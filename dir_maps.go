@@ -179,6 +179,21 @@ func genGridPath(squaresWidth uint64) string {
 	return "M 0 " + sqStr + " V 0 H " + sqStr
 }
 
+func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
+	m.mu.Lock()
+	mp, ok := m.maps[id]
+	if ok {
+		if fn(mp) {
+			m.store.Set(strconv.FormatUint(id, 10), mp)
+		}
+	}
+	m.mu.Unlock()
+	if !ok {
+		return ErrUnknownMap
+	}
+	return nil
+}
+
 var MapsDir mapsDir
 
 type MapIDError struct {
