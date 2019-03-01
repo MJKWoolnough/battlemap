@@ -43,18 +43,17 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 		handler = &c
 	}
 	c.rpc = NewRPC(wconn, RPCHandlerFunc(func(method string, data []byte) (interface{}, error) {
+		c.mu.RLock()
+		cd := c.ConnData
+		c.mu.RUnlock()
 		switch method {
-		case "auth.loggedin":
-			c.mu.RLock()
-			isAdmin := c.IsAdmin
-			c.mu.RUnlock()
-			return isAdmin, nil
-		case "conn.connid":
-			return c.ID[:], nil
+		case "auth.loggedIn":
+			return cd.IsAdmin, nil
+		case "conn.connID":
+			return cd.ID[:], nil
+		case "maps.getCurrentMap":
+			return cd.CurrentMap, nil
 		default:
-			c.mu.RLock()
-			cd := c.ConnData
-			c.mu.RUnlock()
 			return handler.RPC(cd, method, data)
 		}
 	}))
