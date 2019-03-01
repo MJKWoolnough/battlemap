@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -145,11 +146,9 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 				Value: x.Source,
 			})
 		}
-		if x.Stroke != "" {
-			attrs = append(attrs, xml.Attr{
-				Name:  xml.Name{Local: "stroke"},
-				Value: x.Stroke,
-			})
+		if x.Stroke.A != 0 {
+			attr, _ := x.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke"})
+			attrs = append(attrs, attr)
 			if x.StrokeWidth != 0 {
 				attrs = append(attrs, xml.Attr{
 					Name:  xml.Name{Local: "stroke-width"},
@@ -179,11 +178,9 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 				Value: x.Source,
 			})
 		}
-		if x.Stroke != "" {
-			attrs = append(attrs, xml.Attr{
-				Name:  xml.Name{Local: "stroke"},
-				Value: x.Stroke,
-			})
+		if x.Stroke.A != 0 {
+			attr, _ := x.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke"})
+			attrs = append(attrs, attr)
 			if x.StrokeWidth != 0 {
 				attrs = append(attrs, xml.Attr{
 					Name:  xml.Name{Local: "stroke-width"},
@@ -301,7 +298,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 				}
 			}
 		case "stroke":
-			x.Stroke = attr.Value
+			err = x.Stroke.UnmarshalXMLAttr(attr)
 		case "stroke-width":
 			x.StrokeWidth, err = strconv.ParseUint(attr.Value, 10, 64)
 		}
@@ -320,5 +317,47 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	if (x.TokenType == tokenImage || x.TokenType == tokenPattern) && x.Source == "" {
 		return errors.Error("invalid token source")
 	}
+	return nil
+}
+
+type Colour struct {
+	R uint8 `json:"r"`
+	G uint8 `json:"g"`
+	B uint8 `json:"b"`
+	A uint8 `json:"a"`
+}
+
+func (c Colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	return xml.Attr {
+		Name:  name,
+		Value: fmt.Sprintf("rgba(%d, %d, %d, %.2f)", c.R, c.G, c.B, float32(c.A)/255),
+	}, nil
+}
+
+func (c *Colour) UnmarshalXMLAttr(attr xml.Attr) error {
+	cs := strings.Split(strings.TrimSuffix(strings.TrimPrefix(attr.Value, "rgba("), ")"), ",")
+	if len(cs) != 4 {
+		return errors.Error("invalid colour")
+	}
+	r, err := strconv.ParseUint(strings.TrimSpace(cs[0]), 10, 8)
+	if err != nil {
+		return errors.WithContext("error decoding Red: ", err)
+	}
+	g, err := strconv.ParseUint(strings.TrimSpace(cs[1]), 10, 8)
+	if err != nil {
+		return errors.WithContext("error decoding Green: ", err)
+	}
+	b, err := strconv.ParseUint(strings.TrimSpace(cs[2]), 10, 8)
+	if err != nil {
+		return errors.WithContext("error decoding Blue: ", err)
+	}
+	a, err := strconv.ParseFloat(strings.TrimSpace(cs[3]), 32)
+	if err != nil {
+		return errors.WithContext("error decoding Alpha: ", err)
+	}
+	c.R = uint8(r)
+	c.G = uint8(g)
+	c.B = uint8(b)
+	c.A = uint8(a * 255)
 	return nil
 }

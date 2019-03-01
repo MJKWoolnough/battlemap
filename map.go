@@ -35,9 +35,9 @@ type Mask struct {
 
 type Path struct {
 	Path        string `xml:"d,attr"`
-	Fill        string `xml:"fill,attr,omitempty"`
-	Stroke      string `xml:"stroke,attr,omitempty"`
-	StrokeWidth string `xml:"stroke-width,attr,omitempty"`
+	Fill        Colour `xml:"fill,attr,omitempty"`
+	Stroke      Colour `xml:"stroke,attr,omitempty"`
+	StrokeWidth uint64 `xml:"stroke-width,attr,omitempty"`
 }
 
 type Layer struct {
@@ -49,7 +49,7 @@ type Layer struct {
 
 type Token struct {
 	Source      string
-	Stroke      string
+	Stroke      Colour
 	StrokeWidth uint64
 	ID          uint64
 	X           int64

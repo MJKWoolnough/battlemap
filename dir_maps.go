@@ -97,23 +97,22 @@ type newMap struct {
 	Width         uint64 `json:"width" xml:"width,attr"`
 	Height        uint64 `json:"height" xml:"height,attr"`
 	SquaresWidth  uint64 `json:"square" xml:"square,attr"`
-	SquaresColour uint32 `json:"colour" xml:"colour,attr"`
+	SquaresColour Colour `json:"colour" xml:"colour,attr"`
 	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
 	Name          string `json:"name" xml:",chardata"`
 }
 
-func (m *mapsDir) new(nm newMap) (uint64, error) {
+func (m *mapsDir) newMap(nm newMap) (uint64, error) {
 	if nm.Width == 0 || nm.Height == 0 {
 		return 0, errors.Error("invalid dimensions")
 	}
-	sqStr := strconv.FormatUint(nn.SquaresWidth, 10)
 	m.mu.Lock()
 	id := m.nextID
 	m.nextID++
-	if nn.Name == "" {
-		nn.Name = "Map " + strconv.FormatUint(id, 10)
+	if nm.Name == "" {
+		nm.Name = "Map " + strconv.FormatUint(id, 10)
 	}
-	var order uint64
+	var order int64
 	if len(m.order) == 0 {
 		order = 1
 	} else {
@@ -121,22 +120,12 @@ func (m *mapsDir) new(nm newMap) (uint64, error) {
 	}
 	mp := &Map{
 		ID:     id,
-		Name:   nn.Name,
+		Name:   nm.Name,
 		Order:  order,
 		Width:  nm.Width,
 		Height: nm.Height,
 		Patterns: []Pattern{
-			Pattern{
-				ID:     "gridPattern",
-				Width:  nm.SquaresWidth,
-				Height: nm.SquaresWidth,
-				Path: &Path{
-					Path:        "M 0 " + sqStr + " V 0 H " + sqStr,
-					Fill:        "rgba(0, 0, 0, 0)",
-					Stroke:      fmt.Sprintf("rgba(%d, %d, %d, %.2f)", nm.SquaresColour>>24, nm.SquaresColour>>16&255, nm.SquaresColour>>8&255, float32(nm.SquaresColour&255)/255),
-					StrokeWidth: nm.SquaresStroke,
-				},
-			},
+			genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
 		Layers: Layers{
 			&Layer{
@@ -172,6 +161,24 @@ func (m *mapsDir) new(nm newMap) (uint64, error) {
 	return id, nil
 }
 
+func genGridPattern(squaresWidth uint64, squaresColour Colour, squaresStroke uint64) Pattern {
+	return Pattern{
+		ID:     "gridPattern",
+		Width:  squaresWidth,
+		Height: squaresWidth,
+		Path: &Path{
+			Path:        genGridPath(squaresWidth),
+			Stroke:      squaresColour,
+			StrokeWidth: squaresStroke,
+		},
+	}
+}
+
+func genGridPath(squaresWidth uint64) string {
+	sqStr := strconv.FormatUint(squaresWidth, 10)
+	return "M 0 " + sqStr + " V 0 H " + sqStr
+}
+
 var MapsDir mapsDir
 
 type MapIDError struct {
@@ -181,3 +188,7 @@ type MapIDError struct {
 func (m MapIDError) Error() string {
 	return fmt.Sprintf("Key ID and Parsed ID do not match: %d, %d", m.KeyID, m.ParsedID)
 }
+
+const (
+	ErrUnknownMap errors.Error = "unknown map"
+)
