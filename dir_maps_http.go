@@ -114,6 +114,70 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
+	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) || !m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
+		return false
+	}
+	var patchMap struct {
+		Name         string `json:"name" xml:"name"`
+		SquaresWidth uint64 `json:"squaresWidth" xml:"squaresWidth"`
+		Width        uint64 `json:"width" xml:"width"`
+		Height       uint64 `json:"height" xml:"height"`
+		Order        *int64 `json:"order" xml:"order"`
+	}
+	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	switch r.Header.Get(contentType) {
+	case "application/json", "text/json":
+		err = json.NewDecoder(r.Body).Decode(&patchMap)
+	case "text/xml":
+		err = xml.NewDecoder(r.Body).Decode(&patchMap)
+	default:
+	}
+	m.updateMapData(id, func(mp *Map) bool {
+		var changed bool
+		if patchMap.Name != "" && patchMap.Name != mp.Name {
+			changed = true
+			mp.Name = patchMap.Name
+		}
+		if patchMap.SquaresWidth != 0 {
+			for n := range mp.Patterns {
+				p := &mp.Patterns[n]
+				if p.ID == "gridPattern" {
+					if p.Width != patchMap.SquaresWidth || p.Height != patchMap.SquaresWidth {
+						changed = true
+						p.Width = patchMap.SquaresWidth
+						p.Height = patchMap.SquaresWidth
+					}
+					break
+				}
+			}
+		}
+		if patchMap.Width != 0 && patchMap.Width != mp.Width {
+			changed = true
+			mp.Width = patchMap.Width
+		}
+		if patchMap.Height != 0 && patchMap.Height != mp.Height {
+			changed = true
+			mp.Height = patchMap.Height
+		}
+		if patchMap.Order != nil {
+			for _, mmp := range m.order.Move(mp, patchMap.Order) {
+				if mmp.ID == mp.ID {
+					changed = false
+				}
+				m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
+			}
+		}
+		return changed
+	})
+	w.WriteHeader(http.StatusNoContent)
+	return true
+}
+
 func (m *mapsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) {
 		return false
