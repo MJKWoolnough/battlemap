@@ -45,6 +45,7 @@ type Layer struct {
 	Name   string `xml:"name,attr"`
 	Mask   string `xml:"mask,attr,omitempty"`
 	Tokens Tokens `xml:",omitempty,any"`
+	Hidden Hidden `xml:"visibility,attr,omitempty"`
 }
 
 type Token struct {

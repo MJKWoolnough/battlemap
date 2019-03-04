@@ -361,3 +361,20 @@ func (c *Colour) UnmarshalXMLAttr(attr xml.Attr) error {
 	c.A = uint8(a * 255)
 	return nil
 }
+
+type Hidden bool
+
+func (h Hidden) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	attr := xml.Attr{Name: name}
+	if h {
+		attr.Value = "hidden"
+	} else {
+		attr.Value = "visible"
+	}
+	return attr, nil
+}
+
+func (h *Hidden) Unmarshal(attr xml.Attr) error {
+	*h = attr.Value == "hidden"
+	return nil
+}
