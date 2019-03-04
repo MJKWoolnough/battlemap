@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/keystore"
 )
@@ -123,12 +125,12 @@ func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 		SquaresWidth uint64 `json:"squaresWidth" xml:"squaresWidth"`
 		Width        uint64 `json:"width" xml:"width"`
 		Height       uint64 `json:"height" xml:"height"`
-		Order        *int64 `json:"order" xml:"order"`
+		Order        *int   `json:"order" xml:"order"`
 	}
 	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return true
 	}
 	switch r.Header.Get(contentType) {
 	case "application/json", "text/json":
@@ -136,6 +138,31 @@ func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	case "text/xml":
 		err = xml.NewDecoder(r.Body).Decode(&patchMap)
 	default:
+		buf := bufio.NewReader(r.Body)
+		var c byte
+		for err != nil {
+			c, err = buf.ReadByte()
+			switch c {
+			case 'n':
+				_, err = fmt.Fscanf(buf, ":%q\n", &patchMap.Name)
+			case 's':
+				_, err = fmt.Fscanf(buf, ":%d\n", &patchMap.SquaresWidth)
+			case 'w':
+				_, err = fmt.Fscanf(buf, ":%d\n", &patchMap.Width)
+			case 'h':
+				_, err = fmt.Fscanf(buf, ":%d\n", &patchMap.Height)
+			case 'o':
+				patchMap.Order = new(int)
+				_, err = fmt.Fscanf(buf, ":%d\n", patchMap.Order)
+			default:
+				err = errors.Error("unknown char code")
+			}
+		}
+	}
+	r.Body.Close()
+	if err != nil && err != io.EOF {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return true
 	}
 	m.updateMapData(id, func(mp *Map) bool {
 		var changed bool
@@ -165,7 +192,7 @@ func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 			mp.Height = patchMap.Height
 		}
 		if patchMap.Order != nil {
-			for _, mmp := range m.order.Move(mp, patchMap.Order) {
+			for _, mmp := range m.order.Move(mp, *patchMap.Order) {
 				if mmp.ID == mp.ID {
 					changed = false
 				}
