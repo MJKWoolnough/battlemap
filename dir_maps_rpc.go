@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/websocket"
@@ -20,14 +21,18 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 	case "setCurrentMap":
 	case "new":
 		var nm newMap
-		json.Unmarshal(data, &nm)
+		if err := json.Unmarshal(data, &nm); err != nil {
+			return nil, err
+		}
 		return m.newMap(nm)
 	case "renameMap":
 		var nn struct {
 			ID   uint64 `json:"id"`
 			Name string `json:"name"`
 		}
-		json.Unmarshal(data, &nn)
+		if err := json.Unmarshal(data, &nn); err != nil {
+			return nil, err
+		}
 		if nn.Name == "" {
 			return nil, ErrInvalidData
 		}
@@ -45,7 +50,9 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 			Width  uint64 `json:"width"`
 			Height uint64 `json:"height"`
 		}
-		json.Unmarshal(data, &md)
+		if err := json.Unmarshal(data, &md); err != nil {
+			return nil, err
+		}
 		if md.Width == 0 || md.Height == 0 {
 			return nil, ErrInvalidData
 		}
@@ -65,7 +72,9 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 			SquaresColour Colour `json:"squaresColour"`
 			SquaresStroke uint64 `json:"squaresStoke"`
 		}
-		json.Unmarshal(data, &ng)
+		if err := json.Unmarshal(data, &ng); err != nil {
+			return nil, err
+		}
 		m.updateMapData(ng.ID, func(mp *Map) bool {
 			for n := range mp.Patterns {
 				p := &mp.Patterns[n]
@@ -105,6 +114,138 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 		return nil, ErrUnknownMethod
 	}
 	switch strings.TrimPrefix(method, "maps.") {
+	case "addLayer":
+		var (
+			name string
+			id   uint64
+		)
+		if err := json.Unmarshal(data, &name); err != nil {
+			return nil, err
+		}
+		MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
+			for _, l := range mp.Layers {
+				if strings.HasPrefix(l.ID, "Layer_") {
+					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid > id {
+						id = lid + 1
+					}
+				}
+			}
+			mp.Layers = append(mp.Layers, &Layer{
+				ID:   "Layer_" + strconv.FormatUint(id, 10),
+				Name: name,
+			})
+			return true
+		})
+		return id, nil
+	case "renameLayer":
+		var rename struct {
+			ID   uint64 `json:"id"`
+			Name string `json:"name"`
+		}
+		if err := json.Unmarshal(data, &rename); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapLayer(uint64(c), rename.ID, func(_ *Map, l *Layer) bool {
+			if l.Name == rename.Name {
+				return false
+			}
+			l.Name = rename.Name
+			return true
+		})
+	case "moveLayer":
+		var moveLayer struct {
+			ID       uint64 `json:"id"`
+			Position int    `json:"position"`
+		}
+		err := json.Unmarshal(data, &moveLayer)
+		if err != nil {
+			return nil, err
+		}
+		err = MapsDir.updateMapData(moveLayer.ID, func(mp *Map) bool {
+			lIDStr := "Layer_" + strconv.FormatUint(moveLayer.ID, 10)
+			for n, l := range mp.Layers {
+				if l.ID == lIDStr {
+					if n == moveLayer.Position {
+						break
+					}
+					mp.Layers.Move(n, moveLayer.Position)
+					return true
+				}
+			}
+			err = ErrUnknownLayer
+			return false
+		})
+		return nil, err
+	case "showLayer":
+		var layerID uint64
+		if err := json.Unmarshal(data, &layerID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+			if !l.Hidden {
+				return false
+			}
+			l.Hidden = false
+			return true
+		})
+	case "hideLayer":
+		var layerID uint64
+		if err := json.Unmarshal(data, &layerID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+			if l.Hidden {
+				return false
+			}
+			l.Hidden = true
+			return true
+		})
+	case "addMask":
+		var addMask struct {
+			ID   uint64 `json:"id"`
+			Mask uint64 `json:"mask"`
+		}
+		if err := json.Unmarshal(data, &addMask); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapLayer(uint64(c), addMask.ID, func(_ *Map, l *Layer) bool {
+			mask := "/masks/" + strconv.FormatUint(addMask.Mask, 10)
+			if l.Mask == mask {
+				return false
+			}
+			l.Mask = mask
+			return true
+		})
+	case "removeMask":
+		var layerID uint64
+		if err := json.Unmarshal(data, &layerID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+			if l.Mask == "" {
+				return false
+			}
+			l.Mask = ""
+			return true
+		})
+	case "removeLayer":
+		var layerID uint64
+		err := json.Unmarshal(data, &layerID)
+		if err != nil {
+			return nil, err
+		}
+		err = MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
+			lIDStr := "Layer_" + strconv.FormatUint(layerID, 10)
+			for n, l := range mp.Layers {
+				if l.ID == lIDStr {
+					mp.Layers.Remove(n)
+					return true
+				}
+			}
+			err = ErrUnknownLayer
+			return false
+		})
+		return nil, err
 	}
 	return nil, ErrUnknownMethod
 }
