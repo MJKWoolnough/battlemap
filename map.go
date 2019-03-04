@@ -11,8 +11,8 @@ var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//E
 
 type MapX struct {
 	ID       uint64    `xml:"id,attr" json:"id"`
-	Name     string    `xml:"name,attr" json:"name"`
-	Order    int64     `xml:"order,attr" json:"-"`
+	Name     string    `xml:"data-name,attr" json:"name"`
+	Order    int64     `xml:"data-order,attr" json:"-"`
 	Width    uint64    `xml:"width,attr" json:"-"`
 	Height   uint64    `xml:"height,attr" json:"-"`
 	Patterns []Pattern `json:"defs>pattern,omitempty" json:"-"`
@@ -42,7 +42,7 @@ type Path struct {
 
 type Layer struct {
 	ID     string `xml:"id,attr"`
-	Name   string `xml:"name,attr"`
+	Name   string `xml:"data-name,attr"`
 	Mask   string `xml:"mask,attr,omitempty"`
 	Tokens Tokens `xml:",omitempty,any"`
 	Hidden Hidden `xml:"visibility,attr,omitempty"`
