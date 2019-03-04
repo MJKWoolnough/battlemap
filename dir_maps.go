@@ -194,6 +194,21 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
 	return nil
 }
 
+func (m *mapsDir) updateMapLayer(mid, lid uint64, fn func(*Layer) bool) error {
+	var err error
+	err = m.updateMapData(mid, func(mp *Map) bool {
+		lidStr := "Layer_" + strconv.FormatUint(lid, 10)
+		for n, l := range mp.Layers {
+			if l.ID == lidStr {
+				return fn(l)
+			}
+		}
+		err = ErrUnknownLayer
+		return false
+	})
+	return err
+}
+
 var MapsDir mapsDir
 
 type MapIDError struct {
@@ -205,5 +220,6 @@ func (m MapIDError) Error() string {
 }
 
 const (
-	ErrUnknownMap errors.Error = "unknown map"
+	ErrUnknownMap   errors.Error = "unknown map"
+	ErrUnknownLayer errors.Error = "unknown layer"
 )
