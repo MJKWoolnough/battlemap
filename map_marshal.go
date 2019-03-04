@@ -104,6 +104,10 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 					Value: "none",
 				},
 				{
+					Name:  xml.Name{Local: "data-token"},
+					Value: strconv.FormatUint(x.TokenData, 10),
+				},
+				{
 					Name:  xml.Name{Local: "transform"},
 					Value: transform,
 				},
@@ -126,13 +130,17 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 					Value: "url(#" + x.Source + ")",
 				},
 				{
+					Name:  xml.Name{Local: "data-token"},
+					Value: strconv.FormatUint(x.TokenData, 10),
+				},
+				{
 					Name:  xml.Name{Local: "transform"},
 					Value: transform,
 				},
 			},
 		}
 	case tokenRect:
-		attrs := make([]xml.Attr, 0, 6)
+		attrs := make([]xml.Attr, 0, 7)
 		attrs = append(attrs, xml.Attr{
 			Name:  xml.Name{Local: "width"},
 			Value: strconv.FormatUint(x.Width, 10),
@@ -156,6 +164,12 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 				})
 			}
 		}
+		if x.TokenData != 0 {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "data-token"},
+				Value: strconv.FormatUint(x.TokenData, 10),
+			})
+		}
 		s = xml.StartElement{
 			Name: xml.Name{Local: "rect"},
 			Attr: append(attrs, xml.Attr{
@@ -164,7 +178,7 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 			}),
 		}
 	case tokenCircle:
-		attrs := make([]xml.Attr, 0, 6)
+		attrs := make([]xml.Attr, 0, 7)
 		attrs = append(attrs, xml.Attr{
 			Name:  xml.Name{Local: "rx"},
 			Value: strconv.FormatUint(x.Width, 10),
@@ -187,6 +201,12 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 					Value: strconv.FormatUint(x.StrokeWidth, 10),
 				})
 			}
+		}
+		if x.TokenData != 0 {
+			attrs = append(attrs, xml.Attr{
+				Name:  xml.Name{Local: "data-token"},
+				Value: strconv.FormatUint(x.TokenData, 10),
+			})
 		}
 		s = xml.StartElement{
 			Name: xml.Name{Local: "ellipse"},
@@ -301,6 +321,8 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 			err = x.Stroke.UnmarshalXMLAttr(attr)
 		case "stroke-width":
 			x.StrokeWidth, err = strconv.ParseUint(attr.Value, 10, 64)
+		case "data-token":
+			x.TokenData, err = strconv.ParseUint(attr.Value, 10, 64)
 		}
 		if err != nil {
 			return errors.WithContext("error unmarshling token: ", err)

@@ -59,6 +59,7 @@ type Token struct {
 	Height      uint64
 	Rotation    uint8
 	Flip, Flop  bool
+	TokenData   uint64
 	TokenType
 }
 
