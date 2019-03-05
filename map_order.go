@@ -64,7 +64,9 @@ func (m *Maps) Remove(mp *Map) {
 	if i >= len(*m) {
 		return
 	}
-	*m = append((*m)[:i], (*m)[i+1:]...)
+	copy((*m)[i:], (*m)[i+1:])
+	(*m)[len(*m)-1] = nil
+	*m = (*m)[:len(*m)-1]
 }
 
 func (m Maps) getPos(mp *Map) int {
@@ -123,7 +125,9 @@ func (l Layers) Move(i, j int) {
 }
 
 func (l *Layers) Remove(i int) {
-	*l = append((*l)[:i], (*l)[i+1:]...)
+	copy((*l)[i:], (*l)[i+1:])
+	(*l)[len(*l)-1] = nil
+	*l = (*l)[:len(*l)-1]
 }
 
 type Tokens []*Token
@@ -142,5 +146,7 @@ func (t Tokens) Move(i, j int) {
 }
 
 func (t *Tokens) Remove(i int) {
-	*t = append((*t)[:i], (*t)[i+1:]...)
+	copy((*t)[i:], (*t)[i+1:])
+	(*t)[len(*t)-1] = nil
+	*t = (*t)[:len(*t)-1]
 }
