@@ -244,6 +244,17 @@ func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 			}
 			k.remove(id, p.Remove)
 			k.set(id, sets)
+		case "application/x-www-form-urlencoded":
+			r.ParseForm()
+			k.remove(id, r.PostForm["~"])
+			sets := make(map[string]string, len(r.PostForm))
+			for k := range r.PostForm {
+				if k == "~" {
+					continue
+				}
+				sets[k] = r.PostForm.Get(k)
+			}
+			k.set(id, sets)
 		default:
 			remove := make([]string, 0, 32)
 			sets := make(map[string]string)

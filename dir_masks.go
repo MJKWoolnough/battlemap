@@ -109,6 +109,9 @@ func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		case "xml":
 			w.Header().Set(contentType, "text/xml")
 			fmt.Fprintf(w, "<id>%d</id>", id)
+		case "form":
+			w.Header().Set(contentType, "application/x-www-form-urlencoded")
+			fmt.Fprintf(w, "id=%d", id)
 		default:
 			w.Header().Set(contentType, "text/plain")
 			fmt.Fprintf(w, "%d", id)

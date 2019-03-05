@@ -86,6 +86,26 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	case "text/xml":
 		at = "xml"
 		err = xml.NewDecoder(r.Body).Decode(&nm)
+	case "application/x-www-form-urlencoded":
+		at = "form"
+		if err = r.ParseForm(); err != nil {
+			break
+		}
+		nm.Name = r.PostForm.Get("name")
+		if nm.Width, err = strconv.ParseUint(r.PostForm.Get("width"), 10, 64); err != nil {
+			break
+		}
+		if nm.Height, err = strconv.ParseUint(r.PostForm.Get("height"), 10, 64); err != nil {
+			break
+		}
+		if nm.SquaresWidth, err = strconv.ParseUint(r.PostForm.Get("squaresWidth"), 10, 64); err != nil {
+			break
+		}
+		if nm.SquaresStroke, err = strconv.ParseUint(r.PostForm.Get("squaresStoke"), 10, 64); err != nil {
+			break
+		}
+		nm.SquaresColour.A = 0xff
+		_, err = fmt.Sscanf(r.PostForm.Get("squaresColour"), "#%2x%2x%2x", &nm.SquaresColour.R, &nm.SquaresColour.G, &nm.SquaresColour.B)
 	default:
 		at = "txt"
 		_, err = fmt.Fscanf(r.Body, "%d:%d:%d:{%d,%d,%d,%d}:%d:%q", &nm.Width, &nm.Height, &nm.SquaresWidth, &nm.SquaresColour.R, &nm.SquaresColour.G, &nm.SquaresColour.B, &nm.SquaresColour.A, &nm.SquaresStroke, &nm.Name)
@@ -109,6 +129,9 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	case "json":
 		w.Header().Set(contentType, "application/json")
 		io.WriteString(w, idStr)
+	case "form":
+		w.Header().Set(contentType, "application/x-www-form-urlencoded")
+		io.WriteString(w, "id="+idStr)
 	default:
 		w.Header().Set(contentType, "text/plain")
 		io.WriteString(w, idStr)

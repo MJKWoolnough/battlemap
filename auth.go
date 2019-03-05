@@ -92,10 +92,13 @@ func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, "{\"admin\": false}")
 	case "xml":
 		w.Header().Set(contentType, "text/xml")
-		io.WriteString(w, "<login>false</login>")
+		io.WriteString(w, "<admin>false</admin>")
 	case "txt":
 		w.Header().Set(contentType, "text/plain")
 		io.WriteString(w, "logged out")
+	case "form":
+		w.Header().Set(contentType, "application/x-www-form-urlencoded")
+		io.WriteString(w, "admin=false")
 	}
 }
 
@@ -125,8 +128,9 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		case "txt":
 			w.Header().Set(contentType, "text/plain")
 			io.WriteString(w, "passwords don't match")
-		default:
-			io.WriteString(w, "passwords don't match")
+		case "form":
+			w.Header().Set(contentType, "application/x-www-form-urlencoded")
+			io.WriteString(w, "updated=false")
 		}
 		return
 	}
@@ -141,6 +145,9 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	case "txt":
 		w.Header().Set(contentType, "text/plain")
 		io.WriteString(w, "password updated")
+	case "form":
+		w.Header().Set(contentType, "application/x-www-form-urlencoded")
+		io.WriteString(w, "<updated>true</login>")
 	default:
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 	}
@@ -170,28 +177,46 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, password, _ = r.BasicAuth()
 	}
+	var at AcceptType
+	httpaccept.HandleAccept(r, &at)
 	if sessionData := a.login(password); len(sessionData) > 0 {
 		a.store.Set(w, sessionData)
-		var at AcceptType
-		httpaccept.HandleAccept(r, &at)
 		switch at {
 		case "json":
 			w.Header().Set(contentType, "application/json")
 			io.WriteString(w, "{\"admin\": true}")
 		case "xml":
 			w.Header().Set(contentType, "text/xml")
-			io.WriteString(w, "<login>true</login>")
+			io.WriteString(w, "<admin>true</admin>")
 		case "txt":
 			w.Header().Set(contentType, "application/text")
 			io.WriteString(w, "logged in")
+		case "form":
+			w.Header().Set(contentType, "application/x-www-form-urlencoded")
+			io.WriteString(w, "admin=true")
 		default:
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 		}
 		return
 	}
 	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
+	var content string
+	switch at {
+	case "json":
+		w.Header().Set(contentType, "application/json")
+		content = "{\"admin\": false}"
+	case "xml":
+		w.Header().Set(contentType, "text/xml")
+		content = "<admin>false</admin>"
+	case "txt":
+		w.Header().Set(contentType, "text/plain")
+		content = "logged out"
+	case "form":
+		w.Header().Set(contentType, "application/x-www-form-urlencoded")
+		content = "admin=false"
+	}
 	w.WriteHeader(http.StatusUnauthorized)
-	a.Logout(w, r)
+	io.WriteString(w, content)
 }
 
 func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {

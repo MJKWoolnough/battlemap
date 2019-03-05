@@ -128,6 +128,9 @@ func (a *AcceptType) Handle(m httpaccept.Mime) bool {
 	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
 		*a = "json"
 		return true
+	} else if m.Match("application/x-www-form-urlencoded") {
+		*a = "form"
+		return true
 	}
 	return false
 }
