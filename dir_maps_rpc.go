@@ -248,7 +248,7 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 		if err != nil {
 			return nil, err
 		}
-		err = MapsDir.updateMapLayer(uint64(c), func(mp *Map, l *Layer) bool {
+		err = MapsDir.updateMapLayer(uint64(c), layerID, func(mp *Map, l *Layer) bool {
 			for n, ll := range mp.Layers {
 				if ll == l {
 					mp.Layers.Remove(n)
