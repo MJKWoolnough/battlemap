@@ -97,6 +97,23 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 			mp.Patterns = append(mp.Patterns, genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke))
 			return true
 		})
+	case "moveMap":
+		var moveMap struct {
+			ID       uint64 `json:"id"`
+			Position int    `json:"position"`
+		}
+		if err := json.Unmarshal(data, &moveMap); err != nil {
+			return nil, err
+		}
+		var movements Layers
+		err := m.updateMapData(moveMap.ID, func(mp *Map) bool {
+			movements = m.order.Move(mp, moveMap.Position)
+			for _, mmp := range movements {
+				m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
+			}
+			return false
+		})
+		return movements, err
 	default:
 		return currentMap(cd.CurrentMap).RPC(cd, method, data)
 	}
