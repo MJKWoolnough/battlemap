@@ -248,15 +248,13 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 		if err != nil {
 			return nil, err
 		}
-		err = MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
-			lIDStr := "Layer_" + strconv.FormatUint(layerID, 10)
-			for n, l := range mp.Layers {
-				if l.ID == lIDStr {
+		err = MapsDir.updateMapLayer(uint64(c), func(mp *Map, l *Layer) bool {
+			for n, ll := range mp.Layers {
+				if ll == l {
 					mp.Layers.Remove(n)
 					return true
 				}
 			}
-			err = ErrUnknownLayer
 			return false
 		})
 		return nil, err
@@ -284,6 +282,20 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 			return nil, err
 		}
 		return token.ID, nil
+	case "removeToken":
+		var tokenID uint64
+		if err := json.Unmarshal(data, &tokenID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, l *Layer, tk *Token) bool {
+			for n, ltk := range l.Tokens {
+				if ltk == tk {
+					l.Tokens.Remove(n)
+					return true
+				}
+			}
+			return false
+		})
 	}
 	return nil, ErrUnknownMethod
 }
