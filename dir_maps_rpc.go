@@ -260,6 +260,30 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 			return false
 		})
 		return nil, err
+	case "addToken":
+		var token struct {
+			*Token
+			LayerID uint64 `json:"layerID"`
+		}
+		if err := json.Unmarshal(data, &token); err != nil {
+			return nil, err
+		}
+		if err := MapsDir.updateMapLayer(uint64(c), token.LayerID, func(mp *Map, l *Layer) bool {
+			var tid uint64
+			for _, ly := range mp.Layers {
+				for _, tk := range ly.Tokens {
+					if tk.ID > tid {
+						tid = tk.ID
+					}
+				}
+			}
+			token.ID = tid + 1
+			l.Tokens = append(l.Tokens, token.Token)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return token.ID, nil
 	}
 	return nil, ErrUnknownMethod
 }
