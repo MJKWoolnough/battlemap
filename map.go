@@ -49,18 +49,19 @@ type Layer struct {
 }
 
 type Token struct {
-	Source      string
-	Stroke      Colour
-	StrokeWidth uint64
-	ID          uint64
-	X           int64
-	Y           int64
-	Width       uint64
-	Height      uint64
-	Rotation    uint8
-	Flip, Flop  bool
-	TokenData   uint64
-	TokenType
+	Source      string `json:"source"`
+	Stroke      Colour `json:"colour"`
+	StrokeWidth uint64 `json:"strokeWidth"`
+	ID          uint64 `json:"-"`
+	X           int64  `json:"x"`
+	Y           int64  `json:"y"`
+	Width       uint64 `json:"width"`
+	Height      uint64 `json:"height"`
+	Rotation    uint8  `json:"rotation"`
+	Flip        bool   `json:"flip"`
+	Flop        bool   `json:"flop"`
+	TokenData   uint64 `json:"tokenData"`
+	TokenType   `json:"tokenType"`
 }
 
 func (m *Map) WriteTo(w io.Writer) (int64, error) {
