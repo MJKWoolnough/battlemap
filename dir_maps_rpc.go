@@ -425,6 +425,66 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 			tk.Source = mp.Patterns.Remove(strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")"))
 			return true
 		})
+	case "setTokenSource":
+		var tokenSource struct {
+			ID     uint64 `json:"id"`
+			Source string `json:"source"`
+		}
+		if err := json.Unmarshal(data, &tokenSource); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenSource.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if tk.TokenType != tokenImage || tk.Source == tokenSource.Source {
+				return false
+			}
+			tk.Source = tokenSource.Source
+			return true
+		})
+	case "setTokenLayer":
+		var tokenLayer struct {
+			ID    uint64 `json:"id"`
+			Layer uint64 `json:"layer"`
+		}
+		if err := json.Unmarshal(data, &tokenLayer); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenLayer.ID, func(mp *Map, l *Layer, tk *Token) bool {
+			for _, ll := range mp.Layers {
+				for m, ttk := range ll.Tokens {
+					if ttk == tk {
+						if ll.ID == l.ID {
+							return false
+						}
+						ll.Tokens.Remove(m)
+						l.Tokens = append(l.Tokens, tk)
+						return true
+					}
+				}
+			}
+			return false
+		})
+	case "setTokenTop":
+		var tokenID uint64
+		if err := json.Unmarshal(data, &tokenID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(_ *Map, l *Layer, tk *Token) bool {
+			if l.Tokens[len(l.Tokens)-1] == tk {
+				return false
+			}
+			return true
+		})
+	case "setTokenBottom":
+		var tokenID uint64
+		if err := json.Unmarshal(data, &tokenID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(_ *Map, l *Layer, tk *Token) bool {
+			if l.Tokens[0] == tk {
+				return false
+			}
+			return true
+		})
 	}
 	return nil, ErrUnknownMethod
 }
