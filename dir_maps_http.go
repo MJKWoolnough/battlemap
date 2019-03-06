@@ -62,7 +62,9 @@ func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		Config.Get("currentUserMap", &currentUserMap)
 		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if id == uint64(currentUserMap) {
+			m.mu.RLock()
 			m.handler.ServeHTTP(w, r)
+			m.mu.RUnlock()
 		} else {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		}
