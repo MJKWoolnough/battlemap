@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 )
@@ -42,7 +43,7 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		handler := a.handler
 		if isRoot(r.URL.Path) {
 			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
-				a.websocket.ServeHTTP(w, r)
+				websocket.Handler(a.WebSocket).ServeHTTP(w, r)
 			} else {
 				at := AcceptType("html")
 				httpaccept.HandleAccept(r, &at)

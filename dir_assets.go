@@ -14,7 +14,6 @@ import (
 	"sync"
 	"time"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
@@ -41,8 +40,6 @@ type assetsDir struct {
 	tagHandlerMu sync.RWMutex
 	tagHandler   http.Handler
 	tagJSON      json.RawMessage
-
-	websocket websocket.Handler
 }
 
 func (a *assetsDir) Init() error {
@@ -62,7 +59,6 @@ func (a *assetsDir) Init() error {
 	if err = a.initAssets(); err != nil {
 		return err
 	}
-	a.websocket = websocket.Handler(a.WebSocket)
 	return nil
 }
 
