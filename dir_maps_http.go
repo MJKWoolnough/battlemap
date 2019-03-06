@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/keystore"
@@ -48,14 +49,23 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if Auth.IsAdmin(r) {
 		if isRoot(r.URL.Path) {
-			at := AcceptType("html")
-			httpaccept.HandleAccept(r, &at)
-			r.URL.Path += "index." + string(at)
-			m.mu.RLock()
-			m.indexes.ServeHTTP(w, r)
-			m.mu.RUnlock()
+			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
+				websocket.Handler(m.Websocket).ServeHTTP(w, r)
+			} else {
+				at := AcceptType("html")
+				httpaccept.HandleAccept(r, &at)
+				r.URL.Path += "index." + string(at)
+				m.mu.RLock()
+				m.indexes.ServeHTTP(w, r)
+				m.mu.RUnlock()
+			}
+		} else if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") && m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
+			id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+			websocket.Handler(currentMap(id).Websocket).ServeHTTP(w, r)
 		} else {
+			m.mu.RLock()
 			m.handler.ServeHTTP(w, r)
+			m.mu.RUnlock()
 		}
 	} else {
 		var currentUserMap keystore.Uint
