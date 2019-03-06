@@ -55,7 +55,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 			return cd.CurrentMap, nil
 		case "maps.setCurrentMap":
 			if !cd.IsAdmin {
-				break
+				return nil, ErrUnknownMethod
 			}
 			if err := json.Unmarshal(data, &c.ConnData.CurrentMap); err != nil {
 				return nil, err
