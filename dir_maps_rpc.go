@@ -485,6 +485,15 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 			}
 			return true
 		})
+	case "setInitiative":
+		var initiative Initiative
+		if err := json.Unmarshal(data, &initiative); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapData(uint64(c), func(mp *Map) bool {
+			mp.Initiative = initiative
+			return true
+		})
 	}
 	return nil, ErrUnknownMethod
 }
