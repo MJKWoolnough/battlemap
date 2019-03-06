@@ -150,3 +150,18 @@ func (t *Tokens) Remove(i int) {
 	(*t)[len(*t)-1] = nil
 	*t = (*t)[:len(*t)-1]
 }
+
+func (p *Patterns) Remove(id string) string {
+	for n, pt := range *p {
+		if pt.ID == id {
+			copy((*p)[n:], (*p)[n+1:])
+			(*p)[len(*p)-1] = Pattern{}
+			*p = (*p)[:len(*p)-1]
+			if pt.Image != nil {
+				return pt.Image.Source
+			}
+			break
+		}
+	}
+	return ""
+}

@@ -290,6 +290,9 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, l *Layer, tk *Token) bool {
 			for n, ltk := range l.Tokens {
 				if ltk == tk {
+					if tk.TokenType == tokenPattern {
+						mp.Patterns.Remove(strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")"))
+					}
 					l.Tokens.Remove(n)
 					return true
 				}
@@ -381,6 +384,45 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 				return false
 			}
 			tk.Flop = flopToken.Flop
+			return true
+		})
+	case "setTokenPattern":
+		var tokenID uint64
+		if err := json.Unmarshal(data, &tokenID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
+			if tk.TokenType != tokenImage {
+				return false
+			}
+			idStr := "url(#Pattern_" + strconv.FormatUint(tk.ID, 10) + ")"
+			mp.Patterns = append(mp.Patterns, Pattern{
+				ID:     strings.TrimSuffix(strings.TrimPrefix(idStr, "url(#"), ")"),
+				Width:  tk.Width,
+				Height: tk.Height,
+				Image: &Token{
+					Source:    tk.Source,
+					Width:     tk.Width,
+					Height:    tk.Height,
+					TokenType: tokenImage,
+				},
+			})
+			tk.TokenType = tokenPattern
+			tk.Source = idStr
+			return true
+
+		})
+	case "setTokenImage":
+		var tokenID uint64
+		if err := json.Unmarshal(data, &tokenID); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
+			if tk.TokenType != tokenPattern {
+				return false
+			}
+			tk.TokenType = tokenImage
+			tk.Source = mp.Patterns.Remove(strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")"))
 			return true
 		})
 	}
