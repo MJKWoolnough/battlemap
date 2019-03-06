@@ -296,6 +296,93 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 			}
 			return false
 		})
+	case "moveToken":
+		var moveToken struct {
+			ID uint64 `json:"id"`
+			X  int64  `json:"x"`
+			Y  int64  `json:"y"`
+		}
+		if err := json.Unmarshal(data, &moveToken); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), moveToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if tk.X == moveToken.X && tk.Y == moveToken.Y {
+				return false
+			}
+			tk.X = moveToken.X
+			tk.Y = moveToken.Y
+			return true
+		})
+	case "resizeToken":
+		var resizeToken struct {
+			ID     uint64 `json:"id"`
+			Width  int64  `json:"width"`
+			Height int64  `json:"height"`
+		}
+		if err := json.Unmarshal(data, &resizeToken); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), resizeToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if resizeToken.Width < 0 {
+				tk.X += int64(tk.Width) + resizeToken.Width
+				resizeToken.Width *= -1
+			}
+			if resizeToken.Height < 0 {
+				tk.Y += int64(tk.Height) + resizeToken.Height
+				resizeToken.Height *= -1
+			}
+			if tk.Width == uint64(resizeToken.Width) && tk.Height == uint64(resizeToken.Height) {
+				return false
+			}
+			tk.Width = uint64(resizeToken.Width)
+			tk.Height = uint64(resizeToken.Height)
+			return true
+		})
+	case "rotateToken":
+		var rotateToken struct {
+			ID       uint64 `json:"id"`
+			Rotation uint8  `json:"rotation"`
+		}
+		if err := json.Unmarshal(data, &rotateToken); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), rotateToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if tk.Rotation == rotateToken.Rotation {
+				return false
+			}
+			tk.Rotation = rotateToken.Rotation
+			return true
+		})
+	case "flipToken":
+		var flipToken struct {
+			ID   uint64 `json:"id"`
+			Flip bool   `json:"flip"`
+		}
+		if err := json.Unmarshal(data, &flipToken); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), flipToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if tk.Flip == flipToken.Flip {
+				return false
+			}
+			tk.Flip = flipToken.Flip
+			return true
+		})
+	case "flopToken":
+		var flopToken struct {
+			ID   uint64 `json:"id"`
+			Flop bool   `json:"flop"`
+		}
+		if err := json.Unmarshal(data, &flopToken); err != nil {
+			return nil, err
+		}
+		return nil, MapsDir.updateMapsLayerToken(uint64(c), flopToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+			if tk.Flop == flopToken.Flop {
+				return false
+			}
+			tk.Flop = flopToken.Flop
+			return true
+		})
 	}
 	return nil, ErrUnknownMethod
 }
