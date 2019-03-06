@@ -350,7 +350,7 @@ type Colour struct {
 }
 
 func (c Colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	return xml.Attr {
+	return xml.Attr{
 		Name:  name,
 		Value: fmt.Sprintf("rgba(%d, %d, %d, %.2f)", c.R, c.G, c.B, float32(c.A)/255),
 	}, nil
@@ -398,5 +398,33 @@ func (h Hidden) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 
 func (h *Hidden) Unmarshal(attr xml.Attr) error {
 	*h = attr.Value == "hidden"
+	return nil
+}
+
+type Initiative []uint64
+
+func (i Initiative) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+	var sb strings.Builder
+	for n, init := range i {
+		if n > 0 {
+			sb.WriteByte(',')
+		}
+		sb.WriteString(strconv.FormatUint(init, 10))
+	}
+	return xml.Attr{
+		Name:  name,
+		Value: sb.String(),
+	}, nil
+}
+
+func (i *Initiative) UnmarshalXMLAttr(attr xml.Attr) error {
+	*i = make(Initiative, strings.Count(attr.Value, ",")+1)
+	for _, idStr := range strings.Split(attr.Value, ",") {
+		n, err := strconv.ParseUint(idStr, 10, 64)
+		if err != nil {
+			return err
+		}
+		*i = append(*i, n)
+	}
 	return nil
 }

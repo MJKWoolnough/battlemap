@@ -10,14 +10,15 @@ import (
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
 type MapX struct {
-	ID       uint64   `xml:"id,attr" json:"id"`
-	Name     string   `xml:"data-name,attr" json:"name"`
-	Order    int64    `xml:"data-order,attr" json:"-"`
-	Width    uint64   `xml:"width,attr" json:"-"`
-	Height   uint64   `xml:"height,attr" json:"-"`
-	Patterns Patterns `json:"defs>pattern,omitempty" json:"-"`
-	Masks    []Mask   `json:"defs>mask,omitempty" json:"-"`
-	Layers   Layers   `xml:"g,omitempty" json:"-"`
+	ID         uint64     `xml:"id,attr" json:"id"`
+	Name       string     `xml:"data-name,attr" json:"name"`
+	Order      int64      `xml:"data-order,attr" json:"-"`
+	Initiative Initiative `xml:"data-initiative,attr" json:"-"`
+	Width      uint64     `xml:"width,attr" json:"-"`
+	Height     uint64     `xml:"height,attr" json:"-"`
+	Patterns   Patterns   `json:"defs>pattern,omitempty" json:"-"`
+	Masks      []Mask     `json:"defs>mask,omitempty" json:"-"`
+	Layers     Layers     `xml:"g,omitempty" json:"-"`
 }
 
 type Patterns []Pattern
