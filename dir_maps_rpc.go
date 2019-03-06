@@ -18,7 +18,6 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 		return nil, ErrUnknownMethod
 	}
 	switch strings.TrimPrefix(method, "maps.") {
-	case "setCurrentMap":
 	case "new":
 		var nm newMap
 		if err := json.Unmarshal(data, &nm); err != nil {
@@ -490,7 +489,7 @@ func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, e
 		if err := json.Unmarshal(data, &initiative); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapData(uint64(c), func(mp *Map) bool {
+		return nil, MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
 			mp.Initiative = initiative
 			return true
 		})
