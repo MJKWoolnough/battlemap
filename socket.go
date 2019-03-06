@@ -53,6 +53,17 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 			return cd.ID[:], nil
 		case "maps.getCurrentMap":
 			return cd.CurrentMap, nil
+		case "maps.setCurrentMap":
+			if !cd.IsAdmin {
+				break
+			}
+			if err := json.Unmarshal(data, &c.ConnData.CurrentMap); err != nil {
+				return nil, err
+			}
+			c.mu.Lock()
+			c.CurrentMap = cd.CurrentMap
+			c.mu.Unlock()
+			return nil, nil
 		default:
 			return handler.RPC(cd, method, data)
 		}
