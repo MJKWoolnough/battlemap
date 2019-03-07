@@ -13,7 +13,7 @@ type MapX struct {
 	ID         uint64     `xml:"id,attr" json:"id"`
 	Name       string     `xml:"data-name,attr" json:"name"`
 	Order      int64      `xml:"data-order,attr" json:"-"`
-	Initiative Initiative `xml:"data-initiative,attr" json:"-"`
+	Initiative Initiative `xml:"data-initiative,attr,omitempty" json:"-"`
 	Width      uint64     `xml:"width,attr" json:"-"`
 	Height     uint64     `xml:"height,attr" json:"-"`
 	Patterns   Patterns   `json:"defs>pattern,omitempty" json:"-"`
