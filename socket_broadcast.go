@@ -7,9 +7,9 @@ const (
 	broadcastCurrentUserMap
 )
 
-func (s *socket) SetCurrentUserMap(currentUserMap uint64) {
+func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 	data, _ := json.Marshal(RPCResponse{
-		ID:     -2,
+		ID:     broadcastCurrentUserMap,
 		Result: currentUserMap,
 	})
 	s.mu.RLock()
@@ -21,13 +21,13 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64) {
 		c.mu.Unlock()
 	}
 	s.mu.RUnlock()
-	s.Broadcast(SocketMaps, data)
+	s.Broadcast(SocketMaps, data, except)
 }
 
-func (s *socket) Broadcast(mask uint8, data []byte) {
+func (s *socket) Broadcast(mask uint8, data []byte, except ID) {
 	s.mu.RLock()
 	for c, m := range s.conns {
-		if mask&m > 0 {
+		if mask&m > 0 && except != c.ID {
 			go c.rpc.SendData(data)
 		}
 	}
