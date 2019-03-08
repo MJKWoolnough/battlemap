@@ -40,7 +40,9 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 			CurrentMap: uint64(cu),
 		},
 	}
-	rand.Read(c.ID[:])
+	if c.IsAdmin {
+		rand.Read(c.ID[:])
+	}
 	if handler == nil {
 		handler = &c
 	}
@@ -178,7 +180,7 @@ const (
 	SocketConfig uint8 = iota + 1
 	SocketAssets
 	SocketMaps
-	SocketKeystore
+	SocketCharacters
 )
 
 const (

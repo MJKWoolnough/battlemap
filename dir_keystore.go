@@ -20,6 +20,7 @@ import (
 type keystoreDir struct {
 	DefaultMethods
 	Name      string
+	Socket    uint8
 	prefix    string
 	store     *keystore.FileStore
 	websocket websocket.Handler
@@ -299,7 +300,7 @@ func (k *keystoreDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
-	Socket.RunConn(conn, k, SocketKeystore)
+	Socket.RunConn(conn, k, k.Socket)
 }
 
 func (k *keystoreDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -414,8 +415,8 @@ func (k *keystoreDir) delete(id uint64) error {
 }
 
 var (
-	CharsDir  = keystoreDir{Name: "Chars"}
-	TokensDir = keystoreDir{Name: "Tokens"}
+	CharsDir  = keystoreDir{Name: "Chars", Socket: SocketCharacters}
+	TokensDir = keystoreDir{Name: "Tokens", Socket: SocketMaps}
 )
 
 const (
