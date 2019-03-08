@@ -2,7 +2,9 @@ package main
 
 import (
 	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
+	"net/http"
 	"strings"
 	"sync"
 
@@ -96,6 +98,10 @@ type conn struct {
 }
 
 type ID [64]byte
+
+func (id *ID) FromRequest(r *http.Request) {
+	base64.StdEncoding.Decode((*id)[:], []byte(r.Header.Get("X-ID")))
+}
 
 type ConnData struct {
 	CurrentMap uint64

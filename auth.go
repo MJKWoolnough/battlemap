@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
-	"encoding/base64"
 	"hash"
 	"io"
 	"net/http"
@@ -136,7 +135,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var id ID
-	base64.StdEncoding.Decode(id[:], []byte(r.Header.Get("X-ID")))
+	id.FromRequest(r)
 	a.store.Set(w, a.UpdatePasswordGetData(password, id))
 	switch at {
 	case "json":
