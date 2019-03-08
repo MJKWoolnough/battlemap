@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"hash"
 	"io"
 	"net/http"
@@ -134,7 +135,9 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	a.store.Set(w, a.UpdatePasswordGetData(password))
+	var id ID
+	base64.StdEncoding.Decode(id[:], []byte(r.Header.Get("X-ID")))
+	a.store.Set(w, a.UpdatePasswordGetData(password, id))
 	switch at {
 	case "json":
 		w.Header().Set(contentType, "application/json")
@@ -153,7 +156,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
+func (a *auth) UpdatePasswordGetData(newPassword string, id ID) []byte {
 	a.mu.Lock()
 	a.password = hashPass([]byte(newPassword), a.passwordSalt)
 	password := a.password
@@ -165,7 +168,7 @@ func (a *auth) UpdatePasswordGetData(newPassword string) []byte {
 		"password":    &password,
 		"sessionData": &d,
 	})
-	Socket.KickAdmins()
+	Socket.KickAdmins(id)
 	return data
 }
 

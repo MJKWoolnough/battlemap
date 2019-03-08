@@ -34,14 +34,16 @@ func (s *socket) Broadcast(mask uint8, data []byte) {
 	s.mu.RUnlock()
 }
 
-func (s *socket) KickAdmins(except []byte) {
+func (s *socket) KickAdmins(except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.RLock()
 		isAdmin := c.IsAdmin
 		c.mu.RUnlock()
 		if isAdmin {
-			go c.kickAdmin()
+			if except != c.ID {
+				go c.kickAdmin()
+			}
 		}
 	}
 	s.mu.RUnlock()

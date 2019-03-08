@@ -95,11 +95,13 @@ type conn struct {
 	ConnData
 }
 
+type ID [64]byte
+
 type ConnData struct {
 	CurrentMap uint64
 	IsAdmin    bool
 
-	ID [64]byte
+	ID ID
 }
 
 func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -119,13 +121,7 @@ func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error)
 			case "changePassword":
 				var password string
 				json.Unmarshal(data, &password)
-				c.mu.Lock()
-				c.IsAdmin = false
-				c.mu.Unlock()
-				sessionData := Auth.UpdatePasswordGetData(password)
-				c.mu.Lock()
-				c.IsAdmin = true
-				c.mu.Unlock()
+				sessionData := Auth.UpdatePasswordGetData(password, cd.ID)
 				return sessionData, nil
 			}
 		} else if submethod == "login" {
