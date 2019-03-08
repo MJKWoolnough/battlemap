@@ -88,46 +88,6 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 	s.mu.Unlock()
 }
 
-func (s *socket) SetCurrentUserMap(currentUserMap uint64) {
-	data, _ := json.Marshal(RPCResponse{
-		ID:     -2,
-		Result: currentUserMap,
-	})
-	s.mu.RLock()
-	for c := range s.conns {
-		c.mu.Lock()
-		if !c.IsAdmin {
-			c.CurrentMap = currentUserMap
-		}
-		c.mu.Unlock()
-	}
-	s.mu.RUnlock()
-	s.Broadcast(SocketMaps, data)
-}
-
-func (s *socket) Broadcast(mask uint8, data []byte) {
-	s.mu.RLock()
-	for c, m := range s.conns {
-		if mask&m > 0 {
-			go c.rpc.SendData(data)
-		}
-	}
-	s.mu.RUnlock()
-}
-
-func (s *socket) KickAdmins() {
-	s.mu.RLock()
-	for c := range s.conns {
-		c.mu.RLock()
-		isAdmin := c.IsAdmin
-		c.mu.RUnlock()
-		if isAdmin {
-			go c.kickAdmin()
-		}
-	}
-	s.mu.RUnlock()
-}
-
 type conn struct {
 	rpc *RPC
 
@@ -203,13 +163,6 @@ func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error)
 		}
 	}
 	return nil, ErrUnknownMethod
-}
-
-func (c *conn) kickAdmin() {
-	c.mu.Lock()
-	c.IsAdmin = false
-	c.mu.Unlock()
-	c.rpc.SendData(loggedOut)
 }
 
 var Socket socket
