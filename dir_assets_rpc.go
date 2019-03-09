@@ -156,7 +156,7 @@ func (a *assetsDir) rpcAddTag(data []byte, cd ConnData) (interface{}, error) {
 	tag := a.addTag(tagName)
 	a.writeTags()
 	a.tagMu.Unlock()
-	Socket.BroadcastTagAdda(Tags{tag.ID: tag}, cd.ID)
+	Socket.BroadcastTagAdd(Tags{tag.ID: tag}, cd.ID)
 	return tag.ID, nil
 }
 
