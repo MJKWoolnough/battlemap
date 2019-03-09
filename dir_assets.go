@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -241,7 +240,6 @@ func (a *assetsDir) deleteAsset(asset *Asset) error {
 }
 
 func (a *assetsDir) addTag(name string) *Tag {
-	name = strings.Replace(name, "\n", "", -1)
 	id := a.nextTagID
 	a.nextTagID++
 	t := &Tag{
