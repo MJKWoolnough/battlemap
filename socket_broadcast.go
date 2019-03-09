@@ -6,7 +6,11 @@ const (
 	broadcastIsAdmin = -1 - iota
 	broadcastCurrentUserMap
 	broadcastMapChange
+	broadcastAssetAdd
 	broadcastAssetChange
+	broadcastAssetRemove
+	broadcastTagAdd
+	broadcastTagRemove
 	broadcastCharChange
 	broadcastTokenChange
 )
@@ -73,9 +77,29 @@ func (s *socket) BroadcastMapChange(mapID uint64, change interface{}, except ID)
 	s.mu.RUnlock()
 }
 
-func (s *socket) BroadcastAssetChange(change interface{}, except ID) {
+func (s *socket) BroadcastAssetAdd(change Assets, except ID) {
+	s.broadcastAssetChange(broadcastAssetAdd, change, except)
+}
+
+func (s *socket) BroadcastAssetChange(asset *Asset, except ID) {
+	s.broadcastAssetChange(broadcastAssetChange, asset, except)
+}
+
+func (s *socket) BroadcastAssetRemove(assetID uint64, except ID) {
+	s.broadcastAssetChange(broadcastAssetRemove, assetID, except)
+}
+
+func (s *socket) BroadcastTagAdd(tags Tags, except ID) {
+	s.broadcastAssetChange(broadcastTagAdd, tags, except)
+}
+
+func (s *socket) BroadcastTagRemove(tags []uint64, except ID) {
+	s.broadcastAssetChange(broadcastTagRemove, tags, except)
+}
+
+func (s *socket) broadcastAssetChange(id int, change interface{}, except ID) {
 	data, _ := json.Marshal(RPCResponse{
-		ID:     broadcastAssetChange,
+		ID:     id,
 		Result: change,
 	})
 	s.mu.RLock()

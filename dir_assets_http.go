@@ -156,6 +156,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		w.Header().Set(contentType, "text/plain")
 		added.WriteTo(w)
 	}
+	Socket.BroadcastAssetAdd(added, SocketIDFromRequest(r))
 	return true
 }
 
@@ -217,6 +218,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		w.WriteHeader(http.StatusNoContent)
+		Socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
 		return true
 	}
 	return false
@@ -291,6 +293,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var change bool
+	id := SocketIDFromRequest(r)
 	if len(tp.Remove) > 0 {
 		a.assetMu.Lock() //need to lock in this order!
 		a.tagMu.Lock()
@@ -302,6 +305,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		}
 		change = a.deleteTags(tags...)
 		a.assetMu.Unlock()
+		Socket.BroadcastTagRemove(tp.Remove, id)
 	} else {
 		a.tagMu.Lock()
 	}
@@ -340,6 +344,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "%d:%q\n", tag.ID, tag.Name)
 			}
 		}
+		Socket.BroadcastTagAdd(newTags, id)
 	} else {
 		a.tagMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
@@ -435,6 +440,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		}
 		a.assetMu.Unlock()
 		w.Write(buf)
+		Socket.BroadcastAssetChange(as, SocketIDFromRequest(r))
 	} else {
 		a.assetMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
