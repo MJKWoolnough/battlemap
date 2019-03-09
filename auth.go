@@ -134,9 +134,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	var id ID
-	id.FromRequest(r)
-	a.store.Set(w, a.UpdatePasswordGetData(password, id))
+	a.store.Set(w, a.UpdatePasswordGetData(password, SocketIDFromRequest(r)))
 	switch at {
 	case "json":
 		w.Header().Set(contentType, "application/json")

@@ -101,8 +101,10 @@ type conn struct {
 
 type ID [64]byte
 
-func (id *ID) FromRequest(r *http.Request) {
-	base64.StdEncoding.Decode((*id)[:], []byte(r.Header.Get("X-ID")))
+func SocketIDFromRequest(r *http.Request) ID {
+	var id ID
+	base64.StdEncoding.Decode(id[:], []byte(r.Header.Get("X-ID")))
+	return id
 }
 
 type ConnData struct {
