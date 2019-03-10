@@ -53,7 +53,6 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 		rpc:     NewRPC(wconn, &c),
 		handler: handler,
 		ConnData: ConnData{
-			IsAdmin:    isAdmin,
 			CurrentMap: uint64(cu),
 			ID:         id,
 		},
@@ -92,9 +91,7 @@ func SocketIDFromRequest(r *http.Request) ID {
 
 type ConnData struct {
 	CurrentMap uint64
-	IsAdmin    bool
-
-	ID ID
+	ID         ID
 }
 
 func (c *conn) RPC(method string, data []byte) (interface{}, error) {
@@ -103,13 +100,13 @@ func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 	c.mu.RUnlock()
 	switch method {
 	case "auth.loggedIn":
-		return cd.IsAdmin, nil
+		return cd.ID > 0, nil
 	case "conn.connID":
 		return cd.ID, nil
 	case "maps.getCurrentMap":
 		return cd.CurrentMap, nil
 	case "maps.setCurrentMap":
-		if !cd.IsAdmin {
+		if cd.ID == 0 {
 			return nil, ErrUnknownMethod
 		}
 		if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
@@ -130,11 +127,11 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 	method = method[:pos]
 	switch method {
 	case "auth":
-		if cd.IsAdmin {
+		if cd.ID > 0 {
 			switch submethod {
 			case "logout":
 				c.mu.Lock()
-				c.IsAdmin = false
+				c.ID = 0
 				c.mu.Unlock()
 				c.rpc.SendData(loggedOut)
 				return nil, nil
@@ -152,13 +149,16 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 				return nil, ErrInvalidPassword
 			}
 			c.mu.Lock()
-			c.IsAdmin = true
+			Socket.mu.Lock()
+			Socket.nextID++
+			c.ID = Socket.nextID
+			Socket.mu.Unlock()
 			c.mu.Unlock()
 			c.rpc.SendData(loggedIn)
 			return sessionData, nil
 		}
 	case "assets":
-		if cd.IsAdmin {
+		if cd.ID > 0 {
 			return AssetsDir.RPCData(cd, submethod, data)
 		}
 	case "maps":
@@ -166,15 +166,15 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 			var currentUserMap keystore.Uint64
 			Config.Get("currentUserMap", &currentUserMap)
 			return currentUserMap, nil
-		} else if cd.IsAdmin {
+		} else if cd.ID > 0 {
 			return MapsDir.RPCData(cd, method, data)
 		}
 	case "characters":
-		if cd.IsAdmin {
+		if cd.ID > 0 {
 			return CharsDir.RPCData(cd, submethod, data)
 		}
 	case "tokens":
-		if cd.IsAdmin {
+		if cd.ID > 0 {
 			return TokensDir.RPCData(cd, submethod, data)
 		}
 	}

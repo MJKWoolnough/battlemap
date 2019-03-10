@@ -19,19 +19,16 @@ func (s *socket) KickAdmins(except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.RLock()
-		isAdmin := c.IsAdmin
-		c.mu.RUnlock()
-		if isAdmin {
-			if except != c.ID {
-				go c.kickAdmin()
-			}
+		if c.ID > 0 && except != c.ID {
+			go c.kickAdmin()
 		}
+		c.mu.RUnlock()
 	}
 	s.mu.RUnlock()
 }
 func (c *conn) kickAdmin() {
 	c.mu.Lock()
-	c.IsAdmin = false
+	c.ID = 0
 	c.mu.Unlock()
 	c.rpc.SendData(loggedOut)
 }
@@ -44,7 +41,7 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.Lock()
-		if !c.IsAdmin {
+		if c.ID == 0 {
 			c.CurrentMap = currentUserMap
 		}
 		c.mu.Unlock()
@@ -108,7 +105,7 @@ func (s *socket) broadcastAssetChange(id int, change interface{}, except ID) {
 			continue
 		}
 		c.mu.RLock()
-		isAdmin := c.IsAdmin
+		isAdmin := c.ID > 0
 		c.mu.RUnlock()
 		if isAdmin {
 			go c.rpc.SendData(data)
@@ -128,7 +125,7 @@ func (s *socket) BroadcastTokenChange(mapID uint64, change interface{}, except I
 			continue
 		}
 		c.mu.RLock()
-		isAdmin := c.IsAdmin
+		isAdmin := c.ID > 0
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
 		if isAdmin && currentMap == mapID {
@@ -149,7 +146,7 @@ func (s *socket) BroadcastCharChange(change interface{}, except ID) {
 			continue
 		}
 		c.mu.RLock()
-		isAdmin := c.IsAdmin
+		isAdmin := c.ID > 0
 		c.mu.RUnlock()
 		if isAdmin {
 			go c.rpc.SendData(data)

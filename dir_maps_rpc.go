@@ -14,7 +14,7 @@ func (m *mapsDir) Websocket(conn *websocket.Conn) {
 }
 
 func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	if !cd.IsAdmin {
+	if cd.ID == 0 {
 		return nil, ErrUnknownMethod
 	}
 	switch strings.TrimPrefix(method, "maps.") {
@@ -123,7 +123,7 @@ func (c currentMap) Websocket(conn *websocket.Conn) {
 }
 
 func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	if !cd.IsAdmin {
+	if cd.ID == 0 {
 		return nil, ErrUnknownMethod
 	}
 	switch strings.TrimPrefix(method, "maps.") {

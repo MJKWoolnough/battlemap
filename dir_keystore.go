@@ -304,7 +304,7 @@ func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
 }
 
 func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	if cd.IsAdmin {
+	if cd.ID > 0 {
 		switch strings.TrimPrefix(method, k.prefix) {
 		case "create":
 			return k.create(), nil

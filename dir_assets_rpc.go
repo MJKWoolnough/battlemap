@@ -13,7 +13,7 @@ func (a *assetsDir) WebSocket(conn *websocket.Conn) {
 }
 
 func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	if cd.IsAdmin {
+	if cd.ID > 0 {
 		switch strings.TrimPrefix(method, "assets.") {
 		case "deleteAsset":
 			return a.rpcDeleteAsset(data, cd)
