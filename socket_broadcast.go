@@ -19,10 +19,11 @@ func (s *socket) KickAdmins(except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.RLock()
-		if c.ID > 0 && except != c.ID {
+		id := c.ID
+		c.mu.RUnlock()
+		if id > 0 && id != except {
 			go c.kickAdmin()
 		}
-		c.mu.RUnlock()
 	}
 	s.mu.RUnlock()
 }
@@ -47,7 +48,10 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 		c.mu.Unlock()
 	}
 	for c, m := range s.conns {
-		if m&SocketMaps > 0 && except != c.ID {
+		c.mu.RLock()
+		id := c.ID
+		c.mu.RUnlock()
+		if m&SocketMaps > 0 && except != id {
 			go c.rpc.SendData(data)
 		}
 	}
@@ -61,13 +65,11 @@ func (s *socket) BroadcastMapChange(mapID uint64, change interface{}, except ID)
 	})
 	s.mu.RLock()
 	for c, m := range s.conns {
-		if c.ID == except || m&SocketMaps == 0 {
-			continue
-		}
 		c.mu.RLock()
+		id := c.ID
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
-		if currentMap == mapID {
+		if id != except && m&SocketMaps > 0 && currentMap == mapID {
 			go c.rpc.SendData(data)
 		}
 	}
@@ -101,13 +103,10 @@ func (s *socket) broadcastAssetChange(id int, change interface{}, except ID) {
 	})
 	s.mu.RLock()
 	for c, m := range s.conns {
-		if c.ID == except || m&SocketMaps == 0 {
-			continue
-		}
 		c.mu.RLock()
-		isAdmin := c.ID > 0
+		id := c.ID
 		c.mu.RUnlock()
-		if isAdmin {
+		if id != except && m&SocketMaps > 0 && id > 0 {
 			go c.rpc.SendData(data)
 		}
 	}
@@ -121,14 +120,11 @@ func (s *socket) BroadcastTokenChange(mapID uint64, change interface{}, except I
 	})
 	s.mu.RLock()
 	for c, m := range s.conns {
-		if c.ID == except || m&SocketMaps == 0 {
-			continue
-		}
 		c.mu.RLock()
-		isAdmin := c.ID > 0
+		id := c.ID
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
-		if isAdmin && currentMap == mapID {
+		if id > 0 && id != except && m&SocketMaps > 0 && currentMap == mapID {
 			go c.rpc.SendData(data)
 		}
 	}
@@ -142,13 +138,10 @@ func (s *socket) BroadcastCharChange(change interface{}, except ID) {
 	})
 	s.mu.RLock()
 	for c, m := range s.conns {
-		if c.ID == except || m&SocketCharacters == 0 {
-			continue
-		}
 		c.mu.RLock()
-		isAdmin := c.ID > 0
+		id := c.ID
 		c.mu.RUnlock()
-		if isAdmin {
+		if id > 0 && id != except && m&SocketCharacters > 0 {
 			go c.rpc.SendData(data)
 		}
 	}
