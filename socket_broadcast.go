@@ -124,7 +124,7 @@ func (s *socket) BroadcastTokenChange(mapID uint64, change interface{}, except I
 		id := c.ID
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
-		if id > 0 && id != except && m&SocketMaps > 0 && currentMap == mapID {
+		if id != except && m&SocketMaps > 0 && currentMap == mapID {
 			go c.rpc.SendData(data)
 		}
 	}
