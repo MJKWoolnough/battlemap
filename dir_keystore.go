@@ -303,7 +303,7 @@ func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, k, k.Socket)
 }
 
-func (k *keystoreDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if cd.IsAdmin {
 		switch strings.TrimPrefix(method, k.prefix) {
 		case "create":

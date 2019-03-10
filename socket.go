@@ -1,10 +1,9 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -14,8 +13,9 @@ import (
 )
 
 type socket struct {
-	mu    sync.RWMutex
-	conns map[*conn]uint8
+	mu     sync.RWMutex
+	conns  map[*conn]uint8
+	nextID ID
 }
 
 func (s *socket) Init() error {
@@ -28,54 +28,37 @@ func (s *socket) ServeConn(conn *websocket.Conn) {
 }
 
 type SocketHandler interface {
-	RPC(connData ConnData, method string, data []byte) (interface{}, error)
+	RPCData(connData ConnData, method string, data []byte) (interface{}, error)
 }
 
 func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint8) {
 	var cu keystore.Uint64
 	Config.Get("currentUserMap", &cu)
-	c := conn{
-		ConnData: ConnData{
-			IsAdmin:    Auth.IsAdmin(wconn.Request()),
-			CurrentMap: uint64(cu),
-		},
-	}
-	if c.IsAdmin {
-		rand.Read(c.ID[:])
-	}
+	isAdmin := Auth.IsAdmin(wconn.Request())
+	var (
+		id ID
+		c  conn
+	)
 	if handler == nil {
 		handler = &c
 	}
-	c.rpc = NewRPC(wconn, RPCHandlerFunc(func(method string, data []byte) (interface{}, error) {
-		c.mu.RLock()
-		cd := c.ConnData
-		c.mu.RUnlock()
-		switch method {
-		case "auth.loggedIn":
-			return cd.IsAdmin, nil
-		case "conn.connID":
-			return cd.ID[:], nil
-		case "maps.getCurrentMap":
-			return cd.CurrentMap, nil
-		case "maps.setCurrentMap":
-			if !cd.IsAdmin {
-				return nil, ErrUnknownMethod
-			}
-			if err := json.Unmarshal(data, &c.ConnData.CurrentMap); err != nil {
-				return nil, err
-			}
-			c.mu.Lock()
-			c.CurrentMap = cd.CurrentMap
-			c.mu.Unlock()
-			return nil, nil
-		default:
-			return handler.RPC(cd, method, data)
-		}
-	}))
 	s.mu.Lock()
+	if isAdmin {
+		s.nextID++
+		id = s.nextID
+	}
 	s.conns[&c] = mask
 	s.mu.Unlock()
-	if c.IsAdmin {
+	c = conn{
+		rpc:     NewRPC(wconn, &c),
+		handler: handler,
+		ConnData: ConnData{
+			IsAdmin:    isAdmin,
+			CurrentMap: uint64(cu),
+			ID:         id,
+		},
+	}
+	if isAdmin {
 		c.rpc.SendData(loggedIn)
 	} else {
 		c.rpc.SendData(loggedOut)
@@ -93,18 +76,18 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 }
 
 type conn struct {
-	rpc *RPC
+	rpc     *RPC
+	handler SocketHandler
 
 	mu sync.RWMutex
 	ConnData
 }
 
-type ID [64]byte
+type ID uint64
 
 func SocketIDFromRequest(r *http.Request) ID {
-	var id ID
-	base64.StdEncoding.Decode(id[:], []byte(r.Header.Get("X-ID")))
-	return id
+	id, _ := strconv.ParseUint(r.Header.Get("X-ID"), 10, 0)
+	return ID(id)
 }
 
 type ConnData struct {
@@ -114,7 +97,34 @@ type ConnData struct {
 	ID ID
 }
 
-func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+func (c *conn) RPC(method string, data []byte) (interface{}, error) {
+	c.mu.RLock()
+	cd := c.ConnData
+	c.mu.RUnlock()
+	switch method {
+	case "auth.loggedIn":
+		return cd.IsAdmin, nil
+	case "conn.connID":
+		return cd.ID, nil
+	case "maps.getCurrentMap":
+		return cd.CurrentMap, nil
+	case "maps.setCurrentMap":
+		if !cd.IsAdmin {
+			return nil, ErrUnknownMethod
+		}
+		if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
+			return nil, err
+		}
+		c.mu.Lock()
+		c.CurrentMap = cd.CurrentMap
+		c.mu.Unlock()
+		return nil, nil
+	default:
+		return c.handler.RPCData(cd, method, data)
+	}
+}
+
+func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	pos := strings.IndexByte(method, '.')
 	submethod := method[pos+1:]
 	method = method[:pos]
@@ -149,7 +159,7 @@ func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error)
 		}
 	case "assets":
 		if cd.IsAdmin {
-			return AssetsDir.RPC(cd, submethod, data)
+			return AssetsDir.RPCData(cd, submethod, data)
 		}
 	case "maps":
 		if submethod == "getUserMap" {
@@ -157,15 +167,15 @@ func (c *conn) RPC(cd ConnData, method string, data []byte) (interface{}, error)
 			Config.Get("currentUserMap", &currentUserMap)
 			return currentUserMap, nil
 		} else if cd.IsAdmin {
-			return MapsDir.RPC(cd, method, data)
+			return MapsDir.RPCData(cd, method, data)
 		}
 	case "characters":
 		if cd.IsAdmin {
-			return CharsDir.RPC(cd, submethod, data)
+			return CharsDir.RPCData(cd, submethod, data)
 		}
 	case "tokens":
 		if cd.IsAdmin {
-			return TokensDir.RPC(cd, submethod, data)
+			return TokensDir.RPCData(cd, submethod, data)
 		}
 	}
 	return nil, ErrUnknownMethod

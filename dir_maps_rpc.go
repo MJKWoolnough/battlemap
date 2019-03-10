@@ -13,7 +13,7 @@ func (m *mapsDir) Websocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, m, SocketMaps)
 }
 
-func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if !cd.IsAdmin {
 		return nil, ErrUnknownMethod
 	}
@@ -111,7 +111,7 @@ func (m *mapsDir) RPC(cd ConnData, method string, data []byte) (interface{}, err
 			return false
 		})
 	default:
-		return currentMap(cd.CurrentMap).RPC(cd, method, data)
+		return currentMap(cd.CurrentMap).RPCData(cd, method, data)
 	}
 	return nil, ErrUnknownMethod
 }
@@ -122,7 +122,7 @@ func (c currentMap) Websocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, c, SocketMaps)
 }
 
-func (c currentMap) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if !cd.IsAdmin {
 		return nil, ErrUnknownMethod
 	}

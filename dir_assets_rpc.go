@@ -12,7 +12,7 @@ func (a *assetsDir) WebSocket(conn *websocket.Conn) {
 	Socket.RunConn(conn, a, SocketAssets)
 }
 
-func (a *assetsDir) RPC(cd ConnData, method string, data []byte) (interface{}, error) {
+func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if cd.IsAdmin {
 		switch strings.TrimPrefix(method, "assets.") {
 		case "deleteAsset":
