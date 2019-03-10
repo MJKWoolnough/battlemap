@@ -217,7 +217,7 @@ func (a *assetsDir) writeTags() error {
 	return nil
 }
 
-func (a *assetsDir) deleteAsset(asset *Asset) error {
+func (a *assetsDir) deleteAsset(asset *Asset, id ID) error {
 	idStr := strconv.FormatUint(asset.ID, 10)
 	if err := a.assetStore.Remove(idStr); err != nil {
 		if err != keystore.ErrUnknownKey {
@@ -235,7 +235,15 @@ func (a *assetsDir) deleteAsset(asset *Asset) error {
 			tag.Assets = removeID(tag.Assets, asset.ID)
 		}
 	}
-	a.genAssetsHandler(time.Now())
+	Socket.BroadcastAssetRemove(asset.ID, id)
+	fs, err := a.assetStore.Stat("")
+	var t time.Time
+	if err != nil {
+		t = time.Now()
+	} else {
+		t = fs.ModTime()
+	}
+	a.genAssetsHandler(t)
 	return nil
 }
 
@@ -312,6 +320,22 @@ func removeID(ids []uint64, remove uint64) []uint64 {
 		}
 	}
 	return ids
+}
+
+func (a *assetsDir) modifyAsset(as *Asset, newName string, removeTags, addTags []uint64, except ID) bool {
+	change := a.renameAsset(as, newName)
+	if len(removeTags) > 0 || len(addTags) > 0 {
+		a.tagMu.Lock()
+		aChange := a.removeTagsFromAsset(as, removeTags...)
+		bChange := a.addTagsToAsset(as, addTags...)
+		change = change || aChange || bChange
+		a.tagMu.Unlock()
+	}
+	if change {
+		Socket.BroadcastAssetChange(as, except)
+		a.writeAsset(as.ID, true)
+	}
+	return change
 }
 
 func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {

@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"os"
 	"strings"
 
 	"golang.org/x/net/websocket"
@@ -46,15 +45,7 @@ func (a *assetsDir) rpcDeleteAsset(data []byte, cd ConnData) (interface{}, error
 	a.assetMu.Lock()
 	var err error
 	if asset, ok := a.assets[id]; ok {
-		err = a.deleteAsset(asset)
-		if err == nil {
-			var fs os.FileInfo
-			fs, err = a.assetStore.Stat("")
-			if err == nil {
-				a.genAssetsHandler(fs.ModTime())
-			}
-		}
-		Socket.BroadcastAssetRemove(id, cd.ID)
+		err = a.deleteAsset(asset, cd.ID)
 	} else {
 		err = ErrUnknownAsset
 	}
@@ -73,10 +64,7 @@ func (a *assetsDir) rpcRenameAsset(data []byte, cd ConnData) (interface{}, error
 	a.assetMu.Lock()
 	asset, ok := a.assets[idName.ID]
 	if ok {
-		if a.renameAsset(asset, idName.Name) {
-			a.writeAsset(idName.ID, true)
-			Socket.BroadcastAssetChange(asset, cd.ID)
-		}
+		a.modifyAsset(asset, idName.Name, nil, nil, cd.ID)
 	}
 	newName := asset.Name
 	a.assetMu.Unlock()
@@ -95,17 +83,11 @@ func (a *assetsDir) rpcAddTagsToAsset(data []byte, cd ConnData) (interface{}, er
 		return nil, err
 	}
 	a.assetMu.Lock()
-	a.tagMu.Lock()
 	asset, ok := a.assets[idTags.ID]
 	var change bool
 	if ok {
-		change = a.addTagsToAsset(asset, idTags.Tags...)
-		if change {
-			a.writeAsset(idTags.ID, true)
-			Socket.BroadcastAssetChange(asset, cd.ID)
-		}
+		change = a.modifyAsset(asset, "", nil, idTags.Tags, cd.ID)
 	}
-	a.tagMu.Unlock()
 	a.assetMu.Unlock()
 	if !ok {
 		return nil, ErrUnknownAsset
@@ -122,17 +104,11 @@ func (a *assetsDir) rpcRemoveTagsFromAsset(data []byte, cd ConnData) (interface{
 		return nil, err
 	}
 	a.assetMu.Lock()
-	a.tagMu.Lock()
 	asset, ok := a.assets[idTags.ID]
 	var change bool
 	if ok {
-		change = a.removeTagsFromAsset(asset, idTags.Tags...)
-		if change {
-			a.writeAsset(idTags.ID, true)
-			Socket.BroadcastAssetChange(asset, cd.ID)
-		}
+		change = a.modifyAsset(asset, "", idTags.Tags, nil, cd.ID)
 	}
-	a.tagMu.Unlock()
 	a.assetMu.Unlock()
 	if !ok {
 		return nil, ErrUnknownAsset

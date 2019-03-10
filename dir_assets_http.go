@@ -207,7 +207,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 		a.assetMu.Lock()
 		if as, ok := a.assets[id]; ok {
 			a.tagMu.Lock()
-			err = a.deleteAsset(as)
+			err = a.deleteAsset(as, SocketIDFromRequest(r))
 			a.tagMu.Unlock()
 		} else {
 			err = ErrUnknownAsset
@@ -218,7 +218,6 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		w.WriteHeader(http.StatusNoContent)
-		Socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
 		return true
 	}
 	return false
@@ -417,15 +416,7 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	change := a.renameAsset(as, ap.Rename)
-	if len(ap.RemoveTag) > 0 || len(ap.AddTag) > 0 {
-		a.tagMu.Lock()
-		change = a.removeTagsFromAsset(as, ap.RemoveTag...)
-		change = change || a.addTagsToAsset(as, ap.AddTag...)
-		a.tagMu.Unlock()
-	}
-	if change {
-		a.writeAsset(as.ID, true)
+	if a.modifyAsset(as, ap.Rename, ap.RemoveTag, ap.AddTag, SocketIDFromRequest(r)) {
 		var buf memio.Buffer
 		switch at {
 		case "json":
@@ -436,11 +427,10 @@ func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
 			xml.NewEncoder(&buf).EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
 		default:
 			w.Header().Set(contentType, "text/plain")
-			fmt.Fprintf(w, "%d:%q\n%v\n", as.ID, as.Name, as.Tags)
+			fmt.Fprintf(&buf, "%d:%q\n%v\n", as.ID, as.Name, as.Tags)
 		}
 		a.assetMu.Unlock()
 		w.Write(buf)
-		Socket.BroadcastAssetChange(as, SocketIDFromRequest(r))
 	} else {
 		a.assetMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)
