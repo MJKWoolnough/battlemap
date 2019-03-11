@@ -13,6 +13,7 @@ const (
 	broadcastTagRemove
 	broadcastCharChange
 	broadcastTokenChange
+	broadcastMaskChange
 )
 
 func (s *socket) KickAdmins(except ID) {
@@ -142,6 +143,23 @@ func (s *socket) BroadcastCharChange(change interface{}, except ID) {
 		id := c.ID
 		c.mu.RUnlock()
 		if id > 0 && id != except && m&SocketCharacters > 0 {
+			go c.rpc.SendData(data)
+		}
+	}
+	s.mu.RUnlock()
+}
+
+func (s *socket) BroadcastMaskChange(id uint64, except ID) {
+	data, _ := json.Marshal(RPCResponse{
+		ID:     BroadcastMaskChange,
+		Result: id,
+	})
+	s.mu.RLock()
+	for c, m := range s.conns {
+		c.mu.RLock()
+		id := c.ID
+		c.mu.RUnlock()
+		if id > 0 && id != except && m&SocketMaps > 0 {
 			go c.rpc.SendData(data)
 		}
 	}
