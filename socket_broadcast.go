@@ -16,6 +16,14 @@ const (
 	broadcastMaskChange
 )
 
+const (
+	SocketConfig uint8 = iota + 1
+	SocketAssets
+	SocketMaps
+	SocketMap
+	SocketCharacters
+)
+
 func (s *socket) KickAdmins(except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
@@ -59,10 +67,10 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 	s.mu.RUnlock()
 }
 
-func (s *socket) BroadcastMapChange(mapID uint64, change interface{}, except ID) {
+func (s *socket) BroadcastMapsChange(maps Maps, except ID) {
 	data, _ := json.Marshal(RPCResponse{
 		ID:     broadcastMapChange,
-		Result: change,
+		Result: maps,
 	})
 	s.mu.RLock()
 	for c, m := range s.conns {
@@ -70,7 +78,7 @@ func (s *socket) BroadcastMapChange(mapID uint64, change interface{}, except ID)
 		id := c.ID
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
-		if id != except && m&SocketMaps > 0 && currentMap == mapID {
+		if id != except && m&SocketMaps > 0 && (currentMap == mapID || id > 0) {
 			go c.rpc.SendData(data)
 		}
 	}
@@ -160,6 +168,33 @@ func (s *socket) BroadcastMaskChange(id uint64, except ID) {
 		id := c.ID
 		c.mu.RUnlock()
 		if id > 0 && id != except && m&SocketMaps > 0 {
+			go c.rpc.SendData(data)
+		}
+	}
+	s.mu.RUnlock()
+}
+
+func (s *socket) broadcastMapChange(mID uint64, data []byte, except ID) {
+	s.mu.RLock()
+	for c, m := range s.conns {
+		c.mu.RLock()
+		id := c.ID
+		currentMap := c.CurrentMap
+		c.mu.RUnlock()
+		if currentMap == mID && id != except && m&SocketMap > 0 {
+			go c.rpc.SendData(data)
+		}
+	}
+	s.mu.RUnlock()
+}
+
+func (s *socket) broadcastAdminChange(socket uint8, data []byte, except ID) {
+	s.mu.RLock()
+	for c, m := range s.conns {
+		c.mu.RLock()
+		id := c.ID
+		c.mu.RUnlock()
+		if id > 0 && id != except && m&socket > 0 {
 			go c.rpc.SendData(data)
 		}
 	}

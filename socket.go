@@ -189,13 +189,6 @@ var (
 )
 
 const (
-	SocketConfig uint8 = iota + 1
-	SocketAssets
-	SocketMaps
-	SocketCharacters
-)
-
-const (
 	ErrUnknownMethod   errors.Error = "unknown method"
 	ErrInvalidPassword errors.Error = "invalid password"
 )
