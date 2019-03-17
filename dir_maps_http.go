@@ -127,7 +127,7 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
-	id, err := m.newMap(nm)
+	id, err := m.newMap(nm, SocketIDFromRequest(r))
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true

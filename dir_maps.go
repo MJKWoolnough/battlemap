@@ -102,15 +102,15 @@ type newMap struct {
 	Name          string `json:"name" xml:",chardata"`
 }
 
-func (m *mapsDir) newMap(nm newMap) (uint64, error) {
+func (m *mapsDir) newMap(nm newMap, id ID) (uint64, error) {
 	if nm.Width == 0 || nm.Height == 0 {
 		return 0, errors.Error("invalid dimensions")
 	}
 	m.mu.Lock()
-	id := m.nextID
+	mid := m.nextID
 	m.nextID++
 	if nm.Name == "" {
-		nm.Name = "Map " + strconv.FormatUint(id, 10)
+		nm.Name = "Map " + strconv.FormatUint(mid, 10)
 	}
 	var order int64
 	if len(m.order) == 0 {
@@ -119,7 +119,7 @@ func (m *mapsDir) newMap(nm newMap) (uint64, error) {
 		order = m.order[len(m.order)-1].Order + 1
 	}
 	mp := &Map{
-		ID:     id,
+		ID:     mid,
 		Name:   nm.Name,
 		Order:  order,
 		Width:  nm.Width,
@@ -154,11 +154,12 @@ func (m *mapsDir) newMap(nm newMap) (uint64, error) {
 			},
 		},
 	}
-	m.maps[id] = mp
+	m.maps[mid] = mp
 	m.order = append(m.order, mp)
+	Socket.BroadcastMapChange(mp, id)
 	m.mu.Unlock()
-	m.store.Set(strconv.FormatUint(id, 10), mp)
-	return id, nil
+	m.store.Set(strconv.FormatUint(mid, 10), mp)
+	return mid, nil
 }
 
 func genGridPattern(squaresWidth uint64, squaresColour Colour, squaresStroke uint64) Pattern {

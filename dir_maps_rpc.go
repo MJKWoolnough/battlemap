@@ -23,7 +23,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &nm); err != nil {
 			return nil, err
 		}
-		return m.newMap(nm)
+		return m.newMap(nm, cd.ID)
 	case "renameMap":
 		var nn struct {
 			ID   uint64 `json:"id"`
