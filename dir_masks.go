@@ -126,7 +126,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
-		id, err := strconv.ParseUint(idStr, 10)
+		id, err := strconv.ParseUint(idStr, 10, 64)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
