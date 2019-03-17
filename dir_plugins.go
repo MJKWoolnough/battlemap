@@ -2,8 +2,8 @@ package main
 
 import (
 	"compress/gzip"
-	"fmt"
 	"html/template"
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,10 +14,8 @@ import (
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
-	"vimagination.zapto.org/jslib/checker"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
-	"vimagination.zapto.org/parser"
 )
 
 type pluginsDir struct {
@@ -63,23 +61,12 @@ func (p *pluginsDir) Init() error {
 			f.Close()
 			return errors.WithContext("error stat'ing plugin file: ", err)
 		}
-		buf := make(memio.Buffer, 0, fi.Size())
-		p := parser.New(parser.NewReaderTokeniser(f))
-		checker.SetPhraser(&p)
-		for {
-			ph, err := p.GetPhrase()
-			if err != nil {
-				f.Close()
-				return errors.WithContext(fmt.Sprintf("error parsing plugin file (%s): ", file), err)
-			}
-			if ph.Type == parser.PhraseDone {
-				break
-			}
-			for _, t := range ph.Data {
-				buf.WriteString(t.Data)
-			}
-		}
+		buf := make([]byte, 0, fi.Size())
+		_, err = io.ReadFull(f, buf)
 		f.Close()
+		if err != nil {
+			continue
+		}
 		var gBuf memio.Buffer
 		g.Reset(&gBuf)
 		g.Write(buf)
