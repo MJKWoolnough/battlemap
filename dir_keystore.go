@@ -84,6 +84,11 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return true
 	}
+	k.handleGet(w, r)
+	return true
+}
+
+func (k *keystoreDir) handleGet(w http.ResponseWriter, r *http.Request) {
 	if isRoot(r.URL.Path) {
 		if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
 			k.websocket.ServeHTTP(w, r)
@@ -96,11 +101,10 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		id, err := strconv.ParseUint(idStr, 10, 0)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return
 		}
 		k.printStore(w, r, id, nil, "")
 	}
-	return true
 }
 
 func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
@@ -121,11 +125,18 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			format = "<id>%d</id>"
 		}
 		fmt.Fprintf(w, format, k.create())
-	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); k.store.Exists(idStr) {
+	} else {
+		k.handlePost(w, r)
+	}
+	return true
+}
+
+func (k *keystoreDir) handlePost(w http.ResponseWriter, r *http.Request) {
+	if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); k.store.Exists(idStr) {
 		id, err := strconv.ParseUint(idStr, 10, 0)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return
 		}
 		var (
 			at   AcceptType
@@ -138,7 +149,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			r.Body.Close()
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
+				return
 			}
 		case "text/xml":
 			at = "xml"
@@ -149,7 +160,7 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			r.Body.Close()
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
+				return
 			}
 			keys = d.Keys
 		default:
@@ -167,7 +178,6 @@ func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		http.NotFound(w, r)
 	}
-	return true
 }
 
 func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint64, keys []string, at AcceptType) {
@@ -414,9 +424,32 @@ func (k *keystoreDir) delete(id uint64) error {
 	return k.store.Remove(strconv.FormatUint(id, 10))
 }
 
+type userKeystoreDir struct {
+	keystoreDir
+}
+
+func (u *userKeystoreDir) Options(w http.ResponseWriter, r *http.Request) {
+	if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); u.store.Exists(idStr) && !Auth.IsAdmin(r) {
+		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
+	} else {
+		u.keystoreDir.Options(w, r)
+	}
+}
+
+func (u *userKeystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
+	u.handleGet(w, r)
+	return true
+}
+
+func (u *userKeystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
+	u.handlePost(w, r)
+	return true
+}
+
 var (
-	CharsDir  = keystoreDir{Name: "Chars", Socket: SocketCharacters}
-	TokensDir = keystoreDir{Name: "Tokens", Socket: SocketMaps}
+	CharsDir      = keystoreDir{Name: "Chars", Socket: SocketCharacters}
+	TokensDir     = keystoreDir{Name: "Tokens", Socket: SocketMaps}
+	UserTokensDir = userKeystoreDir{keystoreDir: keystoreDir{Name: "UserTokens", Socket: SocketMaps}}
 )
 
 const (
