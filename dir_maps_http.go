@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"bufio"
@@ -17,12 +17,12 @@ import (
 )
 
 func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
-	if Auth.IsAdmin(r) {
+	if m.auth.IsAdmin(r) {
 		if isRoot(r.URL.Path) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else if m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
 			var currentUserMap keystore.Uint
-			Config.Get("currentUserMap", &currentUserMap)
+			m.config.Get("currentUserMap", &currentUserMap)
 			id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 			if id == uint64(currentUserMap) {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
@@ -36,7 +36,7 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		var currentUserMap keystore.Uint
-		Config.Get("currentUserMap", &currentUserMap)
+		m.config.Get("currentUserMap", &currentUserMap)
 		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if id == uint64(currentUserMap) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
@@ -47,7 +47,7 @@ func (m *mapsDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) {
+	if m.auth.IsAdmin(r) {
 		if isRoot(r.URL.Path) {
 			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
 				websocket.Handler(m.Websocket).ServeHTTP(w, r)
@@ -61,7 +61,7 @@ func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 			}
 		} else if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") && m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
 			id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
-			websocket.Handler(currentMap(id).Websocket).ServeHTTP(w, r)
+			websocket.Handler(currentMap{m.Battlemap, id}.Websocket).ServeHTTP(w, r)
 		} else {
 			m.mu.RLock()
 			m.handler.ServeHTTP(w, r)
@@ -69,7 +69,7 @@ func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		}
 	} else {
 		var currentUserMap keystore.Uint
-		Config.Get("currentUserMap", &currentUserMap)
+		m.config.Get("currentUserMap", &currentUserMap)
 		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if id == uint64(currentUserMap) {
 			m.mu.RLock()
@@ -83,7 +83,7 @@ func (m *mapsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) || !isRoot(r.URL.Path) {
+	if !m.auth.IsAdmin(r) || !isRoot(r.URL.Path) {
 		return false
 	}
 	var (
@@ -152,7 +152,7 @@ func (m *mapsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) || !m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
+	if !m.auth.IsAdmin(r) || isRoot(r.URL.Path) || !m.store.Exists(strings.TrimPrefix(r.URL.Path, "/")) {
 		return false
 	}
 	var patchMap struct {
@@ -241,12 +241,12 @@ func (m *mapsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (m *mapsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) {
+	if !m.auth.IsAdmin(r) || isRoot(r.URL.Path) {
 		return false
 	}
 	key := strings.TrimPrefix(r.URL.Path, "/")
 	var currentUserMap keystore.Uint
-	Config.Get("currentUserMap", &currentUserMap)
+	m.config.Get("currentUserMap", &currentUserMap)
 	id, _ := strconv.ParseUint(key, 10, 0)
 	if id == uint64(currentUserMap) {
 		return false

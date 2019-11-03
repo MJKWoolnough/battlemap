@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"fmt"
@@ -17,6 +17,7 @@ import (
 )
 
 type masksDir struct {
+	*Battlemap
 	DefaultMethods
 	fileserver http.Handler
 	store      *keystore.FileStore
@@ -24,13 +25,13 @@ type masksDir struct {
 	nextID     uint64
 }
 
-func (m *masksDir) Init() error {
+func (m *masksDir) Init(b *Battlemap) error {
 	var location keystore.String
-	err := Config.Get("MasksDir", &location)
+	err := b.config.Get("MasksDir", &location)
 	if err != nil {
 		return errors.WithContext("error getting masks directory: ", err)
 	}
-	mp := filepath.Join(Config.BaseDir, string(location))
+	mp := filepath.Join(b.config.BaseDir, string(location))
 	m.store, err = keystore.NewFileStore(mp, mp, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating mask store: ", err)
@@ -47,18 +48,19 @@ func (m *masksDir) Init() error {
 		}
 	}
 	m.nextID = largestID + 1
+	m.Battlemap = b
 	return nil
 }
 
 func (m *masksDir) Options(w http.ResponseWriter, r *http.Request) {
 	if isRoot(r.URL.Path) {
-		if Auth.IsAdmin(r) {
+		if m.auth.IsAdmin(r) {
 			w.Header().Set("Accept", "POST")
 		} else {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		}
 	} else if m.store.Exists(strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")) {
-		if Auth.IsAdmin(r) {
+		if m.auth.IsAdmin(r) {
 			w.Header().Set("Accept", "GET, HEAD, PUT, DELETE")
 		} else {
 			w.Header().Set("Accept", "GET, HEAD")
@@ -148,7 +150,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
 			im = gim
 		}
 		m.store.Set(idStr, pngWriterTo{im})
-		Socket.BroadcastMaskChange(id, SocketIDFromRequest(r))
+		m.socket.BroadcastMaskChange(id, SocketIDFromRequest(r))
 	} else {
 		http.NotFound(w, r)
 	}
@@ -175,5 +177,3 @@ func (p pngWriterTo) WriteTo(w io.Writer) (int64, error) {
 	e := png.Encoder{CompressionLevel: png.BestCompression}
 	return 0, e.Encode(w, p.Image)
 }
-
-var MasksDir masksDir

@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"encoding/json"
@@ -13,12 +13,14 @@ import (
 )
 
 type socket struct {
+	*Battlemap
 	mu     sync.RWMutex
 	conns  map[*conn]uint8
 	nextID ID
 }
 
-func (s *socket) Init() error {
+func (s *socket) Init(b *Battlemap) error {
+	s.Battlemap = b
 	s.conns = make(map[*conn]uint8)
 	return nil
 }
@@ -33,8 +35,8 @@ type SocketHandler interface {
 
 func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint8) {
 	var cu keystore.Uint64
-	Config.Get("currentUserMap", &cu)
-	isAdmin := Auth.IsAdmin(wconn.Request())
+	s.config.Get("currentUserMap", &cu)
+	isAdmin := s.auth.IsAdmin(wconn.Request())
 	var (
 		id ID
 		c  conn
@@ -50,8 +52,9 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 	s.conns[&c] = mask
 	s.mu.Unlock()
 	c = conn{
-		rpc:     NewRPC(wconn, &c),
-		handler: handler,
+		Battlemap: s.Battlemap,
+		rpc:       NewRPC(wconn, &c),
+		handler:   handler,
 		ConnData: ConnData{
 			CurrentMap: uint64(cu),
 			ID:         id,
@@ -75,6 +78,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 }
 
 type conn struct {
+	*Battlemap
 	rpc     *RPC
 	handler SocketHandler
 
@@ -138,50 +142,48 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 			case "changePassword":
 				var password string
 				json.Unmarshal(data, &password)
-				sessionData := Auth.UpdatePasswordGetData(password, cd.ID)
+				sessionData := c.auth.UpdatePasswordGetData(password, cd.ID)
 				return sessionData, nil
 			}
 		} else if submethod == "login" {
 			var password string
 			json.Unmarshal(data, &password)
-			sessionData := Auth.LoginGetData(password)
+			sessionData := c.auth.LoginGetData(password)
 			if len(sessionData) == 0 {
 				return nil, ErrInvalidPassword
 			}
 			c.mu.Lock()
-			Socket.mu.Lock()
-			Socket.nextID++
-			c.ID = Socket.nextID
-			Socket.mu.Unlock()
+			c.socket.mu.Lock()
+			c.socket.nextID++
+			c.ID = c.socket.nextID
+			c.socket.mu.Unlock()
 			c.mu.Unlock()
 			c.rpc.SendData(loggedIn)
 			return sessionData, nil
 		}
 	case "assets":
 		if cd.ID > 0 {
-			return AssetsDir.RPCData(cd, submethod, data)
+			return c.assets.RPCData(cd, submethod, data)
 		}
 	case "maps":
 		if submethod == "getUserMap" {
 			var currentUserMap keystore.Uint64
-			Config.Get("currentUserMap", &currentUserMap)
+			c.config.Get("currentUserMap", &currentUserMap)
 			return currentUserMap, nil
 		} else if cd.ID > 0 {
-			return MapsDir.RPCData(cd, method, data)
+			return c.maps.RPCData(cd, method, data)
 		}
 	case "characters":
 		if cd.ID > 0 {
-			return CharsDir.RPCData(cd, submethod, data)
+			return c.chars.RPCData(cd, submethod, data)
 		}
 	case "tokens":
 		if cd.ID > 0 {
-			return TokensDir.RPCData(cd, submethod, data)
+			return c.tokens.RPCData(cd, submethod, data)
 		}
 	}
 	return nil, ErrUnknownMethod
 }
-
-var Socket socket
 
 var (
 	loggedOut = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")

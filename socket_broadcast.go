@@ -1,17 +1,24 @@
-package main
+package battlemap
 
 import "encoding/json"
 
 const (
 	broadcastIsAdmin = -1 - iota
 	broadcastCurrentUserMap
+	broadcastMapAdd
 	broadcastMapChange
+	broadcastMapRename
+	broadcastMapRemove
+	broadcastMapOrderChange
 	broadcastAssetAdd
 	broadcastAssetChange
 	broadcastAssetRemove
 	broadcastTagAdd
 	broadcastTagRemove
-	broadcastCharChange
+	broadcastTagChange
+	broadcastCharacterAdd
+	broadcastCharacterChange
+	broadcastCharacterRemove
 	broadcastTokenChange
 	broadcastMaskChange
 )
@@ -88,7 +95,7 @@ func (s *socket) BroadcastTagsChange(tags Tags, except ID) {
 }
 
 func (s *socket) BroadcastMapAdd(mp *Map, except ID) {
-	s.broadcastAdminChange(SocketMaps, BroadcastMapAdd, mp, except)
+	s.broadcastAdminChange(SocketMaps, broadcastMapAdd, mp, except)
 }
 
 func (s *socket) BroadcastMapRename(mp *Map, except ID) {
@@ -100,7 +107,7 @@ func (s *socket) BroadcastMapRemove(mID uint64, except ID) {
 }
 
 func (s *socket) BroadcastMapOrderChange(maps Maps, except ID) {
-	s.broadcastAdminChange(SocketMaps, broadcastMapOrderChange, MapOrder(maps), except)
+	//s.broadcastAdminChange(SocketMaps, broadcastMapOrderChange, MapOrder(maps), except)
 }
 
 func (s *socket) BroadcastCharacterAdd(char map[string]string, except ID) {
@@ -112,12 +119,24 @@ func (s *socket) BroadcastCharacterChange(char map[string]string, except ID) {
 }
 
 func (s *socket) BroadcastCharacterRemove(cID uint64, except ID) {
-	s.broadcastAdminChange(SocketCharacters, BroadcastCharacterRemove, cID, except)
+	s.broadcastAdminChange(SocketCharacters, broadcastCharacterRemove, cID, except)
+}
+
+func (s *socket) BroadcastMaskChange(cID uint64, except ID) {
+
+}
+
+func (s *socket) BroadcastMapChange(m *Map, except ID) {
+
+}
+
+func (s *socket) BroadcastTagRemove(tags []uint64, except ID) {
+
 }
 
 func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, except ID) {
-	data, _ := json.Marshal(RPCResponse{
-		ID:     id,
+	dat, _ := json.Marshal(RPCResponse{
+		ID:     int(id),
 		Result: data,
 	})
 	s.mu.RLock()
@@ -127,15 +146,15 @@ func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, exc
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
 		if currentMap == mID && id != except && m&SocketMap > 0 {
-			go c.rpc.SendData(data)
+			go c.rpc.SendData(dat)
 		}
 	}
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastAdminChange(socket uint8, id uint64, data interface{}, except ID) {
-	data, _ := json.Marshal(RPCResponse{
-		ID:     id,
+func (s *socket) broadcastAdminChange(socket uint8, id int64, data interface{}, except ID) {
+	dat, _ := json.Marshal(RPCResponse{
+		ID:     int(id),
 		Result: data,
 	})
 	s.mu.RLock()
@@ -144,7 +163,7 @@ func (s *socket) broadcastAdminChange(socket uint8, id uint64, data interface{},
 		id := c.ID
 		c.mu.RUnlock()
 		if id > 0 && id != except && m&socket > 0 {
-			go c.rpc.SendData(data)
+			go c.rpc.SendData(dat)
 		}
 	}
 	s.mu.RUnlock()

@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"bytes"
@@ -17,19 +17,20 @@ import (
 )
 
 type auth struct {
+	*Battlemap
 	store *sessions.CookieStore
 
 	mu                                  sync.RWMutex
 	passwordSalt, password, sessionData memio.Buffer
 }
 
-func (a *auth) Init() error {
+func (a *auth) Init(b *Battlemap) error {
 	var save bool
 
 	salt := make(memio.Buffer, 0, 16)
 	password := make(memio.Buffer, 0, sha256.Size)
-	Config.Get("passwordSalt", &salt)
-	Config.Get("password", &password)
+	b.config.Get("passwordSalt", &salt)
+	b.config.Get("password", &password)
 	if len(salt) == 0 {
 		salt = salt[:16]
 		rand.Read(salt)
@@ -40,14 +41,14 @@ func (a *auth) Init() error {
 	}
 
 	sessionKey := make(memio.Buffer, 0, 16)
-	Config.Get("sessionKey", &sessionKey)
+	b.config.Get("sessionKey", &sessionKey)
 	if len(sessionKey) != 16 {
 		sessionKey = sessionKey[:16]
 		rand.Read(sessionKey)
 		save = true
 	}
 	sessionData := make(memio.Buffer, 0, 32)
-	Config.Get("sessionData", &sessionData)
+	b.config.Get("sessionData", &sessionData)
 	if len(sessionData) < 16 {
 		sessionData = sessionData[:32]
 		rand.Read(sessionData)
@@ -62,7 +63,7 @@ func (a *auth) Init() error {
 	a.password = password
 	a.sessionData = sessionData
 	if save {
-		if err = Config.SetAll(map[string]io.WriterTo{
+		if err = b.config.SetAll(map[string]io.WriterTo{
 			"passwordSalt": &salt,
 			"password":     &password,
 			"sessionKey":   &sessionKey,
@@ -71,6 +72,7 @@ func (a *auth) Init() error {
 			return errors.WithContext("error setting auth config: ", err)
 		}
 	}
+	a.Battlemap = b
 	return nil
 }
 
@@ -161,11 +163,11 @@ func (a *auth) UpdatePasswordGetData(newPassword string, id ID) []byte {
 	data := a.sessionData
 	a.mu.Unlock()
 	d := data
-	Config.SetAll(map[string]io.WriterTo{
+	a.config.SetAll(map[string]io.WriterTo{
 		"password":    &password,
 		"sessionData": &d,
 	})
-	Socket.KickAdmins(id)
+	a.socket.KickAdmins(id)
 	return data
 }
 
@@ -256,8 +258,6 @@ type psuedoHeaders http.Header
 func (psuedoHeaders) Write([]byte) (int, error) { return 0, nil }
 func (psuedoHeaders) WriteHeader(int)           {}
 func (p psuedoHeaders) Header() http.Header     { return http.Header(p) }
-
-var Auth auth
 
 var hashPool = sync.Pool{
 	New: func() interface{} {

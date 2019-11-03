@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"encoding/json"
@@ -8,7 +8,7 @@ import (
 )
 
 func (a *assetsDir) WebSocket(conn *websocket.Conn) {
-	Socket.RunConn(conn, a, SocketAssets)
+	a.socket.RunConn(conn, a, SocketAssets)
 }
 
 func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -132,7 +132,7 @@ func (a *assetsDir) rpcAddTag(data []byte, cd ConnData) (interface{}, error) {
 	tag := a.addTag(tagName)
 	a.writeTags()
 	a.tagMu.Unlock()
-	Socket.BroadcastTagAdd(Tags{tag.ID: tag}, cd.ID)
+	a.socket.BroadcastTagsAdd(Tags{tag.ID: tag}, cd.ID)
 	return tag.ID, nil
 }
 
@@ -147,7 +147,7 @@ func (a *assetsDir) rpcDeleteTag(data []byte, cd ConnData) (interface{}, error) 
 	tag, ok := a.tags[id]
 	if ok {
 		if a.deleteTags(tag) {
-			Socket.BroadcastTagRemove([]uint64{id}, cd.ID)
+			a.socket.BroadcastTagRemove([]uint64{id}, cd.ID)
 		}
 		a.assetMu.Unlock()
 		a.writeTags()
@@ -174,7 +174,7 @@ func (a *assetsDir) rpcRenameTag(data []byte, cd ConnData) (interface{}, error) 
 	if ok {
 		if a.renameTag(tag, idName.Name) {
 			a.writeTags()
-			Socket.BroadcastTagAdd(Tags{tag.ID: tag}, cd.ID)
+			a.socket.BroadcastTagsAdd(Tags{tag.ID: tag}, cd.ID)
 		}
 	}
 	newName := tag.Name

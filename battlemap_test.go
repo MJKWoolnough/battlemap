@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"fmt"
@@ -6,9 +6,14 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"vimagination.zapto.org/httpdir"
 )
 
-var srv *httptest.Server
+var (
+	srv       *httptest.Server
+	battlemap Battlemap
+)
 
 func TestMain(m *testing.M) {
 	dataDir, err := ioutil.TempDir("", "battlemap-test")
@@ -22,11 +27,12 @@ func TestMain(m *testing.M) {
 }
 
 func testMain(m *testing.M, dataDir string) int {
-	if err := initModules(dataDir); err != nil {
+	if err := battlemap.initModules(dataDir); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	srv = httptest.NewServer(initMux())
+	battlemap.initMux(httpdir.Default)
+	srv = httptest.NewServer(&battlemap)
 	r := m.Run()
 	srv.Close()
 	return r

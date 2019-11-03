@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"compress/gzip"
@@ -23,14 +23,14 @@ type pluginsDir struct {
 	http.Handler
 }
 
-func (p *pluginsDir) Init() error {
+func (p *pluginsDir) Init(b *Battlemap) error {
 	var pd keystore.String
-	Config.Get("pluginsDir", &pd)
+	b.config.Get("pluginsDir", &pd)
 	if pd == "" {
 		p.Handler = http.NotFoundHandler()
 		return nil
 	}
-	d, err := os.Open(filepath.Join(Config.BaseDir, string(pd)))
+	d, err := os.Open(filepath.Join(b.config.BaseDir, string(pd)))
 	if os.IsNotExist(err) {
 		p.Handler = http.NotFoundHandler()
 		return nil

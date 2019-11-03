@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"html/template"
@@ -22,27 +22,29 @@ var linkTemplate = template.Must(template.New("").Parse(`<html>
 </html>`))
 
 type filesDir struct {
+	*Battlemap
 	DefaultMethods
 	files *keystore.FileStore
 	http.Handler
 }
 
-func (f *filesDir) Init() error {
+func (f *filesDir) Init(b *Battlemap) error {
 	var (
 		location keystore.String
 		err      error
 	)
-	Config.Get("filesDir", &location)
-	f.files, err = keystore.NewFileStore(filepath.Join(Config.BaseDir, string(location)), "", keystore.NoMangle)
+	b.config.Get("filesDir", &location)
+	f.files, err = keystore.NewFileStore(filepath.Join(b.config.BaseDir, string(location)), "", keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating file store: ", err)
 	}
 	f.Handler = http.FileServer(http.Dir(location))
+	f.Battlemap = b
 	return nil
 }
 
 func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
-	if Auth.IsAdmin(r) {
+	if f.auth.IsAdmin(r) {
 		if isRoot(r.URL.Path) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else {
@@ -62,7 +64,7 @@ func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if !isRoot(r.URL.Path) && Auth.IsAdmin(r) {
+	if !isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
 		filename := filepath.FromSlash(r.URL.Path)
 		newFile := !f.files.Exists(filename)
 		err := f.files.Set(filename, readerWriterTo{r.Body})
@@ -83,7 +85,7 @@ func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if isRoot(r.URL.Path) && Auth.IsAdmin(r) {
+	if isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
 		m, err := r.MultipartReader()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -117,7 +119,7 @@ func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) && !isRoot(r.URL.Path) {
+	if f.auth.IsAdmin(r) && !isRoot(r.URL.Path) {
 		if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
 			if err == keystore.ErrUnknownKey {
 				http.NotFound(w, r)
@@ -131,5 +133,3 @@ func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	}
 	return false
 }
-
-var FilesDir filesDir

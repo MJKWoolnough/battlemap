@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"encoding/json"
@@ -20,6 +20,7 @@ import (
 )
 
 type assetsDir struct {
+	*Battlemap
 	DefaultMethods
 	metaStore, assetStore *keystore.FileStore
 	handler               http.Handler
@@ -41,17 +42,18 @@ type assetsDir struct {
 	tagJSON      json.RawMessage
 }
 
-func (a *assetsDir) Init() error {
+func (a *assetsDir) Init(b *Battlemap) error {
 	var metaLocation keystore.String
-	err := Config.Get("AssetsMetaDir", &metaLocation)
+	err := b.config.Get("AssetsMetaDir", &metaLocation)
 	if err != nil {
 		return errors.WithContext("error getting asset meta data directory: ", err)
 	}
-	sp := filepath.Join(Config.BaseDir, string(metaLocation))
+	sp := filepath.Join(b.config.BaseDir, string(metaLocation))
 	a.metaStore, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating asset meta store: ", err)
 	}
+	a.Battlemap = b
 	if err = a.initTags(); err != nil {
 		return err
 	}
@@ -110,8 +112,8 @@ func (a *assetsDir) initAssets() error {
 		location keystore.String
 		err      error
 	)
-	Config.Get("AssetsDir", &location)
-	ap := filepath.Join(Config.BaseDir, string(location))
+	a.config.Get("AssetsDir", &location)
+	ap := filepath.Join(a.config.BaseDir, string(location))
 	a.assetStore, err = keystore.NewFileStore(ap, ap, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating asset store: ", err)
@@ -235,7 +237,7 @@ func (a *assetsDir) deleteAsset(asset *Asset, id ID) error {
 			tag.Assets = removeID(tag.Assets, asset.ID)
 		}
 	}
-	Socket.BroadcastAssetRemove(asset.ID, id)
+	a.socket.BroadcastAssetRemove(asset.ID, id)
 	fs, err := a.assetStore.Stat("")
 	var t time.Time
 	if err != nil {
@@ -332,7 +334,7 @@ func (a *assetsDir) modifyAsset(as *Asset, newName string, removeTags, addTags [
 		a.tagMu.Unlock()
 	}
 	if change {
-		Socket.BroadcastAssetChange(as, except)
+		a.socket.BroadcastAssetChange(as, except)
 		a.writeAsset(as.ID, true)
 	}
 	return change
@@ -345,8 +347,6 @@ func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {
 	asset.Name = newName
 	return true
 }
-
-var AssetsDir assetsDir
 
 type Asset struct {
 	ID   uint64   `json:"id" xml:"id,attr"`

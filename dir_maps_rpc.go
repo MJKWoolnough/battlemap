@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 )
 
 func (m *mapsDir) Websocket(conn *websocket.Conn) {
-	Socket.RunConn(conn, m, SocketMaps)
+	m.socket.RunConn(conn, m, SocketMaps)
 }
 
 func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -111,15 +111,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return false
 		})
 	default:
-		return currentMap(cd.CurrentMap).RPCData(cd, method, data)
+		return currentMap{m.Battlemap, cd.CurrentMap}.RPCData(cd, method, data)
 	}
 	return nil, ErrUnknownMethod
 }
 
-type currentMap uint64
+type currentMap struct {
+	*Battlemap
+	ID uint64
+}
 
 func (c currentMap) Websocket(conn *websocket.Conn) {
-	Socket.RunConn(conn, c, SocketMaps)
+	c.socket.RunConn(conn, c, SocketMaps)
 }
 
 func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -135,7 +138,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &name); err != nil {
 			return nil, err
 		}
-		MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
+		c.maps.updateMapData(c.ID, func(mp *Map) bool {
 			for _, l := range mp.Layers {
 				if strings.HasPrefix(l.ID, "Layer_") {
 					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid > id {
@@ -158,7 +161,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapLayer(uint64(c), rename.ID, func(_ *Map, l *Layer) bool {
+		return nil, c.maps.updateMapLayer(c.ID, rename.ID, func(_ *Map, l *Layer) bool {
 			if l.Name == rename.Name {
 				return false
 			}
@@ -174,7 +177,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err != nil {
 			return nil, err
 		}
-		err = MapsDir.updateMapData(moveLayer.ID, func(mp *Map) bool {
+		err = c.maps.updateMapData(moveLayer.ID, func(mp *Map) bool {
 			lIDStr := "Layer_" + strconv.FormatUint(moveLayer.ID, 10)
 			for n, l := range mp.Layers {
 				if l.ID == lIDStr {
@@ -194,7 +197,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+		return nil, c.maps.updateMapLayer(c.ID, layerID, func(_ *Map, l *Layer) bool {
 			if !l.Hidden {
 				return false
 			}
@@ -206,7 +209,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+		return nil, c.maps.updateMapLayer(c.ID, layerID, func(_ *Map, l *Layer) bool {
 			if l.Hidden {
 				return false
 			}
@@ -221,7 +224,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &addMask); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapLayer(uint64(c), addMask.ID, func(_ *Map, l *Layer) bool {
+		return nil, c.maps.updateMapLayer(c.ID, addMask.ID, func(_ *Map, l *Layer) bool {
 			mask := "/masks/" + strconv.FormatUint(addMask.Mask, 10)
 			if l.Mask == mask {
 				return false
@@ -234,7 +237,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapLayer(uint64(c), layerID, func(_ *Map, l *Layer) bool {
+		return nil, c.maps.updateMapLayer(c.ID, layerID, func(_ *Map, l *Layer) bool {
 			if l.Mask == "" {
 				return false
 			}
@@ -247,7 +250,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err != nil {
 			return nil, err
 		}
-		err = MapsDir.updateMapLayer(uint64(c), layerID, func(mp *Map, l *Layer) bool {
+		err = c.maps.updateMapLayer(c.ID, layerID, func(mp *Map, l *Layer) bool {
 			for n, ll := range mp.Layers {
 				if ll == l {
 					mp.Layers.Remove(n)
@@ -265,7 +268,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &token); err != nil {
 			return nil, err
 		}
-		if err := MapsDir.updateMapLayer(uint64(c), token.LayerID, func(mp *Map, l *Layer) bool {
+		if err := c.maps.updateMapLayer(c.ID, token.LayerID, func(mp *Map, l *Layer) bool {
 			var tid uint64
 			for _, ly := range mp.Layers {
 				for _, tk := range ly.Tokens {
@@ -286,7 +289,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, l *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenID, func(mp *Map, l *Layer, tk *Token) bool {
 			for n, ltk := range l.Tokens {
 				if ltk == tk {
 					if tk.TokenType == tokenPattern {
@@ -307,7 +310,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &moveToken); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), moveToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, moveToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if tk.X == moveToken.X && tk.Y == moveToken.Y {
 				return false
 			}
@@ -324,7 +327,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &resizeToken); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), resizeToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, resizeToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if resizeToken.Width < 0 {
 				tk.X += int64(tk.Width) + resizeToken.Width
 				resizeToken.Width *= -1
@@ -348,7 +351,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &rotateToken); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), rotateToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, rotateToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if tk.Rotation == rotateToken.Rotation {
 				return false
 			}
@@ -363,7 +366,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &flipToken); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), flipToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, flipToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if tk.Flip == flipToken.Flip {
 				return false
 			}
@@ -378,7 +381,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &flopToken); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), flopToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, flopToken.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if tk.Flop == flopToken.Flop {
 				return false
 			}
@@ -390,7 +393,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
 			if tk.TokenType != tokenImage {
 				return false
 			}
@@ -416,7 +419,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenID, func(mp *Map, _ *Layer, tk *Token) bool {
 			if tk.TokenType != tokenPattern {
 				return false
 			}
@@ -432,7 +435,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenSource); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenSource.ID, func(_ *Map, _ *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenSource.ID, func(_ *Map, _ *Layer, tk *Token) bool {
 			if tk.TokenType != tokenImage || tk.Source == tokenSource.Source {
 				return false
 			}
@@ -447,7 +450,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenLayer); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenLayer.ID, func(mp *Map, l *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenLayer.ID, func(mp *Map, l *Layer, tk *Token) bool {
 			for _, ll := range mp.Layers {
 				for m, ttk := range ll.Tokens {
 					if ttk == tk {
@@ -467,7 +470,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(_ *Map, l *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenID, func(_ *Map, l *Layer, tk *Token) bool {
 			if l.Tokens[len(l.Tokens)-1] == tk {
 				return false
 			}
@@ -478,7 +481,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &tokenID); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapsLayerToken(uint64(c), tokenID, func(_ *Map, l *Layer, tk *Token) bool {
+		return nil, c.maps.updateMapsLayerToken(c.ID, tokenID, func(_ *Map, l *Layer, tk *Token) bool {
 			if l.Tokens[0] == tk {
 				return false
 			}
@@ -489,7 +492,7 @@ func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{
 		if err := json.Unmarshal(data, &initiative); err != nil {
 			return nil, err
 		}
-		return nil, MapsDir.updateMapData(uint64(c), func(mp *Map) bool {
+		return nil, c.maps.updateMapData(c.ID, func(mp *Map) bool {
 			mp.Initiative = initiative
 			return true
 		})

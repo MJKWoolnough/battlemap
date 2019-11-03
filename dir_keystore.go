@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"bufio"
@@ -18,6 +18,7 @@ import (
 )
 
 type keystoreDir struct {
+	*Battlemap
 	DefaultMethods
 	Name      string
 	Socket    uint8
@@ -30,14 +31,14 @@ type keystoreDir struct {
 	data   map[uint64]*keystore.MemStore
 }
 
-func (k *keystoreDir) Init() error {
+func (k *keystoreDir) Init(b *Battlemap) error {
 	k.prefix = strings.ToLower(k.Name) + "."
 	var location keystore.String
-	err := Config.Get(k.Name+"Dir", &location)
+	err := b.config.Get(k.Name+"Dir", &location)
 	if err != nil {
 		return errors.WithContext("error retrieving keystore location: ", err)
 	}
-	sp := filepath.Join(Config.BaseDir, string(location))
+	sp := filepath.Join(b.config.BaseDir, string(location))
 	k.store, err = keystore.NewFileStore(sp, sp, keystore.Base64Mangler)
 	if err != nil {
 		return errors.WithContext("error creating keystore: ", err)
@@ -63,11 +64,12 @@ func (k *keystoreDir) Init() error {
 	}
 	k.nextID = largestID + 1
 	k.websocket = websocket.Handler(k.WebSocket)
+	k.Battlemap = b
 	return nil
 }
 
 func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
-	if !Auth.IsAdmin(r) {
+	if !k.auth.IsAdmin(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else if isRoot(r.URL.Path) {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
@@ -80,7 +82,7 @@ func (k *keystoreDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) {
+	if !k.auth.IsAdmin(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return true
 	}
@@ -108,7 +110,7 @@ func (k *keystoreDir) handleGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func (k *keystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) {
+	if !k.auth.IsAdmin(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		return true
 	} else if isRoot(r.URL.Path) {
@@ -217,7 +219,7 @@ func (k *keystoreDir) printStore(w http.ResponseWriter, r *http.Request, id uint
 }
 
 func (k *keystoreDir) Patch(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) {
+	if !k.auth.IsAdmin(r) {
 		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else if isRoot(r.URL.Path) {
 		return false
@@ -310,7 +312,7 @@ func (k *keystoreDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
-	Socket.RunConn(conn, k, k.Socket)
+	k.socket.RunConn(conn, k, k.Socket)
 }
 
 func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -429,7 +431,7 @@ type userKeystoreDir struct {
 }
 
 func (u *userKeystoreDir) Options(w http.ResponseWriter, r *http.Request) {
-	if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); u.store.Exists(idStr) && !Auth.IsAdmin(r) {
+	if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); u.store.Exists(idStr) && !u.auth.IsAdmin(r) {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 	} else {
 		u.keystoreDir.Options(w, r)
@@ -445,12 +447,6 @@ func (u *userKeystoreDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	u.handlePost(w, r)
 	return true
 }
-
-var (
-	CharsDir      = keystoreDir{Name: "Chars", Socket: SocketCharacters}
-	TokensDir     = keystoreDir{Name: "Tokens", Socket: SocketMaps}
-	UserTokensDir = userKeystoreDir{keystoreDir: keystoreDir{Name: "UserTokens", Socket: SocketMaps}}
-)
 
 const (
 	ErrDuplicateKey errors.Error = "duplicate key"

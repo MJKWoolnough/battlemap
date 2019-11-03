@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"io"
@@ -58,5 +58,3 @@ func (c *config) SetAll(data map[string]io.WriterTo) error {
 	}
 	return c.fileStore.Set(configFile, c.memStore)
 }
-
-var Config config

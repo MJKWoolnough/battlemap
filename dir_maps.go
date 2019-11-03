@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"fmt"
@@ -14,6 +14,7 @@ import (
 )
 
 type mapsDir struct {
+	*Battlemap
 	DefaultMethods
 
 	store *keystore.FileStore
@@ -25,13 +26,13 @@ type mapsDir struct {
 	handler, indexes http.Handler
 }
 
-func (m *mapsDir) Init() error {
+func (m *mapsDir) Init(b *Battlemap) error {
 	var location keystore.String
-	err := Config.Get("MapsDir", &location)
+	err := b.config.Get("MapsDir", &location)
 	if err != nil {
 		return errors.WithContext("error getting map directory: ", err)
 	}
-	sp := filepath.Join(Config.BaseDir, string(location))
+	sp := filepath.Join(b.config.BaseDir, string(location))
 	m.store, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
 		return errors.WithContext("error creating map store: ", err)
@@ -73,6 +74,7 @@ func (m *mapsDir) Init() error {
 	sort.Sort(m.order)
 	genPages(t, m.order, mapsTemplate, "index", "maps", "map", &m.indexes)
 	m.handler = http.FileServer(http.Dir(sp))
+	m.Battlemap = b
 	return nil
 }
 
@@ -156,7 +158,7 @@ func (m *mapsDir) newMap(nm newMap, id ID) (uint64, error) {
 	}
 	m.maps[mid] = mp
 	m.order = append(m.order, mp)
-	Socket.BroadcastMapChange(mp, id)
+	m.socket.BroadcastMapChange(mp, id)
 	m.mu.Unlock()
 	m.store.Set(strconv.FormatUint(mid, 10), mp)
 	return mid, nil
@@ -225,8 +227,6 @@ func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*Map, *Layer, *T
 	})
 	return err
 }
-
-var MapsDir mapsDir
 
 type MapIDError struct {
 	KeyID, ParsedID uint64

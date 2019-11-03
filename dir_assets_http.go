@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"bufio"
@@ -19,7 +19,7 @@ import (
 func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 	if !a.assetStore.Exists(filepath.FromSlash(r.URL.Path)) {
 		http.NotFound(w, r)
-	} else if Auth.IsAdmin(r) {
+	} else if a.auth.IsAdmin(r) {
 		if isRoot(r.URL.Path) {
 			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 		} else if r.URL.Path == tagsPath {
@@ -39,7 +39,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) {
+	if a.auth.IsAdmin(r) {
 		handler := a.handler
 		if isRoot(r.URL.Path) {
 			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
@@ -73,7 +73,7 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) || !isRoot(r.URL.Path) {
+	if !a.auth.IsAdmin(r) || !isRoot(r.URL.Path) {
 		return false
 	}
 	m, err := r.MultipartReader()
@@ -156,12 +156,12 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		w.Header().Set(contentType, "text/plain")
 		added.WriteTo(w)
 	}
-	Socket.BroadcastAssetAdd(added, SocketIDFromRequest(r))
+	a.socket.BroadcastAssetsAdd(added, SocketIDFromRequest(r))
 	return true
 }
 
 func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if !Auth.IsAdmin(r) || isRoot(r.URL.Path) {
+	if !a.auth.IsAdmin(r) || isRoot(r.URL.Path) {
 		return false
 	}
 	idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")
@@ -198,7 +198,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) && !isRoot(r.URL.Path) && r.URL.Path != tagsPath {
+	if a.auth.IsAdmin(r) && !isRoot(r.URL.Path) && r.URL.Path != tagsPath {
 		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
 		if err != nil {
 			http.NotFound(w, r)
@@ -224,7 +224,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
-	if Auth.IsAdmin(r) {
+	if a.auth.IsAdmin(r) {
 		if r.URL.Path == tagsPath {
 			a.patchTags(w, r)
 			return true
@@ -304,7 +304,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 		}
 		change = a.deleteTags(tags...)
 		a.assetMu.Unlock()
-		Socket.BroadcastTagRemove(tp.Remove, id)
+		a.socket.BroadcastTagRemove(tp.Remove, id)
 	} else {
 		a.tagMu.Lock()
 	}
@@ -343,7 +343,7 @@ func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
 				fmt.Fprintf(w, "%d:%q\n", tag.ID, tag.Name)
 			}
 		}
-		Socket.BroadcastTagAdd(newTags, id)
+		a.socket.BroadcastTagsAdd(newTags, id)
 	} else {
 		a.tagMu.Unlock()
 		w.WriteHeader(http.StatusNoContent)

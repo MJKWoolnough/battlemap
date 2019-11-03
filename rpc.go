@@ -1,4 +1,4 @@
-package main
+package battlemap
 
 import (
 	"encoding/json"
