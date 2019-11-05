@@ -16,6 +16,12 @@ import (
 	"vimagination.zapto.org/sessions"
 )
 
+type Auth interface {
+	http.Handler
+	Auth(r *http.Request) *http.Request
+	IsAdmin(r *http.Request)
+}
+
 type auth struct {
 	*Battlemap
 	store *sessions.CookieStore
@@ -83,6 +89,8 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 	a.mu.RUnlock()
 	return isAdmin
 }
+
+func (a *auth) Auth(r *http.Request) *http.Request { return r }
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 	a.store.Set(w, nil)
