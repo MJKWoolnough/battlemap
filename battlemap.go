@@ -12,7 +12,7 @@ import (
 type Battlemap struct {
 	config     config
 	socket     socket
-	auth       auth
+	auth       Auth
 	assets     assetsDir
 	chars      keystoreDir
 	tokens     keystoreDir
@@ -24,16 +24,16 @@ type Battlemap struct {
 	mux        http.ServeMux
 }
 
-func New(path string) (*Battlemap, error) {
+func New(path string, auth Auth) (*Battlemap, error) {
 	b := new(Battlemap)
-	if err := b.initModules(path); err != nil {
+	if err := b.initModules(path, auth); err != nil {
 		return nil, err
 	}
 	b.initMux(httpdir.Default)
 	return b, nil
 }
 
-func (b *Battlemap) initModules(path string) error {
+func (b *Battlemap) initModules(path string, auth Auth) error {
 	if err := b.config.Init(path); err != nil {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
@@ -43,9 +43,16 @@ func (b *Battlemap) initModules(path string) error {
 	b.tokens.Socket = SocketMaps
 	b.userTokens.Name = "UserTokens"
 	b.userTokens.Socket = SocketMaps
+	if auth == nil {
+		b.auth = new(auth)
+		if err := b.auth.Init(b); err != nil {
+			return fmt.Errorf("error initialising %s module: %w", module, err)
+		}
+	} else {
+		b.auth = auth
+	}
 	for module, init := range map[string]interface{ Init(b *Battlemap) error }{
 		"Socket":  &b.socket,
-		"Auth":    &b.auth,
 		"Assets":  &b.assets,
 		"Tokens":  &b.tokens,
 		"Chars":   &b.chars,
@@ -58,16 +65,12 @@ func (b *Battlemap) initModules(path string) error {
 			return fmt.Errorf("error initialising %s module: %w", module, err)
 		}
 	}
-
 	return nil
 }
 
 func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
-	b.mux.HandleFunc("/login/update", b.auth.UpdatePassword)
-	b.mux.HandleFunc("/login/logout", b.auth.Logout)
-	b.mux.HandleFunc("/login/login", b.auth.Login)
-	b.mux.HandleFunc("/login/loggedin", b.auth.LoggedIn)
+	b.mux.Handle("/login/", b.auth)
 	b.mux.Handle("/assets/", http.StripPrefix("/assets/", Dir{&b.assets}))
 	b.mux.Handle("/tokens/", http.StripPrefix("/tokens", Dir{&b.tokens}))
 	b.mux.Handle("/characters/", http.StripPrefix("/characters/", Dir{&b.chars}))
@@ -79,5 +82,5 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 }
 
 func (b *Battlemap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	b.mux.ServeHTTP(w, r)
+	b.mux.ServeHTTP(w, b.auth.Auth(r))
 }
