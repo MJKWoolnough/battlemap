@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/json"
 	"hash"
 	"io"
 	"net/http"
 	"sync"
 	"time"
 
+	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
@@ -18,8 +20,9 @@ import (
 
 type Auth interface {
 	http.Handler
-	Auth(r *http.Request) *http.Request
-	IsAdmin(r *http.Request)
+	Auth(*http.Request) *http.Request
+	AuthConn(*websocket.Conn) AuthConn
+	IsAdmin(*http.Request) bool
 }
 
 type auth struct {
@@ -260,6 +263,92 @@ func (a *auth) LoginGetData(password string) string {
 	a.store.Set(psuedoHeaders{"Set-Cookie": pw}, sessionData)
 	return pw[0]
 }
+
+func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/login/update":
+		a.UpdatePassword(w, r)
+	case "/login/logout":
+		a.Logout(w, r)
+	case "/login/login":
+		a.Login(w, r)
+	case "/login/loggedin":
+		a.LoggedIn(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+var (
+	loggedOut = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
+	loggedIn  = []byte("{\"id\": -1, \"result\": {\"isAdmin\": true}}")
+)
+
+func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
+	c := &authConn{
+		auth: a,
+	}
+	if a.IsAdmin(w.Request()) {
+		w.Write(loggedIn)
+		c.admin = true
+	} else {
+		w.Write(loggedOut)
+	}
+	return c
+}
+
+type authConn struct {
+	*auth
+
+	mu    sync.RWMutex
+	admin bool
+}
+
+func (a *authConn) IsAdmin() bool {
+	a.mu.RLock()
+	admin := a.admin
+	a.mu.RUnlock()
+	return admin
+}
+
+func (a *authConn) RPCData(cd ConnData, submethod string, data []byte) (interface{}, error) {
+	if a.IsAdmin() {
+		switch submethod {
+		case "loggedIn":
+			return true, nil
+		case "logout":
+			a.mu.Lock()
+			a.admin = false
+			a.mu.Unlock()
+		case "changePassword":
+			var password string
+			json.Unmarshal(data, &password)
+			sessionData := a.UpdatePasswordGetData(password, cd.ID)
+			return sessionData, nil
+		}
+	} else {
+		switch submethod {
+		case "loggedIn":
+			return false, nil
+		case "login":
+			var password string
+			json.Unmarshal(data, &password)
+			sessionData := a.LoginGetData(password)
+			if len(sessionData) == 0 {
+				return nil, ErrInvalidPassword
+			}
+			a.mu.Lock()
+			a.admin = true
+			a.mu.Unlock()
+			return sessionData, nil
+		case "requirements":
+			return req, nil
+		}
+	}
+	return nil, ErrUnknownMethod
+}
+
+var req = []string{"password"}
 
 type psuedoHeaders http.Header
 
