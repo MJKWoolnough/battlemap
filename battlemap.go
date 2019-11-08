@@ -33,7 +33,7 @@ func New(path string, auth Auth) (*Battlemap, error) {
 	return b, nil
 }
 
-func (b *Battlemap) initModules(path string, auth Auth) error {
+func (b *Battlemap) initModules(path string, a Auth) error {
 	if err := b.config.Init(path); err != nil {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
@@ -43,13 +43,14 @@ func (b *Battlemap) initModules(path string, auth Auth) error {
 	b.tokens.Socket = SocketMaps
 	b.userTokens.Name = "UserTokens"
 	b.userTokens.Socket = SocketMaps
-	if auth == nil {
-		b.auth = new(auth)
-		if err := b.auth.Init(b); err != nil {
-			return fmt.Errorf("error initialising %s module: %w", module, err)
+	if a == nil {
+		a := new(auth)
+		if err := a.Init(b); err != nil {
+			return fmt.Errorf(moduleError, "auth", err)
 		}
+		b.auth = a
 	} else {
-		b.auth = auth
+		b.auth = a
 	}
 	for module, init := range map[string]interface{ Init(b *Battlemap) error }{
 		"Socket":  &b.socket,
@@ -62,7 +63,7 @@ func (b *Battlemap) initModules(path string, auth Auth) error {
 		"Plugins": &b.plugins,
 	} {
 		if err := init.Init(b); err != nil {
-			return fmt.Errorf("error initialising %s module: %w", module, err)
+			return fmt.Errorf(moduleError, module, err)
 		}
 	}
 	return nil
@@ -84,3 +85,5 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 func (b *Battlemap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b.mux.ServeHTTP(w, b.auth.Auth(r))
 }
+
+const moduleError = "error initialising %s module: %w"

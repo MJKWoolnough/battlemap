@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 	for _, arg := range os.Args {
 		if strings.HasPrefix(arg, "-httptest.serve=") {
 			flag.Parse()
-			if err := battlemap.initModules("./test/"); err != nil {
+			if err := battlemap.initModules("./test/", nil); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
