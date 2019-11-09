@@ -36,19 +36,14 @@ type SocketHandler interface {
 func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint8) {
 	var cu keystore.Uint64
 	s.config.Get("currentUserMap", &cu)
-	isAdmin := s.auth.IsAdmin(wconn.Request())
-	var (
-		id ID
-		c  conn
-	)
+	a := s.auth.AuthConn(wconn)
+	var c conn
 	if handler == nil {
 		handler = &c
 	}
 	s.mu.Lock()
-	if isAdmin {
-		s.nextID++
-		id = s.nextID
-	}
+	s.nextID++
+	id := s.nextID
 	s.conns[&c] = mask
 	s.mu.Unlock()
 	c = conn{
@@ -58,12 +53,8 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 		ConnData: ConnData{
 			CurrentMap: uint64(cu),
 			ID:         id,
+			AuthConn:   a,
 		},
-	}
-	if isAdmin {
-		c.rpc.SendData(loggedIn)
-	} else {
-		c.rpc.SendData(loggedOut)
 	}
 	if mask&SocketMaps > 0 {
 		c.rpc.Send(RPCResponse{
@@ -75,6 +66,11 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 	s.mu.Lock()
 	delete(s.conns, &c)
 	s.mu.Unlock()
+}
+
+type AuthConn interface {
+	IsAdmin() bool
+	SocketHandler
 }
 
 type conn struct {
@@ -96,21 +92,24 @@ func SocketIDFromRequest(r *http.Request) ID {
 type ConnData struct {
 	CurrentMap uint64
 	ID         ID
+	AuthConn
 }
 
 func (c *conn) RPC(method string, data []byte) (interface{}, error) {
 	c.mu.RLock()
 	cd := c.ConnData
 	c.mu.RUnlock()
+	pos := strings.IndexByte(method, '.')
+	if method[:pos] == "auth" {
+		return cd.RPCData(cd, method[pos+1:], data)
+	}
 	switch method {
-	case "auth.loggedIn":
-		return cd.ID > 0, nil
 	case "conn.connID":
 		return cd.ID, nil
 	case "maps.getCurrentMap":
 		return cd.CurrentMap, nil
 	case "maps.setCurrentMap":
-		if cd.ID == 0 {
+		if !cd.IsAdmin() {
 			return nil, ErrUnknownMethod
 		}
 		if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
@@ -130,39 +129,8 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 	submethod := method[pos+1:]
 	method = method[:pos]
 	switch method {
-	case "auth":
-		if cd.ID > 0 {
-			switch submethod {
-			case "logout":
-				c.mu.Lock()
-				c.ID = 0
-				c.mu.Unlock()
-				c.rpc.SendData(loggedOut)
-				return nil, nil
-			case "changePassword":
-				var password string
-				json.Unmarshal(data, &password)
-				sessionData := c.auth.UpdatePasswordGetData(password, cd.ID)
-				return sessionData, nil
-			}
-		} else if submethod == "login" {
-			var password string
-			json.Unmarshal(data, &password)
-			sessionData := c.auth.LoginGetData(password)
-			if len(sessionData) == 0 {
-				return nil, ErrInvalidPassword
-			}
-			c.mu.Lock()
-			c.socket.mu.Lock()
-			c.socket.nextID++
-			c.ID = c.socket.nextID
-			c.socket.mu.Unlock()
-			c.mu.Unlock()
-			c.rpc.SendData(loggedIn)
-			return sessionData, nil
-		}
 	case "assets":
-		if cd.ID > 0 {
+		if cd.IsAdmin() {
 			return c.assets.RPCData(cd, submethod, data)
 		}
 	case "maps":
@@ -170,25 +138,20 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 			var currentUserMap keystore.Uint64
 			c.config.Get("currentUserMap", &currentUserMap)
 			return currentUserMap, nil
-		} else if cd.ID > 0 {
+		} else if cd.IsAdmin() {
 			return c.maps.RPCData(cd, method, data)
 		}
 	case "characters":
-		if cd.ID > 0 {
+		if cd.IsAdmin() {
 			return c.chars.RPCData(cd, submethod, data)
 		}
 	case "tokens":
-		if cd.ID > 0 {
+		if cd.IsAdmin() {
 			return c.tokens.RPCData(cd, submethod, data)
 		}
 	}
 	return nil, ErrUnknownMethod
 }
-
-var (
-	loggedOut = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
-	loggedIn  = []byte("{\"id\": -1, \"result\": {\"isAdmin\": true}}")
-)
 
 const (
 	ErrUnknownMethod   errors.Error = "unknown method"
