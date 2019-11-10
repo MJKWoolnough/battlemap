@@ -14,104 +14,103 @@ func (m *mapsDir) Websocket(conn *websocket.Conn) {
 }
 
 func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	if cd.ID == 0 {
-		return nil, ErrUnknownMethod
-	}
-	switch strings.TrimPrefix(method, "maps.") {
-	case "new":
-		var nm newMap
-		if err := json.Unmarshal(data, &nm); err != nil {
-			return nil, err
-		}
-		return m.newMap(nm, cd.ID)
-	case "renameMap":
-		var nn struct {
-			ID   uint64 `json:"id"`
-			Name string `json:"name"`
-		}
-		if err := json.Unmarshal(data, &nn); err != nil {
-			return nil, err
-		}
-		if nn.Name == "" {
-			return nil, ErrInvalidData
-		}
-		m.updateMapData(nn.ID, func(mp *Map) bool {
-			if mp.Name == nn.Name {
-				return false
+	if cd.IsAdmin() {
+		switch strings.TrimPrefix(method, "maps.") {
+		case "new":
+			var nm newMap
+			if err := json.Unmarshal(data, &nm); err != nil {
+				return nil, err
 			}
-			mp.Name = nn.Name
-			return true
-		})
-		return nil, nil
-	case "changeMapDimensions":
-		var md struct {
-			ID     uint64 `json:"id"`
-			Width  uint64 `json:"width"`
-			Height uint64 `json:"height"`
-		}
-		if err := json.Unmarshal(data, &md); err != nil {
-			return nil, err
-		}
-		if md.Width == 0 || md.Height == 0 {
-			return nil, ErrInvalidData
-		}
-		m.updateMapData(md.ID, func(mp *Map) bool {
-			if mp.Width == md.Width && mp.Height == md.Height {
-				return false
+			return m.newMap(nm, cd.ID)
+		case "renameMap":
+			var nn struct {
+				ID   uint64 `json:"id"`
+				Name string `json:"name"`
 			}
-			mp.Width = md.Width
-			mp.Height = md.Height
-			return true
-		})
-		return nil, nil
-	case "changeGrid":
-		var ng struct {
-			ID            uint64 `json:"id"`
-			SquaresWidth  uint64 `json:"squaresWidth"`
-			SquaresColour Colour `json:"squaresColour"`
-			SquaresStroke uint64 `json:"squaresStoke"`
-		}
-		if err := json.Unmarshal(data, &ng); err != nil {
-			return nil, err
-		}
-		m.updateMapData(ng.ID, func(mp *Map) bool {
-			for n := range mp.Patterns {
-				p := &mp.Patterns[n]
-				if p.ID == "gridPattern" {
-					if p.Path == nil {
-						mp.Patterns[n] = genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke)
-					} else {
-						if p.Width == ng.SquaresWidth && p.Height == ng.SquaresWidth && p.Path.Stroke == ng.SquaresColour && p.Path.StrokeWidth == ng.SquaresWidth {
-							return false
-						}
-						p.Width = ng.SquaresWidth
-						p.Height = ng.SquaresWidth
-						p.Path.Path = genGridPath(ng.SquaresWidth)
-						p.Path.Stroke = ng.SquaresColour
-						p.Path.StrokeWidth = ng.SquaresWidth
-					}
-					return true
+			if err := json.Unmarshal(data, &nn); err != nil {
+				return nil, err
+			}
+			if nn.Name == "" {
+				return nil, ErrInvalidData
+			}
+			m.updateMapData(nn.ID, func(mp *Map) bool {
+				if mp.Name == nn.Name {
+					return false
 				}
+				mp.Name = nn.Name
+				return true
+			})
+			return nil, nil
+		case "changeMapDimensions":
+			var md struct {
+				ID     uint64 `json:"id"`
+				Width  uint64 `json:"width"`
+				Height uint64 `json:"height"`
 			}
-			mp.Patterns = append(mp.Patterns, genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke))
-			return true
-		})
-	case "moveMap":
-		var moveMap struct {
-			ID       uint64 `json:"id"`
-			Position int    `json:"position"`
-		}
-		if err := json.Unmarshal(data, &moveMap); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapData(moveMap.ID, func(mp *Map) bool {
-			for _, mmp := range m.order.Move(mp, moveMap.Position) {
-				m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
+			if err := json.Unmarshal(data, &md); err != nil {
+				return nil, err
 			}
-			return false
-		})
-	default:
-		return currentMap{m.Battlemap, cd.CurrentMap}.RPCData(cd, method, data)
+			if md.Width == 0 || md.Height == 0 {
+				return nil, ErrInvalidData
+			}
+			m.updateMapData(md.ID, func(mp *Map) bool {
+				if mp.Width == md.Width && mp.Height == md.Height {
+					return false
+				}
+				mp.Width = md.Width
+				mp.Height = md.Height
+				return true
+			})
+			return nil, nil
+		case "changeGrid":
+			var ng struct {
+				ID            uint64 `json:"id"`
+				SquaresWidth  uint64 `json:"squaresWidth"`
+				SquaresColour Colour `json:"squaresColour"`
+				SquaresStroke uint64 `json:"squaresStoke"`
+			}
+			if err := json.Unmarshal(data, &ng); err != nil {
+				return nil, err
+			}
+			m.updateMapData(ng.ID, func(mp *Map) bool {
+				for n := range mp.Patterns {
+					p := &mp.Patterns[n]
+					if p.ID == "gridPattern" {
+						if p.Path == nil {
+							mp.Patterns[n] = genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke)
+						} else {
+							if p.Width == ng.SquaresWidth && p.Height == ng.SquaresWidth && p.Path.Stroke == ng.SquaresColour && p.Path.StrokeWidth == ng.SquaresWidth {
+								return false
+							}
+							p.Width = ng.SquaresWidth
+							p.Height = ng.SquaresWidth
+							p.Path.Path = genGridPath(ng.SquaresWidth)
+							p.Path.Stroke = ng.SquaresColour
+							p.Path.StrokeWidth = ng.SquaresWidth
+						}
+						return true
+					}
+				}
+				mp.Patterns = append(mp.Patterns, genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke))
+				return true
+			})
+		case "moveMap":
+			var moveMap struct {
+				ID       uint64 `json:"id"`
+				Position int    `json:"position"`
+			}
+			if err := json.Unmarshal(data, &moveMap); err != nil {
+				return nil, err
+			}
+			return nil, m.updateMapData(moveMap.ID, func(mp *Map) bool {
+				for _, mmp := range m.order.Move(mp, moveMap.Position) {
+					m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
+				}
+				return false
+			})
+		default:
+			return currentMap{m.Battlemap, cd.CurrentMap}.RPCData(cd, method, data)
+		}
 	}
 	return nil, ErrUnknownMethod
 }
