@@ -44,14 +44,14 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 		if isRoot(r.URL.Path) {
 			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
 				websocket.Handler(a.WebSocket).ServeHTTP(w, r)
-			} else {
-				at := AcceptType("html")
-				httpaccept.HandleAccept(r, &at)
-				r.URL.Path += "index." + string(at)
-				a.assetHandlerMu.RLock()
-				handler = a.assetHandler
-				a.assetHandlerMu.RUnlock()
+				return true
 			}
+			at := AcceptType("html")
+			httpaccept.HandleAccept(r, &at)
+			r.URL.Path += "index." + string(at)
+			a.assetHandlerMu.RLock()
+			handler = a.assetHandler
+			a.assetHandlerMu.RUnlock()
 		} else if r.URL.Path == tagsPath {
 			var at AcceptType
 			if httpaccept.HandleAccept(r, &at) {
