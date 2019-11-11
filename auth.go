@@ -202,7 +202,7 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set(contentType, "text/xml")
 			io.WriteString(w, "<admin>true</admin>")
 		case "txt":
-			w.Header().Set(contentType, "application/text")
+			w.Header().Set(contentType, "text/plain")
 			io.WriteString(w, "logged in")
 		case "form":
 			w.Header().Set(contentType, "application/x-www-form-urlencoded")
@@ -280,8 +280,8 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	loggedOut = []byte("{\"id\": -1, \"result\": {\"isAdmin\": false}}")
-	loggedIn  = []byte("{\"id\": -1, \"result\": {\"isAdmin\": true}}")
+	loggedOut = []byte("{\"id\": -1, \"result\": 0}")
+	loggedIn  = []byte("{\"id\": -1, \"result\": 1}")
 )
 
 func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
