@@ -3,6 +3,7 @@ package battlemap
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/httpdir"
@@ -71,14 +72,20 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 
 func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
-	b.mux.Handle("/login/", http.StripPrefix("/login", b.auth))
-	b.mux.Handle("/assets/", http.StripPrefix("/assets", Dir{&b.assets}))
-	b.mux.Handle("/tokens/", http.StripPrefix("/tokens", Dir{&b.tokens}))
-	b.mux.Handle("/characters/", http.StripPrefix("/characters", Dir{&b.chars}))
-	b.mux.Handle("/maps/", http.StripPrefix("/maps", Dir{&b.maps}))
-	b.mux.Handle("/masks/", http.StripPrefix("/masks", Dir{&b.masks}))
-	b.mux.Handle("/files/", http.StripPrefix("/files", Dir{&b.files}))
-	b.mux.Handle("/plugins/", http.StripPrefix("/plugins", Dir{&b.plugins}))
+	for path, module := range map[string]Methods{
+		"/login/":     &b.auth,
+		"/assets/":    &b.assets,
+		"/tokens/":    &b.tokens,
+		"/characters": &b.chars,
+		"/maps/":      &b.maps,
+		"/masks/":     &b.masks,
+		"/files/":     &b.files,
+		"/plugins/":   &b.plugins,
+	} {
+		p := strings.StripSuffix(path, "/")
+		b.mux.Handle(path, http.StripPrefix(p, module))
+		b.mux.Handle(p, http.StripPrefix(p, module))
+	}
 	b.mux.Handle("/", httpgzip.FileServer(dir))
 }
 
