@@ -64,7 +64,7 @@ func (a *auth) Init(b *Battlemap) error {
 		save = true
 	}
 	var err error
-	a.store, err = sessions.NewCookieStore(sessionKey, sessions.HTTPOnly(), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
+	a.store, err = sessions.NewCookieStore(sessionKey, sessions.HTTPOnly(), sessions.Path("/"), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	if err != nil {
 		return errors.WithContext("error creating Cookie Store: ", err)
 	}
@@ -266,13 +266,13 @@ func (a *auth) LoginGetData(password string) string {
 
 func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "/login/update":
+	case "/update":
 		a.UpdatePassword(w, r)
-	case "/login/logout":
+	case "/logout":
 		a.Logout(w, r)
-	case "/login/login":
+	case "/login":
 		a.Login(w, r)
-	case "/login/loggedin":
+	case "/loggedin":
 		a.LoggedIn(w, r)
 	default:
 		http.NotFound(w, r)
