@@ -2,11 +2,8 @@ package battlemap
 
 import (
 	"encoding/xml"
-	"fmt"
 	"sort"
 	"strconv"
-
-	"vimagination.zapto.org/memio"
 )
 
 type Maps []*Map
@@ -99,14 +96,6 @@ func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 		}
 	}
 	return nil
-}
-
-func (m Maps) MarshalText() ([]byte, error) {
-	var buf memio.Buffer
-	for _, m := range m {
-		fmt.Fprintf(&buf, "%d:%q", m.ID, m.Name)
-	}
-	return buf, nil
 }
 
 type Layers []*Layer

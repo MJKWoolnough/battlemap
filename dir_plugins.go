@@ -90,15 +90,6 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 
 type PluginList []Plugin
 
-func (pl PluginList) MarshalText() ([]byte, error) {
-	var buf memio.Buffer
-	for _, p := range pl {
-		buf.WriteString(p.File)
-		buf.WriteByte('\n')
-	}
-	return buf, nil
-}
-
 type Plugin struct {
 	File    string
 	Size    int64

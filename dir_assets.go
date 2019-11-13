@@ -16,7 +16,6 @@ import (
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
-	"vimagination.zapto.org/memio"
 )
 
 type assetsDir struct {
@@ -68,10 +67,10 @@ func (a *assetsDir) initTags() error {
 	var fsinfo os.FileInfo
 	if err := a.metaStore.Get("tags", &a.tags); err != nil {
 		if err == keystore.ErrUnknownKey {
+			a.genTagsHandler(time.Now())
 			return nil
-		} else {
-			return errors.WithContext("error reading tags file: ", err)
 		}
+		return errors.WithContext("error reading tags file: ", err)
 	} else if fsinfo, err = a.metaStore.Stat("tags"); err != nil {
 		return errors.WithContext("error stating tags file: ", err)
 	}
@@ -112,6 +111,7 @@ func (a *assetsDir) initAssets() error {
 		location keystore.String
 		err      error
 	)
+	a.assets = make(Assets)
 	a.config.Get("AssetsDir", &location)
 	ap := filepath.Join(a.config.BaseDir, string(location))
 	a.assetStore, err = keystore.NewFileStore(ap, ap, keystore.NoMangle)
@@ -348,6 +348,7 @@ func (a *assetsDir) renameAsset(asset *Asset, newName string) bool {
 	return true
 }
 
+// Asset is an asset
 type Asset struct {
 	ID   uint64   `json:"id" xml:"id,attr"`
 	Name string   `json:"name" xml:"name"`
@@ -377,12 +378,6 @@ func (a *Asset) ReadFrom(r io.Reader) (int64, error) {
 	return lr.Count, lr.Err
 }
 
-func (a *Asset) MarshalText() ([]byte, error) {
-	var buf memio.Buffer
-	fmt.Fprintf(&buf, "%d:%q\n%s\n%v\n\n", a.ID, a.Name, a.Type, a.Tags)
-	return buf, nil
-}
-
 type Assets map[uint64]*Asset
 
 func (a Assets) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
@@ -392,12 +387,6 @@ func (a Assets) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		}
 	}
 	return nil
-}
-
-func (a Assets) MarshalText() ([]byte, error) {
-	var buf memio.Buffer
-	a.WriteTo(&buf)
-	return buf, nil
 }
 
 func (a Assets) WriteTo(w io.Writer) (int64, error) {
@@ -427,14 +416,6 @@ func (t Tags) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 		}
 	}
 	return nil
-}
-
-func (t Tags) MarshalText() ([]byte, error) {
-	var buf memio.Buffer
-	for id, tag := range t {
-		fmt.Fprintf(&buf, "%d:%q\n", id, tag.Name)
-	}
-	return buf, nil
 }
 
 func (t Tags) WriteTo(w io.Writer) (int64, error) {
