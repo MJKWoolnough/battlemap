@@ -47,7 +47,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"changeGrid":          (id, squaresWidth, squaresColour, squaresStroke) => rpc.request("maps.changeGrid", {id, squaresWidth, squaresColour, squaresStroke}),
 			"moveMap":             (id, position)                                   => rpc.request("maps.move", {id, position}),
 
-			"addLayer":    name       => rpc.request.bind(null, "maps.addLayer", name),
+			"addLayer":    name       => rpc.request("maps.addLayer", name),
 			"renameLayer": (id, name) => rpc.request("maps.renameLayer", {id, name}),
 
 			"close": rpc.close
