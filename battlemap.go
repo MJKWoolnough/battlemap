@@ -72,19 +72,20 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 
 func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
+	b.mux.Handle("/login/", http.StripPrefix("/login", b.auth))
 	for path, module := range map[string]Methods{
-		"/login/":     &b.auth,
-		"/assets/":    &b.assets,
-		"/tokens/":    &b.tokens,
-		"/characters": &b.chars,
-		"/maps/":      &b.maps,
-		"/masks/":     &b.masks,
-		"/files/":     &b.files,
-		"/plugins/":   &b.plugins,
+		"/assets/":     &b.assets,
+		"/tokens/":     &b.tokens,
+		"/characters/": &b.chars,
+		"/maps/":       &b.maps,
+		"/masks/":      &b.masks,
+		"/files/":      &b.files,
+		"/plugins/":    &b.plugins,
 	} {
-		p := strings.StripSuffix(path, "/")
-		b.mux.Handle(path, http.StripPrefix(p, module))
-		b.mux.Handle(p, http.StripPrefix(p, module))
+		p := strings.TrimSuffix(path, "/")
+		d := Dir{module}
+		b.mux.Handle(path, http.StripPrefix(p, d))
+		b.mux.Handle(p, http.StripPrefix(p, d))
 	}
 	b.mux.Handle("/", httpgzip.FileServer(dir))
 }
