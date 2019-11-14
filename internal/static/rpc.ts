@@ -50,6 +50,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"addLayer":    name       => rpc.request("maps.addLayer", name),
 			"renameLayer": (id, name) => rpc.request("maps.renameLayer", {id, name}),
 
+			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
+			"loginRequirements": ()                         => rpc.request("auth.requirements"),
+			"login":              data                      => rpc.request("auth.login", data),
+			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}),
+			"logout":            ()                         => rpc.request("auth.logout"),
+
 			"close": rpc.close
 		} as RPCType);
 	})

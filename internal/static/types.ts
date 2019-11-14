@@ -82,6 +82,12 @@ export type RPC = {
 	tokenRemove: (id: Int, keys: string[])               => Promise<void>;
 	tokenDelete: (id: Int)                               => Promise<void>;
 
+	loggedIn:          ()                                         => Promise<boolean>;
+	loginRequirements: ()                                         => Promise<string>;
+	login:             (data: object)                             => Promise<string>;
+	changePassword:    (oldPassword: string, newPassword: string) => Promise<string>;
+	logout:            ()                                         => Promise<void>;
+
 	close: () => void;
 };
 
