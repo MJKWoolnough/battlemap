@@ -320,6 +320,7 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data []byte) (interfac
 			a.mu.Lock()
 			a.admin = false
 			a.mu.Unlock()
+			return nil, nil
 		case "changePassword":
 			var password string
 			json.Unmarshal(data, &password)
