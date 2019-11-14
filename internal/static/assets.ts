@@ -1,23 +1,10 @@
-import {RPCType} from './lib/rpc_shared.js';
+import {RPC, Tag, Asset} from './types.js';
 import {createHTML} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
 
-type Tag = {
-	id: number;
-	name: string;
-	assets: number[];
-};
-
-type Asset = {
-	id: number;
-	name: string;
-	type: string;
-	tags: number[];
-};
-
-export default function(rpc: RPCType, overlay: LayerType, base: Node): void {
+export default function(rpc: RPC, overlay: LayerType, base: Node): void {
 	const addTag = (() => {
 		return (tag: Tag) => {
 			console.log(tag);
@@ -29,9 +16,9 @@ export default function(rpc: RPCType, overlay: LayerType, base: Node): void {
 		};
 	})();
 	Promise.all([
-		rpc.request("assets.getTags"),
-		rpc.request("assets.getAssets")
-	]).then(([tags, assets]: [Record<number, Tag>, Record<number, Asset>]) => {
+		rpc.getTags(),
+		rpc.getAssets()
+	]).then(([tags, assets]) => {
 		Object.values(tags).forEach(addTag);
 		Object.values(assets).forEach(addAsset);
 		base.appendChild(createHTML("button", "Add Tag", {"onclick": () => {
@@ -40,10 +27,11 @@ export default function(rpc: RPCType, overlay: LayerType, base: Node): void {
 				createHTML("label", {"for": "newTagName"}, "New Name"),
 				createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
 				createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
-					overlay.loading(rpc.request("assets.addTag", (this.previousSibling as HTMLInputElement).value)).then((tag: Tag) => {
-						addTag(tag);
+					const name = (this.previousSibling as HTMLInputElement).value;
+					overlay.loading(rpc.addTag(name).then(tag => {
+						addTag({id: tag, name: name, assets: []});
 						overlay.removeLayer();
-					}, showError.bind(null, this));
+					}, showError.bind(null, this)));
 				}})
 			]);
 		}}));
