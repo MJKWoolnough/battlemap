@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/keystore"
 )
 
 func (m *mapsDir) Websocket(conn *websocket.Conn) {
@@ -16,6 +17,14 @@ func (m *mapsDir) Websocket(conn *websocket.Conn) {
 func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if cd.IsAdmin() {
 		switch strings.TrimPrefix(method, "maps.") {
+		case "setCurrentUserMap":
+			var userMap keystore.Uint64
+			if err := json.Unmarshal(data, &userMap); err != nil {
+				return nil, err
+			}
+			m.Battlemap.config.Set("currentUserMap", &userMap)
+			m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), cd.ID)
+			return nil, nil
 		case "new":
 			var nm newMap
 			if err := json.Unmarshal(data, &nm); err != nil {
@@ -94,6 +103,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				mp.Patterns = append(mp.Patterns, genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke))
 				return true
 			})
+			return nil, nil
 		case "moveMap":
 			var moveMap struct {
 				ID       uint64 `json:"id"`
