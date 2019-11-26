@@ -322,15 +322,15 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data []byte) (interfac
 			a.mu.Unlock()
 			return nil, nil
 		case "changePassword":
-			var data struct {
+			var ndata struct {
 				Old string `json:"oldPassword"`
 				New string `json:"newPassword"`
 			}
-			json.Unmarshal(data, &data)
-			if a.login(data.Old) == nil {
+			json.Unmarshal(data, &ndata)
+			if a.login(ndata.Old) == nil {
 				return nil, ErrInvalidPassword
 			}
-			sessionData := a.UpdatePasswordGetData(data.New, cd.ID)
+			sessionData := a.UpdatePasswordGetData(ndata.New, cd.ID)
 			return sessionData, nil
 		}
 	} else {
