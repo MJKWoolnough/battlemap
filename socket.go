@@ -9,6 +9,7 @@ import (
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
+	"vimagination.zapto.org/jsonrpc"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -48,7 +49,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 	s.mu.Unlock()
 	c = conn{
 		Battlemap: s.Battlemap,
-		rpc:       NewRPC(wconn, &c),
+		rpc:       jsonrpc.New(wconn, &c),
 		handler:   handler,
 		ConnData: ConnData{
 			CurrentMap: uint64(cu),
@@ -57,7 +58,7 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 		},
 	}
 	if mask&SocketMaps > 0 {
-		c.rpc.Send(RPCResponse{
+		c.rpc.Send(jsonrpc.Response{
 			ID:     -2,
 			Result: cu,
 		})
@@ -75,7 +76,7 @@ type AuthConn interface {
 
 type conn struct {
 	*Battlemap
-	rpc     *RPC
+	rpc     *jsonrpc.Server
 	handler SocketHandler
 
 	mu sync.RWMutex
@@ -95,7 +96,7 @@ type ConnData struct {
 	AuthConn
 }
 
-func (c *conn) RPC(method string, data []byte) (interface{}, error) {
+func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 	c.mu.RLock()
 	cd := c.ConnData
 	c.mu.RUnlock()

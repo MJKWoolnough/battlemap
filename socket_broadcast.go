@@ -1,6 +1,10 @@
 package battlemap
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"vimagination.zapto.org/jsonrpc"
+)
 
 const (
 	broadcastIsAdmin = -1 - iota
@@ -51,7 +55,7 @@ func (c *conn) kickAdmin() {
 }
 
 func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
-	data, _ := json.Marshal(RPCResponse{
+	data, _ := json.Marshal(jsonrpc.Response{
 		ID:     broadcastCurrentUserMap,
 		Result: currentUserMap,
 	})
@@ -135,7 +139,7 @@ func (s *socket) BroadcastTagRemove(tags []uint64, except ID) {
 }
 
 func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, except ID) {
-	dat, _ := json.Marshal(RPCResponse{
+	dat, _ := json.Marshal(jsonrpc.Response{
 		ID:     int(id),
 		Result: data,
 	})
@@ -153,7 +157,7 @@ func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, exc
 }
 
 func (s *socket) broadcastAdminChange(socket uint8, id int64, data interface{}, except ID) {
-	dat, _ := json.Marshal(RPCResponse{
+	dat, _ := json.Marshal(jsonrpc.Response{
 		ID:     int(id),
 		Result: data,
 	})
