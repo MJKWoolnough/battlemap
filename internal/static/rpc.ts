@@ -2,7 +2,7 @@ import RPC from './lib/rpc_ws.js';
 import {RPC as RPCType, Tag, Asset} from './types.js';
 
 export default function (url: string): Promise<Readonly<RPCType>>{
-	return RPC(url).then(rpc => {
+	return RPC(url, 1.1).then(rpc => {
 		return Object.freeze({
 			"waitLogin":          () => rpc.await(-1, false),
 			"waitCurrentUserMap": () => rpc.await(-2, false),
