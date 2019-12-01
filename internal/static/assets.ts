@@ -3,7 +3,7 @@ import {createHTML} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
-import SortHTML from './lib/ordered.js';
+import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
 interface TagAsset {
 	id: Int;
@@ -88,29 +88,57 @@ class AssetHTML {
 
 class TagFolder {
 	html: Node;
-	list: Array<any>;
+	list: SortHTMLType<TagFolder | AssetHTML>;
 	name: string;
 	id: number;
 	parent: TagFolder | null;
-	constructor(name: string, tag: Tag | null, parent: TagFolder | null) {
+	constructor(name: string, parent: TagFolder | null) {
 		const listHTML = createHTML("ul");
 		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, parent == null ? sortFnDate : sortFn);
-		this.html = tag === null ? listHTML : createHTML("li", [
+		this.html = parent === null ? listHTML : createHTML("li", [
 			createHTML("span", name.split('/', 2)[0]),
 			name.indexOf('/') === -1 ? [
-				//controls
+				createHTML("span", "✍", {"class": "editAsset", "onclick": function() {
+
+				}}),
+				createHTML("span", "⌫", {"class": "removeAsset", "onclick": function() {
+
+				}})
 			] : [],
 			listHTML
 		]);
-		this.id = tag === null ? -1 : tag.id;
+		this.id = -1;
 		this.name = name;
 		this.parent = parent;
 	}
-	update(tag: Tag){
-
+	setTag(tag: Tag) {
+		if (this.id === -1) {
+			this.id = tag.id;
+			tags.set(tag.id, this);
+		}
 	}
-	addTag(tag: Tag){
-
+	setNoTag() {
+		if (this.id !== -1) {
+			tags.delete(this.id);
+			this.id = -1;
+		}
+	}
+	addTag(name: string, tag: Tag){
+		const s = name.indexOf('/');
+		let thisName = name;
+		if (s > -1) {
+			thisName = name.slice(0, s);
+		}
+		let tagf = this.list.find(e => e instanceof TagFolder && e.name === thisName);
+		if (!(tagf instanceof TagFolder)) {
+			tagf = new TagFolder(name, this);
+			this.list.push(tagf);
+		}
+		if (s === -1) {
+			tagf.setTag(tag);
+		} else {
+			tagf.addTag(name.slice(s+1), tag);
+		}
 	}
 	addAsset(asset: Asset){
 
@@ -125,8 +153,8 @@ export default function(rpc: RPC, overlay: LayerType, base: Node): void {
 		rpc.getTags(),
 		rpc.getAssets()
 	]).then(([tags, assets]) => {
-		const list = new TagFolder("", null, null);
-		Object.values(tags).forEach(t => list.addTag(t));
+		const list = new TagFolder("", null);
+		Object.values(tags).forEach(t => list.addTag(t.name, t));
 		Object.values(assets).forEach(a => list.addAsset(a));
 		createHTML(base, {"id": "assets"}, [
 			createHTML("button", "Add Tag", {"onclick": () => {
@@ -137,7 +165,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node): void {
 					createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
 						const name = (this.previousSibling as HTMLInputElement).value;
 						overlay.loading(rpc.addTag(name).then(tag => {
-							list.addTag({id: tag, name: name, assets: []});
+							list.addTag(name, {id: tag, name: name, assets: []});
 							overlay.removeLayer();
 						}, showError.bind(null, this)));
 					}})
