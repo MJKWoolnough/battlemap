@@ -2,7 +2,12 @@ import {createHTML} from './lib/html.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
-		(this.nextSibling! as HTMLElement).click();
+		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
+			if (e instanceof HTMLButtonElement) {
+				e.click();
+				break;
+			}
+		}
 	}
 }, showError = (elm: Node, e: Error | string): void => {
 	const msg =  e instanceof Error ? e.message : e;
