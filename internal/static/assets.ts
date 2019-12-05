@@ -10,150 +10,182 @@ interface TagAsset {
 	name: string;
 }
 
-const strCompare = new Intl.Collator().compare,
-      sortFn = (a: TagAsset, b :TagAsset) => {
-	if (a instanceof AssetItem) {
-		if (b instanceof AssetItem) {
-			return strCompare(a.name, b.name);
+export default function(rpc: RPC, overlay: LayerType, base: Node): Promise<void> {
+	class AssetItem {
+		htmls = new Map<Int, AssetHTML>();
+		asset: Asset;
+		funcs: AssetFuncs;
+		constructor(asset: Asset) {
+			this.asset = asset;
+			this.funcs = {
+				edit :() => {},
+				remove: () => {}
+			};
 		}
-		return -1;
+		html(tagID: Int) {
+			if (this.htmls.has(tagID)) {
+				return this.htmls.get(tagID);
+			}
+			const ah = new AssetHTML(this.asset, this.funcs)
+			this.htmls.set(tagID, ah);
+			return ah;
+		}
+		rename(name: string) {
+			this.asset.name = name;
+			this.htmls.forEach(h => h.rename(name));
+		}
+		removeTag(tagID: Int){
+			this.htmls.delete(tagID);
+		}
 	}
-	if (b instanceof AssetItem) {
-		return 1;
+
+	type AssetFuncs = {
+		edit: Function;
+		remove: Function;
 	}
-	return strCompare(a.name, b.name);
-      },
-      sortFnDate = (a: TagAsset, b: TagAsset) => {
-	if (a instanceof AssetItem && b instanceof AssetItem) {
-		if (a.id === b.id) {
-			return 0;
-		} else if (a.id < b.id) {
+
+	class AssetHTML {
+		html: Node;
+		constructor(asset: Asset, funcs: AssetFuncs) {
+			this.html = createHTML("li", [
+				createHTML("span", asset.name),
+				createHTML("span", {"class": "assetCmds"}, [
+					createHTML("span", "✍", {"class": "editAsset", "onclick": funcs.edit}),
+					createHTML("span", "⌫", {"class": "removeAsset", "onclick": funcs.remove})
+				])
+			]);
+		}
+		rename(name: string) {
+			//this.html.???
+		}
+	}
+
+	class TagFolder {
+		html: Node;
+		list: SortHTMLType<TagFolder | AssetHTML>;
+		name: string;
+		id: number;
+		parent: TagFolder | null;
+		constructor(name: string, parent: TagFolder | null) {
+			const listHTML = createHTML("ul");
+			this.list = SortHTML<TagFolder | AssetHTML>(listHTML, parent == null ? sortFnDate : sortFn);
+			this.html = parent === null ? listHTML : createHTML("li", [
+				createHTML("span", name.split('/', 2)[0]),
+				name.indexOf('/') === -1 ? [
+					createHTML("span", "✍", {"class": "editAsset", "onclick": () => this.rename()}),
+					createHTML("span", "⌫", {"class": "removeAsset", "onclick": function() {
+
+					}})
+				] : [],
+				listHTML
+			]);
+			this.id = -1;
+			this.name = name;
+			this.parent = parent;
+		}
+		setTag(tag: Tag) {
+			if (this.id === -1) {
+				this.id = tag.id;
+				tags.set(tag.id, this);
+			}
+		}
+		setNoTag() {
+			if (this.id !== -1) {
+				tags.delete(this.id);
+				this.id = -1;
+			}
+		}
+		addTag(name: string, tag: Tag){
+			const s = name.indexOf('/');
+			let thisName = name;
+			if (s > -1) {
+				thisName = name.slice(0, s);
+			}
+			let tagf = this.list.find(e => e instanceof TagFolder && e.name === thisName) as TagFolder;
+			if (!(tagf instanceof TagFolder)) {
+				tagf = new TagFolder(name, this);
+				this.list.push(tagf);
+			}
+			if (s === -1) {
+				tagf.setTag(tag);
+			} else {
+				tagf.addTag(name.slice(s+1), tag);
+			}
+		}
+		removeTag(tag: Int) {
+
+		}
+		addAsset(asset: Asset){
+
+		}
+		removeAsset(asset: Asset){
+
+		}
+		changeName(newName: string) {
+			this.name = newName;
+			tags.get(this.id)!.name = newName;
+			(this.parent as TagFolder).removeTag(this.id);
+			list.addTag(newName, {id: this.id, name: newName, assets: []});
+
+		}
+		rename() {
+			const that = this;
+			createHTML(overlay.addLayer(), {"class": "tagRename"}, [
+				createHTML("h1", `Rename Tag: ${this.name}`),
+				createHTML("label", {"for": "tagRename"}, "New Name"),
+				createHTML("input", {"type": "text", "id": "tagRename", "value": this.name, "onkeypress": enterKey}),
+				createHTML("button", "Rename", {"onclick": function(this: HTMLElement) {
+					const newName = (this.previousSibling as HTMLInputElement).value;
+					if (that.name === newName) {
+						overlay.removeLayer();
+						return;
+					}
+					if (newName == "") {
+						showError(this, "name cannot be nothing");
+						return;
+					}
+					overlay.loading(rpc.renameTag(that.id, newName)).then(name => {
+						overlay.removeLayer();
+						that.changeName(name);
+					}).catch(e => showError(this, e));
+				}})
+			]);
+		}
+	}
+
+	const strCompare = new Intl.Collator().compare,
+	      sortFn = (a: TagAsset, b :TagAsset) => {
+		if (a instanceof AssetItem) {
+			if (b instanceof AssetItem) {
+				return strCompare(a.name, b.name);
+			}
+			return -1;
+		}
+		if (b instanceof AssetItem) {
 			return 1;
 		}
-		return -1;
-	}
-	return sortFn(a, b);
-      },
-      tags = new Map<Int, TagFolder>(),
-      assets = new Map<Int, AssetItem>();
-
-class AssetItem {
-	htmls = new Map<Int, AssetHTML>();
-	asset: Asset;
-	funcs: AssetFuncs;
-	constructor(asset: Asset) {
-		this.asset = asset;
-		this.funcs = {
-			edit :() => {},
-			remove: () => {}
-		};
-	}
-	html(tagID: Int) {
-		if (this.htmls.has(tagID)) {
-			return this.htmls.get(tagID);
+		return strCompare(a.name, b.name);
+	      },
+	      sortFnDate = (a: TagAsset, b: TagAsset) => {
+		if (a instanceof AssetItem && b instanceof AssetItem) {
+			if (a.id === b.id) {
+				return 0;
+			} else if (a.id < b.id) {
+				return 1;
+			}
+			return -1;
 		}
-		const ah = new AssetHTML(this.asset, this.funcs)
-		this.htmls.set(tagID, ah);
-		return ah;
-	}
-	rename(name: string) {
-		this.asset.name = name;
-		this.htmls.forEach(h => h.rename(name));
-	}
-	removeTag(tagID: Int){
-		this.htmls.delete(tagID);
-	}
-}
+		return sortFn(a, b);
+	      },
+	      tags = new Map<Int, TagFolder>(),
+	      assets = new Map<Int, AssetItem>(),
+	      list = new TagFolder("", null);
 
-type AssetFuncs = {
-	edit: Function;
-	remove: Function;
-}
 
-class AssetHTML {
-	html: Node;
-	constructor(asset: Asset, funcs: AssetFuncs) {
-		this.html = createHTML("li", [
-			createHTML("span", asset.name),
-			createHTML("span", {"class": "assetCmds"}, [
-				createHTML("span", "✍", {"class": "editAsset", "onclick": funcs.edit}),
-				createHTML("span", "⌫", {"class": "removeAsset", "onclick": funcs.remove})
-			])
-		]);
-	}
-	rename(name: string) {
-		//this.html.???
-	}
-}
-
-class TagFolder {
-	html: Node;
-	list: SortHTMLType<TagFolder | AssetHTML>;
-	name: string;
-	id: number;
-	parent: TagFolder | null;
-	constructor(name: string, parent: TagFolder | null) {
-		const listHTML = createHTML("ul");
-		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, parent == null ? sortFnDate : sortFn);
-		this.html = parent === null ? listHTML : createHTML("li", [
-			createHTML("span", name.split('/', 2)[0]),
-			name.indexOf('/') === -1 ? [
-				createHTML("span", "✍", {"class": "editAsset", "onclick": function() {
-
-				}}),
-				createHTML("span", "⌫", {"class": "removeAsset", "onclick": function() {
-
-				}})
-			] : [],
-			listHTML
-		]);
-		this.id = -1;
-		this.name = name;
-		this.parent = parent;
-	}
-	setTag(tag: Tag) {
-		if (this.id === -1) {
-			this.id = tag.id;
-			tags.set(tag.id, this);
-		}
-	}
-	setNoTag() {
-		if (this.id !== -1) {
-			tags.delete(this.id);
-			this.id = -1;
-		}
-	}
-	addTag(name: string, tag: Tag){
-		const s = name.indexOf('/');
-		let thisName = name;
-		if (s > -1) {
-			thisName = name.slice(0, s);
-		}
-		let tagf = this.list.find(e => e instanceof TagFolder && e.name === thisName);
-		if (!(tagf instanceof TagFolder)) {
-			tagf = new TagFolder(name, this);
-			this.list.push(tagf);
-		}
-		if (s === -1) {
-			tagf.setTag(tag);
-		} else {
-			tagf.addTag(name.slice(s+1), tag);
-		}
-	}
-	addAsset(asset: Asset){
-
-	}
-	removeAsset(asset: Asset){
-
-	}
-}
-
-export default function(rpc: RPC, overlay: LayerType, base: Node): void {
-	Promise.all([
+	return Promise.all([
 		rpc.getTags(),
 		rpc.getAssets()
 	]).then(([tags, assets]) => {
-		const list = new TagFolder("", null);
 		Object.values(tags).forEach(t => list.addTag(t.name, t));
 		Object.values(assets).forEach(a => list.addAsset(a));
 		createHTML(base, {"id": "assets"}, [
