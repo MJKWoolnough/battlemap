@@ -5,7 +5,7 @@ import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
-let rpc: RPC, overlay: LayerType, p: Promise<Node[]>;
+let rpc: RPC, overlay: LayerType, p: Promise<void>;
 
 interface TagAsset {
 	id: Int;
@@ -181,13 +181,60 @@ const strCompare = new Intl.Collator().compare,
       tags = new Map<Int, TagFolder>(),
       assets = new Map<Int, AssetItem>(),
       list = new TagFolder("", null),
-      cancellers = new Set<() => void>();
+      cancellers = new Set<() => void>(),
+      html = [
+	createHTML("button", "Add Tag", {"onclick": () => {
+		createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+			createHTML("h1", "Add Tag"),
+			createHTML("label", {"for": "newTagName"}, "New Name"),
+			createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
+			createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
+				const name = (this.previousSibling as HTMLInputElement).value;
+				overlay.loading(rpc.addTag(name).then(tag => {
+					list.addTag(name, {id: tag, name: name, assets: []});
+					overlay.removeLayer();
+				}, showError.bind(null, this)));
+			}})
+		])
+	}}),
+	createHTML("button", "Add", {"onclick": () => {
+		createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+			createHTML("h1", "Add Assets"),
+			createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
+				createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
+				createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
+					const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
+					overlay.loading(HTTPRequest("/assets", {
+						"data": new FormData(this.parentNode as HTMLFormElement),
+						"method": "POST",
+						"response": "JSON",
+						"onprogress": (e: ProgressEvent) => {
+							if (e.lengthComputable) {
+								bar.setAttribute("value", e.loaded.toString());
+								bar.setAttribute("max", e.total.toString());
+								bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+							}
+						}
+					}), createHTML("div", {"class": "loadBar"}, [
+						createHTML("div", "Uploading file(s)"),
+						bar
+					])).then((assets: Asset[]) => {
+						assets.forEach(list.addAsset.bind(list))
+						overlay.removeLayer();
+					}, showError.bind(null, this));
+				}})
+			])
+		]);
+	}}),
+	list.html
+      ];
 
-export default function(base: Node, sRPC?: RPC, sOverlay?: LayerType): Promise<any> {
-	let makeSubs = false;
+export default function<T extends Node>(base: T, sRPC?: RPC, sOverlay?: LayerType): Promise<T> {
 	if (rpc !== sRPC && sRPC !== undefined) {
 		rpc = sRPC;
-		makeSubs = true;
+		cancellers.forEach(fn => fn());
+		cancellers.clear();
+		// setup RPC Subscriptions
 	}
 	if (sOverlay !== undefined) {
 		overlay = sOverlay;
@@ -199,60 +246,7 @@ export default function(base: Node, sRPC?: RPC, sOverlay?: LayerType): Promise<a
 		]).then(([tags, assets]) => {
 			Object.values(tags).forEach(t => list.addTag(t.name, t));
 			Object.values(assets).forEach(a => list.addAsset(a));
-			return [
-				createHTML("button", "Add Tag", {"onclick": () => {
-					createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-						createHTML("h1", "Add Tag"),
-						createHTML("label", {"for": "newTagName"}, "New Name"),
-						createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
-						createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
-							const name = (this.previousSibling as HTMLInputElement).value;
-							overlay.loading(rpc.addTag(name).then(tag => {
-								list.addTag(name, {id: tag, name: name, assets: []});
-								overlay.removeLayer();
-							}, showError.bind(null, this)));
-						}})
-					])
-				}}),
-				createHTML("button", "Add", {"onclick": () => {
-					createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-						createHTML("h1", "Add Assets"),
-						createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
-							createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
-							createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
-								const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
-								overlay.loading(HTTPRequest("/assets", {
-									"data": new FormData(this.parentNode as HTMLFormElement),
-									"method": "POST",
-									"response": "JSON",
-									"onprogress": (e: ProgressEvent) => {
-										if (e.lengthComputable) {
-											bar.setAttribute("value", e.loaded.toString());
-											bar.setAttribute("max", e.total.toString());
-											bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-										}
-									}
-								}), createHTML("div", {"class": "loadBar"}, [
-									createHTML("div", "Uploading file(s)"),
-									bar
-								])).then((assets: Asset[]) => {
-									assets.forEach(list.addAsset.bind(list))
-									overlay.removeLayer();
-								}, showError.bind(null, this));
-							}})
-						])
-					]);
-				}}),
-				list.html
-			];
 		});
 	}
-	return p.then(html => {
-		createHTML(base, {"id": "assets"}, html);
-		if (makeSubs) {
-			cancellers.forEach(fn => fn());
-			cancellers.clear();
-			// setup RPC Subscriptions
-		}
-	});
+	return p.then(() => createHTML(base, {"id": "assets"}, html));
 }
