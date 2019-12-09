@@ -234,7 +234,14 @@ export default function<T extends Node>(base: T, sRPC?: RPC, sOverlay?: LayerTyp
 		rpc = sRPC;
 		cancellers.forEach(fn => fn());
 		cancellers.clear();
-		// setup RPC Subscriptions
+		[
+			rpc.waitAssetAdd().then(() => {}),
+			rpc.waitAssetChange().then(() => {}),
+			rpc.waitAssetRemove().then(() => {}),
+			rpc.waitTagAdd().then(() => {}),
+			rpc.waitTagChange().then(() => {}),
+			rpc.waitTagRemove().then(() => {})
+		].forEach(s => cancellers.add(s.cancel.bind(s)));
 	}
 	if (sOverlay !== undefined) {
 		overlay = sOverlay;
