@@ -229,9 +229,9 @@ const strCompare = new Intl.Collator().compare,
 	list.html
       ];
 
-export default function<T extends Node>(base: T, sRPC?: RPC, sOverlay?: LayerType): Promise<T> {
-	if (rpc !== sRPC && sRPC !== undefined) {
-		rpc = sRPC;
+export default Object.freeze({
+	set rpc(r: RPC) {
+		rpc = r;
 		cancellers.forEach(fn => fn());
 		cancellers.clear();
 		[
@@ -242,18 +242,21 @@ export default function<T extends Node>(base: T, sRPC?: RPC, sOverlay?: LayerTyp
 			rpc.waitTagChange().then(() => {}),
 			rpc.waitTagRemove().then(() => {})
 		].forEach(s => cancellers.add(s.cancel.bind(s)));
+		if (!p) {
+			p = Promise.all([
+				rpc.getTags(),
+				rpc.getAssets()
+			]).then(([tags, assets]) => {
+				Object.values(tags).forEach(t => list.addTag(t.name, t));
+				Object.values(assets).forEach(a => list.addAsset(a));
+			});
+		}
+	},
+	set overlay(o: LayerType) {
+		overlay = o;
+	},
+	set base(b: Node) {
+		createHTML(b, {"id": "assets"}, html);
 	}
-	if (sOverlay !== undefined) {
-		overlay = sOverlay;
-	}
-	if (p === undefined) {
-		p = Promise.all([
-			rpc.getTags(),
-			rpc.getAssets()
-		]).then(([tags, assets]) => {
-			Object.values(tags).forEach(t => list.addTag(t.name, t));
-			Object.values(assets).forEach(a => list.addAsset(a));
-		});
-	}
-	return p.then(() => createHTML(base, {"id": "assets"}, html));
-}
+});
+
