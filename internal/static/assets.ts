@@ -1,5 +1,5 @@
 import {Int, RPC, Tag, Asset} from './types.js';
-import {createHTML} from './lib/html.js';
+import {createHTML, clearElement} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
@@ -61,83 +61,92 @@ class AssetHTML {
 	}
 }
 
+class TagRoot {
+	html: Node;
+	list: SortHTMLType<TagFolder | AssetHTML>;
+	constructor() {
+		this.html = createHTML("ul");
+		this.list = SortHTML<TagFolder | AssetHTML>(this.html, sortFnDate);
+	}
+	addTag(t: TagFolder) {
+
+	}
+	removeTag(t: TagFolder) {
+
+	}
+}
+
 class TagFolder {
 	html: Node;
 	list: SortHTMLType<TagFolder | AssetHTML>;
-	name: string;
-	id: number;
-	parent: TagFolder | null;
-	constructor(name: string, parent: TagFolder | null) {
+	tag: Tag;
+	parent?: TagFolder;
+	controls: Node;
+	constructor(tag: Tag) {
 		const listHTML = createHTML("ul");
-		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, parent == null ? sortFnDate : sortFn);
-		this.html = parent === null ? listHTML : createHTML("li", [
-			createHTML("span", name.split('/', 2)[0]),
-			name.indexOf('/') === -1 ? [
-				createHTML("span", "✍", {"class": "editAsset", "onclick": () => this.rename()}),
-				createHTML("span", "⌫", {"class": "removeAsset", "onclick": function() {
-
-				}})
-			] : [],
+		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, sortFn);
+		this.controls = createHTML("span");
+		this.html = createHTML("li", [
+			createHTML("span", tag.name.split('/', 2)[0]),
+			this.controls,
 			listHTML
 		]);
-		this.id = -1;
-		this.name = name;
-		this.parent = parent;
+		this.tag = tag;
+		if (tag.id !== -1) {
+			tags.set(this.tag.id, this);
+		}
+	}
+	setParent(t?: TagFolder) {
+		this.parent = t;
+		clearElement(this.controls);
+		if (t) {
+			createHTML(this.controls, [
+				createHTML("span", "✍", {"class": "editTag", "onclick": () => this.rename()}),
+				createHTML("span", "⌫", {"class": "removeTag", "onclick": function() {
+				}})
+			])
+		}
 	}
 	setTag(tag: Tag) {
-		if (this.id === -1) {
-			this.id = tag.id;
-			tags.set(tag.id, this);
-		}
+		this.tag = tag;
+		tags.set(tag.id, this);
 	}
 	setNoTag() {
-		if (this.id !== -1) {
-			tags.delete(this.id);
-			this.id = -1;
-		}
+		tags.delete(this.tag.id);
+		this.tag.id = -1;
 	}
-	addTag(name: string, tag: Tag){
-		const s = name.indexOf('/');
-		let thisName = name;
-		if (s > -1) {
-			thisName = name.slice(0, s);
-		}
-		let tagf = this.list.find(e => e instanceof TagFolder && e.name === thisName) as TagFolder;
-		if (!(tagf instanceof TagFolder)) {
-			tagf = new TagFolder(name, this);
-			this.list.push(tagf);
-		}
-		if (s === -1) {
-			tagf.setTag(tag);
-		} else {
-			tagf.addTag(name.slice(s+1), tag);
+	addTag(t: TagFolder){
+		const nextSlash = t.tag.name.indexOf("/", this.tag.name.length + 1),
+		      nextTagName = nextSlash === -1 ? t.tag.name : t.tag.name.slice(0, nextSlash);
+		let nextTag = this.list.find(e => e instanceof TagFolder ? e.tag.name === nextTagName : false);
+		if (!nextTag && nextSlash !== -1) {
+			nextTag = new TagFolder({id: -1, name: nextTagName, assets: []});
 		}
 	}
 	removeTag(tag: Int) {
 
 	}
 	addAsset(asset: Asset){
-
 	}
 	removeAsset(asset: Asset){
 
 	}
 	changeName(newName: string) {
-		this.name = newName;
-		tags.get(this.id)!.name = newName;
-		(this.parent as TagFolder).removeTag(this.id);
-		list.addTag(newName, {id: this.id, name: newName, assets: []});
+		this.tag.name = newName;
+		tags.get(this.tag.id)!.tag.name = newName;
+		(this.parent as TagFolder).removeTag(this.tag.id);
+		list.addTag(this);
 
 	}
 	rename() {
 		const that = this;
 		createHTML(overlay.addLayer(), {"class": "tagRename"}, [
-			createHTML("h1", `Rename Tag: ${this.name}`),
+			createHTML("h1", `Rename Tag: ${this.tag.name}`),
 			createHTML("label", {"for": "tagRename"}, "New Name"),
-			createHTML("input", {"type": "text", "id": "tagRename", "value": this.name, "onkeypress": enterKey}),
+			createHTML("input", {"type": "text", "id": "tagRename", "value": this.tag.name, "onkeypress": enterKey}),
 			createHTML("button", "Rename", {"onclick": function(this: HTMLElement) {
 				const newName = (this.previousSibling as HTMLInputElement).value;
-				if (that.name === newName) {
+				if (that.tag.name === newName) {
 					overlay.removeLayer();
 					return;
 				}
@@ -145,7 +154,7 @@ class TagFolder {
 					showError(this, "name cannot be nothing");
 					return;
 				}
-				overlay.loading(rpc.renameTag(that.id, newName)).then(name => {
+				overlay.loading(rpc.renameTag(that.tag.id, newName)).then(name => {
 					overlay.removeLayer();
 					that.changeName(name);
 				}).catch(e => showError(this, e));
@@ -180,7 +189,7 @@ const strCompare = new Intl.Collator().compare,
       },
       tags = new Map<Int, TagFolder>(),
       assets = new Map<Int, AssetItem>(),
-      list = new TagFolder("", null),
+      list = new TagFolder({id: -1, name: "", assets: []}),
       cancellers = new Set<() => void>(),
       html = [
 	createHTML("button", "Add Tag", {"onclick": () => {
@@ -191,7 +200,7 @@ const strCompare = new Intl.Collator().compare,
 			createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
 				const name = (this.previousSibling as HTMLInputElement).value;
 				overlay.loading(rpc.addTag(name).then(tag => {
-					list.addTag(name, {id: tag, name: name, assets: []});
+					list.addTag(new TagFolder({id: tag, name: name, assets: []}));
 					overlay.removeLayer();
 				}, showError.bind(null, this)));
 			}})
@@ -247,7 +256,7 @@ export default Object.freeze({
 				rpc.getTags(),
 				rpc.getAssets()
 			]).then(([tags, assets]) => {
-				Object.values(tags).forEach(t => list.addTag(t.name, t));
+				Object.values(tags).forEach(t => list.addTag(new TagFolder(t)));
 				Object.values(assets).forEach(a => list.addAsset(a));
 			});
 		}
