@@ -14,74 +14,73 @@ interface TagAsset {
 
 class AssetItem {
 	htmls = new Map<Int, AssetHTML>();
+	editFn = () => this.edit();
+	removeFn = () => this.remove();
 	asset: Asset;
-	funcs: AssetFuncs;
 	constructor(asset: Asset) {
 		this.asset = asset;
-		this.funcs = {
-			edit :() => {},
-			remove: () => {}
-		};
 	}
 	html(tagID: Int) {
 		if (this.htmls.has(tagID)) {
 			return this.htmls.get(tagID);
 		}
-		const ah = new AssetHTML(this.asset, this.funcs)
+		const ah = new AssetHTML(this.asset, this.editFn, this.removeFn)
 		this.htmls.set(tagID, ah);
 		return ah;
 	}
 	rename(name: string) {
 		this.asset.name = name;
-		this.htmls.forEach(h => h.rename(name));
+		this.htmls.forEach(h => h.rename());
 	}
 	removeTag(tagID: Int){
 		this.htmls.delete(tagID);
 	}
-}
+	edit() {
 
-type AssetFuncs = {
-	edit: Function;
-	remove: Function;
+	}
+	remove() {
+
+	}
 }
 
 class AssetHTML {
+	asset: Asset;
 	html: Node;
-	constructor(asset: Asset, funcs: AssetFuncs) {
+	constructor(asset: Asset, editFn: Function, removeFn: Function) {
+		this.asset = asset;
 		this.html = createHTML("li", [
 			createHTML("span", asset.name),
 			createHTML("span", {"class": "assetCmds"}, [
-				createHTML("span", "✍", {"class": "editAsset", "onclick": funcs.edit}),
-				createHTML("span", "⌫", {"class": "removeAsset", "onclick": funcs.remove})
+				createHTML("span", "✍", {"class": "editAsset", "onclick": editFn}),
+				createHTML("span", "⌫", {"class": "removeAsset", "onclick": removeFn})
 			])
 		]);
 	}
-	rename(name: string) {
-		//this.html.???
+	rename() {
+		(this.html.firstChild as HTMLElement).innerText = this.asset.name;
 	}
 }
 
 class TagRoot {
-	html: Node;
-	list: SortHTMLType<TagFolder | AssetHTML>;
-	constructor() {
-		this.html = createHTML("ul");
-		this.list = SortHTML<TagFolder | AssetHTML>(this.html, sortFnDate);
+	tags = new Map<string, TagFolder>();
+	html = createHTML("ul");
+	list = SortHTML<TagFolder | AssetHTML>(this.html, sortFnDate);
+	getTag(tag: Tag) {
+		return new TagFolder(tag);
 	}
 	addTag(t: TagFolder) {
-
 	}
 	removeTag(t: TagFolder) {
-
 	}
+	addAsset(a: Asset) {}
 }
 
 class TagFolder {
-	html: Node;
 	list: SortHTMLType<TagFolder | AssetHTML>;
 	tag: Tag;
 	parent?: TagFolder;
 	controls: Node;
+	html: Node;
 	constructor(tag: Tag) {
 		const listHTML = createHTML("ul");
 		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, sortFn);
@@ -116,15 +115,8 @@ class TagFolder {
 		this.tag.id = -1;
 	}
 	addTag(t: TagFolder){
-		const nextSlash = t.tag.name.indexOf("/", this.tag.name.length + 1),
-		      nextTagName = nextSlash === -1 ? t.tag.name : t.tag.name.slice(0, nextSlash);
-		let nextTag = this.list.find(e => e instanceof TagFolder ? e.tag.name === nextTagName : false);
-		if (!nextTag && nextSlash !== -1) {
-			nextTag = new TagFolder({id: -1, name: nextTagName, assets: []});
-		}
 	}
 	removeTag(tag: Int) {
-
 	}
 	addAsset(asset: Asset){
 	}
@@ -136,7 +128,6 @@ class TagFolder {
 		tags.get(this.tag.id)!.tag.name = newName;
 		(this.parent as TagFolder).removeTag(this.tag.id);
 		list.addTag(this);
-
 	}
 	rename() {
 		const that = this;
@@ -165,31 +156,26 @@ class TagFolder {
 
 const strCompare = new Intl.Collator().compare,
       sortFn = (a: TagAsset, b :TagAsset) => {
-	if (a instanceof AssetItem) {
-		if (b instanceof AssetItem) {
-			return strCompare(a.name, b.name);
+	if (a instanceof AssetHTML) {
+		if (b instanceof AssetHTML) {
+			return strCompare(a.asset.name, b.asset.name);
 		}
 		return -1;
 	}
-	if (b instanceof AssetItem) {
+	if (b instanceof AssetHTML) {
 		return 1;
 	}
 	return strCompare(a.name, b.name);
       },
       sortFnDate = (a: TagAsset, b: TagAsset) => {
-	if (a instanceof AssetItem && b instanceof AssetItem) {
-		if (a.id === b.id) {
-			return 0;
-		} else if (a.id < b.id) {
-			return 1;
-		}
-		return -1;
+	if (a instanceof AssetHTML && b instanceof AssetHTML) {
+		return a.asset.id - b.asset.id;
 	}
 	return sortFn(a, b);
       },
       tags = new Map<Int, TagFolder>(),
       assets = new Map<Int, AssetItem>(),
-      list = new TagFolder({id: -1, name: "", assets: []}),
+      list = new TagRoot(),
       cancellers = new Set<() => void>(),
       html = [
 	createHTML("button", "Add Tag", {"onclick": () => {
