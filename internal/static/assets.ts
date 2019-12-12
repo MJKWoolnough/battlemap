@@ -65,13 +65,34 @@ class TagRoot {
 	tags = new Map<string, TagFolder>();
 	html = createHTML("ul");
 	list = SortHTML<TagFolder | AssetHTML>(this.html, sortFnDate);
-	getTag(tag: Tag) {
-		return new TagFolder(tag);
+	getTag(tagName: string) {
+		if (this.tags.has(tagName)) {
+			const tf = this.tags.get(tagName) as TagFolder;
+			return tf;
+		}
+		const tf = new TagFolder({"id": -1, "name": tagName, "assets": []}),
+		      s = tagName.lastIndexOf("/"),
+		      sn = s === -1 ? "" : tagName.slice(0, s);
+		this.tags.set(tagName, tf);
+		if (sn === "") {
+			this.list.push(tf);
+		} else {
+			this.getTag(sn).list.push(tf);
+		}
+		return tf;
 	}
-	addTag(t: TagFolder) {
+	addTag(tf: TagFolder) {
+		if (this.tags.has(tf.tag.name)) {
+			const ttf = this.tags.get(tf.tag.name) as TagFolder;
+			if (ttf.tag.id !== -1) {
+				return;
+			}
+		}
+		const s = tf.tag.name.lastIndexOf("/"),
+		      sn = s === -1 ? "" : tf.tag.name.slice(0, s);
+		this.getTag(sn).list.push(tf);
 	}
-	removeTag(t: TagFolder) {
-	}
+	removeTag(t: TagFolder) {}
 	addAsset(a: Asset) {}
 }
 
@@ -95,24 +116,19 @@ class TagFolder {
 			tags.set(this.tag.id, this);
 		}
 	}
-	setParent(t?: TagFolder) {
-		this.parent = t;
-		clearElement(this.controls);
-		if (t) {
-			createHTML(this.controls, [
-				createHTML("span", "✍", {"class": "editTag", "onclick": () => this.rename()}),
-				createHTML("span", "⌫", {"class": "removeTag", "onclick": function() {
-				}})
-			])
-		}
-	}
 	setTag(tag: Tag) {
 		this.tag = tag;
 		tags.set(tag.id, this);
+		createHTML(this.controls, [
+			createHTML("span", "✍", {"class": "editTag", "onclick": () => this.rename()}),
+			createHTML("span", "⌫", {"class": "removeTag", "onclick": function() {
+			}})
+		])
 	}
 	setNoTag() {
 		tags.delete(this.tag.id);
 		this.tag.id = -1;
+		clearElement(this.controls);
 	}
 	addTag(t: TagFolder){
 	}
