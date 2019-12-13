@@ -88,9 +88,14 @@ class TagRoot {
 				return;
 			}
 		}
-		const s = tf.tag.name.lastIndexOf("/"),
-		      sn = s === -1 ? "" : tf.tag.name.slice(0, s);
-		this.getTag(sn).list.push(tf);
+		const s = tf.tag.name.lastIndexOf("/");
+		if (s === -1) {
+			this.list.push(tf);
+		} else {
+			const sn = tf.tag.name.slice(0, s);
+			this.getTag(sn).list.push(tf);
+		}
+		this.tags.set(tf.tag.name, tf);
 	}
 	removeTag(t: TagFolder) {}
 	addAsset(a: Asset) {}
@@ -103,11 +108,12 @@ class TagFolder {
 	controls: Node;
 	html: Node;
 	constructor(tag: Tag) {
-		const listHTML = createHTML("ul");
+		const listHTML = createHTML("ul"),
+		      i = tag.name.lastIndexOf("/");
 		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, sortFn);
 		this.controls = createHTML("span");
 		this.html = createHTML("li", [
-			createHTML("span", tag.name.split('/', 2)[0]),
+			createHTML("span", tag.name.slice(i === -1 ? 0 : i + 1)),
 			this.controls,
 			listHTML
 		]);
