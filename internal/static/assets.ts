@@ -56,6 +56,9 @@ class AssetHTML {
 			])
 		]);
 	}
+	get name() {
+		return this.asset.name;
+	}
 	rename() {
 		(this.html.firstChild as HTMLElement).innerText = this.asset.name;
 	}
@@ -121,6 +124,9 @@ class TagFolder {
 		if (tag.id !== -1) {
 			tags.set(this.tag.id, this);
 		}
+	}
+	get name() {
+		return this.tag.name;
 	}
 	setTag(tag: Tag) {
 		this.tag = tag;
