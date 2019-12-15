@@ -112,11 +112,11 @@ class TagFolder {
 	html: Node;
 	constructor(tag: Tag) {
 		const listHTML = createHTML("ul"),
-		      i = tag.name.lastIndexOf("/");
+		      i = tag.name.lastIndexOf("/") + 1;
 		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, sortFn);
 		this.controls = createHTML("span");
 		this.html = createHTML("li", [
-			createHTML("span", tag.name.slice(i === -1 ? 0 : i + 1)),
+			createHTML("span", tag.name.slice(i)),
 			this.controls,
 			listHTML
 		]);
