@@ -1,13 +1,10 @@
 package battlemap
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
@@ -18,205 +15,109 @@ import (
 	"vimagination.zapto.org/keystore"
 )
 
+type folder struct {
+	ID      uint64             `json:"id"`
+	Folders map[string]*folder `json:"folders"`
+	Assets  map[string]uint64  `json:"assets"`
+}
+
+func (f *folder) WriteTo(w io.Writer) (int64, error) {
+	lw := byteio.StickyLittleEndianWriter{Writer: w}
+	f.WriteToX(&lw)
+	return lw.Count, lw.Err
+}
+
+func (f *folder) ReadFrom(r io.Reader) (int64, error) {
+	lr := byteio.StickyLittleEndianReader{Reader: r}
+	f.ReadFromX(&lr)
+	return lr.Count, lr.Err
+}
+
+func (f *folder) WriteToX(lw *byteio.StickyLittleEndianWriter) {
+	lw.WriteUint64(f.ID)
+	lw.WriteUint64(uint64(len(f.Folders)))
+	for name, fd := range f.Folders {
+		lw.WriteStringX(name)
+		fd.WriteToX(lw)
+	}
+	lw.WriteUint64(uint64(len(f.Assets)))
+	for name, aid := range f.Assets {
+		lw.WriteStringX(name)
+		as.WriteUint64(aid)
+	}
+}
+
+func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
+	f.ID = lr.ReadUint64()
+	fl := lr.ReadUint64()
+	f.Folders = make(map[string]*folder, fl)
+	for i := 0; i < fl; i++ {
+		fd := new(folder)
+		name := lr.ReadStringX()
+		fd.ReadFromX(lr)
+		f.Folders[name] = fd
+	}
+	al := lr.ReadUint64()
+	f.Assets = make(map[string]uint64, lr.ReadUint64())
+	for i := 0; i < al; i++ {
+		name := lr.ReadStringX()
+		f.Assets[name] = lr.ReadUint64()
+	}
+}
+
 type assetsDir struct {
 	*Battlemap
 	DefaultMethods
-	metaStore, assetStore *keystore.FileStore
-	handler               http.Handler
+	assetStore *keystore.FileStore
+	handler    http.Handler
 
-	assetMu     sync.RWMutex
-	nextAssetID uint64
-	assets      Assets
-
-	assetHandlerMu sync.RWMutex
-	assetHandler   http.Handler
-	assetJSON      json.RawMessage
-
-	tagMu     sync.RWMutex
-	nextTagID uint64
-	tags      Tags
-
-	tagHandlerMu sync.RWMutex
-	tagHandler   http.Handler
-	tagJSON      json.RawMessage
+	assetMu      sync.RWMutex
+	nextAssetID  uint64
+	nextFolderID uint64
+	assetFolders *folder
+	assetLinks   map[uint64]uint64
+	folders      map[uint64]*folder
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
-	var metaLocation keystore.String
-	err := b.config.Get("AssetsMetaDir", &metaLocation)
+	var location keystore.String
+	err := a.config.Get("AssetsDir", &location)
 	if err != nil {
-		return errors.WithContext("error getting asset meta data directory: ", err)
+		return fmt.Errorf("error getting asset data directory: %w", err)
 	}
-	sp := filepath.Join(b.config.BaseDir, string(metaLocation))
-	a.metaStore, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
+	l := filepath.Join(b.config.BaseDir, string(location))
+	a.assetStore, err = keystore.NewFileStore(l, l, keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating asset meta store: ", err)
+		return fmt.Errorf("error creating asset meta store: ", err)
 	}
+	a.assetFolders = new(folder)
+	err = a.assetStore.Get("assets", a.assetsFolders)
+	if err != nil {
+		return fmt.Errorf("error getting asset data: ", err)
+	}
+	a.assetLinks = make(map[uint64]uint64)
+	a.process(a.assetFolders)
 	a.Battlemap = b
-	if err = a.initTags(); err != nil {
-		return err
-	}
-	if err = a.initAssets(); err != nil {
-		return err
-	}
 	return nil
 }
 
-func (a *assetsDir) initTags() error {
-	a.tags = make(Tags)
-	var fsinfo os.FileInfo
-	if err := a.metaStore.Get("tags", &a.tags); err != nil {
-		if err == keystore.ErrUnknownKey {
-			a.genTagsHandler(time.Now())
-			return nil
-		}
-		return errors.WithContext("error reading tags file: ", err)
-	} else if fsinfo, err = a.metaStore.Stat("tags"); err != nil {
-		return errors.WithContext("error stating tags file: ", err)
+func (a *assetsDir) processFolder(f *folder) error {
+	a.folders[f.ID] = f
+	if f.ID > a.nextFolderID {
+		a.nextFolderID = f.ID + 1
 	}
-	var largestTagID uint64
-	for id := range a.tags {
-		if id > largestTagID {
-			largestTagID = id
+	for _, g := range f.Folders {
+		if err := a.processFolder(g); err != nil {
+			return err
 		}
 	}
-	a.nextTagID = largestTagID + 1
-	a.genTagsHandler(fsinfo.ModTime())
-	return nil
-}
-
-var tagsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
-<html>
-	<head>
-		<title>Tags</title>
-	</head>
-	<body>
-		<table>
-			<thead>
-				<tr><th>ID</th></tr><td>Name</td></tr>
-			</thead>
-			<tbody>
-{{range .}}				<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
-{{end}}			</tbody>
-		</table>
-	</body>
-</html>`))
-
-func (a *assetsDir) genTagsHandler(t time.Time) {
-	a.tagJSON = json.RawMessage(genPages(t, a.tags, tagsTemplate, "tags", "tags", "tag", &a.tagHandler))
-}
-
-func (a *assetsDir) initAssets() error {
-	var (
-		location keystore.String
-		err      error
-	)
-	a.assets = make(Assets)
-	a.config.Get("AssetsDir", &location)
-	ap := filepath.Join(a.config.BaseDir, string(location))
-	a.assetStore, err = keystore.NewFileStore(ap, ap, keystore.NoMangle)
-	if err != nil {
-		return errors.WithContext("error creating asset store: ", err)
+	for _, as := range f.Assets {
+		if as > a.nextAssetID {
+			a.nextAssetID = as + 1
+		}
+		al, _ := a.assetLinks[as]
+		a.assetLinks[as] = al + 1
 	}
-	fi, err := a.assetStore.Stat("")
-	if err != nil {
-		return errors.WithContext("error reading asset directory stats: ", err)
-	}
-	latestTime := fi.ModTime()
-	var (
-		largestAssetID uint64
-		gft            getFileType
-	)
-	for _, file := range a.assetStore.Keys() {
-		id, err := strconv.ParseUint(file, 10, 0)
-		if err != nil {
-			continue
-		}
-		if _, ok := a.assets[id]; ok {
-			return ErrDuplicateAsset
-		}
-		if fi, err = a.assetStore.Stat(file); err != nil {
-			continue
-		}
-		gft.Type = ""
-		a.assetStore.Get(file, &gft)
-		if gft.Type == "" {
-			continue
-		}
-		as := &Asset{
-			Type: gft.Type,
-		}
-		a.metaStore.Get(file, as)
-		if as.ID != id {
-			as.ID = id
-			as.Name = file
-		}
-		a.assets[as.ID] = as
-		if id > largestAssetID {
-			largestAssetID = id
-		}
-		ct := fi.ModTime()
-		if ct.After(latestTime) {
-			latestTime = ct
-		}
-	}
-	a.nextAssetID = largestAssetID + 1
-	a.genAssetsHandler(latestTime)
-	a.handler = http.FileServer(http.Dir(location))
-	return nil
-}
-
-var assetsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
-<html>
-	<head>
-		<title>Assets</title>
-	</head>
-	<body>
-		<table>
-			<thead>
-				<tr><th>Name</th><th>Type</th></tr>
-			</thead>
-			<tbody>
-{{range .}}			<tr><td><a href="{{.ID}}">{{.Name}}</td><td>{{.Type}}</td></tr>
-{{end}}			</tbody>
-		</table>
-	</body>
-</html>`))
-
-func (a *assetsDir) genAssetsHandler(t time.Time) {
-	a.assetJSON = json.RawMessage(genPages(t, a.assets, assetsTemplate, "index", "assets", "asset", &a.assetHandler))
-}
-
-func (a *assetsDir) writeAsset(id uint64, regen bool) error {
-	as, ok := a.assets[id]
-	if !ok {
-		return ErrUnknownAsset
-	}
-	idStr := strconv.FormatUint(id, 10)
-	if err := a.metaStore.Set(idStr, as); err != nil {
-		return errors.WithContext("error setting asset metadata: ", err)
-	}
-	if regen {
-		fi, err := a.metaStore.Stat(idStr)
-		if err != nil {
-			return errors.WithContext("error reading asset meta file stats: ", err)
-		}
-		a.genAssetsHandler(fi.ModTime())
-	}
-	return nil
-}
-
-func (a *assetsDir) writeTags() error {
-	err := a.metaStore.Set("tags", a.tags)
-	if err != nil {
-		return errors.WithContext("error setting tags data: ", err)
-	}
-	fi, err := a.metaStore.Stat("tags")
-	if err != nil {
-		return errors.WithContext("error reading tag file stats: ", err)
-	}
-	a.genTagsHandler(fi.ModTime())
-	return nil
 }
 
 func (a *assetsDir) deleteAsset(asset *Asset, id ID) error {
