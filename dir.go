@@ -75,20 +75,28 @@ func (w writerReaderFrom) ReadFrom(r io.Reader) (int64, error) {
 	return io.Copy(w.Writer, r)
 }
 
-func getType(mime string) string {
+type fileType uint8
+
+const (
+	fileTypeUnknown fileType = iota
+	fileTypeImage
+	fileTypeAudio
+)
+
+func getType(mime string) fileType {
 	switch mime {
 	case "image/gif", "image/png", "image/jpeg", "image/webp", "video/apng":
-		return "image"
+		return fileTypeImage
 	case "application/ogg", "audio/mpeg":
-		return "audio"
+		return fileTypeAudio
 	}
-	return ""
+	return fileTypeUnknown
 }
 
 type getFileType struct {
 	Buffer [512]byte
 	BufLen int
-	Type   string
+	Type   fileType
 }
 
 func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
