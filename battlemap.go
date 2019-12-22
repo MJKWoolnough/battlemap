@@ -14,7 +14,8 @@ type Battlemap struct {
 	config     config
 	socket     socket
 	auth       Auth
-	assets     assetsDir
+	images     assetsDir
+	sounds     assetsDir
 	chars      keystoreDir
 	tokens     keystoreDir
 	userTokens userKeystoreDir
@@ -44,6 +45,8 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	b.tokens.Socket = SocketMaps
 	b.userTokens.Name = "UserTokens"
 	b.userTokens.Socket = SocketMaps
+	b.images.fileType = fileTypeImage
+	b.sounds.fileType = fileTypeAudio
 	if a == nil {
 		a := new(auth)
 		if err := a.Init(b); err != nil {
@@ -55,7 +58,8 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	}
 	for module, init := range map[string]interface{ Init(b *Battlemap) error }{
 		"Socket":  &b.socket,
-		"Assets":  &b.assets,
+		"Images":  &b.images,
+		"Sounds":  &b.sounds,
 		"Tokens":  &b.tokens,
 		"Chars":   &b.chars,
 		"Maps":    &b.maps,
@@ -74,7 +78,8 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
 	b.mux.Handle("/login/", http.StripPrefix("/login", b.auth))
 	for path, module := range map[string]Methods{
-		"/assets/":     &b.assets,
+		"/images/":     &b.images,
+		"/sounds/":     &b.sounds,
 		"/tokens/":     &b.tokens,
 		"/characters/": &b.chars,
 		"/maps/":       &b.maps,
