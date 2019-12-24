@@ -39,7 +39,7 @@ func (f *folder) WriteToX(lw *byteio.StickyLittleEndianWriter) {
 	lw.WriteUint64(uint64(len(f.Assets)))
 	for name, aid := range f.Assets {
 		lw.WriteStringX(name)
-		as.WriteUint64(aid)
+		lw.WriteUint64(aid)
 	}
 }
 
@@ -47,7 +47,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 	f.ID = lr.ReadUint64()
 	fl := lr.ReadUint64()
 	f.Folders = make(map[string]*folder, fl)
-	for i := 0; i < fl; i++ {
+	for i := uint64(0); i < fl; i++ {
 		fd := new(folder)
 		name := lr.ReadStringX()
 		fd.ReadFromX(lr)
@@ -55,7 +55,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 	}
 	al := lr.ReadUint64()
 	f.Assets = make(map[string]uint64, lr.ReadUint64())
-	for i := 0; i < al; i++ {
+	for i := uint64(0); i < al; i++ {
 		name := lr.ReadStringX()
 		f.Assets[name] = lr.ReadUint64()
 	}
@@ -64,6 +64,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 type assetsDir struct {
 	*Battlemap
 	DefaultMethods
+	fileType
 	assetStore *keystore.FileStore
 	handler    http.Handler
 
@@ -77,7 +78,11 @@ type assetsDir struct {
 
 func (a *assetsDir) Init(b *Battlemap) error {
 	var location keystore.String
-	err := a.config.Get("AssetsDir", &location)
+	locname := "ImageAssetsDir"
+	if a.fileType == fileTypeAudio {
+		locname = "AudioAssetsDir"
+	}
+	err := a.config.Get(locname, &location)
 	if err != nil {
 		return fmt.Errorf("error getting asset data directory: %w", err)
 	}
@@ -87,7 +92,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating asset meta store: ", err)
 	}
 	a.assetFolders = new(folder)
-	err = a.assetStore.Get("assets", a.assetFolders)
+	err = a.assetStore.Get(assetsMetadata, a.assetFolders)
 	if err != nil {
 		return fmt.Errorf("error getting asset data: ", err)
 	}
@@ -114,4 +119,7 @@ func (a *assetsDir) processFolder(f *folder) error {
 		al, _ := a.assetLinks[as]
 		a.assetLinks[as] = al + 1
 	}
+	return nil
 }
+
+const assetsMetadata = "assets"
