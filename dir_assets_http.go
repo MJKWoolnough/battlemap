@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 )
@@ -39,35 +38,10 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if a.auth.IsAdmin(r) {
-		handler := a.handler
-		if isRoot(r.URL.Path) {
-			if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
-				websocket.Handler(a.WebSocket).ServeHTTP(w, r)
-				return true
-			}
-			at := AcceptType("html")
-			httpaccept.HandleAccept(r, &at)
-			r.URL.Path += "index." + string(at)
-			a.assetHandlerMu.RLock()
-			handler = a.assetHandler
-			a.assetHandlerMu.RUnlock()
-		} else if r.URL.Path == tagsPath {
-			var at AcceptType
-			if httpaccept.HandleAccept(r, &at) {
-				r.URL.Path += string(at)
-			}
-			a.tagHandlerMu.RLock()
-			handler = a.tagHandler
-			a.tagHandlerMu.RUnlock()
-		}
-		handler.ServeHTTP(w, r)
+	if isRoot(r.URL.Path) || r.URL.Path == assetsMetadata {
+		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 	} else {
-		if isRoot(r.URL.Path) || r.URL.Path == tagsPath {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		} else {
-			a.handler.ServeHTTP(w, r)
-		}
+		a.handler.ServeHTTP(w, r)
 	}
 	return true
 }
@@ -94,13 +68,13 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
-		gft.Type = ""
+		gft.Type = fileTypeUnknown
 		_, err = gft.ReadFrom(p)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return true
 		}
-		if gft.Type == "" {
+		if gft.Type != a.fileType {
 			continue
 		}
 		a.assetMu.Lock()
