@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"sync"
 
 	"vimagination.zapto.org/byteio"
@@ -98,28 +100,69 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	}
 	a.assetLinks = make(map[uint64]uint64)
 	a.processFolder(a.assetFolders)
+	keys := a.assetStore.Keys()
+	var gft getFileType
+	for _, k := range keys {
+		a.assetStore.Get(k, &gft)
+		if gft.Type != a.fileType {
+			continue
+		}
+		if strings.TrimLeft(k, "0") == k {
+			n, err := strconv.ParseUint(k, 10, 64)
+			if err == nil {
+				if _, ok := a.assetLinks[n]; !ok {
+					addTo(a.assetFolders.Assets, k, n)
+					a.assetLinks[n] = 1
+					continue
+				}
+			}
+		}
+		addTo(a.assetFolders.Assets, k, a.nextAssetID)
+		a.nextAssetID++
+	}
+	if len(keys) > 0 {
+		a.assetStore.Set(assetsMetadata, a.assetFolders)
+	}
 	a.Battlemap = b
 	return nil
 }
 
-func (a *assetsDir) processFolder(f *folder) error {
+func addTo(files map[string]uint64, name string, id uint64) {
+	if _, ok := files[name]; !ok {
+		files[name] = id
+		return
+	}
+	n := make([]byte, len(name), len(name)+32)
+	m := n[len(name)+1 : len(name)+1]
+	copy(n, name)
+	n[len(name)] = '.'
+	for i := uint64(0); ; i++ {
+		p := len(strconv.AppendUint(m, i, 10))
+		if _, ok := files[string(n[:len(name)+1+p])]; !ok {
+			files[string(n[:len(name)+1+p])] = id
+			return
+		}
+	}
+}
+
+func (a *assetsDir) processFolder(f *folder) {
 	a.folders[f.ID] = f
 	if f.ID > a.nextFolderID {
 		a.nextFolderID = f.ID + 1
 	}
 	for _, g := range f.Folders {
-		if err := a.processFolder(g); err != nil {
-			return err
-		}
+		a.processFolder(g)
 	}
-	for _, as := range f.Assets {
+	for name, as := range f.Assets {
+		if !a.assetStore.Exists(strconv.FormatUint(as, 10)) {
+			delete(f.Assets, name)
+		}
 		if as > a.nextAssetID {
 			a.nextAssetID = as + 1
 		}
 		al, _ := a.assetLinks[as]
 		a.assetLinks[as] = al + 1
 	}
-	return nil
 }
 
 const assetsMetadata = "assets"
