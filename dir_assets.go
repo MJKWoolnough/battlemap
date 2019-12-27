@@ -117,8 +117,10 @@ func (a *assetsDir) Init(b *Battlemap) error {
 				}
 			}
 		}
-		addTo(a.assetFolders.Assets, k, a.nextAssetID)
-		a.nextAssetID++
+		if a.assetStore.Rename(k, strconv.FormatUint(a.nextAssetID, 10)) == nil {
+			addTo(a.assetFolders.Assets, k, a.nextAssetID)
+			a.nextAssetID++
+		}
 	}
 	if len(keys) > 0 {
 		a.assetStore.Set(assetsMetadata, a.assetFolders)
