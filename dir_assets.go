@@ -107,7 +107,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		if gft.Type != a.fileType {
 			continue
 		}
-		if strings.TrimLeft(k, "0") == k {
+		if !strings.HasPrefix(k, "0") || k == "0" {
 			n, err := strconv.ParseUint(k, 10, 64)
 			if err == nil {
 				if _, ok := a.assetLinks[n]; !ok {
