@@ -103,6 +103,9 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	keys := a.assetStore.Keys()
 	var gft getFileType
 	for _, k := range keys {
+		if k == assetsMetadata {
+			continue
+		}
 		a.assetStore.Get(k, &gft)
 		if gft.Type != a.fileType {
 			continue
