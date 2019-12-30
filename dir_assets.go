@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -79,10 +80,17 @@ type assetsDir struct {
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
-	var location keystore.String
-	locname := "ImageAssetsDir"
-	if a.fileType == fileTypeAudio {
+	var (
+		location keystore.String
+		locname  string
+	)
+	switch a.fileType {
+	case fileTypeImage:
+		locname = "ImageAssetsDir"
+	case fileTypeAudio:
 		locname = "AudioAssetsDir"
+	default:
+		return ErrInvalidFileType
 	}
 	err := a.config.Get(locname, &location)
 	if err != nil {
@@ -171,3 +179,7 @@ func (a *assetsDir) processFolder(f *folder) {
 }
 
 const assetsMetadata = "assets"
+
+var (
+	ErrInvalidFileType = errors.New("invalid file type")
+)
