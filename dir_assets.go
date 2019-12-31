@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -176,6 +177,33 @@ func (a *assetsDir) processFolder(f *folder) {
 		al, _ := a.assetLinks[as]
 		a.assetLinks[as] = al + 1
 	}
+}
+
+func (a *assetsDir) getFolder(path string) *folder {
+	d := a.assetFolders
+	for _, p := range strings.Split(path, "/") {
+		if p == "" {
+			continue
+		}
+		e, ok := d.Folders[p]
+		if !ok {
+			return nil
+		}
+		d = e
+	}
+	return d
+}
+
+func (a *assetsDir) exists(p string) bool {
+	dir, file := path.Split(p)
+	folder := a.getFolder(dir)
+	if folder == nil {
+		return false
+	} else if file == "" {
+		return true
+	}
+	_, ok := folder.Assets[file]
+	return ok
 }
 
 const assetsMetadata = "assets"
