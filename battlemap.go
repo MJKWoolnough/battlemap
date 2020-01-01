@@ -88,8 +88,8 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 		"/plugins/":    &b.plugins,
 	} {
 		p := strings.TrimSuffix(path, "/")
-		d := Dir{module}
-		b.mux.Handle(path, http.StripPrefix(p, d))
+		d := &Dir{module}
+		b.mux.Handle(path, http.StripPrefix(path, d))
 		b.mux.Handle(p, http.StripPrefix(p, d))
 	}
 	b.mux.Handle("/", httpgzip.FileServer(dir))
