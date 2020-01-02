@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -16,24 +15,27 @@ import (
 )
 
 func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
-	if !a.assetStore.Exists(filepath.FromSlash(r.URL.Path)) {
-		http.NotFound(w, r)
-	} else if a.auth.IsAdmin(r) {
-		if isRoot(r.URL.Path) {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-		} else if r.URL.Path == tagsPath {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH")
-			w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
+	if a.auth.IsAdmin(r) {
+		if strings.HasPrefix(r.URL.Path, "root/") {
+			if a.exists(r.URL.Path[5:]) {
+				w.Header().Set("Allow", "OPTIONS, DELETE, PATCH")
+			} else {
+				w.Header().Set("Allow", "OPTIONS, PATCH")
+			}
 		} else {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
-			w.Header().Set("Accept-Patch", "application/json, text/plain, text/xml")
+			if r.URL.Path == "" {
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
+			} else if r.URL.Path != assetsMetadat && a.assetStor.Exists(r.URL.Path) {
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
+				w.Header().Set("Accept-Patch", "text/plain")
+			} else {
+				http.NotFound(w, r)
+			}
 		}
+	} else if a.assetStore.Exists(r.URL.Path) {
+		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 	} else {
-		if r.URL.Path == tagsPath {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		} else {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD")
-		}
+		http.NotFound(w, r)
 	}
 }
 
