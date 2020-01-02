@@ -18,7 +18,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 	if a.auth.IsAdmin(r) {
 		if strings.HasPrefix(r.URL.Path, "root/") {
 			if a.exists(r.URL.Path[5:]) {
-				w.Header().Set("Allow", "OPTIONS, DELETE, PATCH")
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, DELETE, PATCH")
 			} else {
 				w.Header().Set("Allow", "OPTIONS, PATCH")
 			}
