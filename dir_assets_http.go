@@ -27,7 +27,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 		} else {
 			if r.URL.Path == "" {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-			} else if r.URL.Path != assetsMetadat && a.assetStor.Exists(r.URL.Path) {
+			} else if r.URL.Path != assetsMetadata && a.assetStore.Exists(r.URL.Path) {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
 				w.Header().Set("Accept-Patch", "text/plain")
 			} else {
