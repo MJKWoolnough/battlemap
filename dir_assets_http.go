@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 	"strconv"
 	"strings"
 
@@ -41,8 +42,25 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if isRoot(r.URL.Path) || r.URL.Path == assetsMetadata {
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+	if a.auth.IsAdmin(r) {
+		if r.URL.Path == "" {
+			w.Header().Set("Content-Type", "application/json")
+			a.assetMu.RLock()
+			json.NewEncoder(w).Encode(a.assetFolders) // turn into pre-gen'd byte slice
+			a.assetMu.RUnlock()
+			return true
+		} else if strings.HasPrefix(r.URL.Path, "root/") {
+			path, file := path.Split(r.URL.Path[5:])
+			if folder := a.getFolder(path); folder != nil {
+				if id, ok := folder.Assets[file]; ok {
+					http.Redirect(w, r, fmt.Sprintf("%d", id), http.StatusFound) // make relative redirect
+					return true
+				}
+			}
+		}
+	}
+	if r.URL.Path == assetsMetadata {
+		http.NotFound(w, r)
 	} else {
 		a.handler.ServeHTTP(w, r)
 	}
