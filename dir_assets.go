@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +14,7 @@ import (
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type folder struct {
@@ -78,6 +80,7 @@ type assetsDir struct {
 	assetFolders *folder
 	assetLinks   map[uint64]uint64
 	folders      map[uint64]*folder
+	assetJSON    memio.Buffer
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
@@ -137,6 +140,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	if len(keys) > 0 {
 		a.assetStore.Set(assetsMetadata, a.assetFolders)
 	}
+	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
 	a.Battlemap = b
 	return nil
 }
@@ -204,6 +208,14 @@ func (a *assetsDir) exists(p string) bool {
 	}
 	_, ok := folder.Assets[file]
 	return ok
+}
+
+func (a *assetsDir) saveFolders() {
+	a.assetMu.Lock()
+	a.assetStore.Set(assetsMetadata, a.assetFolders)
+	a.assetJSON = memio.Buffer{}
+	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
+	a.assetMu.Unlock()
 }
 
 const assetsMetadata = "assets"
