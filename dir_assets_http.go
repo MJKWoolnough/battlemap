@@ -77,7 +77,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		return true
 	}
 	var (
-		added Assets
+		added []uint64
 		gft   getFileType
 	)
 	for {
@@ -101,6 +101,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		a.assetMu.Lock()
 		id := a.nextAssetID
 		a.nextAssetID++
+		a.assetLinks[id] = 1
 		a.assetMu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
 		if err = a.assetStore.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
@@ -111,45 +112,17 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		if filename == "" {
 			filename = idStr
 		}
-		as := Asset{
-			Name: filename,
-			Type: gft.Type,
-		}
-		if err = a.metaStore.Set(idStr, &as); err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return true
-		}
-		a.assetMu.Lock()
-		a.assets[id] = &as
-		a.assetMu.Unlock()
-		bs := as
-		added[id] = &bs
+		addTo(a.assetFolders.Assets, filename, id)
+		added = append(added, id)
 	}
 	if len(added) == 0 {
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
-	a.assetMu.Lock()
-	l := len(added)
-	for id := range added {
-		l--
-		a.writeAsset(id, l == 0)
-	}
-	a.assetMu.Unlock()
-	var at AcceptType
-	httpaccept.HandleAccept(r, &at)
-	switch at {
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		json.NewEncoder(w).Encode(added)
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		xml.NewEncoder(w).EncodeElement(struct {
-			Asset Assets `xml:"asset"`
-		}{added}, xml.StartElement{Name: xml.Name{Local: "assets"}})
-	default:
-		w.Header().Set(contentType, "text/plain")
-		added.WriteTo(w)
+	a.saveFolders()
+	w.Header().Set(contentType, "text/plain")
+	for _, id := range added {
+		fmt.Fprintln(w, id)
 	}
 	a.socket.BroadcastAssetsAdd(added, SocketIDFromRequest(r))
 	return true
