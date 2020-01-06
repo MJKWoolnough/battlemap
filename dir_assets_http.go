@@ -44,10 +44,12 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	if a.auth.IsAdmin(r) {
 		if r.URL.Path == "" {
-			w.Header().Set("Content-Type", "application/json")
 			a.assetMu.RLock()
-			json.NewEncoder(w).Encode(a.assetFolders) // turn into pre-gen'd byte slice
+			j := a.assetJSON
 			a.assetMu.RUnlock()
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Length", strconv.Itoa(len(j)))
+			w.Write(j)
 			return true
 		} else if strings.HasPrefix(r.URL.Path, "root/") {
 			path, file := path.Split(r.URL.Path[5:])
