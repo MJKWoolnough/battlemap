@@ -55,7 +55,13 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 			path, file := path.Split(r.URL.Path[5:])
 			if folder := a.getFolder(path); folder != nil {
 				if id, ok := folder.Assets[file]; ok {
-					http.Redirect(w, r, fmt.Sprintf("%d", id), http.StatusFound) // make relative redirect
+					rel := "../"
+					for _, c := range path {
+						if c == '/' {
+							rel += "../"
+						}
+					}
+					http.Redirect(w, r, fmt.Sprintf("%s%d", rel, id), http.StatusFound)
 					return true
 				}
 			}
