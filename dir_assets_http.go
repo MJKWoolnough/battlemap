@@ -137,21 +137,19 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if !a.auth.IsAdmin(r) || r.URL.Path == "" || !a.exists(r.URL.Path) {
+	if r.URL.Path == "" || !a.auth.IsAdmin(r) {
 		return false
 	}
 	idStr := strings.TrimLeft(r.URL.Path, "0")
 	id, err := strconv.ParseUint(idStr, 10, 0)
 	if err != nil {
-		http.NotFound(w, r)
-		return true
+		return false
 	}
 	a.assetMu.Lock()
 	_, ok := a.assetLinks[id]
 	a.assetMu.Unlock()
 	if !ok {
-		http.NotFound(w, r)
-		return true
+		return false
 	}
 	var gft getFileType
 	_, err = gft.ReadFrom(r.Body)
