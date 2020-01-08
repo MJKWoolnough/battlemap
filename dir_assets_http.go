@@ -76,7 +76,7 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if !a.auth.IsAdmin(r) || !isRoot(r.URL.Path) {
+	if r.URL.Path != "" || !a.auth.IsAdmin(r) {
 		return false
 	}
 	m, err := r.MultipartReader()
