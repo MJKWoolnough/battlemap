@@ -137,18 +137,17 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if !a.auth.IsAdmin(r) || isRoot(r.URL.Path) {
+	if !a.auth.IsAdmin(r) || r.URL.Path == "" || !a.exists(r.URL.Path) {
 		return false
 	}
-	idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")
+	idStr := strings.TrimLeft(r.URL.Path, "0")
 	id, err := strconv.ParseUint(idStr, 10, 0)
 	if err != nil {
 		http.NotFound(w, r)
 		return true
 	}
 	a.assetMu.Lock()
-	as, ok := a.assets[id]
-	mime := as.Type
+	_, ok := a.assetLinks[id]
 	a.assetMu.Unlock()
 	if !ok {
 		http.NotFound(w, r)
@@ -161,7 +160,7 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
-	if gft.Type != mime {
+	if gft.Type != a.fileType {
 		http.Error(w, "incorrect file type", http.StatusUnsupportedMediaType)
 		return true
 	}
