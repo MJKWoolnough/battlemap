@@ -171,29 +171,65 @@ func (a *assetsDir) Put(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if a.auth.IsAdmin(r) && !isRoot(r.URL.Path) && r.URL.Path != tagsPath {
-		id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+	if r.URL.Path == "" || !a.auth.IsAdmin(r) {
+		return false
+	}
+	if strings.HasPrefix(r.URL.Path, "root/") {
+		path, file := path.Split(r.URL.Path[5:])
+		a.assetMu.Lock()
+		folder := a.getFolder(path)
+		if folder == nil {
+			a.assetMu.Unlock()
+			http.NotFound(w, r)
+			return true
+		}
+		if file == "" {
+			lastSlash := strings.LastIndexByte(path[:len(path)-1], '/')
+			parentPath := path[:lastSlash]
+			delete(a.getFolder(parentPath).Folders, path[lastSlash+1:len(path)-1])
+			walkFolders(folder, func(assets map[string]uint64) {
+				for _, id := range assets {
+					newCount := a.assetLinks[id] - 1
+					if newCount == 0 {
+						delete(a.assetLinks, id)
+						a.assetStore.Remove(strconv.FormatUint(id, 10))
+					} else {
+						a.assetLinks[id] = newCount
+					}
+				}
+			})
+		} else {
+			id := folder.Assets[file]
+			delete(folder.Assets, file)
+			newCount := a.assetLinks[id] - 1
+			if newCount == 0 {
+				delete(a.assetLinks, id)
+				a.assetStore.Remove(strconv.FormatUint(id, 10))
+				a.socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
+			} else {
+				a.assetLinks[id] = newCount
+			}
+		}
+		a.assetMu.Unlock()
+	} else {
+		id, err := strconv.ParseUint(r.URL.Path, 10, 0)
 		if err != nil {
 			http.NotFound(w, r)
 			return true
 		}
-		a.assetMu.Lock()
-		if as, ok := a.assets[id]; ok {
-			a.tagMu.Lock()
-			err = a.deleteAsset(as, SocketIDFromRequest(r))
-			a.tagMu.Unlock()
-		} else {
-			err = ErrUnknownAsset
-		}
-		a.assetMu.Unlock()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return true
-		}
-		w.WriteHeader(http.StatusNoContent)
-		return true
+		delete(a.assetLinks, id)
+		walkFolders(a.assetFolders, func(assets map[string]uint64) {
+			for name, aid := range assets {
+				if id == aid {
+					delete(assets, name)
+				}
+			}
+		})
+		a.socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
 	}
-	return false
+	a.assetMu.Lock()
+	w.WriteHeader(http.StatusNoContent)
+	return true
 }
 
 func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
