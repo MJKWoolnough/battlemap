@@ -221,7 +221,7 @@ func (a *assetsDir) saveFolders() {
 func walkFolders(f *folder, fn func(map[string]uint64)) {
 	fn(f.Assets)
 	for _, f := range f.Folders {
-		walkFolder(f, fn)
+		walkFolders(f, fn)
 	}
 }
 
