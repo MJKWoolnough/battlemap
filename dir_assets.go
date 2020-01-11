@@ -199,6 +199,7 @@ func (a *assetsDir) getFolder(path string) *folder {
 }
 
 func (a *assetsDir) exists(p string) bool {
+	a.assetMu.RLock()
 	dir, file := path.Split(p)
 	folder := a.getFolder(dir)
 	if folder == nil {
@@ -207,6 +208,7 @@ func (a *assetsDir) exists(p string) bool {
 		return true
 	}
 	_, ok := folder.Assets[file]
+	a.assetMu.RUnlock()
 	return ok
 }
 
