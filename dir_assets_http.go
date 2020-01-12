@@ -53,8 +53,11 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		} else if strings.HasPrefix(r.URL.Path, "root/") {
 			path, file := path.Split(r.URL.Path[5:])
-			if folder := a.getFolder(path); folder != nil {
+			a.assetMu.RLock()
+			folder := a.getFolder(path)
+			if folder != nil {
 				if id, ok := folder.Assets[file]; ok {
+					a.assetMu.RUnlock()
 					rel := "../"
 					for _, c := range path {
 						if c == '/' {
@@ -65,6 +68,7 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 					return true
 				}
 			}
+			a.assetMu.RUnlock()
 		}
 	}
 	if r.URL.Path == assetsMetadata {
