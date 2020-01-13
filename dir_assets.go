@@ -126,14 +126,14 @@ func (a *assetsDir) Init(b *Battlemap) error {
 			n, err := strconv.ParseUint(k, 10, 64)
 			if err == nil {
 				if _, ok := a.assetLinks[n]; !ok {
-					addTo(a.assetFolders.Assets, k, n)
+					addAssetTo(a.assetFolders.Assets, k, n)
 					a.assetLinks[n] = 1
 					continue
 				}
 			}
 		}
 		if a.assetStore.Rename(k, strconv.FormatUint(a.nextAssetID, 10)) == nil {
-			addTo(a.assetFolders.Assets, k, a.nextAssetID)
+			addAssetTo(a.assetFolders.Assets, k, a.nextAssetID)
 			a.nextAssetID++
 		}
 	}
@@ -145,9 +145,9 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func addTo(files map[string]uint64, name string, id uint64) {
-	if _, ok := files[name]; !ok {
-		files[name] = id
+func addAssetTo(assets map[string]uint64, name string, id uint64) {
+	if _, ok := assets[name]; !ok {
+		assets[name] = id
 		return
 	}
 	n := make([]byte, len(name), len(name)+32)
@@ -156,8 +156,26 @@ func addTo(files map[string]uint64, name string, id uint64) {
 	n[len(name)] = '.'
 	for i := uint64(0); ; i++ {
 		p := len(strconv.AppendUint(m, i, 10))
-		if _, ok := files[string(n[:len(name)+1+p])]; !ok {
-			files[string(n[:len(name)+1+p])] = id
+		if _, ok := assets[string(n[:len(name)+1+p])]; !ok {
+			assets[string(n[:len(name)+1+p])] = id
+			return
+		}
+	}
+}
+
+func addFolderTo(folders map[string]*folder, name string, f *folder) {
+	if _, ok := folders[name]; !ok {
+		folders[name] = f
+		return
+	}
+	n := make([]byte, len(name), len(name)+32)
+	m := n[len(name)+1 : len(name)+1]
+	copy(n, name)
+	n[len(name)] = '.'
+	for i := uint64(0); ; i++ {
+		p := len(strconv.AppendUint(m, i, 10))
+		if _, ok := folders[string(n[:len(name)+1+p])]; !ok {
+			folders[string(n[:len(name)+1+p])] = f
 			return
 		}
 	}
