@@ -1,18 +1,12 @@
 package battlemap
 
 import (
-	"bufio"
-	"encoding/json"
-	"encoding/xml"
 	"fmt"
 	"io"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
-
-	"vimagination.zapto.org/httpaccept"
-	"vimagination.zapto.org/memio"
 )
 
 func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
@@ -237,215 +231,57 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
-	if a.auth.IsAdmin(r) {
-		if r.URL.Path == tagsPath {
-			a.patchTags(w, r)
-			return true
-		} else if !isRoot(r.URL.Path) {
-			a.patchAssets(w, r)
-			return true
-		}
+	if !strings.HasPrefix(r.URL.Path, "root/") || !a.auth.IsAdmin(r) {
+		return false
 	}
-	return false
-
-}
-
-func (a *assetsDir) patchTags(w http.ResponseWriter, r *http.Request) {
-	var (
-		at AcceptType
-		tp struct {
-			Add    []string `json:"add" xml:"add"`
-			Remove []uint64 `json:"remove" xml:"remove"`
-			Rename Tags     `json:"rename" xml:"rename"`
-		}
-		err error
-	)
-	switch r.Header.Get(contentType) {
-	case "application/json", "text/json":
-		at = "json"
-		err = json.NewDecoder(r.Body).Decode(&tp)
-	case "text/xml":
-		at = "xml"
-		err = xml.NewDecoder(r.Body).Decode(&tp)
-	default:
-		br := bufio.NewReader(r.Body)
-	Loop:
-		for {
-			switch method, _ := br.ReadByte(); method {
-			case '>':
-				var tag string
-				_, err = fmt.Fscanf(br, "%q", &tag)
-				if err != nil {
-					break Loop
-				}
-				tp.Add = append(tp.Add, tag)
-			case '<':
-				var tid uint64
-				_, err = fmt.Fscanf(br, "%d", &tid)
-				if err != nil {
-					break Loop
-				}
-				tp.Remove = append(tp.Remove, tid)
-			case '~':
-				tag := new(Tag)
-				_, err = fmt.Fscanf(br, "%d:%q", &tag.ID, &tag.Name)
-				if err != nil {
-					break Loop
-				}
-				tp.Rename[tag.ID] = tag
-			case '\n':
-			default:
-				break Loop
-			}
-		}
-	}
-	r.Body.Close()
+	name := make([]byte, 1024)
+	n, err := io.ReadFull(r.Body, name) // check for invalid chars '/', '\0', etc.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return true
 	}
-	var change bool
-	id := SocketIDFromRequest(r)
-	if len(tp.Remove) > 0 {
-		a.assetMu.Lock() //need to lock in this order!
-		a.tagMu.Lock()
-		tags := make([]*Tag, 0, len(tp.Remove))
-		for _, tid := range tp.Remove {
-			if tag, ok := a.tags[tid]; ok {
-				tags = append(tags, tag)
-			}
-		}
-		change = a.deleteTags(tags...)
-		a.assetMu.Unlock()
-		a.socket.BroadcastTagRemove(tp.Remove, id)
-	} else {
-		a.tagMu.Lock()
-	}
-	newTags := make(Tags, len(tp.Add)+len(tp.Rename))
-	for _, tag := range tp.Rename {
-		t, ok := a.tags[tag.ID]
-		if !ok {
-			continue
-		}
-		if a.renameTag(t, tag.Name) {
-			change = true
-			newTags[t.ID] = t
-		}
-	}
-	for _, tagName := range tp.Add {
-		tag := a.addTag(tagName)
-		newTags[tag.ID] = tag
-		change = true
-	}
-	if change {
-		a.writeTags() // handle error??
-		a.tagMu.Unlock()
-		httpaccept.HandleAccept(r, &at)
-		switch at {
-		case "json":
-			w.Header().Set(contentType, "application/json")
-			json.NewEncoder(w).Encode(newTags)
-		case "xml":
-			w.Header().Set(contentType, "text/xml")
-			xml.NewEncoder(w).EncodeElement(struct {
-				Tags `xml:"tag"`
-			}{newTags}, xml.StartElement{Name: xml.Name{Local: "tags"}})
-		default:
-			w.Header().Set(contentType, "text/plain")
-			for _, tag := range newTags {
-				fmt.Fprintf(w, "%d:%q\n", tag.ID, tag.Name)
-			}
-		}
-		a.socket.BroadcastTagsAdd(newTags, id)
-	} else {
-		a.tagMu.Unlock()
-		w.WriteHeader(http.StatusNoContent)
-	}
-}
-
-func (a *assetsDir) patchAssets(w http.ResponseWriter, r *http.Request) {
-	id, err := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-	var (
-		at AcceptType
-		ap struct {
-			AddTag    []uint64 `json:"addTag" xml:"addTag"`
-			RemoveTag []uint64 `json:"removeTag" xml:"removeTag"`
-			Rename    string   `json:"rename" xml:"rename"`
-		}
-	)
-	switch r.Header.Get(contentType) {
-	case "application/json", "text/json":
-		at = "json"
-		err = json.NewDecoder(r.Body).Decode(&ap)
-	case "text/xml":
-		at = "xml"
-		err = xml.NewDecoder(r.Body).Decode(&ap)
-	default:
-		br := bufio.NewReader(r.Body)
-	Loop:
-		for {
-			switch method, _ := br.ReadByte(); method {
-			case '>':
-				var tid uint64
-				_, err = fmt.Fscanf(br, "%d", &tid)
-				if err != nil {
-					break Loop
-				}
-				ap.AddTag = append(ap.AddTag, tid)
-			case '<':
-				var tid uint64
-				_, err = fmt.Fscanf(br, "%d", &tid)
-				if err != nil {
-					break Loop
-				}
-				ap.RemoveTag = append(ap.RemoveTag, tid)
-			case '~':
-				var newName string
-				_, err = fmt.Fscanf(br, "%q", &newName)
-				if err != nil {
-					break Loop
-				}
-				ap.Rename = newName
-			case '\n':
-			default:
-				break Loop
-			}
-		}
-	}
-	r.Body.Close()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-	httpaccept.HandleAccept(r, &at)
+	path, file := path.Split(r.URL.Path[5:])
 	a.assetMu.Lock()
-	as, ok := a.assets[id]
-	if !ok {
-		a.assetMu.Unlock()
-		http.NotFound(w, r)
-		return
-	}
-	if a.modifyAsset(as, ap.Rename, ap.RemoveTag, ap.AddTag, SocketIDFromRequest(r)) {
-		var buf memio.Buffer
-		switch at {
-		case "json":
-			w.Header().Set(contentType, "application/json")
-			json.NewEncoder(&buf).Encode(as)
-		case "xml":
-			w.Header().Set(contentType, "text/xml")
-			xml.NewEncoder(&buf).EncodeElement(as, xml.StartElement{Name: xml.Name{Local: "asset"}})
-		default:
-			w.Header().Set(contentType, "text/plain")
-			fmt.Fprintf(&buf, "%d:%q\n%v\n", as.ID, as.Name, as.Tags)
+	if file == "" {
+		lastSlash := strings.LastIndexByte(path[:len(path)-1], '/')
+		parentPath := path[:lastSlash]
+		thisPath := path[lastSlash+1 : len(path)-1]
+		parent := a.getFolder(parentPath)
+		if parent == nil {
+			http.NotFound(w, r)
+		} else {
+			f, ok := parent.Folders[thisPath]
+			if !ok {
+				http.NotFound(w, r)
+			} else {
+				delete(parent.Folders, thisPath)
+				parent.Folders[string(name[:n])] = f
+				// broadcast folder rename
+			}
 		}
-		a.assetMu.Unlock()
-		w.Write(buf)
 	} else {
-		a.assetMu.Unlock()
-		w.WriteHeader(http.StatusNoContent)
+		folder := a.getFolder(path)
+		if folder == nil {
+			http.NotFound(w, r)
+		} else {
+			aid, ok := folder.Assets[file]
+			if !ok {
+				if aid, err := strconv.ParseUint(string(name[:n]), 10, 64); err != nil {
+					http.Error(w, "invalid ID", http.StatusBadRequest)
+				} else if links, ok := a.assetLinks[aid]; !ok {
+					http.Error(w, "invalid ID", http.StatusBadRequest)
+				} else {
+					addAssetTo(folder.Assets, file, aid)
+					a.assetLinks[aid] = links + 1
+					// broadcast asset link
+				}
+			} else {
+				delete(folder.Assets, file)
+				addAssetTo(folder.Assets, string(name[:n]), aid)
+				// broadcast asset rename
+			}
+		}
 	}
+	a.assetMu.Unlock()
+	return true
 }
