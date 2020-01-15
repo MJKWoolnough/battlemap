@@ -22,8 +22,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "" {
 				w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
 			} else if r.URL.Path != assetsMetadata && a.assetStore.Exists(r.URL.Path) {
-				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PATCH, PUT, DELETE")
-				w.Header().Set("Accept-Patch", "text/plain")
+				w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
 			} else {
 				http.NotFound(w, r)
 			}
