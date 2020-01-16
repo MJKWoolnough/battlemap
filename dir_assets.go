@@ -134,6 +134,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		}
 		if a.assetStore.Rename(k, strconv.FormatUint(a.nextAssetID, 10)) == nil {
 			addAssetTo(a.assetFolders.Assets, k, a.nextAssetID)
+			a.assetLinks[a.nextAssetID] = 1
 			a.nextAssetID++
 		}
 	}
