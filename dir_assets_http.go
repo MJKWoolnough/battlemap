@@ -117,7 +117,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		if filename == "" {
 			filename = idStr
 		}
-		addTo(a.assetFolders.Assets, filename, id)
+		addAssetTo(a.assetFolders.Assets, filename, id)
 		added = append(added, id)
 	}
 	if len(added) == 0 {
