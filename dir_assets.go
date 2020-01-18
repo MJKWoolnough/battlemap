@@ -217,6 +217,29 @@ func (a *assetsDir) getFolder(path string) *folder {
 	return d
 }
 
+func (a *assetsDir) getParentFolder(p string) (parent *folder, f *folder) {
+	if !strings.HasSuffix(p, "/") {
+		p, _ = path.Split(p)
+	}
+	lastSlash := strings.LastIndexByte(p[:len(p)-1], '/')
+	parent = a.getFolder(p[:lastSlash])
+	if parent == nil {
+		return nil, nil
+	}
+	f, _ = parent.Folders[p[lastSlash+1:len(p)-1]]
+	return parent, f
+}
+
+func (a *assetsDir) getFolderAsset(p string) (parent *folder, asset uint64) {
+	dir, file := path.Split(p)
+	parent = a.getFolder(dir)
+	if parent == nil {
+		return nil, 0
+	}
+	asset, _ = parent.Assets[file]
+	return parent, asset
+}
+
 func (a *assetsDir) exists(p string) bool {
 	a.assetMu.RLock()
 	dir, file := path.Split(p)
