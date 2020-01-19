@@ -36,7 +36,6 @@ func (f *folder) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func (f *folder) WriteToX(lw *byteio.StickyLittleEndianWriter) {
-	lw.WriteUint64(f.ID)
 	lw.WriteUint64(uint64(len(f.Folders)))
 	for name, fd := range f.Folders {
 		lw.WriteStringX(name)
@@ -50,7 +49,6 @@ func (f *folder) WriteToX(lw *byteio.StickyLittleEndianWriter) {
 }
 
 func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
-	f.ID = lr.ReadUint64()
 	fl := lr.ReadUint64()
 	f.Folders = make(map[string]*folder, fl)
 	for i := uint64(0); i < fl; i++ {
@@ -75,11 +73,9 @@ type assetsDir struct {
 	handler    http.Handler
 
 	assetMu      sync.RWMutex
-	nextAssetID  uint64
-	nextFolderID uint64
+	lastAssetID  uint64
 	assetFolders *folder
 	assetLinks   map[uint64]uint64
-	folders      map[uint64]*folder
 	assetJSON    memio.Buffer
 }
 
@@ -122,7 +118,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		if gft.Type != a.fileType {
 			continue
 		}
-		if !strings.HasPrefix(k, "0") || k == "0" {
+		if !strings.HasPrefix(k, "0") {
 			n, err := strconv.ParseUint(k, 10, 64)
 			if err == nil {
 				if _, ok := a.assetLinks[n]; !ok {
@@ -132,10 +128,10 @@ func (a *assetsDir) Init(b *Battlemap) error {
 				}
 			}
 		}
-		if a.assetStore.Rename(k, strconv.FormatUint(a.nextAssetID, 10)) == nil {
-			addAssetTo(a.assetFolders.Assets, k, a.nextAssetID)
-			a.assetLinks[a.nextAssetID] = 1
-			a.nextAssetID++
+		if a.assetStore.Rename(k, strconv.FormatUint(a.lastAssetID, 10)) == nil {
+			a.lastAssetID++
+			addAssetTo(a.assetFolders.Assets, k, a.lastAssetID)
+			a.assetLinks[a.lastAssetID] = 1
 		}
 	}
 	if len(keys) > 0 {
@@ -183,19 +179,15 @@ func addFolderTo(folders map[string]*folder, name string, f *folder) {
 }
 
 func (a *assetsDir) processFolder(f *folder) {
-	a.folders[f.ID] = f
-	if f.ID > a.nextFolderID {
-		a.nextFolderID = f.ID + 1
-	}
 	for _, g := range f.Folders {
 		a.processFolder(g)
 	}
 	for name, as := range f.Assets {
-		if !a.assetStore.Exists(strconv.FormatUint(as, 10)) {
+		if as == 0 || !a.assetStore.Exists(strconv.FormatUint(as, 10)) {
 			delete(f.Assets, name)
 		}
-		if as > a.nextAssetID {
-			a.nextAssetID = as + 1
+		if as > a.lastAssetID {
+			a.lastAssetID = as
 		}
 		al, _ := a.assetLinks[as]
 		a.assetLinks[as] = al + 1
