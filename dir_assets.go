@@ -209,7 +209,7 @@ func (a *assetsDir) getFolder(path string) *folder {
 	return d
 }
 
-func (a *assetsDir) getParentFolder(p string) (parent *folder, f *folder) {
+func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *folder) {
 	if !strings.HasSuffix(p, "/") {
 		p, _ = path.Split(p)
 	}
@@ -218,18 +218,19 @@ func (a *assetsDir) getParentFolder(p string) (parent *folder, f *folder) {
 	if parent == nil {
 		return nil, nil
 	}
-	f, _ = parent.Folders[p[lastSlash+1:len(p)-1]]
+	name = p[lastSlash+1 : len(p)-1]
+	f, _ = parent.Folders[name]
 	return parent, f
 }
 
-func (a *assetsDir) getFolderAsset(p string) (parent *folder, asset uint64) {
+func (a *assetsDir) getFolderAsset(p string) (parent *folder, name string, asset uint64) {
 	dir, file := path.Split(p)
 	parent = a.getFolder(dir)
 	if parent == nil {
 		return nil, 0
 	}
 	asset, _ = parent.Assets[file]
-	return parent, asset
+	return parent, file, asset
 }
 
 func (a *assetsDir) exists(p string) bool {
