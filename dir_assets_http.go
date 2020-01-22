@@ -45,21 +45,19 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 			w.Write(j)
 			return true
 		} else if strings.HasPrefix(r.URL.Path, "root/") {
-			path, file := path.Split(r.URL.Path[5:])
 			a.assetMu.RLock()
-			folder := a.getFolder(path)
-			if folder != nil {
-				if id, ok := folder.Assets[file]; ok {
-					a.assetMu.RUnlock()
-					rel := "../"
-					for _, c := range path {
-						if c == '/' {
-							rel += "../"
-						}
+			_, _, id := a.getFolderAsset(r.URL.Path[5:])
+			a.assetMu.RUnlock()
+			if id > 0 {
+				rel := "../"
+				path, _ := path.Split(r.URL.Path[5:])
+				for _, c := range path {
+					if c == '/' {
+						rel += "../"
 					}
-					http.Redirect(w, r, fmt.Sprintf("%s%d", rel, id), http.StatusFound)
-					return true
 				}
+				http.Redirect(w, r, fmt.Sprintf("%s%d", rel, id), http.StatusFound)
+				return true
 			}
 			a.assetMu.RUnlock()
 		}
@@ -104,8 +102,8 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			continue
 		}
 		a.assetMu.Lock()
-		id := a.nextAssetID
-		a.nextAssetID++
+		a.lastAssetID++
+		id := a.lastAssetID
 		a.assetLinks[id] = 1
 		a.assetMu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
@@ -172,18 +170,10 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	if strings.HasPrefix(r.URL.Path, "root/") {
-		path, file := path.Split(r.URL.Path[5:])
-		a.assetMu.Lock()
-		folder := a.getFolder(path)
-		if folder == nil {
-			a.assetMu.Unlock()
-			http.NotFound(w, r)
-			return true
-		}
-		if file == "" {
-			lastSlash := strings.LastIndexByte(path[:len(path)-1], '/')
-			parentPath := path[:lastSlash]
-			delete(a.getFolder(parentPath).Folders, path[lastSlash+1:len(path)-1])
+		if strings.HasSuffix(r.URL.Path, "/") {
+			a.assetMu.Lock()
+			parent, name, folder := a.getParentFolder(r.URL.Path[5:])
+			delete(parent.Folders, name)
 			walkFolders(folder, func(assets map[string]uint64) {
 				for _, id := range assets {
 					newCount := a.assetLinks[id] - 1
@@ -195,10 +185,12 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 					}
 				}
 			})
+			a.assetMu.Unlock()
 		} else {
-			id := folder.Assets[file]
-			delete(folder.Assets, file)
+			a.assetMu.Lock()
+			parent, name, id := a.getFolderAsset(r.URL.Path[5:])
 			newCount := a.assetLinks[id] - 1
+			delete(parent.Assets, name)
 			if newCount == 0 {
 				delete(a.assetLinks, id)
 				a.assetStore.Remove(strconv.FormatUint(id, 10))
@@ -206,8 +198,8 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			} else {
 				a.assetLinks[id] = newCount
 			}
+			a.assetMu.Unlock()
 		}
-		a.assetMu.Unlock()
 	} else {
 		id, err := strconv.ParseUint(r.URL.Path, 10, 0)
 		if err != nil {
@@ -233,52 +225,39 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	if !strings.HasPrefix(r.URL.Path, "root/") || !a.auth.IsAdmin(r) {
 		return false
 	}
-	name := make([]byte, 1024)
-	n, err := io.ReadFull(r.Body, name) // check for invalid chars '/', '\0', etc.
+	newName := make([]byte, 1024)
+	n, err := io.ReadFull(r.Body, newName) // check for invalid chars '/', '\0', etc.
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
-	path, file := path.Split(r.URL.Path[5:])
-	a.assetMu.Lock()
-	if file == "" {
-		lastSlash := strings.LastIndexByte(path[:len(path)-1], '/')
-		parentPath := path[:lastSlash]
-		thisPath := path[lastSlash+1 : len(path)-1]
-		parent := a.getFolder(parentPath)
-		if parent == nil {
+	if strings.HasSuffix(r.URL.Path, "/") {
+		parent, name, f := a.getParentFolder(r.URL.Path[5:])
+		if parent == nil || f == nil {
 			http.NotFound(w, r)
 		} else {
-			f, ok := parent.Folders[thisPath]
-			if !ok {
-				http.NotFound(w, r)
-			} else {
-				delete(parent.Folders, thisPath)
-				parent.Folders[string(name[:n])] = f
-				// broadcast folder rename
-			}
+			delete(parent.Folders, name)
+			addFolderTo(parent.Folders, string(newName[:n]), f)
+			// TODO: broadcast folder rename
 		}
 	} else {
-		folder := a.getFolder(path)
-		if folder == nil {
+		parent, name, aid := a.getFolderAsset(r.URL.Path[5:])
+		if parent == nil {
 			http.NotFound(w, r)
-		} else {
-			aid, ok := folder.Assets[file]
-			if !ok {
-				if aid, err := strconv.ParseUint(string(name[:n]), 10, 64); err != nil {
-					http.Error(w, "invalid ID", http.StatusBadRequest)
-				} else if links, ok := a.assetLinks[aid]; !ok {
-					http.Error(w, "invalid ID", http.StatusBadRequest)
-				} else {
-					addAssetTo(folder.Assets, file, aid)
-					a.assetLinks[aid] = links + 1
-					// broadcast asset link
-				}
+		} else if aid == 0 {
+			if aid, err := strconv.ParseUint(string(newName[:n]), 10, 64); err != nil {
+				http.Error(w, "invalid ID", http.StatusBadRequest)
+			} else if links, ok := a.assetLinks[aid]; !ok {
+				http.Error(w, "invalid ID", http.StatusBadRequest)
 			} else {
-				delete(folder.Assets, file)
-				addAssetTo(folder.Assets, string(name[:n]), aid)
-				// broadcast asset rename
+				addAssetTo(parent.Assets, name, aid)
+				a.assetLinks[aid] = links + 1
+				// broadcast asset link
 			}
+		} else {
+			delete(parent.Assets, name)
+			addAssetTo(parent.Assets, string(newName[:n]), aid)
+			// broadcast asset rename
 		}
 	}
 	a.assetMu.Unlock()
