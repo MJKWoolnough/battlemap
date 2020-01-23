@@ -216,18 +216,18 @@ func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *f
 	lastSlash := strings.LastIndexByte(p[:len(p)-1], '/')
 	parent = a.getFolder(p[:lastSlash])
 	if parent == nil {
-		return nil, nil
+		return nil, "", nil
 	}
 	name = p[lastSlash+1 : len(p)-1]
 	f, _ = parent.Folders[name]
-	return parent, f
+	return parent, name, f
 }
 
 func (a *assetsDir) getFolderAsset(p string) (parent *folder, name string, asset uint64) {
 	dir, file := path.Split(p)
 	parent = a.getFolder(dir)
 	if parent == nil {
-		return nil, 0
+		return nil, "", 0
 	}
 	asset, _ = parent.Assets[file]
 	return parent, file, asset
