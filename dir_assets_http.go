@@ -233,8 +233,10 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	}
 	if strings.HasSuffix(r.URL.Path, "/") {
 		parent, name, f := a.getParentFolder(r.URL.Path[5:])
-		if parent == nil || f == nil {
+		if parent == nil || (f == nil && name != "") {
 			http.NotFound(w, r)
+		} else if f == nil {
+			addFolderTo(parent.Folders, string(newName[:n]), new(folder))
 		} else {
 			delete(parent.Folders, name)
 			addFolderTo(parent.Folders, string(newName[:n]), f)
