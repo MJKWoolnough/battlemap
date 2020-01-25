@@ -113,7 +113,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			return true
 		}
 		filename := p.FileName()
-		if filename == "" {
+		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
 			filename = idStr
 		}
 		addAssetTo(a.assetFolders.Assets, filename, id)
@@ -222,13 +222,15 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+const invalidFilenameChars = "\x00\r\n\\/"
+
 func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 	if !strings.HasPrefix(r.URL.Path, "root/") || !a.auth.IsAdmin(r) {
 		return false
 	}
 	newName := make([]byte, 1024)
 	n, err := io.ReadFull(r.Body, newName)
-	if err != nil || bytes.ContainsAny(newName[:n], "\x00\r\n\\/") {
+	if err != nil || bytes.ContainsAny(newName[:n], invalidFilenameChars) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
