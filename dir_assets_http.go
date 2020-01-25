@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"net/http"
@@ -226,8 +227,8 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	newName := make([]byte, 1024)
-	n, err := io.ReadFull(r.Body, newName) // check for invalid chars '/', '\0', etc.
-	if err != nil {
+	n, err := io.ReadFull(r.Body, newName)
+	if err != nil || bytes.ContainsAny(newName[:n], "\x00\r\n\\/") {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
