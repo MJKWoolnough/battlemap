@@ -128,7 +128,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	for _, id := range added {
 		fmt.Fprintln(w, id)
 	}
-	a.socket.BroadcastAssetsAdd(added, SocketIDFromRequest(r))
+	a.socket.BroadcastAssetsAdd(a.fileType, added, SocketIDFromRequest(r))
 	return true
 }
 
@@ -195,7 +195,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 			if newCount == 0 {
 				delete(a.assetLinks, id)
 				a.assetStore.Remove(strconv.FormatUint(id, 10))
-				a.socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
+				a.socket.BroadcastAssetRemove(a.fileType, id, SocketIDFromRequest(r))
 			} else {
 				a.assetLinks[id] = newCount
 			}
@@ -215,7 +215,7 @@ func (a *assetsDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 				}
 			}
 		})
-		a.socket.BroadcastAssetRemove(id, SocketIDFromRequest(r))
+		a.socket.BroadcastAssetRemove(a.fileType, id, SocketIDFromRequest(r))
 	}
 	a.assetMu.Lock()
 	w.WriteHeader(http.StatusNoContent)
