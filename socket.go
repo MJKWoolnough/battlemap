@@ -130,9 +130,13 @@ func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, er
 	submethod := method[pos+1:]
 	method = method[:pos]
 	switch method {
-	case "assets":
+	case "imageAssets":
 		if cd.IsAdmin() {
-			return c.assets.RPCData(cd, submethod, data)
+			return c.images.RPCData(cd, submethod, data)
+		}
+	case "audioAssets":
+		if cd.IsAdmin() {
+			return c.sounds.RPCData(cd, submethod, data)
 		}
 	case "maps":
 		if submethod == "getUserMap" {
