@@ -71,6 +71,11 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
+type idName struct {
+	ID   uint64
+	Name string
+}
+
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	if r.URL.Path != "" || !a.auth.IsAdmin(r) {
 		return false
@@ -81,7 +86,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		return true
 	}
 	var (
-		added []uint64
+		added []idName
 		gft   getFileType
 	)
 	for {
@@ -116,8 +121,8 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
 			filename = idStr
 		}
-		addAssetTo(a.assetFolders.Assets, filename, id)
-		added = append(added, id)
+		newName := addAssetTo(a.assetFolders.Assets, filename, id)
+		added = append(added, idName{id, newName})
 	}
 	if len(added) == 0 {
 		w.WriteHeader(http.StatusNoContent)
@@ -239,10 +244,13 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 		if parent == nil || (f == nil && name != "") {
 			http.NotFound(w, r)
 		} else if f == nil {
-			addFolderTo(parent.Folders, string(newName[:n]), new(folder))
+			name := addFolderTo(parent.Folders, string(newName[:n]), new(folder))
+			// TODO: broadcast new folder
+			_ = name
 		} else {
 			delete(parent.Folders, name)
-			addFolderTo(parent.Folders, string(newName[:n]), f)
+			name := addFolderTo(parent.Folders, string(newName[:n]), f)
+			_ = name
 			// TODO: broadcast folder rename
 		}
 	} else {
@@ -255,13 +263,15 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 			} else if links, ok := a.assetLinks[aid]; !ok {
 				http.Error(w, "invalid ID", http.StatusBadRequest)
 			} else {
-				addAssetTo(parent.Assets, name, aid)
+				newName := addAssetTo(parent.Assets, name, aid)
 				a.assetLinks[aid] = links + 1
+				_ = newName
 				// broadcast asset link
 			}
 		} else {
 			delete(parent.Assets, name)
-			addAssetTo(parent.Assets, string(newName[:n]), aid)
+			name := addAssetTo(parent.Assets, string(newName[:n]), aid)
+			_ = name
 			// broadcast asset rename
 		}
 	}
