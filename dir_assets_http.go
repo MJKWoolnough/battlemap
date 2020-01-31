@@ -239,17 +239,19 @@ func (a *assetsDir) Patch(w http.ResponseWriter, r *http.Request) bool {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
 	}
+	a.assetMu.Lock()
 	if strings.HasSuffix(r.URL.Path, "/") {
 		parent, name, f := a.getParentFolder(r.URL.Path[5:])
+		nn := strings.TrimSuffix(string(newName[:n]), "/")
 		if parent == nil || (f == nil && name != "") {
 			http.NotFound(w, r)
 		} else if f == nil {
-			name := addFolderTo(parent.Folders, string(newName[:n]), new(folder))
+			name := addFolderTo(parent.Folders, nn, new(folder))
 			// TODO: broadcast new folder
 			_ = name
 		} else {
 			delete(parent.Folders, name)
-			name := addFolderTo(parent.Folders, string(newName[:n]), f)
+			name := addFolderTo(parent.Folders, nn, f)
 			_ = name
 			// TODO: broadcast folder rename
 		}
