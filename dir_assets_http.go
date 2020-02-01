@@ -84,10 +84,12 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
+	a.assetMu.Lock()
 	a.saveFolders()
+	a.assetMu.Unlock()
 	w.Header().Set(contentType, "text/plain")
 	for _, id := range added {
-		fmt.Fprintln(w, id)
+		fmt.Fprintf(w, "%d:%s\n", id.ID, id.Name)
 	}
 	a.socket.BroadcastAssetsAdd(a.fileType, added, SocketIDFromRequest(r))
 	return true
