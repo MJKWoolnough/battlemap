@@ -212,10 +212,8 @@ func (a *assetsDir) getFolder(path string) *folder {
 }
 
 func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *folder) {
-	if !strings.HasSuffix(p, "/") {
-		p, _ = path.Split(p)
-	}
-	lastSlash := strings.LastIndexByte(p[:len(p)-1], '/')
+	p = path.Clean(strings.TrimRight(p, "/"))
+	lastSlash := strings.LastIndexByte(p, '/')
 	parent = a.getFolder(p[:lastSlash])
 	if parent == nil {
 		return nil, "", nil
@@ -227,7 +225,7 @@ func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *f
 
 func (a *assetsDir) getFolderAsset(p string) (parent *folder, name string, asset uint64) {
 	dir, file := path.Split(p)
-	parent = a.getFolder(dir)
+	parent = a.getFolder(path.Clean(dir))
 	if parent == nil {
 		return nil, "", 0
 	}
@@ -238,7 +236,7 @@ func (a *assetsDir) getFolderAsset(p string) (parent *folder, name string, asset
 func (a *assetsDir) exists(p string) bool {
 	a.assetMu.RLock()
 	dir, file := path.Split(p)
-	folder := a.getFolder(dir)
+	folder := a.getFolder(path.Clean(dir))
 	if folder == nil {
 		return false
 	} else if file == "" {
@@ -250,11 +248,9 @@ func (a *assetsDir) exists(p string) bool {
 }
 
 func (a *assetsDir) saveFolders() {
-	a.assetMu.Lock()
 	a.assetStore.Set(assetsMetadata, a.assetFolders)
 	a.assetJSON = memio.Buffer{}
 	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
-	a.assetMu.Unlock()
 }
 
 func walkFolders(f *folder, fn func(map[string]uint64)) {
@@ -268,4 +264,5 @@ const assetsMetadata = "assets"
 
 var (
 	ErrInvalidFileType = errors.New("invalid file type")
+	ErrAssetNotFound   = errors.New("asset not found")
 )
