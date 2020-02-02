@@ -3,6 +3,24 @@ import {Subscription} from './lib/inter.js';
 // export type Int = number & { __int__: void };
 export type Int = number;
 
+export type AssetRPC = {
+	waitAssetAdded:    () => Subscription<IDName[]>;
+	waitAssetMoved:    () => Subscription<FromTo>;
+	waitAssetRemoved:  () => Subscription<string>;
+	waitAssetLinked:   () => Subscription<IDName>;
+	waitFolderAdded:   () => Subscription<string>;
+	waitFolderMoved:   () => Subscription<FromTo>;
+	waitFolderRemoved: () => Subscription<string>;
+
+	getAssets:    ()                         => Promise<Folder>;
+	createFolder: (path: string)             => Promise<string>;
+	moveAsset:    (from: string, to: string) => Promise<string>;
+	moveFolder:   (from: string, to: string) => Promise<string>;
+	removeAsset:  (path: string)             => Promise<void>;
+	removeFolder: (path: string)             => Promise<void>;
+	linkAsset:    (id: Int, name: string)    => Promise<string>;
+}
+
 export type RPC = {
 	waitLogin:           () => Promise<Int>;
 	waitCurrentUserMap:  () => Promise<Int>;
@@ -12,21 +30,8 @@ export type RPC = {
 	waitMapRename:          () => Subscription<Map>;
 	waitMapOrderChange:     () => Subscription<Map[]>;
 
-	waitImageAssetAdded:    () => Subscription<IDName[]>;
-	waitImageAssetMoved:    () => Subscription<FromTo>;
-	waitImageAssetRemoved:  () => Subscription<string>;
-	waitImageAssetLinked:   () => Subscription<IDName>;
-	waitImageFolderAdded:   () => Subscription<string>;
-	waitImageFolderMoved:   () => Subscription<FromTo>;
-	waitImageFolderRemoved: () => Subscription<string>;
-
-	waitAudioAssetAdded:    () => Subscription<IDName[]>;
-	waitAudioAssetMoved:    () => Subscription<FromTo>;
-	waitAudioAssetRemoved:  () => Subscription<string>;
-	waitAudioAssetLinked:   () => Subscription<IDName>;
-	waitAudioFolderAdded:   () => Subscription<string>;
-	waitAudioFolderMoved:   () => Subscription<FromTo>;
-	waitAudioFolderRemoved: () => Subscription<string>;
+	images: AssetRPC,
+	audio:  AssetRPC,
 
 	waitCharacterAdd:       () => Subscription<Record<string, string>>;
 	waitCharacterChange:    () => Subscription<Record<string, string>>;
@@ -35,23 +40,6 @@ export type RPC = {
 	waitMaskChange:         () => Subscription<Int>;
 
 	connID: () => Promise<Int>;
-
-	getImageAssets:    ()                         => Promise<Folder>;
-	createImageFolder: (path: string)             => Promise<string>;
-	moveImageAsset:    (from: string, to: string) => Promise<string>;
-	moveImageFolder:   (from: string, to: string) => Promise<string>;
-	removeImageAsset:  (path: string)             => Promise<void>;
-	removeImageFolder: (path: string)             => Promise<void>;
-	linkImageAsset:    (id: Int, name: string)    => Promise<string>;
-
-	getAudioAssets:    ()                         => Promise<Folder>;
-	createAudioFolder: (path: string)             => Promise<string>;
-	moveAudioAsset:    (from: string, to: string) => Promise<string>;
-	moveAudioFolder:   (from: string, to: string) => Promise<string>;
-	removeAudioAsset:  (path: string)             => Promise<void>;
-	removeAudioFolder: (path: string)             => Promise<void>;
-	linkAudioAsset:    (id: Int, name: string)    => Promise<string>;
-
 
 	getCurrentMap: ()        => Promise<Int>;
 	setCurrentMap: (id: Int) => Promise<void>;
