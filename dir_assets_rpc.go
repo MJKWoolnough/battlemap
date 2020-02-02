@@ -55,7 +55,7 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	}
 	newName := addFolderTo(parent.Folders, name, new(folder))
 	a.saveFolders()
-	a.socket.BroascastFolderAdd(a.fileType, dir[:len(dir)-len(name)]+newName, cd.ID)
+	a.socket.BroadcastFolderAdd(a.fileType, dir[:len(dir)-len(name)]+newName, cd.ID)
 	return newName, nil
 }
 
@@ -139,6 +139,13 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 		return ErrAssetNotFound
 	}
 	delete(parent.Assets, oldName)
+	a.unlink(aid)
+	a.saveFolders()
+	a.socket.BroadcastAssetRemove(a.fileType, aid, cd.ID)
+	return nil
+}
+
+func (a *assetsDir) unlink(aid uint64) {
 	links := a.assetLinks[aid] - 1
 	if links == 0 {
 		delete(a.assetLinks, aid)
@@ -146,12 +153,27 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 	} else {
 		a.assetLinks[aid] = links
 	}
-	a.saveFolders()
-	a.socket.BroadcastAssetRemove(a.fileType, aid, cd.ID)
-	return nil
 }
 
 func (a *assetsDir) rpcFolderDelete(cd ConnData, data []byte) error {
+	var folder string
+	if err := json.Unmarshal(data, &folder); err != nil {
+		return err
+	}
+	a.assetMu.Lock()
+	defer a.assetMu.Unlock()
+	parent, oldName, f := a.getParentFolder(folder)
+	if parent == nil || f == nil {
+		return ErrFolderNotFound
+	}
+	delete(parent.Folders, oldName)
+	walkFolders(f, func(assets map[string]uint64) {
+		for _, aid := range assets {
+			a.unlink(aid)
+		}
+	})
+	a.saveFolders()
+	a.socket.BroadcastFolderRemove(a.fileType, folder, cd.ID)
 	return nil
 }
 
