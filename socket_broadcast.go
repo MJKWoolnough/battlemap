@@ -14,12 +14,20 @@ const (
 	broadcastMapRename
 	broadcastMapRemove
 	broadcastMapOrderChange
-	broadcastAssetAdd
-	broadcastAssetChange
-	broadcastAssetRemove
-	broadcastTagAdd
-	broadcastTagRemove
-	broadcastTagChange
+	broadcastImageAssetAdded
+	broadcastImageAssetMoved
+	broadcastImageAssetRemoved
+	broadcastImageAssetLinked
+	breadcastImageFolderAdded
+	breadcastImageFolderMoved
+	breadcastImageFolderRemoved
+	broadcastAudioAssetAdded
+	broadcastAudioAssetMoved
+	broadcastAudioAssetRemoved
+	broadcastAudioAssetLinked
+	breadcastAudioFolderAdded
+	breadcastAudioFolderMoved
+	breadcastAudioFolderRemoved
 	broadcastCharacterAdd
 	broadcastCharacterChange
 	broadcastCharacterRemove
