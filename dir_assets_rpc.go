@@ -146,6 +146,7 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 	} else {
 		a.assetLinks[aid] = links
 	}
+	a.saveFolders()
 	a.socket.BroadcastAssetRemove(a.fileType, aid, cd.ID)
 	return nil
 }
