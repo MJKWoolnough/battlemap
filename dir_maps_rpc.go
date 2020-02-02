@@ -5,14 +5,9 @@ import (
 	"strconv"
 	"strings"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
-
-func (m *mapsDir) Websocket(conn *websocket.Conn) {
-	m.socket.RunConn(conn, m, SocketMaps)
-}
 
 func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if cd.IsAdmin() {
@@ -128,10 +123,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 type currentMap struct {
 	*Battlemap
 	ID uint64
-}
-
-func (c currentMap) Websocket(conn *websocket.Conn) {
-	c.socket.RunConn(conn, c, SocketMaps)
 }
 
 func (c currentMap) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
