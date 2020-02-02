@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 	"strconv"
@@ -104,7 +105,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	}
 	a.assetFolders = new(folder)
 	err = a.assetStore.Get(assetsMetadata, a.assetFolders)
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	a.assetLinks = make(map[uint64]uint64)
