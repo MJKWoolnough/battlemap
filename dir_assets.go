@@ -99,12 +99,12 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	l := filepath.Join(b.config.BaseDir, string(location))
 	a.assetStore, err = keystore.NewFileStore(l, l, keystore.NoMangle)
 	if err != nil {
-		return fmt.Errorf("error creating asset meta store: ", err)
+		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
 	a.assetFolders = new(folder)
 	err = a.assetStore.Get(assetsMetadata, a.assetFolders)
 	if err != nil {
-		return fmt.Errorf("error getting asset data: ", err)
+		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	a.assetLinks = make(map[uint64]uint64)
 	a.processFolder(a.assetFolders)
