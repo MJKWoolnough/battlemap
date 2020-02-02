@@ -54,6 +54,7 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	}
 	newName := addFolderTo(parent.Folders, name, new(folder))
 	a.saveFolders()
+	a.socket.BroascastFolderAdd(a.fileType, dir[:len(dir)-len(name)]+newName, cd.ID)
 	return newName, nil
 }
 
