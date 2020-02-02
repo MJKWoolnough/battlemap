@@ -18,9 +18,9 @@ func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{
 			return a.rpcAssetMove(cd, data)
 		case "moveFolder":
 			return a.rpcFolderMove(cd, data)
-		case "deleteAsset":
+		case "removeAsset":
 			return nil, a.rpcAssetDelete(cd, data)
-		case "deleteFolder":
+		case "removeFolder":
 			return nil, a.rpcFolderDelete(cd, data)
 		case "link":
 			return a.rpcLinkAsset(cd, data)
