@@ -16,53 +16,39 @@ import (
 type socket struct {
 	*Battlemap
 	mu     sync.RWMutex
-	conns  map[*conn]uint8
+	conns  map[*conn]struct{}
 	nextID ID
 }
 
 func (s *socket) Init(b *Battlemap) error {
 	s.Battlemap = b
-	s.conns = make(map[*conn]uint8)
+	s.conns = make(map[*conn]struct{})
 	return nil
 }
 
-func (s *socket) ServeConn(conn *websocket.Conn) {
-	s.RunConn(conn, nil, 0xff)
-}
-
-type SocketHandler interface {
-	RPCData(connData ConnData, method string, data []byte) (interface{}, error)
-}
-
-func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint8) {
+func (s *socket) ServeConn(wconn *websocket.Conn) {
 	var cu keystore.Uint64
 	s.config.Get("currentUserMap", &cu)
 	a := s.auth.AuthConn(wconn)
 	var c conn
-	if handler == nil {
-		handler = &c
-	}
 	s.mu.Lock()
 	s.nextID++
 	id := s.nextID
-	s.conns[&c] = mask
+	s.conns[&c] = struct{}{}
 	s.mu.Unlock()
 	c = conn{
 		Battlemap: s.Battlemap,
 		rpc:       jsonrpc.New(wconn, &c),
-		handler:   handler,
 		ConnData: ConnData{
 			CurrentMap: uint64(cu),
 			ID:         id,
 			AuthConn:   a,
 		},
 	}
-	if mask&SocketMaps > 0 {
-		c.rpc.Send(jsonrpc.Response{
-			ID:     -2,
-			Result: cu,
-		})
-	}
+	c.rpc.Send(jsonrpc.Response{
+		ID:     -2,
+		Result: cu,
+	})
 	c.rpc.Handle()
 	s.mu.Lock()
 	delete(s.conns, &c)
@@ -71,13 +57,12 @@ func (s *socket) RunConn(wconn *websocket.Conn, handler SocketHandler, mask uint
 
 type AuthConn interface {
 	IsAdmin() bool
-	SocketHandler
+	RPCData(connData ConnData, method string, data []byte) (interface{}, error)
 }
 
 type conn struct {
 	*Battlemap
-	rpc     *jsonrpc.Server
-	handler SocketHandler
+	rpc *jsonrpc.Server
 
 	mu sync.RWMutex
 	ConnData
@@ -121,38 +106,33 @@ func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 		c.mu.Unlock()
 		return nil, nil
 	default:
-		return c.handler.RPCData(cd, method, data)
-	}
-}
-
-func (c *conn) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
-	pos := strings.IndexByte(method, '.')
-	submethod := method[pos+1:]
-	method = method[:pos]
-	switch method {
-	case "imageAssets":
-		if cd.IsAdmin() {
-			return c.images.RPCData(cd, submethod, data)
-		}
-	case "audioAssets":
-		if cd.IsAdmin() {
-			return c.sounds.RPCData(cd, submethod, data)
-		}
-	case "maps":
-		if submethod == "getUserMap" {
-			var currentUserMap keystore.Uint64
-			c.config.Get("currentUserMap", &currentUserMap)
-			return currentUserMap, nil
-		} else if cd.IsAdmin() {
-			return c.maps.RPCData(cd, method, data)
-		}
-	case "characters":
-		if cd.IsAdmin() {
-			return c.chars.RPCData(cd, submethod, data)
-		}
-	case "tokens":
-		if cd.IsAdmin() {
-			return c.tokens.RPCData(cd, submethod, data)
+		submethod := method[pos+1:]
+		method = method[:pos]
+		switch method {
+		case "imageAssets":
+			if cd.IsAdmin() {
+				return c.images.RPCData(cd, submethod, data)
+			}
+		case "audioAssets":
+			if cd.IsAdmin() {
+				return c.sounds.RPCData(cd, submethod, data)
+			}
+		case "maps":
+			if submethod == "getUserMap" {
+				var currentUserMap keystore.Uint64
+				c.config.Get("currentUserMap", &currentUserMap)
+				return currentUserMap, nil
+			} else if cd.IsAdmin() {
+				return c.maps.RPCData(cd, method, data)
+			}
+		case "characters":
+			if cd.IsAdmin() {
+				return c.chars.RPCData(cd, submethod, data)
+			}
+		case "tokens":
+			if cd.IsAdmin() {
+				return c.tokens.RPCData(cd, submethod, data)
+			}
 		}
 	}
 	return nil, ErrUnknownMethod
