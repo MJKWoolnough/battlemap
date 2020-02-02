@@ -265,4 +265,5 @@ const assetsMetadata = "assets"
 var (
 	ErrInvalidFileType = errors.New("invalid file type")
 	ErrAssetNotFound   = errors.New("asset not found")
+	ErrFolderNotFound  = errors.New("folder not found")
 )
