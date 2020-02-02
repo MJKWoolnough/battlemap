@@ -54,19 +54,19 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	return dir, nil
 }
 
-type assetMove struct {
-	Path    string `json:"path"`
-	NewPath string `json:"newPath"`
+type fromTo struct {
+	From string `json:"from"`
+	To   string `json:"to"`
 }
 
 func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
-	var assetMove assetMove
+	var assetMove fromTo
 	if err := json.Unmarshal(data, &assetMove); err != nil {
 		return "", err
 	}
 	a.assetMu.Lock()
 	defer a.assetMu.Unlock()
-	oldParent, oldName, aid := a.getFolderAsset(assetMove.Path)
+	oldParent, oldName, aid := a.getFolderAsset(assetMove.From)
 	if oldParent == nil || aid == 0 {
 		return "", ErrAssetNotFound
 	}
@@ -74,36 +74,31 @@ func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
 		newParent *folder
 		newName   string
 	)
-	if strings.HasSuffix(assetMove.NewPath, "/") {
-		newParent = a.getFolder(strings.TrimRight(assetMove.NewPath, "/"))
+	if strings.HasSuffix(assetMove.To, "/") {
+		newParent = a.getFolder(strings.TrimRight(assetMove.To, "/"))
 		newName = oldName
 	} else {
-		path, file := path.Split(assetMove.NewPath)
+		path, file := path.Split(assetMove.To)
 		newName = file
-		assetMove.NewPath = strings.TrimRight(path, "/")
-		newParent = a.getFolder(assetMove.NewPath)
+		assetMove.To = strings.TrimRight(path, "/")
+		newParent = a.getFolder(assetMove.To)
 	}
 	delete(oldParent.Assets, oldName)
 	newName = addAssetTo(newParent.Assets, newName, aid)
 	a.saveFolders()
-	assetMove.NewPath += "/" + newName
+	assetMove.To += "/" + newName
 	a.socket.BroadcastAssetMove(a.fileType, assetMove, cd.ID)
-	return assetMove.NewPath, nil
-}
-
-type folderMove struct {
-	Path    string `json:"path"`
-	NewPath string `json:"newPath"`
+	return assetMove.To, nil
 }
 
 func (a *assetsDir) rpcFolderMove(cd ConnData, data []byte) (string, error) {
-	var folderMove folderMove
+	var folderMove fromTo
 	if err := json.Unmarshal(data, &folderMove); err != nil {
 		return "", err
 	}
 	a.assetMu.Lock()
 	defer a.assetMu.Unlock()
-	oldParent, oldName, f := a.getParentFolder(folderMove.Path)
+	oldParent, oldName, f := a.getParentFolder(folderMove.From)
 	if oldParent == nil || f == nil {
 		return "", ErrFolderNotFound
 	}
@@ -111,21 +106,21 @@ func (a *assetsDir) rpcFolderMove(cd ConnData, data []byte) (string, error) {
 		newParent *folder
 		newName   string
 	)
-	if strings.HasSuffix(folderMove.NewPath, "/") {
-		newParent = a.getFolder(strings.TrimRight(folderMove.NewPath, "/"))
+	if strings.HasSuffix(folderMove.To, "/") {
+		newParent = a.getFolder(strings.TrimRight(folderMove.To, "/"))
 		newName = oldName
 	} else {
-		path, file := path.Split(folderMove.NewPath)
+		path, file := path.Split(folderMove.To)
 		newName = file
-		folderMove.NewPath = strings.TrimRight(path, "/")
-		newParent = a.getFolder(folderMove.NewPath)
+		folderMove.To = strings.TrimRight(path, "/")
+		newParent = a.getFolder(folderMove.To)
 	}
 	delete(oldParent.Folders, oldName)
 	newName = addFolderTo(newParent.Folders, newName, f)
 	a.saveFolders()
-	folderMove.NewPath += "/" + newName
+	folderMove.To += "/" + newName
 	a.socket.BroadcastFolderMove(a.fileType, folderMove, cd.ID)
-	return folderMove.NewPath, nil
+	return folderMove.To, nil
 }
 
 func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
@@ -178,13 +173,8 @@ func (a *assetsDir) rpcFolderDelete(cd ConnData, data []byte) error {
 	return nil
 }
 
-type assetLink struct {
-	ID   uint64 `json:"id"`
-	Path string `json:"path"`
-}
-
 func (a *assetsDir) rpcLinkAsset(cd ConnData, data []byte) (string, error) {
-	var link assetLink
+	var link idName
 	if err := json.Unmarshal(data, &link); err != nil {
 		return "", err
 	}
@@ -193,7 +183,7 @@ func (a *assetsDir) rpcLinkAsset(cd ConnData, data []byte) (string, error) {
 	if _, ok := a.assetLinks[link.ID]; !ok {
 		return "", ErrAssetNotFound
 	}
-	parent, name, _ := a.getFolderAsset(link.Path)
+	parent, name, _ := a.getFolderAsset(link.Name)
 	if parent == nil {
 		return "", ErrFolderNotFound
 	}
@@ -202,7 +192,7 @@ func (a *assetsDir) rpcLinkAsset(cd ConnData, data []byte) (string, error) {
 	}
 	newName := addAssetTo(parent.Assets, name, link.ID)
 	a.saveFolders()
-	link.Path = link.Path[:len(link.Path)-len(name)] + newName
+	link.Name = link.Name[:len(link.Name)-len(name)] + newName
 	a.socket.BroadcastAssetLink(a.fileType, link, cd.ID)
-	return link.Path, nil
+	return link.Name, nil
 }

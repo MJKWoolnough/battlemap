@@ -78,11 +78,11 @@ func (s *socket) BroadcastFolderAdd(ft fileType, dir string, except ID) {
 
 }
 
-func (s *socket) BroadcastAssetMove(ft fileType, am assetMove, except ID) {
+func (s *socket) BroadcastAssetMove(ft fileType, am fromTo, except ID) {
 
 }
 
-func (s *socket) BroadcastFolderMove(ft fileType, am folderMove, except ID) {
+func (s *socket) BroadcastFolderMove(ft fileType, am fromTo, except ID) {
 
 }
 
@@ -94,7 +94,7 @@ func (s *socket) BroadcastFolderRemove(ft fileType, folder string, except ID) {
 
 }
 
-func (s *socket) BroadcastAssetLink(ft fileType, link assetLink, except ID) {
+func (s *socket) BroadcastAssetLink(ft fileType, link idName, except ID) {
 
 }
 

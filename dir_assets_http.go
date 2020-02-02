@@ -28,8 +28,8 @@ func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
 }
 
 type idName struct {
-	ID   uint64
-	Name string
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
