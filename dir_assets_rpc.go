@@ -3,6 +3,7 @@ package battlemap
 import (
 	"encoding/json"
 	"path"
+	"strconv"
 	"strings"
 
 	"golang.org/x/net/websocket"
@@ -127,6 +128,25 @@ func (a *assetsDir) rpcFolderMove(cd ConnData, data []byte) (string, error) {
 }
 
 func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
+	var asset string
+	if err := json.Unmarshal(data, &asset); err != nil {
+		return err
+	}
+	a.assetMu.Lock()
+	defer a.assetMu.Unlock()
+	parent, oldName, aid := a.getFolderAsset(asset)
+	if parent == nil || aid == 0 {
+		return ErrAssetNotFound
+	}
+	delete(parent.Assets, oldName)
+	links := a.assetLinks[aid] - 1
+	if links == 0 {
+		delete(a.assetLinks, aid)
+		a.assetStore.Remove(strconv.FormatUint(aid, 10))
+	} else {
+		a.assetLinks[aid] = links
+	}
+	a.socket.BroadcastAssetRemove(a.fileType, aid, cd.ID)
 	return nil
 }
 
