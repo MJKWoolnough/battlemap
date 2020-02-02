@@ -40,11 +40,8 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
 	b.chars.Name = "Chars"
-	b.chars.Socket = SocketCharacters
 	b.tokens.Name = "Tokens"
-	b.tokens.Socket = SocketMaps
 	b.userTokens.Name = "UserTokens"
-	b.userTokens.Socket = SocketMaps
 	b.images.fileType = fileTypeImage
 	b.sounds.fileType = fileTypeAudio
 	if a == nil {
