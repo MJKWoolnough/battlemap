@@ -78,24 +78,32 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 	s.mu.RUnlock()
 }
 
-func (s *socket) BroadcastAssetsAdd(assets Assets, except ID) {
-	s.broadcastAdminChange(SocketAssets, broadcastAssetAdd, assets, except)
+func (s *socket) BroadcastAssetsAdd(ft fileType, added []idName, except ID) {
+
 }
 
-func (s *socket) BroadcastAssetChange(as *Asset, except ID) {
-	s.broadcastAdminChange(SocketAssets, broadcastAssetChange, as, except)
+func (s *socket) BroadcastFolderAdd(ft fileType, dir string, except ID) {
+
 }
 
-func (s *socket) BroadcastAssetRemove(id uint64, except ID) {
-	s.broadcastAdminChange(SocketAssets, broadcastAssetRemove, id, except)
+func (s *socket) BroadcastAssetMove(ft fileType, am assetMove, except ID) {
+
 }
 
-func (s *socket) BroadcastTagsAdd(tags Tags, except ID) {
-	s.broadcastAdminChange(SocketAssets, broadcastTagAdd, tags, except)
+func (s *socket) BroadcastFolderMove(ft fileType, am folderMove, except ID) {
+
 }
 
-func (s *socket) BroadcastTagsChange(tags Tags, except ID) {
-	s.broadcastAdminChange(SocketAssets, broadcastTagChange, tags, except)
+func (s *socket) BroadcastAssetRemove(ft fileType, asset string, except ID) {
+
+}
+
+func (s *socket) BroadcastFolderRemove(ft fileType, folder string, except ID) {
+
+}
+
+func (s *socket) BroadcastAssetLink(ft fileType, link assetLink, except ID) {
+
 }
 
 func (s *socket) BroadcastMapAdd(mp *Map, except ID) {
@@ -131,10 +139,6 @@ func (s *socket) BroadcastMaskChange(cID uint64, except ID) {
 }
 
 func (s *socket) BroadcastMapChange(m *Map, except ID) {
-
-}
-
-func (s *socket) BroadcastTagRemove(tags []uint64, except ID) {
 
 }
 
