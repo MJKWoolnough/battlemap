@@ -5,13 +5,7 @@ import (
 	"path"
 	"strconv"
 	"strings"
-
-	"golang.org/x/net/websocket"
 )
-
-func (a *assetsDir) WebSocket(conn *websocket.Conn) {
-	a.socket.RunConn(conn, a, SocketAssets)
-}
 
 func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
 	if cd.IsAdmin() {
