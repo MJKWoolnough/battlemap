@@ -7,34 +7,51 @@ export type RPC = {
 	waitLogin:           () => Promise<Int>;
 	waitCurrentUserMap:  () => Promise<Int>;
 
-	waitMapAdd:          () => Subscription<Map>;
-	waitMapChange:       () => Subscription<Int>;
-	waitMapRename:       () => Subscription<Map>;
-	waitMapOrderChange:  () => Subscription<Map[]>;
-	waitAssetAdd:        () => Subscription<Asset[]>;
-	waitAssetChange:     () => Subscription<Asset>;
-	waitAssetRemove:     () => Subscription<Int>;
-	waitTagAdd:          () => Subscription<Tag[]>;
-	waitTagRemove:       () => Subscription<Int>;
-	waitTagChange:       () => Subscription<Tag[]>;
-	waitCharacterAdd:    () => Subscription<Record<string, string>>;
-	waitCharacterChange: () => Subscription<Record<string, string>>;
-	waitCharacterRemove: () => Subscription<Int>;
-	waitTokenChange:     () => Subscription<Token>;
-	waitMaskChange:      () => Subscription<Int>;
+	waitMapAdd:             () => Subscription<Map>;
+	waitMapChange:          () => Subscription<Int>;
+	waitMapRename:          () => Subscription<Map>;
+	waitMapOrderChange:     () => Subscription<Map[]>;
+
+	waitImageAssetAdded:    () => Subscription<IDName[]>;
+	waitImageAssetMoved:    () => Subscription<FromTo>;
+	waitImageAssetRemoved:  () => Subscription<string>;
+	waitImageAssetLinked:   () => Subscription<IDName>;
+	waitImageFolderAdded:   () => Subscription<string>;
+	waitImageFolderMoved:   () => Subscription<FromTo>;
+	waitImageFolderRemoved: () => Subscription<string>;
+
+	waitAudioAssetAdded:    () => Subscription<IDName[]>;
+	waitAudioAssetMoved:    () => Subscription<FromTo>;
+	waitAudioAssetRemoved:  () => Subscription<string>;
+	waitAudioAssetLinked:   () => Subscription<IDName>;
+	waitAudioFolderAdded:   () => Subscription<string>;
+	waitAudioFolderMoved:   () => Subscription<FromTo>;
+	waitAudioFolderRemoved: () => Subscription<string>;
+
+	waitCharacterAdd:       () => Subscription<Record<string, string>>;
+	waitCharacterChange:    () => Subscription<Record<string, string>>;
+	waitCharacterRemove:    () => Subscription<Int>;
+	waitTokenChange:        () => Subscription<Token>;
+	waitMaskChange:         () => Subscription<Int>;
 
 	connID: () => Promise<Int>;
 
-	deleteAsset:         (id: Int)               => Promise<Int>;
-	renameAsset:         (id: Int, name: string) => Promise<string>;
-	addTagsToAsset:      (id: Int, tags: Int[])  => Promise<boolean>;
-	removeTagsFromAsset: (id: Int, tags: Int[])  => Promise<boolean>;
-	getAssets:           ()                      => Promise<Record<Int, Asset>>;
+	getImageAssets:    ()                         => Promise<Folder>;
+	createImageFolder: (path: string)             => Promise<string>;
+	moveImageAsset:    (from: string, to: string) => Promise<string>;
+	moveImageFolder:   (from: string, to: string) => Promise<string>;
+	removeImageAsset:  (path: string)             => Promise<void>;
+	removeImageFolder: (path: string)             => Promise<void>;
+	linkImageAsset:    (id: Int, name: string)    => Promise<string>;
 
-	addTag:    (name: string)          => Promise<Int>;
-	deleteTag: (id: Int)               => Promise<Int>;
-	renameTag: (id: Int, name: string) => Promise<string>;
-	getTags:   ()                      => Promise<Record<Int, Tag>>;
+	getAudioAssets:    ()                         => Promise<Folder>;
+	createAudioFolder: (path: string)             => Promise<string>;
+	moveAudioAsset:    (from: string, to: string) => Promise<string>;
+	moveAudioFolder:   (from: string, to: string) => Promise<string>;
+	removeAudioAsset:  (path: string)             => Promise<void>;
+	removeAudioFolder: (path: string)             => Promise<void>;
+	linkAudioAsset:    (id: Int, name: string)    => Promise<string>;
+
 
 	getCurrentMap: ()        => Promise<Int>;
 	setCurrentMap: (id: Int) => Promise<void>;
@@ -96,18 +113,20 @@ export type Map = {
 	name: string;
 };
 
-export type Tag = {
-	id:     Int;
-	name:   string;
-	assets: Int[];
-};
-
-export type Asset = {
+export type IDName = {
 	id:   Int;
 	name: string;
-	type: string;
-	tags: Int[];
-};
+}
+
+export type FromTo = {
+	from: string;
+	to:   string;
+}
+
+export type Folder = {
+	folders: Record<string, Folder>;
+	assets:  Record<string, Int>;
+}
 
 export type Colour = {
 	r: Int;

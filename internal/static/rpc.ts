@@ -1,5 +1,5 @@
 import RPC from './lib/rpc_ws.js';
-import {RPC as RPCType, Tag, Asset} from './types.js';
+import {RPC as RPCType} from './types.js';
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
@@ -11,30 +11,47 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitMapChange":       () => rpc.await(-4, true),
 			"waitMapRename":       () => rpc.await(-5, true),
 			"waitMapOrderChange":  () => rpc.await(-6, true),
-			"waitAssetAdd":        () => rpc.await(-7, true),
-			"waitAssetChange":     () => rpc.await(-8, true),
-			"waitAssetRemove":     () => rpc.await(-9, true),
-			"waitTagAdd":          () => rpc.await(-10, true),
-			"waitTagRemove":       () => rpc.await(-11, true),
-			"waitTagChange":       () => rpc.await(-12, true),
-			"waitCharacterAdd":    () => rpc.await(-13, true),
-			"waitCharacterChange": () => rpc.await(-14, true),
-			"waitCharacterRemove": () => rpc.await(-15, true),
-			"waitTokenChange":     () => rpc.await(-16, true),
-			"waitMaskChange":      () => rpc.await(-17, true),
+
+			"waitImageAssetAdded":    () => rpc.await(-7, true),
+			"waitImageAssetMoved":    () => rpc.await(-8, true),
+			"waitImageAssetRemoved":  () => rpc.await(-9, true),
+			"waitImageAssetLinked":   () => rpc.await(-9, true),
+			"waitImageFolderAdded":   () => rpc.await(-10, true),
+			"waitImageFolderMoved":   () => rpc.await(-11, true),
+			"waitImageFolderRemoved": () => rpc.await(-12, true),
+
+			"waitAudioAssetAdded":    () => rpc.await(-13, true),
+			"waitAudioAssetMoved":    () => rpc.await(-14, true),
+			"waitAudioAssetRemoved":  () => rpc.await(-15, true),
+			"waitAudioAssetLinked":   () => rpc.await(-16, true),
+			"waitAudioFolderAdded":   () => rpc.await(-17, true),
+			"waitAudioFolderMoved":   () => rpc.await(-18, true),
+			"waitAudioFolderRemoved": () => rpc.await(-19, true),
+
+			"waitCharacterAdd":    () => rpc.await(-21, true),
+			"waitCharacterChange": () => rpc.await(-22, true),
+			"waitCharacterRemove": () => rpc.await(-23, true),
+			"waitTokenChange":     () => rpc.await(-24, true),
+			"waitMaskChange":      () => rpc.await(-25, true),
 
 			"connID": () => rpc.request("conn.connID"),
 
-			"deleteAsset":          id        => rpc.request("assets.deleteAsset", id),
-			"renameAsset":         (id, name) => rpc.request("assets.renameAsset", {id, name}),
-			"addTagsToAsset":      (id, tags) => rpc.request("assets.addTagsToAsset", {id, tags}),
-			"removeTagsFromAsset": (id, tags) => rpc.request("assets.removeTagsFromAsset", {id, tags}),
-			"getAssets":           ()         => rpc.request("assets.getAssets"),
+			"getImageAssets":    ()         => rpc.request("imageAssets.list"),
+			"createImageFolder":  path      => rpc.request("imageAssets.createFolder", path),
+			"moveImageAsset":    (from, to) => rpc.request("imageAssets.moveAsset", {from, to}),
+			"moveImageFolder":   (from, to) => rpc.request("imageAssets.moveFolder", {from, to}),
+			"removeImageAsset":   path      => rpc.request("imageAssets.removeAsset", path),
+			"removeImageFolder":  path      => rpc.request("imageAssets.removeFolder", path),
+			"linkImageAsset":    (id, name) => rpc.request("imageAssets.link", {id, name}),
 
-			"addTag":       name      => rpc.request("assets.addTag", name),
-			"deleteTag":    id        => rpc.request("assets.deleteTag", id),
-			"renameTag":   (id, name) => rpc.request("assets.renameTag", {id, name}),
-			"getTags":     ()         => rpc.request("assets.getTags"),
+			"getAudioAssets":    ()         => rpc.request("imageAudio.list"),
+			"createAudioFolder":  path      => rpc.request("imageAudio.createFolder", path),
+			"moveAudioAsset":    (from, to) => rpc.request("imageAudio.moveAsset", {from, to}),
+			"moveAudioFolder":   (from, to) => rpc.request("imageAudio.moveFolder", {from, to}),
+			"removeAudioAsset":   path      => rpc.request("imageAudio.removeAsset", path),
+			"removeAudioFolder":  path      => rpc.request("imageAudio.removeFolder", path),
+			"linkAudioAsset":    (id, name) => rpc.request("imageAudio.link", {id, name}),
+
 
 			"getCurrentMap": ()  => rpc.request("maps.getCurrentMap"),
 			"setCurrentMap":  id => rpc.request("maps.setCurrentMap", id),
