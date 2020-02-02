@@ -60,10 +60,13 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	return dir, nil
 }
 
+type assetMove struct {
+	Path    string `json:"path"`
+	NewPath string `json:"newPath"`
+}
+
 func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
-	var assetMove struct {
-		Path, NewPath string
-	}
+	var assetMove assetMove
 	if err := json.Unmarshal(data, &assetMove); err != nil {
 		return "", err
 	}
@@ -90,14 +93,17 @@ func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
 	newName = addAssetTo(newParent.Assets, newName, aid)
 	a.saveFolders()
 	assetMove.NewPath += "/" + newName
-	a.socket.BroadcastAssetRename(a.fileType, assetMove, cd.ID)
+	a.socket.BroadcastAssetMove(a.fileType, assetMove, cd.ID)
 	return assetMove.NewPath, nil
 }
 
+type folderMove struct {
+	Path    string `json:"path"`
+	NewPath string `json:"newPath"`
+}
+
 func (a *assetsDir) rpcFolderMove(cd ConnData, data []byte) (string, error) {
-	var folderMove struct {
-		Path, NewPath string
-	}
+	var folderMove folderMove
 	if err := json.Unmarshal(data, &folderMove); err != nil {
 		return "", err
 	}
@@ -142,7 +148,7 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 	delete(parent.Assets, oldName)
 	a.unlink(aid)
 	a.saveFolders()
-	a.socket.BroadcastAssetRemove(a.fileType, aid, cd.ID)
+	a.socket.BroadcastAssetRemove(a.fileType, asset, cd.ID)
 	return nil
 }
 
@@ -178,11 +184,13 @@ func (a *assetsDir) rpcFolderDelete(cd ConnData, data []byte) error {
 	return nil
 }
 
+type assetLink struct {
+	ID   uint64 `json:"id"`
+	Path string `json:"path"`
+}
+
 func (a *assetsDir) rpcLinkAsset(cd ConnData, data []byte) (string, error) {
-	var link struct {
-		ID   uint64 `json:"id"`
-		Path string `json:"path"`
-	}
+	var link assetLink
 	if err := json.Unmarshal(data, &link); err != nil {
 		return "", err
 	}
