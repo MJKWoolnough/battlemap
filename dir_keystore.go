@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/keystore"
@@ -20,11 +19,10 @@ import (
 type keystoreDir struct {
 	*Battlemap
 	DefaultMethods
-	Name      string
-	Socket    uint8
-	prefix    string
-	store     *keystore.FileStore
-	websocket websocket.Handler
+	Name   string
+	Socket uint8
+	prefix string
+	store  *keystore.FileStore
 
 	mu     sync.RWMutex
 	nextID uint64
@@ -63,7 +61,6 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		}
 	}
 	k.nextID = largestID + 1
-	k.websocket = websocket.Handler(k.WebSocket)
 	k.Battlemap = b
 	return nil
 }
@@ -92,11 +89,7 @@ func (k *keystoreDir) Get(w http.ResponseWriter, r *http.Request) bool {
 
 func (k *keystoreDir) handleGet(w http.ResponseWriter, r *http.Request) {
 	if isRoot(r.URL.Path) {
-		if strings.EqualFold(r.Header.Get("Upgrade"), "websocket") && strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") {
-			k.websocket.ServeHTTP(w, r)
-		} else {
-			w.WriteHeader(http.StatusNoContent)
-		}
+		w.WriteHeader(http.StatusNoContent)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); !k.store.Exists(idStr) {
 		http.NotFound(w, r)
 	} else {
@@ -309,10 +302,6 @@ func (k *keystoreDir) Delete(w http.ResponseWriter, r *http.Request) bool {
 		w.WriteHeader(http.StatusNoContent)
 	}
 	return true
-}
-
-func (k *keystoreDir) WebSocket(conn *websocket.Conn) {
-	k.socket.RunConn(conn, k, k.Socket)
 }
 
 func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
