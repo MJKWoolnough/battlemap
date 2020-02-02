@@ -42,7 +42,19 @@ func (a *assetsDir) rpcList() json.RawMessage {
 }
 
 func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
-	return "", nil
+	var dir string
+	if err := json.Unmarshal(data, &dir); err != nil {
+		return "", err
+	}
+	a.assetMu.Lock()
+	defer a.assetMu.Unlock()
+	parent, name, _ := a.getParentFolder(dir)
+	if parent == nil || name == "" {
+		return "", ErrFolderNotFound
+	}
+	newName := addFolderTo(parent.Folders, name, new(folder))
+	a.saveFolders()
+	return newName, nil
 }
 
 func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
