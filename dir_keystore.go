@@ -30,6 +30,7 @@ type keystoreDir struct {
 }
 
 func (k *keystoreDir) Init(b *Battlemap) error {
+	k.Battlemap = b
 	k.prefix = strings.ToLower(k.Name) + "."
 	var location keystore.String
 	err := b.config.Get(k.Name+"Dir", &location)
@@ -61,7 +62,6 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		}
 	}
 	k.nextID = largestID + 1
-	k.Battlemap = b
 	return nil
 }
 

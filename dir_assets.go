@@ -80,6 +80,7 @@ type assetsDir struct {
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
+	a.Battlemap = b
 	var (
 		location keystore.String
 		locname  string
@@ -138,7 +139,6 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		a.assetStore.Set(assetsMetadata, a.assetFolders)
 	}
 	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
-	a.Battlemap = b
 	return nil
 }
 

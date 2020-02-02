@@ -29,6 +29,7 @@ type filesDir struct {
 }
 
 func (f *filesDir) Init(b *Battlemap) error {
+	f.Battlemap = b
 	var (
 		location keystore.String
 		err      error
@@ -39,7 +40,6 @@ func (f *filesDir) Init(b *Battlemap) error {
 		return errors.WithContext("error creating file store: ", err)
 	}
 	f.Handler = http.FileServer(http.Dir(location))
-	f.Battlemap = b
 	return nil
 }
 

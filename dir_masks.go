@@ -26,6 +26,7 @@ type masksDir struct {
 }
 
 func (m *masksDir) Init(b *Battlemap) error {
+	m.Battlemap = b
 	var location keystore.String
 	err := b.config.Get("MasksDir", &location)
 	if err != nil {
@@ -48,7 +49,6 @@ func (m *masksDir) Init(b *Battlemap) error {
 		}
 	}
 	m.nextID = largestID + 1
-	m.Battlemap = b
 	return nil
 }
 

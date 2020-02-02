@@ -27,6 +27,7 @@ type mapsDir struct {
 }
 
 func (m *mapsDir) Init(b *Battlemap) error {
+	m.Battlemap = b
 	var location keystore.String
 	err := b.config.Get("MapsDir", &location)
 	if err != nil {
@@ -74,7 +75,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	sort.Sort(m.order)
 	genPages(t, m.order, mapsTemplate, "index", "maps", "map", &m.indexes)
 	m.handler = http.FileServer(http.Dir(sp))
-	m.Battlemap = b
 	return nil
 }
 
