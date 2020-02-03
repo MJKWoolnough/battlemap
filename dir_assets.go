@@ -225,7 +225,7 @@ func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *f
 	if parent == nil {
 		return nil, "", nil
 	}
-	name = p[lastSlash+1 : len(p)-1]
+	name = p[lastSlash+1 : len(p)]
 	f, _ = parent.Folders[name]
 	return parent, name, f
 }
