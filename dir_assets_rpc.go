@@ -32,7 +32,7 @@ func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{
 func (a *assetsDir) rpcList() json.RawMessage {
 	a.assetMu.RLock()
 	data := a.assetJSON
-	a.assetMu.Unlock()
+	a.assetMu.RUnlock()
 	return json.RawMessage(data)
 }
 
