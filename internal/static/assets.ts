@@ -46,10 +46,7 @@ class AssetFolder {
 			createHTML("label", {"for": `folder_${folderID++}`}, name),
 			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
 				createHTML("h1", "Add Folder"),
-				createHTML("label", "Location"),
-				createHTML("span", self.getPath() || "/"),
-				createHTML("br"),
-				createHTML("label", {"for": "folderName"}, "Folder Name"),
+				createHTML("label", {"for": "folderName"}, `Folder Name: ${self.getPath() + "/"}`),
 				createHTML("input", {"id": "folderName", "onkeypress": enterKey}),
 				createHTML("br"),
 				createHTML("button", "Add Folder", {"onclick": function(this: HTMLButtonElement) {
@@ -121,11 +118,12 @@ class Root extends AssetFolder {
 	constructor (rootFolder: Folder, fileType: string, rpcFuncs: AssetRPC, overlay: LayerType) {
 		super({} as AssetFolder, fileType, rootFolder.folders, rootFolder.assets); // Deliberate Type hack
 		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
+		this.name = "";
 		this.assets.sort(idSorter);
 		this.fileType = fileType;
 		this.html = createHTML("div", [
 			fileType,
-			Array.from(this.html.childNodes).slice(-2)
+			Array.from(this.html.childNodes).slice(-3)
 		]);
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
