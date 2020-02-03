@@ -11,7 +11,6 @@ const sortStrings = new Intl.Collator().compare,
 
 class Asset {
 	parent: AssetFolder;
-	root: Root;
 	folder: AssetFolder;
 	id: Int;
 	name: string
@@ -21,13 +20,14 @@ class Asset {
 		this.name = name;
 		this.html = createHTML("li", name);
 		this.parent = parent;
-		this.root = parent.root;
 		this.folder = folder;
+	}
+	get root() {
+		return this.parent.root;
 	}
 }
 
 class AssetFolder {
-	root: Root;
 	parent: AssetFolder;
 	name: string;
 	html: Node;
@@ -35,17 +35,37 @@ class AssetFolder {
 	assets: SortHTMLType<Asset>;
 	constructor(parent: AssetFolder, name: string, folders: Record<string, Folder>, assets: Record<string, Int>) {
 		this.parent = parent;
-		this.root = parent.root;
 		this.name = name;
 		this.folders = SortHTML(createHTML("ul"), stringSorter);
 		this.assets = SortHTML(createHTML("ul"), stringSorter);
+		const self = this;
 		this.html = createHTML("li", [
 			name,
+			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
+				createHTML("h1", "Add Folder"),
+				createHTML("label", "Location"),
+				createHTML("span", self.getPath() || "[root]"),
+				createHTML("br"),
+				createHTML("label", {"for": "folderName"}, "Folder Name"),
+				createHTML("input", {"id": "folderName", "onkeypress": enterKey}),
+				createHTML("br"),
+				createHTML("button", "Add Folder", {"onclick": function(this: HTMLButtonElement) {
+					const path = self.getPath() + "/",
+					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement).value
+					self.root.overlay.loading(self.root.rpcFuncs.createFolder(path + name)).then(folder => {
+						self.root.addFolder(folder);
+						self.root.overlay.removeLayer();
+					});
+				}})
+			])}),
 			this.folders.html,
 			this.assets.html
 		]);
 		Object.entries(folders).forEach(([name, f]) => this.folders.push(new AssetFolder(this, name, f.folders, f.assets)));
 		Object.entries(assets).forEach(([name, aid]) => this.assets.push(new Asset(this, this, aid, name)));
+	}
+	get root(): Root {
+		return this.parent.root;
 	}
 	addAsset(id: Int, name: string) {
 		if (!this.getAsset(name)) {
@@ -98,11 +118,13 @@ class Root extends AssetFolder {
 	constructor (rootFolder: Folder, fileType: string, rpcFuncs: AssetRPC, overlay: LayerType) {
 		super({} as AssetFolder, "", rootFolder.folders, rootFolder.assets); // Deliberate Type hack
 		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
-		this.root = this;
 		this.fileType = fileType;
 		this.html = createHTML("div", Array.from(this.html.childNodes));
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
+	}
+	get root() {
+		return this;
 	}
 	resolvePath(path: string): [AssetFolder | undefined, string] {
 		const breadcrumbs = path.split("/"),
@@ -176,7 +198,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: str
 		rpcFuncs.waitFolderAdded().then(folder => root.addFolder(folder));
 		rpcFuncs.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => root.removeFolder(folder));
-		createHTML(clearElement(base), {"id": fileType + "Assets"}, [
+		createHTML(base, {"id": fileType + "Assets"}, [
 			createHTML("button", "Upload Asset(s)", {"onclick": () => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
 				createHTML("h1", "Add Assets"),
 				createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
