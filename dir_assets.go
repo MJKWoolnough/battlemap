@@ -65,7 +65,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 		f.Folders[name] = fd
 	}
 	al := lr.ReadUint64()
-	f.Assets = make(map[string]uint64, lr.ReadUint64())
+	f.Assets = make(map[string]uint64, al)
 	for i := uint64(0); i < al; i++ {
 		name := lr.ReadStringX()
 		f.Assets[name] = lr.ReadUint64()
