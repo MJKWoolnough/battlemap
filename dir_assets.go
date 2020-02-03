@@ -19,7 +19,6 @@ import (
 )
 
 type folder struct {
-	ID      uint64             `json:"id"`
 	Folders map[string]*folder `json:"folders"`
 	Assets  map[string]uint64  `json:"assets"`
 }
