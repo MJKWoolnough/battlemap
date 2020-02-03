@@ -177,35 +177,33 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: str
 		rpcFuncs.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => root.removeFolder(folder));
 		createHTML(clearElement(base), {"id": fileType + "Assets"}, [
-			createHTML("button", "Upload Asset(s)", {"onclick": () => {
-				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-					createHTML("h1", "Add Assets"),
-					createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
-						createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
-						createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
-							const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
-							overlay.loading(HTTPRequest("/assets", {
-								"data": new FormData(this.parentNode as HTMLFormElement),
-								"method": "POST",
-								"response": "JSON",
-								"onprogress": (e: ProgressEvent) => {
-									if (e.lengthComputable) {
-										bar.setAttribute("value", e.loaded.toString());
-										bar.setAttribute("max", e.total.toString());
-										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-									}
+			createHTML("button", "Upload Asset(s)", {"onclick": () => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+				createHTML("h1", "Add Assets"),
+				createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
+					createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
+					createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
+						const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
+						overlay.loading(HTTPRequest("/assets", {
+							"data": new FormData(this.parentNode as HTMLFormElement),
+							"method": "POST",
+							"response": "JSON",
+							"onprogress": (e: ProgressEvent) => {
+								if (e.lengthComputable) {
+									bar.setAttribute("value", e.loaded.toString());
+									bar.setAttribute("max", e.total.toString());
+									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 								}
-							}), createHTML("div", {"class": "loadBar"}, [
-								createHTML("div", "Uploading file(s)"),
-								bar
-							])).then((assets: IDName[]) => {
-								assets.forEach(({id, name}) => root.addAsset(id, name))
-								overlay.removeLayer();
-							}, showError.bind(null, this));
-						}})
-					])
-				]);
-			}}),
+							}
+						}), createHTML("div", {"class": "loadBar"}, [
+							createHTML("div", "Uploading file(s)"),
+							bar
+						])).then((assets: IDName[]) => {
+							assets.forEach(({id, name}) => root.addAsset(id, name))
+							overlay.removeLayer();
+						}, showError.bind(null, this));
+					}})
+				])
+			])}),
 			root.html
 		]);
 	});
