@@ -1,285 +1,229 @@
-import {Int, RPC, Tag, Asset} from './types.js';
+import {Int, RPC, AssetRPC, Folder, FromTo, IDName} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
-let rpc: RPC, overlay: LayerType, p: Promise<void>;
+const sortStrings = new Intl.Collator().compare,
+      stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => sortStrings(a.name, b.name),
+      idSorter = (a: Asset, b: Asset) => a.id - b.id;
 
-interface TagAsset {
+class Asset {
+	parent: AssetFolder;
+	root: Root;
+	folder: AssetFolder;
 	id: Int;
+	name: string
+	html: Node;
+	constructor(parent: AssetFolder, folder: AssetFolder, id: Int, name: string) {
+		this.id = id;
+		this.name = name;
+		this.html = createHTML("li", name);
+		this.parent = parent;
+		this.root = parent.root;
+		this.folder = folder;
+	}
+}
+
+class AssetFolder {
+	root: Root;
+	parent: AssetFolder;
 	name: string;
-}
-
-class AssetItem {
-	htmls = new Map<Int, AssetHTML>();
-	editFn = () => this.edit();
-	removeFn = () => this.remove();
-	asset: Asset;
-	constructor(asset: Asset) {
-		this.asset = asset;
-	}
-	html(tagID: Int) {
-		if (this.htmls.has(tagID)) {
-			return this.htmls.get(tagID);
-		}
-		const ah = new AssetHTML(this.asset, this.editFn, this.removeFn)
-		this.htmls.set(tagID, ah);
-		return ah;
-	}
-	rename(name: string) {
-		this.asset.name = name;
-		this.htmls.forEach(h => h.rename());
-	}
-	removeTag(tagID: Int){
-		this.htmls.delete(tagID);
-	}
-	edit() {
-
-	}
-	remove() {
-
-	}
-}
-
-class AssetHTML {
-	asset: Asset;
 	html: Node;
-	constructor(asset: Asset, editFn: Function, removeFn: Function) {
-		this.asset = asset;
+	folders: SortHTMLType<AssetFolder>;
+	assets: SortHTMLType<Asset>;
+	constructor(parent: AssetFolder, name: string, folders: Record<string, Folder>, assets: Record<string, Int>) {
+		this.parent = parent;
+		this.root = parent.root;
+		this.name = name;
+		this.folders = SortHTML(createHTML("ul"), stringSorter);
+		this.assets = SortHTML(createHTML("ul"), stringSorter);
 		this.html = createHTML("li", [
-			createHTML("span", asset.name),
-			createHTML("span", {"class": "assetCmds"}, [
-				createHTML("span", "✍", {"class": "editAsset", "onclick": editFn}),
-				createHTML("span", "⌫", {"class": "removeAsset", "onclick": removeFn})
-			])
+			name,
+			this.folders.html,
+			this.assets.html
 		]);
+		Object.entries(folders).forEach(([name, f]) => this.folders.push(new AssetFolder(this, name, f.folders, f.assets)));
+		Object.entries(assets).forEach(([name, aid]) => this.assets.push(new Asset(this, this, aid, name)));
 	}
-	get name() {
-		return this.asset.name;
-	}
-	rename() {
-		(this.html.firstChild as HTMLElement).innerText = this.asset.name;
-	}
-}
-
-class TagRoot {
-	tags = new Map<string, TagFolder>();
-	html = createHTML("ul");
-	list = SortHTML<TagFolder | AssetHTML>(this.html, sortFnDate);
-	getTag(tagName: string) {
-		if (this.tags.has(tagName)) {
-			const tf = this.tags.get(tagName) as TagFolder;
-			return tf;
-		}
-		const tf = new TagFolder({"id": -1, "name": tagName, "assets": []}),
-		      s = tagName.lastIndexOf("/"),
-		      sn = s === -1 ? "" : tagName.slice(0, s);
-		this.tags.set(tagName, tf);
-		if (sn === "") {
-			this.list.push(tf);
-		} else {
-			this.getTag(sn).list.push(tf);
-		}
-		return tf;
-	}
-	addTag(tf: TagFolder) {
-		if (this.tags.has(tf.tag.name)) {
-			const ttf = this.tags.get(tf.tag.name) as TagFolder;
-			if (ttf.tag.id !== -1) {
-				return;
-			}
-		}
-		const s = tf.tag.name.lastIndexOf("/");
-		if (s === -1) {
-			this.list.push(tf);
-		} else {
-			const sn = tf.tag.name.slice(0, s);
-			this.getTag(sn).list.push(tf);
-		}
-		this.tags.set(tf.tag.name, tf);
-	}
-	removeTag(t: TagFolder) {}
-	addAsset(a: Asset) {}
-}
-
-class TagFolder {
-	list: SortHTMLType<TagFolder | AssetHTML>;
-	tag: Tag;
-	parent?: TagFolder;
-	controls: Node;
-	html: Node;
-	constructor(tag: Tag) {
-		const listHTML = createHTML("ul"),
-		      i = tag.name.lastIndexOf("/") + 1;
-		this.list = SortHTML<TagFolder | AssetHTML>(listHTML, sortFn);
-		this.controls = createHTML("span");
-		this.html = createHTML("li", [
-			createHTML("span", tag.name.slice(i)),
-			this.controls,
-			listHTML
-		]);
-		this.tag = tag;
-		if (tag.id !== -1) {
-			tags.set(this.tag.id, this);
+	addAsset(id: Int, name: string) {
+		if (!this.getAsset(name)) {
+			this.assets.push(new Asset(this.root, this, id, name));
 		}
 	}
-	get name() {
-		return this.tag.name;
+	getAsset(name: string) {
+		return this.assets.filter(a => a.name === name).pop();
 	}
-	setTag(tag: Tag) {
-		this.tag = tag;
-		tags.set(tag.id, this);
-		createHTML(this.controls, [
-			createHTML("span", "✍", {"class": "editTag", "onclick": () => this.rename()}),
-			createHTML("span", "⌫", {"class": "removeTag", "onclick": function() {
-			}})
-		])
-	}
-	setNoTag() {
-		tags.delete(this.tag.id);
-		this.tag.id = -1;
-		clearElement(this.controls);
-	}
-	addTag(t: TagFolder){
-	}
-	removeTag(tag: Int) {
-	}
-	addAsset(asset: Asset){
-	}
-	removeAsset(asset: Asset){
-
-	}
-	changeName(newName: string) {
-		this.tag.name = newName;
-		tags.get(this.tag.id)!.tag.name = newName;
-		(this.parent as TagFolder).removeTag(this.tag.id);
-		list.addTag(this);
-	}
-	rename() {
-		const that = this;
-		createHTML(overlay.addLayer(), {"class": "tagRename"}, [
-			createHTML("h1", `Rename Tag: ${this.tag.name}`),
-			createHTML("label", {"for": "tagRename"}, "New Name"),
-			createHTML("input", {"type": "text", "id": "tagRename", "value": this.tag.name, "onkeypress": enterKey}),
-			createHTML("button", "Rename", {"onclick": function(this: HTMLElement) {
-				const newName = (this.previousSibling as HTMLInputElement).value;
-				if (that.tag.name === newName) {
-					overlay.removeLayer();
-					return;
-				}
-				if (newName == "") {
-					showError(this, "name cannot be nothing");
-					return;
-				}
-				overlay.loading(rpc.renameTag(that.tag.id, newName)).then(name => {
-					overlay.removeLayer();
-					that.changeName(name);
-				}).catch(e => showError(this, e));
-			}})
-		]);
-	}
-}
-
-const strCompare = new Intl.Collator().compare,
-      sortFn = (a: TagAsset, b :TagAsset) => {
-	if (a instanceof AssetHTML) {
-		if (b instanceof AssetHTML) {
-			return strCompare(a.asset.name, b.asset.name);
+	removeAsset(name: string) {
+		const index = this.assets.findIndex(a => a.name === name);
+		if (index !== -1) {
+			return (this.assets.splice(index, 1).pop() as Asset).id;
 		}
 		return -1;
 	}
-	if (b instanceof AssetHTML) {
-		return 1;
-	}
-	return strCompare(a.name, b.name);
-      },
-      sortFnDate = (a: TagAsset, b: TagAsset) => {
-	if (a instanceof AssetHTML && b instanceof AssetHTML) {
-		return a.asset.id - b.asset.id;
-	}
-	return sortFn(a, b);
-      },
-      tags = new Map<Int, TagFolder>(),
-      assets = new Map<Int, AssetItem>(),
-      list = new TagRoot(),
-      cancellers = new Set<() => void>(),
-      html = [
-	createHTML("button", "Add Tag", {"onclick": () => {
-		createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-			createHTML("h1", "Add Tag"),
-			createHTML("label", {"for": "newTagName"}, "New Name"),
-			createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
-			createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
-				const name = (this.previousSibling as HTMLInputElement).value;
-				overlay.loading(rpc.addTag(name).then(tag => {
-					list.addTag(new TagFolder({id: tag, name: name, assets: []}));
-					overlay.removeLayer();
-				}, showError.bind(null, this)));
-			}})
-		])
-	}}),
-	createHTML("button", "Add", {"onclick": () => {
-		createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-			createHTML("h1", "Add Assets"),
-			createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
-				createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
-				createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, application/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
-					const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
-					overlay.loading(HTTPRequest("/assets", {
-						"data": new FormData(this.parentNode as HTMLFormElement),
-						"method": "POST",
-						"response": "JSON",
-						"onprogress": (e: ProgressEvent) => {
-							if (e.lengthComputable) {
-								bar.setAttribute("value", e.loaded.toString());
-								bar.setAttribute("max", e.total.toString());
-								bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-							}
-						}
-					}), createHTML("div", {"class": "loadBar"}, [
-						createHTML("div", "Uploading file(s)"),
-						bar
-					])).then((assets: Asset[]) => {
-						assets.forEach(list.addAsset.bind(list))
-						overlay.removeLayer();
-					}, showError.bind(null, this));
-				}})
-			])
-		]);
-	}}),
-	list.html
-      ];
-
-export default Object.freeze({
-	set rpc(r: RPC) {
-		rpc = r;
-		cancellers.forEach(fn => fn());
-		cancellers.clear();
-		[
-			rpc.waitAssetAdd().then(() => {}),
-			rpc.waitAssetChange().then(() => {}),
-			rpc.waitAssetRemove().then(() => {}),
-			rpc.waitTagAdd().then(() => {}),
-			rpc.waitTagChange().then(() => {}),
-			rpc.waitTagRemove().then(() => {})
-		].forEach(s => cancellers.add(s.cancel.bind(s)));
-		if (!p) {
-			p = Promise.all([
-				rpc.getTags(),
-				rpc.getAssets()
-			]).then(([tags, assets]) => {
-				Object.values(tags).forEach(t => list.addTag(new TagFolder(t)));
-				Object.values(assets).forEach(a => list.addAsset(a));
-			});
+	addFolder(name: string) {
+		if (name === "") {
+			return this;
 		}
-	},
-	set overlay(o: LayerType) {
-		overlay = o;
-	},
-	set base(b: Node) {
-		createHTML(b, {"id": "assets"}, html);
+		const existing = this.getFolder(name);
+		if (existing) {
+			return existing;
+		}
+		const f = new AssetFolder(this, name, {}, {});
+		this.folders.push(f);
+		return f;
 	}
-});
+	getFolder(name: string) {
+		return this.folders.filter(f => f.name === name).pop();
+	}
+	removeFolder(name: string) {
+		const index = this.folders.findIndex(f => f.name === name);
+		if (index !== -1) {
+			return this.folders.splice(index, 1).pop();
+		}
+	}
+	getPath() {
+		const breadcrumbs = [];
+		for (let f: AssetFolder = this; f; f = f.parent) breadcrumbs.push(f.name);
+		return breadcrumbs.reverse().join("/");
+	}
+}
 
+
+class Root extends AssetFolder {
+	fileType: String
+	overlay: LayerType;
+	rpcFuncs: AssetRPC;
+	constructor (rootFolder: Folder, fileType: string, rpcFuncs: AssetRPC, overlay: LayerType) {
+		super({} as AssetFolder, "", rootFolder.folders, rootFolder.assets); // Deliberate Type hack
+		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
+		this.root = this;
+		this.fileType = fileType;
+		this.html = createHTML("div", [
+			this.folders.html,
+			this.assets.html
+		]);
+		this.overlay = overlay;
+		this.rpcFuncs = rpcFuncs;
+	}
+	resolvePath(path: string): [AssetFolder | undefined, string] {
+		const breadcrumbs = path.split("/"),
+		      sub: string | undefined  = breadcrumbs.pop();
+		let folder: AssetFolder | undefined = this;
+		breadcrumbs.every(f => folder = (folder as AssetFolder).getFolder(f));
+		return [folder, sub || ""];
+	}
+	addAsset(id: Int, path: string) {
+		const li = path.lastIndexOf("/");
+		if (li < 0) {
+			super.addAsset(id, path);
+		} else {
+			this.addFolder(path.slice(0, li)).addAsset(id, path.slice(li+1));
+		}
+	}
+	getAsset(path: string) {
+		const [folder, name] = this.resolvePath(path);
+		if (folder === this) {
+			return super.getAsset(name);
+		} else if (folder) {
+			return folder.getAsset(name);
+		}
+		return undefined;
+	}
+	moveAsset(from: string, to: string) {
+		this.addAsset(this.removeAsset(from), to);
+	}
+	removeAsset(path: string) {
+		const [folder, name] = this.resolvePath(path);
+		if (folder === this) {
+			super.removeAsset(name);
+		} else if (folder) {
+			return folder.removeAsset(name);
+		}
+		return -1;
+	}
+	addFolder(path: string) {
+		const parts = path.split("/");
+		let f = super.addFolder(parts.shift() as string);
+		parts.forEach(p => {f = f.addFolder(p)});
+		return f;
+	}
+	moveFolder(from: string, to: string) {
+		const f = this.removeFolder(from);
+		if (f) {
+			const t = this.addFolder(to);
+			f.folders.forEach(f => t.folders.push(f));
+			f.assets.forEach(a => t.assets.push(a));
+			return f;
+		}
+	}
+	removeFolder(path: string) {
+		const [folder, name] = this.resolvePath(path);
+		if (folder === this) {
+			super.removeFolder(name);
+		} else if (folder) {
+			return folder.removeFolder(name);
+		}
+	}
+}
+
+export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: string) {
+	const rpcFuncs = fileType == "audio" ? rpc["audio"] : rpc["images"];
+	rpcFuncs.getAssets().then(rootFolder => {
+		const root = new Root(rootFolder, fileType, rpcFuncs, overlay);
+		rpcFuncs.waitAssetAdded().then(assets => assets.forEach(({id, name}) => root.addAsset(id, name)));
+		rpcFuncs.waitAssetMoved().then(({from, to}) => root.moveAsset(from, to));
+		rpcFuncs.waitAssetRemoved().then(asset => root.removeAsset(asset));
+		rpcFuncs.waitAssetLinked().then(({id, name}) => root.addAsset(id, name));
+		rpcFuncs.waitFolderAdded().then(folder => root.addFolder(folder));
+		rpcFuncs.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
+		rpcFuncs.waitFolderRemoved().then(folder => root.removeFolder(folder));
+		createHTML(clearElement(base), {"id": fileType + "Assets"}, [
+			createHTML("button", "Add Tag", {"onclick": () => {
+				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+					createHTML("h1", "Add Tag"),
+					createHTML("label", {"for": "newTagName"}, "New Name"),
+					createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
+					createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
+						const name = (this.previousSibling as HTMLInputElement).value;
+						overlay.loading(rpcFuncs.createFolder(name).then(name => {
+							root.addFolder(name);
+							overlay.removeLayer();
+						}, showError.bind(null, this)));
+					}})
+				])
+			}}),
+			createHTML("button", "Add", {"onclick": () => {
+				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+					createHTML("h1", "Add Assets"),
+					createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
+						createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
+						createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
+							const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
+							overlay.loading(HTTPRequest("/assets", {
+								"data": new FormData(this.parentNode as HTMLFormElement),
+								"method": "POST",
+								"response": "JSON",
+								"onprogress": (e: ProgressEvent) => {
+									if (e.lengthComputable) {
+										bar.setAttribute("value", e.loaded.toString());
+										bar.setAttribute("max", e.total.toString());
+										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+									}
+								}
+							}), createHTML("div", {"class": "loadBar"}, [
+								createHTML("div", "Uploading file(s)"),
+								bar
+							])).then((assets: IDName[]) => {
+								assets.forEach(({id, name}) => root.addAsset(id, name))
+								overlay.removeLayer();
+							}, showError.bind(null, this));
+						}})
+					])
+				]);
+			}}),
+			root.html
+		]);
+	});
+};
