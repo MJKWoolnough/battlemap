@@ -44,7 +44,7 @@ class AssetFolder {
 			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
 				createHTML("h1", "Add Folder"),
 				createHTML("label", "Location"),
-				createHTML("span", self.getPath() || "[root]"),
+				createHTML("span", self.getPath() || "/"),
 				createHTML("br"),
 				createHTML("label", {"for": "folderName"}, "Folder Name"),
 				createHTML("input", {"id": "folderName", "onkeypress": enterKey}),
