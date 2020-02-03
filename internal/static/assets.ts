@@ -100,10 +100,7 @@ class Root extends AssetFolder {
 		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
 		this.root = this;
 		this.fileType = fileType;
-		this.html = createHTML("div", [
-			this.folders.html,
-			this.assets.html
-		]);
+		this.html = createHTML("div", Array.from(this.html.childNodes));
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
 	}
@@ -180,21 +177,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: str
 		rpcFuncs.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => root.removeFolder(folder));
 		createHTML(clearElement(base), {"id": fileType + "Assets"}, [
-			createHTML("button", "Add Tag", {"onclick": () => {
-				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-					createHTML("h1", "Add Tag"),
-					createHTML("label", {"for": "newTagName"}, "New Name"),
-					createHTML("input", {"id": "newTagName", "onkeypress": enterKey}),
-					createHTML("button", "Add Tag", {"onclick": function(this: HTMLElement) {
-						const name = (this.previousSibling as HTMLInputElement).value;
-						overlay.loading(rpcFuncs.createFolder(name).then(name => {
-							root.addFolder(name);
-							overlay.removeLayer();
-						}, showError.bind(null, this)));
-					}})
-				])
-			}}),
-			createHTML("button", "Add", {"onclick": () => {
+			createHTML("button", "Upload Asset(s)", {"onclick": () => {
 				createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
 					createHTML("h1", "Add Assets"),
 					createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
