@@ -7,7 +7,9 @@ import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
 const sortStrings = new Intl.Collator().compare,
       stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => sortStrings(a.name, b.name),
-      idSorter = (a: Asset, b: Asset) => a.id - b.id;
+      idSorter = (a: Asset, b: Asset) => b.id - a.id;
+
+let folderID = 0;
 
 class Asset {
 	parent: AssetFolder;
@@ -40,7 +42,8 @@ class AssetFolder {
 		this.assets = SortHTML(createHTML("ul"), stringSorter);
 		const self = this;
 		this.html = createHTML("li", [
-			name,
+			createHTML("input", {"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
+			createHTML("label", {"for": `folder_${folderID++}`}, name),
 			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
 				createHTML("h1", "Add Folder"),
 				createHTML("label", "Location"),
@@ -116,10 +119,14 @@ class Root extends AssetFolder {
 	overlay: LayerType;
 	rpcFuncs: AssetRPC;
 	constructor (rootFolder: Folder, fileType: string, rpcFuncs: AssetRPC, overlay: LayerType) {
-		super({} as AssetFolder, "", rootFolder.folders, rootFolder.assets); // Deliberate Type hack
+		super({} as AssetFolder, fileType, rootFolder.folders, rootFolder.assets); // Deliberate Type hack
 		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
+		this.assets.sort(idSorter);
 		this.fileType = fileType;
-		this.html = createHTML("div", Array.from(this.html.childNodes));
+		this.html = createHTML("div", [
+			fileType,
+			Array.from(this.html.childNodes).slice(-2)
+		]);
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
 	}
@@ -188,7 +195,7 @@ class Root extends AssetFolder {
 }
 
 export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: string) {
-	const rpcFuncs = fileType == "audio" ? rpc["audio"] : rpc["images"];
+	const rpcFuncs = fileType == "Audio" ? rpc["audio"] : rpc["images"];
 	rpcFuncs.getAssets().then(rootFolder => {
 		const root = new Root(rootFolder, fileType, rpcFuncs, overlay);
 		rpcFuncs.waitAssetAdded().then(assets => assets.forEach(({id, name}) => root.addAsset(id, name)));

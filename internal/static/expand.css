@@ -1,0 +1,19 @@
+.expander {
+	display: none;
+}
+
+.expander + label {
+	user-select: none;
+}
+
+.expander:not(:checked) + label ~ ul {
+	display: none;
+}
+
+.expander + label:before {
+	content: "🗀"
+}
+
+.expander:checked + label:before {
+	content: "🗁";
+}
