@@ -23,6 +23,13 @@ type folder struct {
 	Assets  map[string]uint64  `json:"assets"`
 }
 
+func newFolder() *folder {
+	return &folder{
+		Folders: make(map[string]*folder),
+		Assets:  make(map[string]uint64),
+	}
+}
+
 func (f *folder) WriteTo(w io.Writer) (int64, error) {
 	lw := byteio.StickyLittleEndianWriter{Writer: w}
 	f.WriteToX(&lw)
@@ -52,7 +59,7 @@ func (f *folder) ReadFromX(lr *byteio.StickyLittleEndianReader) {
 	fl := lr.ReadUint64()
 	f.Folders = make(map[string]*folder, fl)
 	for i := uint64(0); i < fl; i++ {
-		fd := new(folder)
+		fd := newFolder()
 		name := lr.ReadStringX()
 		fd.ReadFromX(lr)
 		f.Folders[name] = fd
@@ -102,7 +109,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	if err != nil {
 		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
-	a.assetFolders = new(folder)
+	a.assetFolders = newFolder()
 	err = a.assetStore.Get(assetsMetadata, a.assetFolders)
 	if err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)

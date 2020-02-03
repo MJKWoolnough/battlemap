@@ -47,7 +47,7 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	if parent == nil || name == "" {
 		return "", ErrFolderNotFound
 	}
-	newName := addFolderTo(parent.Folders, name, new(folder))
+	newName := addFolderTo(parent.Folders, name, newFolder())
 	a.saveFolders()
 	dir = dir[:len(dir)-len(name)] + newName
 	a.socket.BroadcastFolderAdd(a.fileType, dir, cd.ID)
