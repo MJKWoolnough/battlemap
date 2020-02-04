@@ -13,16 +13,14 @@ let folderID = 0;
 
 class Asset {
 	parent: AssetFolder;
-	folder: AssetFolder;
 	id: Int;
 	name: string
 	html: Node;
-	constructor(parent: AssetFolder, folder: AssetFolder, id: Int, name: string) {
+	constructor(parent: AssetFolder, id: Int, name: string) {
 		this.id = id;
 		this.name = name;
 		this.html = createHTML("li", name);
 		this.parent = parent;
-		this.folder = folder;
 	}
 	get root() {
 		return this.parent.root;
@@ -110,14 +108,14 @@ class AssetFolder {
 			this.assets.html
 		]);
 		Object.entries(folders).forEach(([name, f]) => this.folders.push(new AssetFolder(this, name, f.folders, f.assets)));
-		Object.entries(assets).forEach(([name, aid]) => this.assets.push(new Asset(this, this, aid, name)));
+		Object.entries(assets).forEach(([name, aid]) => this.assets.push(new Asset(this, aid, name)));
 	}
 	get root(): Root {
 		return this.parent.root;
 	}
 	addAsset(id: Int, name: string) {
 		if (!this.getAsset(name)) {
-			this.assets.push(new Asset(this.root, this, id, name));
+			this.assets.push(new Asset(this, id, name));
 		}
 	}
 	getAsset(name: string) {
