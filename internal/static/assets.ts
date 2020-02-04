@@ -238,7 +238,7 @@ class Root extends AssetFolder {
 	}
 }
 
-export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: string) {
+export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Images" | "Audio") {
 	const rpcFuncs = fileType == "Audio" ? rpc["audio"] : rpc["images"];
 	rpcFuncs.getAssets().then(rootFolder => {
 		const root = new Root(rootFolder, fileType, rpcFuncs, overlay);
@@ -256,7 +256,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: str
 					createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
 					createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
 						const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
-						overlay.loading(HTTPRequest("/assets", {
+						overlay.loading(HTTPRequest(`/${fileType.toLowerCase()}/`, {
 							"data": new FormData(this.parentNode as HTMLFormElement),
 							"method": "POST",
 							"response": "JSON",
@@ -270,8 +270,8 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: str
 						}), createHTML("div", {"class": "loadBar"}, [
 							createHTML("div", "Uploading file(s)"),
 							bar
-						])).then((assets: IDName[]) => {
-							assets.forEach(({id, name}) => root.addAsset(id, name))
+						])).then((assets: Record<string, Int>) => {
+							Object.entries(assets).forEach(([name, id]) => root.addAsset(id, name))
 							overlay.removeLayer();
 						}, showError.bind(null, this));
 					}})
