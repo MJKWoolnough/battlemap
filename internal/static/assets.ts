@@ -7,7 +7,8 @@ import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
 const sortStrings = new Intl.Collator().compare,
       stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => sortStrings(a.name, b.name),
-      idSorter = (a: Asset, b: Asset) => b.id - a.id;
+      idSorter = (a: Asset, b: Asset) => b.id - a.id,
+      getPaths = (folder: AssetFolder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
 let folderID = 0;
 
@@ -22,7 +23,28 @@ class Asset {
 		const self = this;
 		this.html = createHTML("li", [
 			createHTML("span", name),
-			createHTML("span", "~"),
+			createHTML("span", "~", {"onclick": () => {
+				const root = self.root,
+				      overlay = root.overlay,
+				      parentPath = self.parent.getPath() + "/",
+				      paths: HTMLOptionElement[] = [],
+				      parents = createHTML("select", {"id": "folderName"}, getPaths(self.root, "/").map(p => createHTML("option", p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+				      newName = createHTML("input", {"type": "text", "value": self.name});
+				return createHTML(root.overlay.addLayer(), {"class": "renameFolder"}, [
+					createHTML("h1", "Move Folder"),
+					createHTML("div", `Old Location: ${parentPath}${self.name}`),
+					createHTML("label", {"for": "folderName"}, "New Location: "),
+					parents,
+					newName,
+					createHTML("br"),
+					createHTML("button", "Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveAsset(parentPath + self.name, parents.value + newName.value)).then(newPath => {
+						root.moveAsset(parentPath + self.name, newPath);
+						overlay.removeLayer();
+					}).catch(e => showError(newName, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
+				])
+
+			}}),
 			createHTML("span", "-", {"onclick": () => {
 				const root = self.parent.root,
 				      overlay = root.overlay,
@@ -68,14 +90,7 @@ class AssetFolder {
 				      oldPath = self.getPath() + "/",
 				      parentPath = self.parent.getPath() + "/",
 				      paths: HTMLOptionElement[] = [],
-				      addPaths = (folder: AssetFolder, breadcrumb: string) => {
-					if (breadcrumb === oldPath) {
-						return;
-					}
-					paths.push(createHTML("option", Object.assign({"value": breadcrumb}, parentPath === breadcrumb ? {"selected": "selected"} : {}), breadcrumb));
-					folder.folders.forEach(p => addPaths(p, breadcrumb + p.name + "/"));
-				      },
-				      parents = createHTML("select", {"id": "folderName"}, (addPaths(self.root, "/"), paths)),
+				      parents = createHTML("select", {"id": "folderName"}, getPaths(self.root, "/").filter(p => !p.startsWith(oldPath)).map(p => createHTML("option", p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
 				      newName = createHTML("input", {"type": "text", "value": self.name});
 				return createHTML(root.overlay.addLayer(), {"class": "renameFolder"}, [
 					createHTML("h1", "Move Folder"),
@@ -205,11 +220,11 @@ class Root extends AssetFolder {
 		return [folder, sub || ""];
 	}
 	addAsset(id: Int, path: string) {
-		const li = path.lastIndexOf("/");
-		if (li < 0) {
-			super.addAsset(id, path);
-		} else {
-			this.addFolder(path.slice(0, li)).addAsset(id, path.slice(li+1));
+		const [folder, name] = this.resolvePath(path);
+		if (folder === this) {
+			super.addAsset(id, name);
+		} else if (folder) {
+			folder.addAsset(id, name);
 		}
 	}
 	getAsset(path: string) {
@@ -227,7 +242,7 @@ class Root extends AssetFolder {
 	removeAsset(path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder === this) {
-			super.removeAsset(name);
+			return super.removeAsset(name);
 		} else if (folder) {
 			return folder.removeAsset(name);
 		}
