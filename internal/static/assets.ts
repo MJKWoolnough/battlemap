@@ -22,7 +22,18 @@ class Asset {
 		this.name = name;
 		const self = this;
 		this.html = createHTML("li", [
-			createHTML("span", name),
+			createHTML("span", name, {"class": "asset", "onclick": () => {
+				const root = self.root,
+				      overlay = root.overlay;
+				return createHTML(root.overlay.addLayer(), {"class": "showAsset"}, [
+					createHTML("h1", self.name),
+					root.fileType === "Images" ? [
+						createHTML("img", {"src": `/images/${self.id}`})
+					] : [
+						createHTML("audio", {"src": `/audio/${self.id}`})
+					]
+				]);
+			}}),
 			createHTML("span", "~", {"class": "assetRename", "onclick": () => {
 				const root = self.root,
 				      overlay = root.overlay,
