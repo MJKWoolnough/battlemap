@@ -146,6 +146,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		a.assetStore.Set(assetsMetadata, a.assetFolders)
 	}
 	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
+	a.handler = http.FileServer(http.Dir(l))
 	return nil
 }
 
