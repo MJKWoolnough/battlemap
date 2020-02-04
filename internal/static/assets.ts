@@ -23,14 +23,14 @@ class Asset {
 		const self = this;
 		this.html = createHTML("li", [
 			createHTML("span", name),
-			createHTML("span", "~", {"onclick": () => {
+			createHTML("span", "~", {"class": "assetRename", "onclick": () => {
 				const root = self.root,
 				      overlay = root.overlay,
 				      parentPath = self.parent.getPath() + "/",
 				      paths: HTMLOptionElement[] = [],
 				      parents = createHTML("select", {"id": "folderName"}, getPaths(self.root, "/").map(p => createHTML("option", p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
 				      newName = createHTML("input", {"type": "text", "value": self.name});
-				return createHTML(root.overlay.addLayer(), {"class": "renameFolder"}, [
+				return createHTML(root.overlay.addLayer(), {"class": "renameAsset"}, [
 					createHTML("h1", "Move Folder"),
 					createHTML("div", `Old Location: ${parentPath}${self.name}`),
 					createHTML("label", {"for": "folderName"}, "New Location: "),
@@ -45,12 +45,34 @@ class Asset {
 				])
 
 			}}),
-			createHTML("span", "-", {"onclick": () => {
+			createHTML("span", "+", {"class": "assetLink", "onclick": () => {
+				const root = self.root,
+				      overlay = root.overlay,
+				      parentPath = self.parent.getPath() + "/",
+				      paths: HTMLOptionElement[] = [],
+				      parents = createHTML("select", {"id": "folderName"}, getPaths(self.root, "/").map(p => createHTML("option", p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+				      newName = createHTML("input", {"type": "text", "value": self.name});
+				return createHTML(root.overlay.addLayer(), {"class": "linkAsset"}, [
+					createHTML("h1", "Add Link"),
+					createHTML("div", `Current Location: ${parentPath}${self.name}`),
+					createHTML("label", {"for": "folderName"}, "New Link: "),
+					parents,
+					newName,
+					createHTML("br"),
+					createHTML("button", "Link", {"onclick": () => overlay.loading(root.rpcFuncs.linkAsset(self.id, parents.value + newName.value)).then(newPath => {
+						root.addAsset(self.id, newPath);
+						overlay.removeLayer();
+					}).catch(e => showError(newName, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
+				])
+
+			}}),
+			createHTML("span", "-", {"class": "assetRemove", "onclick": () => {
 				const root = self.parent.root,
 				      overlay = root.overlay,
 				      path = self.parent.getPath() + "/" + self.name,
 				      pathDiv = createHTML("div", path);
-				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
+				return createHTML(overlay.addLayer(), {"class": "removeAsset"}, [
 					createHTML("h1", "Remove Asset"),
 					createHTML("div", "Remove the following asset?"),
 					pathDiv,
