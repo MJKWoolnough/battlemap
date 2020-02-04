@@ -51,11 +51,11 @@ class AssetFolder {
 				createHTML("br"),
 				createHTML("button", "Add Folder", {"onclick": function(this: HTMLButtonElement) {
 					const path = self.getPath() + "/",
-					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement).value
-					self.root.overlay.loading(self.root.rpcFuncs.createFolder(path + name)).then(folder => {
+					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement);
+					self.root.overlay.loading(self.root.rpcFuncs.createFolder(path + name.value)).then(folder => {
 						self.root.addFolder(folder);
 						self.root.overlay.removeLayer();
-					});
+					}).catch(e => showError(name, e));
 				}})
 			])}),
 			this.folders.html,
