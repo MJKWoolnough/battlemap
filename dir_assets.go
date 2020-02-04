@@ -173,7 +173,7 @@ func addFolderTo(folders map[string]*folder, name string, f *folder) string {
 		folders[name] = f
 		return name
 	}
-	n := make([]byte, len(name), len(name)+32)
+	n := make([]byte, len(name)+32)
 	m := n[len(name)+1 : len(name)+1]
 	copy(n, name)
 	n[len(name)] = '.'
