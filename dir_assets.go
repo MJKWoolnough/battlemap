@@ -154,7 +154,7 @@ func addAssetTo(assets map[string]uint64, name string, id uint64) string {
 		assets[name] = id
 		return name
 	}
-	n := make([]byte, len(name), len(name)+32)
+	n := make([]byte, len(name)+32)
 	m := n[len(name)+1 : len(name)+1]
 	copy(n, name)
 	n[len(name)] = '.'
