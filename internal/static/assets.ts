@@ -223,8 +223,14 @@ class Root extends AssetFolder {
 		const f = this.removeFolder(from);
 		if (f) {
 			const t = this.addFolder(to);
-			f.folders.forEach(f => t.folders.push(f));
-			f.assets.forEach(a => t.assets.push(a));
+			f.folders.forEach(f => {
+				f.parent = t;
+				t.folders.push(f);
+			});
+			f.assets.forEach(a => {
+				a.parent = t;
+				t.assets.push(a)
+			});
 			return f;
 		}
 	}
