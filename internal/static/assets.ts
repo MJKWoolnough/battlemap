@@ -19,7 +19,27 @@ class Asset {
 	constructor(parent: AssetFolder, id: Int, name: string) {
 		this.id = id;
 		this.name = name;
-		this.html = createHTML("li", name);
+		const self = this;
+		this.html = createHTML("li", [
+			createHTML("span", name),
+			createHTML("span", "~"),
+			createHTML("span", "-", {"onclick": () => {
+				const root = self.parent.root,
+				      overlay = root.overlay,
+				      path = self.parent.getPath() + "/" + self.name,
+				      pathDiv = createHTML("div", path);
+				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
+					createHTML("h1", "Remove Asset"),
+					createHTML("div", "Remove the following asset?"),
+					pathDiv,
+					createHTML("button", "Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeAsset(path)).then(() => {
+						root.removeAsset(path);
+						overlay.removeLayer();
+					}).catch(e => showError(pathDiv, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
+				]);
+			}})
+		]);
 		this.parent = parent;
 	}
 	get root() {
