@@ -44,6 +44,35 @@ class AssetFolder {
 		this.html = createHTML("li", [
 			createHTML("input", {"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			createHTML("label", {"for": `folder_${folderID++}`}, name),
+			createHTML("span", "~", {"class": "renameFolder", "onclick": () => {
+				const root = self.root,
+				      oldPath = self.getPath() + "/",
+				      parentPath = self.parent.getPath() + "/",
+				      paths: HTMLOptionElement[] = [],
+				      addPaths = (folder: AssetFolder, breadcrumb: string) => {
+					if (breadcrumb === oldPath) {
+						return;
+					}
+					paths.push(createHTML("option", Object.assign({"value": breadcrumb}, parentPath === breadcrumb ? {"selected": "selected"} : {}), breadcrumb));
+					folder.folders.forEach(p => addPaths(p, breadcrumb + p.name + "/"));
+				      },
+				      parents = createHTML("select", {"id": "folderName"}, (addPaths(self.root, "/"), paths)),
+				      newName = createHTML("input", {"type": "text", "value": self.name});
+				return createHTML(root.overlay.addLayer(), {"class": "renameFolder"}, [
+					createHTML("h1", "Move Folder"),
+					createHTML("div", `Old Location: ${oldPath.slice(0, -1)}`),
+					createHTML("label", {"for": "folderName"}, "New Location: "),
+					parents,
+					newName,
+					createHTML("br"),
+					createHTML("button", "Move", {"onclick": function(this: HTMLButtonElement) {
+						root.overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + newName.value)).then(newPath => {
+							root.moveFolder(oldPath.slice(0, -1), newPath);
+							root.overlay.removeLayer();
+						}).catch(e => showError(newName, e));
+					}})
+				])
+			}}),
 			createHTML("span", "-", {"class": "removeFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderRemove"}, [
 				createHTML("h1", "Remove Folder"),
 				createHTML("div", "Remove the following folder? NB: This will remove all folders and assets it contains."),
