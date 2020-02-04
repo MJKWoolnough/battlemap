@@ -87,10 +87,12 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	a.assetMu.Lock()
 	a.saveFolders()
 	a.assetMu.Unlock()
-	w.Header().Set(contentType, "text/plain")
-	for _, id := range added {
-		fmt.Fprintf(w, "%d:%s\n", id.ID, id.Name)
+	w.Header().Set(contentType, "application/json")
+	fmt.Fprintf(w, "{%q:%d", added[0].Name, added[0].ID)
+	for _, id := range added[1:] {
+		fmt.Fprintf(w, ",%q:%d", id.Name, id.ID)
 	}
+	fmt.Fprint(w, "}")
 	a.socket.BroadcastAssetsAdd(a.fileType, added, SocketIDFromRequest(r))
 	return true
 }
