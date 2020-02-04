@@ -285,7 +285,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Im
 						overlay.loading(HTTPRequest(`/${fileType.toLowerCase()}/`, {
 							"data": new FormData(this.parentNode as HTMLFormElement),
 							"method": "POST",
-							"response": "JSON",
+							"response": "json",
 							"onprogress": (e: ProgressEvent) => {
 								if (e.lengthComputable) {
 									bar.setAttribute("value", e.loaded.toString());
