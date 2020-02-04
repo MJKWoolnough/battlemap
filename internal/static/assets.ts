@@ -46,6 +46,7 @@ class AssetFolder {
 			createHTML("label", {"for": `folder_${folderID++}`}, name),
 			createHTML("span", "~", {"class": "renameFolder", "onclick": () => {
 				const root = self.root,
+				      overlay = root.overlay,
 				      oldPath = self.getPath() + "/",
 				      parentPath = self.parent.getPath() + "/",
 				      paths: HTMLOptionElement[] = [],
@@ -65,43 +66,46 @@ class AssetFolder {
 					parents,
 					newName,
 					createHTML("br"),
-					createHTML("button", "Move", {"onclick": function(this: HTMLButtonElement) {
-						root.overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + newName.value)).then(newPath => {
-							root.moveFolder(oldPath.slice(0, -1), newPath);
-							root.overlay.removeLayer();
-						}).catch(e => showError(newName, e));
-					}})
+					createHTML("button", "Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + newName.value)).then(newPath => {
+						root.moveFolder(oldPath.slice(0, -1), newPath);
+						overlay.removeLayer();
+					}).catch(e => showError(newName, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
 				])
 			}}),
-			createHTML("span", "-", {"class": "removeFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderRemove"}, [
-				createHTML("h1", "Remove Folder"),
-				createHTML("div", "Remove the following folder? NB: This will remove all folders and assets it contains."),
-				createHTML("div", self.getPath()),
-				createHTML("button", "Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
-					const root = self.root,
-					      path = self.getPath();
-					root.overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
+			createHTML("span", "-", {"class": "removeFolder", "onclick": () => {
+				const root = self.root,
+				      overlay = root.overlay,
+				      path = self.getPath(),
+				      pathDiv = createHTML("div", path);
+				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
+					createHTML("h1", "Remove Folder"),
+					createHTML("div", "Remove the following folder? NB: This will remove all folders and assets it contains."),
+					pathDiv,
+					createHTML("button", "Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
 						root.removeFolder(path);
-						root.overlay.removeLayer();
-					}).catch(e => showError((this.previousElementSibling as HTMLElement), e))
-				}}),
-				createHTML("button", "No", {"onclick": () => self.root.overlay.removeLayer()})
-			])}),
-			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
-				createHTML("h1", "Add Folder"),
-				createHTML("label", {"for": "folderName"}, `Folder Name: ${self.getPath() + "/"}`),
-				createHTML("input", {"id": "folderName", "onkeypress": enterKey}),
-				createHTML("br"),
-				createHTML("button", "Add Folder", {"onclick": function(this: HTMLButtonElement) {
-					const path = self.getPath() + "/",
-					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement),
-					      root = self.root;
-					root.overlay.loading(root.rpcFuncs.createFolder(path + name.value)).then(folder => {
+						overlay.removeLayer();
+					}).catch(e => showError(pathDiv, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
+				]);
+			}}),
+			createHTML("span", "+", {"class": "addFolder", "onclick": () => {
+				const root = self.root,
+				      overlay = root.overlay,
+				      path = self.getPath(),
+				      folderName = createHTML("input", {"id": "folderName", "onkeypress": enterKey});
+				return createHTML(overlay.addLayer(), {"class": "folderAdd"}, [
+					createHTML("h1", "Add Folder"),
+					createHTML("label", {"for": "folderName"}, `Folder Name: ${path + "/"}`),
+					folderName,
+					createHTML("br"),
+					createHTML("button", "Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + folderName.value)).then(folder => {
 						root.addFolder(folder);
-						root.overlay.removeLayer();
-					}).catch(e => showError(name, e));
-				}})
-			])}),
+						overlay.removeLayer();
+					}).catch(e => showError(folderName, e))}),
+					createHTML("button", "Cancel", {"onclick": overlay.removeLayer})
+				]);
+			}}),
 			this.folders.html,
 			this.assets.html
 		]);
