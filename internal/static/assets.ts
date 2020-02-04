@@ -44,6 +44,20 @@ class AssetFolder {
 		this.html = createHTML("li", [
 			createHTML("input", {"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			createHTML("label", {"for": `folder_${folderID++}`}, name),
+			createHTML("span", "-", {"class": "removeFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderRemove"}, [
+				createHTML("h1", "Remove Folder"),
+				createHTML("div", "Remove the following folder? NB: This will remove all folders and assets it contains."),
+				createHTML("div", self.getPath()),
+				createHTML("button", "Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+					const root = self.root,
+					      path = self.getPath();
+					root.overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
+						root.removeFolder(path);
+						root.overlay.removeLayer();
+					}).catch(e => showError((this.previousElementSibling as HTMLElement), e))
+				}}),
+				createHTML("button", "No", {"onclick": () => self.root.overlay.removeLayer()})
+			])}),
 			createHTML("span", "+", {"class": "addFolder", "onclick": () => createHTML(self.root.overlay.addLayer(), {"class": "folderAdd"}, [
 				createHTML("h1", "Add Folder"),
 				createHTML("label", {"for": "folderName"}, `Folder Name: ${self.getPath() + "/"}`),
@@ -51,10 +65,11 @@ class AssetFolder {
 				createHTML("br"),
 				createHTML("button", "Add Folder", {"onclick": function(this: HTMLButtonElement) {
 					const path = self.getPath() + "/",
-					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement);
-					self.root.overlay.loading(self.root.rpcFuncs.createFolder(path + name.value)).then(folder => {
-						self.root.addFolder(folder);
-						self.root.overlay.removeLayer();
+					      name = ((this.previousElementSibling as HTMLElement).previousElementSibling as HTMLInputElement),
+					      root = self.root;
+					root.overlay.loading(root.rpcFuncs.createFolder(path + name.value)).then(folder => {
+						root.addFolder(folder);
+						root.overlay.removeLayer();
 					}).catch(e => showError(name, e));
 				}})
 			])}),
@@ -135,7 +150,7 @@ class Root extends AssetFolder {
 		const breadcrumbs = path.split("/"),
 		      sub: string | undefined  = breadcrumbs.pop();
 		let folder: AssetFolder | undefined = this;
-		breadcrumbs.every(f => folder = (folder as AssetFolder).getFolder(f));
+		breadcrumbs.every(f => f == "" ? true : folder = (folder as AssetFolder).getFolder(f));
 		return [folder, sub || ""];
 	}
 	addAsset(id: Int, path: string) {
