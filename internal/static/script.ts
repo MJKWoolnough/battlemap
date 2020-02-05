@@ -10,7 +10,9 @@ pageLoad.then(() => {
 	const tabs = (function() {
 		const mousemove = function(e: MouseEvent) {
 			if (e.clientX > 0) {
-				h.style.setProperty("--panel-width", (document.body.clientWidth - e.clientX) + "px");
+				const x = document.body.clientWidth - e.clientX;
+				window.localStorage.setItem("panelWidth", x.toString());
+				h.style.setProperty("--panel-width", x + "px");
 			}
 		      },
 		      mouseup = function() {
@@ -20,7 +22,7 @@ pageLoad.then(() => {
 		      c = createHTML("input", {"id": "panelHider", "type": "checkbox"}),
 		      t = createHTML("div", {"id": "tabLabels"}),
 		      p = createHTML("div", {"id": "panelContainer"}),
-		      h = createHTML("div", {"id": "panels"}, [
+		      h = createHTML("div", {"id": "panels", "style": `--panel-width: ${parseInt(window.localStorage.getItem("panelWidth") as string) || 300}px;`}, [
 			createHTML("label", {"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
 				if (!c.checked) {
 					window.addEventListener("mousemove", mousemove);
