@@ -328,7 +328,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Im
 				createHTML("h1", `Upload ${fileType}`),
 				createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
 					createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
-					createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
+					createHTML("input", {"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
 						const bar = createHTML("progress", {"style": "width: 100%"}) as HTMLElement;
 						overlay.loading(HTTPRequest(`/${fileType.toLowerCase()}/`, {
 							"data": new FormData(this.parentNode as HTMLFormElement),
