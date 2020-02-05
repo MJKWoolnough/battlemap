@@ -51,7 +51,7 @@ pageLoad.then(() => {
 			return Promise.reject("Need to be logged in");
 		}
 	}));
-}) /*.catch((e: Error) => {
+}).catch((e: Error) => {
 	console.log(e);
 	alert(e);
-});*/
+});
