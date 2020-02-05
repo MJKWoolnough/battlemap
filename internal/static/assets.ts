@@ -230,8 +230,7 @@ class Root extends AssetFolder {
 	overlay: LayerType;
 	rpcFuncs: AssetRPC;
 	constructor (rootFolder: Folder, fileType: string, rpcFuncs: AssetRPC, overlay: LayerType) {
-		super({} as AssetFolder, fileType, rootFolder.folders, rootFolder.assets); // Deliberate Type hack
-		this.parent = null as unknown as AssetFolder; // Deliberate Type hack!
+		super(null as unknown as AssetFolder, fileType, rootFolder.folders, rootFolder.assets); // Deliberate Type hack
 		this.name = "";
 		this.assets.sort(idSorter);
 		this.fileType = fileType;
