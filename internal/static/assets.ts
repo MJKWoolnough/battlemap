@@ -323,9 +323,9 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Im
 		rpcFuncs.waitFolderAdded().then(folder => root.addFolder(folder));
 		rpcFuncs.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => root.removeFolder(folder));
-		createHTML(base, {"id": fileType + "Assets"}, [
-			createHTML("button", "Upload Asset(s)", {"onclick": () => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
-				createHTML("h1", "Add Assets"),
+		createHTML(clearElement(base), {"id": fileType + "Assets"}, [
+			createHTML("button", `Upload ${fileType}`, {"onclick": () => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+				createHTML("h1", `Upload ${fileType}`),
 				createHTML("form", {"enctype": "multipart/form-data", "method": "post"}, [
 					createHTML("label", {"for": "addAssets"}, "Add Asset(s)"),
 					createHTML("input", {"accept": "image/gif, image/png, image/jpeg, image/webp, application/ogg, audio/mpeg, text/html, text/plain, application/pdf, app ication/postscript", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: Node) {
