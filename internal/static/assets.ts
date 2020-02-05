@@ -30,7 +30,7 @@ class Asset {
 					root.fileType === "Images" ? [
 						createHTML("img", {"src": `/images/${self.id}`})
 					] : [
-						createHTML("audio", {"src": `/audio/${self.id}`})
+						createHTML("audio", {"src": `/audio/${self.id}`, "controls": "controls"})
 					]
 				]);
 			}}),
