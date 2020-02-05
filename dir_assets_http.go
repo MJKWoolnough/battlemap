@@ -37,6 +37,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	m, err := r.MultipartReader()
+	defer r.Body.Close()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return true
