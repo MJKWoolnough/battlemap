@@ -76,7 +76,7 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/login/", http.StripPrefix("/login", b.auth))
 	for path, module := range map[string]Methods{
 		"/images/":     &b.images,
-		"/sounds/":     &b.sounds,
+		"/audio/":      &b.sounds,
 		"/tokens/":     &b.tokens,
 		"/characters/": &b.chars,
 		"/maps/":       &b.maps,
