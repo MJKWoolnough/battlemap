@@ -1,0 +1,142 @@
+@import url("assets.css");
+@import url("error.css");
+@import url("loader.css");
+@import url("overlay.css");
+
+html, body {
+	background-color: #fff;
+	margin: 0;
+	padding: 0;
+}
+
+#panels {
+	--panel-width: 300px;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	width: var(--panel-width);
+	border-left: 1px solid #000;
+	transition: right 1s, border-color 1s;
+}
+
+#tabs > input, #panelContainer > div {
+	display: none;
+}
+
+#tabs > input:nth-child(1):checked ~ #panelContainer > div:nth-child(1),
+#tabs > input:nth-child(2):checked ~ #panelContainer > div:nth-child(2) {
+	display: block;
+}
+
+#tabLabels {
+	padding-left: 0;
+	margin-top: -24px;
+	line-height: 24px;
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+	padding: 0 0 0 20px;
+	white-space: nowrap;
+}
+
+#tabLabels:after {
+	position: absolute;
+	content: "";
+	width: 100%;
+	bottom: 0;
+	left: 0;
+	border-bottom: 1px solid #000;
+	z-index: 1;
+	overflow: hidden;
+	text-align: center;
+	transform: translateX(-20px);
+}
+
+#tabLabels > label {
+	border: 1px solid #000;
+	display: inline-block;
+	position: relative;
+	z-index: 1;
+	margin: 0 -5px;
+	padding: 0 20px;
+	border-top-right-radius: 6px;
+	border-top-left-radius: 6px;
+	background: linear-gradient(to bottom, #ececec 50%, #d1d1d1 100%);
+	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 #fff;
+	text-shadow: 0 1px #fff;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+}
+
+#tabLabels > label:hover {
+	background : linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
+	cursor : pointer;
+}
+
+#tabLabels > label:before, #tabs > label:after {
+	position: absolute;
+	bottom: -1px;
+	width: 6px;
+	height: 6px;
+	content: " ";
+	border: 1px solid #000;
+}
+
+#tabLabels > label:before {
+	left: -7px;
+	border-bottom-right-radius: 6px;
+	border-width: 0 1px 1px 0;
+	box-shadow: 2px 2px 0 #d1d1d1;
+}
+
+#tabLabels > label:after {
+	right: -7px;
+	border-bottom-left-radius: 6px;
+	border-width: 0 0 1px 1px;
+	box-shadow: -2px 2px 0 #d1d1d1;
+}
+
+#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1),
+#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2) {
+	border-bottom-color: #fff;
+	z-index: 2;
+	background : #fff !important;
+	cursor: default !important;
+}
+
+#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1):before,
+#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2):before {
+	box-shadow: 2px 2px 0 #fff;
+}
+
+#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1):after,
+#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2):after {
+	box-shadow: -2px 2px 0 #fff;
+}
+
+#panelHider {
+	display: none;
+}
+
+#panelHider:checked ~ #panels {
+	right: calc(-1 * var(--panel-width));
+	border-color: transparent;
+}
+
+#panelHider:checked ~ #panels > #panelGrabber {
+	background-color: #000;
+}
+
+#panelGrabber {
+	background: #fff;
+	border: 2px solid #f00;
+	border-radius: 20px;
+	position: relative;
+	left: -12px;
+	display: block;
+	width: 20px;
+	height: 20px;
+	transition: background 1s;
+	z-index: 9;
+}
