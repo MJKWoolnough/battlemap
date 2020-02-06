@@ -1,6 +1,7 @@
 import RPC from './rpc.js';
 import layers from './lib/layers.js';
 import {createHTML, clearElement} from './lib/html.js';
+import {div, h2, input, label} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 
@@ -19,31 +20,31 @@ pageLoad.then(() => {
 			window.removeEventListener("mousemove", mousemove);
 			window.removeEventListener("mouseup", mouseup);
 		      },
-		      c = createHTML("input", {"id": "panelHider", "type": "checkbox"}),
-		      t = createHTML("div", {"id": "tabLabels"}),
-		      p = createHTML("div", {"id": "panelContainer"}),
-		      h = createHTML("div", {"id": "panels", "style": `--panel-width: ${parseInt(window.localStorage.getItem("panelWidth") as string) || 300}px;`}, [
-			createHTML("label", {"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
+		      c = input({"id": "panelHider", "type": "checkbox"}),
+		      t = div({"id": "tabLabels"}),
+		      p = div({"id": "panelContainer"}),
+		      h = div({"id": "panels", "style": `--panel-width: ${parseInt(window.localStorage.getItem("panelWidth") as string) || 300}px;`}, [
+			label({"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
 				if (!c.checked) {
 					window.addEventListener("mousemove", mousemove);
 					window.addEventListener("mouseup", mouseup);
 				}
 			}}),
-			createHTML("div", {"id": "tabs"}, [t, p])
+			div({"id": "tabs"}, [t, p])
 		      ]);
 		let n = 0;
 		return Object.freeze({
 			"add": (title: string, contents: Node) => {
-				(h.lastChild as Node).insertBefore(createHTML("input", Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {})), t);
-				t.appendChild(createHTML("label", {"for": `tabSelector_${n++}`}, title));
-				return p.appendChild(createHTML("div", contents));
+				(h.lastChild as Node).insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {})), t);
+				t.appendChild(label({"for": `tabSelector_${n++}`}, title));
+				return p.appendChild(div(contents));
 			},
-			get html() {return createHTML(document.createDocumentFragment(), [c , h]);}
+			get html() {return createHTML(null, [c , h]);}
 		});
 	      }()),
 	      mapLoadPipe = new Pipe(),
-	      spinner = (id: string) => createHTML("h2", {"id": id}, ["Loading…", createHTML("div", {"class": "loadSpinner"})]),
-	      overlay = layers(clearElement(document.body).appendChild(createHTML("div", {"id": "overlay"})), spinner("loading"));
+	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
+	      overlay = layers(clearElement(document.body).appendChild(div({"id": "overlay"})), spinner("loading"));
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 		if (userLevel === 1) {
 			assets(rpc, overlay, tabs.add("Images", spinner("imagesLoading")), "Images");
