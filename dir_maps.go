@@ -130,7 +130,7 @@ func (m *mapsDir) newMap(nm newMap, id ID) (uint64, error) {
 	}
 	m.maps[mid] = mp
 	m.order = append(m.order, mp)
-	m.socket.BroadcastMapChange(mp, id)
+	m.updateMapJSON()
 	m.mu.Unlock()
 	m.store.Set(strconv.FormatUint(mid, 10), mp)
 	return mid, nil
@@ -162,6 +162,7 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
 			m.store.Set(strconv.FormatUint(id, 10), mp)
 		}
 	}
+	m.updateMapJSON()
 	m.mu.Unlock()
 	if !ok {
 		return ErrUnknownMap
@@ -198,6 +199,11 @@ func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*Map, *Layer, *T
 		return false
 	})
 	return err
+}
+
+func (m *mapsDir) updateMapJSON() {
+	m.json = m.json[:]
+	json.NewEncoder(&m.json).Encode(m.order)
 }
 
 type MapIDError struct {
