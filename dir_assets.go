@@ -79,11 +79,11 @@ type assetsDir struct {
 	assetStore *keystore.FileStore
 	handler    http.Handler
 
-	assetMu      sync.RWMutex
+	mu           sync.RWMutex
 	lastAssetID  uint64
 	assetFolders *folder
-	assetLinks   map[uint64]uint64
-	assetJSON    memio.Buffer
+	links        map[uint64]uint64
+	json         memio.Buffer
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
@@ -114,7 +114,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 	if err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
-	a.assetLinks = make(map[uint64]uint64)
+	a.links = make(map[uint64]uint64)
 	a.processFolder(a.assetFolders)
 	keys := a.assetStore.Keys()
 	var gft getFileType
@@ -129,9 +129,9 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		if !strings.HasPrefix(k, "0") {
 			n, err := strconv.ParseUint(k, 10, 64)
 			if err == nil {
-				if _, ok := a.assetLinks[n]; !ok {
+				if _, ok := a.links[n]; !ok {
 					addAssetTo(a.assetFolders.Assets, k, n)
-					a.assetLinks[n] = 1
+					a.links[n] = 1
 				}
 				continue
 			}
@@ -139,13 +139,13 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		if a.assetStore.Rename(k, strconv.FormatUint(a.lastAssetID, 10)) == nil {
 			a.lastAssetID++
 			addAssetTo(a.assetFolders.Assets, k, a.lastAssetID)
-			a.assetLinks[a.lastAssetID] = 1
+			a.links[a.lastAssetID] = 1
 		}
 	}
 	if len(keys) > 0 {
 		a.assetStore.Set(assetsMetadata, a.assetFolders)
 	}
-	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
+	json.NewEncoder(&a.json).Encode(a.assetFolders)
 	a.handler = http.FileServer(http.Dir(l))
 	return nil
 }
@@ -199,8 +199,8 @@ func (a *assetsDir) processFolder(f *folder) {
 		if as > a.lastAssetID {
 			a.lastAssetID = as
 		}
-		al, _ := a.assetLinks[as]
-		a.assetLinks[as] = al + 1
+		al, _ := a.links[as]
+		a.links[as] = al + 1
 	}
 }
 
@@ -247,7 +247,7 @@ func (a *assetsDir) getFolderAsset(p string) (parent *folder, name string, asset
 }
 
 func (a *assetsDir) exists(p string) bool {
-	a.assetMu.RLock()
+	a.mu.RLock()
 	dir, file := path.Split(p)
 	folder := a.getFolder(path.Clean(dir))
 	if folder == nil {
@@ -256,14 +256,14 @@ func (a *assetsDir) exists(p string) bool {
 		return true
 	}
 	_, ok := folder.Assets[file]
-	a.assetMu.RUnlock()
+	a.mu.RUnlock()
 	return ok
 }
 
 func (a *assetsDir) saveFolders() {
 	a.assetStore.Set(assetsMetadata, a.assetFolders)
-	a.assetJSON = memio.Buffer{}
-	json.NewEncoder(&a.assetJSON).Encode(a.assetFolders)
+	a.json = memio.Buffer{}
+	json.NewEncoder(&a.json).Encode(a.assetFolders)
 }
 
 func walkFolders(f *folder, fn func(map[string]uint64)) {

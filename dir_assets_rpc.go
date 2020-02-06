@@ -30,9 +30,9 @@ func (a *assetsDir) RPCData(cd ConnData, method string, data []byte) (interface{
 }
 
 func (a *assetsDir) rpcList() json.RawMessage {
-	a.assetMu.RLock()
-	data := a.assetJSON
-	a.assetMu.RUnlock()
+	a.mu.RLock()
+	data := a.json
+	a.mu.RUnlock()
 	return json.RawMessage(data)
 }
 
@@ -41,8 +41,8 @@ func (a *assetsDir) rpcFolderCreate(cd ConnData, data []byte) (string, error) {
 	if err := json.Unmarshal(data, &dir); err != nil {
 		return "", err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	parent, name, _ := a.getParentFolder(dir)
 	if parent == nil || name == "" {
 		return "", ErrFolderNotFound
@@ -64,8 +64,8 @@ func (a *assetsDir) rpcAssetMove(cd ConnData, data []byte) (string, error) {
 	if err := json.Unmarshal(data, &assetMove); err != nil {
 		return "", err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	oldParent, oldName, aid := a.getFolderAsset(assetMove.From)
 	if oldParent == nil || aid == 0 {
 		return "", ErrAssetNotFound
@@ -96,8 +96,8 @@ func (a *assetsDir) rpcFolderMove(cd ConnData, data []byte) (string, error) {
 	if err := json.Unmarshal(data, &folderMove); err != nil {
 		return "", err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	oldParent, oldName, f := a.getParentFolder(folderMove.From)
 	if oldParent == nil || f == nil {
 		return "", ErrFolderNotFound
@@ -128,8 +128,8 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 	if err := json.Unmarshal(data, &asset); err != nil {
 		return err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	parent, oldName, aid := a.getFolderAsset(asset)
 	if parent == nil || aid == 0 {
 		return ErrAssetNotFound
@@ -142,12 +142,12 @@ func (a *assetsDir) rpcAssetDelete(cd ConnData, data []byte) error {
 }
 
 func (a *assetsDir) unlink(aid uint64) {
-	links := a.assetLinks[aid] - 1
+	links := a.links[aid] - 1
 	if links == 0 {
-		delete(a.assetLinks, aid)
+		delete(a.links, aid)
 		a.assetStore.Remove(strconv.FormatUint(aid, 10))
 	} else {
-		a.assetLinks[aid] = links
+		a.links[aid] = links
 	}
 }
 
@@ -156,8 +156,8 @@ func (a *assetsDir) rpcFolderDelete(cd ConnData, data []byte) error {
 	if err := json.Unmarshal(data, &folder); err != nil {
 		return err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
+	a.mu.Lock()
+	defer a.mu.Unlock()
 	parent, oldName, f := a.getParentFolder(folder)
 	if parent == nil || f == nil {
 		return ErrFolderNotFound
@@ -178,9 +178,9 @@ func (a *assetsDir) rpcLinkAsset(cd ConnData, data []byte) (string, error) {
 	if err := json.Unmarshal(data, &link); err != nil {
 		return "", err
 	}
-	a.assetMu.Lock()
-	defer a.assetMu.Unlock()
-	if _, ok := a.assetLinks[link.ID]; !ok {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+	if _, ok := a.links[link.ID]; !ok {
 		return "", ErrAssetNotFound
 	}
 	parent, name, _ := a.getFolderAsset(link.Name)

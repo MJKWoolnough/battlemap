@@ -64,11 +64,11 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		if gft.Type != a.fileType {
 			continue
 		}
-		a.assetMu.Lock()
+		a.mu.Lock()
 		a.lastAssetID++
 		id := a.lastAssetID
-		a.assetLinks[id] = 1
-		a.assetMu.Unlock()
+		a.links[id] = 1
+		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
 		if err = a.assetStore.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -85,9 +85,9 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		w.WriteHeader(http.StatusNoContent)
 		return true
 	}
-	a.assetMu.Lock()
+	a.mu.Lock()
 	a.saveFolders()
-	a.assetMu.Unlock()
+	a.mu.Unlock()
 	w.Header().Set(contentType, "application/json")
 	fmt.Fprintf(w, "{%q:%d", added[0].Name, added[0].ID)
 	for _, id := range added[1:] {
