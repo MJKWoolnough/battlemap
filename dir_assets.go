@@ -222,11 +222,16 @@ func (a *assetsDir) getFolder(path string) *folder {
 func (a *assetsDir) getParentFolder(p string) (parent *folder, name string, f *folder) {
 	p = path.Clean(strings.TrimRight(p, "/"))
 	lastSlash := strings.LastIndexByte(p, '/')
-	parent = a.getFolder(p[:lastSlash])
-	if parent == nil {
-		return nil, "", nil
+	if lastSlash >= 0 {
+		parent = a.getFolder(p[:lastSlash])
+		if parent == nil {
+			return nil, "", nil
+		}
+		name = p[lastSlash+1 : len(p)]
+	} else {
+		parent = a.assetFolders
+		name = p
 	}
-	name = p[lastSlash+1 : len(p)]
 	f, _ = parent.Folders[name]
 	return parent, name, f
 }
