@@ -1,8 +1,8 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"path/filepath"
 	"sort"
@@ -11,6 +11,7 @@ import (
 
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type mapsDir struct {
@@ -23,6 +24,7 @@ type mapsDir struct {
 	maps             map[uint64]*Map
 	order            Maps
 	nextID           uint64
+	json             memio.Buffer
 	handler, indexes http.Handler
 }
 
@@ -38,11 +40,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	if err != nil {
 		return errors.WithContext("error creating map store: ", err)
 	}
-	stat, err := m.store.Stat("")
-	if err != nil {
-		return errors.WithContext("error getting map directory stat: ", err)
-	}
-	t := stat.ModTime()
 	keys := m.store.Keys()
 	m.maps = make(map[uint64]*Map, len(keys))
 	m.order = make(Maps, 0, len(keys))
@@ -53,14 +50,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		}
 		if _, ok := m.maps[id]; ok {
 			continue
-		}
-		stat, err = m.store.Stat(key)
-		if err != nil {
-			return errors.WithContext("error getting map stat: ", err)
-		}
-		mt := stat.ModTime()
-		if t.Before(mt) {
-			t = mt
 		}
 		mp := new(Map)
 		if err = m.store.Get(key, mp); err != nil {
@@ -73,27 +62,10 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		m.order = append(m.order, mp)
 	}
 	sort.Sort(m.order)
-	genPages(t, m.order, mapsTemplate, "index", "maps", "map", &m.indexes)
+	json.NewEncoder(&m.json).Encode(m.order)
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
 }
-
-var mapsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
-<html>
-	<head>
-		<title>Maps</title>
-	</head>
-	<body>
-		<table>
-			<thead>
-				<tr><th>ID</th><th>Name</th></tr>
-			</thead>
-			<tbody>
-{{range .}}				<tr><td>{{.ID}}</td><td>{{.Name}}</td></tr>
-{{end}}			</tbody>
-		</table>
-	</body>
-</html>`))
 
 type newMap struct {
 	Width         uint64 `json:"width" xml:"width,attr"`
