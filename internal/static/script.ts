@@ -4,6 +4,7 @@ import {createHTML, clearElement} from './lib/html.js';
 import {div, h2, input, label} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
+import mapList from './mapList.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -49,6 +50,7 @@ pageLoad.then(() => {
 		if (userLevel === 1) {
 			assets(rpc, overlay, tabs.add("Images", spinner("imagesLoading")), "Images");
 			assets(rpc, overlay, tabs.add("Audio", spinner("audioLoading")), "Audio");
+			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")));
 			document.body.appendChild(tabs.html);
 		} else {
 			return Promise.reject("Need to be logged in");
