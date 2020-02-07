@@ -25,7 +25,8 @@ html, body {
 }
 
 #tabs > input:nth-child(1):checked ~ #panelContainer > div:nth-child(1),
-#tabs > input:nth-child(2):checked ~ #panelContainer > div:nth-child(2) {
+#tabs > input:nth-child(2):checked ~ #panelContainer > div:nth-child(2),
+#tabs > input:nth-child(3):checked ~ #panelContainer > div:nth-child(3) {
 	display: block;
 }
 
