@@ -305,7 +305,7 @@ class Root extends AssetFolder {
 	removeFolder(path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder === this) {
-			super.removeFolder(name);
+			return super.removeFolder(name);
 		} else if (folder) {
 			return folder.removeFolder(name);
 		}
