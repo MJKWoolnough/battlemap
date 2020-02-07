@@ -125,12 +125,12 @@ export type Colour = {
 };
 
 export type NewMap = {
-	width:         Int;
-	height:        Int;
-	squaresWidth:  Int;
-	squaresColour: Colour;
-	squaresStroke: Int;
-	name:          string;
+	width:  Int;
+	height: Int;
+	square: Int;
+	colour: Colour;
+	stroke: Int;
+	name:   string;
 };
 
 export type Token = {
