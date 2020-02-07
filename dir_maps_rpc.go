@@ -16,7 +16,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		j := m.json
 		m.mu.RUnlock()
 		return json.RawMessage(j), nil
-	case "setCurrentUserMap":
+	case "setUserMap":
 		var userMap keystore.Uint64
 		if err := json.Unmarshal(data, &userMap); err != nil {
 			return nil, err
