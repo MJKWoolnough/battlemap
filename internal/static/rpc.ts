@@ -56,11 +56,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"connID": () => rpc.request("conn.connID"),
 
-			"getMapList": ()  => rpc.request("maps.list"),
+			"getMapList":    ()  => rpc.request("maps.list"),
 			"getCurrentMap": ()  => rpc.request("maps.getCurrentMap"),
 			"setCurrentMap":  id => rpc.request("maps.setCurrentMap", id),
-			"getUserMap":    ()  => rpc.request("maps.getCurrentUserMap"),
-			"setUserMap":     id => rpc.request("maps.setCurrentUserMap", id),
+			"getUserMap":    ()  => rpc.request("maps.getUserMap"),
+			"setUserMap":     id => rpc.request("maps.setUserMap", id),
 
 			"newMap":               map                                             => rpc.request("maps.new"),
 			"renameMap":           (id, name)                                       => rpc.request("maps.rename", {id, name}),
