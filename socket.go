@@ -123,7 +123,7 @@ func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 				c.config.Get("currentUserMap", &currentUserMap)
 				return currentUserMap, nil
 			} else if cd.IsAdmin() {
-				return c.maps.RPCData(cd, method, data)
+				return c.maps.RPCData(cd, submethod, data)
 			}
 		case "characters":
 			if cd.IsAdmin() {
