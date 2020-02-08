@@ -49,6 +49,43 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 		return nil, nil
+	case "getMapDetails":
+		var id uint64
+		if err := json.Unmarshal(data, &id); err != nil {
+			return nil, err
+		}
+		m.mu.RLock()
+		defer m.mu.RUnlock()
+		mp, ok := m.maps[id]
+		if !ok {
+			return nil, ErrUnknownMap
+		}
+		var (
+			sqWidth  uint64 = 10
+			sqColour Colour
+			sqStroke uint64 = 1
+		)
+		for _, p := range mp.Patterns {
+			if p.ID == "gridPattern" {
+				sqWidth = p.Width
+				sqColour = p.Path.Stroke
+				sqStroke = p.Path.StrokeWidth
+				break
+			}
+		}
+		return struct {
+			Width         uint64 `json:"width"`
+			Height        uint64 `json:"height"`
+			SquaresWidth  uint64 `json:"squaresWidth"`
+			SquaresColour Colour `json:"squaresColour"`
+			SquaresStroke uint64 `json:"squaresStoke"`
+		}{
+			Width:         mp.Width,
+			Height:        mp.Height,
+			SquaresWidth:  sqWidth,
+			SquaresColour: sqColour,
+			SquaresStroke: sqStroke,
+		}, nil
 	case "setMapDetails":
 		var md struct {
 			ID            uint64 `json:"id"`
