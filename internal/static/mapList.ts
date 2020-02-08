@@ -25,13 +25,31 @@ class MapList {
 			this.list.splice(pos, 1);
 		}
 	}
+	setCurrentMap(id: Int) {
+		this.list.forEach(e => {
+			if (e.id === id) {
+				e.html.classList.add("mapCurrent");
+			} else {
+				e.html.classList.remove("mapCurrent");
+			}
+		});
+	}
+	setUserMap(id: Int) {
+		this.list.forEach(e => {
+			if (e.id === id) {
+				e.html.classList.add("mapUser");
+			} else {
+				e.html.classList.remove("mapUser");
+			}
+		});
+	}
 	get html() {
 		return this.list.html;
 	}
 }
 
 class MapItem {
-	html: Node;
+	html: HTMLElement;
 	order = n++;
 	id: Int;
 	name: string;
@@ -42,6 +60,8 @@ class MapItem {
 		      rpc = mapList.rpc,
 		      overlay = mapList.overlay;
 		this.html = li([
+			span({"onclick": mapList.setUserMap.bind(mapList, m.id)}),
+			span({"onclick": mapList.setCurrentMap.bind(mapList, m.id)}),
 			nameSpan,
 			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => {
 				const name = input({"type": "text", "id": "mapName", "value": m.name}),
