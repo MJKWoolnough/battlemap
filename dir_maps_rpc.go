@@ -30,25 +30,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		return m.newMap(nm, cd.ID)
-	case "renameMap":
-		var nn struct {
-			ID   uint64 `json:"id"`
-			Name string `json:"name"`
-		}
-		if err := json.Unmarshal(data, &nn); err != nil {
-			return nil, err
-		}
-		if nn.Name == "" {
-			return nil, ErrInvalidData
-		}
-		m.updateMapData(nn.ID, func(mp *Map) bool {
-			if mp.Name == nn.Name {
-				return false
-			}
-			mp.Name = nn.Name
-			return true
-		})
-		return nil, nil
 	case "getMapDetails":
 		var id uint64
 		if err := json.Unmarshal(data, &id); err != nil {
@@ -74,12 +55,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 		}
 		return struct {
+			Name          string `json:"name"`
 			Width         uint64 `json:"width"`
 			Height        uint64 `json:"height"`
 			SquaresWidth  uint64 `json:"squaresWidth"`
 			SquaresColour Colour `json:"squaresColour"`
 			SquaresStroke uint64 `json:"squaresStoke"`
 		}{
+			Name:          mp.Name,
 			Width:         mp.Width,
 			Height:        mp.Height,
 			SquaresWidth:  sqWidth,
@@ -89,6 +72,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 	case "setMapDetails":
 		var md struct {
 			ID            uint64 `json:"id"`
+			Name          string `json:"name"`
 			Width         uint64 `json:"width"`
 			Height        uint64 `json:"height"`
 			SquaresWidth  uint64 `json:"squaresWidth"`
@@ -102,7 +86,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidData
 		}
 		m.updateMapData(md.ID, func(mp *Map) bool {
-			unchanged := mp.Width == md.Width && mp.Height == md.Height
+			unchanged := mp.Width == md.Width && mp.Height == md.Height && mp.Name == md.Name
+			mp.Name = md.Name
 			mp.Width = md.Width
 			mp.Height = md.Height
 			for n := range mp.Patterns {
