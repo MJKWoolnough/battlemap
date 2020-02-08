@@ -25,7 +25,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), cd.ID)
 		return nil, nil
 	case "new":
-		var nm newMap
+		var nm mapDetails
 		if err := json.Unmarshal(data, &nm); err != nil {
 			return nil, err
 		}
@@ -54,14 +54,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				break
 			}
 		}
-		return struct {
-			Name          string `json:"name"`
-			Width         uint64 `json:"width"`
-			Height        uint64 `json:"height"`
-			SquaresWidth  uint64 `json:"squaresWidth"`
-			SquaresColour Colour `json:"squaresColour"`
-			SquaresStroke uint64 `json:"squaresStoke"`
-		}{
+		return mapDetails{
 			Name:          mp.Name,
 			Width:         mp.Width,
 			Height:        mp.Height,
@@ -70,15 +63,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			SquaresStroke: sqStroke,
 		}, nil
 	case "setMapDetails":
-		var md struct {
-			ID            uint64 `json:"id"`
-			Name          string `json:"name"`
-			Width         uint64 `json:"width"`
-			Height        uint64 `json:"height"`
-			SquaresWidth  uint64 `json:"squaresWidth"`
-			SquaresColour Colour `json:"squaresColour"`
-			SquaresStroke uint64 `json:"squaresStoke"`
-		}
+		var md mapDetails
 		if err := json.Unmarshal(data, &md); err != nil {
 			return nil, err
 		}
