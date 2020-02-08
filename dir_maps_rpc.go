@@ -111,6 +111,25 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			return false
 		})
+	case "removeMap":
+		var id uint64
+		if err := json.Unmarshal(data, &id); err != nil {
+			return nil, err
+		}
+		m.mu.Lock()
+		defer m.mu.Unlock()
+		mp, ok := m.maps[id]
+		if !ok {
+			return nil, ErrUnknownMap
+		}
+		delete(m.maps, id)
+		for n, np := range m.order {
+			if np == mp {
+				m.order = append(m.order[:n], m.order[n+1:]...)
+				break
+			}
+		}
+		return nil, nil
 	default:
 		return currentMap{m.Battlemap, cd.CurrentMap}.RPCData(cd, method, data)
 	}
