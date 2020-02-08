@@ -29,6 +29,7 @@ class MapList {
 		this.list.forEach(e => {
 			if (e.id === id) {
 				e.html.classList.add("mapCurrent");
+				this.rpc.setCurrentMap(id);
 			} else {
 				e.html.classList.remove("mapCurrent");
 			}
@@ -38,6 +39,7 @@ class MapList {
 		this.list.forEach(e => {
 			if (e.id === id) {
 				e.html.classList.add("mapUser");
+				this.rpc.setUserMap(id);
 			} else {
 				e.html.classList.remove("mapUser");
 			}
