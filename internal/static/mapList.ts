@@ -38,14 +38,14 @@ class MapItem {
 		this.html = li([
 			nameSpan,
 			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => {
-				const name = input({"type": "text", "id": "mapName"}),
-				      width = input({"type": "number", "min": "10", "max": "1000", "value": "20", "id": "mapWidth"}),
-				      height = input({"type": "number", "min": "10", "max": "1000", "value": "20", "id": "mapHeight"}),
-				      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": "10", "id": "mapSquareWidth"}),
-				      sqColour = input({"type": "color", "value": "#000000", "id": "mapSquareColour"}),
-				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"});
-				return createHTML(overlay.addLayer(), {"class": "mapAdd"}, [
-					h1("Add Map"),
+				const name = input({"type": "text", "id": "mapName", "value": m.name}),
+				      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width, "id": "mapWidth"}),
+				      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height, "id": "mapHeight"}),
+				      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square, "id": "mapSquareWidth"}),
+				      sqColour = input({"type": "color", "value": `#${md.colour.r.toString(16).padStart(2, "0")}${md.colour.g.toString(16).padStart(2, "0")}${md.colour.b.toString(16).padStart(2, "0")}`, "id": "mapSquareColour"}),
+				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke, "id": "mapSquareLineWidth"});
+				return createHTML(overlay.addLayer(), {"class": "mapEdit"}, [
+					h1("Edit Map Details"),
 					label({"for": "mapName"}),
 					name,
 					br(),
