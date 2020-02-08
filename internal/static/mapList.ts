@@ -1,6 +1,6 @@
 import {Int, RPC, Map} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
-import {br, button, h1, input, label, li, span, ul} from './lib/dom.js';
+import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
@@ -18,6 +18,12 @@ class MapList {
 	}
 	addMap(m: Map) {
 		this.list.push(new MapItem(this, m));
+	}
+	removeMap(id: Int) {
+		const pos = this.list.findIndex(m => m.id === id);
+		if (pos >= 0) {
+			this.list.splice(pos, 1);
+		}
 	}
 	get html() {
 		return this.list.html;
@@ -67,14 +73,25 @@ class MapItem {
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
 						overlay.loading(rpc.setMapDetails(m.id, name.value, parseInt(width.value), parseInt(height.value), parseInt(sqWidth.value), {"r": parseInt(sqColour.value.slice(1, 3), 16), "g": parseInt(sqColour.value.slice(3, 5), 16), "b": parseInt(sqColour.value.slice(5, 7), 16), "a": 1}, parseInt(sqLineWidth.value))).then(() => nameSpan.innerText = name.value).catch(e => showError(this.nextElementSibling as Node, e));
 					}}),
-					button("Cancel", {"onclick": () => overlay.removeLayer()})
+					button("Cancel", {"onclick": overlay.removeLayer})
 				]);
 			}).catch(e => {
 				console.log(e);
 				alert(e);
 			})}),
-			span("-", {"onclick": () => {
-				overlay.addLayer()
+			span("-", {"class": "mapRemove", "onclick": () => {
+				createHTML(overlay.addLayer(), {"class": "removeMap"}, [
+					h1("Remove Map"),
+					div("Remove the following map?"),
+					self.name,
+					button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+						overlay.loading(rpc.removeMap(m.id)).then(() => {
+							mapList.removeMap(m.id);
+							overlay.removeLayer();
+						}).catch(e => showError(this.nextElementSibling as Node, e));
+					}}),
+					button("Cancel", {"onclick": overlay.removeLayer})
+				]);
 			}})
 		]);
 	}
