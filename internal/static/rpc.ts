@@ -62,11 +62,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"getUserMap":    ()  => rpc.request("maps.getUserMap"),
 			"setUserMap":     id => rpc.request("maps.setUserMap", id),
 
-			"newMap":               map                                             => rpc.request("maps.new"),
-			"renameMap":           (id, name)                                       => rpc.request("maps.rename", {id, name}),
-			"changeMapDimensions": (id, width, height)                              => rpc.request("maps.changeDimensions", {id, width, height}),
-			"changeGrid":          (id, squaresWidth, squaresColour, squaresStroke) => rpc.request("maps.changeGrid", {id, squaresWidth, squaresColour, squaresStroke}),
-			"moveMap":             (id, position)                                   => rpc.request("maps.move", {id, position}),
+			"newMap":               map                                                            => rpc.request("maps.new"),
+			"renameMap":           (id, name)                                                      => rpc.request("maps.rename", {id, name}),
+			"getMapDetails":        id                                                             => rpc.request("maps.getMapDetails", id),
+			"setMapDetails":       (id, width, height, squaresWidth, squaresColour, squaresStroke) => rpc.request("maps.setMapDetails", {id, width, height, squaresWidth, squaresColour, squaresStroke}),
+			"moveMap":             (id, position)                                                  => rpc.request("maps.move", {id, position}),
 
 			"addLayer":        name               => rpc.request("maps.addLayer", name),
 			"renameLayer":    (id, name)          => rpc.request("maps.renameLayer", {id, name}),

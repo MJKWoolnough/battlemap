@@ -47,11 +47,11 @@ export type RPC = {
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
 
-	newMap:              (map: NewMap)                                                           => Promise<Int>;
-	renameMap:           (id: Int, name: string)                                                 => Promise<void>;
-	changeMapDimensions: (id: Int, width: Int, height: Int)                                      => Promise<void>;
-	changeGrid:          (id: Int, squaresWidth: Int, squaresColour: Colour, squaresStroke: Int) => Promise<void>;
-	moveMap:             (id: Int, position: Int)                                                => Promise<void>;
+	newMap:        (map: NewMap)                                                                                    => Promise<Int>;
+	renameMap:     (id: Int, name: string)                                                                          => Promise<void>;
+	getMapDetails: (id: Int)                                                                                        => Promise<MapDetails>;
+	setMapDetails: (id: Int, width: Int, height: Int, squaresWidth: Int, squaresColour: Colour, squaresStroke: Int) => Promise<void>;
+	moveMap:       (id: Int, position: Int)                                                                         => Promise<void>;
 
 	addLayer:        (name: string)                     => Promise<Int>;
 	renameLayer:     (id: Int, name: string)            => Promise<void>;
@@ -131,6 +131,14 @@ export type NewMap = {
 	colour: Colour;
 	stroke: Int;
 	name:   string;
+};
+
+export type MapDetails = {
+	width:  Int;
+	height: Int;
+	square: Int;
+	colour: Colour;
+	stroke: Int;
 };
 
 export type Token = {
