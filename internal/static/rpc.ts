@@ -66,6 +66,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"getMapDetails":        id                                                                   => rpc.request("maps.getMapDetails", id),
 			"setMapDetails":       (id, name, width, height, squaresWidth, squaresColour, squaresStroke) => rpc.request("maps.setMapDetails", {id, name, width, height, squaresWidth, squaresColour, squaresStroke}),
 			"moveMap":             (id, position)                                                        => rpc.request("maps.move", {id, position}),
+			"removeMap":            id                                                                   => rpc.request("maps.removeMap", id),
 
 			"addLayer":        name               => rpc.request("maps.addLayer", name),
 			"renameLayer":    (id, name)          => rpc.request("maps.renameLayer", {id, name}),

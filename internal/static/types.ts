@@ -52,6 +52,7 @@ export type RPC = {
 	getMapDetails: (id: Int)                                                                                                      => Promise<MapDetails>;
 	setMapDetails: (id: Int, name: string, width: Int, height: Int, squaresWidth: Int, squaresColour: Colour, squaresStroke: Int) => Promise<void>;
 	moveMap:       (id: Int, position: Int)                                                                                       => Promise<void>;
+	removeMap:     (id: Int)                                                                                                      => Promise<void>;
 
 	addLayer:        (name: string)                     => Promise<Int>;
 	renameLayer:     (id: Int, name: string)            => Promise<void>;
