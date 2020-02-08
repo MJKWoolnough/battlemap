@@ -49,11 +49,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 		return nil, nil
-	case "changeMapDimensions":
+	case "setMapDetails":
 		var md struct {
-			ID     uint64 `json:"id"`
-			Width  uint64 `json:"width"`
-			Height uint64 `json:"height"`
+			ID            uint64 `json:"id"`
+			Width         uint64 `json:"width"`
+			Height        uint64 `json:"height"`
+			SquaresWidth  uint64 `json:"squaresWidth"`
+			SquaresColour Colour `json:"squaresColour"`
+			SquaresStroke uint64 `json:"squaresStoke"`
 		}
 		if err := json.Unmarshal(data, &md); err != nil {
 			return nil, err
@@ -62,44 +65,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidData
 		}
 		m.updateMapData(md.ID, func(mp *Map) bool {
-			if mp.Width == md.Width && mp.Height == md.Height {
-				return false
-			}
+			unchanged := mp.Width == md.Width && mp.Height == md.Height
 			mp.Width = md.Width
 			mp.Height = md.Height
-			return true
-		})
-		return nil, nil
-	case "changeGrid":
-		var ng struct {
-			ID            uint64 `json:"id"`
-			SquaresWidth  uint64 `json:"squaresWidth"`
-			SquaresColour Colour `json:"squaresColour"`
-			SquaresStroke uint64 `json:"squaresStoke"`
-		}
-		if err := json.Unmarshal(data, &ng); err != nil {
-			return nil, err
-		}
-		m.updateMapData(ng.ID, func(mp *Map) bool {
 			for n := range mp.Patterns {
 				p := &mp.Patterns[n]
 				if p.ID == "gridPattern" {
 					if p.Path == nil {
-						mp.Patterns[n] = genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke)
+						mp.Patterns[n] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
 					} else {
-						if p.Width == ng.SquaresWidth && p.Height == ng.SquaresWidth && p.Path.Stroke == ng.SquaresColour && p.Path.StrokeWidth == ng.SquaresWidth {
-							return false
+						if p.Width == md.SquaresWidth && p.Height == md.SquaresWidth && p.Path.Stroke == md.SquaresColour && p.Path.StrokeWidth == md.SquaresWidth {
+							return !unchanged
 						}
-						p.Width = ng.SquaresWidth
-						p.Height = ng.SquaresWidth
-						p.Path.Path = genGridPath(ng.SquaresWidth)
-						p.Path.Stroke = ng.SquaresColour
-						p.Path.StrokeWidth = ng.SquaresWidth
+						p.Width = md.SquaresWidth
+						p.Height = md.SquaresWidth
+						p.Path.Path = genGridPath(md.SquaresWidth)
+						p.Path.Stroke = md.SquaresColour
+						p.Path.StrokeWidth = md.SquaresWidth
 					}
 					return true
 				}
 			}
-			mp.Patterns = append(mp.Patterns, genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke))
+			mp.Patterns = append(mp.Patterns, genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke))
 			return true
 		})
 		return nil, nil
