@@ -16,8 +16,8 @@ type MapX struct {
 	Initiative Initiative `xml:"data-initiative,attr,omitempty" json:"-"`
 	Width      uint64     `xml:"width,attr" json:"-"`
 	Height     uint64     `xml:"height,attr" json:"-"`
-	Patterns   Patterns   `json:"defs>pattern,omitempty" json:"-"`
-	Masks      []Mask     `json:"defs>mask,omitempty" json:"-"`
+	Patterns   Patterns   `xml:"defs>pattern,omitempty" json:"-"`
+	Masks      []Mask     `xml:"defs>mask,omitempty" json:"-"`
 	Layers     Layers     `xml:"g,omitempty" json:"-"`
 }
 
