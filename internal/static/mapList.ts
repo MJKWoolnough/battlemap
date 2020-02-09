@@ -2,7 +2,7 @@ import {Int, RPC, Map} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {LayerType} from './lib/layers.js';
-import {showError, enterKey} from './misc.js';
+import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
 const sorter = (a: MapItem, b: MapItem) => a.order - b.order; 
@@ -70,7 +70,7 @@ class MapItem {
 				      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width, "id": "mapWidth"}),
 				      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height, "id": "mapHeight"}),
 				      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square, "id": "mapSquareWidth"}),
-				      sqColour = input({"type": "color", "value": `#${md.colour.r.toString(16).padStart(2, "0")}${md.colour.g.toString(16).padStart(2, "0")}${md.colour.b.toString(16).padStart(2, "0")}`, "id": "mapSquareColour"}),
+				      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke, "id": "mapSquareLineWidth"});
 				return createHTML(overlay.addLayer(), {"class": "mapEdit"}, [
 					h1("Edit Map Details"),
@@ -93,7 +93,7 @@ class MapItem {
 					sqLineWidth,
 					br(),
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
-						overlay.loading(rpc.setMapDetails(m.id, name.value, parseInt(width.value), parseInt(height.value), parseInt(sqWidth.value), {"r": parseInt(sqColour.value.slice(1, 3), 16), "g": parseInt(sqColour.value.slice(3, 5), 16), "b": parseInt(sqColour.value.slice(5, 7), 16), "a": 1}, parseInt(sqLineWidth.value))).then(() => nameSpan.innerText = name.value).catch(e => showError(this.nextElementSibling as Node, e));
+						overlay.loading(rpc.setMapDetails(m.id, name.value, parseInt(width.value), parseInt(height.value), parseInt(sqWidth.value), hex2Colour(sqColour.value), parseInt(sqLineWidth.value))).then(() => nameSpan.innerText = name.value).catch(e => showError(this.nextElementSibling as Node, e));
 					}}),
 					button("Cancel", {"onclick": overlay.removeLayer})
 				]);
