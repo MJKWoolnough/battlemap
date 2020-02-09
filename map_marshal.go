@@ -230,6 +230,7 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 const numbers = "0123456789"
 
 func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+	d.Skip()
 	switch s.Name.Local {
 	case "image":
 		x.TokenType = tokenImage
