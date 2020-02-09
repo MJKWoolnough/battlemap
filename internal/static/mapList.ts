@@ -168,7 +168,10 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 				"colour": hex2Colour("#000000"),
 				"stroke": 1
 			}, (errorNode: HTMLElement, md: MapDetails) => {
-				overlay.loading(rpc.newMap(md)).then(mapID => list.addMap({"id": md.id, "name": md.name || `Map ${md.id}`}))
+				overlay.loading(rpc.newMap(md)).then(mapID => {
+					list.addMap({"id": md.id, "name": md.name || `Map ${md.id}`})
+					overlay.removeLayer();
+				})
 				.catch(e => showError(errorNode, e));
 			})}),
 			list.html
