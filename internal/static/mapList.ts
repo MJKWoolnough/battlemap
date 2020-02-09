@@ -1,11 +1,52 @@
-import {Int, RPC, Map} from './types.js';
+import {Int, RPC, Map, MapDetails} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {LayerType} from './lib/layers.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
-const sorter = (a: MapItem, b: MapItem) => a.order - b.order; 
+const sorter = (a: MapItem, b: MapItem) => a.order - b.order,
+      setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
+	const name = input({"type": "text", "id": "mapName", "value": md.name}),
+	      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width.toString(), "id": "mapWidth"}),
+	      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height.toString(), "id": "mapHeight"}),
+	      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square.toString(), "id": "mapSquareWidth"}),
+	      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
+	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"});
+	return createHTML(overlay.addLayer(), {"class": "mapAdd"}, [
+		h1(`${md.id === 0 ? "Add" : "Edit"} Map`),
+		label({"for": "mapName"}),
+		name,
+		br(),
+		label({"for": "mapWidth"}, "Width: "),
+		width,
+		br(),
+		label({"for": "mapHeight"}, "Height: "),
+		height,
+		br(),
+		label({"for": "mapSquareWidth"}, "Square Size: "),
+		sqWidth,
+		br(),
+		label({"for": "mapSquareColour"}, "Square Line Colour: "),
+		sqColour,
+		br(),
+		label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
+		sqLineWidth,
+		br(),
+		button("Add", {"onclick": function(this: HTMLButtonElement) {
+			submitFn(this.nextElementSibling as HTMLElement, {
+				"id": md.id,
+				"name": name.value,
+				"width": parseInt(width.value),
+				"height": parseInt(height.value),
+				"square": parseInt(sqWidth.value),
+				"colour": hex2Colour(sqColour.value),
+				"stroke": parseInt(sqLineWidth.value)
+			});
+		}}),
+		button("Cancel", {"onclick": () => overlay.removeLayer()})
+	]);
+      }
 let n = 0;
 
 class MapList {
@@ -65,39 +106,14 @@ class MapItem {
 			span({"onclick": mapList.setUserMap.bind(mapList, m.id)}),
 			span({"onclick": mapList.setCurrentMap.bind(mapList, m.id)}),
 			nameSpan,
-			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => {
-				const name = input({"type": "text", "id": "mapName", "value": m.name}),
-				      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width, "id": "mapWidth"}),
-				      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height, "id": "mapHeight"}),
-				      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square, "id": "mapSquareWidth"}),
-				      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
-				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke, "id": "mapSquareLineWidth"});
-				return createHTML(overlay.addLayer(), {"class": "mapEdit"}, [
-					h1("Edit Map Details"),
-					label({"for": "mapName"}),
-					name,
-					br(),
-					label({"for": "mapWidth"}, "Width: "),
-					width,
-					br(),
-					label({"for": "mapHeight"}, "Height: "),
-					height,
-					br(),
-					label({"for": "mapSquareWidth"}, "Square Size: "),
-					sqWidth,
-					br(),
-					label({"for": "mapSquareColour"}, "Square Line Colour: "),
-					sqColour,
-					br(),
-					label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
-					sqLineWidth,
-					br(),
-					button("Add", {"onclick": function(this: HTMLButtonElement) {
-						overlay.loading(rpc.setMapDetails(m.id, name.value, parseInt(width.value), parseInt(height.value), parseInt(sqWidth.value), hex2Colour(sqColour.value), parseInt(sqLineWidth.value))).then(() => nameSpan.innerText = name.value).catch(e => showError(this.nextElementSibling as Node, e));
-					}}),
-					button("Cancel", {"onclick": overlay.removeLayer})
-				]);
-			}).catch(e => {
+			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(rpc, overlay, md, (errorNode: HTMLElement, md: MapDetails) => {
+				overlay.loading(rpc.setMapDetails(md)).then(() => {
+					nameSpan.innerText = md.name;
+					this.name = md.name;
+					mapList.list.update();
+				}).catch(e => showError(errorNode, e));
+			}))
+			.catch(e => {
 				console.log(e);
 				alert(e);
 			})}),
@@ -143,51 +159,18 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 		});
 		mapList.forEach(m => list.addMap(m));
 		createHTML(clearElement(base), {"id": "mapList"}, [
-			button("Add Map", {"onclick": () => {
-				const name = input({"type": "text", "id": "mapName"}),
-				      width = input({"type": "number", "min": "10", "max": "1000", "value": "20", "id": "mapWidth"}),
-				      height = input({"type": "number", "min": "10", "max": "1000", "value": "20", "id": "mapHeight"}),
-				      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": "10", "id": "mapSquareWidth"}),
-				      sqColour = input({"type": "color", "value": "#000000", "id": "mapSquareColour"}),
-				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"});
-				return createHTML(overlay.addLayer(), {"class": "mapAdd"}, [
-					h1("Add Map"),
-					label({"for": "mapName"}),
-					name,
-					br(),
-					label({"for": "mapWidth"}, "Width: "),
-					width,
-					br(),
-					label({"for": "mapHeight"}, "Height: "),
-					height,
-					br(),
-					label({"for": "mapSquareWidth"}, "Square Size: "),
-					sqWidth,
-					br(),
-					label({"for": "mapSquareColour"}, "Square Line Colour: "),
-					sqColour,
-					br(),
-					label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
-					sqLineWidth,
-					br(),
-					button("Add", {"onclick": function(this: HTMLButtonElement) {
-						overlay.loading(rpc.newMap({
-							"name": name.value,
-							"width": parseInt(width.value),
-							"height": parseInt(height.value),
-							"square": parseInt(sqWidth.value),
-							"colour": {
-								"r": parseInt(sqColour.value.slice(1, 3), 16),
-								"g": parseInt(sqColour.value.slice(3, 5), 16),
-								"b": parseInt(sqColour.value.slice(5, 7), 16),
-								"a": 1,
-							},
-							"stroke": parseInt(sqLineWidth.value)
-						})).then(mapID => list.addMap({"id": mapID, "name": name.value || `Map ${mapID}`})).catch(e => showError(this.nextElementSibling as Node, e));
-					}}),
-					button("Cancel", {"onclick": () => overlay.removeLayer()})
-				]);
-			}}),
+			button("Add Map", {"onclick": () => setMapDetails(rpc, overlay, {
+				"id": 0,
+				"name": "",
+				"width": 20,
+				"height": 20,
+				"square": 1,
+				"colour": hex2Colour("#000000"),
+				"stroke": 1
+			}, (errorNode: HTMLElement, md: MapDetails) => {
+				overlay.loading(rpc.newMap(md)).then(mapID => list.addMap({"id": md.id, "name": md.name || `Map ${md.id}`}))
+				.catch(e => showError(errorNode, e));
+			})}),
 			list.html
 		]);
 	});
