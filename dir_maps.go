@@ -23,7 +23,7 @@ type mapsDir struct {
 	mu               sync.RWMutex
 	maps             map[uint64]*Map
 	order            Maps
-	nextID           uint64
+	lastID           uint64
 	json             memio.Buffer
 	handler, indexes http.Handler
 }
@@ -60,6 +60,9 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		}
 		m.maps[id] = mp
 		m.order = append(m.order, mp)
+		if id > m.lastID {
+			m.lastID = id
+		}
 	}
 	sort.Sort(m.order)
 	json.NewEncoder(&m.json).Encode(m.order)
@@ -82,8 +85,8 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 		return 0, errors.Error("invalid dimensions")
 	}
 	m.mu.Lock()
-	mid := m.nextID
-	m.nextID++
+	m.lastID++
+	mid := m.lastID
 	if nm.Name == "" {
 		nm.Name = "Map " + strconv.FormatUint(mid, 10)
 	}
