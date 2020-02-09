@@ -169,7 +169,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 				"stroke": 1
 			}, (errorNode: HTMLElement, md: MapDetails) => {
 				overlay.loading(rpc.newMap(md)).then(mapID => {
-					list.addMap({"id": md.id, "name": md.name || `Map ${md.id}`})
+					list.addMap({"id": mapID, "name": md.name || `Map ${mapID}`})
 					overlay.removeLayer();
 				})
 				.catch(e => showError(errorNode, e));
