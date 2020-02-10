@@ -206,7 +206,7 @@ func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*Map, *Layer, *T
 }
 
 func (m *mapsDir) updateMapJSON() {
-	m.json = m.json[:]
+	m.json = m.json[:0]
 	json.NewEncoder(&m.json).Encode(m.order)
 }
 
