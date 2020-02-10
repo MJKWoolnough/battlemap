@@ -154,9 +154,6 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 		rpc.waitMapOrderChange().then(maps => {
 
 		});
-		rpc.getMapList().then(mapList => {
-
-		});
 		mapList.forEach(m => list.addMap(m));
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button("Add Map", {"onclick": () => setMapDetails(rpc, overlay, {
