@@ -2,6 +2,7 @@
 @import url("error.css");
 @import url("loader.css");
 @import url("overlay.css");
+@import url("mapList.css");
 
 html, body {
 	background-color: #fff;
