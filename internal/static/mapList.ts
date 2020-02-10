@@ -138,9 +138,8 @@ class MapItem {
 export default function(rpc: RPC, overlay: LayerType, base: Node) {
 	Promise.all([
 		rpc.getMapList(),
-		rpc.getCurrentMap(),
 		rpc.getUserMap()
-	]).then(([mapList, currentMap, userMap]) => {
+	]).then(([mapList, userMap]) => {
 		const list = new MapList(rpc, overlay);
 		rpc.waitCurrentUserMap().then(list.setUserMap.bind(list));
 		rpc.waitMapAdd().then(list.addMap.bind(list));
@@ -151,7 +150,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 
 		});
 		mapList.forEach(m => list.addMap(m));
-		list.setCurrentMap(currentMap);
+		list.setCurrentMap(userMap);
 		list.setUserMap(userMap);
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button("Add Map", {"onclick": () => setMapDetails(rpc, overlay, {
