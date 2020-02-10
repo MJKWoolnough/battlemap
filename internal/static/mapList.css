@@ -1,0 +1,29 @@
+#mapList ul {
+	list-style: none;
+	padding-left: 0;
+}
+
+#mapList li > span:nth-child(1), #mapList li > span:nth-child(2) {
+	display: inline-block;
+	width: 10px;
+	height: 0.8em;
+	margin: 0 2px;
+	cursor: pointer;
+}
+
+
+#mapList li.mapUser > span:nth-child(1) {
+	background-color: #008800;
+}
+
+#mapList li.mapCurrent > span:nth-child(2) {
+	background-color: #880000;
+}
+
+#mapList li > span:nth-child(1) {
+	background-color: #ccffcc;
+}
+
+#mapList li > span:nth-child(2) {
+	background-color: #ffcccc;
+}
