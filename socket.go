@@ -92,8 +92,6 @@ func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 	switch method {
 	case "conn.connID":
 		return cd.ID, nil
-	case "maps.getCurrentMap":
-		return cd.CurrentMap, nil
 	case "maps.setCurrentMap":
 		if !cd.IsAdmin() {
 			return nil, ErrUnknownMethod
