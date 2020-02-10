@@ -143,9 +143,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node) {
 	]).then(([mapList, currentMap, userMap]) => {
 		const list = new MapList(rpc, overlay);
 		rpc.waitCurrentUserMap().then(list.setUserMap.bind(list));
-		rpc.waitMapAdd().then(map => {
-
-		});
+		rpc.waitMapAdd().then(list.addMap.bind(list));
 		rpc.waitMapRename().then(map => {
 
 		});
