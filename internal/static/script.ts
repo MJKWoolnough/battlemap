@@ -50,7 +50,7 @@ pageLoad.then(() => {
 		if (userLevel === 1) {
 			assets(rpc, overlay, tabs.add("Images", spinner("imagesLoading")), "Images");
 			assets(rpc, overlay, tabs.add("Audio", spinner("audioLoading")), "Audio");
-			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")));
+			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			document.body.appendChild(tabs.html);
 		} else {
 			return Promise.reject("Need to be logged in");

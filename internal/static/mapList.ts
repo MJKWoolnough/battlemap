@@ -53,9 +53,11 @@ class MapList {
 	list = SortHTML<MapItem>(ul(), sorter);
 	rpc: RPC;
 	overlay: LayerType;
-	constructor(rpc: RPC, overlay: LayerType) {
+	setCurrentMapFn: (id: Int) => void;
+	constructor(rpc: RPC, overlay: LayerType, currentMap: (id: Int) => void) {
 		this.rpc = rpc;
 		this.overlay = overlay;
+		this.setCurrentMapFn = currentMap;
 	}
 	addMap(m: Map) {
 		this.list.push(new MapItem(this, m));
@@ -71,6 +73,7 @@ class MapList {
 			if (e.id === id) {
 				e.html.classList.add("mapCurrent");
 				this.rpc.setCurrentMap(id);
+				this.setCurrentMapFn(id);
 			} else {
 				e.html.classList.remove("mapCurrent");
 			}
@@ -135,12 +138,12 @@ class MapItem {
 	}
 }
 
-export default function(rpc: RPC, overlay: LayerType, base: Node) {
+export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	Promise.all([
 		rpc.getMapList(),
 		rpc.getUserMap()
 	]).then(([mapList, userMap]) => {
-		const list = new MapList(rpc, overlay);
+		const list = new MapList(rpc, overlay, setCurrentMap);
 		rpc.waitCurrentUserMap().then(list.setUserMap.bind(list));
 		rpc.waitMapAdd().then(list.addMap.bind(list));
 		rpc.waitMapRename().then(map => {
