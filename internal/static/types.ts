@@ -42,7 +42,6 @@ export type RPC = {
 	connID: () => Promise<Int>;
 
 	getMapList:    ()        => Promise<Map[]>;
-	getCurrentMap: ()        => Promise<Int>;
 	setCurrentMap: (id: Int) => Promise<void>;
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
