@@ -151,3 +151,8 @@ export type Token = {
 	tokenData:   Int;
 	tokenType:   Int;
 };
+
+export type MapLayer = {
+	id: Int;
+	name: string;
+}
