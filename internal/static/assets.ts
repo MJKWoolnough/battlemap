@@ -1,8 +1,7 @@
-import {Int, RPC, AssetRPC, Folder, FromTo, IDName} from './types.js';
+import {Int, RPC, AssetRPC, Folder, FromTo, IDName, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {audio, br, button, div, form, h1, img, input, label, li, option, progress, span, select, ul} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
-import {LayerType} from './lib/layers.js';
 import {showError, enterKey} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 

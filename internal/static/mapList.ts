@@ -1,7 +1,6 @@
-import {Int, RPC, Map, MapDetails} from './types.js';
+import {Int, RPC, Map, MapDetails, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
-import {LayerType} from './lib/layers.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import SortHTML, {SortHTMLType} from './lib/ordered.js';
 
