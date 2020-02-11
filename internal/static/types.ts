@@ -55,28 +55,28 @@ export type RPC = {
 	moveMap:       (id: Int, position: Int) => Promise<void>;
 	removeMap:     (id: Int)                => Promise<void>;
 
-	addLayer:        (name: string)                     => Promise<Int>;
-	renameLayer:     (id: Int, name: string)            => Promise<void>;
-	moveLayer:       (id: Int, position: Int)           => Promise<void>;
-	showLayer:       (id: Int)                          => Promise<void>;
-	hideLayer:       (id: Int)                          => Promise<void>;
-	addMask:         (id: Int, mask: Int)               => Promise<void>;
-	removeMask:      (id: Int)                          => Promise<void>;
-	removeLayer:     (id: Int)                          => Promise<void>;
-	addToken:        (token: Token, layerID: Int)       => Promise<Int>;
-	removeToken:     (id: Int)                          => Promise<void>;
-	moveToken:       (id: Int, x: Int, y: Int)          => Promise<void>;
-	resizeToken:     (id: Int, width: Int, height: Int) => Promise<void>;
-	rotateToken:     (id: Int, rotation: Int)           => Promise<void>;
-	flipToken:       (id: Int, flip: boolean)           => Promise<void>;
-	flopToken:       (id: Int, flop: boolean)           => Promise<void>;
-	setTokenPattern: (id: Int)                          => Promise<void>;
-	setTokenImage:   (id: Int)                          => Promise<void>;
-	setTokenSource:  (id: Int, source: string)          => Promise<void>;
-	setTokenLayer:   (id: Int, layer: Int)              => Promise<void>;
-	setTokenTop:     (id: Int)                          => Promise<void>;
-	setTokenBottom:  (id: Int)                          => Promise<void>;
-	setInitiative:   (initiative: Int[])                => Promise<void>;
+	addLayer:        (name: string)                        => Promise<string>;
+	renameLayer:     (id: string, name: string)            => Promise<void>;
+	moveLayer:       (id: string, position: Int)           => Promise<void>;
+	showLayer:       (id: string)                          => Promise<void>;
+	hideLayer:       (id: string)                          => Promise<void>;
+	addMask:         (id: string, mask: Int)               => Promise<void>;
+	removeMask:      (id: string)                          => Promise<void>;
+	removeLayer:     (id: string)                          => Promise<void>;
+	addToken:        (token: Token, layerID: string)       => Promise<Int>;
+	removeToken:     (id: string)                          => Promise<void>;
+	moveToken:       (id: string, x: Int, y: Int)          => Promise<void>;
+	resizeToken:     (id: string, width: Int, height: Int) => Promise<void>;
+	rotateToken:     (id: string, rotation: Int)           => Promise<void>;
+	flipToken:       (id: string, flip: boolean)           => Promise<void>;
+	flopToken:       (id: string, flop: boolean)           => Promise<void>;
+	setTokenPattern: (id: string)                          => Promise<void>;
+	setTokenImage:   (id: string)                          => Promise<void>;
+	setTokenSource:  (id: string, source: string)          => Promise<void>;
+	setTokenLayer:   (id: string, layer: Int)              => Promise<void>;
+	setTokenTop:     (id: string)                          => Promise<void>;
+	setTokenBottom:  (id: string)                          => Promise<void>;
+	setInitiative:   (initiative: Int[])                   => Promise<void>;
 
 	characterCreate: ()                                      => Promise<Int>;
 	characterSet:    (id: Int, data: Record<string, string>) => Promise<void>;
@@ -153,6 +153,6 @@ export type Token = {
 };
 
 export type MapLayer = {
-	id: Int;
+	id: string;
 	name: string;
 }
