@@ -7,6 +7,7 @@ import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
+import loadMap from './map.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -54,6 +55,7 @@ pageLoad.then(() => {
 			assets(rpc, overlay, tabs.add("Images", spinner("imagesLoading")), "Images");
 			assets(rpc, overlay, tabs.add("Audio", spinner("audioLoading")), "Audio");
 			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
+			loadMap(rpc, overlay, document.body.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
 			layerList(rpc, overlay, tabs.add("Layers", spinner("layers")), mapLayers.receive);
 			document.body.appendChild(tabs.html);
 		} else {

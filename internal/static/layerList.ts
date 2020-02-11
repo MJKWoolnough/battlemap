@@ -6,7 +6,7 @@ import SortHTML from './lib/ordered.js';
 
 export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn: (layers: MapLayer[]) => void) => void) {
 	clearElement(base).appendChild(h1("No Map Selected"));
-	mapChange((layers) => {
+	mapChange((layers: MapLayer[]) => {
 
 	});
 }
