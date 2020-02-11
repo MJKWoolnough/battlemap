@@ -155,7 +155,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		return id, nil
 	case "renameLayer":
 		var rename struct {
-			ID   uint64 `json:"id"`
+			ID   string `json:"id"`
 			Name string `json:"name"`
 		}
 		if err := json.Unmarshal(data, &rename); err != nil {
@@ -170,7 +170,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "moveLayer":
 		var moveLayer struct {
-			ID       uint64 `json:"id"`
+			ID       string `json:"id"`
 			Position int    `json:"position"`
 		}
 		err := json.Unmarshal(data, &moveLayer)
@@ -178,9 +178,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		err = m.updateMapData(cd.CurrentMap, func(mp *Map) bool {
-			lIDStr := "Layer_" + strconv.FormatUint(moveLayer.ID, 10)
 			for n, l := range mp.Layers {
-				if l.ID == lIDStr {
+				if l.ID == moveLayer.ID {
 					if n == moveLayer.Position {
 						break
 					}
@@ -193,7 +192,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 		return nil, err
 	case "showLayer":
-		var layerID uint64
+		var layerID string
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
@@ -205,7 +204,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "hideLayer":
-		var layerID uint64
+		var layerID string
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
@@ -218,7 +217,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "addMask":
 		var addMask struct {
-			ID   uint64 `json:"id"`
+			ID   string `json:"id"`
 			Mask uint64 `json:"mask"`
 		}
 		if err := json.Unmarshal(data, &addMask); err != nil {
@@ -233,7 +232,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "removeMask":
-		var layerID uint64
+		var layerID string
 		if err := json.Unmarshal(data, &layerID); err != nil {
 			return nil, err
 		}
@@ -245,7 +244,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "removeLayer":
-		var layerID uint64
+		var layerID string
 		err := json.Unmarshal(data, &layerID)
 		if err != nil {
 			return nil, err
@@ -263,7 +262,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 	case "addToken":
 		var token struct {
 			*Token
-			LayerID uint64 `json:"layerID"`
+			LayerID string `json:"layerID"`
 		}
 		if err := json.Unmarshal(data, &token); err != nil {
 			return nil, err

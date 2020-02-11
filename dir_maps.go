@@ -174,12 +174,11 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
 	return nil
 }
 
-func (m *mapsDir) updateMapLayer(mid, lid uint64, fn func(*Map, *Layer) bool) error {
+func (m *mapsDir) updateMapLayer(mid uint64, lid string, fn func(*Map, *Layer) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *Map) bool {
-		lidStr := "Layer_" + strconv.FormatUint(lid, 10)
 		for _, l := range mp.Layers {
-			if l.ID == lidStr {
+			if l.ID == lid {
 				return fn(mp, l)
 			}
 		}
