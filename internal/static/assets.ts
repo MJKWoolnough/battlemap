@@ -3,10 +3,9 @@ import {createHTML, clearElement} from './lib/html.js';
 import {audio, br, button, div, form, h1, img, input, label, li, option, progress, span, select, ul} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
-import SortHTML, {SortHTMLType} from './lib/ordered.js';
+import SortHTML, {stringSort, SortHTMLType} from './lib/ordered.js';
 
-const sortStrings = new Intl.Collator().compare,
-      stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => sortStrings(a.name, b.name),
+const stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => stringSort(a.name, b.name),
       idSorter = (a: Asset, b: Asset) => b.id - a.id,
       getPaths = (folder: AssetFolder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
