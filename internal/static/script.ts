@@ -56,7 +56,7 @@ pageLoad.then(() => {
 			assets(rpc, overlay, tabs.add("Audio", spinner("audioLoading")), "Audio");
 			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, overlay, document.body.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
-			layerList(rpc, overlay, tabs.add("Layers", spinner("layers")), mapLayers.receive);
+			layerList(rpc, overlay, tabs.add("Layers", div()), mapLayers.receive);
 			document.body.appendChild(tabs.html);
 		} else {
 			return Promise.reject("Need to be logged in");
