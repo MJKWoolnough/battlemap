@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/html.js';
 import {audio, br, button, div, form, h1, img, input, label, li, option, progress, span, select, ul} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
-import {sortHTML, stringSort, SortHTMLType} from './lib/ordered.js';
+import {sortHTML, stringSort} from './lib/ordered.js';
 
 const stringSorter = (a: Asset | AssetFolder, b: Asset | AssetFolder) => stringSort(a.name, b.name),
       idSorter = (a: Asset, b: Asset) => b.id - a.id,
@@ -105,13 +105,11 @@ class AssetFolder {
 	parent: AssetFolder;
 	name: string;
 	html: Node;
-	folders: SortHTMLType<AssetFolder>;
-	assets: SortHTMLType<Asset>;
+	folders = sortHTML<AssetFolder>(ul(), stringSorter);
+	assets = sortHTML<Asset>(ul(), stringSorter);
 	constructor(parent: AssetFolder, name: string, folders: Record<string, Folder>, assets: Record<string, Int>) {
 		this.parent = parent;
 		this.name = name;
-		this.folders = sortHTML(ul(), stringSorter);
-		this.assets = sortHTML(ul(), stringSorter);
 		const self = this;
 		this.html = li([
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
