@@ -2,7 +2,7 @@ import {Int, RPC, Map, MapDetails, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import SortHTML, {SortHTMLType} from './lib/ordered.js';
+import {sortHTML, SortHTMLType} from './lib/ordered.js';
 
 const sorter = (a: MapItem, b: MapItem) => a.order - b.order,
       setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
@@ -49,7 +49,7 @@ const sorter = (a: MapItem, b: MapItem) => a.order - b.order,
 let n = 0;
 
 class MapList {
-	list = SortHTML<MapItem>(ul(), sorter);
+	list = sortHTML<MapItem>(ul(), sorter);
 	rpc: RPC;
 	overlay: LayerType;
 	setCurrentMapFn: (id: Int) => void;
