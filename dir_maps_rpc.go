@@ -132,13 +132,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		return nil, nil
 	case "addLayer":
 		var (
-			name string
-			id   uint64
+			name  string
+			strID string
 		)
 		if err := json.Unmarshal(data, &name); err != nil {
 			return nil, err
 		}
 		m.updateMapData(cd.CurrentMap, func(mp *Map) bool {
+			var id uint64
 			for _, l := range mp.Layers {
 				if strings.HasPrefix(l.ID, "Layer_") {
 					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid > id {
@@ -146,13 +147,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 					}
 				}
 			}
+			strID = "Layer_" + strconv.FormatUint(id, 10)
 			mp.Layers = append(mp.Layers, &Layer{
-				ID:   "Layer_" + strconv.FormatUint(id, 10),
+				ID:   strID,
 				Name: name,
 			})
 			return true
 		})
-		return id, nil
+		return strID, nil
 	case "renameLayer":
 		var rename struct {
 			ID   string `json:"id"`
