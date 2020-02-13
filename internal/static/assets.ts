@@ -189,7 +189,7 @@ class AssetFolder {
 	removeAsset(name: string) {
 		const index = this.assets.findIndex(a => a.name === name);
 		if (index !== -1) {
-			return (this.assets.splice(index, 1).pop() as Asset).id;
+			return this.assets.splice(index, 1).pop()!.id;
 		}
 		return -1;
 	}
@@ -245,7 +245,7 @@ class Root extends AssetFolder {
 		const breadcrumbs = path.split("/"),
 		      sub: string | undefined  = breadcrumbs.pop();
 		let folder: AssetFolder | undefined = this;
-		breadcrumbs.every(f => f == "" ? true : folder = (folder as AssetFolder).getFolder(f));
+		breadcrumbs.every(f => f == "" ? true : folder = folder!.getFolder(f));
 		return [folder, sub || ""];
 	}
 	addAsset(id: Int, path: string) {
@@ -279,7 +279,7 @@ class Root extends AssetFolder {
 	}
 	addFolder(path: string) {
 		const parts = path.split("/");
-		let f = super.addFolder(parts.shift() as string);
+		let f = super.addFolder(parts.shift()!);
 		parts.forEach(p => {f = f.addFolder(p)});
 		return f;
 	}

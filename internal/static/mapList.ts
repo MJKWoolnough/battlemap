@@ -127,7 +127,7 @@ class MapItem {
 						overlay.loading(rpc.removeMap(m.id)).then(() => {
 							mapList.removeMap(m.id);
 							overlay.removeLayer();
-						}).catch(e => showError(this.nextElementSibling as Node, e));
+						}).catch(e => showError(this.nextElementSibling!, e));
 					}}),
 					button("Cancel", {"onclick": overlay.removeLayer})
 				]);

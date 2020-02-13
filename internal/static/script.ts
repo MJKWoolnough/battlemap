@@ -39,7 +39,7 @@ pageLoad.then(() => {
 		let n = 0;
 		return Object.freeze({
 			"add": (title: string, contents: Node) => {
-				(h.lastChild as Node).insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {})), t);
+				h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {})), t);
 				t.appendChild(label({"for": `tabSelector_${n++}`}, title));
 				return p.appendChild(div(contents));
 			},
