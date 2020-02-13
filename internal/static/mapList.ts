@@ -11,7 +11,7 @@ const setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (
 	      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square.toString(), "id": "mapSquareWidth"}),
 	      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
 	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"});
-	return createHTML(overlay.addLayer(), {"class": "mapAdd"}, [
+	return createHTML(overlay.addLayer(), {"class": `map${md.id === 0 ? "Add" : "Edit"}`}, [
 		h1(`${md.id === 0 ? "Add" : "Edit"} Map`),
 		label({"for": "mapName"}),
 		name,
