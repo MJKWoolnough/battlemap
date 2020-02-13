@@ -2,7 +2,7 @@ import {Int, RPC, Map, MapDetails, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import {sortHTML, noSort} from './lib/ordered.js';
+import {SortHTML, noSort} from './lib/ordered.js';
 
 const setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
 	const name = input({"type": "text", "id": "mapName", "value": md.name}),
@@ -48,7 +48,7 @@ const setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (
 let n = 0;
 
 class MapList {
-	list = sortHTML<MapItem>(ul(), noSort);
+	list = new SortHTML<MapItem>(ul(), noSort);
 	rpc: RPC;
 	overlay: LayerType;
 	setCurrentMapFn: (id: Int) => void;
@@ -111,7 +111,7 @@ class MapItem {
 				overlay.loading(rpc.setMapDetails(md)).then(() => {
 					nameSpan.innerText = md.name;
 					this.name = md.name;
-					mapList.list.update();
+					mapList.list.sort();
 				}).catch(e => showError(errorNode, e));
 			}))
 			.catch(e => {
