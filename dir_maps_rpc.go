@@ -142,7 +142,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			var id uint64
 			for _, l := range mp.Layers {
 				if strings.HasPrefix(l.ID, "Layer_") {
-					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid > id {
+					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid >= id {
 						id = lid + 1
 					}
 				}
