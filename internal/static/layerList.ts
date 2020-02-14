@@ -2,10 +2,10 @@ import {Int, RPC, LayerType, MapLayer} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
-import {sortHTML, noSort} from './lib/ordered.js';
+import {SortHTML, noSort} from './lib/ordered.js';
 
 class LayerList {
-	list = sortHTML<LayerItem>(ul(), noSort);
+	list = new SortHTML<LayerItem>(ul(), noSort);
 	rpc: RPC;
 	overlay: LayerType;
 	constructor(rpc: RPC, overlay: LayerType) {
@@ -39,7 +39,19 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn
 		layers.forEach(l => list.addLayer(l));
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
-
+				const name = input({"id": "layerName", "onkeypress": enterKey});
+				createHTML(overlay.addLayer(), {"id": "layerAdd"}, [
+					h1("Add Layer"),
+					label({"for": "layerName"}, "Layer Name"),
+					name,
+					br(),
+					button("Add Layer", {"onclick": () => overlay.loading(rpc.addLayer(name.value)).then(id => {
+						list.addLayer({id, name: name.value});
+						// TODO: send new layer to map
+						overlay.removeLayer();
+					}).catch(e => showError(name, e))}),
+					button("Cancel", {"onclick": () => overlay.removeLayer()})
+				]);
 			}}),
 			list.html
 		]);
