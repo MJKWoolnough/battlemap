@@ -155,4 +155,6 @@ export type Token = {
 export type MapLayer = {
 	id: string;
 	name: string;
+	hidden: boolean;
+	mask: Int;
 }
