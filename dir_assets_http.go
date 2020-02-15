@@ -11,7 +11,7 @@ import (
 func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "" && a.auth.IsAdmin(r) {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-	} else if a.assetStore.Exists(r.URL.Path) && r.URL.Path != assetsMetadata {
+	} else if a.assetStore.Exists(r.URL.Path) && r.URL.Path != folderMetadata {
 		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
 	} else {
 		http.NotFound(w, r)
@@ -19,7 +19,7 @@ func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == assetsMetadata {
+	if r.URL.Path == folderMetadata {
 		http.NotFound(w, r)
 	} else {
 		a.handler.ServeHTTP(w, r)
@@ -65,8 +65,8 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			continue
 		}
 		a.mu.Lock()
-		a.lastAssetID++
-		id := a.lastAssetID
+		a.lastID++
+		id := a.lastID
 		a.links[id] = 1
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
@@ -78,7 +78,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
 			filename = idStr
 		}
-		newName := addAssetTo(a.assetFolders.Assets, filename, id)
+		newName := addItemTo(a.root.Items, filename, id)
 		added = append(added, idName{id, newName})
 	}
 	if len(added) == 0 {
