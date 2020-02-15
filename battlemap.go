@@ -75,14 +75,12 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
 	b.mux.Handle("/login/", http.StripPrefix("/login", b.auth))
 	for path, module := range map[string]Methods{
-		"/images/":     &b.images,
-		"/audio/":      &b.sounds,
-		"/tokens/":     &b.tokens,
-		"/characters/": &b.chars,
-		"/maps/":       &b.maps,
-		"/masks/":      &b.masks,
-		"/files/":      &b.files,
-		"/plugins/":    &b.plugins,
+		"/images/":  &b.images,
+		"/audio/":   &b.sounds,
+		"/maps/":    &b.maps,
+		"/masks/":   &b.masks,
+		"/files/":   &b.files,
+		"/plugins/": &b.plugins,
 	} {
 		p := strings.TrimSuffix(path, "/")
 		d := &Dir{module}
