@@ -108,9 +108,9 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, except ID) {
+func (s *socket) broadcastMapChange(mID uint64, id int, data interface{}, except ID) {
 	dat, _ := json.Marshal(jsonrpc.Response{
-		ID:     int(id),
+		ID:     id,
 		Result: data,
 	})
 	s.mu.RLock()
@@ -126,9 +126,9 @@ func (s *socket) broadcastMapChange(mID uint64, id uint64, data interface{}, exc
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastAdminChange(id int64, data interface{}, except ID) {
+func (s *socket) broadcastAdminChange(id int, data interface{}, except ID) {
 	dat, _ := json.Marshal(jsonrpc.Response{
-		ID:     int(id),
+		ID:     id,
 		Result: data,
 	})
 	s.mu.RLock()
