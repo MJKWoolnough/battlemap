@@ -9,30 +9,60 @@ import (
 const (
 	broadcastIsAdmin = -1 - iota
 	broadcastCurrentUserMap
+
+	broadcastImageFolderAdd
+	broadcastAudioFolderAdd
+	broadcastCharacterFolderAdd
+	broadcastImageFolderMove
+	broadcastAudioFolderMove
+	broadcastCharacterFolderMove
+	broadcastImageFolderRemove
+	broadcastAudioFolderRemove
+	broadcastCharacterFolderRemove
+	broadcastImageItemAdd
+	broadcastAudioItemAdd
+	broadcastCharacterItemAdd
+	broadcastImageItemMove
+	broadcastAudioItemMove
+	broadcastCharacterItemMove
+	broadcastImageItemLink
+	broadcastAudioItemLink
+	broadcastCharacterItemLink
+	broadcastImageItemRemove
+	broadcastAudioItemRemove
+	broadcastCharacterItemRemove
+	broadcastCharacterItemChange
+
 	broadcastMapAdd
-	broadcastMapChange
+	broadcastLayerAdd
 	broadcastMapRename
+	broadcastLayerRename
 	broadcastMapRemove
+	broadcastLayerRemove
 	broadcastMapOrderChange
-	broadcastImageAssetAdded
-	broadcastImageAssetMoved
-	broadcastImageAssetRemoved
-	broadcastImageAssetLinked
-	breadcastImageFolderAdded
-	breadcastImageFolderMoved
-	breadcastImageFolderRemoved
-	broadcastAudioAssetAdded
-	broadcastAudioAssetMoved
-	broadcastAudioAssetRemoved
-	broadcastAudioAssetLinked
-	breadcastAudioFolderAdded
-	breadcastAudioFolderMoved
-	breadcastAudioFolderRemoved
-	broadcastCharacterAdd
-	broadcastCharacterChange
-	broadcastCharacterRemove
-	broadcastTokenChange
-	broadcastMaskChange
+	broadcastLayerOrderChange
+
+	broadcastMapDimensionsChange
+	broadcastMapGridChange
+	broadcastMapLightChange
+
+	broadcastMapInitiative
+
+	broadcastLayerShow
+	broadcastLayerHide
+	broadcaseLayerMaskAdd
+	broadcastLayerMaskChange
+	broadcastLayerMaskRemove
+	broadcastLayerTokenOrder
+
+	broadcastTokenAdd
+	broadcastTokenRemove
+	broadcastTokenMove
+	broadcastTokenResize
+	broadcastTokenRotate
+	broadcastTokenSetToken
+	broadcastTokenSetImage
+	broadcastTokenSetPattern
 )
 
 func (s *socket) KickAdmins(except ID) {
