@@ -32,6 +32,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return errors.WithContext("error creating keystore: ", err)
 	}
 	k.data = keystore.NewFileBackedMemStoreFromFileStore(fileStore)
+	k.fileType = fileTypeCharacter
 	k.folders.Init(b, fileStore)
 	return nil
 }
