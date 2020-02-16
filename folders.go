@@ -469,7 +469,7 @@ func (f *folders) linkItem(cd ConnData, data []byte) (string, error) {
 	} else if f.fileType == fileTypeCharacter {
 		bid -= 2
 	}
-	f.socket.broadcastAdminChange(bid, item, cd.ID)
+	f.socket.broadcastAdminChange(bid, link, cd.ID)
 	return link.Name, nil
 }
 
