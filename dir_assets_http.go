@@ -94,7 +94,11 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Fprintf(w, ",%q:%d", id.Name, id.ID)
 	}
 	fmt.Fprint(w, "}")
-	a.socket.BroadcastAssetsAdd(a.fileType, added, SocketIDFromRequest(r))
+	bid := int64(broadcastImageItemAdd)
+	if a.fileType == fileTypeAudio {
+		bid--
+	}
+	a.socket.broadcastAdminChange(bid, added, SocketIDFromRequest(r))
 	return true
 }
 
