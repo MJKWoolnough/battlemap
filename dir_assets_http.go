@@ -94,7 +94,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		fmt.Fprintf(w, ",%q:%d", id.Name, id.ID)
 	}
 	fmt.Fprint(w, "}")
-	bid := int64(broadcastImageItemAdd)
+	bid := broadcastImageItemAdd
 	if a.fileType == fileTypeAudio {
 		bid--
 	}
