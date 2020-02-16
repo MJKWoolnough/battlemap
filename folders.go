@@ -290,7 +290,13 @@ func (f *folders) folderCreate(cd ConnData, data []byte) (string, error) {
 	newName := addFolderTo(parent.Folders, name, newFolder())
 	f.saveFolders()
 	dir = dir[:len(dir)-len(name)] + newName
-	f.socket.BroadcastFolderAdd(f.fileType, dir, cd.ID)
+	bid := int64(broadcastImageFolderAdd)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, dir, cd.ID)
 	return dir, nil
 }
 
@@ -327,7 +333,13 @@ func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
 	newName = addItemTo(newParent.Items, newName, iid)
 	f.saveFolders()
 	itemMove.To += "/" + newName
-	f.socket.BroadcastAssetMove(f.fileType, itemMove, cd.ID)
+	bid := int64(broadcastImageItemMove)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, itemMove, cd.ID)
 	return itemMove.To, nil
 }
 
@@ -359,7 +371,13 @@ func (f *folders) folderMove(cd ConnData, data []byte) (string, error) {
 	newName = addFolderTo(newParent.Folders, newName, fd)
 	f.saveFolders()
 	folderMove.To += "/" + newName
-	f.socket.BroadcastFolderMove(f.fileType, folderMove, cd.ID)
+	bid := int64(broadcastImageFolderMove)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, folderMove, cd.ID)
 	return folderMove.To, nil
 }
 
@@ -377,7 +395,13 @@ func (f *folders) itemDelete(cd ConnData, data []byte) error {
 	delete(parent.Items, oldName)
 	f.unlink(iid)
 	f.saveFolders()
-	f.socket.BroadcastAssetRemove(f.fileType, item, cd.ID)
+	bid := int64(broadcastImageItemRemove)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, item, cd.ID)
 	return nil
 }
 
@@ -409,7 +433,13 @@ func (f *folders) folderDelete(cd ConnData, data []byte) error {
 		}
 	})
 	f.saveFolders()
-	f.socket.BroadcastFolderRemove(f.fileType, folder, cd.ID)
+	bid := int64(broadcastImageFolderRemove)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, folder, cd.ID)
 	return nil
 }
 
@@ -433,7 +463,13 @@ func (f *folders) linkItem(cd ConnData, data []byte) (string, error) {
 	newName := addItemTo(parent.Items, name, link.ID)
 	f.saveFolders()
 	link.Name = link.Name[:len(link.Name)-len(name)] + newName
-	f.socket.BroadcastAssetLink(f.fileType, link, cd.ID)
+	bid := int64(broadcastImageItemLink)
+	if f.fileType == fileTypeAudio {
+		bid -= 1
+	} else if f.fileType == fileTypeCharacter {
+		bid -= 2
+	}
+	f.socket.broadcastAdminChange(bid, item, cd.ID)
 	return link.Name, nil
 }
 
