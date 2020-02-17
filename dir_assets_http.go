@@ -8,23 +8,25 @@ import (
 	"strings"
 )
 
-func (a *assetsDir) Options(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "" && a.auth.IsAdmin(r) {
-		w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-	} else if a.assetStore.Exists(r.URL.Path) && r.URL.Path != folderMetadata {
-		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
-	} else {
-		http.NotFound(w, r)
+func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet, http.MethodHead:
+		if r.URL.Path == folderMetadata {
+			http.NotFound(w, r)
+		} else {
+			a.handler.ServeHTTP(w, r)
+		}
+	case http.MethodPost:
+		if !a.auth.IsAdmin(r) {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		} else if r.URL.Path != "" {
+			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		} else if err := a.Post(w, r); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 	}
-}
-
-func (a *assetsDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path == folderMetadata {
-		http.NotFound(w, r)
-	} else {
-		a.handler.ServeHTTP(w, r)
-	}
-	return true
 }
 
 type idName struct {
@@ -32,15 +34,11 @@ type idName struct {
 	Name string `json:"name"`
 }
 
-func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if r.URL.Path != "" || !a.auth.IsAdmin(r) {
-		return false
-	}
+func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	m, err := r.MultipartReader()
 	defer r.Body.Close()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return true
+		return err
 	}
 	var (
 		added []idName
@@ -52,14 +50,12 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 			if err == io.EOF {
 				break
 			}
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		gft.Type = fileTypeUnknown
 		_, err = gft.ReadFrom(p)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		if gft.Type != a.fileType {
 			continue
@@ -71,8 +67,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
 		if err = a.assetStore.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		filename := p.FileName()
 		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
@@ -83,7 +78,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 	}
 	if len(added) == 0 {
 		w.WriteHeader(http.StatusNoContent)
-		return true
+		return nil
 	}
 	a.mu.Lock()
 	a.saveFolders()
@@ -99,7 +94,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		bid--
 	}
 	a.socket.broadcastAdminChange(bid, added, SocketIDFromRequest(r))
-	return true
+	return nil
 }
 
 const invalidFilenameChars = "\x00\r\n\\/"
