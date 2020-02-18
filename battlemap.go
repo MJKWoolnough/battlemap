@@ -78,13 +78,13 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 		"/images/", &b.images,
 		"/audio/", &b.sounds,
 		"/maps", &b.maps,
+		"/masks/": &b.masks,
 	} {
 		p := strings.TrimSuffix(path, "/")
 		b.mux.Handle(path, http.StripPrefix(path, module))
 		b.mux.Handle(p, http.StripPrefix(p, module))
 	}
 	for path, module := range map[string]Methods{
-		"/masks/":   &b.masks,
 		"/files/":   &b.files,
 		"/plugins/": &b.plugins,
 	} {

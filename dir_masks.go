@@ -12,7 +12,6 @@ import (
 	"sync"
 
 	"vimagination.zapto.org/errors"
-	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -52,40 +51,31 @@ func (m *masksDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (m *masksDir) Options(w http.ResponseWriter, r *http.Request) {
-	if isRoot(r.URL.Path) {
-		if m.auth.IsAdmin(r) {
-			w.Header().Set("Accept", "POST")
+func (m *masksDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		if isRoot(r.URL.Path) {
+			w.WriteHeader(http.StatusNotAcceptable)
 		} else {
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			m.fileserver.ServeHTTP(w, r)
 		}
-	} else if m.store.Exists(strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0")) {
-		if m.auth.IsAdmin(r) {
-			w.Header().Set("Accept", "GET, HEAD, PUT, DELETE")
-		} else {
-			w.Header().Set("Accept", "GET, HEAD")
+	case http.MethodPost:
+		if err := m.Post(w, r); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		}
-	} else {
-		http.NotFound(w, r)
+	case http.MethodPut:
+		if err := m.Put(w, r); err != nil {
+			http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		}
 	}
 }
 
-func (m *masksDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	if isRoot(r.URL.Path) {
-		w.WriteHeader(http.StatusNotAcceptable)
-	} else {
-		m.fileserver.ServeHTTP(w, r)
-	}
-	return true
-}
-
-func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
+func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) error {
 	if isRoot(r.URL.Path) {
 		im, _, err := image.Decode(r.Body)
 		r.Body.Close()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		if _, ok := im.(*image.Gray); !ok {
 			r := im.Bounds()
@@ -102,42 +92,25 @@ func (m *masksDir) Post(w http.ResponseWriter, r *http.Request) bool {
 		m.nextID++
 		m.mu.Unlock()
 		m.store.Set(strconv.FormatUint(id, 10), pngWriterTo{im})
-		var at AcceptType
-		httpaccept.HandleAccept(r, &at)
-		switch at {
-		case "json":
-			w.Header().Set(contentType, "application/json")
-			fmt.Fprintf(w, "%d", id)
-		case "xml":
-			w.Header().Set(contentType, "text/xml")
-			fmt.Fprintf(w, "<id>%d</id>", id)
-		case "form":
-			w.Header().Set(contentType, "application/x-www-form-urlencoded")
-			fmt.Fprintf(w, "id=%d", id)
-		default:
-			w.Header().Set(contentType, "text/plain")
-			fmt.Fprintf(w, "%d", id)
-		}
+		fmt.Fprintf(w, "%d", id)
 	} else {
 		w.WriteHeader(http.StatusNotAcceptable)
 	}
-	return true
+	return nil
 }
 
-func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
+func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) error {
 	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
 		id, err := strconv.ParseUint(idStr, 10, 64)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		im, _, err := image.Decode(r.Body)
 		r.Body.Close()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
+			return err
 		}
 		if _, ok := im.(*image.Gray); !ok {
 			r := im.Bounds()
@@ -154,19 +127,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) bool {
 	} else {
 		http.NotFound(w, r)
 	}
-	return true
-}
-
-func (m *masksDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if isRoot(r.URL.Path) {
-		w.WriteHeader(http.StatusNotAcceptable)
-	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
-		m.store.Remove(idStr)
-		w.WriteHeader(http.StatusNoContent)
-	} else {
-		http.NotFound(w, r)
-	}
-	return true
+	return nil
 }
 
 type pngWriterTo struct {
