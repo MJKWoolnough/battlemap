@@ -266,13 +266,13 @@ func (a *auth) LoginGetData(password string) string {
 
 func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "/update":
+	case "update":
 		a.UpdatePassword(w, r)
-	case "/logout":
+	case "logout":
 		a.Logout(w, r)
-	case "/login":
+	case "login":
 		a.Login(w, r)
-	case "/loggedin":
+	case "loggedin":
 		a.LoggedIn(w, r)
 	default:
 		http.NotFound(w, r)
