@@ -2,14 +2,13 @@ package battlemap
 
 import (
 	"compress/gzip"
-	"html/template"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
-	"time"
 
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
@@ -20,6 +19,7 @@ import (
 
 type pluginsDir struct {
 	http.Handler
+	json memio.Buffer
 }
 
 func (p *pluginsDir) Init(b *Battlemap) error {
@@ -46,7 +46,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	hd := httpdir.New(latest)
 	g, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
 	sort.Strings(fs)
-	list := make(pluginList, 0, len(fs))
+	list := make([]string, 0, len(fs))
 	for _, file := range fs {
 		if !strings.HasSuffix(file, ".js") {
 			continue
@@ -76,44 +76,17 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		if ft.After(latest) {
 			latest = ft
 		}
-		list = append(list, plugin{
-			File:    file,
-			Size:    fi.Size(),
-			Updated: ft.Format(time.RFC850),
-		})
+		list = append(list, file)
 	}
-	genPagesDir(latest, list, pluginsTemplate, "index", "plugins", "plugin", &hd)
 	p.Handler = httpgzip.FileServer(hd)
-	return nil
+	return json.NewEncoder(&p.json).Encode(list)
 }
-
-type pluginList []plugin
-
-type plugin struct {
-	File    string
-	Size    int64
-	Updated string
-}
-
-var pluginsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
-<html>
-	<head>
-		<title>Plugins</title>
-	</head>
-	<body>
-		<table>
-			<thead>
-				<tr><th>Name</th><th>Size</th><th>Last Updated</th></tr>
-			</thead>
-			<tbody>
-{{range .}}				<tr><td><a href="{{.File}}">{{.File}}</a></td><td>{{.Size}}</td><td>{{.Updated}}</td></tr>
-{{end}}			</tbody>
-		</table>
-	</body>
-</html>`))
 
 func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	p.Handler.ServeHTTP(w, r)
+	if r.URL.Path == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(p.json)
+	} else {
+		p.Handler.ServeHTTP(w, r)
+	}
 }
-
-var PluginsDir pluginsDir
