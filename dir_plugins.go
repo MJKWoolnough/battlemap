@@ -19,7 +19,6 @@ import (
 )
 
 type pluginsDir struct {
-	DefaultMethods
 	http.Handler
 }
 
@@ -47,7 +46,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	hd := httpdir.New(latest)
 	g, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
 	sort.Strings(fs)
-	list := make(PluginList, 0, len(fs))
+	list := make(pluginList, 0, len(fs))
 	for _, file := range fs {
 		if !strings.HasSuffix(file, ".js") {
 			continue
@@ -77,7 +76,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		if ft.After(latest) {
 			latest = ft
 		}
-		list = append(list, Plugin{
+		list = append(list, plugin{
 			File:    file,
 			Size:    fi.Size(),
 			Updated: ft.Format(time.RFC850),
@@ -88,9 +87,9 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	return nil
 }
 
-type PluginList []Plugin
+type pluginList []plugin
 
-type Plugin struct {
+type plugin struct {
 	File    string
 	Size    int64
 	Updated string
@@ -113,13 +112,8 @@ var pluginsTemplate = template.Must(template.New("").Parse(`<!DOCTYPE html>
 	</body>
 </html>`))
 
-func (p *pluginsDir) Options(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Allow", "OPTIONS, GET, HEAD")
-}
-
-func (p *pluginsDir) Get(w http.ResponseWriter, r *http.Request) bool {
+func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.Handler.ServeHTTP(w, r)
-	return true
 }
 
 var PluginsDir pluginsDir
