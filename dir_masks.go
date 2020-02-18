@@ -17,7 +17,6 @@ import (
 
 type masksDir struct {
 	*Battlemap
-	DefaultMethods
 	fileserver http.Handler
 	store      *keystore.FileStore
 	mu         sync.Mutex
