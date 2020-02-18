@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"fmt"
 	"html/template"
 	"io"
 	"net/http"
@@ -23,7 +24,6 @@ var linkTemplate = template.Must(template.New("").Parse(`<html>
 
 type filesDir struct {
 	*Battlemap
-	DefaultMethods
 	files *keystore.FileStore
 	http.Handler
 }
@@ -43,93 +43,88 @@ func (f *filesDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (f *filesDir) Options(w http.ResponseWriter, r *http.Request) {
-	if f.auth.IsAdmin(r) {
-		if isRoot(r.URL.Path) {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD, POST")
-		} else {
-			w.Header().Set("Allow", "OPTIONS, GET, HEAD, PUT, DELETE")
-			if !f.files.Exists(filepath.FromSlash(strings.TrimLeft(r.URL.Path, "/"))) {
-				http.NotFound(w, r)
-			}
-		}
-	} else {
-		w.Header().Set("Allow", "OPTIONS, GET, HEAD")
-	}
-}
-
-func (f *filesDir) Get(w http.ResponseWriter, r *http.Request) bool {
-	f.Handler.ServeHTTP(w, r)
-	return true
-}
-
-func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) bool {
-	if !isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
-		filename := filepath.FromSlash(r.URL.Path)
-		newFile := !f.files.Exists(filename)
-		err := f.files.Set(filename, readerWriterTo{r.Body})
-		r.Body.Close()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return true
-		}
-		w.Header().Set("Content-Location", path.Join("/files", r.URL.Path))
-		if newFile {
-			w.WriteHeader(http.StatusCreated)
-		} else {
-			w.WriteHeader(http.StatusNoContent)
-		}
-		return true
-	}
-	return false
-}
-
-func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) bool {
-	if isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
-		m, err := r.MultipartReader()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return true
-		}
-		var uploaded []string
-		for {
-			p, err := m.NextPart()
-			if err != nil {
-				if err == io.EOF {
-					break
-				}
+func (f *filesDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		f.Handler.ServeHTTP(w, r)
+		return
+	case http.MethodPost:
+		if isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
+			if err := f.Post(w, r); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
-				return true
 			}
-			name := p.FileName()
-			if name == "" || strings.IndexByte(name, '/') >= 0 {
-				continue
-			}
-			if err := f.files.Set(name, readerWriterTo{p}); err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return true
-			}
-			uploaded = append(uploaded, name)
+			return
 		}
-		w.Header().Set("Content-Type", "text/html; charset=utf-8")
-		linkTemplate.Execute(w, uploaded)
-		return true
+	case http.MethodPut:
+		if !isRoot(r.URL.Path) && f.auth.IsAdmin(r) {
+			if err := f.Put(w, r); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			return
+		}
+	case http.MethodDelete:
+		if f.auth.IsAdmin(r) && !isRoot(r.URL.Path) {
+			if err := f.Delete(w, r); err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+			}
+			return
+		}
 	}
-	return false
+	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 }
 
-func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) bool {
-	if f.auth.IsAdmin(r) && !isRoot(r.URL.Path) {
-		if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
-			if err == keystore.ErrUnknownKey {
-				http.NotFound(w, r)
-				return true
+func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) error {
+	filename := filepath.FromSlash(r.URL.Path)
+	newFile := !f.files.Exists(filename)
+	err := f.files.Set(filename, readerWriterTo{r.Body})
+	r.Body.Close()
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Location", path.Join("/files", r.URL.Path))
+	if newFile {
+		w.WriteHeader(http.StatusCreated)
+	} else {
+		w.WriteHeader(http.StatusNoContent)
+	}
+}
+
+func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) error {
+	m, err := r.MultipartReader()
+	if err != nil {
+		return err
+	}
+	var uploaded []string
+	for {
+		p, err := m.NextPart()
+		if err != nil {
+			if err == io.EOF {
+				break
 			}
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return err
+		}
+		name := p.FileName()
+		if name == "" || strings.IndexByte(name, '/') >= 0 {
+			continue
+		}
+		if err := f.files.Set(name, readerWriterTo{p}); err != nil {
+			return err
+		}
+		uploaded = append(uploaded, name)
+	}
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	for _, file := range uploaded {
+		fmt.Fprintln(w, file)
+	}
+}
+
+func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) error {
+	if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
+		if err == keystore.ErrUnknownKey {
+			http.NotFound(w, r)
 			return true
 		}
-		w.WriteHeader(http.StatusNoContent)
-		return true
+		return err
 	}
-	return false
+	w.WriteHeader(http.StatusNoContent)
 }
