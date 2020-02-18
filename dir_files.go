@@ -87,6 +87,7 @@ func (f *filesDir) Put(w http.ResponseWriter, r *http.Request) error {
 	} else {
 		w.WriteHeader(http.StatusNoContent)
 	}
+	return nil
 }
 
 func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) error {
@@ -116,15 +117,17 @@ func (f *filesDir) Post(w http.ResponseWriter, r *http.Request) error {
 	for _, file := range uploaded {
 		fmt.Fprintln(w, file)
 	}
+	return nil
 }
 
 func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) error {
 	if err := f.files.Remove(filepath.FromSlash(r.URL.Path)); err != nil {
 		if err == keystore.ErrUnknownKey {
 			http.NotFound(w, r)
-			return true
+			return nil
 		}
 		return err
 	}
 	w.WriteHeader(http.StatusNoContent)
+	return nil
 }
