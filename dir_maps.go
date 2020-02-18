@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 
 	"vimagination.zapto.org/errors"
@@ -16,7 +17,6 @@ import (
 
 type mapsDir struct {
 	*Battlemap
-	DefaultMethods
 
 	store *keystore.FileStore
 
@@ -207,6 +207,25 @@ func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*Map, *Layer, *T
 func (m *mapsDir) updateMapJSON() {
 	m.json = m.json[:0]
 	json.NewEncoder(&m.json).Encode(m.order)
+}
+
+func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if m.auth.IsAdmin(r) {
+		m.mu.RLock()
+		m.handler.ServeHTTP(w, r)
+		m.mu.RUnlock()
+	} else {
+		var currentUserMap keystore.Uint
+		m.config.Get("currentUserMap", &currentUserMap)
+		id, _ := strconv.ParseUint(strings.TrimPrefix(r.URL.Path, "/"), 10, 0)
+		if id == uint64(currentUserMap) {
+			m.mu.RLock()
+			m.handler.ServeHTTP(w, r)
+			m.mu.RUnlock()
+		} else {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		}
+	}
 }
 
 type MapIDError struct {
