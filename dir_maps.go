@@ -2,6 +2,7 @@ package battlemap
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -10,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 )
@@ -33,12 +33,12 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	var location keystore.String
 	err := b.config.Get("MapsDir", &location)
 	if err != nil {
-		return errors.WithContext("error getting map directory: ", err)
+		return fmt.Errorf("error getting map directory: %w", err)
 	}
 	sp := filepath.Join(b.config.BaseDir, string(location))
 	m.store, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating map store: ", err)
+		return fmt.Errorf("error creating map store: %w", err)
 	}
 	keys := m.store.Keys()
 	m.maps = make(map[uint64]*Map, len(keys))
@@ -53,10 +53,10 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		}
 		mp := new(Map)
 		if err = m.store.Get(key, mp); err != nil {
-			return errors.WithContext(fmt.Sprintf("error reading map data (%q): ", key), err)
+			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
 		if id != mp.ID {
-			return MapIDError{id, mp.ID}
+			return fmt.Errorf("Key ID and Parsed ID do not match: %d, %d", id, mp.ID)
 		}
 		m.maps[id] = mp
 		m.order = append(m.order, mp)
@@ -82,7 +82,7 @@ type mapDetails struct {
 
 func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 	if nm.Width == 0 || nm.Height == 0 {
-		return 0, errors.Error("invalid dimensions")
+		return 0, ErrInvalidDimensions
 	}
 	m.mu.Lock()
 	m.lastID++
@@ -161,10 +161,8 @@ func genGridPath(squaresWidth uint64) string {
 func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
 	m.mu.Lock()
 	mp, ok := m.maps[id]
-	if ok {
-		if fn(mp) {
-			m.store.Set(strconv.FormatUint(id, 10), mp)
-		}
+	if ok && fn(mp) {
+		m.store.Set(strconv.FormatUint(id, 10), mp)
 	}
 	m.updateMapJSON()
 	m.mu.Unlock()
@@ -228,16 +226,10 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type MapIDError struct {
-	KeyID, ParsedID uint64
-}
-
-func (m MapIDError) Error() string {
-	return fmt.Sprintf("Key ID and Parsed ID do not match: %d, %d", m.KeyID, m.ParsedID)
-}
-
-const (
-	ErrUnknownMap   errors.Error = "unknown map"
-	ErrUnknownLayer errors.Error = "unknown layer"
-	ErrUnknownToken errors.Error = "unknown token"
+// Errors
+var (
+	ErrUnknownMap        = errors.New("unknown map")
+	ErrUnknownLayer      = errors.New("unknown layer")
+	ErrUnknownToken      = errors.New("unknown token")
+	ErrInvalidDimensions = errors.New("invalid dimensions")
 )
