@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"path"
@@ -12,15 +11,6 @@ import (
 	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
-
-var linkTemplate = template.Must(template.New("").Parse(`<html>
-	<head>
-		<title>Uploads</title>
-	</head>
-	<body>
-		{{range .}}<a href="{{.}}">{{.}}</a><br />
-{{end}}	</body>
-</html>`))
 
 type filesDir struct {
 	*Battlemap
