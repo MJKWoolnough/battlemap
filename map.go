@@ -9,65 +9,65 @@ import (
 
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
-type MapX struct {
+type mapX struct {
 	ID         uint64     `xml:"id,attr" json:"id"`
 	Name       string     `xml:"data-name,attr" json:"name"`
 	Order      int64      `xml:"data-order,attr" json:"-"`
-	Initiative Initiative `xml:"data-initiative,attr,omitempty" json:"-"`
+	Initiative initiative `xml:"data-initiative,attr,omitempty" json:"-"`
 	Width      uint64     `xml:"width,attr" json:"-"`
 	Height     uint64     `xml:"height,attr" json:"-"`
-	Patterns   Patterns   `xml:"defs>pattern,omitempty" json:"-"`
-	Masks      []Mask     `xml:"defs>mask,omitempty" json:"-"`
-	Layers     Layers     `xml:"g>g,omitempty" json:"-"`
+	Patterns   patterns   `xml:"defs>pattern,omitempty" json:"-"`
+	Masks      []mask     `xml:"defs>mask,omitempty" json:"-"`
+	Layers     layers     `xml:"g>g,omitempty" json:"-"`
 }
 
-type Patterns []Pattern
+type patterns []pattern
 
-type PatternX struct {
-	ID     string `xml:"id,attr"`
-	Width  uint64 `xml:"width,attr"`
-	Height uint64 `xml:"height,attr"`
-	Image  *Token `xml:"image,omitempty"`
-	Path   *Path  `xml:"path,omitempty"`
+type patternX struct {
+	ID     string       `xml:"id,attr"`
+	Width  uint64       `xml:"width,attr"`
+	Height uint64       `xml:"height,attr"`
+	Image  *token       `xml:"image,omitempty"`
+	Path   *patternPath `xml:"path,omitempty"`
 }
 
-type Mask struct {
+type mask struct {
 	ID    string `xml:"id,attr"`
-	Image Token  `xml:"image"`
+	Image token  `xml:"image"`
 }
 
-type Path struct {
+type patternPath struct {
 	Path        string `xml:"d,attr"`
-	Fill        Colour `xml:"fill,attr,omitempty"`
-	Stroke      Colour `xml:"stroke,attr,omitempty"`
+	Fill        colour `xml:"fill,attr,omitempty"`
+	Stroke      colour `xml:"stroke,attr,omitempty"`
 	StrokeWidth uint64 `xml:"stroke-width,attr,omitempty"`
 }
 
-type Layer struct {
+type layer struct {
 	ID     string `xml:"id,attr"`
 	Name   string `xml:"data-name,attr"`
 	Mask   string `xml:"mask,attr,omitempty"`
-	Tokens Tokens `xml:",omitempty,any"`
-	Hidden Hidden `xml:"visibility,attr,omitempty"`
+	Tokens tokens `xml:",omitempty,any"`
+	Hidden hidden `xml:"visibility,attr,omitempty"`
 }
 
-type Token struct {
-	Source      string `json:"source"`
-	Stroke      Colour `json:"colour"`
-	StrokeWidth uint64 `json:"strokeWidth"`
-	ID          uint64 `json:"-"`
-	X           int64  `json:"x"`
-	Y           int64  `json:"y"`
-	Width       uint64 `json:"width"`
-	Height      uint64 `json:"height"`
-	Rotation    uint8  `json:"rotation"`
-	Flip        bool   `json:"flip"`
-	Flop        bool   `json:"flop"`
-	TokenData   uint64 `json:"tokenData"`
-	TokenType   `json:"tokenType"`
+type token struct {
+	Source      string    `json:"source"`
+	Stroke      colour    `json:"colour"`
+	StrokeWidth uint64    `json:"strokeWidth"`
+	ID          uint64    `json:"-"`
+	X           int64     `json:"x"`
+	Y           int64     `json:"y"`
+	Width       uint64    `json:"width"`
+	Height      uint64    `json:"height"`
+	Rotation    uint8     `json:"rotation"`
+	Flip        bool      `json:"flip"`
+	Flop        bool      `json:"flop"`
+	TokenData   uint64    `json:"tokenData"`
+	TokenType   tokenType `json:"tokenType"`
 }
 
-func (m *Map) WriteTo(w io.Writer) (int64, error) {
+func (m *levelMap) WriteTo(w io.Writer) (int64, error) {
 	cw := rwcount.Writer{Writer: w}
 	io.WriteString(&cw, xml.Header)
 	xe := xml.NewEncoder(&cw)
@@ -76,7 +76,7 @@ func (m *Map) WriteTo(w io.Writer) (int64, error) {
 	return cw.Count, cw.Err
 }
 
-func (m *Map) ReadFrom(r io.Reader) (int64, error) {
+func (m *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	cr := rwcount.Reader{Reader: r}
 	cr.Err = xml.NewDecoder(&cr).Decode(m)
 	return cr.Count, cr.Err

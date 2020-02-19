@@ -21,8 +21,8 @@ type mapsDir struct {
 	store *keystore.FileStore
 
 	mu               sync.RWMutex
-	maps             map[uint64]*Map
-	order            Maps
+	maps             map[uint64]*levelMap
+	order            maps
 	lastID           uint64
 	json             memio.Buffer
 	handler, indexes http.Handler
@@ -41,8 +41,8 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	keys := m.store.Keys()
-	m.maps = make(map[uint64]*Map, len(keys))
-	m.order = make(Maps, 0, len(keys))
+	m.maps = make(map[uint64]*levelMap, len(keys))
+	m.order = make(maps, 0, len(keys))
 	for _, key := range keys {
 		id, err := strconv.ParseUint(key, 10, 0)
 		if err != nil {
@@ -51,7 +51,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		if _, ok := m.maps[id]; ok {
 			continue
 		}
-		mp := new(Map)
+		mp := new(levelMap)
 		if err = m.store.Get(key, mp); err != nil {
 			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
@@ -76,7 +76,7 @@ type mapDetails struct {
 	Width         uint64 `json:"width" xml:"width,attr"`
 	Height        uint64 `json:"height" xml:"height,attr"`
 	SquaresWidth  uint64 `json:"square" xml:"square,attr"`
-	SquaresColour Colour `json:"colour" xml:"colour,attr"`
+	SquaresColour colour `json:"colour" xml:"colour,attr"`
 	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
 }
 
@@ -96,35 +96,35 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 	} else {
 		order = m.order[len(m.order)-1].Order + 1
 	}
-	mp := &Map{
+	mp := &levelMap{
 		ID:     mid,
 		Name:   nm.Name,
 		Order:  order,
 		Width:  nm.Width,
 		Height: nm.Height,
-		Patterns: []Pattern{
+		Patterns: []pattern{
 			genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
-		Layers: Layers{
-			&Layer{
+		Layers: layers{
+			&layer{
 				ID:   "Layer_1",
 				Name: "Layer",
 			},
-			&Layer{
+			&layer{
 				ID:   "Light",
 				Name: "Light",
-				Tokens: Tokens{
-					&Token{
+				Tokens: tokens{
+					&token{
 						Source:    "rgba(0, 0, 0, 0)",
 						TokenType: tokenRect,
 					},
 				},
 			},
-			&Layer{
+			&layer{
 				ID:   "Grid",
 				Name: "Grid",
-				Tokens: Tokens{
-					&Token{
+				Tokens: tokens{
+					&token{
 						Source:    "gridPattern",
 						TokenType: tokenPattern,
 					},
@@ -140,12 +140,12 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 	return mid, nil
 }
 
-func genGridPattern(squaresWidth uint64, squaresColour Colour, squaresStroke uint64) Pattern {
-	return Pattern{
+func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) pattern {
+	return pattern{
 		ID:     "gridPattern",
 		Width:  squaresWidth,
 		Height: squaresWidth,
-		Path: &Path{
+		Path: &patternPath{
 			Path:        genGridPath(squaresWidth),
 			Stroke:      squaresColour,
 			StrokeWidth: squaresStroke,
@@ -158,7 +158,7 @@ func genGridPath(squaresWidth uint64) string {
 	return "M 0 " + sqStr + " V 0 H " + sqStr
 }
 
-func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
+func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 	m.mu.Lock()
 	mp, ok := m.maps[id]
 	if ok && fn(mp) {
@@ -172,9 +172,9 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*Map) bool) error {
 	return nil
 }
 
-func (m *mapsDir) updateMapLayer(mid uint64, lid string, fn func(*Map, *Layer) bool) error {
+func (m *mapsDir) updateMapLayer(mid uint64, lid string, fn func(*levelMap, *layer) bool) error {
 	var err error
-	err = m.updateMapData(mid, func(mp *Map) bool {
+	err = m.updateMapData(mid, func(mp *levelMap) bool {
 		for _, l := range mp.Layers {
 			if l.ID == lid {
 				return fn(mp, l)
@@ -186,9 +186,9 @@ func (m *mapsDir) updateMapLayer(mid uint64, lid string, fn func(*Map, *Layer) b
 	return err
 }
 
-func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*Map, *Layer, *Token) bool) error {
+func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*levelMap, *layer, *token) bool) error {
 	var err error
-	err = m.updateMapData(mid, func(mp *Map) bool {
+	err = m.updateMapData(mid, func(mp *levelMap) bool {
 		for _, l := range mp.Layers {
 			for _, t := range l.Tokens {
 				if t.ID == tid {

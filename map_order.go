@@ -6,21 +6,21 @@ import (
 	"strconv"
 )
 
-type Maps []*Map
+type maps []*levelMap
 
-func (m Maps) Len() int {
+func (m maps) Len() int {
 	return len(m)
 }
 
-func (m Maps) Less(i, j int) bool {
+func (m maps) Less(i, j int) bool {
 	return m[i].Order < m[j].Order
 }
 
-func (m Maps) Swap(i, j int) {
+func (m maps) Swap(i, j int) {
 	m[i], m[j] = m[j], m[i]
 }
 
-func (m Maps) Move(mp *Map, j int) Maps {
+func (m maps) Move(mp *levelMap, j int) maps {
 	if j < 0 || j >= len(m) {
 		return nil
 	}
@@ -56,7 +56,7 @@ func (m Maps) Move(mp *Map, j int) Maps {
 	return m[j:most]
 }
 
-func (m *Maps) Remove(mp *Map) {
+func (m *maps) Remove(mp *levelMap) {
 	i := m.getPos(mp)
 	if i >= len(*m) {
 		return
@@ -66,19 +66,19 @@ func (m *Maps) Remove(mp *Map) {
 	*m = (*m)[:len(*m)-1]
 }
 
-func (m Maps) getPos(mp *Map) int {
+func (m maps) getPos(mp *levelMap) int {
 	return sort.Search(len(m), func(i int) bool {
 		return m[i].Order >= mp.Order
 	})
 }
 
-func (m Maps) Fix() {
+func (m maps) Fix() {
 	for n, mp := range m {
 		mp.Order = int64(n) + 1
 	}
 }
 
-func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+func (m maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	s.Attr = []xml.Attr{
 		{Name: xml.Name{Local: "id"}},
 	}
@@ -98,9 +98,9 @@ func (m Maps) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	return nil
 }
 
-type Layers []*Layer
+type layers []*layer
 
-func (l Layers) Move(i, j int) {
+func (l layers) Move(i, j int) {
 	if i < 0 || i >= len(l) || j < 0 || j >= len(l) || i == j {
 		return
 	}
@@ -113,15 +113,15 @@ func (l Layers) Move(i, j int) {
 	l[j] = e
 }
 
-func (l *Layers) Remove(i int) {
+func (l *layers) Remove(i int) {
 	copy((*l)[i:], (*l)[i+1:])
 	(*l)[len(*l)-1] = nil
 	*l = (*l)[:len(*l)-1]
 }
 
-type Tokens []*Token
+type tokens []*token
 
-func (t Tokens) Move(i, j int) {
+func (t tokens) Move(i, j int) {
 	if i < 0 || i >= len(t) || j < 0 || j >= len(t) || i == j {
 		return
 	}
@@ -134,17 +134,17 @@ func (t Tokens) Move(i, j int) {
 	t[j] = e
 }
 
-func (t *Tokens) Remove(i int) {
+func (t *tokens) Remove(i int) {
 	copy((*t)[i:], (*t)[i+1:])
 	(*t)[len(*t)-1] = nil
 	*t = (*t)[:len(*t)-1]
 }
 
-func (p *Patterns) Remove(id string) string {
+func (p *patterns) Remove(id string) string {
 	for n, pt := range *p {
 		if pt.ID == id {
 			copy((*p)[n:], (*p)[n+1:])
-			(*p)[len(*p)-1] = Pattern{}
+			(*p)[len(*p)-1] = pattern{}
 			*p = (*p)[:len(*p)-1]
 			if pt.Image != nil {
 				return pt.Image.Source

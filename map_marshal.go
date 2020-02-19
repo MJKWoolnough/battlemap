@@ -10,9 +10,9 @@ import (
 	"vimagination.zapto.org/parser"
 )
 
-type Map MapX
+type levelMap mapX
 
-var MapAttrs = [...]xml.Attr{
+var mapAttrs = [...]xml.Attr{
 	{
 		Name:  xml.Name{Local: "xmlns"},
 		Value: "http://www.w3.org/2000/svg",
@@ -22,35 +22,35 @@ var MapAttrs = [...]xml.Attr{
 	},
 }
 
-func (x *Map) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	s.Attr = MapAttrs[:]
-	return e.EncodeElement((*MapX)(x), s)
+func (x *levelMap) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+	s.Attr = mapAttrs[:]
+	return e.EncodeElement((*mapX)(x), s)
 }
 
-type Pattern PatternX
+type pattern patternX
 
-var PatternAttrs = [...]xml.Attr{
+var patternAttrs = [...]xml.Attr{
 	{
 		Name:  xml.Name{Local: "patternUnits"},
 		Value: "userSpaceOnUse",
 	},
 }
 
-func (x *Pattern) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
-	s.Attr = PatternAttrs[:]
-	return e.EncodeElement((*PatternX)(x), s)
+func (x *pattern) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+	s.Attr = patternAttrs[:]
+	return e.EncodeElement((*patternX)(x), s)
 }
 
-type TokenType uint8
+type tokenType uint8
 
 const (
-	tokenImage TokenType = iota + 1
+	tokenImage tokenType = iota + 1
 	tokenPattern
 	tokenRect
 	tokenCircle
 )
 
-func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+func (x *token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 	var transform string
 	translateX := x.X
 	translateY := x.Y
@@ -229,7 +229,7 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 
 const numbers = "0123456789"
 
-func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+func (x *token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	d.Skip()
 	switch s.Name.Local {
 	case "image":
@@ -343,21 +343,21 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	return nil
 }
 
-type Colour struct {
+type colour struct {
 	R uint8 `json:"r"`
 	G uint8 `json:"g"`
 	B uint8 `json:"b"`
 	A uint8 `json:"a"`
 }
 
-func (c Colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (c colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return xml.Attr{
 		Name:  name,
 		Value: fmt.Sprintf("rgba(%d, %d, %d, %.2f)", c.R, c.G, c.B, float32(c.A)/255),
 	}, nil
 }
 
-func (c *Colour) UnmarshalXMLAttr(attr xml.Attr) error {
+func (c *colour) UnmarshalXMLAttr(attr xml.Attr) error {
 	cs := strings.Split(strings.TrimSuffix(strings.TrimPrefix(attr.Value, "rgba("), ")"), ",")
 	if len(cs) != 4 {
 		return ErrInvalidColour
@@ -385,9 +385,9 @@ func (c *Colour) UnmarshalXMLAttr(attr xml.Attr) error {
 	return nil
 }
 
-type Hidden bool
+type hidden bool
 
-func (h Hidden) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (h hidden) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	attr := xml.Attr{Name: name}
 	if h {
 		attr.Value = "hidden"
@@ -397,14 +397,14 @@ func (h Hidden) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	return attr, nil
 }
 
-func (h *Hidden) Unmarshal(attr xml.Attr) error {
+func (h *hidden) Unmarshal(attr xml.Attr) error {
 	*h = attr.Value == "hidden"
 	return nil
 }
 
-type Initiative []uint64
+type initiative []uint64
 
-func (i Initiative) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
+func (i initiative) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	var sb strings.Builder
 	for n, init := range i {
 		if n > 0 {
@@ -418,8 +418,8 @@ func (i Initiative) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 	}, nil
 }
 
-func (i *Initiative) UnmarshalXMLAttr(attr xml.Attr) error {
-	*i = make(Initiative, strings.Count(attr.Value, ",")+1)
+func (i *initiative) UnmarshalXMLAttr(attr xml.Attr) error {
+	*i = make(initiative, strings.Count(attr.Value, ",")+1)
 	for _, idStr := range strings.Split(attr.Value, ",") {
 		n, err := strconv.ParseUint(idStr, 10, 64)
 		if err != nil {
