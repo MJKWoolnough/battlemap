@@ -55,6 +55,10 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 	s.mu.Unlock()
 }
 
+// AuthConn is the interface required to be implemented for a custom Auth
+// module to handle websocket RPC connections.
+//
+// The RPC data method will receive all 'auth' methods called via RPC.
 type AuthConn interface {
 	IsAdmin() bool
 	RPCData(connData ConnData, method string, data []byte) (interface{}, error)
@@ -68,13 +72,18 @@ type conn struct {
 	ConnData
 }
 
+// ID is a unique connection ID for a websocket RPC connection
 type ID uint64
 
+// SocketIDFromRequest gets the connection ID (if available) from the HTTP
+// headers. It returns zero if no ID is found.
 func SocketIDFromRequest(r *http.Request) ID {
 	id, _ := strconv.ParseUint(r.Header.Get("X-ID"), 10, 0)
 	return ID(id)
 }
 
+// ConnData represents all of the data required to handle a websocket RPC
+// connection.
 type ConnData struct {
 	CurrentMap uint64
 	ID         ID
