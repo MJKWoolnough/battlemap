@@ -65,11 +65,6 @@ func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type idName struct {
-	ID   uint64 `json:"id"`
-	Name string `json:"name"`
-}
-
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	m, err := r.MultipartReader()
 	defer r.Body.Close()
