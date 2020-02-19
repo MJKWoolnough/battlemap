@@ -216,7 +216,7 @@ func (x *Token) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
 			}),
 		}
 	default:
-		return errors.Error("invalid token type")
+		return ErrInvalidTokenType
 	}
 	if transform == "" {
 		s.Attr = s.Attr[:len(s.Attr)-1]
@@ -434,4 +434,5 @@ func (i *Initiative) UnmarshalXMLAttr(attr xml.Attr) error {
 var (
 	ErrInvalidTokenSource = errors.New("invalid token source")
 	ErrInvalidColour      = errors.New("invalid colour")
+	ErrInvalidTokenType   = errors.New("invalid token type")
 )
