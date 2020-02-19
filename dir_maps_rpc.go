@@ -2,10 +2,10 @@ package battlemap
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -501,6 +501,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 	return nil, ErrUnknownMethod
 }
 
-const (
-	ErrInvalidData errors.Error = "invalid map data"
+// Errors
+var (
+	ErrInvalidData = errors.New("invalid map data")
 )

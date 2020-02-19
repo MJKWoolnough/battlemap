@@ -3,6 +3,7 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -10,7 +11,6 @@ import (
 	"sort"
 	"strings"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/keystore"
@@ -36,11 +36,11 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	}
 	di, err := d.Stat()
 	if err != nil {
-		return errors.WithContext("error reading plugin directory stats: ", err)
+		return fmt.Errorf("error reading plugin directory stats: %w", err)
 	}
 	fs, err := d.Readdirnames(-1)
 	if err != nil {
-		return errors.WithContext("error reading plugin directory: ", err)
+		return fmt.Errorf("error reading plugin directory: %w", err)
 	}
 	latest := di.ModTime()
 	hd := httpdir.New(latest)
@@ -53,12 +53,12 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		}
 		f, err := os.Open(file)
 		if err != nil {
-			return errors.WithContext("error opening plugin file: ", err)
+			return fmt.Errorf("error opening plugin file: %w", err)
 		}
 		fi, err := f.Stat()
 		if err != nil {
 			f.Close()
-			return errors.WithContext("error stat'ing plugin file: ", err)
+			return fmt.Errorf("error stat'ing plugin file: %w", err)
 		}
 		buf := make([]byte, 0, fi.Size())
 		_, err = io.ReadFull(f, buf)

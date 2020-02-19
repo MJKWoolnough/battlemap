@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -27,7 +26,7 @@ func (f *filesDir) Init(b *Battlemap) error {
 	b.config.Get("filesDir", &location)
 	f.files, err = keystore.NewFileStore(filepath.Join(b.config.BaseDir, string(location)), "", keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating file store: ", err)
+		return fmt.Errorf("error creating file store: %w", err)
 	}
 	f.Handler = http.FileServer(http.Dir(location))
 	return nil

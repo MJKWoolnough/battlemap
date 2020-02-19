@@ -11,7 +11,6 @@ import (
 	"strings"
 	"sync"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -28,12 +27,12 @@ func (m *masksDir) Init(b *Battlemap) error {
 	var location keystore.String
 	err := b.config.Get("MasksDir", &location)
 	if err != nil {
-		return errors.WithContext("error getting masks directory: ", err)
+		return fmt.Errorf("error getting masks directory: %w", err)
 	}
 	mp := filepath.Join(b.config.BaseDir, string(location))
 	m.store, err = keystore.NewFileStore(mp, mp, keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating mask store: ", err)
+		return fmt.Errorf("error creating mask store: %w", err)
 	}
 	m.fileserver = http.FileServer(http.Dir(mp))
 	var largestID uint64

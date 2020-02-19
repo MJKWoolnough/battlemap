@@ -2,11 +2,11 @@ package battlemap
 
 import (
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/parser"
 )
 
@@ -263,7 +263,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 					t.AcceptRun(numbers)
 					var err error
 					if translateX, err = strconv.ParseInt(t.Get(), 10, 64); err != nil {
-						return errors.WithContext("error parsing translate X: ", err)
+						return fmt.Errorf("error parsing translate X: %w", err)
 					}
 					t.AcceptRun(" ")
 					if t.Accept(")") {
@@ -276,7 +276,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 					t.Accept("-")
 					t.AcceptRun(numbers)
 					if translateY, err = strconv.ParseInt(t.Get(), 10, 64); err != nil {
-						return errors.WithContext("error parsing translate Y: ", err)
+						return fmt.Errorf("error parsing translate Y: %w", err)
 					}
 					t.AcceptRun(" ")
 					t.Accept(")")
@@ -295,7 +295,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 					t.AcceptRun(numbers)
 					r, err := strconv.ParseUint(t.Get(), 10, 64)
 					if err != nil {
-						return errors.WithContext("error parsing rotation: ", err)
+						return fmt.Errorf("error parsing rotation: %w", err)
 					}
 					x.Rotation = uint8(r % 360 * 256 / 360)
 					t.ExceptRun(")")
@@ -326,7 +326,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 			x.TokenData, err = strconv.ParseUint(attr.Value, 10, 64)
 		}
 		if err != nil {
-			return errors.WithContext("error unmarshling token: ", err)
+			return fmt.Errorf("error unmarshling token: %w", err)
 		}
 	}
 	if x.Flop {
@@ -338,7 +338,7 @@ func (x *Token) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	x.X = translateX
 	x.Y = translateY
 	if (x.TokenType == tokenImage || x.TokenType == tokenPattern) && x.Source == "" {
-		return errors.Error("invalid token source")
+		return ErrInvalidTokenSource
 	}
 	return nil
 }
@@ -360,23 +360,23 @@ func (c Colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
 func (c *Colour) UnmarshalXMLAttr(attr xml.Attr) error {
 	cs := strings.Split(strings.TrimSuffix(strings.TrimPrefix(attr.Value, "rgba("), ")"), ",")
 	if len(cs) != 4 {
-		return errors.Error("invalid colour")
+		return ErrInvalidColour
 	}
 	r, err := strconv.ParseUint(strings.TrimSpace(cs[0]), 10, 8)
 	if err != nil {
-		return errors.WithContext("error decoding Red: ", err)
+		return fmt.Errorf("error decoding Red: %w", err)
 	}
 	g, err := strconv.ParseUint(strings.TrimSpace(cs[1]), 10, 8)
 	if err != nil {
-		return errors.WithContext("error decoding Green: ", err)
+		return fmt.Errorf("error decoding Green: %w", err)
 	}
 	b, err := strconv.ParseUint(strings.TrimSpace(cs[2]), 10, 8)
 	if err != nil {
-		return errors.WithContext("error decoding Blue: ", err)
+		return fmt.Errorf("error decoding Blue: %w", err)
 	}
 	a, err := strconv.ParseFloat(strings.TrimSpace(cs[3]), 32)
 	if err != nil {
-		return errors.WithContext("error decoding Alpha: ", err)
+		return fmt.Errorf("error decoding Alpha: %w", err)
 	}
 	c.R = uint8(r)
 	c.G = uint8(g)
@@ -429,3 +429,9 @@ func (i *Initiative) UnmarshalXMLAttr(attr xml.Attr) error {
 	}
 	return nil
 }
+
+// Errors
+var (
+	ErrInvalidTokenSource = errors.New("invalid token source")
+	ErrInvalidColour      = errors.New("invalid colour")
+)

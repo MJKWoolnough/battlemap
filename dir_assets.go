@@ -135,6 +135,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 
 const invalidFilenameChars = "\x00\r\n\\/"
 
+// Errors
 var (
 	ErrInvalidFileType = errors.New("invalid file type")
 	ErrAssetNotFound   = errors.New("asset not found")

@@ -2,13 +2,13 @@ package battlemap
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 
 	"golang.org/x/net/websocket"
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/jsonrpc"
 	"vimagination.zapto.org/keystore"
 )
@@ -136,7 +136,8 @@ func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 	return nil, ErrUnknownMethod
 }
 
-const (
-	ErrUnknownMethod   errors.Error = "unknown method"
-	ErrInvalidPassword errors.Error = "invalid password"
+// Errors
+var (
+	ErrUnknownMethod   = errors.New("unknown method")
+	ErrInvalidPassword = errors.New("invalid password")
 )

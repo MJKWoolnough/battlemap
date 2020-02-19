@@ -2,11 +2,12 @@ package battlemap
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"path/filepath"
 	"strconv"
 	"sync"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -24,12 +25,12 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 	var location keystore.String
 	err := b.config.Get(k.Name+"Dir", &location)
 	if err != nil {
-		return errors.WithContext("error retrieving keystore location: ", err)
+		return fmt.Errorf("error retrieving keystore location: %w", err)
 	}
 	sp := filepath.Join(b.config.BaseDir, string(location))
 	fileStore, err := keystore.NewFileStore(sp, sp, keystore.Base64Mangler)
 	if err != nil {
-		return errors.WithContext("error creating keystore: ", err)
+		return fmt.Errorf("error creating keystore: %w", err)
 	}
 	k.data = keystore.NewFileBackedMemStoreFromFileStore(fileStore)
 	k.fileType = fileTypeCharacter
@@ -155,6 +156,7 @@ type userKeystoreDir struct {
 	keystoreDir
 }
 
-const (
-	ErrDuplicateKey errors.Error = "duplicate key"
+// Errors
+var (
+	ErrDuplicateKey = errors.New("duplicate key")
 )

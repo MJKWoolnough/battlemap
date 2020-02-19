@@ -10,6 +10,10 @@ import (
 	"vimagination.zapto.org/httpgzip"
 )
 
+// Battlemap contains all of the data required for a battlemap system.
+//
+// This type implements the http.Handler interface so that it can be easily
+// added to an existing server.
 type Battlemap struct {
 	config     config
 	socket     socket
@@ -26,6 +30,12 @@ type Battlemap struct {
 	mux        http.ServeMux
 }
 
+// New creates a new, initialise Battlemap type, using the given path as its
+// datastore directory.
+//
+// The passed Auth module will be used for authenticating all users and setting
+// Admin mode. If nil is passed then it will use the built in auth module,
+// allowing all users as guests and allowing signing in as the Admin.
 func New(path string, auth Auth) (*Battlemap, error) {
 	b := new(Battlemap)
 	if err := b.initModules(path, auth); err != nil {

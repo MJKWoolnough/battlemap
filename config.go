@@ -1,9 +1,9 @@
 package battlemap
 
 import (
+	"fmt"
 	"io"
 
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/keystore"
 )
 
@@ -32,11 +32,11 @@ func (c *config) Init(baseDir string) error {
 	var err error
 	c.fileStore, err = keystore.NewFileStore(baseDir, baseDir, keystore.NoMangle)
 	if err != nil {
-		return errors.WithContext("error creating config store: ", err)
+		return fmt.Errorf("error creating config store: %w", err)
 	}
 	err = c.fileStore.Get(configFile, c.memStore)
 	if err != nil && err != keystore.ErrUnknownKey {
-		return errors.WithContext("error parsing config data: ", err)
+		return fmt.Errorf("error parsing config data: %w", err)
 	}
 	return nil
 }

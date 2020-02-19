@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/json"
+	"fmt"
 	"hash"
 	"io"
 	"net/http"
@@ -12,12 +13,12 @@ import (
 	"time"
 
 	"golang.org/x/net/websocket"
-	"vimagination.zapto.org/errors"
 	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/sessions"
 )
 
+// Auth allows for specifying a custom authorisation module
 type Auth interface {
 	http.Handler
 	Auth(*http.Request) *http.Request
@@ -66,7 +67,7 @@ func (a *auth) Init(b *Battlemap) error {
 	var err error
 	a.store, err = sessions.NewCookieStore(sessionKey, sessions.HTTPOnly(), sessions.Path("/"), sessions.Name("admin"), sessions.Expiry(time.Hour*24*30))
 	if err != nil {
-		return errors.WithContext("error creating Cookie Store: ", err)
+		return fmt.Errorf("error creating Cookie Store: %w", err)
 	}
 	a.passwordSalt = salt
 	a.password = password
@@ -78,7 +79,7 @@ func (a *auth) Init(b *Battlemap) error {
 			"sessionKey":   &sessionKey,
 			"sessionData":  &sessionData,
 		}); err != nil {
-			return errors.WithContext("error setting auth config: ", err)
+			return fmt.Errorf("error setting auth config: %w", err)
 		}
 	}
 	a.Battlemap = b
