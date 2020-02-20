@@ -1,4 +1,4 @@
-package battlemap
+package battlemap // import "vimagination.zapto.org/battlemap
 
 import (
 	"fmt"
