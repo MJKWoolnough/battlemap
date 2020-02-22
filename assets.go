@@ -14,8 +14,7 @@ import (
 
 type assetsDir struct {
 	folders
-	assetStore *keystore.FileStore
-	handler    http.Handler
+	handler http.Handler
 }
 
 func (a *assetsDir) Init(b *Battlemap) error {
@@ -97,7 +96,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		a.links[id] = 1
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
-		if err = a.assetStore.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
+		if err = a.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
 			return err
 		}
 		filename := p.FileName()
