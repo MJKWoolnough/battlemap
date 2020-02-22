@@ -137,6 +137,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 	m.updateMapJSON()
 	m.mu.Unlock()
 	m.store.Set(strconv.FormatUint(mid, 10), mp)
+	m.socket.broadcastAdminChange(broadcastMapAdd, idName{ID: mid, Name: mp.Name}, id)
 	return mid, nil
 }
 
