@@ -142,3 +142,8 @@ func (s *socket) broadcastAdminChange(id int, data interface{}, except ID) {
 	}
 	s.mu.RUnlock()
 }
+
+type idName struct {
+	ID   uint64 `json:"id"`
+	Name string `json:"name"`
+}
