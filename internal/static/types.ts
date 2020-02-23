@@ -14,7 +14,7 @@ export type FolderRPC = {
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
 
-	list:         ()                         => Promise<Folder>;
+	list:         ()                         => Promise<FolderItems>;
 	createFolder: (path: string)             => Promise<string>;
 	move:         (from: string, to: string) => Promise<string>;
 	moveFolder:   (from: string, to: string) => Promise<string>;
@@ -126,9 +126,9 @@ export type FromTo = {
 	to:   string;
 }
 
-export type Folder = {
-	folders: Record<string, Folder>;
-	assets:  Record<string, Int>;
+export type FolderItems = {
+	folders: Record<string, FolderItems>;
+	items:  Record<string, Int>;
 }
 
 export type Colour = {
