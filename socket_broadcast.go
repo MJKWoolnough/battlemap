@@ -53,7 +53,6 @@ const (
 	broadcastLayerRemove
 	broadcastLayerOrderChange
 
-	broadcastMapSettingsChange
 	broadcastMapLightChange
 
 	broadcastMapInitiative
