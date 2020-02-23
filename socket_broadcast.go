@@ -10,36 +10,47 @@ const (
 	broadcastIsAdmin = -1 - iota
 	broadcastCurrentUserMap
 
-	broadcastImageFolderAdd
-	broadcastAudioFolderAdd
-	broadcastCharacterFolderAdd
-	broadcastImageFolderMove
-	broadcastAudioFolderMove
-	broadcastCharacterFolderMove
-	broadcastImageFolderRemove
-	broadcastAudioFolderRemove
-	broadcastCharacterFolderRemove
 	broadcastImageItemAdd
 	broadcastAudioItemAdd
 	broadcastCharacterItemAdd
+	broadcastMapItemAdd
+
 	broadcastImageItemMove
 	broadcastAudioItemMove
 	broadcastCharacterItemMove
-	broadcastImageItemLink
-	broadcastAudioItemLink
-	broadcastCharacterItemLink
+	broadcastMapItemMove
+
 	broadcastImageItemRemove
 	broadcastAudioItemRemove
 	broadcastCharacterItemRemove
-	broadcastCharacterItemChange
+	broadcastMapItemRemove
 
-	broadcastMapAdd
+	broadcastImageItemLink
+	broadcastAudioItemLink
+	broadcastCharacterItemLink
+	broadcastMapItemLink
+
+	broadcastImageFolderAdd
+	broadcastAudioFolderAdd
+	broadcastCharacterFolderAdd
+	broadcastMapFolderAdd
+
+	broadcastImageFolderMove
+	broadcastAudioFolderMove
+	broadcastCharacterFolderMove
+	broadcastMapFolderMove
+
+	broadcastImageFolderRemove
+	broadcastAudioFolderRemove
+	broadcastCharacterFolderRemove
+	broadcastMapFolderRemove
+
+	broadcastCharacterItemChange
+	broadcastMapItemChange
+
 	broadcastLayerAdd
-	broadcastMapRename
 	broadcastLayerRename
-	broadcastMapRemove
 	broadcastLayerRemove
-	broadcastMapOrderChange
 	broadcastLayerOrderChange
 
 	broadcastMapSettingsChange
