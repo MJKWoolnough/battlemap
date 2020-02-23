@@ -5,55 +5,67 @@ export {LayerType} from './lib/layers.js';
 // export type Int = number & { __int__: void };
 export type Int = number;
 
-export type AssetRPC = {
-	waitAssetAdded:    () => Subscription<IDName[]>;
-	waitAssetMoved:    () => Subscription<FromTo>;
-	waitAssetRemoved:  () => Subscription<string>;
-	waitAssetLinked:   () => Subscription<IDName>;
+export type FolderRPC = {
+	waitAdded:         () => Subscription<IDName[]>;
+	waitMoved:         () => Subscription<FromTo>;
+	waitRemoved:       () => Subscription<string>;
+	waitLinked:        () => Subscription<IDName>;
 	waitFolderAdded:   () => Subscription<string>;
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
 
-	getAssets:    ()                         => Promise<Folder>;
+	list:         ()                         => Promise<Folder>;
 	createFolder: (path: string)             => Promise<string>;
-	moveAsset:    (from: string, to: string) => Promise<string>;
+	move:         (from: string, to: string) => Promise<string>;
 	moveFolder:   (from: string, to: string) => Promise<string>;
-	removeAsset:  (path: string)             => Promise<void>;
+	remove:       (path: string)             => Promise<void>;
 	removeFolder: (path: string)             => Promise<void>;
-	linkAsset:    (id: Int, name: string)    => Promise<string>;
+	link:         (id: Int, name: string)    => Promise<string>;
 }
 
 export type RPC = {
-	waitLogin:           () => Promise<Int>;
-	waitCurrentUserMap:  () => Promise<Int>;
+	waitLogin:             () => Subscription<Int>;
+	waitCurrentUserMap:    () => Subscription<Int>;
+	waitCharacterChange:   () => Subscription<Int>;
+	waitMapChange:         () => Subscription<MapDetails>; //check type
+	waitLayerAdd:          () => Subscription<MapLayer>;   //check type
+	waitLayerRename:       () => Subscription<FromTo>;     //check type
+	waitLayerRemove:       () => Subscription<Int>;        //check type
+	waitLayerOrderChange:  () => Subscription<Int[]>;      //check type
+	waitMapLightChange:    () => Subscription<Colour>;     //check type
+	waitMapInitiative:     () => Subscription<IDName[]>;   //check type
+	waitLayerShow:         () => Subscription<Int>;        //check type
+	waitLayerHide:         () => Subscription<Int>;        //check type
+	waitLayerMaskAdd:      () => Subscription<Int>;        //check type
+	waitLayerMaskChange:   () => Subscription<Int>;        //check type
+	waitLayerMaskRemove:   () => Subscription<Int>;        //check type
+	waitLayerTokenOrder:   () => Subscription<Int[]>;      //check type
+	waitTokenAdd:          () => Subscription<Int>;        //check type
+	waitTokenRemove:       () => Subscription<Int>;        //check type
+	waitTokenMove:         () => Subscription<Int>;        //check type
+	waitTokenResize:       () => Subscription<Int>;        //check type
+	waitTokenRotate:       () => Subscription<Int>;        //check type
+	waitTokenSetToken:     () => Subscription<Int>;        //check type
+	waitTokenSetImage:     () => Subscription<Int>;        //check type
+	waitTokenSetPattern:   () => Subscription<Int>;        //check type
 
-	waitMapAdd:             () => Subscription<Map>;
-	waitMapChange:          () => Subscription<Int>;
-	waitMapRename:          () => Subscription<Map>;
-	waitMapOrderChange:     () => Subscription<Map[]>;
-
-	images: AssetRPC,
-	audio:  AssetRPC,
-
-	waitCharacterAdd:       () => Subscription<Record<string, string>>;
-	waitCharacterChange:    () => Subscription<Record<string, string>>;
-	waitCharacterRemove:    () => Subscription<Int>;
-	waitTokenChange:        () => Subscription<Token>;
-	waitMaskChange:         () => Subscription<Int>;
+	images:     FolderRPC,
+	audio:      FolderRPC,
+	characters: FolderRPC,
+	maps:       FolderRPC,
 
 	connID: () => Promise<Int>;
 
-	getMapList:    ()        => Promise<Map[]>;
+	waitTokenChange:        () => Subscription<Token>;
+	waitMaskChange:         () => Subscription<Int>;
+
 	setCurrentMap: (id: Int) => Promise<void>;
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
 
 	newMap:        (map: MapDetails)        => Promise<Int>;
-	renameMap:     (id: Int, name: string)  => Promise<void>;
 	getMapDetails: (id: Int)                => Promise<MapDetails>;
 	setMapDetails: (map: MapDetails)        => Promise<void>;
-	moveMap:       (id: Int, position: Int) => Promise<void>;
-	removeMap:     (id: Int)                => Promise<void>;
 
 	addLayer:        (name: string)                        => Promise<string>;
 	renameLayer:     (id: string, name: string)            => Promise<void>;
