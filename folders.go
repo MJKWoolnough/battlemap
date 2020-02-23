@@ -254,11 +254,11 @@ func (f *folders) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return f.list(), nil
 		case "createFolder":
 			return f.folderCreate(cd, data)
-		case "moveAsset":
+		case "move":
 			return f.itemMove(cd, data)
 		case "moveFolder":
 			return f.folderMove(cd, data)
-		case "removeAsset":
+		case "remove":
 			return nil, f.itemDelete(cd, data)
 		case "removeFolder":
 			return nil, f.folderDelete(cd, data)
