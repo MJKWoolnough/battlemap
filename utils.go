@@ -30,6 +30,7 @@ const (
 	fileTypeImage
 	fileTypeAudio
 	fileTypeCharacter
+	fileTypeMap
 )
 
 func getType(mime string) fileType {
@@ -40,6 +41,8 @@ func getType(mime string) fileType {
 		return fileTypeAudio
 	case "text/plain":
 		return fileTypeCharacter
+	case "text/xml":
+		return fileTypeMap
 	}
 	return fileTypeUnknown
 }
