@@ -42,8 +42,7 @@ const (
 	broadcastMapOrderChange
 	broadcastLayerOrderChange
 
-	broadcastMapDimensionsChange
-	broadcastMapGridChange
+	broadcastMapSettingsChange
 	broadcastMapLightChange
 
 	broadcastMapInitiative

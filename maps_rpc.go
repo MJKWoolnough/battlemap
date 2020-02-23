@@ -70,7 +70,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if md.Width == 0 || md.Height == 0 {
 			return nil, ErrInvalidData
 		}
-		m.updateMapData(md.ID, func(mp *levelMap) bool {
+		if err := m.updateMapData(md.ID, func(mp *levelMap) bool {
 			unchanged := mp.Width == md.Width && mp.Height == md.Height && mp.Name == md.Name
 			mp.Name = md.Name
 			mp.Width = md.Width
@@ -95,7 +95,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			mp.Patterns = append(mp.Patterns, genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke))
 			return true
-		})
+		}); err != nil {
+			return nil, err
+		}
+		m.socket.broadcastMapChange(md.ID, broadcastMapSettingsChange, md, cd.ID)
 		return nil, nil
 	case "moveMap":
 		var moveMap struct {
@@ -105,12 +108,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &moveMap); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapData(moveMap.ID, func(mp *levelMap) bool {
+		if err := m.updateMapData(moveMap.ID, func(mp *levelMap) bool {
 			for _, mmp := range m.order.Move(mp, moveMap.Position) {
 				m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
 			}
 			return false
-		})
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "removeMap":
 		var id uint64
 		if err := json.Unmarshal(data, &id); err != nil {
