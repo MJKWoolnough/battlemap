@@ -12,7 +12,6 @@ var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//E
 type mapX struct {
 	ID         uint64     `xml:"id,attr" json:"id"`
 	Name       string     `xml:"data-name,attr" json:"name"`
-	Order      int64      `xml:"data-order,attr" json:"-"`
 	Initiative initiative `xml:"data-initiative,attr,omitempty" json:"-"`
 	Width      uint64     `xml:"width,attr" json:"-"`
 	Height     uint64     `xml:"height,attr" json:"-"`

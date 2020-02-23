@@ -100,42 +100,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		m.socket.broadcastMapChange(md.ID, broadcastMapSettingsChange, md, cd.ID)
 		return nil, nil
-	case "moveMap":
-		var moveMap struct {
-			ID       uint64 `json:"id"`
-			Position int    `json:"position"`
-		}
-		if err := json.Unmarshal(data, &moveMap); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(moveMap.ID, func(mp *levelMap) bool {
-			for _, mmp := range m.order.Move(mp, moveMap.Position) {
-				m.store.Set(strconv.FormatUint(mmp.ID, 10), mmp)
-			}
-			return false
-		}); err != nil {
-			return nil, err
-		}
-		return nil, nil
-	case "removeMap":
-		var id uint64
-		if err := json.Unmarshal(data, &id); err != nil {
-			return nil, err
-		}
-		m.mu.Lock()
-		defer m.mu.Unlock()
-		mp, ok := m.maps[id]
-		if !ok {
-			return nil, ErrUnknownMap
-		}
-		delete(m.maps, id)
-		for n, np := range m.order {
-			if np == mp {
-				m.order = append(m.order[:n], m.order[n+1:]...)
-				break
-			}
-		}
-		return nil, nil
 	case "addLayer":
 		var (
 			name  string
