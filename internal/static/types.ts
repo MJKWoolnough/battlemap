@@ -24,7 +24,7 @@ export type FolderRPC = {
 }
 
 export type RPC = {
-	waitLogin:             () => Subscription<Int>;
+	waitLogin:             () => Promise<Int>;
 	waitCurrentUserMap:    () => Subscription<Int>;
 	waitCharacterChange:   () => Subscription<Int>;
 	waitMapChange:         () => Subscription<MapDetails>; //check type

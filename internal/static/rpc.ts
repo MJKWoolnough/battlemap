@@ -4,7 +4,7 @@ import {RPC as RPCType} from './types.js';
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
 		return Object.freeze({
-			"waitLogin":             () => rpc.await(-1, true),
+			"waitLogin":             () => rpc.await(-1),
 			"waitCurrentUserMap":    () => rpc.await(-2, true),
 			"waitCharacterChange":   () => rpc.await(-31, true),
 			"waitMapChange":         () => rpc.await(-32, true),
