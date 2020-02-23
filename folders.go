@@ -443,6 +443,8 @@ func (f *folders) getBroadcastID(base int) int {
 		return base - 1
 	case fileTypeCharacter:
 		return base - 2
+	case fileTypeMap:
+		return base - 3
 	}
 	return base
 }
