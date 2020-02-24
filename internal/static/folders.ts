@@ -9,7 +9,7 @@ export interface Item {
 	id:     Int;
 	name:   string;
 	parent: Folder;
-	html:   Node;
+	html:   HTMLElement;
 }
 
 interface ItemConstructor {
@@ -26,7 +26,7 @@ let folderID = 0;
 export class Folder {
 	parent: Folder;
 	name: string;
-	html: Node;
+	html: HTMLElement;
 	folders = new SortHTML<Folder>(ul(), stringSorter);
 	items = new SortHTML<Item>(ul(), stringSorter);
 	constructor(parent: Folder, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
