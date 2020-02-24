@@ -150,7 +150,9 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap:
 			setCurrentMap(id);
 		      };
 		rpc.waitCurrentUserMap().then(setCurrentUserMap);
-		setCurrentUserMap(userMap);
-		setCurrentAdminMap(userMap);
+		if (userMap > 0) {
+			setCurrentUserMap(userMap);
+			setCurrentAdminMap(userMap);
+		}
 	});
 }
