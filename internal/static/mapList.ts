@@ -126,18 +126,18 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap:
 			return undefined;
 		      },
 		      setMap = (id: Int, selected: MapItem, selectedClass: string, containsClass: string) => {
-			const m = findMap(root, id);
+			const m = findMap(root.folder, id);
 			if (!m) {
 				return selected;
 			}
 			if (selectedUser) {
 				selectedUser.html.classList.remove(selectedClass);
-				for (let curr = selectedUser.parent; curr; curr = curr.parent) {
+				for (let curr: Folder | null = selectedUser.parent; curr; curr = curr.parent) {
 					curr.html.classList.remove(containsClass);
 				}
 			}
 			m.html.classList.add(selectedClass);
-			for (let curr = selectedUser.parent; curr; curr = curr.parent) {
+			for (let curr: Folder | null = selectedUser.parent; curr; curr = curr.parent) {
 				curr.html.classList.add(containsClass);
 			}
 			return m;
