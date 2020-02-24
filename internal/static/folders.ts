@@ -151,6 +151,7 @@ export class Root extends Folder {
 	newType: ItemConstructor;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newType: ItemConstructor) {
 		super(null as unknown as Folder, fileType, rootFolder.folders, rootFolder.items); // Deliberate Type hack
+		this.newType = newType;
 		this.name = "";
 		this.items.sort(idSorter);
 		this.fileType = fileType;
@@ -160,7 +161,6 @@ export class Root extends Folder {
 		]);
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
-		this.newType = newType;
 	}
 	get root() {
 		return this;
