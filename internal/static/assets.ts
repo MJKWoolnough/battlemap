@@ -15,7 +15,7 @@ class Asset implements Item {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		const self = this, root = this.root;
+		const self = this, root = parent.root;
 		this.html = li([
 			span(name, {"class": "asset", "onclick": () => {
 				const overlay = root.overlay;
@@ -32,7 +32,7 @@ class Asset implements Item {
 				const overlay = root.overlay,
 				      parentPath = self.parent.getPath() + "/",
 				      paths: HTMLOptionElement[] = [],
-				      parents = select({"id": "folderName"}, getPaths(root, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+				      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
 				      newName = input({"type": "text", "value": self.name});
 				return createHTML(root.overlay.addLayer(), {"class": "renameAsset"}, [
 					h1("Move Folder"),
@@ -53,7 +53,7 @@ class Asset implements Item {
 				const overlay = root.overlay,
 				      parentPath = self.parent.getPath() + "/",
 				      paths: HTMLOptionElement[] = [],
-				      parents = select({"id": "folderName"}, getPaths(root, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+				      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
 				      newName = input({"type": "text", "value": self.name});
 				return createHTML(root.overlay.addLayer(), {"class": "linkAsset"}, [
 					h1("Add Link"),
@@ -88,9 +88,6 @@ class Asset implements Item {
 			}})
 		]);
 		this.parent = parent;
-	}
-	get root() {
-		return this.parent.root;
 	}
 }
 
