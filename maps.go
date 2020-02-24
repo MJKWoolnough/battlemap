@@ -104,7 +104,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 	m.maps[mid] = mp
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
-	m.socket.broadcastAdminChange(broadcastMapAdd, idName{ID: mid, Name: mp.Name}, id)
+	m.socket.broadcastAdminChange(broadcastMapItemAdd, idName{ID: mid, Name: mp.Name}, id)
 	return mid, nil
 }
 
