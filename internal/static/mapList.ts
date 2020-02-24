@@ -3,8 +3,9 @@ import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import {SortHTML, noSort} from './lib/ordered.js';
+import folderInit, {Root, Folder, Item} from './folders.js';
 
-const setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
+const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
 	const name = input({"type": "text", "id": "mapName", "value": md.name}),
 	      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width.toString(), "id": "mapWidth"}),
 	      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height.toString(), "id": "mapHeight"}),
@@ -45,73 +46,29 @@ const setMapDetails = (rpc: RPC, overlay: LayerType, md: MapDetails, submitFn: (
 		button("Cancel", {"onclick": () => overlay.removeLayer()})
 	]);
       }
-let n = 0;
+let n = 0, rpc: RPC, overlay: LayerType, selectedUser: MapItem, selectedCurrent: MapItem;
 
-class MapList {
-	list = new SortHTML<MapItem>(ul(), noSort);
-	rpc: RPC;
-	overlay: LayerType;
-	setCurrentMapFn: (id: Int) => void;
-	constructor(rpc: RPC, overlay: LayerType, currentMap: (id: Int) => void) {
-		this.rpc = rpc;
-		this.overlay = overlay;
-		this.setCurrentMapFn = currentMap;
-	}
-	addMap(m: Map) {
-		this.list.push(new MapItem(this, m));
-	}
-	removeMap(id: Int) {
-		const pos = this.list.findIndex(m => m.id === id);
-		if (pos >= 0) {
-			this.list.splice(pos, 1);
-		}
-	}
-	setCurrentMap(id: Int) {
-		this.list.forEach(e => {
-			if (e.id === id) {
-				e.html.classList.add("mapCurrent");
-				this.rpc.setCurrentMap(id);
-				this.setCurrentMapFn(id);
-			} else {
-				e.html.classList.remove("mapCurrent");
-			}
-		});
-	}
-	setUserMap(id: Int) {
-		this.list.forEach(e => {
-			if (e.id === id) {
-				e.html.classList.add("mapUser");
-				this.rpc.setUserMap(id);
-			} else {
-				e.html.classList.remove("mapUser");
-			}
-		});
-	}
-	get html() {
-		return this.list.html;
-	}
-}
-
-class MapItem {
-	html: HTMLElement;
-	order = n++;
+class MapItem implements Item {
 	id: Int;
 	name: string;
-	constructor(mapList: MapList, m: Map) {
-		this.id = m.id;
-		this.name = m.name;
-		const nameSpan = span(m.name),
-		      rpc = mapList.rpc,
-		      overlay = mapList.overlay;
+	html: HTMLElement;
+	parent: Folder;
+	constructor(parent: Folder, id: Int, name: string) {
+		this.parent = parent;
+		this.id = id;
+		this.name = name;
+		const nameSpan = span(name),
+		      root = parent.root,
+		      overlay = root.overlay;
 		this.html = li([
-			span({"onclick": mapList.setUserMap.bind(mapList, m.id)}),
-			span({"onclick": mapList.setCurrentMap.bind(mapList, m.id)}),
+			span({"onclick": rpc.setUserMap.bind(rpc, id)}),
+			span({"onclick": rpc.setCurrentMap.bind(rpc, id)}),
 			nameSpan,
-			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(rpc, overlay, md, (errorNode: HTMLElement, md: MapDetails) => {
+			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
 				overlay.loading(rpc.setMapDetails(md)).then(() => {
 					nameSpan.innerText = md.name;
 					this.name = md.name;
-					mapList.list.sort();
+					parent.items.sort();
 				}).catch(e => showError(errorNode, e));
 			}))
 			.catch(e => {
@@ -124,8 +81,8 @@ class MapItem {
 					div("Remove the following map?"),
 					self.name,
 					button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
-						overlay.loading(rpc.removeMap(m.id)).then(() => {
-							mapList.removeMap(m.id);
+						overlay.loading(rpc.maps.remove(parent.getPath() + self.name)).then(() => {
+							parent.removeItem(parent.getPath() + self.name);
 							overlay.removeLayer();
 						}).catch(e => showError(this.nextElementSibling!, e));
 					}}),
@@ -138,38 +95,62 @@ class MapItem {
 
 export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	Promise.all([
-		rpc.getMapList(),
+		folderInit(rpc["maps"], overlay, base, "Maps", MapItem, (root: Root) => setMapDetails({
+			"id": 0,
+			"name": "",
+			"width": 20,
+			"height": 20,
+			"square": 1,
+			"colour": hex2Colour("#000000"),
+			"stroke": 1
+		}, (errorNode: HTMLElement, md: MapDetails) => {
+			overlay.loading(rpc.newMap(md)).then(mapID => {
+				root.addItem(mapID, md.name || `Map ${mapID}`)
+				overlay.removeLayer();
+			})
+			.catch(e => showError(errorNode, e));
+		})),
 		rpc.getUserMap()
-	]).then(([mapList, userMap]) => {
-		const list = new MapList(rpc, overlay, setCurrentMap);
-		rpc.waitCurrentUserMap().then(list.setUserMap.bind(list));
-		rpc.waitMapAdd().then(list.addMap.bind(list));
-		rpc.waitMapRename().then(map => {
-
-		});
-		rpc.waitMapOrderChange().then(maps => {
-
-		});
-		mapList.forEach(m => list.addMap(m));
-		list.setCurrentMap(userMap);
-		list.setUserMap(userMap);
-		createHTML(clearElement(base), {"id": "mapList"}, [
-			button("Add Map", {"onclick": () => setMapDetails(rpc, overlay, {
-				"id": 0,
-				"name": "",
-				"width": 20,
-				"height": 20,
-				"square": 1,
-				"colour": hex2Colour("#000000"),
-				"stroke": 1
-			}, (errorNode: HTMLElement, md: MapDetails) => {
-				overlay.loading(rpc.newMap(md)).then(mapID => {
-					list.addMap({"id": mapID, "name": md.name || `Map ${mapID}`})
-					overlay.removeLayer();
-				})
-				.catch(e => showError(errorNode, e));
-			})}),
-			list.html
-		]);
+	]).then(([root, userMap]) => {
+		const findMap = (folder: Folder, id: Int): MapItem | undefined => {
+			const m = folder.items.find(i => i.id === id);
+			if (m) {
+				return m as MapItem;
+			}
+			for (const f of folder.folders) {
+				const m = findMap(f, id);
+				if (m) {
+					return m;
+				}
+			}
+			return undefined;
+		      },
+		      setMap = (id: Int, selected: MapItem, selectedClass: string, containsClass: string) => {
+			const m = findMap(root, id);
+			if (!m) {
+				return selected;
+			}
+			if (selectedUser) {
+				selectedUser.html.classList.remove(selectedClass);
+				for (let curr = selectedUser.parent; curr; curr = curr.parent) {
+					curr.html.classList.remove(containsClass);
+				}
+			}
+			m.html.classList.add(selectedClass);
+			for (let curr = selectedUser.parent; curr; curr = curr.parent) {
+				curr.html.classList.add(containsClass);
+			}
+			return m;
+		      },
+		      setCurrentUserMap = (id: Int) => {
+			selectedUser = setMap(id, selectedUser, "mapUser", "hasMapUser");
+		      },
+		      setCurrentAdminMap = (id: Int) => {
+			selectedCurrent = setMap(id, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			setCurrentMap(id);
+		      };
+		rpc.waitCurrentUserMap().then(setCurrentUserMap);
+		setCurrentUserMap(userMap);
+		setCurrentAdminMap(userMap);
 	});
 }
