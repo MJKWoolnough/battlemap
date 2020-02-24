@@ -63,7 +63,7 @@ class Asset implements Item {
 					newName,
 					br(),
 					button("Link", {"onclick": () => overlay.loading(root.rpcFuncs.link(self.id, parents.value + newName.value)).then(newPath => {
-						root.addAsset(self.id, newPath);
+						root.addItem(self.id, newPath);
 						overlay.removeLayer();
 					}).catch(e => showError(newName, e))}),
 					button("Cancel", {"onclick": overlay.removeLayer})
