@@ -24,12 +24,14 @@ export const getPaths = (folder: Folder, breadcrumb: string): string[] => [bread
 let folderID = 0;
 
 export class Folder {
-	parent: Folder;
+	parent: Folder | null;
 	name: string;
 	html: HTMLElement;
 	folders = new SortHTML<Folder>(ul(), stringSorter);
 	items = new SortHTML<Item>(ul(), stringSorter);
-	constructor(parent: Folder, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
+	root: Root;
+	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
+		this.root = root;
 		this.parent = parent;
 		this.name = name;
 		const self = this;
@@ -37,14 +39,13 @@ export class Folder {
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			label({"for": `folder_${folderID++}`}, name),
 			span("~", {"class": "renameFolder", "onclick": () => {
-				const root = self.root,
-				      overlay = root.overlay,
+				const overlay = root.overlay,
 				      oldPath = self.getPath() + "/",
-				      parentPath = self.parent.getPath() + "/",
+				      parentPath = parent ? parent.getPath() + "/" : "/",
 				      paths: HTMLOptionElement[] = [],
-				      parents = select({"id": "folderName"}, getPaths(self.root, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+				      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
 				      newName = input({"type": "text", "value": self.name});
-				return createHTML(root.overlay.addLayer(), {"class": "renameFolder"}, [
+				return createHTML(overlay.addLayer(), {"class": "renameFolder"}, [
 					h1("Move Folder"),
 					div(`Old Location: ${oldPath.slice(0, -1)}`),
 					label({"for": "folderName"}, "New Location: "),
@@ -59,8 +60,7 @@ export class Folder {
 				])
 			}}),
 			span("-", {"class": "removeFolder", "onclick": () => {
-				const root = self.root,
-				      overlay = root.overlay,
+				const overlay = root.overlay,
 				      path = self.getPath(),
 				      pathDiv = div(path);
 				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
@@ -75,8 +75,7 @@ export class Folder {
 				]);
 			}}),
 			span("+", {"class": "addFolder", "onclick": () => {
-				const root = self.root,
-				      overlay = root.overlay,
+				const overlay = root.overlay,
 				      path = self.getPath(),
 				      folderName = input({"id": "folderName", "onkeypress": enterKey});
 				return createHTML(overlay.addLayer(), {"class": "folderAdd"}, [
@@ -94,11 +93,8 @@ export class Folder {
 			this.folders.html,
 			this.items.html
 		]);
-		Object.entries(folders).forEach(([name, f]) => this.folders.push(new Folder(this, name, f.folders, f.items)));
+		Object.entries(folders).forEach(([name, f]) => this.folders.push(new Folder(root, this, name, f.folders, f.items)));
 		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newType(this, iid, name)));
-	}
-	get root(): Root {
-		return this.parent.root;
 	}
 	addItem(id: Int, name: string) {
 		if (!this.getItem(name)) {
@@ -123,7 +119,7 @@ export class Folder {
 		if (existing) {
 			return existing;
 		}
-		const f = new Folder(this, name, {}, {});
+		const f = new Folder(this.root, this, name, {}, {});
 		this.folders.push(f);
 		return f;
 	}
@@ -138,29 +134,30 @@ export class Folder {
 	}
 	getPath() {
 		const breadcrumbs = [];
-		for (let f: Folder = this; f; f = f.parent) breadcrumbs.push(f.name);
+		for (let f: Folder | null = this; f; f = f.parent) breadcrumbs.push(f.name);
 		return breadcrumbs.reverse().join("/");
 	}
 }
 
 
-export class Root extends Folder {
+export class Root {
+	folder: Folder;
 	fileType: String
 	overlay: LayerType;
 	rpcFuncs: FolderRPC;
 	newType: ItemConstructor;
+	html: HTMLElement;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newType: ItemConstructor) {
-		super(null as unknown as Folder, fileType, rootFolder.folders, rootFolder.items); // Deliberate Type hack
+		//super(null as unknown as Folder, fileType, rootFolder.folders, rootFolder.items); // Deliberate Type hack
 		this.newType = newType;
-		this.name = "";
-		this.items.sort(idSorter);
 		this.fileType = fileType;
-		this.html = div([
-			fileType,
-			Array.from(this.html.childNodes).slice(-3)
-		]);
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
+		this.folder = new Folder(this, null, "", rootFolder.folders, rootFolder.items); // Deliberate Type hack
+		this.html = div([
+			fileType,
+			Array.from(this.folder.html.childNodes).slice(-3)
+		]);
 	}
 	get root() {
 		return this;
@@ -168,23 +165,19 @@ export class Root extends Folder {
 	resolvePath(path: string): [Folder | undefined, string] {
 		const breadcrumbs = path.split("/"),
 		      sub: string | undefined  = breadcrumbs.pop();
-		let folder: Folder | undefined = this;
+		let folder: Folder | undefined = this.folder;
 		breadcrumbs.every(f => f == "" ? true : folder = folder!.getFolder(f));
 		return [folder, sub || ""];
 	}
 	addItem(id: Int, path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder === this) {
-			super.addItem(id, name);
-		} else if (folder) {
+		if (folder) {
 			folder.addItem(id, name);
 		}
 	}
 	getItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder === this) {
-			return super.getItem(name);
-		} else if (folder) {
+		if (folder) {
 			return folder.getItem(name);
 		}
 		return undefined;
@@ -194,16 +187,14 @@ export class Root extends Folder {
 	}
 	removeItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder === this) {
-			return super.removeItem(name);
-		} else if (folder) {
+		if (folder) {
 			return folder.removeItem(name);
 		}
 		return -1;
 	}
 	addFolder(path: string) {
 		const parts = path.split("/");
-		let f = super.addFolder(parts.shift()!);
+		let f = this.folder.addFolder(parts.shift()!);
 		parts.forEach(p => {f = f.addFolder(p)});
 		return f;
 	}
@@ -224,9 +215,7 @@ export class Root extends Folder {
 	}
 	removeFolder(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder === this) {
-			return super.removeFolder(name);
-		} else if (folder) {
+		if (folder) {
 			return folder.removeFolder(name);
 		}
 	}
