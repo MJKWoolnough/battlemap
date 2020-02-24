@@ -10,7 +10,7 @@ class Asset implements Item {
 	id: Int;
 	name: string;
 	parent: Folder;
-	html: Node;
+	html: HTMLElement;
 	constructor(parent: Folder, id: Int, name: string) {
 		this.id = id;
 		this.name = name;
