@@ -42,7 +42,7 @@ class Asset implements Item {
 					newName,
 					br(),
 					button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value)).then(newPath => {
-						root.moveAsset(parentPath + self.name, newPath);
+						root.moveItem(parentPath + self.name, newPath);
 						overlay.removeLayer();
 					}).catch(e => showError(newName, e))}),
 					button("Cancel", {"onclick": overlay.removeLayer})
@@ -80,7 +80,7 @@ class Asset implements Item {
 					div("Remove the following asset?"),
 					pathDiv,
 					button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.remove(path)).then(() => {
-						root.removeAsset(path);
+						root.removeItem(path);
 						overlay.removeLayer();
 					}).catch(e => showError(pathDiv, e))}),
 					button("Cancel", {"onclick": overlay.removeLayer})
@@ -116,7 +116,7 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Im
 					div("Uploading file(s)"),
 					bar
 				])).then((assets: Record<string, Int>) => {
-					Object.entries(assets).forEach(([name, id]) => root.addAsset(id, name))
+					Object.entries(assets).forEach(([name, id]) => root.addItem(id, name))
 					overlay.removeLayer();
 				}, showError.bind(null, this));
 			}})

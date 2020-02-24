@@ -28,8 +28,8 @@ export class Folder {
 	name: string;
 	html: Node;
 	folders = new SortHTML<Folder>(ul(), stringSorter);
-	assets = new SortHTML<Item>(ul(), stringSorter);
-	constructor(parent: Folder, name: string, folders: Record<string, FolderItems>, assets: Record<string, Int>) {
+	items = new SortHTML<Item>(ul(), stringSorter);
+	constructor(parent: Folder, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
 		this.parent = parent;
 		this.name = name;
 		const self = this;
@@ -65,7 +65,7 @@ export class Folder {
 				      pathDiv = div(path);
 				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
 					h1("Remove Folder"),
-					div("Remove the following folder? NB: This will remove all folders and assets it contains."),
+					div("Remove the following folder? NB: This will remove all folders and items it contains."),
 					pathDiv,
 					button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
 						root.removeFolder(path);
@@ -92,26 +92,26 @@ export class Folder {
 				]);
 			}}),
 			this.folders.html,
-			this.assets.html
+			this.items.html
 		]);
 		Object.entries(folders).forEach(([name, f]) => this.folders.push(new Folder(this, name, f.folders, f.items)));
-		Object.entries(assets).forEach(([name, aid]) => this.assets.push(new this.root.newType(this, aid, name)));
+		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newType(this, iid, name)));
 	}
 	get root(): Root {
 		return this.parent.root;
 	}
-	addAsset(id: Int, name: string) {
-		if (!this.getAsset(name)) {
-			this.assets.push(new this.root.newType(this, id, name));
+	addItem(id: Int, name: string) {
+		if (!this.getItem(name)) {
+			this.items.push(new this.root.newType(this, id, name));
 		}
 	}
-	getAsset(name: string) {
-		return this.assets.filter(a => a.name === name).pop();
+	getItem(name: string) {
+		return this.items.filter(i => i.name === name).pop();
 	}
-	removeAsset(name: string) {
-		const index = this.assets.findIndex(a => a.name === name);
+	removeItem(name: string) {
+		const index = this.items.findIndex(i => i.name === name);
 		if (index !== -1) {
-			return this.assets.splice(index, 1).pop()!.id;
+			return this.items.splice(index, 1).pop()!.id;
 		}
 		return -1;
 	}
@@ -152,7 +152,7 @@ export class Root extends Folder {
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newType: ItemConstructor) {
 		super(null as unknown as Folder, fileType, rootFolder.folders, rootFolder.items); // Deliberate Type hack
 		this.name = "";
-		this.assets.sort(idSorter);
+		this.items.sort(idSorter);
 		this.fileType = fileType;
 		this.html = div([
 			fileType,
@@ -172,32 +172,32 @@ export class Root extends Folder {
 		breadcrumbs.every(f => f == "" ? true : folder = folder!.getFolder(f));
 		return [folder, sub || ""];
 	}
-	addAsset(id: Int, path: string) {
+	addItem(id: Int, path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder === this) {
-			super.addAsset(id, name);
+			super.addItem(id, name);
 		} else if (folder) {
-			folder.addAsset(id, name);
+			folder.addItem(id, name);
 		}
 	}
-	getAsset(path: string) {
+	getItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder === this) {
-			return super.getAsset(name);
+			return super.getItem(name);
 		} else if (folder) {
-			return folder.getAsset(name);
+			return folder.getItem(name);
 		}
 		return undefined;
 	}
-	moveAsset(from: string, to: string) {
-		this.addAsset(this.removeAsset(from), to);
+	moveItem(from: string, to: string) {
+		this.addItem(this.removeItem(from), to);
 	}
-	removeAsset(path: string) {
+	removeItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder === this) {
-			return super.removeAsset(name);
+			return super.removeItem(name);
 		} else if (folder) {
-			return folder.removeAsset(name);
+			return folder.removeItem(name);
 		}
 		return -1;
 	}
@@ -215,9 +215,9 @@ export class Root extends Folder {
 				f.parent = t;
 				t.folders.push(f);
 			});
-			f.assets.forEach(a => {
-				a.parent = t;
-				t.assets.push(a)
+			f.items.forEach(i => {
+				i.parent = t;
+				t.items.push(i)
 			});
 			return f;
 		}
@@ -233,12 +233,12 @@ export class Root extends Folder {
 }
 
 export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileType: string, newType: ItemConstructor, newItem: (root: Root) => void) {
-	rpc.list().then(rootFolder => {
+	return rpc.list().then(rootFolder => {
 		const root = new Root(rootFolder, fileType, rpc, overlay, newType);
-		rpc.waitAdded().then(items => items.forEach(({id, name}) => root.addAsset(id, name)));
-		rpc.waitMoved().then(({from, to}) => root.moveAsset(from, to));
-		rpc.waitRemoved().then(asset => root.removeAsset(asset));
-		rpc.waitLinked().then(({id, name}) => root.addAsset(id, name));
+		rpc.waitAdded().then(items => items.forEach(({id, name}) => root.addItem(id, name)));
+		rpc.waitMoved().then(({from, to}) => root.moveItem(from, to));
+		rpc.waitRemoved().then(item => root.removeItem(item));
+		rpc.waitLinked().then(({id, name}) => root.addItem(id, name));
 		rpc.waitFolderAdded().then(folder => root.addFolder(folder));
 		rpc.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpc.waitFolderRemoved().then(folder => root.removeFolder(folder));
@@ -246,5 +246,6 @@ export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileTyp
 			button(`Upload ${fileType}`, {"onclick": () => newItem(root)}),
 			root.html
 		]);
+		return root;
 	});
 };
