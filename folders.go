@@ -18,7 +18,7 @@ import (
 
 type folder struct {
 	Folders map[string]*folder `json:"folders"`
-	Items   map[string]uint64  `json:"assets"`
+	Items   map[string]uint64  `json:"items"`
 }
 
 func newFolder() *folder {
