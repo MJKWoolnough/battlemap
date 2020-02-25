@@ -1,8 +1,8 @@
 import {Int, RPC, MapDetails, LayerType} from './types.js';
-import {createHTML} from './lib/html.js';
+import {createHTML, clearElement} from './lib/html.js';
 import {br, button, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import folderInit, {Root, Folder, Item} from './folders.js';
+import {Root, Folder, Item} from './folders.js';
 
 const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
 	const name = input({"type": "text", "id": "mapName", "value": md.name}),
@@ -72,25 +72,13 @@ class MapItem extends Item {
 export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
 	overlay = aoverlay;
+	const rpcFuncs = arpc["maps"];
 	Promise.all([
-		folderInit(arpc["maps"], aoverlay, base, "Maps", MapItem, (root: Root) => button("New Map", {"onclick": () => setMapDetails({
-			"id": 0,
-			"name": "",
-			"width": 20,
-			"height": 20,
-			"square": 1,
-			"colour": hex2Colour("#000000"),
-			"stroke": 1
-		}, (errorNode: HTMLElement, md: MapDetails) => {
-			overlay.loading(rpc.newMap(md)).then(({id, name}) => {
-				root.addItem(id, name);
-				overlay.removeLayer();
-			})
-			.catch(e => showError(errorNode, e));
-		})})),
+		rpcFuncs.list(),
 		rpc.getUserMap()
-	]).then(([root, userMap]) => {
-		const findMap = (folder: Folder, id: Int): MapItem | undefined => {
+	]).then(([folderList, userMap]) => {
+		const root = new Root(folderList, "Maps", rpcFuncs, overlay, MapItem),
+		      findMap = (folder: Folder, id: Int): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
 				return m as MapItem;
@@ -132,5 +120,23 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 			setCurrentUserMap(userMap);
 			setCurrentAdminMap(userMap);
 		}
+		createHTML(clearElement(base), [
+			button("New Map", {"onclick": () => setMapDetails({
+				"id": 0,
+				"name": "",
+				"width": 20,
+				"height": 20,
+				"square": 1,
+				"colour": hex2Colour("#000000"),
+				"stroke": 1
+			}, (errorNode: HTMLElement, md: MapDetails) => {
+				overlay.loading(rpc.newMap(md)).then(({id, name}) => {
+					root.addItem(id, name);
+					overlay.removeLayer();
+				})
+				.catch(e => showError(errorNode, e));
+			})}),
+			root.html
+		]);
 	});
 }

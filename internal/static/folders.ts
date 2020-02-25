@@ -9,6 +9,10 @@ interface ItemConstructor {
 	new (parent: Folder, id: Int, name: string): Item;
 }
 
+interface FolderConstructor {
+	new (root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>): Folder;
+}
+
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id;
 
@@ -163,12 +167,12 @@ export class Folder {
 			this.folders.html,
 			this.items.html
 		]);
-		Object.entries(folders).forEach(([name, f]) => this.folders.push(new Folder(root, this, name, f.folders, f.items)));
-		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newType(this, iid, name)));
+		Object.entries(folders).forEach(([name, f]) => this.folders.push(new this.root.newFolder(root, this, name, f.folders, f.items)));
+		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newItem(this, iid, name)));
 	}
 	addItem(id: Int, name: string) {
 		if (!this.getItem(name)) {
-			this.items.push(new this.root.newType(this, id, name));
+			this.items.push(new this.root.newItem(this, id, name));
 		}
 	}
 	getItem(name: string) {
@@ -189,7 +193,7 @@ export class Folder {
 		if (existing) {
 			return existing;
 		}
-		const f = new Folder(this.root, this, name, {}, {});
+		const f = new this.root.newFolder(this.root, this, name, {}, {});
 		this.folders.push(f);
 		return f;
 	}
@@ -215,19 +219,27 @@ export class Root {
 	fileType: String
 	overlay: LayerType;
 	rpcFuncs: FolderRPC;
-	newType: ItemConstructor;
+	newItem: ItemConstructor;
+	newFolder: FolderConstructor;
 	html: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newType: ItemConstructor) {
-		//super(null as unknown as Folder, fileType, rootFolder.folders, rootFolder.items); // Deliberate Type hack
-		this.newType = newType;
+	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
+		this.newItem = newItem;
+		this.newFolder = newFolder;
 		this.fileType = fileType;
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
-		this.folder = new Folder(this, null, "", rootFolder.folders, rootFolder.items); // Deliberate Type hack
+		this.folder = new Folder(this, null, "", rootFolder.folders, rootFolder.items);
 		this.html = div([
 			fileType,
 			Array.from(this.folder.html.childNodes).slice(-3)
 		]);
+		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
+		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
+		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
+		rpcFuncs.waitLinked().then(({id, name}) => this.addItem(id, name));
+		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
+		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
+		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
 	}
 	get root() {
 		return this;
@@ -290,21 +302,3 @@ export class Root {
 		}
 	}
 }
-
-export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileType: string, newType: ItemConstructor, newItemButton: (root: Root) => HTMLButtonElement) {
-	return rpc.list().then(rootFolder => {
-		const root = new Root(rootFolder, fileType, rpc, overlay, newType);
-		rpc.waitAdded().then(items => items.forEach(({id, name}) => root.addItem(id, name)));
-		rpc.waitMoved().then(({from, to}) => root.moveItem(from, to));
-		rpc.waitRemoved().then(item => root.removeItem(item));
-		rpc.waitLinked().then(({id, name}) => root.addItem(id, name));
-		rpc.waitFolderAdded().then(folder => root.addFolder(folder));
-		rpc.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
-		rpc.waitFolderRemoved().then(folder => root.removeFolder(folder));
-		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
-			newItemButton(root),
-			root.html
-		]);
-		return root;
-	});
-};
