@@ -306,9 +306,11 @@ func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
+	fmt.Println(itemMove)
 	oldParent, oldName, iid := f.getFolderItem(itemMove.From)
+	fmt.Println(oldParent, oldName, iid)
 	if oldParent == nil || iid == 0 {
-		return "", ErrAssetNotFound
+		return "", ErrItemNotFound
 	}
 	var (
 		newParent *folder
@@ -372,7 +374,7 @@ func (f *folders) itemDelete(cd ConnData, data []byte) error {
 	defer f.mu.Unlock()
 	parent, oldName, iid := f.getFolderItem(item)
 	if parent == nil || iid == 0 {
-		return ErrAssetNotFound
+		return ErrItemNotFound
 	}
 	delete(parent.Items, oldName)
 	f.unlink(iid)
@@ -421,7 +423,7 @@ func (f *folders) linkItem(cd ConnData, data []byte) (string, error) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	if _, ok := f.links[link.ID]; !ok {
-		return "", ErrAssetNotFound
+		return "", ErrItemNotFound
 	}
 	parent, name, _ := f.getFolderItem(link.Name)
 	if parent == nil {
@@ -452,5 +454,6 @@ func (f *folders) getBroadcastID(base int) int {
 const folderMetadata = "folders"
 
 var (
+	ErrItemNotFound   = errors.New("item not found")
 	ErrFolderNotFound = errors.New("folder not found")
 )
