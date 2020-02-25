@@ -63,7 +63,7 @@ export type RPC = {
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
 
-	newMap:        (map: MapDetails)        => Promise<Int>;
+	newMap:        (map: MapDetails)        => Promise<IDName>;
 	getMapDetails: (id: Int)                => Promise<MapDetails>;
 	setMapDetails: (map: MapDetails)        => Promise<void>;
 
