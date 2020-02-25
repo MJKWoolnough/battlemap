@@ -13,7 +13,7 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 	      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
 	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"});
 	return createHTML(overlay.addLayer(), {"class": `map${md.id === 0 ? "Add" : "Edit"}`}, [
-		h1(`${md.id === 0 ? "Add" : "Edit"} Map`),
+		h1(`${md.id === 0 ? "New" : "Edit"} Map`),
 		label({"for": "mapName"}),
 		name,
 		br(),
@@ -93,9 +93,11 @@ class MapItem implements Item {
 	}
 }
 
-export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
+export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
+	rpc = arpc;
+	overlay = aoverlay;
 	Promise.all([
-		folderInit(rpc["maps"], overlay, base, "Maps", MapItem, (root: Root) => setMapDetails({
+		folderInit(arpc["maps"], aoverlay, base, "Maps", MapItem, (root: Root) => button("New Map", {"onclick": () => setMapDetails({
 			"id": 0,
 			"name": "",
 			"width": 20,
@@ -109,7 +111,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, setCurrentMap:
 				overlay.removeLayer();
 			})
 			.catch(e => showError(errorNode, e));
-		})),
+		})})),
 		rpc.getUserMap()
 	]).then(([root, userMap]) => {
 		const findMap = (folder: Folder, id: Int): MapItem | undefined => {

@@ -221,7 +221,7 @@ export class Root {
 	}
 }
 
-export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileType: string, newType: ItemConstructor, newItem: (root: Root) => void) {
+export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileType: string, newType: ItemConstructor, newItemButton: (root: Root) => HTMLButtonElement) {
 	return rpc.list().then(rootFolder => {
 		const root = new Root(rootFolder, fileType, rpc, overlay, newType);
 		rpc.waitAdded().then(items => items.forEach(({id, name}) => root.addItem(id, name)));
@@ -231,8 +231,8 @@ export default function (rpc: FolderRPC, overlay: LayerType, base: Node, fileTyp
 		rpc.waitFolderAdded().then(folder => root.addFolder(folder));
 		rpc.waitFolderMoved().then(({from, to}) => root.moveFolder(from, to));
 		rpc.waitFolderRemoved().then(folder => root.removeFolder(folder));
-		createHTML(clearElement(base), {"id": fileType + "Items"}, [
-			button(`Upload ${fileType}`, {"onclick": () => newItem(root)}),
+		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
+			newItemButton(root),
 			root.html
 		]);
 		return root;

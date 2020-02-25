@@ -92,7 +92,7 @@ class Asset implements Item {
 }
 
 export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Images" | "Audio") {
-	folderInit(fileType == "Audio" ? rpc["audio"] : rpc["images"], overlay, base, fileType, Asset, (root: Root)  => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
+	folderInit(fileType == "Audio" ? rpc["audio"] : rpc["images"], overlay, base, fileType, Asset, (root: Root)  => button(`Upload ${fileType}`, {"onclick": () => createHTML(overlay.addLayer(), {"class": "assetAdd"}, [
 		h1(`Upload ${fileType}`),
 		form({"enctype": "multipart/form-data", "method": "post"}, [
 			label({"for": "addAssets"}, "Add Asset(s)"),
@@ -118,5 +118,5 @@ export default function (rpc: RPC, overlay: LayerType, base: Node, fileType: "Im
 				}, showError.bind(null, this));
 			}})
 		])
-	]));
+	])}));
 };
