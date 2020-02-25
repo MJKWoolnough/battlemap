@@ -306,9 +306,7 @@ func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
 	}
 	f.mu.Lock()
 	defer f.mu.Unlock()
-	fmt.Println(itemMove)
 	oldParent, oldName, iid := f.getFolderItem(itemMove.From)
-	fmt.Println(oldParent, oldName, iid)
 	if oldParent == nil || iid == 0 {
 		return "", ErrItemNotFound
 	}
