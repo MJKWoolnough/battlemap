@@ -1,6 +1,6 @@
 @import url("error.css");
 @import url("layers.css");
-@import url("expand.css");
+@import url("folders.css");
 
 #ImagesAssets ul, #AudioAssets ul {
 	margin: 0;
