@@ -82,8 +82,8 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 			"colour": hex2Colour("#000000"),
 			"stroke": 1
 		}, (errorNode: HTMLElement, md: MapDetails) => {
-			overlay.loading(rpc.newMap(md)).then(mapID => {
-				root.addItem(mapID, md.name || `Map ${mapID}`)
+			overlay.loading(rpc.newMap(md)).then(({id, name}) => {
+				root.addItem(id, name);
 				overlay.removeLayer();
 			})
 			.catch(e => showError(errorNode, e));
