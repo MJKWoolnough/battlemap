@@ -1,6 +1,8 @@
 @import url("assets.css");
+@import url("folders.css");
 @import url("error.css");
 @import url("loader.css");
+@import url("layers.css");
 @import url("overlay.css");
 @import url("mapList.css");
 
