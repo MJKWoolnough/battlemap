@@ -5,13 +5,6 @@ import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
 import {SortHTML, stringSort} from './lib/ordered.js';
 
-export interface Item {
-	id:     Int;
-	name:   string;
-	parent: Folder;
-	html:   HTMLElement;
-}
-
 interface ItemConstructor {
 	new (parent: Folder, id: Int, name: string): Item;
 }
@@ -22,6 +15,83 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
 export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
 let folderID = 0;
+
+export class Item {
+	id: Int;
+	name: string;
+	parent: Folder;
+	html: HTMLElement;
+	constructor(parent: Folder, id: Int, name: string) {
+		this.id = id;
+		this.name = name;
+		this.parent = parent;
+		this.html = li([
+			span(name, {"class": "asset", "onclick": this.show.bind(this)}),
+			span("~", {"class": "assetRename", "onclick": this.rename.bind(this)}),
+			span("+", {"class": "assetLink", "onclick": this.link.bind(this)}),
+			span("-", {"class": "assetRemove", "onclick": this.remove.bind(this)}),
+		]);
+	}
+	show() {}
+	rename() {
+		const root = this.parent.root,
+		      overlay = root.overlay,
+		      parentPath = this.parent.getPath() + "/",
+		      paths: HTMLOptionElement[] = [],
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+		      newName = input({"type": "text", "value": this.name});
+		return createHTML(root.overlay.addLayer(), {"class": "renameItem"}, [
+			h1("Move Folder"),
+			div(`Old Location: ${parentPath}${this.name}`),
+			label({"for": "folderName"}, "New Location: "),
+			parents,
+			newName,
+			br(),
+			button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value)).then(newPath => {
+				root.moveItem(parentPath + this.name, newPath);
+				overlay.removeLayer();
+			}).catch(e => showError(newName, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		]);
+	}
+	link() {
+		const root = this.parent.root,
+		      overlay = root.overlay,
+		      parentPath = this.parent.getPath() + "/",
+		      paths: HTMLOptionElement[] = [],
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+		      newName = input({"type": "text", "value": this.name});
+		return createHTML(root.overlay.addLayer(), {"class": "linkItem"}, [
+			h1("Add Link"),
+			div(`Current Location: ${parentPath}${this.name}`),
+			label({"for": "folderName"}, "New Link: "),
+			parents,
+			newName,
+			br(),
+			button("Link", {"onclick": () => overlay.loading(root.rpcFuncs.link(this.id, parents.value + newName.value)).then(newPath => {
+				root.addItem(this.id, newPath);
+				overlay.removeLayer();
+			}).catch(e => showError(newName, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		]);
+	}
+	remove() {
+		const root = this.parent.root,
+		      overlay = root.overlay,
+		      path = this.parent.getPath() + "/" + this.name,
+		      pathDiv = div(path);
+		return createHTML(overlay.addLayer(), {"class": "removeAsset"}, [
+			h1("Remove Asset"),
+			div("Remove the following asset?"),
+			pathDiv,
+			button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.remove(path)).then(() => {
+				root.removeItem(path);
+				overlay.removeLayer();
+			}).catch(e => showError(pathDiv, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		]);
+	}
+}
 
 export class Folder {
 	parent: Folder | null;

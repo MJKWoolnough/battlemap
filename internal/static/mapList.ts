@@ -1,8 +1,7 @@
-import {Int, RPC, Map, MapDetails, LayerType} from './types.js';
-import {createHTML, clearElement} from './lib/html.js';
-import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
+import {Int, RPC, MapDetails, LayerType} from './types.js';
+import {createHTML} from './lib/html.js';
+import {br, button, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import {SortHTML, noSort} from './lib/ordered.js';
 import folderInit, {Root, Folder, Item} from './folders.js';
 
 const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
@@ -46,50 +45,27 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		button("Cancel", {"onclick": () => overlay.removeLayer()})
 	]);
       }
-let n = 0, rpc: RPC, overlay: LayerType, selectedUser: MapItem, selectedCurrent: MapItem;
+let rpc: RPC, overlay: LayerType, selectedUser: MapItem, selectedCurrent: MapItem;
 
-class MapItem implements Item {
-	id: Int;
-	name: string;
-	html: HTMLElement;
-	parent: Folder;
+class MapItem extends Item {
+	nameSpan: HTMLSpanElement;
 	constructor(parent: Folder, id: Int, name: string) {
-		this.parent = parent;
-		this.id = id;
-		this.name = name;
-		const nameSpan = span(name),
-		      root = parent.root,
-		      overlay = root.overlay;
-		this.html = li([
-			span({"onclick": rpc.setUserMap.bind(rpc, id)}),
-			span({"onclick": rpc.setCurrentMap.bind(rpc, id)}),
-			nameSpan,
-			span("~", {"onclick": () => overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
-				overlay.loading(rpc.setMapDetails(md)).then(() => {
-					nameSpan.innerText = md.name;
-					this.name = md.name;
-					parent.items.sort();
-				}).catch(e => showError(errorNode, e));
-			}))
-			.catch(e => {
-				console.log(e);
-				alert(e);
-			})}),
-			span("-", {"class": "mapRemove", "onclick": () => {
-				createHTML(overlay.addLayer(), {"class": "removeMap"}, [
-					h1("Remove Map"),
-					div("Remove the following map?"),
-					self.name,
-					button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
-						overlay.loading(rpc.maps.remove(parent.getPath() + self.name)).then(() => {
-							parent.removeItem(parent.getPath() + self.name);
-							overlay.removeLayer();
-						}).catch(e => showError(this.nextElementSibling!, e));
-					}}),
-					button("Cancel", {"onclick": overlay.removeLayer})
-				]);
-			}})
-		]);
+		super(parent, id, name);
+		this.nameSpan = this.html.firstChild as HTMLSpanElement;
+		[span({"onclick": rpc.setUserMap.bind(rpc, id)}), span({"onclick": rpc.setCurrentMap.bind(rpc, id)})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+	}
+	show() {
+		overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
+			overlay.loading(rpc.setMapDetails(md)).then(() => {
+				this.nameSpan.innerText = md.name;
+				this.name = md.name;
+				this.parent.items.sort();
+			}).catch(e => showError(errorNode, e));
+		}))
+		.catch(e => {
+			console.log(e);
+			alert(e);
+		});
 	}
 }
 
