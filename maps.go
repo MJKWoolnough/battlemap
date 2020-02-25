@@ -56,9 +56,9 @@ type mapDetails struct {
 	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
 }
 
-func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
+func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	if nm.Width == 0 || nm.Height == 0 {
-		return 0, ErrInvalidDimensions
+		return idName{}, ErrInvalidDimensions
 	}
 	m.mu.Lock()
 	m.lastID++
@@ -101,11 +101,15 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (uint64, error) {
 			},
 		},
 	}
+	name := addItemTo(m.folders.root.Items, nm.Name, mid)
 	m.maps[mid] = mp
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
 	m.socket.broadcastAdminChange(broadcastMapItemAdd, idName{ID: mid, Name: mp.Name}, id)
-	return mid, nil
+	return idName{
+		ID:   mid,
+		Name: name,
+	}, nil
 }
 
 func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) pattern {
