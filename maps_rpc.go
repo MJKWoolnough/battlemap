@@ -468,7 +468,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	}
-	return nil, ErrUnknownMethod
+	return m.folders.RPCData(cd, method, data)
 }
 
 // Errors
