@@ -107,8 +107,8 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
 		this.root = root;
 		this.parent = parent;
-		this.folders = new SortHTML<Folder>(ul(), this.folderSorter);
-		this.items = new SortHTML<Item>(ul(), this.itemSorter);
+		this.folders = new SortHTML<Folder>(ul({"class": "folders"}), this.folderSorter);
+		this.items = new SortHTML<Item>(ul({"class": "items"}), this.itemSorter);
 		this.name = name;
 		const self = this;
 		this.html = li([
