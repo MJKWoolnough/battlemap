@@ -8,9 +8,11 @@
 	width: 10px;
 	height: 0.8em;
 	margin: 0 2px;
-	cursor: pointer;
 }
 
+#mapList ul.items li > span:nth-child(1), #mapList ul.items li > span:nth-child(2) {
+	cursor: pointer;
+}
 
 #mapList li.mapUser > span:nth-child(1) {
 	background-color: #008800;
