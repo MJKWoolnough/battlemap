@@ -101,12 +101,14 @@ export class Folder {
 	parent: Folder | null;
 	name: string;
 	html: HTMLElement;
-	folders = new SortHTML<Folder>(ul(), stringSorter);
-	items = new SortHTML<Item>(ul(), stringSorter);
+	folders: SortHTML<Folder>;
+	items: SortHTML<Item>;
 	root: Root;
 	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
 		this.root = root;
 		this.parent = parent;
+		this.folders = new SortHTML<Folder>(ul(), this.folderSorter);
+		this.items = new SortHTML<Item>(ul(), this.itemSorter);
 		this.name = name;
 		const self = this;
 		this.html = li([
@@ -169,6 +171,15 @@ export class Folder {
 		]);
 		Object.entries(folders).forEach(([name, f]) => this.folders.push(new this.root.newFolder(root, this, name, f.folders, f.items)));
 		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newItem(this, iid, name)));
+	}
+	get folderSorter() {
+		return stringSorter;
+	}
+	get itemSorter() {
+		if (this.parent === null) {
+			return idSorter;
+		}
+		return stringSorter;
 	}
 	addItem(id: Int, name: string) {
 		if (!this.getItem(name)) {
