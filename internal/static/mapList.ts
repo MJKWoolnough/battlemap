@@ -1,4 +1,4 @@
-import {Int, RPC, MapDetails, LayerType} from './types.js';
+import {FolderItems, Int, RPC, MapDetails, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
@@ -52,7 +52,10 @@ class MapItem extends Item {
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
 		this.nameSpan = this.html.firstChild as HTMLSpanElement;
-		[span({"onclick": rpc.setUserMap.bind(rpc, id)}), span({"onclick": rpc.setCurrentMap.bind(rpc, id)})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+		[
+			span({"onclick": rpc.setUserMap.bind(rpc, id)}),
+			span({"onclick": rpc.setCurrentMap.bind(rpc, id)})
+		].forEach(e => this.html.insertBefore(e, this.html.firstChild));
 	}
 	show() {
 		overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
@@ -69,6 +72,13 @@ class MapItem extends Item {
 	}
 }
 
+class MapFolder extends Folder {
+	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
+		super(root, parent, name, folders, items);
+		[span(), span()].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+	}
+}
+
 export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
 	overlay = aoverlay;
@@ -77,7 +87,7 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 		rpcFuncs.list(),
 		rpc.getUserMap()
 	]).then(([folderList, userMap]) => {
-		const root = new Root(folderList, "Maps", rpcFuncs, overlay, MapItem),
+		const root = new Root(folderList, "Maps", rpcFuncs, overlay, MapItem, MapFolder),
 		      findMap = (folder: Folder, id: Int): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
