@@ -44,7 +44,19 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		}}),
 		button("Cancel", {"onclick": () => overlay.removeLayer()})
 	]);
-      }
+      },
+      setMap = (mapItem: MapItem, selected: MapItem, selectedClass: string, containsClass: string) => {
+	if (selected) {
+		selected.html.classList.remove(selectedClass);
+		for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
+			curr.html.classList.remove(containsClass);
+		}
+	}
+	mapItem.html.classList.add(selectedClass);
+	for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
+		curr.html.classList.add(containsClass);
+	}
+      };
 let rpc: RPC, overlay: LayerType, selectedUser: MapItem, selectedCurrent: MapItem;
 
 class MapItem extends Item {
@@ -53,8 +65,14 @@ class MapItem extends Item {
 		super(parent, id, name);
 		this.nameSpan = this.html.firstChild as HTMLSpanElement;
 		[
-			span({"onclick": rpc.setUserMap.bind(rpc, id)}),
-			span({"onclick": rpc.setCurrentMap.bind(rpc, id)})
+			span({"onclick": () => {
+				this.setCurrentMap();
+				rpc.setCurrentMap(id);
+			}}),
+			span({"onclick": () => {
+				this.setUserMap();
+				rpc.setUserMap(id);
+			}})
 		].forEach(e => this.html.insertBefore(e, this.html.firstChild));
 	}
 	show() {
@@ -69,6 +87,15 @@ class MapItem extends Item {
 			console.log(e);
 			alert(e);
 		});
+	}
+	setCurrentMap() {
+		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		selectedCurrent = this;
+		// send id to map layer to load
+	}
+	setUserMap() {
+		setMap(this, selectedUser, "mapUser", "hasMapUser");
+		selectedUser = this;
 	}
 }
 
@@ -101,34 +128,18 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 			}
 			return undefined;
 		      },
-		      setMap = (id: Int, selected: MapItem, selectedClass: string, containsClass: string) => {
-			const m = findMap(root.folder, id);
-			if (!m) {
-				return selected;
-			}
-			if (selected) {
-				selected.html.classList.remove(selectedClass);
-				for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
-					curr.html.classList.remove(containsClass);
+		      setUserMap = (id: Int, setCurrent: boolean = false) => {
+			const m = findMap(root.folder, userMap);
+			if (m) {
+				m.setUserMap();
+				if (setCurrent) {
+					m.setCurrentMap();
 				}
 			}
-			m.html.classList.add(selectedClass);
-			for (let curr: Folder | null = m.parent; curr; curr = curr.parent) {
-				curr.html.classList.add(containsClass);
-			}
-			return m;
-		      },
-		      setCurrentUserMap = (id: Int) => {
-			selectedUser = setMap(id, selectedUser, "mapUser", "hasMapUser");
-		      },
-		      setCurrentAdminMap = (id: Int) => {
-			selectedCurrent = setMap(id, selectedCurrent, "mapCurrent", "hasMapCurrent");
-			setCurrentMap(id);
-		      };
-		rpc.waitCurrentUserMap().then(setCurrentUserMap);
+		      }
+		rpc.waitCurrentUserMap().then(setUserMap);
 		if (userMap > 0) {
-			setCurrentUserMap(userMap);
-			setCurrentAdminMap(userMap);
+			setUserMap(userMap, true);
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button("New Map", {"onclick": () => setMapDetails({
