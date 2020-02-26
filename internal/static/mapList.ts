@@ -106,14 +106,14 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 			if (!m) {
 				return selected;
 			}
-			if (selectedUser) {
-				selectedUser.html.classList.remove(selectedClass);
-				for (let curr: Folder | null = selectedUser.parent; curr; curr = curr.parent) {
+			if (selected) {
+				selected.html.classList.remove(selectedClass);
+				for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
 					curr.html.classList.remove(containsClass);
 				}
 			}
 			m.html.classList.add(selectedClass);
-			for (let curr: Folder | null = selectedUser.parent; curr; curr = curr.parent) {
+			for (let curr: Folder | null = m.parent; curr; curr = curr.parent) {
 				curr.html.classList.add(containsClass);
 			}
 			return m;
@@ -130,7 +130,7 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 			setCurrentUserMap(userMap);
 			setCurrentAdminMap(userMap);
 		}
-		createHTML(clearElement(base), [
+		createHTML(clearElement(base), {"id": "mapList"}, [
 			button("New Map", {"onclick": () => setMapDetails({
 				"id": 0,
 				"name": "",
