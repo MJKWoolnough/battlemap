@@ -128,7 +128,7 @@ export class Folder {
 					parents,
 					newName,
 					br(),
-					button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + newName.value)).then(newPath => {
+					button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
 						root.moveFolder(oldPath.slice(0, -1), newPath);
 						overlay.removeLayer();
 					}).catch(e => showError(newName, e))}),
