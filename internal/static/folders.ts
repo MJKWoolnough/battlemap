@@ -159,7 +159,7 @@ export class Folder {
 					label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
 					folderName,
 					br(),
-					button("Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + folderName.value)).then(folder => {
+					button("Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
 						root.addFolder(folder);
 						overlay.removeLayer();
 					}).catch(e => showError(folderName, e))}),
