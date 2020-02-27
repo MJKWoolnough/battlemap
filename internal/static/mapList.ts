@@ -65,11 +65,11 @@ class MapItem extends Item {
 		super(parent, id, name);
 		this.nameSpan = this.html.firstChild as HTMLSpanElement;
 		[
-			span({"onclick": () => {
+			span({"title": "Load Map", "onclick": () => {
 				this.setCurrentMap();
 				rpc.setCurrentMap(id);
 			}}),
-			span({"onclick": () => {
+			span({"title": "Set User Map", "onclick": () => {
 				this.setUserMap();
 				rpc.setUserMap(id);
 			}})
