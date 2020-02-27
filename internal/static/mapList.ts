@@ -118,6 +118,20 @@ class MapFolder extends Folder {
 		super(root, parent, name, folders, items);
 		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
 	}
+	rename() {
+		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
+			return createHTML(overlay.addLayer(), h2("Cannot rename while containing active map"));
+		} else {
+			return super.rename();
+		}
+	}
+	remove() {
+		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
+			return createHTML(overlay.addLayer(), h2("Cannot remove while containing active map"));
+		} else {
+			return super.rename();
+		}
+	}
 }
 
 export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
