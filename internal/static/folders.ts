@@ -110,62 +110,12 @@ export class Folder {
 		this.folders = new SortHTML<Folder>(ul({"class": "folders"}), this.folderSorter);
 		this.items = new SortHTML<Item>(ul({"class": "items"}), this.itemSorter);
 		this.name = name;
-		const self = this;
 		this.html = li([
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			label({"for": `folder_${folderID++}`}, name),
-			span("~", {"class": "renameFolder", "onclick": () => {
-				const overlay = root.overlay,
-				      oldPath = self.getPath() + "/",
-				      parentPath = parent ? parent.getPath() + "/" : "/",
-				      paths: HTMLOptionElement[] = [],
-				      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-				      newName = input({"type": "text", "value": self.name});
-				return createHTML(overlay.addLayer(), {"class": "renameFolder"}, [
-					h1("Move Folder"),
-					div(`Old Location: ${oldPath.slice(0, -1)}`),
-					label({"for": "folderName"}, "New Location: "),
-					parents,
-					newName,
-					br(),
-					button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
-						root.moveFolder(oldPath.slice(0, -1), newPath);
-						overlay.removeLayer();
-					}).catch(e => showError(newName, e))}),
-					button("Cancel", {"onclick": overlay.removeLayer})
-				])
-			}}),
-			span("-", {"class": "removeFolder", "onclick": () => {
-				const overlay = root.overlay,
-				      path = self.getPath(),
-				      pathDiv = div(path);
-				return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
-					h1("Remove Folder"),
-					div("Remove the following folder? NB: This will remove all folders and items it contains."),
-					pathDiv,
-					button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
-						root.removeFolder(path);
-						overlay.removeLayer();
-					}).catch(e => showError(pathDiv, e))}),
-					button("Cancel", {"onclick": overlay.removeLayer})
-				]);
-			}}),
-			span("+", {"class": "addFolder", "onclick": () => {
-				const overlay = root.overlay,
-				      path = self.getPath(),
-				      folderName = input({"id": "folderName", "onkeypress": enterKey});
-				return createHTML(overlay.addLayer(), {"class": "folderAdd"}, [
-					h1("Add Folder"),
-					label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
-					folderName,
-					br(),
-					button("Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
-						root.addFolder(folder);
-						overlay.removeLayer();
-					}).catch(e => showError(folderName, e))}),
-					button("Cancel", {"onclick": overlay.removeLayer})
-				]);
-			}}),
+			span("~", {"class": "renameFolder", "onclick": this.rename.bind(this)}),
+			span("-", {"class": "removeFolder", "onclick": this.remove.bind(this)}),
+			span("+", {"class": "addFolder", "onclick": this.newFolder.bind(this)}),
 			this.folders.html,
 			this.items.html
 		]);
@@ -180,6 +130,61 @@ export class Folder {
 			return idSorter;
 		}
 		return stringSorter;
+	}
+	rename() {
+		const root = this.root,
+		      overlay = root.overlay,
+		      oldPath = this.getPath() + "/",
+		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
+		      paths: HTMLOptionElement[] = [],
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
+		      newName = input({"type": "text", "value": self.name});
+		return createHTML(overlay.addLayer(), {"class": "renameFolder"}, [
+			h1("Move Folder"),
+			div(`Old Location: ${oldPath.slice(0, -1)}`),
+			label({"for": "folderName"}, "New Location: "),
+			parents,
+			newName,
+			br(),
+			button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
+				root.moveFolder(oldPath.slice(0, -1), newPath);
+				overlay.removeLayer();
+			}).catch(e => showError(newName, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		])
+	}
+	remove() {
+		const root = this.root,
+		      overlay = root.overlay,
+		      path = this.getPath(),
+		      pathDiv = div(path);
+		return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
+			h1("Remove Folder"),
+			div("Remove the following folder? NB: This will remove all folders and items it contains."),
+			pathDiv,
+			button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
+				root.removeFolder(path);
+				overlay.removeLayer();
+			}).catch(e => showError(pathDiv, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		]);
+	}
+	newFolder() {
+		const root = this.root,
+		      overlay = root.overlay,
+		      path = this.getPath(),
+		      folderName = input({"id": "folderName", "onkeypress": enterKey});
+		return createHTML(overlay.addLayer(), {"class": "folderAdd"}, [
+			h1("Add Folder"),
+			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
+			folderName,
+			br(),
+			button("Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
+				root.addFolder(folder);
+				overlay.removeLayer();
+			}).catch(e => showError(folderName, e))}),
+			button("Cancel", {"onclick": overlay.removeLayer})
+		]);
 	}
 	addItem(id: Int, name: string) {
 		if (!this.getItem(name)) {
