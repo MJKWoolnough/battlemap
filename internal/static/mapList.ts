@@ -1,6 +1,6 @@
 import {FolderItems, Int, RPC, MapDetails, LayerType} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
-import {br, button, h1, input, label, span} from './lib/dom.js';
+import {br, button, h1, h2, input, label, span} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 
@@ -65,11 +65,11 @@ class MapItem extends Item {
 		super(parent, id, name);
 		this.nameSpan = this.html.firstChild as HTMLSpanElement;
 		[
-			span({"title": "Load Map", "onclick": () => {
+			span({"class": "setCurrentMap", "title": "Load Map", "onclick": () => {
 				this.setCurrentMap();
 				rpc.setCurrentMap(id);
 			}}),
-			span({"title": "Set User Map", "onclick": () => {
+			span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
 				this.setUserMap();
 				rpc.setUserMap(id);
 			}})
@@ -88,6 +88,20 @@ class MapItem extends Item {
 			alert(e);
 		});
 	}
+	rename() {
+		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
+			return createHTML(overlay.addLayer(), h2("Cannot rename active map"));
+		} else {
+			return super.rename();
+		}
+	}
+	remove() {
+		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
+			return createHTML(overlay.addLayer(), h2("Cannot remove active map"));
+		} else {
+			return super.rename();
+		}
+	}
 	setCurrentMap() {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
@@ -102,7 +116,7 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
 		super(root, parent, name, folders, items);
-		[span(), span()].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
 	}
 }
 
