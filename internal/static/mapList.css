@@ -1,7 +1,10 @@
+#mapList > div > ul {
+}
+
 #mapList ul {
 	list-style: none;
-	padding-left: 0;
 	margin: 0;
+	padding-left: 28px;
 }
 
 #mapList li > span:nth-child(1), #mapList li > span:nth-child(2) {
@@ -23,10 +26,20 @@
 	background-color: #ff0000 !important;
 }
 
-#mapList .items li > span:nth-child(1), .hasMapUser span:nth-child(1) {
+#mapList .items li > span:nth-child(1), .hasMapUser > span:nth-child(1) {
 	background-color: #ccffcc;
 }
 
-#mapList .items li > span:nth-child(2), .hasMapCurrent span:nth-child(2) {
+#mapList .items li > span:nth-child(2), .hasMapCurrent > span:nth-child(2) {
 	background-color: #ffcccc;
+}
+
+.setCurrentMap, .showCurrentMapFolder {
+	position: absolute;
+	left: 0;
+}
+
+.setUserMap, .showUserMapFolder {
+	position: absolute;
+	left: 14px;
 }
