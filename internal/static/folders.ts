@@ -30,10 +30,10 @@ export class Item {
 		this.name = name;
 		this.parent = parent;
 		this.html = li([
-			span(name, {"class": "asset", "onclick": this.show.bind(this)}),
-			span("~", {"class": "assetRename", "onclick": this.rename.bind(this)}),
-			span("+", {"class": "assetLink", "onclick": this.link.bind(this)}),
-			span("-", {"class": "assetRemove", "onclick": this.remove.bind(this)}),
+			span(name, {"class": "item", "onclick": this.show.bind(this)}),
+			span("~", {"class": "itemRename", "onclick": this.rename.bind(this)}),
+			span("+", {"class": "itemLink", "onclick": this.link.bind(this)}),
+			span("-", {"class": "itemRemove", "onclick": this.remove.bind(this)}),
 		]);
 	}
 	show() {}
@@ -84,9 +84,9 @@ export class Item {
 		      overlay = root.overlay,
 		      path = this.parent.getPath() + "/" + this.name,
 		      pathDiv = div(path);
-		return createHTML(overlay.addLayer(), {"class": "removeAsset"}, [
-			h1("Remove Asset"),
-			div("Remove the following asset?"),
+		return createHTML(overlay.addLayer(), {"class": "removeItem"}, [
+			h1("Remove Item"),
+			div("Remove the following item?"),
 			pathDiv,
 			button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.remove(path)).then(() => {
 				root.removeItem(path);
