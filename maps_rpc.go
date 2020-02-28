@@ -470,11 +470,73 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			mp.Initiative = initiative
 			return true
 		})
+	case "remove":
+		var (
+			mapPath string
+			cu      keystore.Uint64
+		)
+		if err := json.Unmarshal(data, &mapPath); err != nil {
+			return nil, err
+		}
+		m.config.Get("currentUserMap", &cu)
+		if _, _, id := m.getFolderItem(mapPath); id == uint64(cu) {
+			return nil, ErrCurrentlySelected
+		}
+	case "rename":
+		var (
+			mapPath struct {
+				From string `json:"from"`
+			}
+			cu keystore.Uint64
+		)
+		if err := json.Unmarshal(data, &mapPath); err != nil {
+			return nil, err
+		}
+		m.config.Get("currentUserMap", &cu)
+		if _, _, id := m.getFolderItem(mapPath.From); id == uint64(cu) || id == cd.CurrentMap {
+			return nil, ErrCurrentlySelected
+		}
+	case "removeFolder":
+		var (
+			mapPath string
+			cu      keystore.Uint64
+		)
+		if err := json.Unmarshal(data, &mapPath); err != nil {
+			return nil, err
+		}
+		m.config.Get("currentUserMap", &cu)
+		if f := m.getFolder(mapPath); f != nil {
+			if walkFolders(f, func(items map[string]uint64) bool {
+				for _, id := range items {
+					if id == uint64(cu) || id == cd.CurrentMap {
+						return true
+					}
+				}
+				return false
+			}) {
+				return nil, ErrContainsCurrentlySelected
+			}
+		}
+	case "renameFolder":
+		var (
+			mapPath struct {
+				From string `json:"from"`
+			}
+			cu keystore.Uint64
+		)
+		if err := json.Unmarshal(data, &mapPath); err != nil {
+			return nil, err
+		}
+		m.config.Get("currentUserMap", &cu)
+	case "link":
+		return nil, ErrUnknownMethod
 	}
 	return m.folders.RPCData(cd, method, data)
 }
 
 // Errors
 var (
-	ErrInvalidData = errors.New("invalid map data")
+	ErrInvalidData               = errors.New("invalid map data")
+	ErrCurrentlySelected         = errors.New("cannot remove or rename currently selected map")
+	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
 )
