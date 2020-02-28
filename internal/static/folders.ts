@@ -10,7 +10,7 @@ interface ItemConstructor {
 }
 
 interface FolderConstructor {
-	new (root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>): Folder;
+	new (root: Root, parent: Folder | null, name: string, children: FolderItems): Folder;
 }
 
 export type FolderSorter = (a: Folder, b: Folder) => number;
@@ -113,7 +113,7 @@ export class Folder {
 	html: HTMLElement;
 	children: SortHTML<Folder | Item>;
 	root: Root;
-	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
 		this.children = new SortHTML<Folder>(ul({"class": "folders"}), this.sorter);
@@ -126,8 +126,8 @@ export class Folder {
 			span("+", {"class": "addFolder", "onclick": this.newFolder.bind(this)}),
 			this.children.html,
 		]);
-		Object.entries(folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f.folders, f.items)));
-		Object.entries(items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
+		Object.entries(children.folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f)));
+		Object.entries(children.items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
 	}
 	get folderSorter() {
 		return stringSorter;
@@ -250,7 +250,7 @@ export class Folder {
 		if (existing) {
 			return existing;
 		}
-		const f = new this.root.newFolder(this.root, this, name, {}, {});
+		const f = new this.root.newFolder(this.root, this, name, {folders: {}, items: {}});
 		this.children.push(f);
 		return f;
 	}
@@ -285,7 +285,7 @@ export class Root {
 		this.fileType = fileType;
 		this.overlay = overlay;
 		this.rpcFuncs = rpcFuncs;
-		this.folder = new Folder(this, null, "", rootFolder.folders, rootFolder.items);
+		this.folder = new Folder(this, null, "", rootFolder);
 		this.html = div([
 			fileType,
 			Array.from(this.folder.html.childNodes).slice(-3)

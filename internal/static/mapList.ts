@@ -118,8 +118,8 @@ class MapItem extends Item {
 }
 
 class MapFolder extends Folder {
-	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
-		super(root, parent, name, folders, items);
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
+		super(root, parent, name, children);
 		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
 	}
 	rename() {
