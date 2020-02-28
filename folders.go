@@ -240,11 +240,16 @@ func (f *folders) saveFolders() {
 	json.NewEncoder(&f.json).Encode(f.root)
 }
 
-func walkFolders(f *folder, fn func(map[string]uint64)) {
-	fn(f.Items)
-	for _, f := range f.Folders {
-		walkFolders(f, fn)
+func walkFolders(f *folder, fn func(map[string]uint64) bool) bool {
+	if fn(f.Items) {
+		return true
 	}
+	for _, f := range f.Folders {
+		if walkFolders(f, fn) {
+			return true
+		}
+	}
+	return false
 }
 
 func (f *folders) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
@@ -403,10 +408,11 @@ func (f *folders) folderDelete(cd ConnData, data []byte) error {
 		return ErrFolderNotFound
 	}
 	delete(parent.Folders, oldName)
-	walkFolders(fd, func(items map[string]uint64) {
+	walkFolders(fd, func(items map[string]uint64) bool {
 		for _, iid := range items {
 			f.unlink(iid)
 		}
+		return false
 	})
 	f.saveFolders()
 	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), folder, cd.ID)
