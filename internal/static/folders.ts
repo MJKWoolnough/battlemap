@@ -13,8 +13,15 @@ interface FolderConstructor {
 	new (root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>): Folder;
 }
 
+export type FolderSorter = (a: Folder, b: Folder) => number;
+export type ItemSorter = (a: Item, b: Item) => number;
+export type Sorter = (a: Item | Folder, b: Item | Folder) => number;
+
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
-      idSorter = (a: Item, b: Item) => b.id - a.id;
+      idSorter = (a: Item, b: Item) => b.id - a.id,
+      sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
+      makeSorter = (fs: FolderSorter, is: ItemSorter) => {
+      };
 
 export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
@@ -104,14 +111,12 @@ export class Folder {
 	parent: Folder | null;
 	name: string;
 	html: HTMLElement;
-	folders: SortHTML<Folder>;
-	items: SortHTML<Item>;
+	children: SortHTML<Folder | Item>;
 	root: Root;
 	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
 		this.root = root;
 		this.parent = parent;
-		this.folders = new SortHTML<Folder>(ul({"class": "folders"}), this.folderSorter);
-		this.items = new SortHTML<Item>(ul({"class": "items"}), this.itemSorter);
+		this.children = new SortHTML<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
 		this.html = li([
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
@@ -119,11 +124,10 @@ export class Folder {
 			span("~", {"class": "renameFolder", "onclick": this.rename.bind(this)}),
 			span("-", {"class": "removeFolder", "onclick": this.remove.bind(this)}),
 			span("+", {"class": "addFolder", "onclick": this.newFolder.bind(this)}),
-			this.folders.html,
-			this.items.html
+			this.children.html,
 		]);
-		Object.entries(folders).forEach(([name, f]) => this.folders.push(new this.root.newFolder(root, this, name, f.folders, f.items)));
-		Object.entries(items).forEach(([name, iid]) => this.items.push(new this.root.newItem(this, iid, name)));
+		Object.entries(folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f.folders, f.items)));
+		Object.entries(items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
 	}
 	get folderSorter() {
 		return stringSorter;
@@ -133,6 +137,40 @@ export class Folder {
 			return idSorter;
 		}
 		return stringSorter;
+	}
+	get sorter() {
+		const fs = this.folderSorter,
+		      is = this.itemSorter,
+		      m = sorts.get(fs);
+		if (m) {
+			const fn = m.get(is);
+			if (fn) {
+				return fn;
+			}
+		}
+		const fn =  (a: Item | Folder, b: Item | Folder) => {
+			if (a instanceof Folder) {
+				if (b instanceof Folder) {
+					return fs(a, b);
+				}
+				return -1;
+			} else if (b instanceof Folder) {
+				return 1;
+			}
+			return is(a, b);
+		};
+		if (m) {
+			m.set(is, fn);
+		} else {
+			sorts.set(fs, new WeakMap<ItemSorter, Sorter>([[is, fn]]));
+		}
+		return fn;
+	}
+	get folders() {
+		return this.children.filter(c => c instanceof Folder) as Folder[];
+	}
+	get items() {
+		return this.children.filter(c => c instanceof Item) as Item[];
 	}
 	rename() {
 		const root = this.root,
@@ -191,7 +229,7 @@ export class Folder {
 	}
 	addItem(id: Int, name: string) {
 		if (!this.getItem(name)) {
-			this.items.push(new this.root.newItem(this, id, name));
+			this.children.push(new this.root.newItem(this, id, name));
 		}
 	}
 	getItem(name: string) {
@@ -213,7 +251,7 @@ export class Folder {
 			return existing;
 		}
 		const f = new this.root.newFolder(this.root, this, name, {}, {});
-		this.folders.push(f);
+		this.children.push(f);
 		return f;
 	}
 	getFolder(name: string) {
@@ -305,11 +343,11 @@ export class Root {
 			const t = this.addFolder(to);
 			f.folders.forEach(f => {
 				f.parent = t;
-				t.folders.push(f);
+				t.children.push(f);
 			});
 			f.items.forEach(i => {
 				i.parent = t;
-				t.items.push(i)
+				t.children.push(i)
 			});
 			return f;
 		}
