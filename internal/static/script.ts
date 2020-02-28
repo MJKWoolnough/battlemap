@@ -1,5 +1,5 @@
 import RPC from './rpc.js';
-import {Int, MapLayer} from './types.js';
+import {Int, LayerFolder} from './types.js';
 import layers from './lib/layers.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {div, h2, input, label} from './lib/dom.js';
@@ -47,7 +47,7 @@ pageLoad.then(() => {
 		});
 	      }()),
 	      mapLoadPipe = new Pipe<Int>(),
-	      mapLayers = new Pipe<MapLayer[]>(),
+	      mapLayers = new Pipe<LayerFolder>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
 	      overlay = layers(clearElement(document.body).appendChild(div({"id": "overlay"})), spinner("loading"));
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {

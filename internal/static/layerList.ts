@@ -1,39 +1,26 @@
-import {Int, RPC, LayerType, MapLayer} from './types.js';
+import {Int, RPC, LayerType, Layer, LayerFolder, FolderItems} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
 import {SortHTML, noSort} from './lib/ordered.js';
+import {Root, Folder, Item} from './folders.js';
 
-class LayerList {
-	list = new SortHTML<LayerItem>(ul(), noSort);
-	rpc: RPC;
-	overlay: LayerType;
-	constructor(rpc: RPC, overlay: LayerType) {
-		this.rpc = rpc;
-		this.overlay = overlay;
-	}
-	addLayer(l: MapLayer) {
-		this.list.push(new LayerItem(l));
-	}
-	get html() {
-		return this.list.html;
+class ItemLayer extends Item {
+	hidden: boolean = false;
+	mask: Int = 0;
+}
+
+class FolderLayer extends Folder {
+	hidden: boolean = false;
+	mask: Int = 0;
+	constructor(root: Root, parent: Folder | null, name: string, folders: Record<string, FolderItems>, items: Record<string, Int>) {
+		super(root, parent, name, {folders: {}, items: {}});
 	}
 }
 
-class LayerItem {
-	html: HTMLElement;
-	id: string;
-	name: string;
-	constructor(l: MapLayer) {
-		this.id = l.id;
-		this.name = l.name;
-		this.html = li(l.name);
-	}
-}
-
-
-export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn: (layers: MapLayer[]) => void) => void) {
+export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn: (layers: LayerFolder) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
+	/*
 	mapChange((layers: MapLayer[]) => {
 		const list = new LayerList(rpc, overlay);
 		layers.forEach(l => list.addLayer(l));
@@ -46,7 +33,7 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn
 					name,
 					br(),
 					button("Add Layer", {"onclick": () => overlay.loading(rpc.addLayer(name.value)).then(id => {
-						list.addLayer({id, name: name.value});
+						list.addLayer({id, "name": name.value, "hidden": false, "mask": 0});
 						// TODO: send new layer to map
 						overlay.removeLayer();
 					}).catch(e => showError(name, e))}),
@@ -56,4 +43,5 @@ export default function(rpc: RPC, overlay: LayerType, base: Node, mapChange: (fn
 			list.html
 		]);
 	});
+	*/
 }

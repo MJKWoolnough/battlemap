@@ -28,7 +28,7 @@ export type RPC = {
 	waitCurrentUserMap:    () => Subscription<Int>;
 	waitCharacterChange:   () => Subscription<Int>;
 	waitMapChange:         () => Subscription<MapDetails>; //check type
-	waitLayerAdd:          () => Subscription<MapLayer>;   //check type
+	waitLayerAdd:          () => Subscription<Layer>;      //check type
 	waitLayerRename:       () => Subscription<FromTo>;     //check type
 	waitLayerRemove:       () => Subscription<Int>;        //check type
 	waitLayerOrderChange:  () => Subscription<Int[]>;      //check type
@@ -164,9 +164,16 @@ export type Token = {
 	tokenType:   Int;
 };
 
-export type MapLayer = {
+export type Layer = {
 	id: string;
 	name: string;
 	hidden: boolean;
 	mask: Int;
+}
+
+export type LayerFolder = FolderItems & {
+	id: string;
+	name: string;
+	hidden: boolean;
+	children: Layer[] | LayerFolder[];
 }
