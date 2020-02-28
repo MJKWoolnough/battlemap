@@ -82,7 +82,7 @@ export class Item {
 	remove() {
 		const root = this.parent.root,
 		      overlay = root.overlay,
-		      path = this.parent.getPath() + "/" + this.name,
+		      path = this.getPath(),
 		      pathDiv = div(path);
 		return createHTML(overlay.addLayer(), {"class": "removeItem"}, [
 			h1("Remove Item"),
@@ -94,6 +94,9 @@ export class Item {
 			}).catch(e => showError(pathDiv, e))}),
 			button("Cancel", {"onclick": overlay.removeLayer})
 		]);
+	}
+	getPath() {
+		return this.parent.getPath() + "/" + this.name;
 	}
 }
 
