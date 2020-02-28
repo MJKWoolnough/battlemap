@@ -59,7 +59,7 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		}
 	}
       };
-let rpc: RPC, overlay: LayerType, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
+let rpc: RPC, overlay: LayerType, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
@@ -108,7 +108,7 @@ class MapItem extends Item {
 	setCurrentMap() {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
-		// send id to map layer to load
+		sendCurrentMap(this.id);
 	}
 	setUserMap() {
 		setMap(this, selectedUser, "mapUser", "hasMapUser");
@@ -150,6 +150,7 @@ class MapRoot extends Root {
 	removeItem(from: string) {
 		if (selectedCurrent && selectedCurrent.getPath() === from) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			sendCurrentMap(0);
 		}
 		return super.removeItem(from);
 	}
@@ -168,6 +169,7 @@ class MapRoot extends Root {
 		const [f] = this.resolvePath(from);
 		if (f && f.html.classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			sendCurrentMap(0);
 		}
 		return super.removeFolder(from);
 	}
@@ -176,6 +178,7 @@ class MapRoot extends Root {
 export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
 	overlay = aoverlay;
+	sendCurrentMap = setCurrentMap;
 	const rpcFuncs = arpc["maps"];
 	Promise.all([
 		rpcFuncs.list(),
