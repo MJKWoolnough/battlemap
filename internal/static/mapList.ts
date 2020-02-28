@@ -65,6 +65,7 @@ class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
+		this.html.classList.add("mapItem");
 		this.nameSpan = this.html.firstChild as HTMLSpanElement;
 		[
 			span({"class": "setCurrentMap", "title": "Load Map", "onclick": () => {
@@ -83,7 +84,7 @@ class MapItem extends Item {
 			overlay.loading(rpc.setMapDetails(md)).then(() => {
 				this.nameSpan.innerText = md.name;
 				this.name = md.name;
-				this.parent.items.sort();
+				this.parent.children.sort();
 			}).catch(e => showError(errorNode, e));
 		}))
 		.catch(e => {
