@@ -45,19 +45,21 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		button("Cancel", {"onclick": () => overlay.removeLayer()})
 	]);
       },
-      setMap = (mapItem: MapItem, selected: MapItem, selectedClass: string, containsClass: string) => {
+      setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
 		selected.html.classList.remove(selectedClass);
 		for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
 			curr.html.classList.remove(containsClass);
 		}
 	}
-	mapItem.html.classList.add(selectedClass);
-	for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
-		curr.html.classList.add(containsClass);
+	if (mapItem) {
+		mapItem.html.classList.add(selectedClass);
+		for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
+			curr.html.classList.add(containsClass);
+		}
 	}
       };
-let rpc: RPC, overlay: LayerType, selectedUser: MapItem, selectedCurrent: MapItem;
+let rpc: RPC, overlay: LayerType, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
@@ -74,6 +76,7 @@ class MapItem extends Item {
 				rpc.setUserMap(id);
 			}})
 		].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+		this.html.removeChild(this.html.lastElementChild!.previousElementSibling!);
 	}
 	show() {
 		overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
@@ -134,6 +137,42 @@ class MapFolder extends Folder {
 	}
 }
 
+class MapRoot extends Root {
+	moveItem(from: string, to: string) {
+		if (selectedCurrent && selectedCurrent.getPath() === from) {
+			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			super.moveItem(from, to);
+			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
+		} else {
+			super.moveItem(from, to);
+		}
+	}
+	removeItem(from: string) {
+		if (selectedCurrent && selectedCurrent.getPath() === from) {
+			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		}
+		return super.removeItem(from);
+	}
+	moveFolder(from: string, to: string) {
+		const [f] = this.resolvePath(from);
+		if (f && f.html.classList.contains("hasMapCurrent")) {
+			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			const t = super.moveFolder(from, to);
+			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
+			return t;
+		} else {
+			return super.moveFolder(from, to);
+		}
+	}
+	removeFolder(from: string) {
+		const [f] = this.resolvePath(from);
+		if (f && f.html.classList.contains("hasMapCurrent")) {
+			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		}
+		return super.removeFolder(from);
+	}
+}
+
 export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
 	overlay = aoverlay;
@@ -142,7 +181,7 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 		rpcFuncs.list(),
 		rpc.getUserMap()
 	]).then(([folderList, userMap]) => {
-		const root = new Root(folderList, "Maps", rpcFuncs, overlay, MapItem, MapFolder),
+		const root = new MapRoot(folderList, "Maps", rpcFuncs, overlay, MapItem, MapFolder),
 		      findMap = (folder: Folder, id: Int): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
