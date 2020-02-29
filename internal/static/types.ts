@@ -165,15 +165,15 @@ export type Token = {
 };
 
 export type Layer = {
-	id: string;
+	id: Int;
 	name: string;
 	hidden: boolean;
 	mask: Int;
 }
 
 export type LayerFolder = FolderItems & {
-	id: string;
+	id: Int;
 	name: string;
 	hidden: boolean;
-	children: Layer[] | LayerFolder[];
+	children: (Layer | LayerFolder)[];
 }
