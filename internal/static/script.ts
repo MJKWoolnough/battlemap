@@ -1,6 +1,5 @@
 import RPC from './rpc.js';
 import {Int, LayerFolder} from './types.js';
-import layers from './lib/layers.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {div, h2, input, label} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
@@ -8,6 +7,7 @@ import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
 import loadMap from './map.js';
+import {Shell} from './windows.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -49,14 +49,14 @@ pageLoad.then(() => {
 	      mapLoadPipe = new Pipe<Int>(),
 	      mapLayers = new Pipe<LayerFolder>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
-	      overlay = layers(clearElement(document.body).appendChild(div({"id": "overlay"})), spinner("loading"));
+	      shell = new Shell();
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 		if (userLevel === 1) {
-			assets(rpc, overlay, tabs.add("Images", spinner("imagesLoading")), "Images");
-			assets(rpc, overlay, tabs.add("Audio", spinner("audioLoading")), "Audio");
-			mapList(rpc, overlay, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-			loadMap(rpc, overlay, document.body.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
-			layerList(rpc, overlay, tabs.add("Layers", div()), mapLayers.receive);
+			assets(rpc, shell, tabs.add("Images", spinner("imagesLoading")), "Images");
+			assets(rpc, shell, tabs.add("Audio", spinner("audioLoading")), "Audio");
+			mapList(rpc, shell, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
+			loadMap(rpc, shell, document.body.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
+			layerList(rpc, shell, tabs.add("Layers", div()), mapLayers.receive);
 			document.body.appendChild(tabs.html);
 		} else {
 			return Promise.reject("Need to be logged in");
