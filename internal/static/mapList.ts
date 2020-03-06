@@ -1,8 +1,9 @@
-import {FolderItems, Int, RPC, MapDetails, LayerType} from './types.js';
+import {FolderItems, Int, RPC, MapDetails} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, h1, h2, input, label, span} from './lib/dom.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import {Root, Folder, Item} from './folders.js';
+import {Root, Folder, Item, windowOptions} from './folders.js';
+import {Shell} from './windows.js';
 
 const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
 	const name = input({"type": "text", "id": "mapName", "value": md.name}),
@@ -10,9 +11,11 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 	      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height.toString(), "id": "mapHeight"}),
 	      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square.toString(), "id": "mapSquareWidth"}),
 	      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
-	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"});
-	return createHTML(overlay.addLayer(), {"class": `map${md.id === 0 ? "Add" : "Edit"}`}, [
-		h1(`${md.id === 0 ? "New" : "Edit"} Map`),
+	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"}),
+	      title = `${md.id === 0 ? "New" : "Edit"} Map`,
+	      window = shell.addWindow(title, windowOptions);
+	return createHTML(window, {"class": `map${md.id === 0 ? "Add" : "Edit"}`}, [
+		h1(title),
 		label({"for": "mapName"}),
 		name,
 		br(),
@@ -31,8 +34,8 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
 		sqLineWidth,
 		br(),
-		button("Add", {"onclick": function(this: HTMLButtonElement) {
-			submitFn(this.nextElementSibling as HTMLElement, {
+		button(md.id === 0 ? "Add" : "Edit", {"onclick": function(this: HTMLButtonElement) {
+			submitFn(this, {
 				"id": md.id,
 				"name": name.value,
 				"width": parseInt(width.value),
@@ -41,8 +44,7 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 				"colour": hex2Colour(sqColour.value),
 				"stroke": parseInt(sqLineWidth.value)
 			});
-		}}),
-		button("Cancel", {"onclick": () => overlay.removeLayer()})
+		}})
 	]);
       },
       setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
@@ -59,7 +61,7 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
 		}
 	}
       };
-let rpc: RPC, overlay: LayerType, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
+let rpc: RPC, shell: Shell, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
@@ -80,8 +82,8 @@ class MapItem extends Item {
 		this.html.removeChild(this.html.lastElementChild!.previousElementSibling!);
 	}
 	show() {
-		overlay.loading(rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
-			overlay.loading(rpc.setMapDetails(md)).then(() => {
+		shell.addLoading(null, rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
+			shell.addLoading(errorNode.parentNode as HTMLDivElement, rpc.setMapDetails(md)).then(() => {
 				this.nameSpan.innerText = md.name;
 				this.name = md.name;
 				this.parent.children.sort();
@@ -94,14 +96,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
-			return createHTML(overlay.addLayer(), h2("Cannot rename active map"));
+			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename active map"));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
-			return createHTML(overlay.addLayer(), h2("Cannot remove active map"));
+			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove active map"));
 		} else {
 			return super.rename();
 		}
@@ -124,14 +126,14 @@ class MapFolder extends Folder {
 	}
 	rename() {
 		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
-			return createHTML(overlay.addLayer(), h2("Cannot rename while containing active map"));
+			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename while containing active map"));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
-			return createHTML(overlay.addLayer(), h2("Cannot remove while containing active map"));
+			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove while containing active map"));
 		} else {
 			return super.rename();
 		}
@@ -176,16 +178,16 @@ class MapRoot extends Root {
 	}
 }
 
-export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMap: (id: Int) => void) {
+export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
-	overlay = aoverlay;
+	shell = ashell;
 	sendCurrentMap = setCurrentMap;
 	const rpcFuncs = arpc["maps"];
 	Promise.all([
 		rpcFuncs.list(),
 		rpc.getUserMap()
 	]).then(([folderList, userMap]) => {
-		const root = new MapRoot(folderList, "Maps", rpcFuncs, overlay, MapItem, MapFolder),
+		const root = new MapRoot(folderList, "Maps", rpcFuncs, shell, MapItem, MapFolder),
 		      findMap = (folder: Folder, id: Int): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
@@ -222,9 +224,9 @@ export default function(arpc: RPC, aoverlay: LayerType, base: Node, setCurrentMa
 				"colour": hex2Colour("#000000"),
 				"stroke": 1
 			}, (errorNode: HTMLElement, md: MapDetails) => {
-				overlay.loading(rpc.newMap(md)).then(({id, name}) => {
+				shell.addLoading(errorNode.parentNode as HTMLDivElement, rpc.newMap(md)).then(({id, name}) => {
 					root.addItem(id, name);
-					overlay.removeLayer();
+					shell.removeWindow(errorNode.parentNode as HTMLDivElement);
 				})
 				.catch(e => showError(errorNode, e));
 			})}),
