@@ -1,7 +1,8 @@
-import {Int, FolderRPC, FolderItems, FromTo, IDName, LayerType} from './types.js';
+import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, option, span, select, ul} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
+import {Shell} from './windows.js';
 import {showError, enterKey} from './misc.js';
 import {SortHTML, stringSort} from './lib/ordered.js';
 
@@ -21,7 +22,10 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>();
 
-export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
+export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),  windowOptions = {
+	"showTitlebar": true,
+	"showClose": true
+      };
 
 let folderID = 0;
 
@@ -44,60 +48,60 @@ export class Item {
 	show() {}
 	rename() {
 		const root = this.parent.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": this.name});
-		return createHTML(root.overlay.addLayer(), {"class": "renameItem"}, [
-			h1("Move Folder"),
+		      newName = input({"type": "text", "value": this.name}),
+		      window = shell.addWindow("Move Item", windowOptions);
+		return createHTML(window, {"class": "renameItem"}, [
+			h1("Move Item"),
 			div(`Old Location: ${parentPath}${this.name}`),
 			label({"for": "folderName"}, "New Location: "),
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value)).then(newPath => {
 				root.moveItem(parentPath + this.name, newPath);
-				overlay.removeLayer();
-			}).catch(e => showError(newName, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
+				shell.removeWindow(window);
+			}).catch(e => showError(newName, e))})
 		]);
 	}
 	link() {
 		const root = this.parent.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": this.name});
-		return createHTML(root.overlay.addLayer(), {"class": "linkItem"}, [
+		      newName = input({"type": "text", "value": this.name}),
+		      window = shell.addWindow("Link Item", windowOptions);
+		return createHTML(window, {"class": "linkItem"}, [
 			h1("Add Link"),
 			div(`Current Location: ${parentPath}${this.name}`),
 			label({"for": "folderName"}, "New Link: "),
 			parents,
 			newName,
 			br(),
-			button("Link", {"onclick": () => overlay.loading(root.rpcFuncs.link(this.id, parents.value + newName.value)).then(newPath => {
+			button("Link", {"onclick": () => shell.addLoading(window, root.rpcFuncs.link(this.id, parents.value + newName.value)).then(newPath => {
 				root.addItem(this.id, newPath);
-				overlay.removeLayer();
+				shell.removeWindow(window);
 			}).catch(e => showError(newName, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
 		]);
 	}
 	remove() {
 		const root = this.parent.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      path = this.getPath(),
-		      pathDiv = div(path);
-		return createHTML(overlay.addLayer(), {"class": "removeItem"}, [
+		      pathDiv = div(path),
+		      window = shell.addWindow("Remove Item", windowOptions);
+		return createHTML(window, {"class": "removeItem"}, [
 			h1("Remove Item"),
 			div("Remove the following item?"),
 			pathDiv,
-			button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.remove(path)).then(() => {
+			button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(path)).then(() => {
 				root.removeItem(path);
-				overlay.removeLayer();
-			}).catch(e => showError(pathDiv, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
+				shell.removeWindow(window);
+			}).catch(e => showError(pathDiv, e))})
 		]);
 	}
 	getPath() {
@@ -172,57 +176,57 @@ export class Folder {
 	}
 	rename() {
 		const root = this.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": self.name});
-		return createHTML(overlay.addLayer(), {"class": "renameFolder"}, [
+		      newName = input({"type": "text", "value": self.name}),
+		      window = shell.addWindow("Move Folder", windowOptions);
+		return createHTML(window, {"class": "renameFolder"}, [
 			h1("Move Folder"),
 			div(`Old Location: ${oldPath.slice(0, -1)}`),
 			label({"for": "folderName"}, "New Location: "),
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => overlay.loading(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
 				root.moveFolder(oldPath.slice(0, -1), newPath);
-				overlay.removeLayer();
-			}).catch(e => showError(newName, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
+				shell.removeWindow(window);
+			}).catch(e => showError(newName, e))})
 		])
 	}
 	remove() {
 		const root = this.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      path = this.getPath(),
-		      pathDiv = div(path);
-		return createHTML(overlay.addLayer(), {"class": "folderRemove"}, [
+		      pathDiv = div(path),
+		      window = shell.addWindow("Remove Folder", windowOptions);
+		return createHTML(window, {"class": "folderRemove"}, [
 			h1("Remove Folder"),
 			div("Remove the following folder? NB: This will remove all folders and items it contains."),
 			pathDiv,
-			button("Yes, Remove!", {"onclick": () => overlay.loading(root.rpcFuncs.removeFolder(path)).then(() => {
+			button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(path)).then(() => {
 				root.removeFolder(path);
-				overlay.removeLayer();
-			}).catch(e => showError(pathDiv, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
+				shell.removeWindow(window);
+			}).catch(e => showError(pathDiv, e))})
 		]);
 	}
 	newFolder() {
 		const root = this.root,
-		      overlay = root.overlay,
+		      shell = root.shell,
 		      path = this.getPath(),
-		      folderName = input({"id": "folderName", "onkeypress": enterKey});
-		return createHTML(overlay.addLayer(), {"class": "folderAdd"}, [
+		      folderName = input({"id": "folderName", "onkeypress": enterKey}),
+		      window = shell.addWindow("Add Folder", windowOptions);
+		return createHTML(window, {"class": "folderAdd"}, [
 			h1("Add Folder"),
 			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
 			folderName,
 			br(),
-			button("Add Folder", {"onclick": () => overlay.loading(root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
+			button("Add Folder", {"onclick": () => shell.addLoading(window, root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
 				root.addFolder(folder);
-				overlay.removeLayer();
-			}).catch(e => showError(folderName, e))}),
-			button("Cancel", {"onclick": overlay.removeLayer})
+				shell.removeWindow(window);
+			}).catch(e => showError(folderName, e))})
 		]);
 	}
 	addItem(id: Int, name: string) {
@@ -272,16 +276,16 @@ export class Folder {
 export class Root {
 	folder: Folder;
 	fileType: String
-	overlay: LayerType;
+	shell: Shell;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	html: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, overlay: LayerType, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: Shell, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.fileType = fileType;
-		this.overlay = overlay;
+		this.shell = shell;
 		this.rpcFuncs = rpcFuncs;
 		this.folder = new Folder(this, null, "", rootFolder);
 		this.html = div([
