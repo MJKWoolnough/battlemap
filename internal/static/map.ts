@@ -1,8 +1,9 @@
-import {Int, RPC, LayerType, LayerFolder} from './types.js';
+import {Int, RPC, LayerFolder} from './types.js';
 import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
+import {Shell} from './windows.js';
 
-export default function(rpc: RPC, overlay: LayerType, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layers: LayerFolder) => void) {
+export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layers: LayerFolder) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		const root = (mapData as Document).getElementsByTagName("svg")[0],
 		      layers = new Map<Int, string>();
