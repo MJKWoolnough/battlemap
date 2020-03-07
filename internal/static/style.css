@@ -150,3 +150,11 @@ html, body {
 	transition: background 1s;
 	z-index: 9;
 }
+
+html .windowsShell {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
