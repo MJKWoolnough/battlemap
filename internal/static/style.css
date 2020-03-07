@@ -158,3 +158,15 @@ html .windowsShell {
 	right: 0;
 	bottom: 0;
 }
+
+html .windowsWindow {
+	--window-left: 20px;
+	--window-top: 20px;
+}
+
+html .windowsWindow:not(.windowsResizable) {
+	--window-left: 50%;
+	--window-top: 50%;
+	transform: translateX(-50%) translateY(-50%);
+}
+
