@@ -49,15 +49,17 @@ pageLoad.then(() => {
 	      mapLoadPipe = new Pipe<Int>(),
 	      mapLayers = new Pipe<LayerFolder>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
-	      shell = new Shell();
+	      base = div(),
+	      shell = new Shell({"desktop": base});
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 		if (userLevel === 1) {
 			assets(rpc, shell, tabs.add("Images", spinner("imagesLoading")), "Images");
 			assets(rpc, shell, tabs.add("Audio", spinner("audioLoading")), "Audio");
 			mapList(rpc, shell, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-			loadMap(rpc, shell, document.body.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
+			loadMap(rpc, shell, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
 			layerList(rpc, shell, tabs.add("Layers", div()), mapLayers.receive);
-			document.body.appendChild(tabs.html);
+			base.appendChild(tabs.html);
+			clearElement(document.body).appendChild(shell.html);
 		} else {
 			return Promise.reject("Need to be logged in");
 		}
