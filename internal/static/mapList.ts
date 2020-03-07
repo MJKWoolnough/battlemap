@@ -135,7 +135,7 @@ class MapFolder extends Folder {
 		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
 			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove while containing active map"));
 		} else {
-			return super.rename();
+			return super.remove();
 		}
 	}
 }
