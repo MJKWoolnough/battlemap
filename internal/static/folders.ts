@@ -290,7 +290,7 @@ export class Root {
 		this.folder = new Folder(this, null, "", rootFolder);
 		this.html = div([
 			fileType,
-			Array.from(this.folder.html.childNodes).slice(-3)
+			Array.from(this.folder.html.childNodes).slice(-2)
 		]);
 		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
