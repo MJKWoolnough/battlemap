@@ -5,12 +5,11 @@ import {Shell} from './windows.js';
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layers: LayerFolder) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		const root = (mapData as Document).getElementsByTagName("svg")[0],
-		      layers = new Map<Int, string>();
 		let layerNum = 0;
-		setLayers({"id": 0, "name": "", "hidden": false,  "folders": {}, "items": {}, "children": Array.from((root.lastChild!).childNodes).filter(e => e.nodeName === "g").map(e => {
-			const g = e as SVGGElement,
-			      idStr = g.getAttribute("id")!;
+		const root = (mapData as Document).getElementsByTagName("svg")[0],
+		      layers = new Map<Int, string>(),
+		      processLayers = (node: SVGGElement): LayerFolder => {
+			const idStr = node.getAttribute("id") || "";
 			let id: Int;
 			switch (idStr) {
 			case "Grid":
@@ -20,11 +19,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				id = -2;
 				break;
 			default:
-				id = ++layerNum;
+				id = layerNum++;
 			}
-			layers.set(id, g.getAttribute("id")!);
-			return {"id": id, "name": g.getAttribute("data-name")!, "hidden": g.getAttribute("visibility") === "hidden", "mask": parseInt(g.getAttribute("mask")!), folders: {}, items: {}, children: []};
-		})});
+			layers.set(id, idStr);
+			const layer = {"id": id, "name": node.getAttribute("data-name") || `Layer ${id}`, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask")!), folders: {}, items: {}, children: []};
+			if (node.firstChild && node.firstChild.nodeName === "g") {
+				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(processLayers);
+			}
+			return layer;
+		      };
+		setLayers(processLayers(root.lastChild as SVGGElement));
 		base.appendChild(root);
 	}));
 }
