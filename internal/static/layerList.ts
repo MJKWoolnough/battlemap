@@ -40,6 +40,18 @@ export default function(shell: Shell, base: Node, mapChange: (fn: (rpc: LayerRPC
 	base.appendChild(h1("No Map Selected"));
 	mapChange(rpc => rpc.list().then(layers => {
 		const list = new Root(layers, "Layer", {} as FolderRPC, shell, ItemLayer, FolderLayer);
+		rpc.waitLayerSetVisible().then(id => {
+
+		});
+		rpc.waitLayerSetInvisible().then(id => {
+
+		});
+		rpc.waitLayerAddMask().then(id => {
+
+		});
+		rpc.waitLayerRemoveMask().then(id => {
+
+		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
 				const name = input({"id": "layerName", "onkeypress": enterKey}),
