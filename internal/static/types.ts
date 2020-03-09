@@ -21,6 +21,14 @@ export type FolderRPC = {
 	link:         (id: Int, name: string)    => Promise<string>;
 }
 
+export type LayerRPC = FolderRPC | {
+	newLayer:      (path: string) => Int;
+	setVisibility: (id: Int, visible: boolean) => void;
+	setLayer:      (id: Int) => void;
+	setLayerMask:  (id: Int) => void;
+	moveLayer:     (id: Int, folderID: Int, pos: Int) => void;
+}
+
 export type RPC = {
 	waitLogin:             () => Promise<Int>;
 	waitCurrentUserMap:    () => Subscription<Int>;
