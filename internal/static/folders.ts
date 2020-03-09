@@ -22,10 +22,10 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>();
 
-export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),  windowOptions = {
+export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))), windowOptions = {
 	"showTitlebar": true,
 	"showClose": true
-      };
+};
 
 let folderID = 0;
 
