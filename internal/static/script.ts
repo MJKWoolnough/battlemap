@@ -1,5 +1,5 @@
 import RPC from './rpc.js';
-import {Int, LayerFolder} from './types.js';
+import {Int, LayerRPC, LayerFolder} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {div, h2, input, label} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
@@ -47,7 +47,7 @@ pageLoad.then(() => {
 		});
 	      }()),
 	      mapLoadPipe = new Pipe<Int>(),
-	      mapLayers = new Pipe<LayerFolder>(),
+	      mapLayers = new Pipe<LayerRPC>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
 	      base = div(),
 	      shell = new Shell({"desktop": base});
@@ -57,7 +57,7 @@ pageLoad.then(() => {
 			assets(rpc, shell, tabs.add("Audio", spinner("audioLoading")), "Audio");
 			mapList(rpc, shell, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, shell, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
-			layerList(rpc, shell, tabs.add("Layers", div()), mapLayers.receive);
+			layerList(shell, tabs.add("Layers", div()), mapLayers.receive);
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(shell.html);
 		} else {
