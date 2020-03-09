@@ -52,7 +52,11 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitRemoved = subFn<string>(),
 		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
-		      waitFolderRemoved = subFn<string>();
+		      waitFolderRemoved = subFn<string>(),
+		      waitLayerSetVisible = subFn<Int>(),
+		      waitLayerSetInvisible = subFn<Int>(),
+		      waitLayerAddMask = subFn<Int>(),
+		      waitLayerRemoveMask = subFn<Int>();
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -61,6 +65,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitFolderAdded": () => waitFolderAdded[1],
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
+			"waitLayerSetVisible": () => waitLayerSetVisible[1],
+			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
+			"waitLayerAddMask": () => waitLayerAddMask[1],
+			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
 			"list": () => Promise.resolve(processLayers(root.lastChild as SVGGElement, "/")),
 			"createFolder": (path: string) => Promise.resolve(path),
 			"move": (from: string, to: string) => Promise.resolve(to),
@@ -70,6 +78,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"link": (id: Int, name: string) => Promise.resolve(name),
 			"newLayer": (name: string) => Promise.resolve(0),
 			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
+			"addLayerMask": (id: Int) => Promise.resolve(),
+			"removeLayerMask": (id: Int) => Promise.resolve(),
 			"setLayer": (id: Int) => Promise.resolve(),
 			"setLayerMask": (id: Int) => Promise.resolve(),
 			"moveLayer": (id: Int, folderID: Int, pos: Int) => Promise.resolve()
