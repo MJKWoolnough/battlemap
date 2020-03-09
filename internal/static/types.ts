@@ -22,11 +22,18 @@ export type FolderRPC = {
 }
 
 export type LayerRPC = FolderRPC & {
-	newLayer:      (path: string) => Promise<Int>;
-	setVisibility: (id: Int, visible: boolean) => Promise<void>;
-	setLayer:      (id: Int) => Promise<void>;
-	setLayerMask:  (id: Int) => Promise<void>;
-	moveLayer:     (id: Int, folderID: Int, pos: Int) => Promise<void>;
+	waitLayerSetVisible:   () => Subscription<Int>;
+	waitLayerSetInvisible: () => Subscription<Int>;
+	waitLayerAddMask:      () => Subscription<Int>;
+	waitLayerRemoveMask:   () => Subscription<Int>;
+
+	newLayer:         (path: string) => Promise<Int>;
+	setVisibility:    (id: Int, visible: boolean) => Promise<void>;
+	addLayerMask:     (id: Int) => Promise<void>;
+	removeLayerMask:  (id: Int) => Promise<void>;
+	setLayer:         (id: Int) => Promise<void>;
+	setLayerMask:     (id: Int) => Promise<void>;
+	moveLayer:        (id: Int, folderID: Int, pos: Int) => Promise<void>;
 }
 
 export type RPC = {
