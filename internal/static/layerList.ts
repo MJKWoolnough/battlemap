@@ -1,4 +1,4 @@
-import {Int, RPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
+import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
@@ -36,27 +36,29 @@ class FolderLayer extends Folder {
 	}
 }
 
-export default function(rpc: RPC, shell: Shell, base: Node, mapChange: (fn: (layers: LayerFolder) => void) => void) {
+export default function(shell: Shell, base: Node, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
-	mapChange((layers: LayerFolder) => {
-		const list = new Root(layers, "Layer", {} as FolderRPC, shell, ItemLayer, FolderLayer);
-		createHTML(clearElement(base), {"id": "layerList"}, [
-			button("Add Layer", {"onclick": () => {
-				const name = input({"id": "layerName", "onkeypress": enterKey}),
-				      window = shell.addWindow("Add Layer", windowOptions);
-				createHTML(window, {"id": "layerAdd"}, [
-					h1("Add Layer"),
-					label({"for": "layerName"}, "Layer Name"),
-					name,
-					br(),
-					button("Add Layer", {"onclick": () => shell.addLoading(window, rpc.addLayer(name.value)).then(id => {
-						list.addItem(id, name.value);
-						// TODO: send new layer to map
-						shell.removeWindow(window);
-					}).catch(e => showError(name, e))})
-				]);
-			}}),
-			list.html
-		]);
+	mapChange(rpc => {
+		rpc.list().then(layers => {
+			const list = new Root(layers, "Layer", {} as FolderRPC, shell, ItemLayer, FolderLayer);
+			createHTML(clearElement(base), {"id": "layerList"}, [
+				button("Add Layer", {"onclick": () => {
+					const name = input({"id": "layerName", "onkeypress": enterKey}),
+					      window = shell.addWindow("Add Layer", windowOptions);
+					createHTML(window, {"id": "layerAdd"}, [
+						h1("Add Layer"),
+						label({"for": "layerName"}, "Layer Name"),
+						name,
+						br(),
+						button("Add Layer", {"onclick": () => shell.addLoading(window, rpc.newLayer(name.value)).then(id => {
+							list.addItem(id, name.value);
+							// TODO: send new layer to map
+							shell.removeWindow(window);
+						}).catch(e => showError(name, e))})
+					]);
+				}}),
+				list.html
+			]);
+		});
 	});
 }
