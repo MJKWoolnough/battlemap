@@ -1,6 +1,6 @@
 import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
-import {br, button, div, h1, input, label, li, span, ul} from './lib/dom.js';
+import {br, button, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
 import {SortHTML, noSort} from './lib/ordered.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
@@ -29,6 +29,9 @@ class FolderLayer extends Folder {
 		const lf = children as LayerFolder;
 		this.id = lf.id;
 		lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
+		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
+			(root.rpcFuncs as LayerRPC).setVisibility(lf.id, !this.classList.toggle("layerHidden"));
+		}}, hidden ? {"class": "layerHidden"} : {})),  this.html.firstChild);
 	}
 	get sorter() {
 		return noSort;
