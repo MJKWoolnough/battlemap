@@ -13,9 +13,9 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
-		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
+		this.html.insertBefore(span("👁", {"class" : `layerVisibility${hidden ? " layerHidden" : ""}`, "onclick": function(this: HTMLSpanElement) {
 			(parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.classList.toggle("layerHidden"));
-		}}, hidden ? {"class": "layerHidden"} : {})), this.html.firstChild);
+		}}), this.html.firstChild);
 	}
 	show() {
 		(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
@@ -35,9 +35,9 @@ class FolderLayer extends Folder {
 		const lf = children as LayerFolder;
 		this.id = lf.id;
 		lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
-		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
+		this.html.insertBefore(span("👁", {"class" : `layerVisibility${hidden ? " layerHidden" : ""}`, "onclick": function(this: HTMLSpanElement) {
 			(root.rpcFuncs as LayerRPC).setVisibility(lf.id, !this.classList.toggle("layerHidden"));
-		}}, hidden ? {"class": "layerHidden"} : {})), this.html.firstChild);
+		}}), this.html.firstChild);
 	}
 	get sorter() {
 		return noSort;
