@@ -6,6 +6,8 @@ import {SortHTML, noSort} from './lib/ordered.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
+let selectedLayer: ItemLayer | undefined, maskSelected = false;
+
 class ItemLayer extends Item {
 	hidden: boolean;
 	mask: Int;
@@ -13,9 +15,24 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
+		this.html.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
+			this.show();
+			this.html.classList.add("selectedMask");
+			maskSelected = true;
+			(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
+		}}), this.html.firstChild!.nextSibling);
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 	}
 	show() {
+		if (selectedLayer) {
+			selectedLayer.html.classList.remove("selectedLayer");
+			if (maskSelected) {
+				selectedLayer.html.classList.remove("selectedMask");
+			}
+		}
+		this.html.classList.add("selectedLayer");
+		selectedLayer = this;
+		maskSelected = false;
 		(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
 	}
 }
@@ -43,6 +60,8 @@ class FolderLayer extends Folder {
 export default function(shell: Shell, base: Node, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
 	mapChange(rpc => rpc.list().then(layers => {
+		selectedLayer = undefined;
+		maskSelected = false;
 		const list = new Root(layers, "Layer", {} as FolderRPC, shell, ItemLayer, FolderLayer);
 		rpc.waitLayerSetVisible().then(id => {
 
