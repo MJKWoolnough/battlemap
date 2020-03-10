@@ -78,8 +78,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"link": (id: Int, name: string) => Promise.resolve(name),
 			"newLayer": (name: string) => Promise.resolve(0),
 			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
-			"addLayerMask": (id: Int) => Promise.resolve(),
-			"removeLayerMask": (id: Int) => Promise.resolve(),
 			"setLayer": (id: Int) => Promise.resolve(),
 			"setLayerMask": (id: Int) => Promise.resolve(),
 			"moveLayer": (id: Int, folderID: Int, pos: Int) => Promise.resolve()
