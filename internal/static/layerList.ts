@@ -13,6 +13,9 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
+		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
+			(parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.classList.toggle("layerHidden"));
+		}}, hidden ? {"class": "layerHidden"} : {})),  this.html.firstChild);
 	}
 }
 
