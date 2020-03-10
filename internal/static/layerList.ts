@@ -17,6 +17,9 @@ class ItemLayer extends Item {
 			(parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.classList.toggle("layerHidden"));
 		}}, hidden ? {"class": "layerHidden"} : {})),  this.html.firstChild);
 	}
+	show() {
+		(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
+	}
 }
 
 function isLayer(c: Layer | LayerFolder): c is Layer {
