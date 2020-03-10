@@ -15,7 +15,7 @@ class ItemLayer extends Item {
 		this.mask = mask;
 		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
 			(parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.classList.toggle("layerHidden"));
-		}}, hidden ? {"class": "layerHidden"} : {})),  this.html.firstChild);
+		}}, hidden ? {"class": "layerHidden"} : {})), this.html.firstChild);
 	}
 	show() {
 		(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
@@ -37,7 +37,7 @@ class FolderLayer extends Folder {
 		lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		this.html.insertBefore(span("👁", Object.assign({"onclick": function(this: HTMLSpanElement) {
 			(root.rpcFuncs as LayerRPC).setVisibility(lf.id, !this.classList.toggle("layerHidden"));
-		}}, hidden ? {"class": "layerHidden"} : {})),  this.html.firstChild);
+		}}, hidden ? {"class": "layerHidden"} : {})), this.html.firstChild);
 	}
 	get sorter() {
 		return noSort;
