@@ -12,5 +12,5 @@ jslibDom="$(realpath "$bm/../jslib/dom.sh")";
 	echo -n "</script><style type=\"text/css\">";
 	grep -hv "^@import" *.css | uglifycss | tr -d '\n';
 	echo -n "</style>";
-	tail -n6 index.html | tr -d '\n	';
+	tail -n5 index.html | tr -d '\n	';
 ) | httpdir -p "battlemap" -g -f -s -i - -d "$(stat -c %Y "$(ls -t "$data"/*.js "$data"/*.html | head -n1)")" -o "$bm/index.go" -w "index.html";
