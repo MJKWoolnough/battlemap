@@ -103,6 +103,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	}
 	name := addItemTo(m.folders.root.Items, nm.Name, mid)
 	m.maps[mid] = mp
+	m.links[mid] = 1
 	m.saveFolders()
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
