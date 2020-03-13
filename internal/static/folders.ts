@@ -287,7 +287,7 @@ export class Root {
 		this.fileType = fileType;
 		this.shell = shell;
 		this.rpcFuncs = rpcFuncs;
-		this.folder = new Folder(this, null, "", rootFolder);
+		this.folder = new newFolder(this, null, "", rootFolder);
 		this.html = div([
 			fileType,
 			Array.from(this.folder.html.childNodes).slice(-2)
