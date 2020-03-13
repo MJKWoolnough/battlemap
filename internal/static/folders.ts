@@ -343,13 +343,9 @@ export class Root {
 		const f = this.removeFolder(from);
 		if (f) {
 			const t = this.addFolder(to);
-			f.folders.forEach(f => {
+			f.children.forEach(c => {
 				f.parent = t;
 				t.children.push(f);
-			});
-			f.items.forEach(i => {
-				i.parent = t;
-				t.children.push(i)
 			});
 			return f;
 		}
