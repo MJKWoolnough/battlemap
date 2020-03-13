@@ -238,7 +238,7 @@ export class Folder {
 		return this.items.filter(i => i.name === name).pop();
 	}
 	removeItem(name: string) {
-		const index = this.items.findIndex(i => i.name === name);
+		const index = this.items.findIndex(i => i.name === name && i instanceof Item);
 		if (index !== -1) {
 			return this.items.splice(index, 1).pop()!.id;
 		}
@@ -260,9 +260,9 @@ export class Folder {
 		return this.folders.filter(f => f.name === name).pop();
 	}
 	removeFolder(name: string) {
-		const index = this.folders.findIndex(f => f.name === name);
+		const index = this.children.findIndex(f => f.name === name && f instanceof Folder);
 		if (index !== -1) {
-			return this.folders.splice(index, 1).pop();
+			return this.children.splice(index, 1).pop() as Folder;
 		}
 	}
 	getPath() {
