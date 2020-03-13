@@ -15,25 +15,37 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
-		this.html.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
-			this.show();
-			this.html.classList.add("selectedMask");
-			maskSelected = true;
-			(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
-		}}), this.html.firstChild!.nextSibling);
+		if (id < 0) {
+			this.html.removeChild(this.html.lastChild!);
+			this.html.removeChild(this.html.lastChild!);
+			this.html.removeChild(this.html.lastChild!);
+		} else {
+			this.html.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
+				this.show();
+				this.html.classList.add("selectedMask");
+				maskSelected = true;
+				(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
+			}}), this.html.firstChild!.nextSibling);
+		}
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 	}
 	show() {
-		if (selectedLayer) {
-			selectedLayer.html.classList.remove("selectedLayer");
-			if (maskSelected) {
-				selectedLayer.html.classList.remove("selectedMask");
+		if (this.id === -1) { // Grid
+			// Show/Edit Grid properties
+		} else if (this.id === -2) { // Light
+			// Show/Edit Light properties
+		} else {
+			if (selectedLayer) {
+				selectedLayer.html.classList.remove("selectedLayer");
+				if (maskSelected) {
+					selectedLayer.html.classList.remove("selectedMask");
+				}
 			}
+			this.html.classList.add("selectedLayer");
+			selectedLayer = this;
+			maskSelected = false;
+			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
 		}
-		this.html.classList.add("selectedLayer");
-		selectedLayer = this;
-		maskSelected = false;
-		(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
 	}
 }
 
