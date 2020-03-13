@@ -1,4 +1,4 @@
-import {FromTo, IDName, Int, RPC, LayerFolder, LayerRPC} from './types.js';
+import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
@@ -26,7 +26,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}
 			return name;
 		      },
-		      processLayers = (node: SVGGElement, path: string): LayerFolder => {
+		      processLayers = (node: SVGGElement, path: string): Layer | LayerFolder => {
 			const idStr = node.getAttribute("id") || "";
 			let id: Int,
 			    name = setNameID(path, node.getAttribute("data-name") || `Layer ${layerNum}`);
@@ -42,9 +42,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}
 			layers.set(id, idStr);
 			nameIDs.set(path + name, id);
-			const layer = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask")!), folders: {}, items: {}, children: []};
-			if (node.firstChild && node.firstChild.nodeName === "g") {
-				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(e =>processLayers(e, path + name + "/"));
+			const layer: Layer | LayerFolder = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []};
+			if (node.firstChild && node.firstChild.nodeName === "g") { //TODO: Fix this hack - need a way of differentiating empty folders and empty layers (always put a layer in the folder?)
+				(layer as LayerFolder).children = (Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(e => processLayers(e, path + name + "/"));
 			}
 			return layer;
 		      },
@@ -70,7 +70,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
 			"waitLayerAddMask": () => waitLayerAddMask[1],
 			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
-			"list": () => Promise.resolve(processLayers(root.lastChild as SVGGElement, "/")),
+			"list": () => Promise.resolve(processLayers(root.lastChild as SVGGElement, "/") as LayerFolder),
 			"createFolder": (path: string) => Promise.resolve(path),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
