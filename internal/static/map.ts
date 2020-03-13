@@ -4,6 +4,12 @@ import {HTTPRequest} from './lib/conn.js';
 import {showError, enterKey} from './misc.js';
 import {Shell} from './windows.js';
 
+const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
+	let fn: (data: T) => void;
+	const sub = new Subscription<T>(resolver => fn = resolver);
+	return [fn!, sub];
+      };
+
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		let layerNum = 0;
@@ -42,11 +48,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}
 			return layer;
 		      },
-		      subFn = <T>(): [(data: T) => void, Subscription<T>] => {
-			let fn: (data: T) => void;
-			const sub = new Subscription<T>(resolver => fn = resolver);
-			return [fn!, sub];
-		      },
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -61,7 +62,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
 			"waitRemoved": () => waitRemoved[1],
-			"waitLinked": (): Subscription<IDName> => {throw Error("unavailable")},
+			"waitLinked": () => new Subscription<IDName>(() => {}),
 			"waitFolderAdded": () => waitFolderAdded[1],
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
