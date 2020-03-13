@@ -62,7 +62,7 @@ export default function(shell: Shell, base: Node, mapChange: (fn: (rpc: LayerRPC
 	mapChange(rpc => rpc.list().then(layers => {
 		selectedLayer = undefined;
 		maskSelected = false;
-		const list = new Root(layers, "Layer", {} as FolderRPC, shell, ItemLayer, FolderLayer);
+		const list = new Root(layers, "Layer", rpc, shell, ItemLayer, FolderLayer);
 		rpc.waitLayerSetVisible().then(id => {
 
 		});
