@@ -98,7 +98,7 @@ func (a *auth) Auth(r *http.Request) *http.Request { return r }
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 	a.store.Set(w, nil)
-	var at AcceptType
+	var at acceptType
 	httpaccept.HandleAccept(r, &at)
 	switch at {
 	case "json":
@@ -128,7 +128,7 @@ func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	password := r.PostFormValue(passwordField)
 	confirm := r.PostFormValue("confirmPassword")
-	var at AcceptType
+	var at acceptType
 	httpaccept.HandleAccept(r, &at)
 	if password != confirm {
 		w.WriteHeader(http.StatusBadRequest)
@@ -191,7 +191,7 @@ func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
 	} else {
 		_, password, _ = r.BasicAuth()
 	}
-	var at AcceptType
+	var at acceptType
 	httpaccept.HandleAccept(r, &at)
 	if sessionData := a.login(password); len(sessionData) > 0 {
 		a.store.Set(w, sessionData)

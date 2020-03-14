@@ -77,9 +77,9 @@ func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
 	return int64(n) + m, err
 }
 
-type AcceptType string
+type acceptType string
 
-func (a *AcceptType) Handle(m httpaccept.Mime) bool {
+func (a *acceptType) Handle(m httpaccept.Mime) bool {
 	if m.Match("text/plain") {
 		*a = "txt"
 		return true
