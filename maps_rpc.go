@@ -445,10 +445,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenID, func(_ *levelMap, l *layer, tk *token) bool {
-			if l.Tokens[len(l.Tokens)-1] == tk {
-				return false
-			}
-			return true
+			return l.Tokens[len(l.Tokens)-1] != tk
 		})
 	case "setTokenBottom":
 		var tokenID uint64
@@ -456,10 +453,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenID, func(_ *levelMap, l *layer, tk *token) bool {
-			if l.Tokens[0] == tk {
-				return false
-			}
-			return true
+			return l.Tokens[0] != tk
 		})
 	case "setInitiative":
 		var initiative initiative
