@@ -9,4 +9,16 @@ export class Shell extends WindowsShell {
 			"title": title
 		}), content ? content : div({"class": "loadSpinner"}))));
 	}
+	addWindow(title: string, options?: WindowOptions) {
+		const window = super.addWindow(title, options);
+		if (options && options.showClose) {
+			window.setAttribute("tabindex", "-1");
+			window.addEventListener("keyup", (e: KeyboardEvent) => {
+				if (e.keyCode === 27) {
+					this.removeWindow(window);
+				}
+			});
+		}
+		return window;
+	}
 }
