@@ -1,12 +1,12 @@
 import {FolderItems, Int, RPC, MapDetails} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, h1, h2, input, label, span} from './lib/dom.js';
-import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
+import {showError, enterKey, hex2Colour, colour2Hex, autoFocus} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
 const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
-	const name = input({"type": "text", "id": "mapName", "value": md.name}),
+	const name = autoFocus(input({"type": "text", "id": "mapName", "value": md.name})),
 	      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width.toString(), "id": "mapWidth"}),
 	      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height.toString(), "id": "mapHeight"}),
 	      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square.toString(), "id": "mapSquareWidth"}),
