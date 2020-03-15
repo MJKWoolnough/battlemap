@@ -9,7 +9,7 @@ import {Root, Item, windowOptions} from './folders.js';
 class Asset extends Item {
 	show() {
 		const root = this.parent.root;
-		return createHTML(root.shell.addWindow(this.name, windowOptions), {"class": "showAsset"}, [
+		return createHTML(autoFocus(root.shell.addWindow(this.name, windowOptions)), {"class": "showAsset"}, [
 			h1(this.name),
 			root.fileType === "Images" ? [
 				img({"src": `/images/${this.id}`})
