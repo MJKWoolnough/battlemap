@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, li, option, span, select, ul} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
-import {showError, enterKey} from './misc.js';
+import {showError, enterKey, autoFocus} from './misc.js';
 import {SortHTML, stringSort} from './lib/ordered.js';
 
 interface ItemConstructor {
@@ -52,7 +52,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": this.name}),
+		      newName = autoFocus(input({"type": "text", "value": this.name})),
 		      window = shell.addWindow("Move Item", windowOptions);
 		return createHTML(window, {"class": "renameItem"}, [
 			h1("Move Item"),
@@ -73,7 +73,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": this.name}),
+		      newName = autoFocus(input({"type": "text", "value": this.name})),
 		      window = shell.addWindow("Link Item", windowOptions);
 		return createHTML(window, {"class": "linkItem"}, [
 			h1("Add Link"),
@@ -98,10 +98,10 @@ export class Item {
 			h1("Remove Item"),
 			div("Remove the following item?"),
 			pathDiv,
-			button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(path)).then(() => {
+			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(path)).then(() => {
 				root.removeItem(path);
 				shell.removeWindow(window);
-			}).catch(e => showError(pathDiv, e))})
+			}).catch(e => showError(pathDiv, e))}))
 		]);
 	}
 	getPath() {
@@ -181,7 +181,7 @@ export class Folder {
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = input({"type": "text", "value": self.name}),
+		      newName = autoFocus(input({"type": "text", "value": self.name})),
 		      window = shell.addWindow("Move Folder", windowOptions);
 		return createHTML(window, {"class": "renameFolder"}, [
 			h1("Move Folder"),
@@ -206,17 +206,17 @@ export class Folder {
 			h1("Remove Folder"),
 			div("Remove the following folder? NB: This will remove all folders and items it contains."),
 			pathDiv,
-			button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(path)).then(() => {
+			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(path)).then(() => {
 				root.removeFolder(path);
 				shell.removeWindow(window);
-			}).catch(e => showError(pathDiv, e))})
+			}).catch(e => showError(pathDiv, e))}))
 		]);
 	}
 	newFolder() {
 		const root = this.root,
 		      shell = root.shell,
 		      path = this.getPath(),
-		      folderName = input({"id": "folderName", "onkeypress": enterKey}),
+		      folderName = autoFocus(input({"id": "folderName", "onkeypress": enterKey})),
 		      window = shell.addWindow("Add Folder", windowOptions);
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1("Add Folder"),
