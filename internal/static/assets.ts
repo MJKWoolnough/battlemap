@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/html.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/dom.js';
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
-import {showError} from './misc.js';
+import {showError, autoFocus} from './misc.js';
 import {Root, Item, windowOptions} from './folders.js';
 
 class Asset extends Item {
@@ -29,7 +29,7 @@ export default function (rpc: RPC, shell: Shell, base: Node, fileType: "Images" 
 				h1(`Upload ${fileType}`),
 				form({"enctype": "multipart/form-data", "method": "post"}, [
 					label({"for": "addAssets"}, "Add Asset(s)"),
-					input({"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+					autoFocus(input({"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 						const bar = progress({"style": "width: 100%"}) as HTMLElement;
 						shell.addLoading(this.parentNode!.parentNode as HTMLDivElement, HTTPRequest(`/${fileType.toLowerCase()}/`, {
 							"data": new FormData(this.parentNode as HTMLFormElement),
@@ -49,7 +49,7 @@ export default function (rpc: RPC, shell: Shell, base: Node, fileType: "Images" 
 							Object.entries(assets).forEach(([name, id]) => root.addItem(id, name))
 							shell.removeWindow(this.parentNode!.parentNode as HTMLDivElement);
 						}, showError.bind(null, this));
-					}})
+					}}))
 				])
 			])}),
 			root.html
