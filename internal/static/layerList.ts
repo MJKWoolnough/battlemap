@@ -20,6 +20,7 @@ class ItemLayer extends Item {
 			this.html.removeChild(this.html.lastChild!);
 			this.html.removeChild(this.html.lastChild!);
 		} else {
+			this.html.removeChild(this.html.lastChild!.previousSibling!);
 			this.html.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
 				this.show();
 				this.html.classList.add("selectedMask");
