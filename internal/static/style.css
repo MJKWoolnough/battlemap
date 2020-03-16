@@ -4,6 +4,7 @@
 @import url("loader.css");
 @import url("mapList.css");
 @import url("overlay.css");
+@import url("layerList.css");
 
 html, body {
 	background-color: #fff;
@@ -162,6 +163,8 @@ html .windowsShell {
 html .windowsWindow {
 	--window-left: 20px;
 	--window-top: 20px;
+	max-width: 100%;
+	max-height: 100%;
 }
 
 html .windowsWindow:not(.windowsResizable) {
