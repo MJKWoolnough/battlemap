@@ -1,0 +1,41 @@
+.dragBefore, .dragAfter {
+	display: none;
+}
+
+.dragging li {
+	position: relative;
+}
+
+.dragged {
+	visibility: hidden;
+}
+
+.beingDragged {
+	position: absolute;
+	user-select: none;
+}
+
+.dragging .dragAfter, .dragging .dragBefore {
+	display: block;
+	height: calc(0.5em - 1px);
+	position: absolute;
+	width: 100%;
+}
+
+.dragging .dragAfter {
+	top: 0.5em;
+	border-bottom: 1px solid transparent;
+}
+
+.dragging .dragBefore {
+	top: 0;
+	border-top: 1px solid transparent;
+}
+
+.dragging .dragAfter:hover {
+	border-bottom-color: #000;
+}
+
+.dragging .dragBefore:hover {
+	border-top-color: #000;
+}
