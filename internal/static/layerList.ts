@@ -1,12 +1,30 @@
 import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
-import {br, button, h1, input, label, span} from './lib/dom.js';
+import {br, button, div, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
 import {SortHTML, noSort} from './lib/ordered.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
-let selectedLayer: ItemLayer | undefined, maskSelected = false;
+let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
+
+const dragFn = (e: MouseEvent) => {
+	draggedName!.style.setProperty("top", e.clientY + 1 + "px");
+	draggedName!.style.setProperty("left", e.clientX + dragOffset + "px");
+      },
+      dropFn = () => {
+	dragging!.html.classList.remove("dragged");
+	dragging = undefined;
+	document.body.removeChild(draggedName!);
+	draggedName = undefined;
+	document.body.removeEventListener("mousemove", dragFn);
+	document.body.removeEventListener("mouseup", dropFn);
+	dragBase.classList.remove("dragging");
+      };
+
+function dragPlace() {
+
+}
 
 class ItemLayer extends Item {
 	hidden: boolean;
@@ -15,6 +33,7 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
+		const nameSpan = this.html.firstChild as HTMLSpanElement;
 		if (id < 0) {
 			this.html.removeChild(this.html.lastChild!);
 			this.html.removeChild(this.html.lastChild!);
@@ -29,6 +48,28 @@ class ItemLayer extends Item {
 			}}), this.html.firstChild!.nextSibling);
 		}
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
+		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace}));
+		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace}));
+		this.html.addEventListener("mouseup", (e: MouseEvent) => {
+			if (!dragging) {
+				return;
+			}
+		});
+		nameSpan.addEventListener("mousedown", (e: MouseEvent) => {
+			if (dragging) {
+				return;
+			}
+			this.html.classList.add("dragged");
+			dragOffset = nameSpan.offsetLeft - e.clientX;
+			for (let e = nameSpan.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
+				dragOffset += e.offsetLeft!;
+			}
+			dragging = this;
+			draggedName = document.body.appendChild(span(this.name, {"class": "beingDragged", "style": `top: ${e.clientY + 1}px; left: ${e.clientX + dragOffset}px;`}));
+			document.body.addEventListener("mousemove", dragFn);
+			document.body.addEventListener("mouseup", dropFn);
+			dragBase.classList.add("dragging");
+		});
 	}
 	show() {
 		if (this.id === -1) { // Grid
@@ -62,7 +103,9 @@ class FolderLayer extends Folder {
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
 		this.id = lf.id;
-		lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
+		if (lf.children) {
+			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
+		}
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 	}
 	get sorter() {
@@ -70,8 +113,9 @@ class FolderLayer extends Folder {
 	}
 }
 
-export default function(shell: Shell, base: Node, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
+export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
+	dragBase = base;
 	mapChange(rpc => rpc.list().then(layers => {
 		selectedLayer = undefined;
 		maskSelected = false;
