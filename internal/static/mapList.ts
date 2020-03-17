@@ -96,14 +96,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
-			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename active map"));
+			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot rename active map"));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
-			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove active map"));
+			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot remove active map"));
 		} else {
 			return super.rename();
 		}
