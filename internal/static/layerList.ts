@@ -6,7 +6,7 @@ import {SortHTML, noSort} from './lib/ordered.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
-let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
+let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
@@ -29,21 +29,21 @@ const dragFn = (e: MouseEvent) => {
 	dragBase.classList.remove("dragging");
       };
 
-function dragPlace(this: ItemLayer, beforeAfter: boolean) {
-	let pos = this.parent.children.indexOf(this) + (beforeAfter ? 1 : 0);
+function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
+	let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
 	if (this.parent === dragging!.parent) {
-		pos = pos > dragging!.parent.children.indexOf(dragging!) ? pos - 1 : pos;
+		pos = pos > dragging!.parent!.children.indexOf(dragging!) ? pos - 1 : pos;
 	}
-	(this.parent.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
+	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
 	dropFn();
 }
 
-function dragStart(this: ItemLayer, e: MouseEvent) {
+function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
 	if (dragging) {
 		return;
 	}
-	dragOffset = this.nameSpan.offsetLeft - e.clientX;
-	for (let e = this.nameSpan.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
+	dragOffset = this.nameElem.offsetLeft - e.clientX;
+	for (let e = this.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
 		dragOffset += e.offsetLeft!;
 	}
 	dragging = this;
@@ -54,12 +54,12 @@ function dragStart(this: ItemLayer, e: MouseEvent) {
 class ItemLayer extends Item {
 	hidden: boolean;
 	mask: Int;
-	nameSpan: HTMLSpanElement;
+	nameElem: HTMLSpanElement;
 	constructor(parent: Folder, id: Int, name: string, hidden = false, mask: Int = 0) {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
-		this.nameSpan = this.html.firstChild as HTMLSpanElement;
+		this.nameElem = this.html.firstChild as HTMLSpanElement;
 		if (id < 0) {
 			this.html.removeChild(this.html.lastChild!);
 			this.html.removeChild(this.html.lastChild!);
@@ -76,7 +76,7 @@ class ItemLayer extends Item {
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
-		this.nameSpan.addEventListener("mousedown", dragStart.bind(this));
+		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
 	}
 	show() {
 		if (this.id === -1) { // Grid
@@ -105,15 +105,20 @@ function isLayer(c: Layer | LayerFolder): c is Layer {
 class FolderLayer extends Folder {
 	id: Int;
 	hidden: boolean;
+	nameElem: HTMLLabelElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
 		this.id = lf.id;
+		this.nameElem = this.html.firstChild!.nextSibling as HTMLLabelElement;
 		if (lf.children) {
 			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		}
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
+		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
+		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
+		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
 	}
 	get sorter() {
 		return noSort;
