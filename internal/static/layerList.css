@@ -1,4 +1,4 @@
-.dragBefore, .dragAfter {
+.dragBefore, .dragAfter, .layerFolder > input:checked ~ .dragAfter {
 	display: none;
 }
 
