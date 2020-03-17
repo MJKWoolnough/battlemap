@@ -31,8 +31,16 @@ const dragFn = (e: MouseEvent) => {
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
+	const currPos = dragging!.parent!.children.indexOf(dragging!);
 	if (this.parent === dragging!.parent) {
-		pos = pos > dragging!.parent!.children.indexOf(dragging!) ? pos - 1 : pos;
+		pos = pos > currPos ? pos - 1 : pos;
+		if (pos !== currPos) {
+			this.parent!.children.splice(currPos, 1);
+			this.parent!.children.splice(pos, 0, dragging!);
+		}
+	} else {
+		dragging!.parent!.children.splice(currPos, 1);
+		this.parent!.children.splice(pos, 0, dragging!);
 	}
 	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
 	dropFn();
