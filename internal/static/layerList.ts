@@ -9,13 +9,20 @@ import {Shell} from './windows.js';
 let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
 const dragFn = (e: MouseEvent) => {
+	if (!draggedName) {
+		dragging!.html.classList.add("dragged");
+		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
+		dragBase.classList.add("dragging");
+	}
 	draggedName!.style.setProperty("top", e.clientY + 1 + "px");
 	draggedName!.style.setProperty("left", e.clientX + dragOffset + "px");
       },
       dropFn = () => {
 	dragging!.html.classList.remove("dragged");
 	dragging = undefined;
-	document.body.removeChild(draggedName!);
+	if (draggedName) {
+		document.body.removeChild(draggedName!);
+	}
 	draggedName = undefined;
 	document.body.removeEventListener("mousemove", dragFn);
 	document.body.removeEventListener("mouseup", dropFn);
@@ -59,16 +66,13 @@ class ItemLayer extends Item {
 			if (dragging) {
 				return;
 			}
-			this.html.classList.add("dragged");
 			dragOffset = nameSpan.offsetLeft - e.clientX;
 			for (let e = nameSpan.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
 				dragOffset += e.offsetLeft!;
 			}
 			dragging = this;
-			draggedName = document.body.appendChild(span(this.name, {"class": "beingDragged", "style": `top: ${e.clientY + 1}px; left: ${e.clientX + dragOffset}px;`}));
 			document.body.addEventListener("mousemove", dragFn);
 			document.body.addEventListener("mouseup", dropFn);
-			dragBase.classList.add("dragging");
 		});
 	}
 	show() {
