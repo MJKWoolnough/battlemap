@@ -38,14 +38,28 @@ function dragPlace(this: ItemLayer, beforeAfter: boolean) {
 	dropFn();
 }
 
+function dragStart(this: ItemLayer, e: MouseEvent) {
+	if (dragging) {
+		return;
+	}
+	dragOffset = this.nameSpan.offsetLeft - e.clientX;
+	for (let e = this.nameSpan.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
+		dragOffset += e.offsetLeft!;
+	}
+	dragging = this;
+	document.body.addEventListener("mousemove", dragFn);
+	document.body.addEventListener("mouseup", dropFn);
+}
+
 class ItemLayer extends Item {
 	hidden: boolean;
 	mask: Int;
+	nameSpan: HTMLSpanElement;
 	constructor(parent: Folder, id: Int, name: string, hidden = false, mask: Int = 0) {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
-		const nameSpan = this.html.firstChild as HTMLSpanElement;
+		this.nameSpan = this.html.firstChild as HTMLSpanElement;
 		if (id < 0) {
 			this.html.removeChild(this.html.lastChild!);
 			this.html.removeChild(this.html.lastChild!);
@@ -62,23 +76,7 @@ class ItemLayer extends Item {
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
-		this.html.addEventListener("mouseup", (e: MouseEvent) => {
-			if (!dragging) {
-				return;
-			}
-		});
-		nameSpan.addEventListener("mousedown", (e: MouseEvent) => {
-			if (dragging) {
-				return;
-			}
-			dragOffset = nameSpan.offsetLeft - e.clientX;
-			for (let e = nameSpan.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
-				dragOffset += e.offsetLeft!;
-			}
-			dragging = this;
-			document.body.addEventListener("mousemove", dragFn);
-			document.body.addEventListener("mouseup", dropFn);
-		});
+		this.nameSpan.addEventListener("mousedown", dragStart.bind(this));
 	}
 	show() {
 		if (this.id === -1) { // Grid
