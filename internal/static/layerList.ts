@@ -123,10 +123,12 @@ class FolderLayer extends Folder {
 		if (lf.children) {
 			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		}
-		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
-		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
-		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
-		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
+		if (this.id > 0) {
+			this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
+			this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
+			this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
+			this.nameElem.addEventListener("mousedown", dragStart.bind(this));
+		}
 	}
 	get sorter() {
 		return noSort;
