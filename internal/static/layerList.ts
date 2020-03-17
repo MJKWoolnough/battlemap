@@ -29,8 +29,13 @@ const dragFn = (e: MouseEvent) => {
 	dragBase.classList.remove("dragging");
       };
 
-function dragPlace() {
-
+function dragPlace(this: ItemLayer, beforeAfter: boolean) {
+	let pos = this.parent.children.indexOf(this) + (beforeAfter ? 1 : 0);
+	if (this.parent === dragging!.parent) {
+		pos = pos > dragging!.parent.children.indexOf(dragging!) ? pos - 1 : pos;
+	}
+	(this.parent.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
+	dropFn();
 }
 
 class ItemLayer extends Item {
@@ -55,8 +60,8 @@ class ItemLayer extends Item {
 			}}), this.html.firstChild!.nextSibling);
 		}
 		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
-		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace}));
-		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace}));
+		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
+		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 		this.html.addEventListener("mouseup", (e: MouseEvent) => {
 			if (!dragging) {
 				return;
