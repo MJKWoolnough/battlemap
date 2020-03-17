@@ -17,13 +17,13 @@
 
 .dragging .dragAfter, .dragging .dragBefore {
 	display: block;
-	height: calc(0.5em - 1px);
+	height: calc(50% - 1px);
 	position: absolute;
 	width: 100%;
 }
 
 .dragging .dragAfter {
-	top: 0.5em;
+	top: 50%;
 	border-bottom: 1px solid transparent;
 }
 
