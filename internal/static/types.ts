@@ -31,7 +31,7 @@ export type LayerRPC = FolderRPC & {
 	setVisibility:    (id: Int, visible: boolean) => Promise<void>;
 	setLayer:         (id: Int) => void;
 	setLayerMask:     (id: Int) => void;
-	moveLayer:        (id: Int, folderID: Int, pos: Int) => Promise<void>;
+	moveLayer:        (id: Int, parentID: Int, folderID: Int, pos: Int) => Promise<void>;
 }
 
 export type RPC = {

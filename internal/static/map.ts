@@ -81,7 +81,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
 			"setLayer": (id: Int) => {},
 			"setLayerMask": (id: Int) => {},
-			"moveLayer": (id: Int, folderID: Int, pos: Int) => Promise.resolve()
+			"moveLayer": (id: Int, parentID: Int, folderID: Int, pos: Int) => Promise.resolve()
 		});
 		base.appendChild(root);
 	}));

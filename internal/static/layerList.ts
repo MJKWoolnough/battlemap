@@ -42,7 +42,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		dragging!.parent!.children.splice(currPos, 1);
 		this.parent!.children.splice(pos, 0, dragging!);
 	}
-	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
+	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (dragging!.parent as FolderLayer).id, (this.parent as FolderLayer).id, pos);
 	dropFn();
 }
 
