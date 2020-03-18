@@ -117,7 +117,8 @@ class FolderLayer extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
-		const lf = children as LayerFolder;
+		const lf = children as LayerFolder,
+		      checkbox = this.html.firstChild as HTMLInputElement;
 		this.id = lf.id;
 		this.nameElem = this.html.firstChild!.nextSibling as HTMLLabelElement;
 		if (lf.children) {
@@ -128,7 +129,12 @@ class FolderLayer extends Folder {
 			this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 			this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 			this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
-			this.nameElem.addEventListener("mousedown", dragStart.bind(this));
+			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
+				if (checkbox.checked) {
+					return;
+				}
+				dragStart.call(this, e)
+			});
 		}
 	}
 	get sorter() {
