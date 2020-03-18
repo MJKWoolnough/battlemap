@@ -9,16 +9,16 @@
 
 .expander + label {
 	user-select: none;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAUUlEQVR4Ae3RAQYAMRRDwb3/pbtHCBSJziNAi/E/XU86YUOIsCVEfDOJCFebROR/Y4gazCne25CaQEBAOiEgICAgICAgICAgICAgbXsCkpP0A0MiHfEjk/BiAAAAAElFTkSuQmCC);
+	padding-left: calc(1em + 2px);
+	background-size: 1em;
+	background-repeat: no-repeat;
 }
 
 .expander:not(:checked) + label ~ ul {
 	display: none;
 }
 
-.expander + label:before {
-	content: "🗀"
-}
-
-.expander:checked + label:before {
-	content: "🗁";
+.expander:checked + label {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAfElEQVR4AezViQmAQAwFUftv+ltCWPiLQ5yBcEbgee1jZvUyzALEgAEi5h084nA3fET/OiQCgOm/HmnOp3eSACF1BRLQrIFkhvB/qxVIKSHn3wj0aQjJNggfsR9yBSEk2yDHyySEEPjZMUdECOkjhMyI/RDw/BNiZu8gAAANjGenrLosDQAAAABJRU5ErkJggg==);
 }
