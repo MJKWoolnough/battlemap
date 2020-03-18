@@ -12,6 +12,7 @@
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAUUlEQVR4Ae3RAQYAMRRDwb3/pbtHCBSJziNAi/E/XU86YUOIsCVEfDOJCFebROR/Y4gazCne25CaQEBAOiEgICAgICAgICAgICAgbXsCkpP0A0MiHfEjk/BiAAAAAElFTkSuQmCC);
 	padding-left: calc(1em + 2px);
 	background-size: 1em;
+	background-position: 0 center;
 	background-repeat: no-repeat;
 }
 
