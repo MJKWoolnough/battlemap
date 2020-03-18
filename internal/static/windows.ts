@@ -8,11 +8,10 @@ type hasClose = {
 
 const addEscapeClose = (shell: WindowsShell, window: HTMLDivElement, options?: hasClose) => {
 	if (options && options.showClose) {
-		const closer = Array.from(window.previousElementSibling!.getElementsByClassName("windowsWindowTitlebarClose")).pop() as HTMLButtonElement;
 		window.setAttribute("tabindex", "-1");
 		window.addEventListener("keyup", (e: KeyboardEvent) => {
 			if (e.keyCode === 27) {
-				closer.click();
+				shell.closeWindow(window);
 			}
 		});
 	}
