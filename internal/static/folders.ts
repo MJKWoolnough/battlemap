@@ -52,7 +52,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = autoFocus(input({"type": "text", "value": this.name})),
+		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.addWindow("Move Item", windowOptions);
 		return createHTML(window, {"class": "renameItem"}, [
 			h1("Move Item"),
@@ -73,7 +73,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = autoFocus(input({"type": "text", "value": this.name})),
+		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.addWindow("Link Item", windowOptions);
 		return createHTML(window, {"class": "linkItem"}, [
 			h1("Add Link"),
@@ -181,7 +181,7 @@ export class Folder {
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, Object.assign({"value": p}, p === parentPath ? {"selected": "selected"} : {})))),
-		      newName = autoFocus(input({"type": "text", "value": self.name})),
+		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
 		      window = shell.addWindow("Move Folder", windowOptions);
 		return createHTML(window, {"class": "renameFolder"}, [
 			h1("Move Folder"),
