@@ -81,7 +81,7 @@ class ItemLayer extends Item {
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
 			}}), this.html.firstChild!.nextSibling);
 		}
-		this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
+		this.html.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
 		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
