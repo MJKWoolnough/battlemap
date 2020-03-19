@@ -50,3 +50,7 @@
 	padding-right: 3px;
 	background-position: 0 center;
 }
+
+.layerHidden .layerVisibility {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGEAAABDCAYAAACMYmueAAAA5ElEQVR4AWIYAuA/FTCgvTsxgBAGASDYf9VYhdk8QwMHjL+GEwua/TOOpi/7LY2XT1CoXLOC5C/5++vpE01qlJiaXXO39Q+Athean/WlBwDRA4DQ/KZnPQCIHgBEDwBiegQnawDV3tADgOgBQPQIEHoAED0ChKkRXLL2APYGCBAg9AAgtkeAICBAEBAgCAgQhBs2jy0EBAg9hE9gIHi9CQGET14ggPApJIDNv8q2hAqChSIAQFg8CMDJOugTCKMVAJjyckEvQGxTv8lfElOjaZCSl78JwWZlm5VtanwQ/j9BXN7oDyCK4C421bRaAAAAAElFTkSuQmCC);
+}
