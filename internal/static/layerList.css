@@ -39,3 +39,14 @@
 .dragging .dragBefore:hover {
 	border-top-color: #000;
 }
+
+.layerVisibility {
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGEAAABDBAMAAAB+THatAAAAFVBMVEUAAAAAAACZmZlmZmYzMzPMzMz////mkYePAAAAAXRSTlMAQObYZgAAAcRJREFUeAHslkFunEAUROP4AvyYA4ybKOvQirKfxCfIwgdwZO5/hCA8L1I/ldh461rYDPSj6n+apj8l1U2TL2QVylAez4+7c4Yhp2es4urntusCg00CJsYfgikjBlrrb8DS2ilCojaIZCABuF8G4ntAOEXNEvWXgZrIZCkDAsBCJgxxJiwkjckWP65V8+9kAj4NFsu1Ds0dkxvCAYdYANTD8ysm3DhbrHXTt217TSYcQHwF+LLt+gPBrYcm3A+Z6ue264UHz0jIYFHPO+BYCnXMqGuh7VBzLP7SqaVEdLrF3U2spVQPJggFQSgq/ztDEEu9JVTR3cfqLuRuKJxO8QRfqn7tp/t/oigDj8d6E7Nk3YnDA5mg8IELhAqXxtIrtMpys0RU0AeRidzd9xLvmCXMRCvPRM92E30g/EZJeqMqvrXnhZtYQ+EmvPpIefWhkBBrbmpVXKjdKa2J/NNKjUUIpf7KRBY1kv7i0CiHcrfIRSaFyibLUx166tnCJvo6ywIVSAvSIDUh7TI0xvyZRd772KRf8t5Hn2ikD7NUFXM5g5GwsxQgxLVcfCUj2iEbMFJxZz79G4XtdsJ9A6r3PxBm43IOAHnrrKQt7baeAAAAAElFTkSuQmCC);
+	background-size: 1em;
+	background-repeat: no-repeat;
+	padding-right: 3px;
+	background-position: 0 center;
+}
