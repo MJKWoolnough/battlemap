@@ -1,7 +1,7 @@
 import RPC from './rpc.js';
 import {Int, LayerRPC, LayerFolder} from './types.js';
 import {createHTML, clearElement} from './lib/html.js';
-import {div, h2, input, label} from './lib/dom.js';
+import {div, h2, input, label, style} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
@@ -43,6 +43,14 @@ pageLoad.then(() => {
 				t.appendChild(label({"for": `tabSelector_${n++}`}, title));
 				return p.appendChild(div(contents));
 			},
+			get css() {
+				return `
+${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #panelContainer > div:nth-child(${n+1})`).join(",")}{display: block}
+${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1})`).join(",")}{border-bottom-color:#fff;z-index:2;background:#fff !important;cursor:default !important}
+${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):before`).join(",")}{box-shadow: 2px 2px 0 #fff}
+${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):after`).join(",")}{box-shadow: -2px 2px 0 #fff}
+`;
+			},
 			get html() {return createHTML(null, [c , h]);}
 		});
 	      }()),
@@ -58,6 +66,7 @@ pageLoad.then(() => {
 			mapList(rpc, shell, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, shell, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
 			layerList(shell, tabs.add("Layers", div()), mapLayers.receive);
+			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(shell.html);
 		} else {
