@@ -26,13 +26,6 @@ html, body {
 	display: none;
 }
 
-#tabs > input:nth-child(1):checked ~ #panelContainer > div:nth-child(1),
-#tabs > input:nth-child(2):checked ~ #panelContainer > div:nth-child(2),
-#tabs > input:nth-child(3):checked ~ #panelContainer > div:nth-child(3),
-#tabs > input:nth-child(4):checked ~ #panelContainer > div:nth-child(4) {
-	display: block;
-}
-
 #tabLabels {
 	padding-left: 0;
 	margin-top: -24px;
@@ -99,30 +92,6 @@ html, body {
 	border-bottom-left-radius: 6px;
 	border-width: 0 0 1px 1px;
 	box-shadow: -2px 2px 0 #d1d1d1;
-}
-
-#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1),
-#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2),
-#tabs > input:nth-child(3):checked ~ #tabLabels > label:nth-child(3),
-#tabs > input:nth-child(4):checked ~ #tabLabels > label:nth-child(4) {
-	border-bottom-color: #fff;
-	z-index: 2;
-	background : #fff !important;
-	cursor: default !important;
-}
-
-#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1):before,
-#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2):before,
-#tabs > input:nth-child(3):checked ~ #tabLabels > label:nth-child(3):before,
-#tabs > input:nth-child(4):checked ~ #tabLabels > label:nth-child(4):before {
-	box-shadow: 2px 2px 0 #fff;
-}
-
-#tabs > input:nth-child(1):checked ~ #tabLabels > label:nth-child(1):after,
-#tabs > input:nth-child(2):checked ~ #tabLabels > label:nth-child(2):after,
-#tabs > input:nth-child(3):checked ~ #tabLabels > label:nth-child(3):after,
-#tabs > input:nth-child(4):checked ~ #tabLabels > label:nth-child(4):after {
-	box-shadow: -2px 2px 0 #fff;
 }
 
 #panelHider {
