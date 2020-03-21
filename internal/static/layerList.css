@@ -15,6 +15,10 @@
 	user-select: none;
 }
 
+.draggingSpecial .folders .folders .dragAfter, .draggingSpecial .folders .folders .dragBefore {
+	display: none;
+}
+
 .dragging .dragAfter, .dragging .dragBefore {
 	display: block;
 	height: calc(50% - 1px);
