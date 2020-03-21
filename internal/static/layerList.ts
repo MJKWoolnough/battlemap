@@ -26,7 +26,7 @@ const dragFn = (e: MouseEvent) => {
 	draggedName = undefined;
 	document.body.removeEventListener("mousemove", dragFn);
 	document.body.removeEventListener("mouseup", dropFn);
-	dragBase.classList.remove("dragging");
+	dragBase.classList.remove("dragging", "draggingSpecial");
       };
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
@@ -52,6 +52,9 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
 	if (dragging) {
 		return;
+	}
+	if (this.id < 0) {
+		dragBase.classList.add("draggingSpecial");
 	}
 	dragOffset = this.nameElem.offsetLeft - e.clientX;
 	for (let e = this.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
