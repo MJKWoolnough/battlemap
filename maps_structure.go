@@ -10,14 +10,13 @@ import (
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
 type mapX struct {
-	ID         uint64     `xml:"id,attr" json:"id"`
 	Name       string     `xml:"data-name,attr" json:"name"`
 	Initiative initiative `xml:"data-initiative,attr,omitempty" json:"-"`
 	Width      uint64     `xml:"width,attr" json:"-"`
 	Height     uint64     `xml:"height,attr" json:"-"`
 	Patterns   patterns   `xml:"defs>pattern,omitempty" json:"-"`
 	Masks      []mask     `xml:"defs>mask,omitempty" json:"-"`
-	Layers     layers     `xml:"g>g,omitempty" json:"-"`
+	Layers     layers     `xml:"g,omitempty" json:"-"`
 }
 
 type patterns []pattern
@@ -43,11 +42,12 @@ type patternPath struct {
 }
 
 type layer struct {
-	ID     string `xml:"id,attr"`
-	Name   string `xml:"data-name,attr"`
-	Mask   string `xml:"mask,attr,omitempty"`
-	Tokens tokens `xml:",omitempty,any"`
-	Hidden hidden `xml:"visibility,attr,omitempty"`
+	ID       string `xml:"id,attr"`
+	Name     string `xml:"data-name,attr"`
+	Mask     string `xml:"mask,attr,omitempty"`
+	Hidden   hidden `xml:"visibility,attr,omitempty"`
+	Tokens   tokens `xml:",omitempty,any"`
+	Children layers `xml:"g"`
 }
 
 type token struct {

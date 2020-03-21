@@ -37,9 +37,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		if err = m.Get(key, mp); err != nil {
 			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
-		if id != mp.ID {
-			return fmt.Errorf("Key ID and Parsed ID do not match: %d, %d", id, mp.ID)
-		}
 		m.maps[id] = mp
 	}
 	m.handler = http.FileServer(http.Dir(sp))
@@ -67,7 +64,6 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 		nm.Name = "Map " + strconv.FormatUint(mid, 10)
 	}
 	mp := &levelMap{
-		ID:     mid,
 		Name:   nm.Name,
 		Width:  nm.Width,
 		Height: nm.Height,
