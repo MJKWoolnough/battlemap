@@ -105,29 +105,19 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		return nil, nil
 	case "addLayer":
 		var (
-			name  string
-			strID string
+			name string
 		)
 		if err := json.Unmarshal(data, &name); err != nil {
 			return nil, err
 		}
 		m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			var id uint64
-			for _, l := range mp.Layers {
-				if strings.HasPrefix(l.ID, "Layer_") {
-					if lid, _ := strconv.ParseUint(strings.TrimPrefix(l.ID, "Layer_"), 10, 64); lid >= id {
-						id = lid + 1
-					}
-				}
-			}
-			strID = "Layer_" + strconv.FormatUint(id, 10)
+			// TODO: Make sure map name is unique
 			mp.Layers = append(mp.Layers, &layer{
-				ID:   strID,
 				Name: name,
 			})
 			return true
 		})
-		return strID, nil
+		return name, nil
 	case "renameLayer":
 		var rename struct {
 			ID   string `json:"id"`
@@ -145,7 +135,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "moveLayer":
 		var moveLayer struct {
-			ID       string `json:"id"`
+			From     string `json:"from"`
+			To       string `json:"to"`
 			Position int    `json:"position"`
 		}
 		err := json.Unmarshal(data, &moveLayer)
@@ -153,19 +144,21 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		err = m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			for n, l := range mp.Layers {
-				if l.ID == moveLayer.ID {
-					if n == moveLayer.Position {
-						break
-					}
-					mp.Layers.Move(n, moveLayer.Position)
-					return true
-				}
+			op, l := getParentLayer(mp.Layers, moveLayer.From)
+			if l == nil {
+				err = ErrUnknownLayer
+				return false
 			}
-			err = ErrUnknownLayer
+			np, _ := getParentLayer(mp.Layers, moveLayer.To)
+			if np == nil {
+				err = ErrUnknownLayer
+				return false
+			}
+			op.removeLayer(l)
+			np.addLayer(l, moveLayer.Position)
 			return false
 		})
-		return nil, err
+		return moveLayer.To, err
 	case "showLayer":
 		var layerID string
 		if err := json.Unmarshal(data, &layerID); err != nil {
@@ -418,27 +411,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "setTokenLayer":
 		var tokenLayer struct {
-			ID    uint64 `json:"id"`
-			Layer uint64 `json:"layer"`
+			From uint64 `json:"id"`
+			To   uint64 `json:"layer"`
 		}
 		if err := json.Unmarshal(data, &tokenLayer); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.ID, func(mp *levelMap, l *layer, tk *token) bool {
-			for _, ll := range mp.Layers {
-				for m, ttk := range ll.Tokens {
-					if ttk == tk {
-						if ll.ID == l.ID {
-							return false
+		/*
+			return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.ID, func(mp *levelMap, l *layer, tk *token) bool {
+				for _, ll := range mp.Layers {
+					for m, ttk := range ll.Tokens {
+						if ttk == tk {
+							if ll.ID == l.ID {
+								return false
+							}
+							ll.Tokens.Remove(m)
+							l.Tokens = append(l.Tokens, tk)
+							return true
 						}
-						ll.Tokens.Remove(m)
-						l.Tokens = append(l.Tokens, tk)
-						return true
 					}
 				}
-			}
-			return false
-		})
+				return false
+			})*/
 	case "setTokenTop":
 		var tokenID uint64
 		if err := json.Unmarshal(data, &tokenID); err != nil {

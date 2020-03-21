@@ -72,11 +72,9 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 		},
 		Layers: layers{
 			&layer{
-				ID:   "Layer_1",
 				Name: "Layer",
 			},
 			&layer{
-				ID:   "Light",
 				Name: "Light",
 				Tokens: tokens{
 					&token{
@@ -86,7 +84,6 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 				},
 			},
 			&layer{
-				ID:   "Grid",
 				Name: "Grid",
 				Tokens: tokens{
 					&token{
@@ -141,13 +138,12 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 	return nil
 }
 
-func (m *mapsDir) updateMapLayer(mid uint64, lid string, fn func(*levelMap, *layer) bool) error {
+func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *layer) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
-		for _, l := range mp.Layers {
-			if l.ID == lid {
-				return fn(mp, l)
-			}
+		l := getLayer(mp.Layers, path)
+		if l != nil {
+			return fn(mp, l)
 		}
 		err = ErrUnknownLayer
 		return false
@@ -188,6 +184,22 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 		}
 	}
+}
+
+func getLayer(layers layers, path string) *layer {
+	return nil
+}
+
+func getParentLayer(layers layers, path string) (*layer, *layer) {
+	return nil, nil
+}
+
+func (l *layer) removeLayer(ol *layer) {
+
+}
+
+func (l *layer) addLayer(nl *layer, pos int) {
+
 }
 
 // Errors
