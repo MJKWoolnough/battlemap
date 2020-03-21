@@ -151,15 +151,12 @@ func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *la
 	return err
 }
 
-func (m *mapsDir) updateMapsLayerToken(mid, tid uint64, fn func(*levelMap, *layer, *token) bool) error {
+func (m *mapsDir) updateMapsLayerToken(mid uint64, path string, fn func(*levelMap, *layer, *token) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
-		for _, l := range mp.Layers {
-			for _, t := range l.Tokens {
-				if t.ID == tid {
-					return fn(mp, l, t)
-				}
-			}
+		l, t := getParentToken(mp.Layers, path)
+		if t != nil {
+			return fn(mp, l, t)
 		}
 		err = ErrUnknownToken
 		return false
@@ -191,6 +188,10 @@ func getLayer(layers layers, path string) *layer {
 }
 
 func getParentLayer(layers layers, path string) (*layer, *layer) {
+	return nil, nil
+}
+
+func getParentToken(layers layers, path string) (*layer, *token) {
 	return nil, nil
 }
 
