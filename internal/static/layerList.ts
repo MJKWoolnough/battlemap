@@ -30,6 +30,9 @@ const dragFn = (e: MouseEvent) => {
       };
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
+	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
+		return;
+	}
 	let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
 	const currPos = dragging!.parent!.children.indexOf(dragging!);
 	if (this.parent === dragging!.parent) {
