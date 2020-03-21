@@ -30,14 +30,18 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			const idStr = node.getAttribute("id") || "";
 			let id: Int,
 			    name = setNameID(path, node.getAttribute("data-name") || `Layer ${layerNum}`);
-			switch (idStr) {
-			case "Grid":
-				id = -1;
-				break;
-			case "Light":
-				id = -2;
-				break;
-			default:
+			if (path === "/") {
+				switch (idStr) {
+				case "Grid":
+					id = -1;
+					break;
+				case "Light":
+					id = -2;
+					break;
+				default:
+					id = layerNum++;
+				}
+			} else {
 				id = layerNum++;
 			}
 			layers.set(id, idStr);
