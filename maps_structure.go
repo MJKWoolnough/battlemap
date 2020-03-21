@@ -42,7 +42,6 @@ type patternPath struct {
 }
 
 type layer struct {
-	ID       string `xml:"id,attr"`
 	Name     string `xml:"data-name,attr"`
 	Mask     string `xml:"mask,attr,omitempty"`
 	Hidden   hidden `xml:"visibility,attr,omitempty"`
