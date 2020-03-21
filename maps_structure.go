@@ -53,7 +53,6 @@ type token struct {
 	Source      string    `json:"source"`
 	Stroke      colour    `json:"colour"`
 	StrokeWidth uint64    `json:"strokeWidth"`
-	ID          uint64    `json:"-"`
 	X           int64     `json:"x"`
 	Y           int64     `json:"y"`
 	Width       uint64    `json:"width"`
