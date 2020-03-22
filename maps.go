@@ -222,6 +222,9 @@ func (l *layer) removeLayer(pos uint) {
 }
 
 func (l *layer) addLayer(nl *layer, pos uint) {
+	if pos >= uint(len(l.Children)) {
+		pos = uint(len(l.Children))
+	}
 	l.Children = append(l.Children, nil)
 	copy(l.Children[pos+1:], l.Children[pos:])
 	l.Children[pos] = nl
@@ -236,6 +239,9 @@ func (l *layer) removeToken(pos uint) {
 }
 
 func (l *layer) addToken(nt *token, pos uint) {
+	if pos >= uint(len(l.Tokens)) {
+		pos = uint(len(l.Tokens))
+	}
 	l.Tokens = append(l.Tokens, nil)
 	copy(l.Tokens[pos+1:], l.Tokens[pos:])
 	l.Tokens[pos] = nt
