@@ -141,7 +141,7 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 func (m *mapsDir) updateMapLayer(mid uint64, path []uint, fn func(*levelMap, *layer) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
-		l := getLayer(mp.Layers, path)
+		l := getLayer(&mp.layer, path)
 		if l != nil {
 			return fn(mp, l)
 		}
@@ -154,7 +154,7 @@ func (m *mapsDir) updateMapLayer(mid uint64, path []uint, fn func(*levelMap, *la
 func (m *mapsDir) updateMapsLayerToken(mid uint64, path []uint, fn func(*levelMap, *layer, *token) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
-		l, t := getParentToken(mp.Layers, path)
+		l, t := getParentToken(&mp.layer, path)
 		if t != nil {
 			return fn(mp, l, t)
 		}
@@ -183,16 +183,34 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getLayer(layers layers, path []uint) *layer {
-	return nil
+func getLayer(l *layer, path []uint) *layer {
+	for _, p := range path[:len(path)-1] {
+		if uint(len(l.Children)) >= p {
+			return nil
+		}
+		l = l.Children[p]
+	}
+	return l
 }
 
-func getParentLayer(layers layers, path []uint) (*layer, *layer) {
-	return nil, nil
+func getParentLayer(l *layer, path []uint) (*layer, *layer) {
+	p := getLayer(l, path[:len(path)-1])
+	if p == nil {
+		return nil, nil
+	}
+	return p, getLayer(p, path[len(path)-1:])
 }
 
-func getParentToken(layers layers, path []uint) (*layer, *token) {
-	return nil, nil
+func getParentToken(l *layer, path []uint) (*layer, *token) {
+	p := getLayer(l, path[:len(path)-1])
+	if p == nil {
+		return nil, nil
+	}
+	pos := path[len(path)-1]
+	if uint(len(p.Tokens)) >= pos {
+		return p, nil
+	}
+	return p, p.Tokens[pos]
 }
 
 func (l *layer) removeLayer(ol *layer) {
