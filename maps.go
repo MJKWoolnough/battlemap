@@ -64,32 +64,16 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 		nm.Name = "Map " + strconv.FormatUint(mid, 10)
 	}
 	mp := &levelMap{
-		Name:   nm.Name,
 		Width:  nm.Width,
 		Height: nm.Height,
 		Patterns: []pattern{
 			genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
-		Layers: layers{
-			&layer{
-				Name: "Layer",
-			},
-			&layer{
-				Name: "Light",
-				Tokens: tokens{
-					&token{
-						Source:    "rgba(0, 0, 0, 0)",
-						TokenType: tokenRect,
-					},
-				},
-			},
-			&layer{
-				Name: "Grid",
-				Tokens: tokens{
-					&token{
-						Source:    "gridPattern",
-						TokenType: tokenPattern,
-					},
+		layer: layer{
+			Name: nm.Name,
+			Children: layers{
+				&layer{
+					Name: "Layer",
 				},
 			},
 		},
