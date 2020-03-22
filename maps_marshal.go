@@ -430,9 +430,20 @@ func (i *initiative) UnmarshalXMLAttr(attr xml.Attr) error {
 	return nil
 }
 
+type layerX layer
+
+func (l *layer) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+	err := d.DecodeElement((*layerX)(l), &s)
+	if err == nil && len(l.Tokens) > 0 && len(l.Children) > 0 {
+		err = ErrGroupOrTokens
+	}
+	return err
+}
+
 // Errors
 var (
 	ErrInvalidTokenSource = errors.New("invalid token source")
 	ErrInvalidColour      = errors.New("invalid colour")
 	ErrInvalidTokenType   = errors.New("invalid token type")
+	ErrGroupOrTokens      = errors.New("layer must either contain tokens or other layers")
 )
