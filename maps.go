@@ -227,6 +227,20 @@ func (l *layer) addLayer(nl *layer, pos uint) {
 	l.Children[pos] = nl
 }
 
+func (l *layer) removeToken(pos uint) {
+	if pos < uint(len(l.Tokens))-1 {
+		copy(l.Tokens[pos:], l.Tokens[pos+1:])
+	}
+	l.Tokens[len(l.Tokens)-1] = nil
+	l.Tokens = l.Tokens[:len(l.Tokens)-1]
+}
+
+func (l *layer) addToken(nt *token, pos uint) {
+	l.Tokens = append(l.Tokens, nil)
+	copy(l.Tokens[pos+1:], l.Tokens[pos:])
+	l.Tokens[pos] = nt
+}
+
 // Errors
 var (
 	ErrUnknownMap        = errors.New("unknown map")
