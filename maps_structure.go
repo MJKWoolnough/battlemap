@@ -15,7 +15,7 @@ type mapX struct {
 	Height     uint64     `xml:"height,attr" json:"-"`
 	Patterns   patterns   `xml:"defs>pattern,omitempty" json:"-"`
 	Masks      []mask     `xml:"defs>mask,omitempty" json:"-"`
-	layers
+	layer
 }
 
 type patterns []pattern
