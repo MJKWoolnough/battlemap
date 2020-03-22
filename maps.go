@@ -213,12 +213,18 @@ func getParentToken(l *layer, path []uint) (*layer, *token) {
 	return p, p.Tokens[pos]
 }
 
-func (l *layer) removeLayer(ol *layer) {
-
+func (l *layer) removeLayer(pos uint) {
+	if pos < uint(len(l.Children))-1 {
+		copy(l.Children[pos:], l.Children[pos+1:])
+	}
+	l.Children[len(l.Children)-1] = nil
+	l.Children = l.Children[:len(l.Children)-1]
 }
 
-func (l *layer) addLayer(nl *layer, pos int) {
-
+func (l *layer) addLayer(nl *layer, pos uint) {
+	l.Children = append(l.Children, nil)
+	copy(l.Children[pos+1:], l.Children[pos:])
+	l.Children[pos] = nl
 }
 
 // Errors
