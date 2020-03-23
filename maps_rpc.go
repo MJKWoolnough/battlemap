@@ -74,29 +74,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidData
 		}
 		if err := m.updateMapData(md.ID, func(mp *levelMap) bool {
-			unchanged := mp.Width == md.Width && mp.Height == md.Height && mp.Name == md.Name
 			mp.Name = md.Name
 			mp.Width = md.Width
 			mp.Height = md.Height
-			for n := range mp.Patterns {
-				p := &mp.Patterns[n]
-				if p.ID == "gridPattern" {
-					if p.Path == nil {
-						mp.Patterns[n] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
-					} else {
-						if p.Width == md.SquaresWidth && p.Height == md.SquaresWidth && p.Path.Stroke == md.SquaresColour && p.Path.StrokeWidth == md.SquaresWidth {
-							return !unchanged
-						}
-						p.Width = md.SquaresWidth
-						p.Height = md.SquaresWidth
-						p.Path.Path = genGridPath(md.SquaresWidth)
-						p.Path.Stroke = md.SquaresColour
-						p.Path.StrokeWidth = md.SquaresWidth
-					}
-					return true
-				}
-			}
-			mp.Patterns = append(mp.Patterns, genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke))
+			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
 			return true
 		}); err != nil {
 			return nil, err
@@ -392,9 +373,20 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			if tk.TokenType != tokenImage {
 				return false
 			}
-			idStr := "url(#Pattern_" + strconv.FormatUint(tk.ID, 10) + ")"
-			mp.Patterns = append(mp.Patterns, pattern{
-				ID:     strings.TrimSuffix(strings.TrimPrefix(idStr, "url(#"), ")"),
+			var (
+				num    uint64
+				idName string
+			)
+			for {
+				idName = "Pattern_" + strconv.FormatUint(num, 10)
+				if _, ok := mp.Patterns[idName]; !ok {
+					break
+				}
+				num++
+			}
+			idStr := "url(#" + idName + ")"
+			mp.Patterns[idName] = pattern{
+				ID:     idName,
 				Width:  tk.Width,
 				Height: tk.Height,
 				Image: &token{
@@ -403,7 +395,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 					Height:    tk.Height,
 					TokenType: tokenImage,
 				},
-			})
+			}
 			tk.TokenType = tokenPattern
 			tk.Source = idStr
 			return true
@@ -422,7 +414,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.TokenType = tokenImage
-			tk.Source = mp.Patterns.Remove(strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")"))
+			id := strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")")
+			if p, ok := mp.Patterns[id]; ok {
+				delete(mp.Patterns, id)
+				tk.Source = p.Image.Source
+			}
 			return true
 		})
 	case "setTokenSource":
