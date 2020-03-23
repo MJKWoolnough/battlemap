@@ -440,6 +440,41 @@ func (l *layer) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
 	return err
 }
 
+func (p *patterns) MarshalXML(e *xml.Encoder, s xml.StartElement) error {
+	e.EncodeToken(s)
+	for _, pattern := range *p {
+		e.Encode(pattern)
+	}
+	e.EncodeToken(s.End())
+	return nil
+}
+
+func (p *patterns) UnmarshalXML(d *xml.Decoder, s xml.StartElement) error {
+	*p = make(patterns)
+Loop:
+	for {
+		t, err := d.Token()
+		if err != nil {
+			return err
+		}
+		switch t := t.(type) {
+		case xml.StartElement:
+			if t.Name.Local == "pattern" {
+				var pattern pattern
+				if err := d.DecodeElement(&pattern, &t); err != nil {
+					return err
+				}
+				(*p)[pattern.ID] = pattern
+			}
+		case xml.EndElement:
+			break Loop
+		default:
+			d.Skip()
+		}
+	}
+	return nil
+}
+
 // Errors
 var (
 	ErrInvalidTokenSource = errors.New("invalid token source")
