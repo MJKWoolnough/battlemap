@@ -58,10 +58,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
 		      waitFolderRemoved = subFn<string>(),
-		      waitLayerSetVisible = subFn<Int[]>(),
-		      waitLayerSetInvisible = subFn<Int[]>(),
-		      waitLayerAddMask = subFn<Int[]>(),
-		      waitLayerRemoveMask = subFn<Int[]>();
+		      waitLayerSetVisible = subFn<Int>(),
+		      waitLayerSetInvisible = subFn<Int>(),
+		      waitLayerAddMask = subFn<Int>(),
+		      waitLayerRemoveMask = subFn<Int>();
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -82,10 +82,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"removeFolder": (path: string) => Promise.resolve(),
 			"link": (path: Int, name: string) => Promise.resolve(name),
 			"newLayer": (name: string) => Promise.resolve(),
-			"setVisibility": (path: Int[], visibility: boolean)  => Promise.resolve(),
-			"setLayer": (path: Int[]) => {},
-			"setLayerMask": (path: Int[]) => {},
-			"moveLayer": (from: Int[], to: Int[], pos: Int) => Promise.resolve()
+			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
+			"setLayer": (id: Int) => {},
+			"setLayerMask": (id: Int) => {},
+			"moveLayer": (id: Int, to: Int, pos: Int) => Promise.resolve()
 		});
 		base.appendChild(root);
 	}));
