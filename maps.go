@@ -66,8 +66,8 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	mp := &levelMap{
 		Width:  nm.Width,
 		Height: nm.Height,
-		Patterns: []pattern{
-			genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
+		Patterns: map[string]pattern{
+			"gridPattern": genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
 		layer: layer{
 			Name: nm.Name,
