@@ -20,7 +20,7 @@ type mapX struct {
 	layer
 }
 
-type patterns []pattern
+type patterns map[string]pattern
 
 type patternX struct {
 	ID     string       `xml:"id,attr"`
@@ -42,6 +42,8 @@ type patternPath struct {
 	StrokeWidth uint64 `xml:"stroke-width,attr,omitempty"`
 }
 
+type layers []*layer
+
 type layer struct {
 	Name     string `xml:"data-name,attr" json:"name"`
 	Mask     string `xml:"mask,attr,omitempty" json:"-"`
@@ -49,6 +51,8 @@ type layer struct {
 	Tokens   tokens `xml:",omitempty,any" json:"-"`
 	Children layers `xml:"g" json:"-"`
 }
+
+type tokens []*token
 
 type token struct {
 	Source      string    `json:"source"`
