@@ -95,7 +95,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			})
 			return true
 		})
-		return name, nil
+		return nil, nil
 	case "renameLayer":
 		var rename struct {
 			Path []uint `json:"path"`
