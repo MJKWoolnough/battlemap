@@ -2,7 +2,7 @@ import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types
 import {createHTML, clearElement} from './lib/html.js';
 import {br, button, div, h1, input, label, span} from './lib/dom.js';
 import {showError, enterKey} from './misc.js';
-import {SortHTML, noSort} from './lib/ordered.js';
+import {noSort} from './lib/ordered.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
