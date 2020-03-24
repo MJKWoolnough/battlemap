@@ -4,7 +4,7 @@ import {br, button, div, h1, input, label, li, option, span, select, ul} from '.
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
 import {showError, enterKey} from './misc.js';
-import {SortHTML, stringSort} from './lib/ordered.js';
+import {SortNode, stringSort} from './lib/ordered.js';
 
 interface ItemConstructor {
 	new (parent: Folder, id: Int, name: string): Item;
@@ -33,12 +33,12 @@ export class Item {
 	id: Int;
 	name: string;
 	parent: Folder;
-	html: HTMLElement;
+	node: HTMLElement;
 	constructor(parent: Folder, id: Int, name: string) {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		this.html = li([
+		this.node = li([
 			span(name, {"class": "item", "onclick": this.show.bind(this)}),
 			span("~", {"class": "itemRename", "onclick": this.rename.bind(this)}),
 			span("+", {"class": "itemLink", "onclick": this.link.bind(this)}),
@@ -112,21 +112,21 @@ export class Item {
 export class Folder {
 	parent: Folder | null;
 	name: string;
-	html: HTMLElement;
-	children: SortHTML<Folder | Item>;
+	node: HTMLElement;
+	children: SortNode<Folder | Item>;
 	root: Root;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new SortHTML<Folder>(ul({"class": "folders"}), this.sorter);
+		this.children = new SortNode<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
-		this.html = li([
+		this.node = li([
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			label({"for": `folder_${folderID++}`}, name),
 			span("~", {"class": "renameFolder", "onclick": this.rename.bind(this)}),
 			span("-", {"class": "removeFolder", "onclick": this.remove.bind(this)}),
 			span("+", {"class": "addFolder", "onclick": this.newFolder.bind(this)}),
-			this.children.html,
+			this.children.node,
 		]);
 		Object.entries(children.folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f)));
 		Object.entries(children.items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
@@ -280,7 +280,7 @@ export class Root {
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
-	html: HTMLElement;
+	node: HTMLElement;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: Shell, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
@@ -288,9 +288,9 @@ export class Root {
 		this.shell = shell;
 		this.rpcFuncs = rpcFuncs;
 		this.folder = new newFolder(this, null, "", rootFolder);
-		this.html = div([
+		this.node = div([
 			fileType,
-			Array.from(this.folder.html.childNodes).slice(-2)
+			Array.from(this.folder.node.childNodes).slice(-2)
 		]);
 		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
