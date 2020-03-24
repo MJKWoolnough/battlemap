@@ -49,15 +49,15 @@ const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapD
       },
       setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
-		selected.html.classList.remove(selectedClass);
+		selected.node.classList.remove(selectedClass);
 		for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
-			curr.html.classList.remove(containsClass);
+			curr.node.classList.remove(containsClass);
 		}
 	}
 	if (mapItem) {
-		mapItem.html.classList.add(selectedClass);
+		mapItem.node.classList.add(selectedClass);
 		for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
-			curr.html.classList.add(containsClass);
+			curr.node.classList.add(containsClass);
 		}
 	}
       };
@@ -67,8 +67,8 @@ class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
-		this.html.classList.add("mapItem");
-		this.nameSpan = this.html.firstChild as HTMLSpanElement;
+		this.node.classList.add("mapItem");
+		this.nameSpan = this.node.firstChild as HTMLSpanElement;
 		[
 			span({"class": "setCurrentMap", "title": "Load Map", "onclick": () => {
 				this.setCurrentMap();
@@ -78,8 +78,8 @@ class MapItem extends Item {
 				this.setUserMap();
 				rpc.setUserMap(id);
 			}})
-		].forEach(e => this.html.insertBefore(e, this.html.firstChild));
-		this.html.removeChild(this.html.lastElementChild!.previousElementSibling!);
+		].forEach(e => this.node.insertBefore(e, this.node.firstChild));
+		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
 	show() {
 		shell.addLoading(null, rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
@@ -95,14 +95,14 @@ class MapItem extends Item {
 		});
 	}
 	rename() {
-		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
+		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
 			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot rename active map"));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
-		if (this.html.classList.contains("mapCurrent") || this.html.classList.contains("mapUser")) {
+		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
 			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot remove active map"));
 		} else {
 			return super.rename();
@@ -122,17 +122,17 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children);
-		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.html.insertBefore(e, this.html.firstChild));
+		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.node.insertBefore(e, this.node.firstChild));
 	}
 	rename() {
-		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
+		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
 			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename while containing active map"));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
-		if (this.html.classList.contains("hasMapCurrent") || this.html.classList.contains("hasMapUser")) {
+		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
 			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove while containing active map"));
 		} else {
 			return super.remove();
@@ -159,7 +159,7 @@ class MapRoot extends Root {
 	}
 	moveFolder(from: string, to: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f.html.classList.contains("hasMapCurrent")) {
+		if (f && f.node.classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
 			const t = super.moveFolder(from, to);
 			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
@@ -170,7 +170,7 @@ class MapRoot extends Root {
 	}
 	removeFolder(from: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f.html.classList.contains("hasMapCurrent")) {
+		if (f && f.node.classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
 			sendCurrentMap(0);
 		}
@@ -230,7 +230,7 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 				})
 				.catch(e => showError(errorNode, e));
 			})}),
-			root.html
+			root.node
 		]);
 	});
 }
