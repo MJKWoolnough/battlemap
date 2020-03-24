@@ -10,13 +10,16 @@ import (
 var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
 
 type mapX struct {
-	Initiative initiative `xml:"data-initiative,attr,omitempty" json:"-"`
-	Width      uint64     `xml:"width,attr" json:"-"`
-	Height     uint64     `xml:"height,attr" json:"-"`
-	Patterns   patterns   `xml:"defs>pattern,omitempty" json:"-"`
-	Masks      []mask     `xml:"defs>mask,omitempty" json:"-"`
-	Grid       uint       `xml:"data-grid,attr,omitempty" json:"-"`
-	Light      uint       `xml:"data-light,attr,omitempty" json:"-"`
+	Initiative  initiative `xml:"data-initiative,attr,omitempty" json:"-"`
+	Width       uint64     `xml:"width,attr" json:"-"`
+	Height      uint64     `xml:"height,attr" json:"-"`
+	Patterns    patterns   `xml:"defs>pattern,omitempty" json:"-"`
+	Masks       []mask     `xml:"defs>mask,omitempty" json:"-"`
+	Grid        uint       `xml:"data-grid,attr,omitempty" json:"-"`
+	Light       uint       `xml:"data-light,attr,omitempty" json:"-"`
+	GridOn      bool       `xml:"data-grid-on,attr,omitempty" json:"-"`
+	LightOn     bool       `xml:"data-light-on,attr,omitempty" json:"-"`
+	LightColour colour     `xml:"data-light-colour,attr,omitempty" json:"-"`
 	layer
 }
 
