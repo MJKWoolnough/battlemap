@@ -10,7 +10,7 @@ let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLa
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
-		dragging!.html.classList.add("dragged");
+		dragging!.node.classList.add("dragged");
 		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
@@ -18,7 +18,7 @@ const dragFn = (e: MouseEvent) => {
 	draggedName!.style.setProperty("left", e.clientX + dragOffset + "px");
       },
       dropFn = () => {
-	dragging!.html.classList.remove("dragged");
+	dragging!.node.classList.remove("dragged");
 	dragging = undefined;
 	if (draggedName) {
 		document.body.removeChild(draggedName!);
@@ -73,23 +73,23 @@ class ItemLayer extends Item {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
-		this.nameElem = this.html.firstChild as HTMLSpanElement;
+		this.nameElem = this.node.firstChild as HTMLSpanElement;
 		if (id < 0) {
-			this.html.removeChild(this.html.lastChild!);
-			this.html.removeChild(this.html.lastChild!);
-			this.html.removeChild(this.html.lastChild!);
+			this.node.removeChild(this.node.lastChild!);
+			this.node.removeChild(this.node.lastChild!);
+			this.node.removeChild(this.node.lastChild!);
 		} else {
-			this.html.removeChild(this.html.lastChild!.previousSibling!);
-			this.html.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
+			this.node.removeChild(this.node.lastChild!.previousSibling!);
+			this.node.insertBefore(span("M", {"class": "layerMask", "onclick": () => {
 				this.show();
-				this.html.classList.add("selectedMask");
+				this.node.classList.add("selectedMask");
 				maskSelected = true;
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
-			}}), this.html.firstChild!.nextSibling);
+			}}), this.node.firstChild!.nextSibling);
 		}
-		this.html.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
-		this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
-		this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
+		this.node.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+		this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
+		this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
 	}
 	show() {
@@ -99,12 +99,12 @@ class ItemLayer extends Item {
 			// Show/Edit Light properties
 		} else {
 			if (selectedLayer) {
-				selectedLayer.html.classList.remove("selectedLayer");
+				selectedLayer.node.classList.remove("selectedLayer");
 				if (maskSelected) {
-					selectedLayer.html.classList.remove("selectedMask");
+					selectedLayer.node.classList.remove("selectedMask");
 				}
 			}
-			this.html.classList.add("selectedLayer");
+			this.node.classList.add("selectedLayer");
 			selectedLayer = this;
 			maskSelected = false;
 			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
@@ -124,17 +124,17 @@ class FolderLayer extends Folder {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
 		const lf = children as LayerFolder,
-		      checkbox = this.html.firstChild as HTMLInputElement;
+		      checkbox = this.node.firstChild as HTMLInputElement;
 		this.id = lf.id;
-		this.nameElem = this.html.firstChild!.nextSibling as HTMLLabelElement;
+		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
 		if (lf.children) {
 			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		}
 		if (this.id > 0) {
-			this.html.classList.add("layerFolder");
-			this.html.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.html.classList.toggle("layerHidden"))}), this.html.firstChild);
-			this.html.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
-			this.html.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
+			this.node.classList.add("layerFolder");
+			this.node.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
+			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
 				if (checkbox.checked) {
 					return;
@@ -182,7 +182,7 @@ export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: L
 					}).catch(e => showError(name, e))})
 				]);
 			}}),
-			list.html
+			list.node
 		]);
 	}));
 }
