@@ -52,7 +52,7 @@ export default function (rpc: RPC, shell: Shell, base: Node, fileType: "Images" 
 					}}))
 				])
 			])}),
-			root.html
+			root.node
 		]);
 	});
 };
