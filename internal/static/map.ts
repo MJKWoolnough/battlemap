@@ -1,7 +1,7 @@
 import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {showError, enterKey} from './misc.js';
+import {showError, enterKey, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
@@ -12,46 +12,27 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		let layerNum = 0;
 		const root = (mapData as Document).getElementsByTagName("svg")[0],
-		      layers = new Map<Int, string>(),
-		      nameIDs = new Map<string, Int>(),
-		      setNameID = (path: string, name: string) => {
-			if (nameIDs.has(path + name)) {
-				let a = 0;
-				while (nameIDs.has(`${path}${name}_${a}`)) {
-					a++;
+		      layers = new Map<Int, Int[]>(),
+		      nameIDs = new Map<string, Int[]>(),
+		      processLayers = (node: SVGElement, path: string, idPath: Int[]): Layer | LayerFolder => {
+			const id = layerNum++;
+			let name = node.getAttribute("data-name") || `Layer ${layerNum}`;
+			layers.set(id, idPath);
+			nameIDs.set(path + name, idPath);
+			const layer: Layer | LayerFolder = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []},
+			      children = Array.from(node.childNodes),
+			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
+			if (firstChild && firstChild.nodeName === "g") {
+				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[];
+				if (idPath.length === 0) {
+					// add grid and light elements here
 				}
-				name = `${name}_${a}`;
-			}
-			return name;
-		      },
-		      processLayers = (node: SVGGElement, path: string): Layer | LayerFolder => {
-			const idStr = node.getAttribute("id") || "";
-			let id: Int,
-			    name = setNameID(path, node.getAttribute("data-name") || `Layer ${layerNum}`);
-			if (path === "/") {
-				switch (idStr) {
-				case "Grid":
-					id = -1;
-					break;
-				case "Light":
-					id = -2;
-					break;
-				default:
-					id = layerNum++;
-				}
-			} else {
-				id = layerNum++;
-			}
-			layers.set(id, idStr);
-			nameIDs.set(path + name, id);
-			const layer: Layer | LayerFolder = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []};
-			if (node.firstChild && node.firstChild.nodeName === "g") { //TODO: Fix this hack - need a way of differentiating empty folders and empty layers (always put a layer in the folder?)
-				(layer as LayerFolder).children = (Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(e => processLayers(e, path + name + "/"));
+				(layer as LayerFolder).children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i)));
 			}
 			return layer;
 		      },
+		      layerList = processLayers(root, "/", []),
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -62,6 +43,12 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitLayerSetInvisible = subFn<Int>(),
 		      waitLayerAddMask = subFn<Int>(),
 		      waitLayerRemoveMask = subFn<Int>();
+		let layerNum = 0,
+		    gridLayer = parseInt(root.getAttribute("data-grid") || "-1"),
+		    lightLayer = parseInt(root.getAttribute("data-light") || "-1"),
+		    gridOn = root.getAttribute("data-grid-on") === "true",
+		    lightOn = root.getAttribute("data-light-on") === "true",
+		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -74,7 +61,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
 			"waitLayerAddMask": () => waitLayerAddMask[1],
 			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
-			"list": () => Promise.resolve(processLayers(root.lastChild as SVGGElement, "/") as LayerFolder),
+			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => Promise.resolve(path),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
