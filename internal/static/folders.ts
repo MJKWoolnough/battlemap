@@ -238,9 +238,9 @@ export class Folder {
 		return this.items.filter(i => i.name === name).pop();
 	}
 	removeItem(name: string) {
-		const index = this.items.findIndex(i => i.name === name && i instanceof Item);
+		const index = this.children.findIndex(i => i.name === name && i instanceof Item);
 		if (index !== -1) {
-			return this.items.splice(index, 1).pop()!.id;
+			return (this.children.splice(index, 1).pop() as Item).id;
 		}
 		return -1;
 	}
