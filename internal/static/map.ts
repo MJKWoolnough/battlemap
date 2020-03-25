@@ -32,8 +32,14 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		const root = (mapData as Document).getElementsByTagName("svg")[0],
-		      layers = new Map<Int, Int[]>(),
+		const root = (mapData as Document).getElementsByTagName("svg")[0];
+		let layerNum = 0,
+		    gridLayer = parseInt(root.getAttribute("data-grid") || "-1"),
+		    lightLayer = parseInt(root.getAttribute("data-light") || "-1"),
+		    gridOn = root.getAttribute("data-grid-on") === "true",
+		    lightOn = root.getAttribute("data-light-on") === "true",
+		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
+		const layers = new Map<Int, Int[]>(),
 		      nameIDs = new Map<string, Int[]>(),
 		      processLayers = (node: SVGElement, path: string, idPath: Int[]): [Layer | LayerFolder, SVGFolder | SVGLayer] => {
 			const id = layerNum++;
@@ -74,12 +80,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitLayerSetInvisible = subFn<Int>(),
 		      waitLayerAddMask = subFn<Int>(),
 		      waitLayerRemoveMask = subFn<Int>();
-		let layerNum = 0,
-		    gridLayer = parseInt(root.getAttribute("data-grid") || "-1"),
-		    lightLayer = parseInt(root.getAttribute("data-light") || "-1"),
-		    gridOn = root.getAttribute("data-grid-on") === "true",
-		    lightOn = root.getAttribute("data-light-on") === "true",
-		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
