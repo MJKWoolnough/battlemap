@@ -24,11 +24,13 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			      children = Array.from(node.childNodes),
 			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
 			if (firstChild && firstChild.nodeName === "g") {
-				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[];
+				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[],
+				      l = layer as LayerFolder;
+				l.children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i)));
 				if (idPath.length === 0) {
-					// add grid and light elements here
+					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0});
+					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0});
 				}
-				(layer as LayerFolder).children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i)));
 			}
 			return layer;
 		      },
