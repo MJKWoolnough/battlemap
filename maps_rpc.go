@@ -110,6 +110,44 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		// broadcast grid change
 		return nil, nil
+	case "setLightVisibility":
+		var v bool
+		if err := json.Unmarshal(data, &v); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.LightOn = v
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		// broadcast light visibility change
+		return nil, nil
+	case "moveLight":
+		var pos uint
+		if err := json.Unmarshal(data, &pos); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Light = pos
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		// broadcast light position change
+		return nil, nil
+	case "setLight":
+		var c colour
+		if err := json.Unmarshal(data, &c); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.LightColour = c
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "addLayer":
 		var name string
 		if err := json.Unmarshal(data, &name); err != nil {
