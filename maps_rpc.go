@@ -71,6 +71,45 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		m.socket.broadcastMapChange(md.ID, broadcastMapItemChange, md, cd.ID)
 		return nil, nil
+	case "setGridVisibility":
+		var v bool
+		if err := json.Unmarshal(data, &v); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.GridOn = v
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		// broadcast grid visibility change
+		return nil, nil
+	case "moveGrid":
+		var pos uint
+		if err := json.Unmarshal(data, &pos); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Grid = pos
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		// broadcast grid position change
+		return nil, nil
+	case "setGrid":
+		var ng mapGrid
+		if err := json.Unmarshal(data, &ng); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Patterns["gridPattern"] = genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		// broadcast grid change
+		return nil, nil
 	case "addLayer":
 		var name string
 		if err := json.Unmarshal(data, &name); err != nil {
