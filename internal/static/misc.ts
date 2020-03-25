@@ -31,4 +31,4 @@ rgba2Colour = (rgba: string): Colour => {
 	const colours = rgba.slice(5, -1).replace(/ /g, "").split(",");
 	return {"r": parseInt(colours[0]), "g": parseInt(colours[1]), "b": parseInt(colours[2]), "a": parseFloat(colours[3])};
 },
-colour2rgba = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${c.a.toString()})`;
+colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${c.a.toString()})`;
