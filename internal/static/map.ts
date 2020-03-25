@@ -1,8 +1,28 @@
 import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {showError, enterKey, rgba2Colour} from './misc.js';
+import {g, rect} from './lib/svg.js';
+import {SortNode} from './lib/ordered.js';
+import {showError, enterKey, colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
+
+type SVGToken = {
+	node: SVGRectElement;
+};
+
+type SVGLayer = {
+	node: SVGElement;
+	tokens: SortNode<SVGToken>;
+};
+
+type SVGPsuedo = {
+	node: SVGGElement;
+};
+
+type SVGFolder = {
+	node: SVGElement;
+	layers: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
+};
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
@@ -15,7 +35,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		const root = (mapData as Document).getElementsByTagName("svg")[0],
 		      layers = new Map<Int, Int[]>(),
 		      nameIDs = new Map<string, Int[]>(),
-		      processLayers = (node: SVGElement, path: string, idPath: Int[]): Layer | LayerFolder => {
+		      processLayers = (node: SVGElement, path: string, idPath: Int[]): [Layer | LayerFolder, SVGFolder | SVGLayer] => {
 			const id = layerNum++;
 			let name = node.getAttribute("data-name") || `Layer ${layerNum}`;
 			layers.set(id, idPath);
@@ -25,16 +45,25 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
 			if (firstChild && firstChild.nodeName === "g") {
 				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[],
-				      l = layer as LayerFolder;
-				l.children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i)));
+				      l = layer as LayerFolder,
+				      f = new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node);
+				l.children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i))).map(([e, l]) => {
+					f.push(l);
+					return e;
+				});
 				if (idPath.length === 0) {
 					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0});
+					f.splice(gridLayer, 0, {"node": g({"fill": "url(#gridPattern)"})});
 					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0});
+					f.splice(lightLayer, 0, {"node": g({"fill": colour2RGBA(lightColour)})});
 				}
+				return [layer, {"node": node, "layers": f}];
 			}
-			return layer;
+			const r = new SortNode<SVGToken>(node);
+			(children.filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => r.push({"node": e}));
+			return [layer, {"node": node, "tokens": r}];
 		      },
-		      layerList = processLayers(root, "/", []),
+		      [layerList, folderList] = processLayers(root, "/", []),
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
