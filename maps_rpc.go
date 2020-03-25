@@ -33,7 +33,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		return m.newMap(nm, cd.ID)
-	case "getMapDetails":
+	case "getMapSize":
 		var id uint64
 		if err := json.Unmarshal(data, &id); err != nil {
 			return nil, err
@@ -44,29 +44,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if !ok {
 			return nil, ErrUnknownMap
 		}
-		var (
-			sqWidth  uint64 = 10
-			sqColour colour
-			sqStroke uint64 = 1
-		)
-		for _, p := range mp.Patterns {
-			if p.ID == "gridPattern" {
-				sqWidth = p.Width
-				sqColour = p.Path.Stroke
-				sqStroke = p.Path.StrokeWidth
-				break
-			}
-		}
-		return mapDetails{
-			Name:          mp.Name,
-			Width:         mp.Width,
-			Height:        mp.Height,
-			SquaresWidth:  sqWidth,
-			SquaresColour: sqColour,
-			SquaresStroke: sqStroke,
+		return mapDimensions{
+			Width:  mp.Width,
+			Height: mp.Height,
 		}, nil
-	case "setMapDetails":
-		var md mapDetails
+	case "setMapSize":
+		var md struct {
+			ID uint64 `json:"id"`
+			mapDimensions
+		}
 		if err := json.Unmarshal(data, &md); err != nil {
 			return nil, err
 		}
@@ -74,10 +60,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidData
 		}
 		if err := m.updateMapData(md.ID, func(mp *levelMap) bool {
-			mp.Name = md.Name
+			if mp.Width == md.Width && mp.Height == md.Height {
+				return false
+			}
 			mp.Width = md.Width
 			mp.Height = md.Height
-			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
 			return true
 		}); err != nil {
 			return nil, err
