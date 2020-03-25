@@ -44,10 +44,18 @@ func (m *mapsDir) Init(b *Battlemap) error {
 }
 
 type mapDetails struct {
-	ID            uint64 `json:"id,omitempty"`
-	Name          string `json:"name" xml:",chardata"`
-	Width         uint64 `json:"width" xml:"width,attr"`
-	Height        uint64 `json:"height" xml:"height,attr"`
+	idName
+	mapDimensions
+	mapGrid
+}
+
+type mapDimensions struct {
+	ID     uint64 `json:"id,omitempty"`
+	Width  uint64 `json:"width" xml:"width,attr"`
+	Height uint64 `json:"height" xml:"height,attr"`
+}
+
+type mapGrid struct {
 	SquaresWidth  uint64 `json:"square" xml:"square,attr"`
 	SquaresColour colour `json:"colour" xml:"colour,attr"`
 	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
