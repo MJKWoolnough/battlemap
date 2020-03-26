@@ -74,12 +74,12 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	mp := &levelMap{
 		Width:  nm.Width,
 		Height: nm.Height,
-		Patterns: map[string]pattern{
+		Patterns: map[string]*pattern{
 			"gridPattern": genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
 		layer: layer{
 			Name: nm.Name,
-			Children: layers{
+			Layers: []*layer{
 				&layer{
 					Name: "Layer",
 				},
@@ -99,8 +99,8 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	}, nil
 }
 
-func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) pattern {
-	return pattern{
+func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) *pattern {
+	return &pattern{
 		ID:     "gridPattern",
 		Width:  squaresWidth,
 		Height: squaresWidth,
@@ -177,10 +177,10 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func getLayer(l *layer, path []uint) *layer {
 	for _, p := range path[:len(path)-1] {
-		if uint(len(l.Children)) >= p {
+		if uint(len(l.Layers)) >= p {
 			return nil
 		}
-		l = l.Children[p]
+		l = l.Layers[p]
 	}
 	return l
 }
@@ -206,20 +206,20 @@ func getParentToken(l *layer, path []uint) (*layer, *token) {
 }
 
 func (l *layer) removeLayer(pos uint) {
-	if pos < uint(len(l.Children))-1 {
-		copy(l.Children[pos:], l.Children[pos+1:])
+	if pos < uint(len(l.Layers))-1 {
+		copy(l.Layers[pos:], l.Layers[pos+1:])
 	}
-	l.Children[len(l.Children)-1] = nil
-	l.Children = l.Children[:len(l.Children)-1]
+	l.Layers[len(l.Layers)-1] = nil
+	l.Layers = l.Layers[:len(l.Layers)-1]
 }
 
 func (l *layer) addLayer(nl *layer, pos uint) {
-	if pos >= uint(len(l.Children)) {
-		pos = uint(len(l.Children))
+	if pos >= uint(len(l.Layers)) {
+		pos = uint(len(l.Layers))
 	}
-	l.Children = append(l.Children, nil)
-	copy(l.Children[pos+1:], l.Children[pos:])
-	l.Children[pos] = nl
+	l.Layers = append(l.Layers, nil)
+	copy(l.Layers[pos+1:], l.Layers[pos:])
+	l.Layers[pos] = nl
 }
 
 func (l *layer) removeToken(pos uint) {
