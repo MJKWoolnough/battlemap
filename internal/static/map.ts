@@ -100,7 +100,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"remove": (path: string) => Promise.resolve(),
 			"removeFolder": (path: string) => Promise.resolve(),
 			"link": (path: Int, name: string) => Promise.resolve(name),
-			"newLayer": (name: string) => Promise.resolve(),
+			"newLayer": (name: string) => rpc.addLayer(name).then(() => {
+				const l = g(),
+				      id = layerNum++,
+				      idPath = [layerList.children.length + 1];
+				layerList.children.push({id, name, "hidden": false, "mask": 0});
+				folderList.layers.push({"node": l, "tokens": new SortNode<SVGToken>(l)});
+				layers.set(id, idPath);
+				nameIDs.set("/" + name, idPath);
+				return id;
+			}),
 			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
 			"setLayer": (id: Int) => {},
 			"setLayerMask": (id: Int) => {},
