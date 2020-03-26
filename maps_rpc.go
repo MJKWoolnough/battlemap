@@ -77,7 +77,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.GridOn = v
+			mp.GridHidden = !v
 			return true
 		}); err != nil {
 			return nil, err
@@ -85,12 +85,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		// broadcast grid visibility change
 		return nil, nil
 	case "moveGrid":
-		var pos uint
+		var pos uint64
 		if err := json.Unmarshal(data, &pos); err != nil {
 			return nil, err
 		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Grid = pos
+			mp.GridPos = pos
 			return true
 		}); err != nil {
 			return nil, err
@@ -116,7 +116,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.LightOn = v
+			mp.LightHidden = !v
 			return true
 		}); err != nil {
 			return nil, err
@@ -124,12 +124,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		// broadcast light visibility change
 		return nil, nil
 	case "moveLight":
-		var pos uint
+		var pos uint64
 		if err := json.Unmarshal(data, &pos); err != nil {
 			return nil, err
 		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Light = pos
+			mp.LightPos = pos
 			return true
 		}); err != nil {
 			return nil, err
@@ -154,7 +154,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Children = append(mp.Children, &layer{
+			mp.Layers = append(mp.Layers, &layer{
 				Name: name,
 			})
 			return true
@@ -449,7 +449,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				num++
 			}
 			idStr := "url(#" + idName + ")"
-			mp.Patterns[idName] = pattern{
+			mp.Patterns[idName] = &pattern{
 				ID:     idName,
 				Width:  tk.Width,
 				Height: tk.Height,
@@ -550,7 +550,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "setInitiative":
-		var initiative initiative
+		var initiative [][2]uint64
 		if err := json.Unmarshal(data, &initiative); err != nil {
 			return nil, err
 		}
