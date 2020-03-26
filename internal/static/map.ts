@@ -28,7 +28,8 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
-      };
+      },
+      isToken = (name: string) => name === "rect" || name === "circ" || name === "image";
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -49,7 +50,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			const layer: Layer | LayerFolder = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []},
 			      children = Array.from(node.childNodes),
 			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
-			if (firstChild && firstChild.nodeName === "g") {
+			if (firstChild && !isToken(firstChild.nodeName)) {
 				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[],
 				      l = layer as LayerFolder,
 				      f = new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node);
@@ -69,7 +70,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			(children.filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => r.push({"node": e}));
 			return [layer, {"node": node, "tokens": r}];
 		      },
-		      [layerList, folderList] = processLayers(root, "/", []),
+		      [layerList, folderList] = processLayers(root, "/", []) as [LayerFolder, SVGFolder],
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
