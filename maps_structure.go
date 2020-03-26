@@ -1,88 +1,71 @@
 package battlemap
 
-import (
-	"encoding/xml"
-	"io"
-
-	"vimagination.zapto.org/rwcount"
-)
-
-var svgDoctype = xml.Directive("DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"")
-
-type mapX struct {
-	Initiative  initiative `xml:"data-initiative,attr,omitempty" json:"-"`
-	Width       uint64     `xml:"width,attr" json:"-"`
-	Height      uint64     `xml:"height,attr" json:"-"`
-	Patterns    patterns   `xml:"defs>pattern,omitempty" json:"-"`
-	Masks       []mask     `xml:"defs>mask,omitempty" json:"-"`
-	Grid        uint       `xml:"data-grid,attr,omitempty" json:"-"`
-	Light       uint       `xml:"data-light,attr,omitempty" json:"-"`
-	GridOn      bool       `xml:"data-grid-on,attr,omitempty" json:"-"`
-	LightOn     bool       `xml:"data-light-on,attr,omitempty" json:"-"`
-	LightColour colour     `xml:"data-light-colour,attr,omitempty" json:"-"`
+type levelMap struct {
+	Width       uint64
+	Height      uint64
+	Initiative  [][2]uint64
+	GridPos     uint64
+	GridHidden  bool
+	LightPos    uint64
+	LightHidden bool
+	LightColour colour
+	Patterns    map[string]*pattern
+	Masks       map[string]*mask
 	layer
 }
 
-type patterns map[string]pattern
-
-type patternX struct {
-	ID     string       `xml:"id,attr"`
-	Width  uint64       `xml:"width,attr"`
-	Height uint64       `xml:"height,attr"`
-	Image  *token       `xml:"image,omitempty"`
-	Path   *patternPath `xml:"path,omitempty"`
+type pattern struct {
+	ID     string
+	Width  uint64
+	Height uint64
+	Image  *token
+	Path   *patternPath
 }
 
 type mask struct {
-	ID    string `xml:"id,attr"`
-	Image token  `xml:"image"`
+	ID    string
+	Image token
 }
 
 type patternPath struct {
-	Path        string `xml:"d,attr"`
-	Fill        colour `xml:"fill,attr,omitempty"`
-	Stroke      colour `xml:"stroke,attr,omitempty"`
-	StrokeWidth uint64 `xml:"stroke-width,attr,omitempty"`
+	Path        string
+	Fill        colour
+	Stroke      colour
+	StrokeWidth uint64
 }
-
-type layers []*layer
 
 type layer struct {
-	Name     string `xml:"data-name,attr" json:"name"`
-	Mask     string `xml:"mask,attr,omitempty" json:"-"`
-	Hidden   hidden `xml:"visibility,attr,omitempty" json:"-"`
-	Tokens   tokens `xml:"rect,omitempty" json:"-"`
-	Children layers `xml:"g" json:"-"`
+	Name   string
+	Mask   string
+	Hidden bool
+	Tokens []*token
+	Layers []*layer
 }
-
-type tokens []*token
 
 type token struct {
-	Source      string    `json:"source"`
-	Stroke      colour    `json:"colour"`
-	StrokeWidth uint64    `json:"strokeWidth"`
-	X           int64     `json:"x"`
-	Y           int64     `json:"y"`
-	Width       uint64    `json:"width"`
-	Height      uint64    `json:"height"`
-	Rotation    uint8     `json:"rotation"`
-	Flip        bool      `json:"flip"`
-	Flop        bool      `json:"flop"`
-	TokenData   uint64    `json:"tokenData"`
-	TokenType   tokenType `json:"tokenType"`
+	Source      string
+	Stroke      colour
+	StrokeWidth uint64
+	X           int64
+	Y           int64
+	Width       uint64
+	Height      uint64
+	Rotation    uint8
+	Flip        bool
+	Flop        bool
+	TokenData   uint64
+	TokenType   tokenType
 }
 
-func (m *levelMap) WriteTo(w io.Writer) (int64, error) {
-	cw := rwcount.Writer{Writer: w}
-	io.WriteString(&cw, xml.Header)
-	xe := xml.NewEncoder(&cw)
-	xe.EncodeToken(svgDoctype)
-	xe.EncodeElement(m, xml.StartElement{Name: xml.Name{Local: "svg"}})
-	return cw.Count, cw.Err
-}
+type tokenType uint8
 
-func (m *levelMap) ReadFrom(r io.Reader) (int64, error) {
-	cr := rwcount.Reader{Reader: r}
-	cr.Err = xml.NewDecoder(&cr).Decode(m)
-	return cr.Count, cr.Err
+const (
+	tokenImage tokenType = iota + 1
+	tokenPattern
+	tokenRect
+	tokenCircle
+)
+
+type colour struct {
+	R, G, B, A uint8
 }
