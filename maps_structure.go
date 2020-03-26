@@ -51,7 +51,7 @@ type layer struct {
 	Name     string `xml:"data-name,attr" json:"name"`
 	Mask     string `xml:"mask,attr,omitempty" json:"-"`
 	Hidden   hidden `xml:"visibility,attr,omitempty" json:"-"`
-	Tokens   tokens `xml:",omitempty,any" json:"-"`
+	Tokens   tokens `xml:"rect,omitempty" json:"-"`
 	Children layers `xml:"g" json:"-"`
 }
 
