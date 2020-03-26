@@ -35,8 +35,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		const root = (mapData as Document).getElementsByTagName("svg")[0];
 		let layerNum = 0,
-		    gridLayer = parseInt(root.getAttribute("data-grid") || "-1"),
-		    lightLayer = parseInt(root.getAttribute("data-light") || "-1"),
+		    gridLayer = parseInt(root.getAttribute("data-grid-pos") || "-1"),
+		    lightLayer = parseInt(root.getAttribute("data-light-pos") || "-1"),
 		    gridOn = root.getAttribute("data-grid-on") === "true",
 		    lightOn = root.getAttribute("data-light-on") === "true",
 		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
