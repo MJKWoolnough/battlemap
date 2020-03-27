@@ -618,6 +618,10 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 			Name: xml.Name{Local: "image"},
 			Attr: []xml.Attr{
 				{
+					Name:  xml.Name{Local: "preserveAspectRatio"},
+					Value: "none",
+				},
+				{
 					Name:  xml.Name{Local: "width"},
 					Value: strconv.FormatUint(t.Width, 10),
 				},
@@ -628,10 +632,6 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 				{
 					Name:  xml.Name{Local: "xlink:href"},
 					Value: t.Source,
-				},
-				{
-					Name:  xml.Name{Local: "preserveAspectRatio"},
-					Value: "none",
 				},
 				{
 					Name:  xml.Name{Local: "data-token"},
