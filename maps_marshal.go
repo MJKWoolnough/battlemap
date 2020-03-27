@@ -248,7 +248,7 @@ func (m *mask) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 	for _, attr := range se.Attr {
 		switch attr.Name.Local {
-		case "name":
+		case "data-name":
 			l.Name = attr.Value
 		case "mask":
 			l.Mask = strings.TrimRight(strings.TrimLeft(attr.Value, "url(#"), ")")
