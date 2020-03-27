@@ -251,7 +251,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		case "name":
 			l.Name = attr.Value
 		case "mask":
-			l.Mask = attr.Value
+			l.Mask = strings.TrimRight(strings.TrimLeft(attr.Value, "url(#"), ")")
 		case "visibility":
 			l.Hidden = attr.Value == "hidden"
 		}
@@ -556,7 +556,7 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	}
 	se.Attr = []xml.Attr{
 		{Name: xml.Name{Local: "data-name"}, Value: l.Name},
-		{Name: xml.Name{Local: "mask"}, Value: l.Mask},
+		{Name: xml.Name{Local: "mask"}, Value: "url(#" + l.Mask + ")"},
 		hidden,
 	}
 	x.EncodeToken(se)
