@@ -32,7 +32,7 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 						if l.Height, err = strconv.ParseUint(attr.Value, 10, 64); err != nil {
 							return cr.Count, err
 						}
-					case "initiative":
+					case "data-initiative":
 						is := strings.Split(attr.Value, ",")
 						l.Initiative = make([][2]uint64, len(is))
 						for n, i := range is {
