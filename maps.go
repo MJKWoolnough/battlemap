@@ -78,7 +78,6 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 			"gridPattern": genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
 		layer: layer{
-			Name: nm.Name,
 			Layers: []*layer{
 				&layer{
 					Name: "Layer",
