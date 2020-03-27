@@ -34,6 +34,9 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 							return cr.Count, err
 						}
 					case "data-initiative":
+						if attr.Value == "" {
+							continue
+						}
 						is := strings.Split(attr.Value, ",")
 						l.Initiative = make([][2]uint64, len(is))
 						for n, i := range is {
