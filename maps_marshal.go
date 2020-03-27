@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"strconv"
 	"strings"
 
@@ -148,7 +149,7 @@ func (c *colour) UnmarshalXMLAttr(attr xml.Attr) error {
 	c.R = uint8(r)
 	c.G = uint8(g)
 	c.B = uint8(b)
-	c.A = uint8(a * 255)
+	c.A = uint8(math.Round(a * 255))
 	return nil
 }
 
@@ -499,7 +500,7 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (c *colour) MarshalXMLAttr(name xml.Name) (xml.Attr, error) {
-	return xml.Attr{Name: name, Value: fmt.Sprintf("rgba(%d, %d, %d, %.2f)", c.R, c.G, c.B, float32(c.A)/255)}, nil
+	return xml.Attr{Name: name, Value: fmt.Sprintf("rgba(%d, %d, %d, %.3f)", c.R, c.G, c.B, float32(c.A)/255)}, nil
 }
 
 func (p *pattern) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
