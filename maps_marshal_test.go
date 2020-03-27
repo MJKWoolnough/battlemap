@@ -16,7 +16,7 @@ func TestMapsMarshal(t *testing.T) {
 		Err    error
 	}{
 		{
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"100\" height=\"200\" data-initiative=\"0|1,2|3,3|4\" data-grid-pos=\"1\" data-grid-hidden=\"true\" data-light-pos=\"2\" data-light-hidden=\"false\" data-light-colour=\"rgba(3, 2, 1, 0.498)\"><defs></defs><g data-name=\"Test Layer\"></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"100\" height=\"200\" data-initiative=\"0|1,2|3,3|4\" data-grid-pos=\"1\" data-grid-hidden=\"true\" data-light-pos=\"2\" data-light-hidden=\"false\" data-light-colour=\"rgba(3, 2, 1, 0.498)\"><defs></defs></svg>",
 			Output: levelMap{
 				Width:       100,
 				Height:      200,
@@ -28,12 +28,33 @@ func TestMapsMarshal(t *testing.T) {
 				LightColour: colour{R: 3, G: 2, B: 1, A: 127},
 				Patterns:    map[string]*pattern{},
 				Masks:       map[string]*mask{},
-				layer: layer{
-					Layers: []*layer{
-						{
-							Name:   "Test Layer",
-							Mask:   "",
-							Hidden: false,
+			},
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"0\" height=\"0\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern><mask id=\"mask_1\"><image preserveAspectRatio=\"none\" width=\"100\" height=\"200\" xlink:href=\"source.png\" data-token=\"1\"></image></mask></defs></svg>",
+			Output: levelMap{
+				Patterns: map[string]*pattern{
+					"gridPattern": &pattern{
+						ID:     "gridPattern",
+						Width:  1,
+						Height: 2,
+						Path: &patternPath{
+							Path:        "M 0 200 V 0 H 100",
+							Fill:        colour{R: 255, G: 0, B: 0, A: 255},
+							Stroke:      colour{R: 0, G: 0, B: 0, A: 255},
+							StrokeWidth: 1,
+						},
+					},
+				},
+				Masks: map[string]*mask{
+					"mask_1": &mask{
+						ID: "mask_1",
+						Image: token{
+							Source:    "source.png",
+							Width:     100,
+							Height:    200,
+							TokenData: 1,
+							TokenType: tokenImage,
 						},
 					},
 				},
