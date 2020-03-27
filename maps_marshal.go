@@ -549,16 +549,12 @@ func (m *mask) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 }
 
 func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
-	hidden := xml.Attr{Name: xml.Name{Local: "visibility"}}
-	if l.Hidden {
-		hidden.Value = "hidden"
-	} else {
-		hidden.Value = "visible"
-	}
 	se.Attr = append(make([]xml.Attr, 0, 3),
 		xml.Attr{Name: xml.Name{Local: "data-name"}, Value: l.Name},
-		hidden,
 	)
+	if l.Hidden {
+		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "visibility"}, Value: "hidden"})
+	}
 	if l.Mask != "" {
 		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "mask"}, Value: "url(#" + l.Mask + ")"})
 	}
