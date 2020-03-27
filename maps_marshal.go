@@ -494,6 +494,7 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 		}
 	}
 	x.EncodeToken(svg.End())
+	x.Flush()
 	return cw.Count, cw.Err
 }
 
