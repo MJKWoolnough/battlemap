@@ -44,7 +44,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 }
 
 type mapDetails struct {
-	idName
+	Name string `json:"name"`
 	mapDimensions
 	mapGrid
 }
