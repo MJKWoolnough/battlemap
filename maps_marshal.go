@@ -78,6 +78,12 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 			return cr.Count, ErrInvalidSVG
 		}
 	}
+	if l.Width == 0 || l.Height == 0 {
+		if cr.Err != nil {
+			return cr.Count, cr.Err
+		}
+		return cr.Count, ErrInvalidMapDimensions
+	}
 	l.Masks = make(map[string]*mask)
 	l.Patterns = make(map[string]*pattern)
 	for {
@@ -759,12 +765,13 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 
 // Errors
 var (
-	ErrInvalidSVG         = errors.New("invalid SVG")
-	ErrInvalidInitiative  = errors.New("invalid initiaitive")
-	ErrInvalidColour      = errors.New("invalid colour")
-	ErrInvalidTokenType   = errors.New("invalid token type")
-	ErrInvalidTokenSource = errors.New("invalid token source")
-	ErrInvalidPattern     = errors.New("invalid pattern")
-	ErrInvalidMask        = errors.New("invalid mask")
-	ErrInvalidLayer       = errors.New("layer must either contain tokens or other layers")
+	ErrInvalidSVG           = errors.New("invalid SVG")
+	ErrInvalidInitiative    = errors.New("invalid initiaitive")
+	ErrInvalidColour        = errors.New("invalid colour")
+	ErrInvalidTokenType     = errors.New("invalid token type")
+	ErrInvalidTokenSource   = errors.New("invalid token source")
+	ErrInvalidPattern       = errors.New("invalid pattern")
+	ErrInvalidMask          = errors.New("invalid mask")
+	ErrInvalidLayer         = errors.New("layer must either contain tokens or other layers")
+	ErrInvalidMapDimensions = errors.New("invalid map dimensions")
 )
