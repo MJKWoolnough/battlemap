@@ -409,6 +409,9 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			return fmt.Errorf("error unmarshling token: %w", err)
 		}
 	}
+	if t.Width == 0 || t.Height == 0 || (t.Source == "" && (t.Stroke.A == 0 || t.StrokeWidth == 0)) {
+		return ErrInvalidToken
+	}
 	if t.Flop {
 		translateX = -translateX - int64(t.Width)
 	}
@@ -780,4 +783,5 @@ var (
 	ErrInvalidMask          = errors.New("invalid mask")
 	ErrInvalidLayer         = errors.New("layer must either contain tokens or other layers")
 	ErrInvalidMapDimensions = errors.New("invalid map dimensions")
+	ErrInvalidToken         = errors.New("invalid token")
 )
