@@ -389,6 +389,9 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			t.Height, err = strconv.ParseUint(attr.Value, 10, 64)
 		case "xlink:href", "href":
 			t.Source = attr.Value
+			if t.TokenType == tokenPattern {
+				t.TokenType = tokenRect
+			}
 		case "fill":
 			if strings.HasPrefix(attr.Value, "url(") {
 				t.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
@@ -695,7 +698,7 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		})
 		if t.Source != "" {
 			attrs = append(attrs, xml.Attr{
-				Name:  xml.Name{Local: "fill"},
+				Name:  xml.Name{Local: "href"},
 				Value: t.Source,
 			})
 		}
