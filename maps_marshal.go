@@ -79,9 +79,6 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 		}
 	}
 	if l.Width == 0 || l.Height == 0 {
-		if cr.Err != nil {
-			return cr.Count, cr.Err
-		}
 		return cr.Count, ErrInvalidMapDimensions
 	}
 	l.Masks = make(map[string]*mask)
@@ -178,6 +175,9 @@ func (p *pattern) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			}
 		}
 	}
+	if p.ID == "" || p.Width == 0 || p.Height == 0 {
+		return ErrInvalidPattern
+	}
 	for {
 		t, err := x.Token()
 		if err != nil {
@@ -203,6 +203,9 @@ func (p *pattern) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 							return err
 						}
 					}
+				}
+				if p.Path.Path == "" || (p.Path.Fill.A == 0 && (p.Path.Stroke.A == 0 || p.Path.StrokeWidth == 0)) {
+					return ErrInvalidPattern
 				}
 				x.Skip()
 				x.Skip()

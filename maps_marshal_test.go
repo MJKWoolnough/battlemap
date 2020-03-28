@@ -35,6 +35,30 @@ func TestMapsMarshal(t *testing.T) {
 			},
 		},
 		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" width=\"1\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"0\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"0\"><path d=\"M 0 200 V 0 H 100\" fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"2\"><path fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" stroke-width=\"1\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"0\"></path></pattern></defs></svg>",
+			Err:   ErrInvalidPattern,
+		},
+		{
 			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs><pattern patternUnits=\"userSpaceOnUse\" id=\"gridPattern\" width=\"1\" height=\"2\"><path d=\"M 0 200 V 0 H 100\" fill=\"rgba(255, 0, 0, 1.000)\" stroke=\"rgba(0, 0, 0, 1.000)\" stroke-width=\"1\"></path></pattern><mask id=\"mask_1\"><image preserveAspectRatio=\"none\" width=\"100\" height=\"200\" xlink:href=\"source.png\" data-token=\"1\"></image></mask></defs></svg>",
 			Output: levelMap{
 				Width:  1,
@@ -72,10 +96,13 @@ func TestMapsMarshal(t *testing.T) {
 		if test.Err != err {
 			t.Errorf("test %d: expecting error %q, got %q", n+1, test.Err, err)
 			continue
+		} else if test.Err != nil {
+			continue
+		} else if err != nil {
+			t.Errorf("test %d: unexpected error: %s", n+1, err)
+			continue
 		} else if !reflect.DeepEqual(test.Output, m) {
 			t.Errorf("test %d: got unexpected output", n+1)
-			continue
-		} else if test.Err != nil {
 			continue
 		}
 		m.WriteTo(&buf)
