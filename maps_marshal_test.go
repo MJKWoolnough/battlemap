@@ -196,6 +196,37 @@ func TestMapsMarshal(t *testing.T) {
 			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs></defs><g data-name=\"Test Layer 1\"><rect width=\"1\" height=\"2\" xlink:href=\"1.png\"></rect><g data-name=\"Test Layer 2\"></g></g></svg>",
 			Err:   ErrInvalidLayerFolder,
 		},
+		{ // 18
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs></defs><g data-name=\"Test Layer 1\"><rect width=\"1\" height=\"2\" xlink:href=\"1.png\"></rect><rect width=\"3\" height=\"4\" fill=\"url(#pattern_1)\" data-token=\"1\"></rect></g></svg>",
+			Output: levelMap{
+				Width:    1,
+				Height:   2,
+				Patterns: map[string]*pattern{},
+				Masks:    map[string]*mask{},
+				layer: layer{
+					Layers: []*layer{
+						&layer{
+							Name: "Test Layer 1",
+							Tokens: []*token{
+								&token{
+									Width:     1,
+									Height:    2,
+									Source:    "1.png",
+									TokenType: tokenRect,
+								},
+								&token{
+									Width:     3,
+									Height:    4,
+									Source:    "pattern_1",
+									TokenType: tokenPattern,
+									TokenData: 1,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	} {
 		var m levelMap
 		_, err := m.ReadFrom(strings.NewReader(test.Input))
