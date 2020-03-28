@@ -269,6 +269,9 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			l.Hidden = attr.Value == "hidden"
 		}
 	}
+	if l.Name == "" {
+		return ErrInvalidLayer
+	}
 	for {
 		t, err := x.Token()
 		if err != nil {
@@ -565,11 +568,11 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	se.Attr = append(make([]xml.Attr, 0, 3),
 		xml.Attr{Name: xml.Name{Local: "data-name"}, Value: l.Name},
 	)
-	if l.Hidden {
-		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "visibility"}, Value: "hidden"})
-	}
 	if l.Mask != "" {
 		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "mask"}, Value: "url(#" + l.Mask + ")"})
+	}
+	if l.Hidden {
+		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "visibility"}, Value: "hidden"})
 	}
 	x.EncodeToken(se)
 	if l.Layers != nil {
