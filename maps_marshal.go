@@ -281,7 +281,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			switch se.Name.Local {
 			case "g":
 				if len(l.Tokens) > 0 {
-					return ErrInvalidLayer
+					return ErrInvalidLayerFolder
 				}
 				g := new(layer)
 				if err := g.UnmarshalXML(x, se); err != nil {
@@ -290,7 +290,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 				l.Layers = append(l.Layers, g)
 			case "rect", "circle", "image":
 				if len(l.Layers) > 0 {
-					return ErrInvalidLayer
+					return ErrInvalidLayerFolder
 				}
 				t := new(token)
 				if err := t.UnmarshalXML(x, se); err != nil {
@@ -784,7 +784,8 @@ var (
 	ErrInvalidTokenSource   = errors.New("invalid token source")
 	ErrInvalidPattern       = errors.New("invalid pattern")
 	ErrInvalidMask          = errors.New("invalid mask")
-	ErrInvalidLayer         = errors.New("layer must either contain tokens or other layers")
+	ErrInvalidLayer         = errors.New("invalid layer")
+	ErrInvalidLayerFolder   = errors.New("layer must either contain tokens or other layers")
 	ErrInvalidMapDimensions = errors.New("invalid map dimensions")
 	ErrInvalidToken         = errors.New("invalid token")
 )
