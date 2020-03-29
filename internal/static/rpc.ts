@@ -1,5 +1,5 @@
 import RPC from './lib/rpc_ws.js';
-import {RPC as RPCType} from './types.js';
+import {RPC as RPCType, ParentPath} from './types.js';
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
@@ -38,13 +38,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(-23, true),
 				"waitFolderRemoved": () => rpc.await(-27, true),
 
-				"list":        ()         => rpc.request("imageAssets.list"),
-				"createFolder": path      => rpc.request("imageAssets.createFolder", path),
-				"move":        (from, to) => rpc.request("imageAssets.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("imageAssets.moveFolder", {from, to}),
-				"remove":       path      => rpc.request("imageAssets.remove", path),
-				"removeFolder": path      => rpc.request("imageAssets.removeFolder", path),
-				"link":        (id, name) => rpc.request("imageAssets.link", {id, name}),
+				"list":         ()                                                                               => rpc.request("imageAssets.list"),
+				"createFolder": (parent: ParentPath, name: string)                                               => rpc.request("imageAssets.createFolder", parent.getPath() + "/" + name),
+				"move":         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("imageAssets.move", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"moveFolder":   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("imageAssets.moveFolder", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"remove":       (parent: ParentPath, name: string)                                               => rpc.request("imageAssets.remove", parent.getPath() + "/" + name),
+				"removeFolder": (parent: ParentPath, name: string)                                               => rpc.request("imageAssets.removeFolder", parent.getPath() + "/" + name),
+				"link":         (id, parent: ParentPath, name: string)                                           => rpc.request("imageAssets.link", {id, name}),
 			},
 
 			"audio": {
@@ -56,13 +56,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(-24, true),
 				"waitFolderRemoved": () => rpc.await(-28, true),
 
-				"list":        ()         => rpc.request("audioAssets.list"),
-				"createFolder": path      => rpc.request("audioAssets.createFolder", path),
-				"move":        (from, to) => rpc.request("audioAssets.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("audioAssets.moveFolder", {from, to}),
-				"remove":       path      => rpc.request("audioAssets.remove", path),
-				"removeFolder": path      => rpc.request("audioAssets.removeFolder", path),
-				"link":        (id, name) => rpc.request("audioAssets.link", {id, name}),
+				"list":         ()                                                                               => rpc.request("audioAssets.list"),
+				"createFolder": (parent: ParentPath, name: string)                                               => rpc.request("audioAssets.createFolder", parent.getPath() + "/" + name),
+				"move":         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("audioAssets.move", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"moveFolder":   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("audioAssets.moveFolder", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"remove":       (parent: ParentPath, name: string)                                               => rpc.request("audioAssets.remove", parent.getPath() + "/" + name),
+				"removeFolder": (parent: ParentPath, name: string)                                               => rpc.request("audioAssets.removeFolder", parent.getPath() + "/" + name),
+				"link":         (id, parent: ParentPath, name: string)                                           => rpc.request("audioAssets.link", {id, name}),
 			},
 
 			"characters": {
@@ -74,13 +74,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(-25, true),
 				"waitFolderRemoved": () => rpc.await(-29, true),
 
-				"list":        ()         => rpc.request("characters.list"),
-				"createFolder": path      => rpc.request("characters.createFolder", path),
-				"move":        (from, to) => rpc.request("characters.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("characters.moveFolder", {from, to}),
-				"remove":       path      => rpc.request("characters.remove", path),
-				"removeFolder": path      => rpc.request("characters.removeFolder", path),
-				"link":        (id, name) => rpc.request("characters.link", {id, name}),
+				"list":         ()                                                                               => rpc.request("characters.list"),
+				"createFolder": (parent: ParentPath, name: string)                                               => rpc.request("characters.createFolder", parent.getPath() + "/" + name),
+				"move":         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("characters.move", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"moveFolder":   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("characters.moveFolder", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"remove":       (parent: ParentPath, name: string)                                               => rpc.request("characters.remove", parent.getPath() + "/" + name),
+				"removeFolder": (parent: ParentPath, name: string)                                               => rpc.request("characters.removeFolder", parent.getPath() + "/" + name),
+				"link":         (id, parent: ParentPath, name: string)                                           => rpc.request("characters.link", {id, name}),
 			},
 
 			"maps": {
@@ -92,13 +92,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(-26, true),
 				"waitFolderRemoved": () => rpc.await(-30, true),
 
-				"list":        ()         => rpc.request("maps.list"),
-				"createFolder": path      => rpc.request("maps.createFolder", path),
-				"move":        (from, to) => rpc.request("maps.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("maps.moveFolder", {from, to}),
-				"remove":       path      => rpc.request("maps.remove", path),
-				"removeFolder": path      => rpc.request("maps.removeFolder", path),
-				"link":        (id, name) => rpc.request("maps.link", {id, name}),
+				"list":         ()                                                                               => rpc.request("maps.list"),
+				"createFolder": (parent: ParentPath, name: string)                                               => rpc.request("maps.createFolder", parent.getPath() + "/" + name),
+				"move":         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("maps.move", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"moveFolder":   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => rpc.request("maps.moveFolder", {from: oldParent.getPath() + "/" + oldName, to: newParent.getPath() + "/" + newName}),
+				"remove":       (parent: ParentPath, name: string)                                               => rpc.request("maps.remove", parent.getPath() + "/" + name),
+				"removeFolder": (parent: ParentPath, name: string)                                               => rpc.request("maps.removeFolder", parent.getPath() + "/" + name),
+				"link":         (id, parent: ParentPath, name: string)                                           => rpc.request("maps.link", {id, name}),
 			},
 
 			"connID": () => rpc.request("conn.connID"),
