@@ -1,5 +1,5 @@
 import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
-import {createHTML, clearElement} from './lib/html.js';
+import {createHTML, clearElement, autoFocus} from './lib/html.js';
 import {br, button, div, h1, input, label, span} from './lib/dom.js';
 import {noSort} from './lib/ordered.js';
 import {showError, enterKey} from './misc.js';
@@ -169,7 +169,7 @@ export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: L
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
-				const name = input({"id": "layerName", "onkeypress": enterKey}),
+				const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
 				      window = shell.addWindow("Add Layer", windowOptions);
 				createHTML(window, {"id": "layerAdd"}, [
 					h1("Add Layer"),
