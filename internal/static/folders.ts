@@ -61,7 +61,7 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.move(this.parent, this.name, root.resolvePath(parents.value)[0]!, newName.value)).then(newPath => {
 				root.moveItem(parentPath + this.name, newPath);
 				shell.removeWindow(window);
 			}).catch(e => showError(newName, e))})
@@ -82,7 +82,7 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Link", {"onclick": () => shell.addLoading(window, root.rpcFuncs.link(this.id, parents.value + newName.value)).then(newPath => {
+			button("Link", {"onclick": () => shell.addLoading(window, root.rpcFuncs.link(this.id, root.resolvePath(parents.value)[0]!, newName.value)).then(newPath => {
 				root.addItem(this.id, newPath);
 				shell.removeWindow(window);
 			}).catch(e => showError(newName, e))}),
@@ -91,15 +91,14 @@ export class Item {
 	remove() {
 		const root = this.parent.root,
 		      shell = root.shell,
-		      path = this.getPath(),
-		      pathDiv = div(path),
+		      pathDiv = div(this.getPath()),
 		      window = shell.addWindow("Remove Item", windowOptions);
 		return createHTML(window, {"class": "removeItem"}, [
 			h1("Remove Item"),
 			div("Remove the following item?"),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(path)).then(() => {
-				root.removeItem(path);
+			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(this.parent, this.name)).then(() => {
+				this.parent.removeItem(this.name);
 				shell.removeWindow(window);
 			}).catch(e => showError(pathDiv, e))}))
 		]);
@@ -190,7 +189,7 @@ export class Folder {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.moveFolder(this.parent!, this.name, root.resolvePath(parents.value)[0]!, newName.value)).then(newPath => {
 				root.moveFolder(oldPath.slice(0, -1), newPath);
 				shell.removeWindow(window);
 			}).catch(e => showError(newName, e))})
@@ -206,7 +205,7 @@ export class Folder {
 			h1("Remove Folder"),
 			div("Remove the following folder? NB: This will remove all folders and items it contains."),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(path)).then(() => {
+			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(this.parent!, this.name)).then(() => {
 				root.removeFolder(path);
 				shell.removeWindow(window);
 			}).catch(e => showError(pathDiv, e))}))
@@ -223,7 +222,7 @@ export class Folder {
 			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
 			folderName,
 			br(),
-			button("Add Folder", {"onclick": () => shell.addLoading(window, root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
+			button("Add Folder", {"onclick": () => shell.addLoading(window, root.rpcFuncs.createFolder(this, folderName.value)).then(folder => {
 				root.addFolder(folder);
 				shell.removeWindow(window);
 			}).catch(e => showError(folderName, e))})
