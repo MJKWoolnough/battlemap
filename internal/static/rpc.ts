@@ -112,6 +112,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setMapDetails":  map           => rpc.request("maps.setMapDetails", map),
 
 			"addLayer":        name                 => rpc.request("maps.addLayer", name),
+			"addLayerFolder": (path, name)          => rpc.request("maps.addLayer", {path, name}),
 			"renameLayer":    (path, name)          => rpc.request("maps.renameLayer", {path, name}),
 			"moveLayer":      (from, to, position)  => rpc.request("maps.moveLayer", {from, to, position}),
 			"showLayer":       path                 => rpc.request("maps.showLayer", path),
