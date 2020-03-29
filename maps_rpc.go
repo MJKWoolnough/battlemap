@@ -219,6 +219,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			op.removeLayer(moveLayer.From[len(moveLayer.From)-1])
 			np.addLayer(l, moveLayer.Position)
+			if len(op.Layers) == 0 {
+				op.Layers = append(op.Layers, &layer{Name: "Layer"})
+			}
 			return false
 		})
 		return moveLayer.To, err
@@ -299,6 +302,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			p, l := getParentLayer(&mp.layer, path)
 			if l != nil {
 				p.removeLayer(path[len(path)-1])
+				if len(p.Layers) == 0 {
+					p.Layers = append(p.Layers, &layer{Name: "Layer"})
+				}
 				return true
 			}
 			return false
