@@ -153,13 +153,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &name); err != nil {
 			return nil, err
 		}
-		m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			mp.Layers = append(mp.Layers, &layer{
 				Name: name,
 			})
 			return true
 		})
-		return nil, nil
 	case "renameLayer":
 		var rename struct {
 			Path []uint `json:"path"`
@@ -616,6 +615,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		m.config.Get("currentUserMap", &cu)
+		if f := m.getFolder(mapPath.From); f != nil {
+			if walkFolders(f, func(items map[string]uint64) bool {
+				for _, id := range items {
+					if id == uint64(cu) || id == cd.CurrentMap {
+						return true
+					}
+				}
+				return false
+			}) {
+				return nil, ErrContainsCurrentlySelected
+			}
+		}
 	case "link":
 		return nil, ErrUnknownMethod
 	}
