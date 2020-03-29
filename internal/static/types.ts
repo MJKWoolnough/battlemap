@@ -3,6 +3,10 @@ import {Subscription} from './lib/inter.js';
 // export type Int = number & { __int__: void };
 export type Int = number;
 
+export interface ParentPath {
+	getPath(): string;
+}
+
 export type FolderRPC = {
 	waitAdded:         () => Subscription<IDName[]>;
 	waitMoved:         () => Subscription<FromTo>;
@@ -12,13 +16,13 @@ export type FolderRPC = {
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
 
-	list:         ()                         => Promise<FolderItems>;
-	createFolder: (path: string)             => Promise<string>;
-	move:         (from: string, to: string) => Promise<string>;
-	moveFolder:   (from: string, to: string) => Promise<string>;
-	remove:       (path: string)             => Promise<void>;
-	removeFolder: (path: string)             => Promise<void>;
-	link:         (id: Int, name: string)    => Promise<string>;
+	list:         ()                                                                               => Promise<FolderItems>;
+	createFolder: (parent: ParentPath, name: string)                                               => Promise<string>;
+	move:         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise<string>;
+	moveFolder:   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise<string>;
+	remove:       (parent: ParentPath, name: string)                                               => Promise<void>;
+	removeFolder: (parent: ParentPath, name: string)                                               => Promise<void>;
+	link:         (id: Int, parent: ParentPath, name: string)                                      => Promise<string>;
 }
 
 export type LayerRPC = FolderRPC & {
