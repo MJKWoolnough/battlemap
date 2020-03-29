@@ -159,6 +159,22 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			})
 			return true
 		})
+	case "addLayerFolder":
+		var layerFolder struct {
+			Path []uint `json:"path"`
+			Name string `json:"name"`
+		}
+		return nil, m.updateMapLayer(cd.CurrentMap, layerFolder.Path, func(_ *levelMap, l *layer) bool {
+			l.Layers = append(l.Layers, &layer{
+				Name: layerFolder.Name,
+				Layers: []*layer{
+					&layer{
+						Name: "Layer",
+					},
+				},
+			})
+			return true
+		})
 	case "renameLayer":
 		var rename struct {
 			Path []uint `json:"path"`
