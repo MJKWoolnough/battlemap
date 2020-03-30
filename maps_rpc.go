@@ -160,51 +160,47 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "addLayerFolder":
-		var layerFolder struct {
-			Path []uint `json:"path"`
-			Name string `json:"name"`
+		var path string
+		if err := json.Unmarshal(data, &path); err != nil {
+			return nil, err
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, layerFolder.Path, func(_ *levelMap, l *layer) bool {
+		parent, name := splitAfterLastSlash(path)
+		err := m.updateMapLayer(cd.CurrentMap, parent, func(m *levelMap, l *layer) bool {
+			name = uniqueLayer(m.layers, name)
 			l.Layers = append(l.Layers, &layer{
-				Name: layerFolder.Name,
-				Layers: []*layer{
-					&layer{
-						Name: "Layer",
-					},
-				},
+				Name:     name,
+				IsFolder: true,
 			})
 			return true
 		})
+		return name, err
 	case "renameLayer":
 		var rename struct {
-			Path []uint `json:"path"`
-			Name string `json:"name"`
+			From string `json:"from"`
+			To   string `json:"to"`
 		}
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
-		if len(rename.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapLayer(cd.CurrentMap, rename.Path, func(_ *levelMap, l *layer) bool {
-			if l.Name == rename.Name {
+		err := m.updateMapLayer(cd.CurrentMap, rename.From, func(m *levelMap, l *layer) bool {
+			if l.Name == rename.To {
 				return false
 			}
-			l.Name = rename.Name
+			delete(m.layers, l.Name)
+			rename.To = uniqueLayer(m.layers, rename.To)
+			l.Name = rename.To
 			return true
 		})
+		return rename.To, err
 	case "moveLayer":
 		var moveLayer struct {
-			From     []uint `json:"from"`
-			To       []uint `json:"to"`
+			From     string `json:"from"`
+			To       string `json:"to"`
 			Position uint   `json:"position"`
 		}
 		err := json.Unmarshal(data, &moveLayer)
 		if err != nil {
 			return nil, err
-		}
-		if len(moveLayer.From) == 0 || len(moveLayer.To) == 0 {
-			return nil, ErrInvalidLayerPath
 		}
 		err = m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			op, l := getParentLayer(&mp.layer, moveLayer.From)
@@ -212,21 +208,25 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				err = ErrUnknownLayer
 				return false
 			}
-			np, _ := getParentLayer(&mp.layer, moveLayer.To)
+			parent, name := splitAfterLastSlash(moveLayer.To)
+			np := getLayer(&mp.layer, parent)
 			if np == nil {
 				err = ErrUnknownLayer
 				return false
 			}
-			op.removeLayer(moveLayer.From[len(moveLayer.From)-1])
-			np.addLayer(l, moveLayer.Position)
-			if len(op.Layers) == 0 {
-				op.Layers = append(op.Layers, &layer{Name: "Layer"})
+			op.removeLayer(l.Name)
+			if name != l.Name {
+				delete(mp.layers, l.Name)
+				name = uniqueLayer(mp.layers, name)
+				moveLayer.To = parent + "/" + name
+				l.Name = name
 			}
+			np.addLayer(l, moveLayer.Position)
 			return false
 		})
 		return moveLayer.To, err
 	case "showLayer":
-		var path []uint
+		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
 			return nil, err
 		}
@@ -241,7 +241,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "hideLayer":
-		var path []uint
+		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
 			return nil, err
 		}
@@ -257,7 +257,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "addMask":
 		var addMask struct {
-			Path []uint `json:"path"`
+			Path string `json:"path"`
 			Mask uint64 `json:"mask"`
 		}
 		if err := json.Unmarshal(data, &addMask); err != nil {
@@ -275,7 +275,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "removeMask":
-		var path []uint
+		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
 			return nil, err
 		}
@@ -290,33 +290,22 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "removeLayer":
-		var path []uint
+		var path string
 		err := json.Unmarshal(data, &path)
 		if err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		err = m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			p, l := getParentLayer(&mp.layer, path)
-			if l != nil {
-				p.removeLayer(path[len(path)-1])
-				if len(p.Layers) == 0 {
-					p.Layers = append(p.Layers, &layer{Name: "Layer"})
-				}
-				return true
-			}
-			return false
+		parent, name := splitAfterLastSlash(path)
+		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
+			l.removeLayer(name)
+			delete(mp.layers, name)
+			return true
 		})
 		return nil, err
 	case "addToken":
 		var token struct {
 			*token
-			Path []uint `json:"path"`
-		}
-		if len(token.Path) == 0 {
-			return nil, ErrInvalidLayerPath
+			Path string `json:"path"`
 		}
 		if err := json.Unmarshal(data, &token); err != nil {
 			return nil, err
@@ -329,34 +318,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		return nil, nil
 	case "removeToken":
-		var path []uint
-		if err := json.Unmarshal(data, &path); err != nil {
+		var tokenPos struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &tokenPos); err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			p, t := getParentToken(&mp.layer, path)
-			if t != nil {
-				p.removeToken(path[len(path)-1])
-				return true
-			}
-			return false
+		return nil, m.updateMapLayer(cd.CurrentMap, tokenPos.Path, func(mp *levelMap, l *layer) bool {
+			l.removeToken(tokenPos.Pos)
+			return true
 		})
 	case "moveToken":
 		var moveToken struct {
-			Path []uint `json:"path"`
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
 			X    int64  `json:"x"`
 			Y    int64  `json:"y"`
 		}
 		if err := json.Unmarshal(data, &moveToken); err != nil {
 			return nil, err
 		}
-		if len(moveToken.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, moveToken.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, moveToken.Path, moveToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if tk.X == moveToken.X && tk.Y == moveToken.Y {
 				return false
 			}
@@ -366,17 +349,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "resizeToken":
 		var resizeToken struct {
-			Path   []uint `json:"path"`
+			Path   string `json:"path"`
+			Pos    uint   `json:"pos"`
 			Width  int64  `json:"width"`
 			Height int64  `json:"height"`
 		}
 		if err := json.Unmarshal(data, &resizeToken); err != nil {
 			return nil, err
 		}
-		if len(resizeToken.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, resizeToken.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, resizeToken.Path, resizeToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if resizeToken.Width < 0 {
 				tk.X += int64(tk.Width) + resizeToken.Width
 				resizeToken.Width *= -1
@@ -394,16 +375,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "rotateToken":
 		var rotateToken struct {
-			Path     []uint `json:"path"`
+			Path     string `json:"path"`
+			Pos      uint   `json:"pos"`
 			Rotation uint8  `json:"rotation"`
 		}
 		if err := json.Unmarshal(data, &rotateToken); err != nil {
 			return nil, err
 		}
-		if len(rotateToken.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, rotateToken.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, rotateToken.Path, rotateToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if tk.Rotation == rotateToken.Rotation {
 				return false
 			}
@@ -412,16 +391,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "flipToken":
 		var flipToken struct {
-			Path []uint `json:"path"`
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
 			Flip bool   `json:"flip"`
 		}
 		if err := json.Unmarshal(data, &flipToken); err != nil {
 			return nil, err
 		}
-		if len(flipToken.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, flipToken.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, flipToken.Path, flipToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if tk.Flip == flipToken.Flip {
 				return false
 			}
@@ -430,7 +407,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "flopToken":
 		var flopToken struct {
-			Path []uint `json:"path"`
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
 			Flop bool   `json:"flop"`
 		}
 		if err := json.Unmarshal(data, &flopToken); err != nil {
@@ -439,7 +417,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if len(flopToken.Path) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, flopToken.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, flopToken.Path, flopToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if tk.Flop == flopToken.Flop {
 				return false
 			}
@@ -447,14 +425,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return true
 		})
 	case "setTokenPattern":
-		var path []uint
-		if err := json.Unmarshal(data, &path); err != nil {
+		var patternToken struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &patternToken); err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, path, func(mp *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, patternToken.Path, patternToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
 			if tk.TokenType != tokenImage {
 				return false
 			}
@@ -487,14 +465,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 
 		})
 	case "setTokenImage":
-		var path []uint
-		if err := json.Unmarshal(data, &path); err != nil {
+		var imageToken struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &imageToken); err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, path, func(mp *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, imageToken.Path, imageToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
 			if tk.TokenType != tokenPattern {
 				return false
 			}
@@ -508,16 +486,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "setTokenSource":
 		var tokenSource struct {
-			Path   []uint `json:"path"`
+			Path   string `json:"path"`
+			Pos    uint   `json:"pos"`
 			Source string `json:"source"`
 		}
 		if err := json.Unmarshal(data, &tokenSource); err != nil {
 			return nil, err
 		}
-		if len(tokenSource.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenSource.Path, func(_ *levelMap, _ *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenSource.Path, tokenSource.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
 			if tk.TokenType != tokenImage || tk.Source == tokenSource.Source {
 				return false
 			}
@@ -526,8 +502,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "setTokenLayer":
 		var tokenLayer struct {
-			From []uint `json:"from"`
-			To   []uint `json:"to"`
+			From    string `json:"from"`
+			FromPos uint   `json:"fromPos"`
+			To      string `json:"to"`
+			ToPos   uint   `json:"toPos"`
 		}
 		if err := json.Unmarshal(data, &tokenLayer); err != nil {
 			return nil, err
@@ -535,38 +513,38 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if len(tokenLayer.From) == 0 || len(tokenLayer.To) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, func(mp *levelMap, l *layer, tk *token) bool {
-			m := getLayer(&mp.layer, tokenLayer.To[:len(tokenLayer.To)-1])
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, tokenLayer.FromPos, func(mp *levelMap, l *layer, tk *token) bool {
+			m := getLayer(&mp.layer, tokenLayer.To)
 			if m == nil {
 				return false
 			}
-			l.removeToken(tokenLayer.From[len(tokenLayer.From)-1])
-			m.addToken(tk, tokenLayer.To[len(tokenLayer.To)-1])
+			l.removeToken(tokenLayer.FromPos)
+			m.addToken(tk, tokenLayer.ToPos)
 			return true
 		})
 	case "setTokenTop":
-		var path []uint
-		if err := json.Unmarshal(data, &path); err != nil {
+		var tokenTop struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &tokenTop); err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, path, func(_ *levelMap, l *layer, tk *token) bool {
-			l.removeToken(path[len(path)-1])
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenTop.Path, tokenTop.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			l.removeToken(tokenTop.Pos)
 			l.addToken(tk, uint(len(l.Tokens)))
 			return true
 		})
 	case "setTokenBottom":
-		var path []uint
-		if err := json.Unmarshal(data, &path); err != nil {
+		var tokenBottom struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &tokenBottom); err != nil {
 			return nil, err
 		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, path, func(_ *levelMap, l *layer, tk *token) bool {
-			l.removeToken(path[len(path)-1])
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenBottom.Path, tokenBottom.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			l.removeToken(tokenBottom.Pos)
 			l.addToken(tk, 0)
 			return true
 		})
