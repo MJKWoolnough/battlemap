@@ -83,7 +83,10 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	}
 	l.Masks = make(map[string]*mask)
 	l.Patterns = make(map[string]*pattern)
-	l.layers = make(map[string]struct{})
+	l.layers = map[string]struct{}{
+		"Grid":  struct{}{},
+		"Light": struct{}{},
+	}
 	for {
 		token, err := x.Token()
 		if err != nil {
