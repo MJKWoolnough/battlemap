@@ -193,18 +193,23 @@ func (f *folders) getFolder(path string) *folder {
 	return d
 }
 
-func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *folder) {
-	p = path.Clean(strings.TrimRight(p, "/"))
+func splitAfterLastSlash(p string) (string, string) {
 	lastSlash := strings.LastIndexByte(p, '/')
 	if lastSlash >= 0 {
-		parent = f.getFolder(p[:lastSlash])
+		return p[:lastSlash], p[lastSlash+1:]
+	}
+	return "", p
+}
+
+func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *folder) {
+	parentStr, name := splitAfterLastSlash(path.Clean(strings.TrimRight(p, "/")))
+	if parentStr != "" {
+		parent = f.getFolder(parentStr)
 		if parent == nil {
 			return nil, "", nil
 		}
-		name = p[lastSlash+1 : len(p)]
 	} else {
 		parent = f.root
-		name = p
 	}
 	fd, _ = parent.Folders[name]
 	return parent, name, fd
