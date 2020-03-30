@@ -32,6 +32,7 @@ func TestMapsMarshal(t *testing.T) {
 				LightColour: colour{R: 3, G: 2, B: 1, A: 127},
 				Patterns:    map[string]*pattern{},
 				Masks:       map[string]*mask{},
+				layers:      map[string]struct{}{},
 			},
 		},
 		{ // 3
@@ -88,6 +89,7 @@ func TestMapsMarshal(t *testing.T) {
 						},
 					},
 				},
+				layers: map[string]struct{}{},
 			},
 		},
 		{ // 10
@@ -101,6 +103,7 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
+				layers:   map[string]struct{}{"Test Layer": struct{}{}},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -111,25 +114,35 @@ func TestMapsMarshal(t *testing.T) {
 			},
 		},
 		{ // 12
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs></defs><g data-name=\"Test Layer 1\"><g data-name=\"Test Layer 2\"><g data-name=\"Test Layer 3\"></g><g data-name=\"Test Layer 4\"></g></g></g><g data-name=\"Test Layer 5\"></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\" data-grid-pos=\"0\" data-grid-hidden=\"false\" data-light-pos=\"0\" data-light-hidden=\"false\" data-light-colour=\"rgba(0, 0, 0, 0.000)\"><defs></defs><g data-name=\"Test Layer 1\" data-is-folder=\"true\"><g data-name=\"Test Layer 2\" data-is-folder=\"true\"><g data-name=\"Test Layer 3\"></g><g data-name=\"Test Layer 4\" data-is-folder=\"true\"></g></g></g><g data-name=\"Test Layer 5\"></g></svg>",
 			Output: levelMap{
 				Width:    1,
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
+				layers: map[string]struct{}{
+					"Test Layer 1": struct{}{},
+					"Test Layer 2": struct{}{},
+					"Test Layer 3": struct{}{},
+					"Test Layer 4": struct{}{},
+					"Test Layer 5": struct{}{},
+				},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
-							Name: "Test Layer 1",
+							Name:     "Test Layer 1",
+							IsFolder: true,
 							Layers: []*layer{
 								&layer{
-									Name: "Test Layer 2",
+									Name:     "Test Layer 2",
+									IsFolder: true,
 									Layers: []*layer{
 										&layer{
 											Name: "Test Layer 3",
 										},
 										&layer{
-											Name: "Test Layer 4",
+											Name:     "Test Layer 4",
+											IsFolder: true,
 										},
 									},
 								},
@@ -149,6 +162,7 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
+				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -171,6 +185,7 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
+				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -203,6 +218,7 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
+				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
