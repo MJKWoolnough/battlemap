@@ -11,6 +11,7 @@ type levelMap struct {
 	LightColour colour
 	Patterns    map[string]*pattern
 	Masks       map[string]*mask
+	layers      map[string]struct{}
 	layer
 }
 
@@ -35,11 +36,12 @@ type patternPath struct {
 }
 
 type layer struct {
-	Name   string
-	Mask   string
-	Hidden bool
-	Tokens []*token
-	Layers []*layer
+	Name     string
+	Mask     string
+	Hidden   bool
+	IsFolder bool
+	Tokens   []*token
+	Layers   []*layer
 }
 
 type token struct {
