@@ -34,31 +34,25 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		const root = (mapData as Document).getElementsByTagName("svg")[0];
-		let layerNum = 0,
-		    gridLayer = parseInt(root.getAttribute("data-grid-pos") || "-1"),
+		let gridLayer = parseInt(root.getAttribute("data-grid-pos") || "-1"),
 		    lightLayer = parseInt(root.getAttribute("data-light-pos") || "-1"),
 		    gridOn = root.getAttribute("data-grid-on") === "true",
 		    lightOn = root.getAttribute("data-light-on") === "true",
 		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
-		const layers = new Map<Int, Int[]>(),
-		      nameIDs = new Map<string, Int[]>(),
-		      processLayers = (node: SVGElement, path: string, idPath: Int[]): [Layer | LayerFolder, SVGFolder | SVGLayer] => {
-			const id = layerNum++;
-			let name = node.getAttribute("data-name") || `Layer ${layerNum}`;
-			layers.set(id, idPath);
-			nameIDs.set(path + name, idPath);
-			const layer: Layer | LayerFolder = {"id": id, "name": name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []},
+		const processLayers = (node: SVGElement, path: string): [Layer | LayerFolder, SVGFolder | SVGLayer] => {
+			let name = node.getAttribute("data-name")!;
+			const layer: Layer | LayerFolder = {"id": path === "/" ? 0 : 1, name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []},
 			      children = Array.from(node.childNodes),
 			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
 			if (firstChild && !isToken(firstChild.nodeName)) {
 				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[],
 				      l = layer as LayerFolder,
 				      f = new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node);
-				l.children = gs.map((e, i) => processLayers(e, path + name + "/", idPath.concat(i))).map(([e, l]) => {
+				l.children = gs.map((e, i) => processLayers(e, path + name + "/")).map(([e, l]) => {
 					f.push(l);
 					return e;
 				});
-				if (idPath.length === 0) {
+				if (path === "/") {
 					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0});
 					f.splice(gridLayer, 0, {"node": g({"fill": "url(#gridPattern)"})});
 					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0});
@@ -70,7 +64,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			(children.filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => r.push({"node": e}));
 			return [layer, {"node": node, "tokens": r}];
 		      },
-		      [layerList, folderList] = processLayers(root, "/", []) as [LayerFolder, SVGFolder],
+		      [layerList, folderList] = processLayers(root, "/") as [LayerFolder, SVGFolder],
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -100,17 +94,14 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"remove": (path: string) => Promise.resolve(),
 			"removeFolder": (path: string) => Promise.resolve(),
 			"link": (id: Int, path: string) => Promise.resolve(name),
-			"newLayer": (name: string) => rpc.addLayer(name).then(() => {
+			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				const l = g(),
-				      id = layerNum++,
 				      idPath = [layerList.children.length + 1];
-				layerList.children.push({id, name, "hidden": false, "mask": 0});
+				layerList.children.push({"id": 1, name, "hidden": false, "mask": 0});
 				folderList.layers.push({"node": l, "tokens": new SortNode<SVGToken>(l)});
-				layers.set(id, idPath);
-				nameIDs.set("/" + name, idPath);
-				return id;
+				return name;
 			}),
-			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
+			"setVisibility": (path: string, visibility: boolean)  => Promise.resolve(),
 			"setLayer": (path: string) => {},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => Promise.resolve()

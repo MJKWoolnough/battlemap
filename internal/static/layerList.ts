@@ -87,7 +87,7 @@ class ItemLayer extends Item {
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
 			}}), this.node.firstChild!.nextSibling);
 		}
-		this.node.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+		this.node.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
@@ -125,14 +125,14 @@ class FolderLayer extends Folder {
 		this.hidden = hidden;
 		const lf = children as LayerFolder,
 		      checkbox = this.node.firstChild as HTMLInputElement;
-		this.id = lf.id;
 		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
+		this.id = lf.id;
 		if (lf.children) {
 			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		}
-		if (this.id > 0) {
+		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.node.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.id, !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+			this.node.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
 			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
