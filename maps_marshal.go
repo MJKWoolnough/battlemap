@@ -83,6 +83,7 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	}
 	l.Masks = make(map[string]*mask)
 	l.Patterns = make(map[string]*pattern)
+	l.layers = make(map[string]struct{})
 	for {
 		token, err := x.Token()
 		if err != nil {
@@ -92,6 +93,9 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 			if se.Name.Local == "g" {
 				nl := new(layer)
 				if err = nl.UnmarshalXML(x, se); err != nil {
+					return cr.Count, err
+				}
+				if err = addLayersToMap(l.layers, nl); err != nil {
 					return cr.Count, err
 				}
 				l.Layers = append(l.Layers, nl)
@@ -129,6 +133,19 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 		}
 	}
 	return cr.Count, cr.Err
+}
+
+func addLayersToMap(m map[string]struct{}, l *layer) error {
+	if _, ok := m[l.Name]; ok {
+		return ErrDuplicateLayerName
+	}
+	m[l.Name] = struct{}{}
+	for _, nl := range l.Layers {
+		if err := addLayersToMap(m, nl); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *colour) UnmarshalXMLAttr(attr xml.Attr) error {
@@ -267,6 +284,8 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			l.Mask = strings.TrimRight(strings.TrimLeft(attr.Value, "url(#"), ")")
 		case "visibility":
 			l.Hidden = attr.Value == "hidden"
+		case "data-is-folder":
+			l.IsFolder, _ = strconv.ParseBool(attr.Value)
 		}
 	}
 	if l.Name == "" {
@@ -280,7 +299,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		if se, ok := t.(xml.StartElement); ok {
 			switch se.Name.Local {
 			case "g":
-				if len(l.Tokens) > 0 {
+				if !l.IsFolder {
 					return ErrInvalidLayerFolder
 				}
 				g := new(layer)
@@ -289,7 +308,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 				}
 				l.Layers = append(l.Layers, g)
 			case "rect", "circle", "image":
-				if len(l.Layers) > 0 {
+				if l.IsFolder {
 					return ErrInvalidLayerFolder
 				}
 				t := new(token)
@@ -571,7 +590,7 @@ func (m *mask) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 }
 
 func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
-	se.Attr = append(make([]xml.Attr, 0, 3),
+	se.Attr = append(make([]xml.Attr, 0, 4),
 		xml.Attr{Name: xml.Name{Local: "data-name"}, Value: l.Name},
 	)
 	if l.Mask != "" {
@@ -580,8 +599,11 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	if l.Hidden {
 		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "visibility"}, Value: "hidden"})
 	}
+	if l.IsFolder {
+		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "data-is-folder"}, Value: "true"})
+	}
 	x.EncodeToken(se)
-	if l.Layers != nil {
+	if l.IsFolder {
 		for _, ly := range l.Layers {
 			if err := ly.MarshalXML(x, xml.StartElement{Name: xml.Name{Local: "g"}}); err != nil {
 				return err
@@ -788,4 +810,5 @@ var (
 	ErrInvalidLayerFolder   = errors.New("layer must either contain tokens or other layers")
 	ErrInvalidMapDimensions = errors.New("invalid map dimensions")
 	ErrInvalidToken         = errors.New("invalid token")
+	ErrDuplicateLayerName   = errors.New("duplicate layer name")
 )
