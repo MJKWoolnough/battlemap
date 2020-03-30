@@ -1,4 +1,4 @@
-import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC, ParentPath} from './types.js';
+import {Colour, FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC, ParentPath, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {g, rect} from './lib/svg.js';
@@ -7,29 +7,29 @@ import {showError, enterKey, colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
 type SVGToken = {
-	node: SVGRectElement;
+	node: SVGElement;
 };
 
-type SVGLayer = {
+type SVGLayer = Layer & {
 	node: SVGElement;
 	tokens: SortNode<SVGToken>;
 };
 
-type SVGPsuedo = {
+type SVGPsuedo = Layer & {
+	id: Int;
 	node: SVGGElement;
 };
 
-type SVGFolder = {
+type SVGFolder = LayerFolder & {
 	node: SVGElement;
-	layers: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
+	children: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
 };
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
-      },
-      isToken = (name: string) => name === "rect" || name === "circ" || name === "image";
+      };
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -38,33 +38,47 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		    lightLayer = parseInt(root.getAttribute("data-light-pos") || "-1"),
 		    gridOn = root.getAttribute("data-grid-on") === "true",
 		    lightOn = root.getAttribute("data-light-on") === "true",
-		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)");
-		const processLayers = (node: SVGElement, path: string): [Layer | LayerFolder, SVGFolder | SVGLayer] => {
-			let name = node.getAttribute("data-name")!;
-			const layer: Layer | LayerFolder = {"id": path === "/" ? 0 : 1, name, "hidden": node.getAttribute("visibility") === "hidden", "mask": parseInt(node.getAttribute("mask") || "0"), folders: {}, items: {}, children: []},
-			      children = Array.from(node.childNodes),
-			      firstChild = children.filter(e => e instanceof SVGGElement || e instanceof SVGRectElement).shift();
-			if (firstChild && !isToken(firstChild.nodeName)) {
-				const gs = children.filter(e => e instanceof SVGGElement) as SVGGElement[],
-				      l = layer as LayerFolder,
-				      f = new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node);
-				l.children = gs.map((e, i) => processLayers(e, path + name + "/")).map(([e, l]) => {
-					f.push(l);
-					return e;
+		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)"),
+		    layerNum = 0;
+		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
+			const name = node.getAttribute("data-name") || `Layer ${++layerNum}`;
+			if (node.getAttribute("data-is-folder") === "true") {
+				const node = g(),
+				      l: SVGFolder = {
+					node,
+					"id": 1,
+					name,
+					"hidden": node.getAttribute("visibility") === "hidden",
+					children: new SortNode<SVGFolder | SVGLayer | SVGPsuedo, SVGGElement>(node),
+					folders: {},
+					items: {},
+				      };
+				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map((e, i) => processLayers(e, path + name + "/")).forEach(layer => {
+					l.children.push(layer);
 				});
 				if (path === "/") {
-					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0});
-					f.splice(gridLayer, 0, {"node": g({"fill": "url(#gridPattern)"})});
-					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0});
-					f.splice(lightLayer, 0, {"node": g({"fill": colour2RGBA(lightColour)})});
+					const grid = g({"fill": "url(#gridPattern)"}),
+					      light = g({"fill": colour2RGBA(lightColour)});
+					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0, "node": grid});
+					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0, "node": light});
 				}
-				return [layer, {"node": node, "layers": f}];
+				return l;
 			}
-			const r = new SortNode<SVGToken>(node);
-			(children.filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => r.push({"node": e}));
-			return [layer, {"node": node, "tokens": r}];
+			const gnode = g(),
+			      l: SVGLayer = {
+				"id": path === "/" ? 0 : 1,
+				name,
+				"hidden": node.getAttribute("visibility") === "hidden",
+				"mask": parseInt(node.getAttribute("mask") || "0"),
+				node: gnode,
+				tokens: new SortNode<SVGToken, SVGElement>(node)
+			      };
+			(Array.from(node.childNodes).filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => l.tokens.push({
+				"node": e
+			}));
+			return l;
 		      },
-		      [layerList, folderList] = processLayers(root, "/") as [LayerFolder, SVGFolder],
+		      layerList = processLayers(root, "/") as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -88,17 +102,14 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitLayerAddMask": () => waitLayerAddMask[1],
 			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => Promise.resolve(name),
+			"createFolder": (path: string) => rpc.addLayerFolder(path),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
 			"remove": (path: string) => Promise.resolve(),
 			"removeFolder": (path: string) => Promise.resolve(),
 			"link": (id: Int, path: string) => Promise.resolve(name),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
-				const l = g(),
-				      idPath = [layerList.children.length + 1];
-				layerList.children.push({"id": 1, name, "hidden": false, "mask": 0});
-				folderList.layers.push({"node": l, "tokens": new SortNode<SVGToken>(l)});
+				layerList.children.push(processLayers(g({"data-name": name}), "/"));
 				return name;
 			}),
 			"setVisibility": (path: string, visibility: boolean)  => Promise.resolve(),
