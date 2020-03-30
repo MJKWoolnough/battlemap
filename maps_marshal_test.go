@@ -32,7 +32,10 @@ func TestMapsMarshal(t *testing.T) {
 				LightColour: colour{R: 3, G: 2, B: 1, A: 127},
 				Patterns:    map[string]*pattern{},
 				Masks:       map[string]*mask{},
-				layers:      map[string]struct{}{},
+				layers: map[string]struct{}{
+					"Grid":  struct{}{},
+					"Light": struct{}{},
+				},
 			},
 		},
 		{ // 3
@@ -89,7 +92,10 @@ func TestMapsMarshal(t *testing.T) {
 						},
 					},
 				},
-				layers: map[string]struct{}{},
+				layers: map[string]struct{}{
+					"Grid":  struct{}{},
+					"Light": struct{}{},
+				},
 			},
 		},
 		{ // 10
@@ -103,7 +109,11 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
-				layers:   map[string]struct{}{"Test Layer": struct{}{}},
+				layers: map[string]struct{}{
+					"Grid":       struct{}{},
+					"Light":      struct{}{},
+					"Test Layer": struct{}{},
+				},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -121,6 +131,8 @@ func TestMapsMarshal(t *testing.T) {
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
 				layers: map[string]struct{}{
+					"Grid":         struct{}{},
+					"Light":        struct{}{},
 					"Test Layer 1": struct{}{},
 					"Test Layer 2": struct{}{},
 					"Test Layer 3": struct{}{},
@@ -162,7 +174,11 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
-				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
+				layers: map[string]struct{}{
+					"Grid":         struct{}{},
+					"Light":        struct{}{},
+					"Test Layer 1": struct{}{},
+				},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -185,7 +201,11 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
-				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
+				layers: map[string]struct{}{
+					"Grid":         struct{}{},
+					"Light":        struct{}{},
+					"Test Layer 1": struct{}{},
+				},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
@@ -218,7 +238,11 @@ func TestMapsMarshal(t *testing.T) {
 				Height:   2,
 				Patterns: map[string]*pattern{},
 				Masks:    map[string]*mask{},
-				layers:   map[string]struct{}{"Test Layer 1": struct{}{}},
+				layers: map[string]struct{}{
+					"Grid":         struct{}{},
+					"Light":        struct{}{},
+					"Test Layer 1": struct{}{},
+				},
 				layer: layer{
 					Layers: []*layer{
 						&layer{
