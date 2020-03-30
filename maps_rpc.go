@@ -208,19 +208,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				err = ErrUnknownLayer
 				return false
 			}
-			parent, name := splitAfterLastSlash(moveLayer.To)
-			np := getLayer(&mp.layer, parent)
-			if np == nil {
+			np := getLayer(&mp.layer, moveLayer.To)
+			if np == nil || !np.IsFolder {
 				err = ErrUnknownLayer
 				return false
 			}
 			op.removeLayer(l.Name)
-			if name != l.Name {
-				delete(mp.layers, l.Name)
-				name = uniqueLayer(mp.layers, name)
-				moveLayer.To = parent + "/" + name
-				l.Name = name
-			}
 			np.addLayer(l, moveLayer.Position)
 			return false
 		})
