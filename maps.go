@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -129,7 +130,7 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 	return nil
 }
 
-func (m *mapsDir) updateMapLayer(mid uint64, path []uint, fn func(*levelMap, *layer) bool) error {
+func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *layer) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
 		l := getLayer(&mp.layer, path)
@@ -142,10 +143,10 @@ func (m *mapsDir) updateMapLayer(mid uint64, path []uint, fn func(*levelMap, *la
 	return err
 }
 
-func (m *mapsDir) updateMapsLayerToken(mid uint64, path []uint, fn func(*levelMap, *layer, *token) bool) error {
+func (m *mapsDir) updateMapsLayerToken(mid uint64, path string, pos uint, fn func(*levelMap, *layer, *token) bool) error {
 	var err error
 	err = m.updateMapData(mid, func(mp *levelMap) bool {
-		l, t := getParentToken(&mp.layer, path)
+		l, t := getParentToken(&mp.layer, path, pos)
 		if t != nil {
 			return fn(mp, l, t)
 		}
@@ -174,38 +175,71 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getLayer(l *layer, path []uint) *layer {
-	for _, p := range path[:len(path)-1] {
-		if uint(len(l.Layers)) >= p {
-			return nil
+func uniqueLayer(l map[string]struct{}, name string) string {
+	if _, ok := l[name]; !ok {
+		l[name] = struct{}{}
+		return name
+	}
+	n := make([]byte, len(name)+32)
+	m := n[len(name)+1 : len(name)+1]
+	copy(n, name)
+	n[len(name)] = '.'
+	for i := uint64(0); ; i++ {
+		p := len(strconv.AppendUint(m, i, 10))
+		if _, ok := l[string(n[:len(name)+1+p])]; !ok {
+			name := string(n[:len(name)+1+p])
+			l[name] = struct{}{}
+			return name
 		}
-		l = l.Layers[p]
+	}
+}
+
+func getLayer(l *layer, p string) *layer {
+Loop:
+	for _, p := range strings.Split(path.Clean(strings.TrimRight(p, "/")), "/") {
+		for _, m := range l.Layers {
+			if m.Name == p {
+				l = m
+				continue Loop
+			}
+		}
+		return nil
 	}
 	return l
 }
 
-func getParentLayer(l *layer, path []uint) (*layer, *layer) {
-	p := getLayer(l, path[:len(path)-1])
-	if p == nil {
+func getParentLayer(l *layer, p string) (*layer, *layer) {
+	parentStr, name := splitAfterLastSlash(path.Clean(strings.TrimRight(p, "/")))
+	parent := getLayer(l, parentStr)
+	if parent == nil || !parent.IsFolder {
 		return nil, nil
 	}
-	return p, getLayer(p, path[len(path)-1:])
+	return parent, getLayer(parent, name)
 }
 
-func getParentToken(l *layer, path []uint) (*layer, *token) {
-	p := getLayer(l, path[:len(path)-1])
-	if p == nil {
+func getParentToken(l *layer, p string, pos uint) (*layer, *token) {
+	parent := getLayer(l, p)
+	if parent == nil || parent.IsFolder {
 		return nil, nil
 	}
-	pos := path[len(path)-1]
-	if uint(len(p.Tokens)) >= pos {
-		return p, nil
+	if uint(len(parent.Tokens)) >= pos {
+		return parent, nil
 	}
-	return p, p.Tokens[pos]
+	return parent, parent.Tokens[pos]
 }
 
-func (l *layer) removeLayer(pos uint) {
-	if pos < uint(len(l.Layers))-1 {
+func (l *layer) removeLayer(name string) {
+	pos := -1
+	for n, m := range l.Layers {
+		if m.Name == name {
+			pos = n
+			break
+		}
+	}
+	if pos == -1 {
+		return
+	}
+	if pos < len(l.Layers)-1 {
 		copy(l.Layers[pos:], l.Layers[pos+1:])
 	}
 	l.Layers[len(l.Layers)-1] = nil
