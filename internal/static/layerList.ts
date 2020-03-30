@@ -45,7 +45,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		dragging!.parent!.children.splice(currPos, 1);
 		this.parent!.children.splice(pos, 0, dragging!);
 	}
-	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.id, (this.parent as FolderLayer).id, pos);
+	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos);
 	dropFn();
 }
 
@@ -84,7 +84,7 @@ class ItemLayer extends Item {
 				this.show();
 				this.node.classList.add("selectedMask");
 				maskSelected = true;
-				(parent.root.rpcFuncs as LayerRPC).setLayerMask(id);
+				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
 			}}), this.node.firstChild!.nextSibling);
 		}
 		this.node.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(id, !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
@@ -107,7 +107,7 @@ class ItemLayer extends Item {
 			this.node.classList.add("selectedLayer");
 			selectedLayer = this;
 			maskSelected = false;
-			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.id);
+			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.getPath());
 		}
 	}
 }

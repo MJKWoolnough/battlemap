@@ -94,12 +94,12 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitLayerAddMask": () => waitLayerAddMask[1],
 			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (parent: ParentPath, name: string) => Promise.resolve(name),
-			"move": (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise.resolve(newName),
-			"moveFolder": (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise.resolve(newName),
-			"remove": (parent: ParentPath, name: string) => Promise.resolve(),
-			"removeFolder": (parent: ParentPath, name: string) => Promise.resolve(),
-			"link": (path: Int, parent: ParentPath, name: string) => Promise.resolve(name),
+			"createFolder": (path: string) => Promise.resolve(name),
+			"move": (from: string, to: string) => Promise.resolve(to),
+			"moveFolder": (from: string, to: string) => Promise.resolve(to),
+			"remove": (path: string) => Promise.resolve(),
+			"removeFolder": (path: string) => Promise.resolve(),
+			"link": (id: Int, path: string) => Promise.resolve(name),
 			"newLayer": (name: string) => rpc.addLayer(name).then(() => {
 				const l = g(),
 				      id = layerNum++,
@@ -111,9 +111,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				return id;
 			}),
 			"setVisibility": (id: Int, visibility: boolean)  => Promise.resolve(),
-			"setLayer": (id: Int) => {},
-			"setLayerMask": (id: Int) => {},
-			"moveLayer": (id: Int, to: Int, pos: Int) => Promise.resolve()
+			"setLayer": (path: string) => {},
+			"setLayerMask": (path: string) => {},
+			"moveLayer": (from: string, to: string, pos: Int) => Promise.resolve()
 		});
 		base.appendChild(root);
 	}));

@@ -16,13 +16,13 @@ export type FolderRPC = {
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
 
-	list:         ()                                                                               => Promise<FolderItems>;
-	createFolder: (parent: ParentPath, name: string)                                               => Promise<string>;
-	move:         (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise<string>;
-	moveFolder:   (oldParent: ParentPath, oldName: string, newParent: ParentPath, newName: string) => Promise<string>;
-	remove:       (parent: ParentPath, name: string)                                               => Promise<void>;
-	removeFolder: (parent: ParentPath, name: string)                                               => Promise<void>;
-	link:         (id: Int, parent: ParentPath, name: string)                                      => Promise<string>;
+	list:         ()                         => Promise<FolderItems>;
+	createFolder: (path: string)             => Promise<string>;
+	move:         (from: string, to: string) => Promise<string>;
+	moveFolder:   (from: string, to: string) => Promise<string>;
+	remove:       (path: string)             => Promise<void>;
+	removeFolder: (path: string)             => Promise<void>;
+	link:         (id: Int, name: string)    => Promise<string>;
 }
 
 export type LayerRPC = FolderRPC & {
@@ -32,10 +32,10 @@ export type LayerRPC = FolderRPC & {
 	waitLayerRemoveMask:   () => Subscription<Int>;
 
 	newLayer:         (path: string) => Promise<Int>;
-	setVisibility:    (id: Int, visible: boolean) => Promise<void>;
-	setLayer:         (id: Int) => void;
-	setLayerMask:     (id: Int) => void;
-	moveLayer:        (from: Int, to: Int, pos: Int) => Promise<void>;
+	setVisibility:    (path: Int, visible: boolean) => Promise<void>;
+	setLayer:         (path: string) => void;
+	setLayerMask:     (path: string) => void;
+	moveLayer:        (from: string, to: string, pos: Int) => Promise<void>;
 }
 
 export type RPC = {
