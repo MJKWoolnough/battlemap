@@ -16,8 +16,8 @@ type SVGLayer = Layer & {
 };
 
 type SVGPsuedo = Layer & {
-	id: Int;
 	node: SVGGElement;
+	id: Int;
 };
 
 type SVGFolder = LayerFolder & {
@@ -25,10 +25,43 @@ type SVGFolder = LayerFolder & {
 	children: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
 };
 
+
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
+      },
+      isSVGFolder = (c: SVGFolder | SVGLayer | SVGPsuedo): c is SVGFolder => (c as SVGFolder).children !== undefined,
+      isSVGLayer = (c: SVGFolder | SVGLayer | SVGPsuedo): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
+      splitAfterLastSlash = (path: string) => {
+	const pos = path.lastIndexOf("/")
+	return [path.slice(0, pos), path.slice(pos+1)];
+      },
+      getLayer = (layer: SVGFolder | SVGLayer | SVGPsuedo, path: string) => path.split("/").every(p => {
+	if (!isSVGFolder(layer)) {
+		return false;
+	}
+	const a = (layer.children as SortNode<SVGFolder | SVGLayer | SVGPsuedo>).filter(c => c.name === p).pop();
+	if (a) {
+		layer = a;
+		return true;
+	}
+	return false;
+      }) ? layer : null,
+      getParentLayer = (root: SVGFolder, path: string) => {
+	const [parentStr, name] = splitAfterLastSlash(path),
+	      parent = getLayer(root, parentStr);
+	if (!parent) {
+		return [null, null];
+	}
+	return [parent, getLayer(parent, name)];
+      },
+      getParentToken = (root: SVGFolder, path: string, pos: Int) => {
+	const parent = getLayer(root, path);
+	if (!parent || !isSVGLayer(parent)) {
+		return [null, null];
+	}
+	return [parent, parent.tokens[pos]];
       };
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
