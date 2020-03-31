@@ -73,16 +73,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		    lightOn = root.getAttribute("data-light-on") === "true",
 		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)"),
 		    layerNum = 0;
+		root.setAttribute("data-is-folder", "true");
 		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
 			const name = node.getAttribute("data-name") || `Layer ${layerNum++}`;
 			if (node.getAttribute("data-is-folder") === "true") {
-				const node = g(),
-				      l: SVGFolder = {
+				const l: SVGFolder = {
 					node,
-					"id": 1,
+					"id": path === "/" ? 0 : 1,
 					name,
 					"hidden": node.getAttribute("visibility") === "hidden",
-					children: new SortNode<SVGFolder | SVGLayer | SVGPsuedo, SVGGElement>(node),
+					children: new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node),
 					folders: {},
 					items: {},
 				      };
