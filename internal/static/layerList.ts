@@ -130,7 +130,7 @@ class FolderLayer extends Folder {
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.node.insertBefore(span("👁", {"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+			this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
 			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
