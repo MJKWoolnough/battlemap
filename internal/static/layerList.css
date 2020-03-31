@@ -1,8 +1,4 @@
-.dragBefore, .dragAfter, .layerFolder > input:checked ~ .dragAfter {
-	display: none;
-}
-
-.dragging li {
+.dragging li, .dragging .layerFolder > div {
 	position: relative;
 }
 

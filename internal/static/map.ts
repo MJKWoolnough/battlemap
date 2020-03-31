@@ -37,7 +37,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
       },
-      getLayer = (layer: SVGFolder | SVGLayer | SVGPsuedo, path: string) => path.split("/").every(p => {
+      getLayer = (layer: SVGFolder | SVGLayer | SVGPsuedo, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
 	}
