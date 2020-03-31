@@ -28,25 +28,34 @@ const dragFn = (e: MouseEvent) => {
 	document.body.removeEventListener("mouseup", dropFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
-      isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined;
+      isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined,
+      isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined;
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
 		return;
 	}
-	let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
 	const currPos = dragging!.parent!.children.indexOf(dragging!);
-	if (this.parent === dragging!.parent) {
-		pos = pos > currPos ? pos - 1 : pos;
-		if (pos !== currPos) {
-			this.parent!.children.splice(currPos, 1);
-			this.parent!.children.splice(pos, 0, dragging!);
-		}
-	} else {
+	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.checked) {
 		dragging!.parent!.children.splice(currPos, 1);
-		this.parent!.children.splice(pos, 0, dragging!);
+		this.children.unshift(dragging!);
+		(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), this.getPath(), 0);
+		dragging!.parent = this;
+	} else {
+		let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
+		if (this.parent === dragging!.parent) {
+			pos = pos > currPos ? pos - 1 : pos;
+			if (pos !== currPos) {
+				this.parent!.children.splice(currPos, 1);
+				this.parent!.children.splice(pos, 0, dragging!);
+			}
+		} else {
+			dragging!.parent!.children.splice(currPos, 1);
+			this.parent!.children.splice(pos, 0, dragging!);
+			dragging!.parent = this.parent;
+		}
+		(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos);
 	}
-	(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos);
 	dropFn();
 }
 
@@ -118,11 +127,12 @@ class FolderLayer extends Folder {
 	id: Int;
 	hidden: boolean;
 	nameElem: HTMLLabelElement;
+	open: HTMLInputElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
-		const lf = children as LayerFolder,
-		      checkbox = this.node.firstChild as HTMLInputElement;
+		const lf = children as LayerFolder;
+		this.open = this.node.firstChild as HTMLInputElement;
 		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
 		if (lf.id === undefined) {
 			lf.id = 1;
@@ -137,7 +147,7 @@ class FolderLayer extends Folder {
 			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
-				if (checkbox.checked) {
+				if (this.open.checked) {
 					return;
 				}
 				dragStart.call(this, e)
