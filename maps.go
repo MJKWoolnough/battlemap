@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -196,7 +195,10 @@ func uniqueLayer(l map[string]struct{}, name string) string {
 
 func getLayer(l *layer, p string) *layer {
 Loop:
-	for _, p := range strings.Split(path.Clean(strings.TrimRight(p, "/")), "/") {
+	for _, p := range strings.Split(strings.TrimRight(strings.TrimLeft(p, "/"), "/"), "/") {
+		if p == "" {
+			continue
+		}
 		for _, m := range l.Layers {
 			if m.Name == p {
 				l = m
@@ -209,7 +211,7 @@ Loop:
 }
 
 func getParentLayer(l *layer, p string) (*layer, *layer) {
-	parentStr, name := splitAfterLastSlash(path.Clean(strings.TrimRight(p, "/")))
+	parentStr, name := splitAfterLastSlash(strings.TrimRight(p, "/"))
 	parent := getLayer(l, parentStr)
 	if parent == nil || !parent.IsFolder {
 		return nil, nil
