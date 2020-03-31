@@ -124,6 +124,9 @@ class FolderLayer extends Folder {
 		const lf = children as LayerFolder,
 		      checkbox = this.node.firstChild as HTMLInputElement;
 		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
+		if (lf.id === undefined) {
+			lf.id = 1;
+		}
 		this.id = lf.id;
 		if (lf.children) {
 			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
