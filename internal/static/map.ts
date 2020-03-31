@@ -74,7 +74,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)"),
 		    layerNum = 0;
 		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
-			const name = node.getAttribute("data-name") || `Layer ${++layerNum}`;
+			const name = node.getAttribute("data-name") || `Layer ${layerNum++}`;
 			if (node.getAttribute("data-is-folder") === "true") {
 				const node = g(),
 				      l: SVGFolder = {
@@ -135,7 +135,11 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"waitLayerAddMask": () => waitLayerAddMask[1],
 			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path),
+			"createFolder": (path: string) => rpc.addLayerFolder(path).then(name => {
+				const [parentStr] = splitAfterLastSlash(path);
+				(getLayer(layerList, parentStr) as SVGFolder).children.push(processLayers(g({"data-name": name, "data-is-folder": "true"}), parentStr + "/"));
+				return parentStr + "/" + name;
+			}),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
 			"remove": (path: string) => Promise.resolve(),
