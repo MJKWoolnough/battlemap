@@ -174,8 +174,8 @@ export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: L
 					label({"for": "layerName"}, "Layer Name"),
 					name,
 					br(),
-					button("Add Layer", {"onclick": () => shell.addLoading(window, rpc.newLayer(name.value)).then(id => {
-						list.addItem(id, name.value);
+					button("Add Layer", {"onclick": () => shell.addLoading(window, rpc.newLayer(name.value)).then(name => {
+						list.addItem(1, name);
 						shell.removeWindow(window);
 					}).catch(e => showError(name, e))})
 				]);
