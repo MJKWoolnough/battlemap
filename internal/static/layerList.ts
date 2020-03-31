@@ -27,7 +27,8 @@ const dragFn = (e: MouseEvent) => {
 	document.body.removeEventListener("mousemove", dragFn);
 	document.body.removeEventListener("mouseup", dropFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
-      };
+      },
+      isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined;
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
@@ -112,9 +113,6 @@ class ItemLayer extends Item {
 	}
 }
 
-function isLayer(c: Layer | LayerFolder): c is Layer {
-	return (c as Layer).mask !== undefined;
-}
 
 class FolderLayer extends Folder {
 	id: Int;
