@@ -71,32 +71,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		m.socket.broadcastMapChange(md.ID, broadcastMapItemChange, md, cd.ID)
 		return nil, nil
-	case "setGridVisibility":
-		var v bool
-		if err := json.Unmarshal(data, &v); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.GridHidden = !v
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		// broadcast grid visibility change
-		return nil, nil
-	case "moveGrid":
-		var pos uint64
-		if err := json.Unmarshal(data, &pos); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.GridPos = pos
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		// broadcast grid position change
-		return nil, nil
 	case "setGrid":
 		var ng mapGrid
 		if err := json.Unmarshal(data, &ng); err != nil {
@@ -110,39 +84,13 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		// broadcast grid change
 		return nil, nil
-	case "setLightVisibility":
-		var v bool
-		if err := json.Unmarshal(data, &v); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.LightHidden = !v
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		// broadcast light visibility change
-		return nil, nil
-	case "moveLight":
-		var pos uint64
-		if err := json.Unmarshal(data, &pos); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.LightPos = pos
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		// broadcast light position change
-		return nil, nil
 	case "setLight":
 		var c colour
 		if err := json.Unmarshal(data, &c); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.LightColour = c
+		if err := m.updateMapLayer(cd.CurrentMap, "/Light", func(_ *levelMap, l *layer) bool {
+			l.Mask = c.ToRGBA()
 			return true
 		}); err != nil {
 			return nil, err
