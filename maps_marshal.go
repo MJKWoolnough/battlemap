@@ -51,26 +51,6 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 								return cr.Count, err
 							}
 						}
-					case "data-grid-pos":
-						if l.GridPos, err = strconv.ParseUint(attr.Value, 10, 64); err != nil {
-							return cr.Count, err
-						}
-					case "data-grid-hidden":
-						if l.GridHidden, err = strconv.ParseBool(attr.Value); err != nil {
-							return cr.Count, err
-						}
-					case "data-light-pos":
-						if l.LightPos, err = strconv.ParseUint(attr.Value, 10, 64); err != nil {
-							return cr.Count, err
-						}
-					case "data-light-hidden":
-						if l.LightHidden, err = strconv.ParseBool(attr.Value); err != nil {
-							return cr.Count, err
-						}
-					case "data-light-colour":
-						if err = l.LightColour.UnmarshalXMLAttr(attr); err != nil {
-							return cr.Count, err
-						}
 					}
 				}
 				break
@@ -83,10 +63,7 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	}
 	l.Masks = make(map[string]*mask)
 	l.Patterns = make(map[string]*pattern)
-	l.layers = map[string]struct{}{
-		"Grid":  struct{}{},
-		"Light": struct{}{},
-	}
+	l.layers = make(map[string]struct{})
 	for {
 		token, err := x.Token()
 		if err != nil {
@@ -284,7 +261,10 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		case "data-name":
 			l.Name = attr.Value
 		case "mask":
-			l.Mask = strings.TrimRight(strings.TrimLeft(attr.Value, "url(#"), ")")
+			if strings.HasPrefix(attr.Value, "url(#") {
+				attr.Value = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
+			}
+			l.Mask = attr.Value
 		case "visibility":
 			l.Hidden = attr.Value == "hidden"
 		case "data-is-folder":
@@ -475,8 +455,6 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	io.WriteString(&cw, xml.Header)
 	x := xml.NewEncoder(&cw)
 	x.EncodeToken(svgDoctype)
-	var lightColour xml.Attr
-	lightColour, _ = l.LightColour.MarshalXMLAttr(xml.Name{Local: "data-light-colour"})
 	initiative := xml.Attr{Name: xml.Name{Local: "data-initiative"}}
 	if len(l.Initiative) > 0 {
 		var sb strings.Builder
@@ -500,23 +478,6 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 			Value: strconv.FormatUint(l.Height, 10),
 		},
 		initiative,
-		xml.Attr{
-			Name:  xml.Name{Local: "data-grid-pos"},
-			Value: strconv.FormatUint(l.GridPos, 10),
-		},
-		xml.Attr{
-			Name:  xml.Name{Local: "data-grid-hidden"},
-			Value: strconv.FormatBool(l.GridHidden),
-		},
-		xml.Attr{
-			Name:  xml.Name{Local: "data-light-pos"},
-			Value: strconv.FormatUint(l.LightPos, 10),
-		},
-		xml.Attr{
-			Name:  xml.Name{Local: "data-light-hidden"},
-			Value: strconv.FormatBool(l.LightHidden),
-		},
-		lightColour,
 	)}
 	x.EncodeToken(svg)
 	defs := xml.StartElement{Name: xml.Name{Local: "defs"}}
@@ -597,7 +558,11 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		xml.Attr{Name: xml.Name{Local: "data-name"}, Value: l.Name},
 	)
 	if l.Mask != "" {
-		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "mask"}, Value: "url(#" + l.Mask + ")"})
+		mask := l.Mask
+		if l.Name != "Light" {
+			mask = "url(#" + mask + ")"
+		}
+		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "mask"}, Value: mask})
 	}
 	if l.Hidden {
 		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "visibility"}, Value: "hidden"})

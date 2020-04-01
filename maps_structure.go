@@ -1,17 +1,14 @@
 package battlemap
 
+import "fmt"
+
 type levelMap struct {
-	Width       uint64
-	Height      uint64
-	Initiative  [][2]uint64
-	GridPos     uint64
-	GridHidden  bool
-	LightPos    uint64
-	LightHidden bool
-	LightColour colour
-	Patterns    map[string]*pattern
-	Masks       map[string]*mask
-	layers      map[string]struct{}
+	Width      uint64
+	Height     uint64
+	Initiative [][2]uint64
+	Patterns   map[string]*pattern
+	Masks      map[string]*mask
+	layers     map[string]struct{}
 	layer
 }
 
@@ -70,4 +67,8 @@ const (
 
 type colour struct {
 	R, G, B, A uint8
+}
+
+func (c colour) ToRGBA() string {
+	return fmt.Sprintf("rgba(%d, %d, %d, %.3f)", c.R, c.G, c.B, float32(c.A)/255)
 }
