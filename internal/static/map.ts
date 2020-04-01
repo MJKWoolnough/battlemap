@@ -48,10 +48,10 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	}
 	return false;
       }) ? layer : null,
-      getParentLayer = (root: SVGFolder, path: string) => {
+      getParentLayer = (root: SVGFolder, path: string): [SVGFolder | null, SVGFolder | SVGLayer | SVGPsuedo | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
 	      parent = getLayer(root, parentStr);
-	if (!parent) {
+	if (!parent || !isSVGFolder(parent)) {
 		return [null, null];
 	}
 	return [parent, getLayer(parent, name)];
@@ -67,19 +67,26 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		const root = (mapData as Document).getElementsByTagName("svg")[0];
-		let gridLayer = parseInt(root.getAttribute("data-grid-pos") || "-1"),
-		    lightLayer = parseInt(root.getAttribute("data-light-pos") || "-1"),
-		    gridOn = root.getAttribute("data-grid-on") === "true",
-		    lightOn = root.getAttribute("data-light-on") === "true",
-		    lightColour = rgba2Colour(root.getAttribute("data-light-colour") || "rgba(0, 0, 0, 0)"),
-		    layerNum = 0;
+		let layerNum = 0;
 		root.setAttribute("data-is-folder", "true");
 		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
 			const name = node.getAttribute("data-name") || `Layer ${layerNum++}`;
+			let id = 0;
+			switch (path) {
+			case "/":
+				id = 0;
+				break;
+			case "/Grid":
+				id = -1;
+				break;
+			case "/Light":
+				id = -2;
+				break;
+			}
 			if (node.getAttribute("data-is-folder") === "true") {
 				const l: SVGFolder = {
 					node,
-					"id": path === "/" ? 0 : 1,
+					id,
 					name,
 					"hidden": node.getAttribute("visibility") === "hidden",
 					children: new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node),
@@ -89,21 +96,14 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map((e, i) => processLayers(e, path + name + "/")).forEach(layer => {
 					l.children.push(layer);
 				});
-				if (path === "/") {
-					const grid = g({"fill": "url(#gridPattern)"}),
-					      light = g({"fill": colour2RGBA(lightColour)});
-					l.children.splice(gridLayer, 0, {"id": -1, "name": "Grid", "hidden": !gridOn, "mask": 0, "node": grid});
-					l.children.splice(lightLayer, 0, {"id": -2, "name": "Light", "hidden": !lightOn, "mask": 0, "node": light});
-				}
 				return l;
 			}
-			const gnode = g(),
-			      l: SVGLayer = {
-				"id": path === "/" ? 0 : 1,
+			const l: SVGLayer = {
+				id,
 				name,
 				"hidden": node.getAttribute("visibility") === "hidden",
-				"mask": parseInt(node.getAttribute("mask") || "0"),
-				node: gnode,
+				"mask": node.getAttribute("mask") || "",
+				node: node,
 				tokens: new SortNode<SVGToken, SVGElement>(node)
 			      };
 			(Array.from(node.childNodes).filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => l.tokens.push({
