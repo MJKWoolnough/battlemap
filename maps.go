@@ -77,10 +77,21 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 		Patterns: map[string]*pattern{
 			"gridPattern": genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
 		},
+		layers: map[string]struct{}{
+			"Layer": struct{}{},
+			"Light": struct{}{},
+			"Grid":  struct{}{},
+		},
 		layer: layer{
 			Layers: []*layer{
 				&layer{
 					Name: "Layer",
+				},
+				&layer{
+					Name: "Light",
+				},
+				&layer{
+					Name: "Grid",
 				},
 			},
 		},
