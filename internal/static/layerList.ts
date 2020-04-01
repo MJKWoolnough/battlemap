@@ -77,9 +77,9 @@ function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
 
 class ItemLayer extends Item {
 	hidden: boolean;
-	mask: Int;
+	mask: string;
 	nameElem: HTMLSpanElement;
-	constructor(parent: Folder, id: Int, name: string, hidden = false, mask: Int = 0) {
+	constructor(parent: Folder, id: Int, name: string, hidden = false, mask = "") {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.mask = mask;
