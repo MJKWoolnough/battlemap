@@ -6,7 +6,7 @@ import {showError, enterKey} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
-let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
+let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: Shell;
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
@@ -39,7 +39,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.checked) {
 		dragging!.parent!.children.splice(currPos, 1);
 		this.children.unshift(dragging!);
-		(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), this.getPath(), 0);
+		sh.addLoading(null, (this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), this.getPath(), 0));
 		dragging!.parent = this;
 	} else {
 		let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
@@ -54,7 +54,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 			this.parent!.children.splice(pos, 0, dragging!);
 			dragging!.parent = this.parent;
 		}
-		(this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos);
+		sh.addLoading(null, (this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos));
 	}
 	dropFn();
 }
@@ -163,6 +163,7 @@ class FolderLayer extends Folder {
 export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
+	sh = shell;
 	mapChange(rpc => rpc.list().then(layers => {
 		selectedLayer = undefined;
 		maskSelected = false;
