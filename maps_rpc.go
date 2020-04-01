@@ -130,6 +130,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
+		if rename.From == "/Grid" || rename.From == "/Light" {
+			return nil, ErrInvalidLayerPath
+		}
 		err := m.updateMapLayer(cd.CurrentMap, rename.From, func(m *levelMap, l *layer) bool {
 			if l.Name == rename.To {
 				return false
@@ -149,6 +152,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		err := json.Unmarshal(data, &moveLayer)
 		if err != nil {
 			return nil, err
+		}
+		if (moveLayer.From == "/Grid" || moveLayer.From == "/Light") && moveLayer.To != "/" {
+			return nil, ErrInvalidLayerPath
 		}
 		err = m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			op, l := getParentLayer(&mp.layer, moveLayer.From)
@@ -235,6 +241,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		err := json.Unmarshal(data, &path)
 		if err != nil {
 			return nil, err
+		}
+		if path == "/Grid" || path == "/Light" {
+			return nil, ErrUnknownLayer
 		}
 		parent, name := splitAfterLastSlash(path)
 		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
