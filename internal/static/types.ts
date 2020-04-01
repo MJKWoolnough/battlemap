@@ -86,8 +86,6 @@ export type RPC = {
 	addLayerFolder:  (path: string)                                    => Promise<string>;
 	renameLayer:     (from: string, to: string)                        => Promise<void>;
 	moveLayer:       (from: string, to: string, position: Int)         => Promise<void>;
-	moveGrid:        (position: Int)                                   => Promise<void>;
-	moveLight:       (position: Int)                                   => Promise<void>;
 	showLayer:       (path: string)                                    => Promise<void>;
 	hideLayer:       (path: string)                                    => Promise<void>;
 	addMask:         (path: string, mask: Int)                         => Promise<void>;
@@ -186,7 +184,7 @@ export type Layer = {
 	id: Int;
 	name: string;
 	hidden: boolean;
-	mask: Int;
+	mask: string;
 }
 
 export type LayerFolder = FolderItems & {
