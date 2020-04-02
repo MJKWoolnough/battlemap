@@ -71,7 +71,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		root.setAttribute("data-is-folder", "true");
 		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
 			const name = node.getAttribute("data-name") || `Layer ${layerNum++}`;
-			let id = 0;
+			let id = 1;
 			switch (path) {
 			case "/":
 				id = 0;
