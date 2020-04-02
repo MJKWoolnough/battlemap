@@ -101,12 +101,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &name); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+		err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			name = uniqueLayer(mp.layers, name)
 			mp.Layers = append(mp.Layers, &layer{
 				Name: name,
 			})
+			mp.layers[name] = struct{}{}
 			return true
 		})
+		return name, err
 	case "addLayerFolder":
 		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
