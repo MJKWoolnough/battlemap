@@ -149,14 +149,21 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				layerList.children.push(processLayers(g({"data-name": name}), "/"));
 				return name;
 			}),
-			"setVisibility": (path: string, visibility: boolean)  => Promise.resolve(),
+			"setVisibility": (path: string, visibility: boolean)  => (visibility ? rpc.showLayer : rpc.hideLayer)(path).then(() => {
+				const layer = getLayer(layerList, path)!;
+				if (visibility) {
+					layer.node.removeAttribute("visibility");
+				} else {
+					layer.node.setAttribute("visibility", "hidden");
+				}
+			}),
 			"setLayer": (path: string) => {},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
 				const [fromParent, layer] = getParentLayer(layerList, from),
 				      toParent = getLayer(layerList, to) as SVGFolder;
 				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
-				toParent!.children.splice(pos, 0, layer!);
+				toParent.children.splice(pos, 0, layer!);
 			})
 		});
 		base.appendChild(root);
