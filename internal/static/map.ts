@@ -142,7 +142,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
-			"remove": (path: string) => Promise.resolve(),
+			"remove": (path: string) => rpc.removeLayer(path).then(() => {
+				const [fromParent, layer] = getParentLayer(layerList, path);
+				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
+			}),
 			"removeFolder": (path: string) => Promise.resolve(),
 			"link": (id: Int, path: string) => Promise.resolve(name),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
