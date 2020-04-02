@@ -35,27 +35,34 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
 		return;
 	}
-	const currPos = dragging!.parent!.children.indexOf(dragging!);
+	const currPos = dragging!.parent!.children.indexOf(dragging!),
+	      oldPath = dragging!.getPath();
+	let pos: Int,
+	    newPath: string;
 	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.checked) {
+		pos = 0;
 		dragging!.parent!.children.splice(currPos, 1);
 		this.children.unshift(dragging!);
-		sh.addLoading(null, (this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), this.getPath(), 0));
+		newPath = this.getPath();
 		dragging!.parent = this;
 	} else {
-		let pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
+		pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
 		if (this.parent === dragging!.parent) {
-			pos = pos > currPos ? pos - 1 : pos;
-			if (pos !== currPos) {
-				this.parent!.children.splice(currPos, 1);
-				this.parent!.children.splice(pos, 0, dragging!);
+			pos -= pos > currPos ? 1 : 0;
+			if (pos === currPos) {
+				dropFn();
+				return;
 			}
+			this.parent!.children.splice(currPos, 1);
+			this.parent!.children.splice(pos, 0, dragging!);
 		} else {
 			dragging!.parent!.children.splice(currPos, 1);
 			this.parent!.children.splice(pos, 0, dragging!);
 			dragging!.parent = this.parent;
 		}
-		sh.addLoading(null, (this.parent!.root.rpcFuncs as LayerRPC).moveLayer(dragging!.getPath(), (this.parent as FolderLayer).getPath(), pos));
+		newPath = (this.parent as FolderLayer).getPath();
 	}
+	sh.addLoading(null, (this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos)).catch(alert);
 	dropFn();
 }
 
