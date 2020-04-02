@@ -104,6 +104,9 @@ class ItemLayer extends Item {
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
 			}}), this.node.firstChild!.nextSibling);
 		}
+		if (hidden) {
+			this.node.classList.add("layerHidden");
+		}
 		this.node.insertBefore(span({"class" : "layerVisibility", "onclick":() => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
@@ -141,6 +144,9 @@ class FolderLayer extends Folder {
 		const lf = children as LayerFolder;
 		this.open = this.node.firstChild as HTMLInputElement;
 		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
+		if (hidden) {
+			this.node.classList.add("layerHidden");
+		}
 		if (lf.id === undefined) {
 			lf.id = 1;
 		}
