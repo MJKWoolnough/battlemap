@@ -83,6 +83,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 			"Grid":  struct{}{},
 		},
 		layer: layer{
+			IsFolder: true,
 			Layers: []*layer{
 				&layer{
 					Name: "Layer",
