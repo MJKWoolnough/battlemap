@@ -152,7 +152,12 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"setVisibility": (path: string, visibility: boolean)  => Promise.resolve(),
 			"setLayer": (path: string) => {},
 			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, pos: Int) => Promise.resolve()
+			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
+				const [fromParent, layer] = getParentLayer(layerList, from),
+				      toParent = getLayer(layerList, to) as SVGFolder;
+				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
+				toParent!.children.splice(pos, 0, layer!);
+			})
 		});
 		base.appendChild(root);
 	}));
