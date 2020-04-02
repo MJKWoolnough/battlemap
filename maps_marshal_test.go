@@ -28,6 +28,9 @@ func TestMapsMarshal(t *testing.T) {
 				Patterns:   map[string]*pattern{},
 				Masks:      map[string]*mask{},
 				layers:     map[string]struct{}{},
+				layer: layer{
+					IsFolder: true,
+				},
 			},
 		},
 		{ // 3
@@ -85,6 +88,9 @@ func TestMapsMarshal(t *testing.T) {
 					},
 				},
 				layers: map[string]struct{}{},
+				layer: layer{
+					IsFolder: true,
+				},
 			},
 		},
 		{ // 10
@@ -102,6 +108,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Test Layer": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name: "Test Layer",
@@ -125,6 +132,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Test Layer 5": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name:     "Test Layer 1",
@@ -163,6 +171,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Test Layer 1": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name:   "Test Layer 1",
@@ -188,6 +197,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Test Layer 1": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name: "Test Layer 1",
@@ -223,6 +233,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Test Layer 1": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name: "Test Layer 1",
@@ -257,6 +268,7 @@ func TestMapsMarshal(t *testing.T) {
 					"Light": struct{}{},
 				},
 				layer: layer{
+					IsFolder: true,
 					Layers: []*layer{
 						&layer{
 							Name: "Light",

@@ -64,6 +64,7 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	l.Masks = make(map[string]*mask)
 	l.Patterns = make(map[string]*pattern)
 	l.layers = make(map[string]struct{})
+	l.IsFolder = true
 	for {
 		token, err := x.Token()
 		if err != nil {
