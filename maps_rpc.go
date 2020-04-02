@@ -156,7 +156,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if (moveLayer.From == "/Grid" || moveLayer.From == "/Light") && moveLayer.To != "/" {
 			return nil, ErrInvalidLayerPath
 		}
-		err = m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+		if e := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			op, l := getParentLayer(&mp.layer, moveLayer.From)
 			if l == nil {
 				err = ErrUnknownLayer
@@ -170,7 +170,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			op.removeLayer(l.Name)
 			np.addLayer(l, moveLayer.Position)
 			return false
-		})
+		}); e != nil {
+			return nil, e
+		}
 		return moveLayer.To, err
 	case "showLayer":
 		var path string
