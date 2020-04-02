@@ -169,7 +169,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			op.removeLayer(l.Name)
 			np.addLayer(l, moveLayer.Position)
-			return false
+			return true
 		}); e != nil {
 			return nil, e
 		}
