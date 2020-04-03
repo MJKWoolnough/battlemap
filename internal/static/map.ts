@@ -144,11 +144,15 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				(getLayer(layerList, parentStr) as SVGFolder).children.push(processLayers(g({"data-name": name, "data-is-folder": "true"}), parentStr + "/"));
 				return parentStr + "/" + name;
 			}),
-			"move": (from: string, to: string) => Promise.resolve(to),
-			"moveFolder": (from: string, to: string) => Promise.resolve(to),
+			"move": (from: string, to: string) => Promise.reject("invalid"),
+			"moveFolder": (from: string, to: string) => Promise.reject("invalid"),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => {
+				getLayer(layerList, path)!.name = name;
+				return name;
+			}),
 			"remove": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
 			"removeFolder": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
-			"link": (id: Int, path: string) => Promise.resolve(name),
+			"link": (id: Int, path: string) => Promise.reject("invalid"),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				layerList.children.push(processLayers(g({"data-name": name}), "/"));
 				return name;
@@ -168,7 +172,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				      toParent = getLayer(layerList, to) as SVGFolder;
 				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
 				toParent.children.splice(pos, 0, layer!);
-			})
+			}),
 		});
 		base.appendChild(root);
 	}));
