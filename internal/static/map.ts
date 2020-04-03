@@ -121,7 +121,11 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitLayerSetVisible = subFn<Int>(),
 		      waitLayerSetInvisible = subFn<Int>(),
 		      waitLayerAddMask = subFn<Int>(),
-		      waitLayerRemoveMask = subFn<Int>();
+		      waitLayerRemoveMask = subFn<Int>(),
+		      remove = (path: string) => {
+			const [fromParent, layer] = getParentLayer(layerList, path);
+			fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
+		      };
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -142,14 +146,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}),
 			"move": (from: string, to: string) => Promise.resolve(to),
 			"moveFolder": (from: string, to: string) => Promise.resolve(to),
-			"remove": (path: string) => rpc.removeLayer(path).then(() => {
-				const [fromParent, layer] = getParentLayer(layerList, path);
-				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
-			}),
-			"removeFolder": (path: string) => rpc.removeLayer(path).then(() => {
-				const [fromParent, layer] = getParentLayer(layerList, path);
-				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
-			}),
+			"remove": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
+			"removeFolder": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
 			"link": (id: Int, path: string) => Promise.resolve(name),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				layerList.children.push(processLayers(g({"data-name": name}), "/"));
