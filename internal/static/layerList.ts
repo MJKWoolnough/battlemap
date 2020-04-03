@@ -133,7 +133,7 @@ class ItemLayer extends Item {
 	rename() {
 		const root = this.parent.root,
 		      shell = root.shell;
-		shell.prompt(null, "Rename", "Rename Layer", this.name).then(name => root.rpcFuncs.renameLayer(this.getPath(), name)).then(name => {
+		shell.prompt(null, "Rename", "Rename Layer", this.name).then(name => (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
 			this.name = name;
 			this.nameElem.innerText = name;
 		});
