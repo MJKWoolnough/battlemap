@@ -132,12 +132,20 @@ class ItemLayer extends Item {
 	}
 	rename() {
 		const root = this.parent.root,
-		      shell = root.shell;
-		shell.prompt(null, "Rename", "Rename Layer", this.name).then(name => (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
-			this.name = name;
-			this.nameElem.innerText = name;
-		});
-		return undefined as unknown as HTMLDivElement; // Hack
+		      shell = root.shell,
+		      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": this.name, "onkeypress": enterKey})),
+		      window = shell.addWindow("Move Item", windowOptions);
+		return createHTML(window, {"class": "renameItem"}, [
+			h1("Rename Layer"),
+			label({"for": "renameLayer"}, "Name: "),
+			newName,
+			br(),
+			button("Rename", {"onclick": () => shell.addLoading(window, (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
+				this.name = name;
+				this.nameElem.innerText = name;
+				shell.removeWindow(window);
+			}).catch(e => showError(newName, e))})
+		]);
 	}
 }
 
