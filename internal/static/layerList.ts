@@ -187,6 +187,23 @@ class FolderLayer extends Folder {
 	get sorter() {
 		return noSort;
 	}
+	rename() {
+		const root = this.parent!.root,
+		      shell = root.shell,
+		      newName = autoFocus(input({"type": "text", "id": "renameLayerFolder", "value": this.name, "onkeypress": enterKey})),
+		      window = shell.addWindow("Move Item", windowOptions);
+		return createHTML(window, {"class": "renameFolder"}, [
+			h1("Rename Layer"),
+			label({"for": "renameLayerFolder"}, "Name: "),
+			newName,
+			br(),
+			button("Rename", {"onclick": () => shell.addLoading(window, (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
+				this.name = name;
+				this.nameElem.innerText = name;
+				shell.removeWindow(window);
+			}).catch(e => showError(newName, e))})
+		]);
+	}
 }
 
 export default function(shell: Shell, base: HTMLElement, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
