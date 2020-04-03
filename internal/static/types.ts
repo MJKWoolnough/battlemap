@@ -36,6 +36,7 @@ export type LayerRPC = FolderRPC & {
 	setLayer:         (path: string) => void;
 	setLayerMask:     (path: string) => void;
 	moveLayer:        (from: string, to: string, pos: Int) => Promise<void>;
+	renameLayer:      (path: string, name: string) => Promise<string>;
 }
 
 export type RPC = {
@@ -84,7 +85,7 @@ export type RPC = {
 
 	addLayer:        (name: string)                                    => Promise<string>;
 	addLayerFolder:  (path: string)                                    => Promise<string>;
-	renameLayer:     (from: string, to: string)                        => Promise<void>;
+	renameLayer:     (path: string, name: string)                      => Promise<string>;
 	moveLayer:       (from: string, to: string, position: Int)         => Promise<void>;
 	showLayer:       (path: string)                                    => Promise<void>;
 	hideLayer:       (path: string)                                    => Promise<void>;
