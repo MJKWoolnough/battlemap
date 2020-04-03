@@ -29,7 +29,24 @@ const dragFn = (e: MouseEvent) => {
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
       isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined,
-      isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined;
+      isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
+      renameLayer = (self: ItemLayer | FolderLayer) => {
+	const root = self.parent!.root,
+	      shell = root.shell,
+	      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": self.name, "onkeypress": enterKey})),
+	      window = shell.addWindow("Move Item", windowOptions);
+	return createHTML(window, {"class": "renameItem"}, [
+		h1("Rename Layer"),
+		label({"for": "renameLayer"}, "Name: "),
+		newName,
+		br(),
+		button("Rename", {"onclick": () => shell.addLoading(window, (root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), name!)).then(name => {
+			self.name = name;
+			self.nameElem.innerText = name;
+			shell.removeWindow(window);
+		}).catch(e => showError(newName, e))})
+	]);
+      };
 
 function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
@@ -131,21 +148,7 @@ class ItemLayer extends Item {
 		}
 	}
 	rename() {
-		const root = this.parent.root,
-		      shell = root.shell,
-		      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.addWindow("Move Item", windowOptions);
-		return createHTML(window, {"class": "renameItem"}, [
-			h1("Rename Layer"),
-			label({"for": "renameLayer"}, "Name: "),
-			newName,
-			br(),
-			button("Rename", {"onclick": () => shell.addLoading(window, (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
-				this.name = name;
-				this.nameElem.innerText = name;
-				shell.removeWindow(window);
-			}).catch(e => showError(newName, e))})
-		]);
+		return renameLayer(this);
 	}
 }
 
@@ -188,21 +191,7 @@ class FolderLayer extends Folder {
 		return noSort;
 	}
 	rename() {
-		const root = this.parent!.root,
-		      shell = root.shell,
-		      newName = autoFocus(input({"type": "text", "id": "renameLayerFolder", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.addWindow("Move Item", windowOptions);
-		return createHTML(window, {"class": "renameFolder"}, [
-			h1("Rename Layer"),
-			label({"for": "renameLayerFolder"}, "Name: "),
-			newName,
-			br(),
-			button("Rename", {"onclick": () => shell.addLoading(window, (root.rpcFuncs as LayerRPC).renameLayer(this.getPath(), name!)).then(name => {
-				this.name = name;
-				this.nameElem.innerText = name;
-				shell.removeWindow(window);
-			}).catch(e => showError(newName, e))})
-		]);
+		return renameLayer(this);
 	}
 }
 
