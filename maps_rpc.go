@@ -127,25 +127,25 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		return name, err
 	case "renameLayer":
 		var rename struct {
-			From string `json:"from"`
-			To   string `json:"to"`
+			Path string `json:"path"`
+			Name string `json:"name"`
 		}
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
-		if rename.From == "/Grid" || rename.From == "/Light" {
+		if rename.Path == "/Grid" || rename.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		err := m.updateMapLayer(cd.CurrentMap, rename.From, func(m *levelMap, l *layer) bool {
-			if l.Name == rename.To {
+		err := m.updateMapLayer(cd.CurrentMap, rename.Path, func(m *levelMap, l *layer) bool {
+			if l.Name == rename.Name {
 				return false
 			}
 			delete(m.layers, l.Name)
-			rename.To = uniqueLayer(m.layers, rename.To)
-			l.Name = rename.To
+			rename.Name = uniqueLayer(m.layers, rename.Name)
+			l.Name = rename.Name
 			return true
 		})
-		return rename.To, err
+		return rename.Name, err
 	case "moveLayer":
 		var moveLayer struct {
 			From     string `json:"from"`
