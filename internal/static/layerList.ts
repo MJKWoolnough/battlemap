@@ -130,8 +130,16 @@ class ItemLayer extends Item {
 			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.getPath());
 		}
 	}
+	rename() {
+		const root = this.parent.root,
+		      shell = root.shell;
+		shell.prompt(null, "Rename", "Rename Layer", this.name).then(name => root.rpcFuncs.renameLayer(this.getPath(), name)).then(name => {
+			this.name = name;
+			this.nameElem.innerText = name;
+		});
+		return undefined as unknown as HTMLDivElement; // Hack
+	}
 }
-
 
 class FolderLayer extends Folder {
 	id: Int;
