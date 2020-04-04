@@ -143,7 +143,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(name => {
 				const [parentStr] = splitAfterLastSlash(path);
-				(getLayer(layerList, parentStr) as SVGFolder).children.push(processLayers(g({"data-name": name, "data-is-folder": "true"}), parentStr + "/"));
+				(getLayer(layerList, parentStr) as SVGFolder).children.push(processLayers(g({"data-name": name, "data-is-folder": "true"})));
 				return parentStr + "/" + name;
 			}),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
@@ -156,7 +156,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"removeFolder": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
-				layerList.children.push(processLayers(g({"data-name": name}), "/"));
+				layerList.children.push(processLayers(g({"data-name": name})));
 				return name;
 			}),
 			"setVisibility": (path: string, visibility: boolean)  => (visibility ? rpc.showLayer : rpc.hideLayer)(path).then(() => {
