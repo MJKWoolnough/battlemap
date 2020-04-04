@@ -69,20 +69,22 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		const root = (mapData as Document).getElementsByTagName("svg")[0];
 		let layerNum = 0;
 		root.setAttribute("data-is-folder", "true");
-		const processLayers = (node: SVGElement, path: string): SVGFolder | SVGLayer => {
-			const name = node.getAttribute("data-name") || `Layer ${layerNum++}`;
+		root.setAttribute("data-name", "");
+		const processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
+			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`;
 			let id = 1;
-			switch (path) {
-			case "/":
+			switch (name) {
+			case "":
 				id = 0;
 				break;
-			case "/Grid":
+			case "Grid":
 				id = -1;
 				break;
-			case "/Light":
+			case "Light":
 				id = -2;
 				break;
 			}
+			console.log(id);
 			if (node.getAttribute("data-is-folder") === "true") {
 				const l: SVGFolder = {
 					node,
@@ -93,7 +95,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					folders: {},
 					items: {},
 				      };
-				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map((e, i) => processLayers(e, path + name + "/")).forEach(layer => {
+				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(processLayers).forEach(layer => {
 					l.children.push(layer);
 				});
 				return l;
@@ -111,7 +113,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}));
 			return l;
 		      },
-		      layerList = processLayers(root, "/") as SVGFolder,
+		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
