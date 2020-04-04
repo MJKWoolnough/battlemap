@@ -169,10 +169,13 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"setLayer": (path: string) => {},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
-				const [fromParent, layer] = getParentLayer(layerList, from),
+				const [parentStr, nameStr] = splitAfterLastSlash(from),
+				      fromParent = getLayer(layerList, parentStr)!,
 				      toParent = getLayer(layerList, to) as SVGFolder;
-				(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
-				toParent.children.splice(pos, 0, layer!);
+				if (!isSVGFolder(fromParent)) {
+					return;
+				}
+				toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 			}),
 		});
 		base.appendChild(root);
