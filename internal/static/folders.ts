@@ -40,9 +40,9 @@ export class Item {
 		this.parent = parent;
 		this.node = li([
 			span(name, {"class": "item", "onclick": this.show.bind(this)}),
-			span("~", {"class": "itemRename", "onclick": this.rename.bind(this)}),
-			span("+", {"class": "itemLink", "onclick": this.link.bind(this)}),
-			span("-", {"class": "itemRemove", "onclick": this.remove.bind(this)}),
+			span({"class": "itemRename", "onclick": this.rename.bind(this)}),
+			span({"class": "itemLink", "onclick": this.link.bind(this)}),
+			span({"class": "itemRemove", "onclick": this.remove.bind(this)}),
 		]);
 	}
 	show() {}
@@ -123,9 +123,9 @@ export class Folder {
 		this.node = li([
 			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
 			label({"for": `folder_${folderID++}`}, name),
-			span("~", {"class": "renameFolder", "onclick": this.rename.bind(this)}),
-			span("-", {"class": "removeFolder", "onclick": this.remove.bind(this)}),
-			span("+", {"class": "addFolder", "onclick": this.newFolder.bind(this)}),
+			span({"class": "renameFolder", "onclick": this.rename.bind(this)}),
+			span({"class": "removeFolder", "onclick": this.remove.bind(this)}),
+			span({"class": "addFolder", "onclick": this.newFolder.bind(this)}),
 			this.children.node,
 		]);
 		Object.entries(children.folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f)));
