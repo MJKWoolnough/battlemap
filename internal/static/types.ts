@@ -3,10 +3,6 @@ import {Subscription} from './lib/inter.js';
 // export type Int = number & { __int__: void };
 export type Int = number;
 
-export interface ParentPath {
-	getPath(): string;
-}
-
 export type FolderRPC = {
 	waitAdded:         () => Subscription<IDName[]>;
 	waitMoved:         () => Subscription<FromTo>;
