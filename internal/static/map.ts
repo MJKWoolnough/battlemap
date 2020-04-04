@@ -1,9 +1,8 @@
-import {Colour, FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC, ParentPath, Token} from './types.js';
+import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {g, rect} from './lib/svg.js';
+import {g} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {showError, enterKey, colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
 type SVGToken = {
