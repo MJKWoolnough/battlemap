@@ -126,7 +126,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitLayerRemoveMask = subFn<Int>(),
 		      remove = (path: string) => {
 			const [fromParent, layer] = getParentLayer(layerList, path);
-			fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
+			(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 		      };
 		setLayers({
 			"waitAdded": () => waitAdded[1],
@@ -172,7 +172,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
 				const [fromParent, layer] = getParentLayer(layerList, from),
 				      toParent = getLayer(layerList, to) as SVGFolder;
-				fromParent!.children.splice(fromParent!.children.findIndex(e => Object.is(e, layer)), 1);
+				(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 				toParent.children.splice(pos, 0, layer!);
 			}),
 		});
