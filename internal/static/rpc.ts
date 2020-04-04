@@ -1,5 +1,5 @@
 import RPC from './lib/rpc_ws.js';
-import {RPC as RPCType, ParentPath} from './types.js';
+import {RPC as RPCType} from './types.js';
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
