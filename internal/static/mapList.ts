@@ -27,19 +27,16 @@ class MapItem extends Item {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
 		this.nameSpan = this.node.firstChild as HTMLSpanElement;
-		[
-			span({"class": "setCurrentMap", "title": "Load Map", "onclick": () => {
-				this.setCurrentMap();
-				rpc.setCurrentMap(id);
-			}}),
-			span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
-				this.setUserMap();
-				rpc.setUserMap(id);
-			}})
-		].forEach(e => this.node.insertBefore(e, this.node.firstChild));
+		this.node.insertBefore(span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
+			this.setUserMap();
+			rpc.setUserMap(id);
+		}}), this.node.firstChild);
 		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
 	show() {
+		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		selectedCurrent = this;
+		sendCurrentMap(this.id);
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
@@ -54,11 +51,6 @@ class MapItem extends Item {
 		} else {
 			return super.rename();
 		}
-	}
-	setCurrentMap() {
-		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
-		selectedCurrent = this;
-		sendCurrentMap(this.id);
 	}
 	setUserMap() {
 		setMap(this, selectedUser, "mapUser", "hasMapUser");
@@ -153,7 +145,7 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 			if (m) {
 				m.setUserMap();
 				if (setCurrent) {
-					m.setCurrentMap();
+					m.show();
 				}
 			}
 		      }
