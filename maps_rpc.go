@@ -33,25 +33,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		return m.newMap(nm, cd.ID)
-	case "getMapSize":
-		var id uint64
-		if err := json.Unmarshal(data, &id); err != nil {
-			return nil, err
-		}
-		m.mu.RLock()
-		defer m.mu.RUnlock()
-		mp, ok := m.maps[id]
-		if !ok {
-			return nil, ErrUnknownMap
-		}
-		return mapDimensions{
-			Width:  mp.Width,
-			Height: mp.Height,
-		}, nil
-	case "setMapSize":
+	case "setMapDetails":
 		var md struct {
-			ID uint64 `json:"id"`
 			mapDimensions
+			mapGrid
 		}
 		if err := json.Unmarshal(data, &md); err != nil {
 			return nil, err
@@ -59,30 +44,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if md.Width == 0 || md.Height == 0 {
 			return nil, ErrInvalidData
 		}
-		if err := m.updateMapData(md.ID, func(mp *levelMap) bool {
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			if mp.Width == md.Width && mp.Height == md.Height {
 				return false
 			}
 			mp.Width = md.Width
 			mp.Height = md.Height
+			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
 			return true
 		}); err != nil {
 			return nil, err
 		}
 		m.socket.broadcastMapChange(md.ID, broadcastMapItemChange, md, cd.ID)
-		return nil, nil
-	case "setGrid":
-		var ng mapGrid
-		if err := json.Unmarshal(data, &ng); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Patterns["gridPattern"] = genGridPattern(ng.SquaresWidth, ng.SquaresColour, ng.SquaresStroke)
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		// broadcast grid change
 		return nil, nil
 	case "setLight":
 		var c colour
