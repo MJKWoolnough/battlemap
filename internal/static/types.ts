@@ -153,10 +153,7 @@ export type Colour = {
 	a: Int;
 };
 
-export type MapDetails = GridDetails & {
-	id:     Int;
-	name:   string;
-};
+export type MapDetails = GridDetails & IDName
 
 export type GridDetails = {
 	width:  Int;
