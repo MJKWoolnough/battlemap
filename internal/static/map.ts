@@ -184,9 +184,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				"colour": rgba2Colour(""),
 				"stroke": 0
 			}),
-			"setMapDetails": (details: GridDetails) => {
-				return Promise.resolve();
-			}
+			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(details).then(() => {
+			})
 		});
 		base.appendChild(root);
 	}));
