@@ -55,7 +55,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}); err != nil {
 			return nil, err
 		}
-		m.socket.broadcastMapChange(md.ID, broadcastMapItemChange, md, cd.ID)
+		m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapItemChange, md, cd.ID)
 		return nil, nil
 	case "setLight":
 		var c colour
