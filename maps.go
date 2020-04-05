@@ -44,13 +44,13 @@ func (m *mapsDir) Init(b *Battlemap) error {
 }
 
 type mapDetails struct {
+	ID   uint64 `json:"id,omitempty"`
 	Name string `json:"name"`
 	mapDimensions
 	mapGrid
 }
 
 type mapDimensions struct {
-	ID     uint64 `json:"id,omitempty"`
 	Width  uint64 `json:"width" xml:"width,attr"`
 	Height uint64 `json:"height" xml:"height,attr"`
 }
