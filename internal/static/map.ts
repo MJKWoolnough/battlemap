@@ -173,10 +173,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				const [parentStr, nameStr] = splitAfterLastSlash(from),
 				      fromParent = getLayer(layerList, parentStr)!,
 				      toParent = getLayer(layerList, to) as SVGFolder;
-				if (!isSVGFolder(fromParent)) {
-					return;
+				if (isSVGFolder(fromParent)) {
+					toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 				}
-				toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 			}),
 			"getMapDetails": () => ({
 				"width": 0,
