@@ -78,8 +78,7 @@ export type RPC = {
 	setUserMap:    (id: Int) => Promise<void>;
 
 	newMap:        (map: MapDetails)        => Promise<IDName>;
-	getMapDetails: (id: Int)                => Promise<MapDetails>;
-	setMapDetails: (map: MapDetails)        => Promise<void>;
+	setMapDetails: (map: GridDetails)       => Promise<void>;
 
 	addLayer:        (name: string)                                    => Promise<string>;
 	addLayerFolder:  (path: string)                                    => Promise<string>;
