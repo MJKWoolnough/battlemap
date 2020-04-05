@@ -2,7 +2,7 @@ import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types
 import {createHTML, clearElement, autoFocus} from './lib/html.js';
 import {br, button, div, h1, input, label, span} from './lib/dom.js';
 import {noSort} from './lib/ordered.js';
-import {showError, enterKey} from './misc.js';
+import {showError, enterKey, colour2Hex, hex2Colour} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
@@ -131,7 +131,42 @@ class ItemLayer extends Item {
 	}
 	show() {
 		if (this.id === -1) { // Grid
-			// Show/Edit Grid properties
+			const root = this.parent.root,
+			      details = (root.rpcFuncs as LayerRPC).getMapDetails(),
+			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width.toString(), "id": "mapWidth"}),
+			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height.toString(), "id": "mapHeight"}),
+			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square.toString(), "id": "mapSquareWidth"}),
+			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.colour)}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke.toString(), "id": "mapSquareLineWidth"}),
+			      window = sh.addWindow("New Map", windowOptions);
+			return createHTML(window, {"class": "mapAdd"}, [
+				h1("Edit Map"),
+				label({"for": "mapWidth"}, "Width: "),
+				width,
+				br(),
+				label({"for": "mapHeight"}, "Height: "),
+				height,
+				br(),
+				label({"for": "mapSquareWidth"}, "Square Size: "),
+				sqWidth,
+				br(),
+				label({"for": "mapSquareColour"}, "Square Line Colour: "),
+				sqColour,
+				br(),
+				label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
+				sqLineWidth,
+				br(),
+				button("Add", {"onclick": function(this: HTMLButtonElement) {
+					sh.addLoading(this.parentNode as HTMLDivElement, (root.rpcFuncs as LayerRPC).setMapDetails({
+						"width": parseInt(width.value),
+						"height": parseInt(height.value),
+						"square": parseInt(sqWidth.value),
+						"colour": hex2Colour(sqColour.value),
+						"stroke": parseInt(sqLineWidth.value)
+					})).then(() =>sh.removeWindow(this.parentNode as HTMLDivElement))
+					.catch(e => showError(this, e));
+				}})
+			]);
 		} else if (this.id === -2) { // Light
 			// Show/Edit Light properties
 		} else {
