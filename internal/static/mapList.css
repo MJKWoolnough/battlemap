@@ -4,42 +4,33 @@
 #mapList ul {
 	list-style: none;
 	margin: 0;
-	padding-left: 28px;
+	padding-left: 14px;
 }
 
-#mapList li > span:nth-child(1), #mapList li > span:nth-child(2) {
+#mapList li > span:first-child {
 	display: inline-block;
 	width: 10px;
 	height: 0.8em;
 	margin: 0 2px;
 }
 
-#mapList li.mapItem > span:nth-child(1), #mapList li.mapItem > span:nth-child(2) {
+#mapList li.mapItem > span:first-child {
 	cursor: pointer;
 }
 
-#mapList li.mapUser > span:nth-child(1) {
+#mapList li.mapUser > span:first-child {
 	background-color: #00ff00 !important;
-}
-
-#mapList li.mapCurrent > span:nth-child(2) {
-	background-color: #ff0000 !important;
 }
 
 #mapList li.mapItem > span:nth-child(1), .hasMapUser > span:nth-child(1) {
 	background-color: #ccffcc;
 }
 
-#mapList li.mapItem > span:nth-child(2), .hasMapCurrent > span:nth-child(2) {
-	background-color: #ffcccc;
-}
-
-.setCurrentMap, .showCurrentMapFolder {
-	position: absolute;
-	left: 0;
+.hasMapCurrent {
+	background-color: #aaa;
 }
 
 .setUserMap, .showUserMapFolder {
 	position: absolute;
-	left: 14px;
+	left: 0px;
 }
