@@ -5,49 +5,7 @@ import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
-const setMapDetails = (md: MapDetails, submitFn: (errNode: HTMLElement, md: MapDetails) => void) => {
-	const name = autoFocus(input({"type": "text", "id": "mapName", "value": md.name})),
-	      width = input({"type": "number", "min": "10", "max": "1000", "value": md.width.toString(), "id": "mapWidth"}),
-	      height = input({"type": "number", "min": "10", "max": "1000", "value": md.height.toString(), "id": "mapHeight"}),
-	      sqWidth = input({"type": "number", "min": "1", "max": "100", "value": md.square.toString(), "id": "mapSquareWidth"}),
-	      sqColour = input({"type": "color", "value": colour2Hex(md.colour), "id": "mapSquareColour"}),
-	      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": md.stroke.toString(), "id": "mapSquareLineWidth"}),
-	      title = `${md.id === 0 ? "New" : "Edit"} Map`,
-	      window = shell.addWindow(title, windowOptions);
-	return createHTML(window, {"class": `map${md.id === 0 ? "Add" : "Edit"}`}, [
-		h1(title),
-		label({"for": "mapName"}),
-		name,
-		br(),
-		label({"for": "mapWidth"}, "Width: "),
-		width,
-		br(),
-		label({"for": "mapHeight"}, "Height: "),
-		height,
-		br(),
-		label({"for": "mapSquareWidth"}, "Square Size: "),
-		sqWidth,
-		br(),
-		label({"for": "mapSquareColour"}, "Square Line Colour: "),
-		sqColour,
-		br(),
-		label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
-		sqLineWidth,
-		br(),
-		button(md.id === 0 ? "Add" : "Edit", {"onclick": function(this: HTMLButtonElement) {
-			submitFn(this, {
-				"id": md.id,
-				"name": name.value,
-				"width": parseInt(width.value),
-				"height": parseInt(height.value),
-				"square": parseInt(sqWidth.value),
-				"colour": hex2Colour(sqColour.value),
-				"stroke": parseInt(sqLineWidth.value)
-			});
-		}})
-	]);
-      },
-      setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
+const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
 		selected.node.classList.remove(selectedClass);
 		for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
@@ -82,17 +40,6 @@ class MapItem extends Item {
 		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
 	show() {
-		shell.addLoading(null, rpc.getMapDetails(this.id)).then(md => setMapDetails(md, (errorNode: HTMLElement, md: MapDetails) => {
-			shell.addLoading(errorNode.parentNode as HTMLDivElement, rpc.setMapDetails(md)).then(() => {
-				this.nameSpan.innerText = md.name;
-				this.name = md.name;
-				this.parent.children.sort();
-			}).catch(e => showError(errorNode, e));
-		}))
-		.catch(e => {
-			console.log(e);
-			alert(e);
-		});
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
@@ -215,21 +162,51 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 			setUserMap(userMap, true);
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
-			button("New Map", {"onclick": () => setMapDetails({
-				"id": 0,
-				"name": "",
-				"width": 20,
-				"height": 20,
-				"square": 1,
-				"colour": hex2Colour("#000000"),
-				"stroke": 1
-			}, (errorNode: HTMLElement, md: MapDetails) => {
-				shell.addLoading(errorNode.parentNode as HTMLDivElement, rpc.newMap(md)).then(({id, name}) => {
-					root.addItem(id, name);
-					shell.removeWindow(errorNode.parentNode as HTMLDivElement);
-				})
-				.catch(e => showError(errorNode, e));
-			})}),
+			button("New Map", {"onclick": () => {
+				const name = autoFocus(input({"type": "text", "id": "mapName"})),
+				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth"}),
+				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight"}),
+				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
+				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
+				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
+				      window = shell.addWindow("New Map", windowOptions);
+				return createHTML(window, {"class": "mapAdd"}, [
+					h1("New Map"),
+					label({"for": "mapName"}, "Name: "),
+					name,
+					br(),
+					label({"for": "mapWidth"}, "Width: "),
+					width,
+					br(),
+					label({"for": "mapHeight"}, "Height: "),
+					height,
+					br(),
+					label({"for": "mapSquareWidth"}, "Square Size: "),
+					sqWidth,
+					br(),
+					label({"for": "mapSquareColour"}, "Square Line Colour: "),
+					sqColour,
+					br(),
+					label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
+					sqLineWidth,
+					br(),
+					button("Add", {"onclick": function(this: HTMLButtonElement) {
+						shell.addLoading(this.parentNode as HTMLDivElement, rpc.newMap({
+							"id": 0,
+							"name": name.value,
+							"width": parseInt(width.value),
+							"height": parseInt(height.value),
+							"square": parseInt(sqWidth.value),
+							"colour": hex2Colour(sqColour.value),
+							"stroke": parseInt(sqLineWidth.value)
+						})).then(({id, name}) => {
+							root.addItem(id, name);
+							shell.removeWindow(this.parentNode as HTMLDivElement);
+						})
+						.catch(e => showError(this, e));
+					}})
+				])
+			}}),
 			root.node
 		]);
 	});
