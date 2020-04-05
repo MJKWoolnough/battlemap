@@ -1,8 +1,9 @@
-import {FromTo, IDName, Int, RPC, Layer, LayerFolder, LayerRPC, Token} from './types.js';
+import {FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {g} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
+import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
 type SVGToken = {
@@ -177,6 +178,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 				toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 			}),
+			"getMapDetails": () => ({
+				"width": 0,
+				"height": 0,
+				"square": 0,
+				"colour": rgba2Colour(""),
+				"stroke": 0
+			}),
+			"setMapDetails": (details: GridDetails) => {
+				return Promise.resolve();
+			}
 		});
 		base.appendChild(root);
 	}));
