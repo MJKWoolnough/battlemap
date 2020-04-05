@@ -26,8 +26,8 @@
 	background-color: #ccffcc;
 }
 
-.hasMapCurrent {
-	background-color: #aaa;
+.hasMapCurrent > label, .mapCurrent {
+	background-color: #ddd;
 }
 
 .setUserMap, .showUserMapFolder {
