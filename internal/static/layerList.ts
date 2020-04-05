@@ -138,7 +138,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square.toString(), "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.colour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke.toString(), "id": "mapSquareLineWidth"}),
-			      window = sh.addWindow("New Map", windowOptions);
+			      window = sh.addWindow("Edit Map", windowOptions);
 			return createHTML(window, {"class": "mapAdd"}, [
 				h1("Edit Map"),
 				label({"for": "mapWidth"}, "Width: "),
