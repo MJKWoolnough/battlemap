@@ -1,7 +1,7 @@
 import {FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {g} from './lib/svg.js';
+import {g, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
@@ -178,7 +178,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			}),
 			"getMapDetails": () => {
-				const grid = Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern").pop() as SVGPatternElement,
+				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || pattern(),
 				      gridColour = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).map(e => ({"colour": e.getAttribute("stroke") || "rgba(0, 0, 0, 0)", "stroke": e.getAttribute("stroke-width") || "0"})).pop() || {"colour": "rgba(0, 0, 0, 0)", "stroke": "0"};
 				return {
 					"width": parseInt(root.getAttribute("width")!),
