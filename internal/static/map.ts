@@ -177,13 +177,17 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 				}
 			}),
-			"getMapDetails": () => ({
-				"width": 0,
-				"height": 0,
-				"square": 0,
-				"colour": rgba2Colour(""),
-				"stroke": 0
-			}),
+			"getMapDetails": () => {
+				const grid = Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern").pop() as SVGPatternElement,
+				      gridColour = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).map(e => ({"colour": e.getAttribute("stroke") || "rgba(0, 0, 0, 0)", "stroke": e.getAttribute("stroke-width") || "0"})).pop() || {"colour": "rgba(0, 0, 0, 0)", "stroke": "0"};
+				return {
+					"width": parseInt(root.getAttribute("width")!),
+					"height": parseInt(root.getAttribute("height")!),
+					"square": parseInt(grid.getAttribute("width")!),
+					"colour": rgba2Colour(gridColour["colour"]),
+					"stroke": parseInt(gridColour["stroke"])
+				}
+			},
 			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(details).then(() => {
 			})
 		});
