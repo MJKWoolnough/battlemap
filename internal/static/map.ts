@@ -1,7 +1,7 @@
 import {FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {g, pattern} from './lib/svg.js';
+import {defs, g, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
@@ -189,6 +189,14 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			},
 			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(details).then(() => {
+				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).pop() || root.appendChild(defs())).appendChild(pattern({"patternUnits": "userSpaceOnUse", "id": "gridPattern"})),
+				      gridPath = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).pop() || path({"d": "M 0 1 V 0 H 1"});
+				root.setAttribute("width", details["width"].toString());
+				root.setAttribute("height", details["height"].toString());
+				grid.setAttribute("width", details["square"].toString());
+				grid.setAttribute("height", details["square"].toString());
+				gridPath.setAttribute("stroke", colour2RGBA(details["colour"]));
+				gridPath.setAttribute("stroke-width", details["stroke"].toString());
 			})
 		});
 		base.appendChild(root);
