@@ -71,7 +71,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		root.setAttribute("data-is-folder", "true");
 		root.setAttribute("data-name", "");
 		const processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
-			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`;
+			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
+			      hidden = node.getAttribute("visibility") === "hidden";
 			let id = 1;
 			switch (name) {
 			case "":
@@ -84,34 +85,22 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				id = -2;
 				break;
 			}
-			console.log(id);
-			if (node.getAttribute("data-is-folder") === "true") {
-				const l: SVGFolder = {
-					node,
-					id,
-					name,
-					"hidden": node.getAttribute("visibility") === "hidden",
-					children: new SortNode<SVGFolder | SVGLayer | SVGPsuedo>(node),
-					folders: {},
-					items: {},
-				      };
-				(Array.from(node.childNodes).filter(e => e instanceof SVGGElement) as SVGGElement[]).map(processLayers).forEach(layer => {
-					l.children.push(layer);
-				});
-				return l;
-			}
-			const l: SVGLayer = {
+			return node.getAttribute("data-is-folder") === "true" ? {
 				id,
+				node,
 				name,
-				"hidden": node.getAttribute("visibility") === "hidden",
-				"mask": node.getAttribute("mask") || "",
-				node: node,
-				tokens: new SortNode<SVGToken, SVGElement>(node)
-			      };
-			(Array.from(node.childNodes).filter(e => e instanceof SVGRectElement) as SVGRectElement[]).forEach(e => l.tokens.push({
-				"node": e
-			}));
-			return l;
+				hidden,
+				children: SortNode.from<SVGFolder | SVGLayer | SVGPsuedo>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
+				folders: {},
+				items: {},
+			} : {
+				id,
+				node,
+				name,
+				hidden,
+				mask: node.getAttribute("mask") || "",
+				tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGRectElement ? {node: c} : undefined)
+			};
 		      },
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
