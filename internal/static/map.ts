@@ -178,7 +178,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			}),
 			"getMapDetails": () => {
-				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || pattern(),
+				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || pattern({"width": "0"}),
 				      gridColour = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).map(e => ({"colour": e.getAttribute("stroke") || "rgba(0, 0, 0, 0)", "stroke": e.getAttribute("stroke-width") || "0"})).pop() || {"colour": "rgba(0, 0, 0, 0)", "stroke": "0"};
 				return {
 					"width": parseInt(root.getAttribute("width")!),
