@@ -249,6 +249,10 @@ class Defs {
 		this.list[p.getAttribute("id") || ""] = SVGPattern.from(p);
 		this.defs.appendChild(p);
 	}
+	remove(id: string) {
+		this.defs.removeChild(this.list[id].pattern);
+		delete(this.list[id]);
+	}
 }
 
 
