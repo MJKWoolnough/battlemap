@@ -1,6 +1,7 @@
 import {FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
+import {createHTML} from './lib/html.js';
 import {defs, g, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
@@ -25,6 +26,7 @@ type SVGFolder = LayerFolder & {
 	children: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
 };
 
+let layerNum = 0;
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
@@ -67,35 +69,33 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	"": 0,
 	"Grid": -1,
 	"Light": -2,
+      },
+      processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
+	const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
+	      hidden = node.getAttribute("visibility") === "hidden",
+	      id = idNames[name] ?? 1;
+	return node.getAttribute("data-is-folder") === "true" ? {
+		id,
+		node,
+		name,
+		hidden,
+		children: SortNode.from<SVGFolder | SVGLayer | SVGPsuedo>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
+		folders: {},
+		items: {},
+	} : {
+		id,
+		node,
+		name,
+		hidden,
+		mask: node.getAttribute("mask") || "",
+		tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGRectElement ? {node: c} : undefined)
+	};
       };
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		const root = (mapData as Document).getElementsByTagName("svg")[0];
-		let layerNum = 0;
-		root.setAttribute("data-is-folder", "true");
-		root.setAttribute("data-name", "");
-		const processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
-			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
-			      hidden = node.getAttribute("visibility") === "hidden",
-			      id = idNames[name] ?? 1;
-			return node.getAttribute("data-is-folder") === "true" ? {
-				id,
-				node,
-				name,
-				hidden,
-				children: SortNode.from<SVGFolder | SVGLayer | SVGPsuedo>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
-				folders: {},
-				items: {},
-			} : {
-				id,
-				node,
-				name,
-				hidden,
-				mask: node.getAttribute("mask") || "",
-				tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGRectElement ? {node: c} : undefined)
-			};
-		      },
+		layerNum = 0;
+		const root = createHTML((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": ""}),
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
