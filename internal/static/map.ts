@@ -247,6 +247,7 @@ class Defs {
 	}
 	add(p: SVGPatternElement) {
 		this.list[p.getAttribute("id") || ""] = SVGPattern.from(p);
+		this.defs.appendChild(p);
 	}
 }
 
@@ -337,6 +338,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			const [fromParent, layer] = getParentLayer(layerList, path);
 			(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 		      };
+		if (!definitions.list["gridPattern"]) {
+			definitions.add(pattern({"id": "gridPattern"}, path()));
+		}
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
