@@ -1,4 +1,4 @@
-import {FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {createHTML} from './lib/html.js';
@@ -25,6 +25,228 @@ type SVGFolder = LayerFolder & {
 	node: SVGElement;
 	children: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
 };
+
+class SVGPattern {
+	pattern: SVGPatternElement;
+	constructor(pattern: SVGPatternElement) {
+		this.pattern = pattern;
+	}
+	static from(p: SVGPatternElement) {
+		if (p.firstChild instanceof SVGPathElement) {
+			if (p.firstChild.getAttribute("id") === "gridPattern") {
+				return new SVGGrid(p.firstChild);
+			}
+			return new SVGPath(p.firstChild);
+		} else if (p.firstChild instanceof SVGImageElement) {
+			return new SVGImage(p.firstChild);
+		}
+		return new SVGPattern(p);
+	}
+	get id() {
+		return this.pattern.getAttribute("id") || "";
+	}
+	get width() {
+		return parseInt(this.pattern.getAttribute("width") || "0");
+	}
+	set width(w: Int) {
+		this.pattern.setAttribute("width", w.toString());
+	}
+	get height() {
+		return parseInt(this.pattern.getAttribute("height") || "0");
+	}
+	set height(h: Int) {
+		this.pattern.setAttribute("height", h.toString());
+	}
+}
+
+class SVGPath extends SVGPattern {
+	path: SVGPathElement;
+	constructor(path: SVGPathElement) {
+		super(path.parentNode as SVGPatternElement);
+		this.path = path;
+	}
+	get d() {
+		return this.path.getAttribute("d") || "";
+	}
+	set d(d: string) {
+		this.path.setAttribute("d", d);
+	}
+	get width() {
+		return super.width;
+	}
+	set width(w: Int) {
+		this.path.setAttribute("width", w.toString());
+		super.width = w;
+	}
+	get height() {
+		return super.height;
+	}
+	set height(h: Int) {
+		this.path.setAttribute("height", h.toString());
+		super.height = h;
+	}
+}
+
+class SVGGrid extends SVGPath {
+	get width() {
+		return super.width;
+	}
+	set width(w: Int) {
+		this.d = `M 0 ${w} V 0 H ${w}`;
+		super.width = w;
+	}
+	get height() {
+		return this.width;
+	}
+	set height(h: Int) {}
+}
+
+class SVGTransform {
+	x: Int = 0;
+	y: Int = 0;
+	rotation: Int = 0;
+	flip: boolean = false;
+	flop: boolean = false;
+	width: Int;
+	height: Int;
+	constructor(transform: string, width: Int, height: Int) {
+		this.width = width;
+		this.height = height;
+		for (const [fn, a, b] of transform.matchAll(/([a-z]+)\( *([0-9]+) *,? *([0-9]*) *\)/g)) {
+			switch (fn) {
+			case "translate":
+				if (b) {
+					this.x = parseInt(a);
+					this.y = parseInt(b);
+				} else {
+					this.x = this.y = parseInt(a);
+				}
+				break;
+			case "rotate":
+				this.rotation = parseInt(a);
+				break;
+			case "scale":
+				if (b) {
+					this.flop = parseInt(a) === -1;
+					this.flip = parseInt(b) === -1;
+				} else {
+					this.flip = this.flop = parseInt(a) === -1;
+				}
+				break;
+			}
+			if (this.flop) {
+				this.x = -this.x - this.width;
+			}
+			if (this.flip) {
+				this.y = -this.y - this.height;
+			}
+		}
+	}
+	toString() {
+		let ret = "";
+		if (this.x !== 0 || this.y !== 0) {
+			ret += `transform(${this.flop ? -this.x - this.width : this.x}, ${this.flip ? -this.y - this.height : this.y}) `;
+		}
+		if (this.flip || this.flop) {
+			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
+		}
+		if (this.rotation !== 0) {
+			ret += `rotate(${this.rotation})`;
+		}
+		return ret;
+	}
+}
+
+class SVGImage extends SVGPattern {
+	image: SVGImageElement;
+	transform: SVGTransform;
+	constructor(image: SVGImageElement) {
+		super(image.parentNode as SVGPatternElement);
+		this.image = image;
+		this.transform = new SVGTransform(image.getAttribute("transform") || "", this.width, this.height);
+	}
+	get width() {
+		return super.width;
+	}
+	set width(w: Int) {
+		this.transform.width = w;
+		this.updateTransform();
+		super.width = w;
+	}
+	get height() {
+		return super.height;
+	}
+	set height(h: Int) {
+		this.transform.height = h;
+		this.updateTransform();
+		super.height = h;
+	}
+	get source() {
+		return this.image.getAttribute("xlink:href") || "";
+	}
+	set source(src: string) {
+		this.image.setAttribute("xlink:href", src);
+	}
+	get translateX() {
+		return this.transform.x;
+	}
+	set translateX(x: Int) {
+		this.transform.x = x;
+		this.updateTransform();
+	}
+	get translateY() {
+		return this.transform.x;
+	}
+	set translateY(y: Int) {
+		this.transform.y = y;
+		this.updateTransform();
+	}
+	get translate() {
+		return [this.transform.x, this.transform.y];
+	}
+	set translate(t: [Int, Int]) {
+		this.transform.x = t[0];
+		this.transform.y = t[1];
+		this.updateTransform();
+	}
+	get rotation() {
+		return this.transform.rotation;
+	}
+	set rotation(r: Int) {
+		this.transform.rotation = r;
+		this.updateTransform();
+	}
+	get flip() {
+		return this.transform.flip;
+	}
+	set flip(f: boolean) {
+		this.flip = f;
+		this.updateTransform();
+	}
+	get flop() {
+		return this.transform.flop;
+	}
+	set flop(f: boolean) {
+		this.flop = f;
+		this.updateTransform();
+	}
+	updateTransform() {
+		this.image.setAttribute("transform", this.transform.toString());
+	}
+}
+
+class Defs {
+	defs: SVGDefsElement;
+	list: Record<string, SVGPattern | SVGImage> = {};
+	constructor(root: Node) {
+		this.defs = root.appendChild(defs(SortNode.from(root).filterRemove(c => c instanceof SVGDefsElement).flatMap(c => Array.from(c.node.childNodes))));
+		(Array.from(this.defs.childNodes).filter(c => c instanceof SVGPatternElement) as SVGPatternElement[]).forEach(c => {
+			const p = SVGPattern.from(c);
+			this.list[p.id] = p;
+		});
+	}
+}
+
 
 let layerNum = 0;
 
