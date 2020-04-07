@@ -16,14 +16,9 @@ type SVGLayer = Layer & {
 	tokens: SortNode<SVGToken>;
 };
 
-type SVGPsuedo = Layer & {
-	node: SVGGElement;
-	id: Int;
-};
-
 type SVGFolder = LayerFolder & {
 	node: SVGElement;
-	children: SortNode<SVGFolder | SVGLayer | SVGPsuedo>;
+	children: SortNode<SVGFolder | SVGLayer>;
 };
 
 class SVGPattern {
@@ -263,24 +258,24 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
       },
-      isSVGFolder = (c: SVGFolder | SVGLayer | SVGPsuedo): c is SVGFolder => (c as SVGFolder).children !== undefined,
-      isSVGLayer = (c: SVGFolder | SVGLayer | SVGPsuedo): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
+      isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
+      isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
       splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
       },
-      getLayer = (layer: SVGFolder | SVGLayer | SVGPsuedo, path: string) => path.split("/").filter(b => b).every(p => {
+      getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
 	}
-	const a = (layer.children as SortNode<SVGFolder | SVGLayer | SVGPsuedo>).filter(c => c.name === p).pop();
+	const a = (layer.children as SortNode<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
 	if (a) {
 		layer = a;
 		return true;
 	}
 	return false;
       }) ? layer : null,
-      getParentLayer = (root: SVGFolder, path: string): [SVGFolder | null, SVGFolder | SVGLayer | SVGPsuedo | null] => {
+      getParentLayer = (root: SVGFolder, path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
 	      parent = getLayer(root, parentStr);
 	if (!parent || !isSVGFolder(parent)) {
@@ -309,7 +304,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		node,
 		name,
 		hidden,
-		children: SortNode.from<SVGFolder | SVGLayer | SVGPsuedo>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
+		children: SortNode.from<SVGFolder | SVGLayer>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
 		folders: {},
 		items: {},
 	} : {
