@@ -78,7 +78,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		const processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
 			      hidden = node.getAttribute("visibility") === "hidden",
-			      id = idNames[name] || 1;
+			      id = idNames[name] ?? 1;
 			return node.getAttribute("data-is-folder") === "true" ? {
 				id,
 				node,
