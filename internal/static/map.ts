@@ -62,6 +62,11 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		return [null, null];
 	}
 	return [parent, parent.tokens[pos]];
+      },
+      idNames: Record<string, Int> = {
+	"": 0,
+	"Grid": -1,
+	"Light": -2,
       };
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
@@ -72,19 +77,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		root.setAttribute("data-name", "");
 		const processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 			const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
-			      hidden = node.getAttribute("visibility") === "hidden";
-			let id = 1;
-			switch (name) {
-			case "":
-				id = 0;
-				break;
-			case "Grid":
-				id = -1;
-				break;
-			case "Light":
-				id = -2;
-				break;
-			}
+			      hidden = node.getAttribute("visibility") === "hidden",
+			      id = idNames[name] || 1;
 			return node.getAttribute("data-is-folder") === "true" ? {
 				id,
 				node,
