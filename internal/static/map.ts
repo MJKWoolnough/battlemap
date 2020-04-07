@@ -80,6 +80,24 @@ class SVGPath extends SVGPattern {
 		this.path.setAttribute("height", h.toString());
 		super.height = h;
 	}
+	get fill() {
+		return rgba2Colour(this.path.getAttribute("fill") || "rgba(0, 0, 0, 0)");
+	}
+	set fill(f: Colour) {
+		this.path.setAttribute("fill", colour2RGBA(f));
+	}
+	get stroke() {
+		return rgba2Colour(this.path.getAttribute("stroke") || "rgba(0, 0, 0, 0)");
+	}
+	set stroke(s: Colour) {
+		this.path.setAttribute("stroke", colour2RGBA(s));
+	}
+	get strokeWidth() {
+		return parseInt(this.path.getAttribute("stroke-width") || "0");
+	}
+	set strokeWidth(w: Int) {
+		this.path.setAttribute("stroke-width", w.toString());
+	}
 }
 
 class SVGGrid extends SVGPath {
