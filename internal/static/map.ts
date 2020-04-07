@@ -345,6 +345,12 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
+		if (!getLayer(layerList, "/Grid")) {
+			layerList.children.push(processLayers(g({"data-name": "Grid"})));
+		}
+		if (!getLayer(layerList, "/Light")) {
+			layerList.children.push(processLayers(g({"data-name": "Light"})));
+		}
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
