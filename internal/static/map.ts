@@ -414,25 +414,22 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			}),
 			"getMapDetails": () => {
-				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || pattern({"width": "0"}),
-				      gridColour = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).map(e => ({"colour": e.getAttribute("stroke") || "rgba(0, 0, 0, 0)", "stroke": e.getAttribute("stroke-width") || "0"})).pop() || {"colour": "rgba(0, 0, 0, 0)", "stroke": "0"};
+				const grid = definitions.list["gridPattern"] as SVGGrid;
 				return {
 					"width": parseInt(root.getAttribute("width")!),
 					"height": parseInt(root.getAttribute("height")!),
-					"square": parseInt(grid.getAttribute("width")!),
-					"colour": rgba2Colour(gridColour["colour"]),
-					"stroke": parseInt(gridColour["stroke"])
+					"square": grid.width,
+					"colour": grid.stroke,
+					"stroke": grid.strokeWidth
 				}
 			},
 			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(details).then(() => {
-				const grid = (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).flatMap(e => Array.from(e.childNodes)).filter(e => e instanceof SVGPatternElement && e.getAttribute("id") === "gridPattern") as SVGPatternElement[]).pop() || (Array.from(root.childNodes).filter(e => e instanceof SVGDefsElement).pop() || root.appendChild(defs())).appendChild(pattern({"patternUnits": "userSpaceOnUse", "id": "gridPattern"})),
-				      gridPath = (Array.from(grid.childNodes).filter(e => e instanceof SVGPathElement) as SVGPathElement[]).pop() || path({"d": "M 0 1 V 0 H 1"});
+				const grid = definitions.list["gridPattern"] as SVGGrid;
 				root.setAttribute("width", details["width"].toString());
 				root.setAttribute("height", details["height"].toString());
-				grid.setAttribute("width", details["square"].toString());
-				grid.setAttribute("height", details["square"].toString());
-				gridPath.setAttribute("stroke", colour2RGBA(details["colour"]));
-				gridPath.setAttribute("stroke-width", details["stroke"].toString());
+				grid.width = details["square"];
+				grid.stroke = details["colour"];
+				grid.strokeWidth = details["stroke"];
 			})
 		});
 		base.appendChild(root);
