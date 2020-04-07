@@ -245,6 +245,9 @@ class Defs {
 			this.list[p.id] = p;
 		});
 	}
+	add(p: SVGPatternElement) {
+		this.list[p.getAttribute("id") || ""] = SVGPattern.from(p);
+	}
 }
 
 
@@ -318,6 +321,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
 		const root = createHTML((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": ""}),
+		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
