@@ -258,8 +258,17 @@ class Defs {
 		});
 	}
 	add(p: SVGPatternElement) {
-		this.list[p.getAttribute("id") || ""] = SVGPattern.from(p);
+		let id = p.getAttribute("id");
+		if (!id) {
+			let i = 0;
+			while (!this.list[`Pattern_${i}`]) {
+				i++;
+			};
+			id = `Pattern_${i}`;
+		}
+		this.list[id] = SVGPattern.from(p);
 		this.defs.appendChild(p);
+		return id;
 	}
 	remove(id: string) {
 		this.defs.removeChild(this.list[id].pattern);
