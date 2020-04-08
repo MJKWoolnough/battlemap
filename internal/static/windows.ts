@@ -1,5 +1,4 @@
-import {createHTML} from './lib/dom.js';
-import {div} from './lib/html.js';
+import {createHTML, div} from './lib/html.js';
 import {Shell as WindowsShell, WindowOptions, DialogOptions} from './lib/windows.js';
 
 type hasClose = {
