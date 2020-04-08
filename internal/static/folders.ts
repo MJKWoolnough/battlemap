@@ -1,6 +1,6 @@
 import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
-import {createHTML, clearElement, autoFocus} from './lib/html.js';
-import {br, button, div, h1, input, label, li, option, span, select, ul} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {br, button, div, h1, input, label, li, option, span, select, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
 import {showError, enterKey} from './misc.js';

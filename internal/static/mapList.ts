@@ -1,6 +1,6 @@
 import {FolderItems, Int, RPC, MapDetails} from './types.js';
-import {createHTML, clearElement, autoFocus} from './lib/html.js';
-import {br, button, h1, h2, input, label, span} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';

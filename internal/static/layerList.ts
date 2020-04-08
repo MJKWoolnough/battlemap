@@ -1,6 +1,6 @@
 import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
-import {createHTML, clearElement, autoFocus} from './lib/html.js';
-import {br, button, div, h1, input, label, span} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {noSort} from './lib/ordered.js';
 import {showError, enterKey, colour2Hex, hex2Colour} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';

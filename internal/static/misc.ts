@@ -1,4 +1,4 @@
-import {createHTML} from './lib/html.js';
+import {createHTML} from './lib/dom.js';
 import {Colour} from './types.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {

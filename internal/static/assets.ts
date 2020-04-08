@@ -1,6 +1,6 @@
 import {Int, RPC} from './types.js';
-import {createHTML, clearElement, autoFocus} from './lib/html.js';
-import {audio, button, div, form, h1, img, input, label, progress} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
 import {showError} from './misc.js';

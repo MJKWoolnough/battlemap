@@ -1,7 +1,7 @@
 import {Colour, FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {createHTML} from './lib/html.js';
+import {createHTML} from './lib/dom.js';
 import {defs, g, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';

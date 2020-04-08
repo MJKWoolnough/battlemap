@@ -1,7 +1,7 @@
 import RPC from './rpc.js';
 import {Int, LayerRPC, LayerFolder} from './types.js';
-import {createHTML, clearElement} from './lib/html.js';
-import {div, h2, input, label, style} from './lib/dom.js';
+import {createHTML, clearElement} from './lib/dom.js';
+import {div, h2, input, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
