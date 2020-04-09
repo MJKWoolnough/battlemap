@@ -189,6 +189,9 @@ func (p *pattern) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 					case "d":
 						p.Path.Path = attr.Value
 					case "fill":
+						if attr.Value == "transparent" {
+							continue
+						}
 						if err := p.Path.Fill.UnmarshalXMLAttr(attr); err != nil {
 							return err
 						}
