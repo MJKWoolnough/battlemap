@@ -251,7 +251,7 @@ class Defs {
 	defs: SVGDefsElement;
 	list: Record<string, SVGPattern | SVGImage> = {};
 	constructor(root: Node) {
-		this.defs = root.appendChild(defs(SortNode.from(root).filterRemove(c => c instanceof SVGDefsElement).flatMap(c => Array.from(c.node.childNodes))));
+		this.defs = root.appendChild(defs(SortNode.from(root).filterRemove(({node}) => node instanceof SVGDefsElement).flatMap(c => Array.from(c.node.childNodes))));
 		(Array.from(this.defs.childNodes).filter(c => c instanceof SVGPatternElement) as SVGPatternElement[]).forEach(c => {
 			const p = SVGPattern.from(c);
 			this.list[p.id] = p;
