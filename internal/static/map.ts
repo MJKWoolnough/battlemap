@@ -65,20 +65,6 @@ class SVGPath extends SVGPattern {
 	set d(d: string) {
 		this.path.setAttribute("d", d);
 	}
-	get width() {
-		return super.width;
-	}
-	set width(w: Int) {
-		this.path.setAttribute("width", w.toString());
-		super.width = w;
-	}
-	get height() {
-		return super.height;
-	}
-	set height(h: Int) {
-		this.path.setAttribute("height", h.toString());
-		super.height = h;
-	}
 	get fill() {
 		return rgba2Colour(this.path.getAttribute("fill") || "rgba(0, 0, 0, 0)");
 	}
