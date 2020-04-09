@@ -279,7 +279,7 @@ func TestMapsMarshal(t *testing.T) {
 			},
 		},
 		{ // 20
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Grid\"><rect width=\"100%\" height=\"100%\"></rect></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Grid\"><rect width=\"100%\" height=\"100%\" fill=\"url(#gridPattern)\"></rect></g></svg>",
 			Output: levelMap{
 				Width:    1,
 				Height:   2,
