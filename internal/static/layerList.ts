@@ -131,8 +131,8 @@ class ItemLayer extends Item {
 	}
 	show() {
 		if (this.id === -1) { // Grid
-			const root = this.parent.root,
-			      details = (root.rpcFuncs as LayerRPC).getMapDetails(),
+			const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC),
+			      details = rpcFuncs.getMapDetails(),
 			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width.toString(), "id": "mapWidth"}),
 			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height.toString(), "id": "mapHeight"}),
 			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square.toString(), "id": "mapSquareWidth"}),
@@ -157,13 +157,13 @@ class ItemLayer extends Item {
 				sqLineWidth,
 				br(),
 				button("Add", {"onclick": function(this: HTMLButtonElement) {
-					sh.addLoading(this.parentNode as HTMLDivElement, (root.rpcFuncs as LayerRPC).setMapDetails({
+					sh.addLoading(this.parentNode as HTMLDivElement, rpcFuncs.setMapDetails({
 						"width": parseInt(width.value),
 						"height": parseInt(height.value),
 						"square": parseInt(sqWidth.value),
 						"colour": hex2Colour(sqColour.value),
 						"stroke": parseInt(sqLineWidth.value)
-					})).then(() =>sh.removeWindow(this.parentNode as HTMLDivElement))
+					})).then(() => sh.removeWindow(this.parentNode as HTMLDivElement))
 					.catch(e => showError(this, e));
 				}})
 			]);
