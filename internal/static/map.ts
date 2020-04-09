@@ -1,6 +1,7 @@
 import {Colour, FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
+import {clearElement} from './lib/dom.js';
 import {createSVG, defs, g, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
@@ -426,6 +427,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				grid.strokeWidth = details["stroke"];
 			})
 		});
-		base.appendChild(root);
+		clearElement(base).appendChild(root);
 	}));
 }
