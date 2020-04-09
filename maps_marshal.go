@@ -274,6 +274,8 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 	}
 	if l.Name == "" {
 		return ErrInvalidLayer
+	} else if l.Name == "Grid" {
+		return nil
 	}
 	for {
 		t, err := x.Token()
@@ -579,9 +581,18 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 			}
 		}
 	} else {
-		for _, t := range l.Tokens {
-			if err := t.MarshalXML(x, xml.StartElement{}); err != nil {
-				return err
+		if l.Name == "Grid" {
+			r := xml.StartElement{Name: xml.Name{Local: "rect"}, Attr: []xml.Attr{
+				{Name: xml.Name{Local: "width"}, Value: "100%"},
+				{Name: xml.Name{Local: "height"}, Value: "100%"},
+			}}
+			x.EncodeToken(r)
+			x.EncodeToken(r.End())
+		} else {
+			for _, t := range l.Tokens {
+				if err := t.MarshalXML(x, xml.StartElement{}); err != nil {
+					return err
+				}
 			}
 		}
 	}
