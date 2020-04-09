@@ -49,7 +49,7 @@ class MapItem extends Item {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
 			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot remove active map"));
 		} else {
-			return super.rename();
+			return super.remove();
 		}
 	}
 	setUserMap() {
