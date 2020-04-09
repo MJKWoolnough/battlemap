@@ -523,6 +523,8 @@ func (p *pattern) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		if p.Path.Fill.A != 0 {
 			colour, _ := p.Path.Fill.MarshalXMLAttr(xml.Name{Local: "fill"})
 			attrs = append(attrs, colour)
+		} else {
+			attrs = append(attrs, xml.Attr{Name: xml.Name{Local: "fill"}, Value: "transparent"})
 		}
 		if p.Path.Stroke.A != 0 {
 			colour, _ := p.Path.Stroke.MarshalXMLAttr(xml.Name{Local: "stroke"})
@@ -585,6 +587,7 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 			r := xml.StartElement{Name: xml.Name{Local: "rect"}, Attr: []xml.Attr{
 				{Name: xml.Name{Local: "width"}, Value: "100%"},
 				{Name: xml.Name{Local: "height"}, Value: "100%"},
+				{Name: xml.Name{Local: "fill"}, Value: "url(#gridPattern)"},
 			}}
 			x.EncodeToken(r)
 			x.EncodeToken(r.End())
