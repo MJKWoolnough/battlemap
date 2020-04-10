@@ -20,6 +20,7 @@ html, body {
 	width: var(--panel-width);
 	border-left: 1px solid #000;
 	transition: right 1s, border-color 1s;
+	background-color: #fff;
 }
 
 #tabs > input, #panelContainer > div {
