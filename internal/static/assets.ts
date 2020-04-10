@@ -4,18 +4,24 @@ import {audio, button, div, form, h1, img, input, label, progress} from './lib/h
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
 import {showError} from './misc.js';
-import {Root, Item, windowOptions} from './folders.js';
+import {Root, Folder, Item, windowOptions} from './folders.js';
 
-class Asset extends Item {
+class ImageAsset extends Item {
 	show() {
 		const root = this.parent.root;
 		return createHTML(autoFocus(root.shell.addWindow(this.name, windowOptions)), {"class": "showAsset"}, [
 			h1(this.name),
-			root.fileType === "Images" ? [
-				img({"src": `/images/${this.id}`})
-			] : [
-				audio({"src": `/audio/${this.id}`, "controls": "controls"})
-			]
+			img({"src": `/images/${this.id}`})
+		]);
+	}
+}
+
+class AudioAsset extends Item {
+	show() {
+		const root = this.parent.root;
+		return createHTML(autoFocus(root.shell.addWindow(this.name, windowOptions)), {"class": "showAsset"}, [
+			h1(this.name),
+			audio({"src": `/audio/${this.id}`, "controls": "controls"})
 		]);
 	}
 }
@@ -23,7 +29,7 @@ class Asset extends Item {
 export default function (rpc: RPC, shell: Shell, base: Node, fileType: "Images" | "Audio") {
 	const rpcFuncs = fileType == "Audio" ? rpc["audio"] : rpc["images"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, fileType, rpcFuncs, shell, Asset);
+		const root = new Root(folderList, fileType, rpcFuncs, shell, fileType === "Images" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
 			button(`Upload ${fileType}`, {"onclick": () => createHTML(shell.addWindow(`Upload ${fileType}`, windowOptions), {"class": "assetAdd"}, [
 				h1(`Upload ${fileType}`),
