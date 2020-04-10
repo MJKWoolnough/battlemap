@@ -14,7 +14,6 @@ class ImageAsset extends Item {
 		createHTML(this.node.firstChild!, {
 			"draggable": "true",
 			"onmousemove": (e: MouseEvent) => {
-				let x = e.clientX + 5, y = e.clientY + 5;
 				this.icon.style.setProperty("--icon-top", (e.clientY + 5) + "px");
 				this.icon.style.setProperty("--icon-left",(e.clientX + 5) + "px");
 				if (!this.icon.parentNode) {
