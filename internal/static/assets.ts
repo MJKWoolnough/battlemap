@@ -17,7 +17,9 @@ class ImageAsset extends Item {
 				let x = e.clientX + 5, y = e.clientY + 5;
 				this.icon.style.setProperty("--icon-top", (e.clientY + 5) + "px");
 				this.icon.style.setProperty("--icon-left",(e.clientX + 5) + "px");
-				document.body.appendChild(this.icon);
+				if (!this.icon.parentNode) {
+					document.body.appendChild(this.icon);
+				}
 			},
 			"onmouseout": () => {
 				if (this.icon.parentNode) {
