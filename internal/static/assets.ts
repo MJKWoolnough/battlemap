@@ -7,6 +7,31 @@ import {showError} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 
 class ImageAsset extends Item {
+	icon: HTMLDivElement;
+	constructor(parent: Folder, id: Int, name: string) {
+		super(parent, id, name);
+		this.icon = div(img({"src": `/images/${this.id}`, "class": "imageIcon"}));
+		createHTML(this.node.firstChild!, {
+			"draggable": "true",
+			"onmousemove": (e: MouseEvent) => {
+				let x = e.clientX + 5, y = e.clientY + 5;
+				this.icon.style.setProperty("--icon-top", (e.clientY + 5) + "px");
+				this.icon.style.setProperty("--icon-left",(e.clientX + 5) + "px");
+				document.body.appendChild(this.icon);
+			},
+			"onmouseout": () => {
+				if (this.icon.parentNode) {
+					document.body.removeChild(this.icon);
+				}
+				this.icon.style.removeProperty("transform");
+			},
+			"ondragstart": (e: DragEvent) => {
+				e.dataTransfer!.setDragImage(this.icon, -5, -5);
+				e.dataTransfer!.setData("imageAsset", this.id.toString());
+				this.icon.style.setProperty("transform", "translateX(-9999px)");
+			}
+		});
+	}
 	show() {
 		const root = this.parent.root;
 		return createHTML(autoFocus(root.shell.addWindow(this.name, windowOptions)), {"class": "showAsset"}, [
