@@ -275,7 +275,6 @@ export class Folder {
 
 export class Root {
 	folder: Folder;
-	fileType: String
 	shell: Shell;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
@@ -284,7 +283,6 @@ export class Root {
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: Shell, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
-		this.fileType = fileType;
 		this.shell = shell;
 		this.rpcFuncs = rpcFuncs;
 		this.folder = new newFolder(this, null, "", rootFolder);
