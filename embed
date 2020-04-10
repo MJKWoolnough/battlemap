@@ -9,7 +9,7 @@ jslibSVG="$(realpath "$bm/../jslib/svg.sh")";
 	cd "$data";
 	head -n4 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
-	jslib -i "$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | $jslibHTML "lib/" | $jslibSVG "lib/" | uglify -cm | tr -d '\n'; # --mangle-props <- TODO:test this
+	jslib -i "$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | $jslibHTML "lib/" | $jslibSVG "lib/" | terser -cm | tr -d '\n'; # --mangle-props <- TODO:test this
 	echo -n "</script><style type=\"text/css\">";
 	grep -hv "^@import" *.css | uglifycss | tr -d '\n';
 	echo -n "</style>";
