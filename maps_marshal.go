@@ -398,7 +398,7 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		case "xlink:href", "href":
 			t.Source = attr.Value
 			if t.TokenType == tokenPattern {
-				t.TokenType = tokenRect
+				t.TokenType = tokenImage
 			}
 		case "fill":
 			if strings.HasPrefix(attr.Value, "url(") {
