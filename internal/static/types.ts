@@ -166,7 +166,6 @@ export type Token = {
 	source:      string;
 	stroke:      Colour;
 	strokeWidth: Int;
-	id:          Int;
 	x:           Int;
 	y:           Int;
 	width:       Int;
