@@ -328,7 +328,8 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		mask: node.getAttribute("mask") || "",
 		tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGRectElement ? {node: c} : undefined)
 	};
-      };
+      },
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -348,8 +349,17 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      waitLayerRemoveMask = subFn<Int>(),
 		      remove = (path: string) => {
 			const [fromParent, layer] = getParentLayer(layerList, path);
-			(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+			(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer)).forEach(e => {
+				if (selectedLayer === e) {
+					selectedLayer = null;
+				} else if (isSVGFolder(e)) {
+					if (walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
+						selectedLayer  = null;
+					}
+				}
+			});
 		      };
+		let selectedLayer: SVGLayer | null = null;
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
@@ -398,7 +408,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					layer.node.setAttribute("visibility", "hidden");
 				}
 			}),
-			"setLayer": (path: string) => {},
+			"setLayer": (path: string) => selectedLayer = getLayer(layerList, path) as SVGLayer,
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
 				const [parentStr, nameStr] = splitAfterLastSlash(from),
