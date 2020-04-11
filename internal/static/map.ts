@@ -2,14 +2,10 @@ import {Colour, FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, Layer
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, defs, g, path, pattern} from './lib/svg.js';
+import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
-
-type SVGToken = {
-	node: SVGElement;
-};
 
 type SVGLayer = Layer & {
 	node: SVGElement;
@@ -263,6 +259,15 @@ class Defs {
 	}
 }
 
+class SVGToken {
+	node: SVGImageElement;
+	transform: SVGTransform;
+	constructor(node: SVGImageElement) {
+		this.node = node;
+		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+	}
+}
+
 
 let layerNum = 0;
 
@@ -326,7 +331,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		name,
 		hidden,
 		mask: node.getAttribute("mask") || "",
-		tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGRectElement ? {node: c} : undefined)
+		tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : undefined)
 	};
       },
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
@@ -334,7 +339,16 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
-		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": ""}),
+		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
+			e.preventDefault();
+			e.dataTransfer!.dropEffect = "link";
+		      },"ondrop": (e: DragEvent) => {
+			if (selectedLayer === null) {
+				return;
+			}
+			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+			selectedLayer.tokens.push(new SVGToken(image({"href": `/images/${tokenData.id}`, "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
+		      }}),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
