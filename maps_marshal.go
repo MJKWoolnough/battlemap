@@ -656,7 +656,7 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 					Value: strconv.FormatUint(t.Height, 10),
 				},
 				{
-					Name:  xml.Name{Local: "xlink:href"},
+					Name:  xml.Name{Local: "href"},
 					Value: t.Source,
 				},
 				{
