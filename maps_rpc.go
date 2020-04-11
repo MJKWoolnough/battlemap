@@ -231,15 +231,16 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 		return nil, err
 	case "addToken":
-		var token struct {
+		var newToken struct {
 			*token
 			Path string `json:"path"`
 		}
-		if err := json.Unmarshal(data, &token); err != nil {
+		newToken.token = new(token)
+		if err := json.Unmarshal(data, &newToken); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, token.Path, func(mp *levelMap, l *layer) bool {
-			l.Tokens = append(l.Tokens, token.token)
+		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
+			l.Tokens = append(l.Tokens, newToken.token)
 			return true
 		}); err != nil {
 			return nil, err
