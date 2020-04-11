@@ -706,7 +706,7 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		})
 		if t.Source != "" {
 			attrs = append(attrs, xml.Attr{
-				Name:  xml.Name{Local: "xlink:href"},
+				Name:  xml.Name{Local: "fill"},
 				Value: t.Source,
 			})
 		}
