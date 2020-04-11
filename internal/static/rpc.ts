@@ -119,7 +119,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"addMask":         (path, mask)               => rpc.request("maps.addMask", {path, mask}),
 			"removeMask":       path                      => rpc.request("maps.removeMask", path),
 			"removeLayer":      path                      => rpc.request("maps.removeLayer", path),
-			"addToken":        (path, token)              => rpc.request("maps.addToken", {path, token}),
+			"addToken":        (path, token)              => rpc.request("maps.addToken", Object.assign(token, {"path": path})),
 			"removeToken":     (path, pos)                => rpc.request("maps.removeToken", {path, pos}),
 			"moveToken":       (path, pos, x, y)          => rpc.request("maps.moveToken", {path, pos, x, y}),
 			"resizeToken":     (path, pos, width, height) => rpc.request("maps.resizeToken", {path, pos, width, height}),
