@@ -346,8 +346,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			if (selectedLayer === null) {
 				return;
 			}
-			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-			selectedLayer.tokens.push(new SVGToken(image({"href": `/images/${tokenData.id}`, "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
+			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
+			      src = `/images/${tokenData.id}`;
+			selectedLayer.tokens.push(new SVGToken(image({"href": src, "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
+			rpc.addToken(selectedLayerPath, {"source": src, "x": e.clientX, "y": e.clientY, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
 		      }}),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
@@ -373,7 +375,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			});
 		      };
-		let selectedLayer: SVGLayer | null = null;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "";
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
@@ -405,6 +407,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"moveFolder": (from: string, to: string) => Promise.reject("invalid"),
 			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => {
 				getLayer(layerList, path)!.name = name;
+				if (selectedLayerPath === path) {
+					selectedLayerPath = splitAfterLastSlash(path)[0] + "/" + name;
+				}
 				return name;
 			}),
 			"remove": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
@@ -422,7 +427,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					layer.node.setAttribute("visibility", "hidden");
 				}
 			}),
-			"setLayer": (path: string) => selectedLayer = getLayer(layerList, path) as SVGLayer,
+			"setLayer": (path: string) => {
+				selectedLayer = getLayer(layerList, path) as SVGLayer;
+				selectedLayerPath = path;
+			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
 				const [parentStr, nameStr] = splitAfterLastSlash(from),
