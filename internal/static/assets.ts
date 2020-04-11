@@ -27,8 +27,12 @@ class ImageAsset extends Item {
 				this.icon.style.removeProperty("transform");
 			},
 			"ondragstart": (e: DragEvent) => {
+				const img = this.icon.firstChild as HTMLImageElement;
+				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+					e.preventDefault();
+				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				e.dataTransfer!.setData("imageAsset", this.id.toString());
+				e.dataTransfer!.setData("imageAsset", JSON.stringify({id: this.id.toString(), width: img.naturalWidth, height: img.naturalHeight}));
 				this.icon.style.setProperty("transform", "translateX(-9999px)");
 			}
 		});
