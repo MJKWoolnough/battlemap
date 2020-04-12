@@ -140,7 +140,7 @@ class SVGTransform {
 	toString() {
 		let ret = "";
 		if (this.x !== 0 || this.y !== 0) {
-			ret += `transform(${this.flop ? -this.x - this.width : this.x}, ${this.flip ? -this.y - this.height : this.y}) `;
+			ret += `translate(${this.flop ? -this.x - this.width : this.x}, ${this.flip ? -this.y - this.height : this.y}) `;
 		}
 		if (this.flip || this.flop) {
 			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
