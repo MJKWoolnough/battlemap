@@ -266,6 +266,9 @@ class SVGToken {
 		this.node = node;
 		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
+	at(x: Int, y: Int) {
+		return x >= this.transform.x && x < this.transform.x + this.transform.width && y >= this.transform.y && y < this.transform.y + this.transform.height;
+	}
 }
 
 
@@ -342,7 +345,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
-		      },"ondrop": (e: DragEvent) => {
+		      }, "ondrop": (e: DragEvent) => {
 			if (selectedLayer === null) {
 				return;
 			}
@@ -350,9 +353,22 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			      src = `/images/${tokenData.id}`;
 			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
 			rpc.addToken(selectedLayerPath, {"source": src, "x": e.clientX, "y": e.clientY, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
+		      }, "onclick": (e: MouseEvent) => {
+			if (!selectedLayer) {
+				return;
+			}
+			if (selectedToken) {
+				outline.setAttribute("visibility", "hidden");
+			}
+			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | null);
+			if (!selectedToken) {
+				return;
+			}
+			createSVG(outline, {"x": selectedToken.transform.x.toString(), "y": selectedToken.transform.y.toString(), "width": selectedToken.transform.width.toString(), "height": selectedToken.transform.height.toString()}).removeAttribute("visibility");
 		      }}),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
+		      outline = root.appendChild(rect({"stroke": "#000", "stroke-width": "1", "visibility": "hidden", "fill": "transparent"})),
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -375,7 +391,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			});
 		      };
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "";
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null;
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
