@@ -348,7 +348,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
 			      src = `/images/${tokenData.id}`;
-			selectedLayer.tokens.push(new SVGToken(image({"href": src, "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
+			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
 			rpc.addToken(selectedLayerPath, {"source": src, "x": e.clientX, "y": e.clientY, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
 		      }}),
 		      definitions = new Defs(root),
