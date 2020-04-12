@@ -120,6 +120,9 @@ class ItemLayer extends Item {
 				maskSelected = true;
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
 			}}), this.node.firstChild!.nextSibling);
+			if (selectedLayer === undefined) {
+				this.show();
+			}
 		}
 		if (hidden) {
 			this.node.classList.add("layerHidden");
