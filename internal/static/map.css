@@ -1,0 +1,72 @@
+svg {
+	cursor: var(--outline-cursor);
+}
+
+#outline  rect {
+	stroke-width: 1;
+	stroke: #000;
+	width: 10px;
+	height: 10px;
+	fill: #f00;
+}
+
+#outline  rect:nth-child(1) {
+	width: var(--outline-width);
+	height: var(--outline-height);
+	fill: transparent;
+	cursor: var(--outline-cursor, move);
+}
+
+#outline rect:nth-child(2) {
+	x: calc(var(--outline-width) / 2 - 5px);
+	y: -20px;
+	cursor: var(--outline-cursor, cell);
+}
+
+#outline rect:nth-child(3) {
+	x: -5px;
+	y: -5px;
+	cursor: var(--outline-cursor, nwse-resize);
+}
+
+#outline rect:nth-child(4) {
+	x: calc(var(--outline-width) / 2 - 5px);
+	y: -5px;
+	cursor: var(--outline-cursor, ns-resize);
+}
+
+#outline rect:nth-child(5) {
+	x: calc(var(--outline-width) - 5px);
+	y: -5px;
+	cursor: var(--outline-cursor, nesw-resize);
+}
+
+#outline rect:nth-child(6) {
+	x: -5px;
+	y: calc(var(--outline-height) / 2 - 5px);
+	cursor: var(--outline-cursor, ew-resize);
+}
+
+#outline rect:nth-child(7) {
+	x: calc(var(--outline-width) - 5px);
+	y: calc(var(--outline-height) / 2 - 5px);
+	cursor: var(--outline-cursor, ew-resize);
+}
+
+#outline rect:nth-child(8) {
+	x: -5px;
+	y: calc(var(--outline-height) - 5px);
+	cursor: var(--outline-cursor, nesw-resize);
+}
+
+#outline rect:nth-child(9) {
+	x: calc(var(--outline-width) / 2 - 5px);
+	y: calc(var(--outline-height) - 5px);
+	cursor: var(--outline-cursor, ns-resize);
+}
+
+#outline rect:nth-child(10) {
+	x: calc(var(--outline-width) - 5px);
+	y: calc(var(--outline-height) - 5px);
+	cursor: var(--outline-cursor, nwse-resize);
+}
