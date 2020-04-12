@@ -342,6 +342,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null, tokenDragX = 0, tokenDragY = 0;
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -353,22 +354,36 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			      src = `/images/${tokenData.id}`;
 			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
 			rpc.addToken(selectedLayerPath, {"source": src, "x": e.clientX, "y": e.clientY, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
-		      }, "onclick": (e: MouseEvent) => {
+		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer) {
 				return;
 			}
-			if (selectedToken) {
-				outline.setAttribute("visibility", "hidden");
+			if (outline.parentNode) {
+				outline.parentNode.removeChild(outline);
 			}
 			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | null);
 			if (!selectedToken) {
 				return;
 			}
-			createSVG(outline, {"x": selectedToken.transform.x.toString(), "y": selectedToken.transform.y.toString(), "width": selectedToken.transform.width.toString(), "height": selectedToken.transform.height.toString()}).removeAttribute("visibility");
+			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px"}));
 		      }}),
+		      tokenDrag = (e: MouseEvent) => {
+		      },
+		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
+			e.stopImmediatePropagation();
+			root.addEventListener("mousemove", tokenDrag);
+			root.addEventListener("mouseup", tokenMouseUp, {capture: false});
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize", "ew-resize", "nesw-resize", "ns-resize", "nwse-resize"][parseInt(this.getAttribute("data-outline")!)]);
+			// get mouse pos + set grab type
+		      },
+		      tokenMouseUp = (e: MouseEvent) => {
+			root.removeEventListener("mousemove", tokenDrag);
+			root.removeEventListener("mouseup", tokenMouseUp, {capture: false});
+			root.style.removeProperty("--outline-cursor");
+		      },
+		      outline = g({"id": "outline"}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
-		      outline = root.appendChild(rect({"stroke": "#000", "stroke-width": "1", "visibility": "hidden", "fill": "transparent"})),
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
@@ -391,7 +406,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				}
 			});
 		      };
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null;
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
