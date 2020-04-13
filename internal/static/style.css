@@ -4,6 +4,7 @@
 @import url("loader.css");
 @import url("mapList.css");
 @import url("layerList.css");
+@import url("map.css");
 
 html, body {
 	background-color: #fff;
