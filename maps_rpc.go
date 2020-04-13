@@ -258,64 +258,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			l.removeToken(tokenPos.Pos)
 			return true
 		})
-	case "moveToken":
-		var moveToken struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
-			X    int64  `json:"x"`
-			Y    int64  `json:"y"`
-		}
-		if err := json.Unmarshal(data, &moveToken); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, moveToken.Path, moveToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
-			if tk.X == moveToken.X && tk.Y == moveToken.Y {
-				return false
-			}
-			tk.X = moveToken.X
-			tk.Y = moveToken.Y
-			return true
-		})
-	case "resizeToken":
-		var resizeToken struct {
-			Path   string `json:"path"`
-			Pos    uint   `json:"pos"`
-			Width  int64  `json:"width"`
-			Height int64  `json:"height"`
-		}
-		if err := json.Unmarshal(data, &resizeToken); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, resizeToken.Path, resizeToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
-			if resizeToken.Width < 0 {
-				tk.X += int64(tk.Width) + resizeToken.Width
-				resizeToken.Width *= -1
-			}
-			if resizeToken.Height < 0 {
-				tk.Y += int64(tk.Height) + resizeToken.Height
-				resizeToken.Height *= -1
-			}
-			if tk.Width == uint64(resizeToken.Width) && tk.Height == uint64(resizeToken.Height) {
-				return false
-			}
-			tk.Width = uint64(resizeToken.Width)
-			tk.Height = uint64(resizeToken.Height)
-			return true
-		})
-	case "rotateToken":
-		var rotateToken struct {
+	case "setToken":
+		var setToken struct {
 			Path     string `json:"path"`
 			Pos      uint   `json:"pos"`
+			X        int64  `json:"x"`
+			Y        int64  `json:"y"`
+			Width    uint64 `json:"width"`
+			Height   uint64 `json:"height"`
 			Rotation uint8  `json:"rotation"`
 		}
-		if err := json.Unmarshal(data, &rotateToken); err != nil {
+		if err := json.Unmarshal(data, &setToken); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, rotateToken.Path, rotateToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
-			if tk.Rotation == rotateToken.Rotation {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, setToken.Path, setToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
+			if tk.X == setToken.X && tk.Y == setToken.Y && tk.Width == setToken.Width && tk.Height == setToken.Height && tk.Rotation == setToken.Rotation {
 				return false
 			}
-			tk.Rotation = rotateToken.Rotation
+			tk.X = setToken.X
+			tk.Y = setToken.Y
+			tk.Width = uint64(setToken.Width)
+			tk.Height = uint64(setToken.Height)
+			tk.Rotation = setToken.Rotation
 			return true
 		})
 	case "flipToken":
