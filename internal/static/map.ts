@@ -342,7 +342,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null, tokenDragX = 0, tokenDragY = 0;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -368,19 +368,40 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px"}));
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
+			let {x, y, width, height} = selectedToken!.transform;
+			const mDx = e.clientX - tokenMousePos[0],
+			      mDy = e.clientY - tokenMousePos[1];
+			tokenMousePos[0] = e.clientX;
+			tokenMousePos[1] = e.clientY;
+			switch (tokenDragMode) {
+			case 0:
+				x += mDx;
+				y += mDy;
+				break;
+			}
+			selectedToken!.transform.x = x;
+			selectedToken!.transform.y = y;
+			selectedToken!.transform.width = width;
+			selectedToken!.transform.height = height;
+			const t = selectedToken!.transform.toString();
+			selectedToken!.node.setAttribute("transform", t);
+			outline.setAttribute("transform", t);
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
 			e.stopImmediatePropagation();
 			root.addEventListener("mousemove", tokenDrag);
-			root.addEventListener("mouseup", tokenMouseUp, {capture: false});
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize", "ew-resize", "nesw-resize", "ns-resize", "nwse-resize"][parseInt(this.getAttribute("data-outline")!)]);
-			// get mouse pos + set grab type
+			root.addEventListener("mouseup", tokenMouseUp);
+			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize", "ew-resize", "nesw-resize", "ns-resize", "nwse-resize"][tokenDragMode]);
+			tokenMousePos[0] = e.clientX;
+			tokenMousePos[1] = e.clientY;
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
 			root.removeEventListener("mousemove", tokenDrag);
-			root.removeEventListener("mouseup", tokenMouseUp, {capture: false});
+			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
 		      },
+		      tokenMousePos = [0, 0],
 		      outline = g({"id": "outline"}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
