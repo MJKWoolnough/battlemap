@@ -426,7 +426,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
-			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation);
+			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
 		      tokenMousePos = [0, 0],
 		      outline = g({"id": "outline"}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
