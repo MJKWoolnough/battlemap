@@ -378,11 +378,39 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				x += mDx;
 				y += mDy;
 				break;
+			case 2:
+			case 3:
+			case 4:
+				y += mDy;
+				height -= mDy;
+				break;
+			case 7:
+			case 8:
+			case 9:
+				height += mDy;
+				break;
+			}
+			switch (tokenDragMode) {
+			case 2:
+			case 5:
+			case 7:
+				x += mDx;
+				width -= mDx;
+				break;
+			case 4:
+			case 6:
+			case 9:
+				width += mDx;
+				break;
 			}
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
 			selectedToken!.transform.width = width;
+			selectedToken!.node.setAttribute("width", width.toString());
+			outline.style.setProperty("--outline-width", width.toString() + "px");
 			selectedToken!.transform.height = height;
+			selectedToken!.node.setAttribute("height", height.toString());
+			outline.style.setProperty("--outline-height", height.toString() + "px");
 			const t = selectedToken!.transform.toString();
 			selectedToken!.node.setAttribute("transform", t);
 			outline.setAttribute("transform", t);
