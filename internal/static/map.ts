@@ -481,6 +481,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			"setLayer": (path: string) => {
 				selectedLayer = getLayer(layerList, path) as SVGLayer;
 				selectedLayerPath = path;
+				selectedToken = null;
+				if (outline.parentNode) {
+					outline.parentNode.removeChild(outline);
+				}
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
