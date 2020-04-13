@@ -358,9 +358,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			if (!selectedLayer) {
 				return;
 			}
-			if (outline.parentNode) {
-				outline.parentNode.removeChild(outline);
-			}
+			unselectToken();
 			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | null);
 			if (!selectedToken) {
 				return;
@@ -454,6 +452,12 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					}
 				}
 			});
+		      },
+		      unselectToken = () => {
+			selectedToken = null;
+			if (outline.parentNode) {
+				outline.parentNode.removeChild(outline);
+			}
 		      };
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
@@ -505,14 +509,14 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				} else {
 					layer.node.setAttribute("visibility", "hidden");
 				}
+				if (layer === selectedLayer) {
+					unselectToken();
+				}
 			}),
 			"setLayer": (path: string) => {
 				selectedLayer = getLayer(layerList, path) as SVGLayer;
 				selectedLayerPath = path;
-				selectedToken = null;
-				if (outline.parentNode) {
-					outline.parentNode.removeChild(outline);
-				}
+				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
@@ -522,6 +526,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				if (isSVGFolder(fromParent)) {
 					toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 				}
+				unselectToken();
 			}),
 			"getMapDetails": () => {
 				const grid = definitions.list["gridPattern"] as SVGGrid;
