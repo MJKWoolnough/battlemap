@@ -142,11 +142,13 @@ class SVGTransform {
 		if (this.x !== 0 || this.y !== 0) {
 			ret += `translate(${this.flop ? -this.x - this.width : this.x}, ${this.flip ? -this.y - this.height : this.y}) `;
 		}
+		if (this.rotation !== 0) {
+			ret += `translate(${this.width / 2}, ${this.height / 2}) `;
+			ret += `rotate(${360 * this.rotation / 256})`;
+			ret += `translate(${-this.width / 2}, ${-this.height / 2}) `;
+		}
 		if (this.flip || this.flop) {
 			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
-		}
-		if (this.rotation !== 0) {
-			ret += `rotate(${this.rotation})`;
 		}
 		return ret;
 	}
@@ -366,7 +368,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px"}));
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
-			let {x, y, width, height} = selectedToken!.transform;
+			let {x, y, width, height, rotation} = selectedToken!.transform;
 			const mDx = e.clientX - tokenMousePos[0],
 			      mDy = e.clientY - tokenMousePos[1];
 			tokenMousePos[0] = e.clientX;
@@ -375,6 +377,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			case 0:
 				x += mDx;
 				y += mDy;
+				break;
+			case 1:
+				const mx = (x + width / 2) - e.clientX, my = (y + height / 2) - e.clientY,
+				      a = Math.acos(my / Math.sqrt(mx * mx + my * my));
+				if (mx > 0) {
+					rotation = 128 * (2 * Math.PI - a) / Math.PI;
+				} else {
+					rotation = 128 * a / Math.PI;
+				}
+				rotation = Math.round(rotation);
 				break;
 			case 2:
 			case 3:
@@ -404,6 +416,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
 			selectedToken!.transform.width = width;
+			selectedToken!.transform.rotation = rotation;
 			selectedToken!.node.setAttribute("width", width.toString());
 			outline.style.setProperty("--outline-width", width.toString() + "px");
 			selectedToken!.transform.height = height;
