@@ -349,8 +349,8 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 				case "translate":
 					pt.Accept("-")
 					pt.AcceptRun(numbers)
-					var err error
-					if translateX, err = strconv.ParseInt(pt.Get(), 10, 64); err != nil {
+					tX, err := strconv.ParseInt(pt.Get(), 10, 64)
+					if err != nil {
 						return fmt.Errorf("error parsing translate X: %w", err)
 					}
 					pt.AcceptRun(" ")
@@ -363,12 +363,15 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 					pt.Get()
 					pt.Accept("-")
 					pt.AcceptRun(numbers)
-					if translateY, err = strconv.ParseInt(pt.Get(), 10, 64); err != nil {
+					tY, err := strconv.ParseInt(pt.Get(), 10, 64)
+					if err != nil {
 						return fmt.Errorf("error parsing translate Y: %w", err)
 					}
 					pt.AcceptRun(" ")
 					pt.Accept(")")
 					pt.Get()
+					translateX += tX
+					translateY += tY
 				case "scale":
 					if pt.Accept("-") {
 						t.Flop = true
