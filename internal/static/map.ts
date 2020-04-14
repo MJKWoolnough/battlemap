@@ -111,10 +111,12 @@ class SVGTransform {
 			switch (fn) {
 			case "translate":
 				if (b) {
-					this.x = parseInt(a);
-					this.y = parseInt(b);
+					this.x += parseInt(a);
+					this.y += parseInt(b);
 				} else {
-					this.x = this.y = parseInt(a);
+					const da = parseInt(a);
+					this.x += da;
+					this.y += da;
 				}
 				break;
 			case "rotate":
