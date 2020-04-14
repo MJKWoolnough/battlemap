@@ -420,6 +420,11 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				width += mDx;
 				break;
 			}
+			x = Math.round(x);
+			y = Math.round(y);
+			rotation = Math.round(rotation);
+			width = Math.round(width);
+			height = Math.round(height);
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
 			selectedToken!.transform.width = width;
