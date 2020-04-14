@@ -625,6 +625,11 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 			transform = "translate(" + strconv.FormatInt(translateX, 10) + ", " + strconv.FormatInt(translateY, 10) + ") "
 		}
 	}
+	if t.Rotation != 0 {
+		w := strconv.FormatUint(t.Width/2, 10)
+		h := strconv.FormatUint(t.Width/2, 10)
+		transform += "translate(" + w + ", " + h + ") rotate(" + strconv.FormatUint(uint64(t.Rotation)*360/256, 10) + ", " + strconv.FormatUint(t.Width>>1, 10) + ", " + strconv.FormatUint(t.Height>>1, 10) + ") translate(-" + w + ", -" + h + ") "
+	}
 	if t.Flip {
 		if t.Flop {
 			transform += "scale(-1, -1) "
@@ -633,9 +638,6 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		}
 	} else if t.Flop {
 		transform += "scale(-1, 1) "
-	}
-	if t.Rotation != 0 {
-		transform += "rotate(" + strconv.FormatUint(uint64(t.Rotation)*360/256, 10) + ", " + strconv.FormatUint(t.Width>>1, 10) + ", " + strconv.FormatUint(t.Height>>1, 10) + ")"
 	}
 	transform = strings.TrimSuffix(transform, " ")
 	switch t.TokenType {
