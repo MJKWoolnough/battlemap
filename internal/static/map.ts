@@ -107,7 +107,7 @@ class SVGTransform {
 	constructor(transform: string, width: Int, height: Int) {
 		this.width = width;
 		this.height = height;
-		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([0-9]+) *,? *([0-9]*) *\)/g)) {
+		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([0-9]+) *,? *([0-9]*) *,? *[0-9]* *\)/g)) {
 			switch (fn) {
 			case "translate":
 				if (b) {
@@ -144,13 +144,11 @@ class SVGTransform {
 		if (this.x !== 0 || this.y !== 0) {
 			ret += `translate(${this.flop ? -this.x - this.width : this.x}, ${this.flip ? -this.y - this.height : this.y}) `;
 		}
-		if (this.rotation !== 0) {
-			ret += `translate(${this.width / 2}, ${this.height / 2}) `;
-			ret += `rotate(${360 * this.rotation / 256})`;
-			ret += `translate(${-this.width / 2}, ${-this.height / 2}) `;
-		}
 		if (this.flip || this.flop) {
 			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
+		}
+		if (this.rotation !== 0) {
+			ret += `rotate(${360 * this.rotation / 256}, ${this.width / 2}, ${this.height / 2})`;
 		}
 		return ret;
 	}
