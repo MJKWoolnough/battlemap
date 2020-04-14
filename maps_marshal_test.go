@@ -187,7 +187,7 @@ func TestMapsMarshal(t *testing.T) {
 			Err:   ErrInvalidToken,
 		},
 		{ // 15
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Test Layer 1\"><rect width=\"1\" height=\"2\" href=\"1.png\"></rect></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Test Layer 1\"><image preserveAspectRatio=\"none\" width=\"1\" height=\"2\" href=\"1.png\" data-token=\"0\"></image></g></svg>",
 			Output: levelMap{
 				Width:    1,
 				Height:   2,
@@ -223,7 +223,7 @@ func TestMapsMarshal(t *testing.T) {
 			Err:   ErrInvalidLayerFolder,
 		},
 		{ // 18
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Test Layer 1\"><rect width=\"1\" height=\"2\" href=\"1.png\"></rect><rect width=\"3\" height=\"4\" fill=\"url(#pattern_1)\" data-token=\"1\"></rect></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Test Layer 1\"><image preserveAspectRatio=\"none\" width=\"1\" height=\"2\" href=\"1.png\" data-token=\"0\"></image><rect width=\"3\" height=\"4\" fill=\"url(#pattern_1)\" data-token=\"1\"></rect></g></svg>",
 			Output: levelMap{
 				Width:    1,
 				Height:   2,
