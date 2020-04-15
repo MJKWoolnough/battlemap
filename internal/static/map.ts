@@ -512,7 +512,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			layerList.children.push(processLayers(g({"data-name": "Grid"}, rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)" }))));
 		}
 		if (!getLayer(layerList, "/Light")) {
-			layerList.children.push(processLayers(g({"data-name": "Light"})));
+			layerList.children.push(processLayers(g({"data-name": "Light"}, rect({"width": "100%", "height": "100%", "fill": "transparent" }))));
 		}
 		setLayers({
 			"waitAdded": () => waitAdded[1],
