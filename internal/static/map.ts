@@ -480,7 +480,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
 		if (!getLayer(layerList, "/Grid")) {
-			layerList.children.push(processLayers(g({"data-name": "Grid"})));
+			layerList.children.push(processLayers(g({"data-name": "Grid"}, rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)" }))));
 		}
 		if (!getLayer(layerList, "/Light")) {
 			layerList.children.push(processLayers(g({"data-name": "Light"})));
