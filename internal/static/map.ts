@@ -9,7 +9,7 @@ import {Shell} from './windows.js';
 
 type SVGLayer = Layer & {
 	node: SVGElement;
-	tokens: SortNode<SVGToken>;
+	tokens: SortNode<SVGToken | SVGShape>;
 };
 
 type SVGFolder = LayerFolder & {
@@ -63,13 +63,13 @@ class SVGPath extends SVGPattern {
 		this.path.setAttribute("d", d);
 	}
 	get fill() {
-		return rgba2Colour(this.path.getAttribute("fill") || "rgba(0, 0, 0, 0)");
+		return rgba2Colour(this.path.getAttribute("fill") || "");
 	}
 	set fill(f: Colour) {
 		this.path.setAttribute("fill", colour2RGBA(f));
 	}
 	get stroke() {
-		return rgba2Colour(this.path.getAttribute("stroke") || "rgba(0, 0, 0, 0)");
+		return rgba2Colour(this.path.getAttribute("stroke") || "");
 	}
 	set stroke(s: Colour) {
 		this.path.setAttribute("stroke", colour2RGBA(s));
@@ -273,6 +273,35 @@ class SVGToken {
 	}
 }
 
+class SVGShape {
+	node: SVGRectElement | SVGCircleElement;
+	transform: SVGTransform;
+	constructor(node: SVGRectElement | SVGCircleElement) {
+		this.node = node;
+		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+	}
+	get fill() {
+		return rgba2Colour(this.node.getAttribute("fill") || "");
+	}
+	set fill(c: Colour) {
+		this.node.setAttribute("fill", colour2RGBA(c));
+	}
+	get stroke() {
+		return rgba2Colour(this.node.getAttribute("stroke") || "");
+	}
+	set stroke(s: Colour) {
+		this.node.setAttribute("stroke", colour2RGBA(s));
+	}
+	get strokeWidth() {
+		return parseInt(this.node.getAttribute("stroke-width") || "0");
+	}
+	set strokeWidth(w: Int) {
+		this.node.setAttribute("stroke-width", w.toString());
+	}
+	at(x: Int, y: Int) {
+		return x >= this.transform.x && x < this.transform.x + this.transform.width && y >= this.transform.y && y < this.transform.y + this.transform.height;
+	}
+}
 
 let layerNum = 0;
 
@@ -336,7 +365,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		name,
 		hidden,
 		mask: node.getAttribute("mask") || "",
-		tokens: SortNode.from<SVGToken, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : undefined)
+		tokens: SortNode.from<SVGToken | SVGShape, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : c instanceof SVGRectElement || c instanceof SVGCircleElement ? new SVGShape(c) : undefined)
 	};
       },
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
@@ -344,7 +373,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -361,7 +390,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				return;
 			}
 			unselectToken();
-			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | null);
+			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
 			if (!selectedToken) {
 				return;
 			}
