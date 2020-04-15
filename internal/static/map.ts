@@ -508,11 +508,33 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
-		if (!getLayer(layerList, "/Grid")) {
-			layerList.children.push(processLayers(g({"data-name": "Grid"}, rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)" }))));
+		{
+			const gridRect = rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)" }),
+			      grid = getLayer(layerList, "/Grid");
+			if (grid && isSVGLayer(grid)) {
+				grid.tokens.filterRemove(() => true);
+				grid.tokens.push(new SVGShape(gridRect));
+			} else {
+				layerList.children.push(processLayers(g({"data-name": "Grid"}, gridRect)));
+			}
 		}
-		if (!getLayer(layerList, "/Light")) {
-			layerList.children.push(processLayers(g({"data-name": "Light"}, rect({"width": "100%", "height": "100%", "fill": "transparent" }))));
+		{
+			const lightRect = rect({"width": "100%", "height": "100%", "fill": "transparent" }),
+			      light = getLayer(layerList, "/Light");
+			if (light && isSVGLayer(light)) {
+				if (light.tokens.length !== 1) {
+					light.tokens.filterRemove(() => true);
+					light.tokens.push(new SVGShape(lightRect));
+				} else {
+					const rect = light.tokens[0];
+					if (!(rect instanceof SVGRect) || rect.node.getAttribute("width") !== "100%" || rect.node.getAttribute("height") !== "100%") {
+						light.tokens.filterRemove(() => true);
+						light.tokens.push(new SVGShape(lightRect));
+					}
+				}
+			} else {
+				layerList.children.push(processLayers(g({"data-name": "Light"}, lightRect)));
+			}
 		}
 		setLayers({
 			"waitAdded": () => waitAdded[1],
