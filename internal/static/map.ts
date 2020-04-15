@@ -613,7 +613,13 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				grid.width = details["square"];
 				grid.stroke = details["colour"];
 				grid.strokeWidth = details["stroke"];
-			})
+			}),
+			"getLightColour": () => {
+				return ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill
+			},
+			"setLightColour": (c: Colour) => {
+				((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
+			}
 		});
 		clearElement(base).appendChild(root);
 	}));
