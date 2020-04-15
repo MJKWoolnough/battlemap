@@ -384,14 +384,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				y += mDy;
 				break;
 			case 1:
-				const mx = (x + width / 2) - e.clientX, my = (y + height / 2) - e.clientY,
-				      a = Math.acos(my / Math.sqrt(mx * mx + my * my));
-				if (mx > 0) {
-					rotation = 128 * (2 * Math.PI - a) / Math.PI;
-				} else {
-					rotation = 128 * a / Math.PI;
-				}
-				rotation = Math.round(rotation);
+				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
 				break;
 			case 2:
 			case 3:
