@@ -374,7 +374,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			      s = Math.sin(r),
 			      dx = e.clientX - tokenMousePos[0],
 			      dy = e.clientY - tokenMousePos[1],
-			      mDx = c * dx + s * dy,
+			      mDx = c * dx - s * dy,
 			      mDy = c * dy + s * dx;
 			tokenMousePos[0] = e.clientX;
 			tokenMousePos[1] = e.clientY;
