@@ -369,7 +369,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = selectedToken!.transform;
-			const r = (Math.PI / 128) * rotation,
+			const r = -(Math.PI / 128) * rotation,
 			      c = Math.cos(r),
 			      s = Math.sin(r),
 			      dx = e.clientX - tokenMousePos[0],
@@ -380,8 +380,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			tokenMousePos[1] = e.clientY;
 			switch (tokenDragMode) {
 			case 0:
-				x += mDx;
-				y += mDy;
+				x += dx;
+				y += dy;
 				break;
 			case 1:
 				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
