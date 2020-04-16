@@ -556,38 +556,46 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			}),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
 			"moveFolder": (from: string, to: string) => Promise.reject("invalid"),
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => {
+			"renameLayer": (path: string, name: string) => {
 				getLayer(layerList, path)!.name = name;
 				if (selectedLayerPath === path) {
 					selectedLayerPath = splitAfterLastSlash(path)[0] + "/" + name;
 				}
-				return name;
-			}),
-			"remove": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
-			"removeFolder": (path: string) => rpc.removeLayer(path).then(() => remove(path)),
+				return rpc.renameLayer(path, name)
+			},
+			"remove": (path: string) => {
+				remove(path);
+				return rpc.removeLayer(path);
+			},
+			"removeFolder": (path: string) => {
+				remove(path);
+				return rpc.removeLayer(path);
+			},
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				layerList.children.push(processLayers(g({"data-name": name})));
 				return name;
 			}),
-			"setVisibility": (path: string, visibility: boolean)  => (visibility ? rpc.showLayer : rpc.hideLayer)(path).then(() => {
+			"setVisibility": (path: string, visibility: boolean) => {
 				const layer = getLayer(layerList, path)!;
-				if (visibility) {
-					layer.node.removeAttribute("visibility");
-				} else {
-					layer.node.setAttribute("visibility", "hidden");
-				}
 				if (layer === selectedLayer) {
 					unselectToken();
 				}
-			}),
+				if (visibility) {
+					layer.node.removeAttribute("visibility");
+					return rpc.showLayer(path);
+				} else {
+					layer.node.setAttribute("visibility", "hidden");
+					return rpc.hideLayer(path);
+				}
+			},
 			"setLayer": (path: string) => {
 				selectedLayer = getLayer(layerList, path) as SVGLayer;
 				selectedLayerPath = path;
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, pos: Int) => rpc.moveLayer(from, to, pos).then(() => {
+			"moveLayer": (from: string, to: string, pos: Int) => {
 				const [parentStr, nameStr] = splitAfterLastSlash(from),
 				      fromParent = getLayer(layerList, parentStr)!,
 				      toParent = getLayer(layerList, to) as SVGFolder;
@@ -595,7 +603,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 				}
 				unselectToken();
-			}),
+				return rpc.moveLayer(from, to, pos);
+			},
 			"getMapDetails": () => {
 				const grid = definitions.list["gridPattern"] as SVGGrid;
 				return {
@@ -606,20 +615,21 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					"stroke": grid.strokeWidth
 				}
 			},
-			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(details).then(() => {
+			"setMapDetails": (details: GridDetails) => {
 				const grid = definitions.list["gridPattern"] as SVGGrid;
 				root.setAttribute("width", details["width"].toString());
 				root.setAttribute("height", details["height"].toString());
 				grid.width = details["square"];
 				grid.stroke = details["colour"];
 				grid.strokeWidth = details["stroke"];
-			}),
+				return rpc.setMapDetails(details);
+			},
 			"getLightColour": () => {
 				return ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill
 			},
 			"setLightColour": (c: Colour) => {
 				((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
-				rpc.setLightColour(c);
+				return rpc.setLightColour(c);
 			}
 		});
 		clearElement(base).appendChild(root);
