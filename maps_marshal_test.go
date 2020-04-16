@@ -258,7 +258,7 @@ func TestMapsMarshal(t *testing.T) {
 			},
 		},
 		{ // 19
-			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Light\" mask=\"rgba(255, 0, 0, 0.500)\"></g></svg>",
+			Input: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 20010904//EN\" \"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" width=\"1\" height=\"2\" data-initiative=\"\"><defs></defs><g data-name=\"Light\"><rect width=\"100%\" height=\"100%\" fill=\"rgba(255, 0, 0, 0.500)\"></rect></g></svg>",
 			Output: levelMap{
 				Width:    1,
 				Height:   2,
@@ -272,7 +272,11 @@ func TestMapsMarshal(t *testing.T) {
 					Layers: []*layer{
 						&layer{
 							Name: "Light",
-							Mask: "rgba(255, 0, 0, 0.500)",
+							Tokens: []*token{
+								&token{
+									Source: "rgba(255, 0, 0, 0.500)",
+								},
+							},
 						},
 					},
 				},
