@@ -107,8 +107,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"getUserMap":    ()  => rpc.request("maps.getUserMap"),
 			"setUserMap":     id => rpc.request("maps.setUserMap", id),
 
-			"newMap":         map           => rpc.request("maps.new", map),
-			"setMapDetails":  map           => rpc.request("maps.setMapDetails", map),
+			"newMap":         map    => rpc.request("maps.new", map),
+			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map),
+			"setLightColour": colour => rpc.request("maps.setLightColour", colour),
 
 			"addLayer":         name                                      => rpc.request("maps.addLayer", name),
 			"addLayerFolder":   path                                      => rpc.request("maps.addLayerFolder", path),
