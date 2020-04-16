@@ -619,6 +619,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			},
 			"setLightColour": (c: Colour) => {
 				((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
+				rpc.setLightColour(c);
 			}
 		});
 		clearElement(base).appendChild(root);
