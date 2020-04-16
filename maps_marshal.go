@@ -279,6 +279,32 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		return ErrInvalidLayer
 	} else if l.Name == "Grid" {
 		return nil
+	} else if l.Name == "Light" {
+		var fill string
+		for {
+			t, err := x.Token()
+			if err != nil {
+				return err
+			}
+			if se, ok := t.(xml.StartElement); ok {
+				for _, attr := range se.Attr {
+					if attr.Name.Local == "fill" {
+						fill = attr.Value
+					}
+				}
+				x.Skip()
+				x.Skip()
+				break
+			} else if _, ok = t.(xml.EndElement); ok {
+				break
+			}
+		}
+		l.Tokens = []*token{
+			&token{
+				Source: fill,
+			},
+		}
+		return nil
 	}
 	for {
 		t, err := x.Token()
@@ -591,6 +617,14 @@ func (l *layer) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 				{Name: xml.Name{Local: "width"}, Value: "100%"},
 				{Name: xml.Name{Local: "height"}, Value: "100%"},
 				{Name: xml.Name{Local: "fill"}, Value: "url(#gridPattern)"},
+			}}
+			x.EncodeToken(r)
+			x.EncodeToken(r.End())
+		} else if l.Name == "Light" {
+			r := xml.StartElement{Name: xml.Name{Local: "rect"}, Attr: []xml.Attr{
+				{Name: xml.Name{Local: "width"}, Value: "100%"},
+				{Name: xml.Name{Local: "height"}, Value: "100%"},
+				{Name: xml.Name{Local: "fill"}, Value: l.Tokens[0].Source},
 			}}
 			x.EncodeToken(r)
 			x.EncodeToken(r.End())
