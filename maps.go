@@ -90,6 +90,11 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 				},
 				&layer{
 					Name: "Light",
+					Tokens: []*token{
+						&token{
+							Source: "rgba(0, 0, 0, 0)",
+						},
+					},
 				},
 				&layer{
 					Name: "Grid",
