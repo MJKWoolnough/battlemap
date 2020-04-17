@@ -440,11 +440,6 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				width += mDx;
 				break;
 			}
-			x = Math.round(x);
-			y = Math.round(y);
-			rotation = Math.round(rotation);
-			width = Math.round(width);
-			height = Math.round(height);
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
 			selectedToken!.transform.width = width;
@@ -471,6 +466,11 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
+			selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
+			selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
+			selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
+			selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
+			selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
 		      tokenMousePos = [0, 0],
