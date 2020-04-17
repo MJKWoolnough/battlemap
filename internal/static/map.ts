@@ -527,7 +527,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 					light.tokens.push(new SVGShape(lightRect));
 				} else {
 					const rect = light.tokens[0];
-					if (!(rect instanceof SVGRect) || rect.node.getAttribute("width") !== "100%" || rect.node.getAttribute("height") !== "100%") {
+					if (!(rect instanceof SVGShape) || rect.node.getAttribute("width") !== "100%" || rect.node.getAttribute("height") !== "100%") {
 						light.tokens.filterRemove(() => true);
 						light.tokens.push(new SVGShape(lightRect));
 					}
