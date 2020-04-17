@@ -148,27 +148,31 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 
 func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *layer) bool) error {
 	var err error
-	err = m.updateMapData(mid, func(mp *levelMap) bool {
+	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
 		l := getLayer(&mp.layer, path)
 		if l != nil {
 			return fn(mp, l)
 		}
 		err = ErrUnknownLayer
 		return false
-	})
+	}); errr != nil {
+		return errr
+	}
 	return err
 }
 
 func (m *mapsDir) updateMapsLayerToken(mid uint64, path string, pos uint, fn func(*levelMap, *layer, *token) bool) error {
 	var err error
-	err = m.updateMapData(mid, func(mp *levelMap) bool {
+	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
 		l, t := getParentToken(&mp.layer, path, pos)
 		if t != nil {
 			return fn(mp, l, t)
 		}
 		err = ErrUnknownToken
 		return false
-	})
+	}); errr != nil {
+		return errr
+	}
 	return err
 }
 
