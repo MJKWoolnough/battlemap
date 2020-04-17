@@ -459,7 +459,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.addEventListener("mousemove", tokenDrag);
 			root.addEventListener("mouseup", tokenMouseUp);
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize", "ew-resize", "nesw-resize", "ns-resize", "nwse-resize"][tokenDragMode]);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.transform.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos[0] = e.clientX;
 			tokenMousePos[1] = e.clientY;
 		      },
