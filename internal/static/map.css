@@ -10,7 +10,7 @@ svg {
 	fill: #f00;
 }
 
-#outline  rect:nth-child(1) {
+#outline rect:nth-child(1) {
 	width: var(--outline-width);
 	height: var(--outline-height);
 	fill: transparent;
@@ -26,47 +26,55 @@ svg {
 #outline rect:nth-child(3) {
 	x: -5px;
 	y: -5px;
-	cursor: var(--outline-cursor, nwse-resize);
 }
 
 #outline rect:nth-child(4) {
 	x: calc(var(--outline-width) / 2 - 5px);
 	y: -5px;
-	cursor: var(--outline-cursor, ns-resize);
 }
 
 #outline rect:nth-child(5) {
 	x: calc(var(--outline-width) - 5px);
 	y: -5px;
-	cursor: var(--outline-cursor, nesw-resize);
 }
 
 #outline rect:nth-child(6) {
 	x: -5px;
 	y: calc(var(--outline-height) / 2 - 5px);
-	cursor: var(--outline-cursor, ew-resize);
 }
 
 #outline rect:nth-child(7) {
 	x: calc(var(--outline-width) - 5px);
 	y: calc(var(--outline-height) / 2 - 5px);
-	cursor: var(--outline-cursor, ew-resize);
 }
 
 #outline rect:nth-child(8) {
 	x: -5px;
 	y: calc(var(--outline-height) - 5px);
-	cursor: var(--outline-cursor, nesw-resize);
 }
 
 #outline rect:nth-child(9) {
 	x: calc(var(--outline-width) / 2 - 5px);
 	y: calc(var(--outline-height) - 5px);
-	cursor: var(--outline-cursor, ns-resize);
 }
 
 #outline rect:nth-child(10) {
 	x: calc(var(--outline-width) - 5px);
 	y: calc(var(--outline-height) - 5px);
+}
+
+.cursor_0 rect:nth-child(3), .cursor_0 rect:nth-child(10), .cursor_1 rect:nth-child(6), .cursor_1 rect:nth-child(7), .cursor_2 rect:nth-child(5), .cursor_2 rect:nth-child(8), .cursor_3 rect:nth-child(4), .cursor_3 rect:nth-child(9) {
 	cursor: var(--outline-cursor, nwse-resize);
+}
+
+.cursor_0 rect:nth-child(4), .cursor_0 rect:nth-child(9), .cursor_1 rect:nth-child(3), .cursor_1 rect:nth-child(10), .cursor_2 rect:nth-child(6), .cursor_2 rect:nth-child(7), .cursor_3 rect:nth-child(5), .cursor_3 rect:nth-child(8) {
+	cursor: var(--outline-cursor, ns-resize);
+}
+
+.cursor_0 rect:nth-child(5), .cursor_0 rect:nth-child(8), .cursor_1 rect:nth-child(4), .cursor_1 rect:nth-child(9), .cursor_2 rect:nth-child(3), .cursor_2 rect:nth-child(10), .cursor_3 rect:nth-child(6), .cursor_3 rect:nth-child(7) {
+	cursor: var(--outline-cursor, nesw-resize);
+}
+
+.cursor_0 rect:nth-child(6), .cursor_0 rect:nth-child(7), .cursor_1 rect:nth-child(5), .cursor_1 rect:nth-child(8), .cursor_2 rect:nth-child(4), .cursor_2 rect:nth-child(9), .cursor_3 rect:nth-child(3), .cursor_3 rect:nth-child(10) {
+	cursor: var(--outline-cursor, ew-resize);
 }
