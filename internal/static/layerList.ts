@@ -2,7 +2,7 @@ import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {noSort} from './lib/ordered.js';
-import {showError, enterKey, colour2Hex, hex2Colour} from './misc.js';
+import {showError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
 import {Root, Folder, Item, windowOptions} from './folders.js';
 import {Shell} from './windows.js';
 
@@ -133,9 +133,9 @@ class ItemLayer extends Item {
 		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
 	}
 	show() {
+		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
-			const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC),
-			      details = rpcFuncs.getMapDetails(),
+			const details = rpcFuncs.getMapDetails(),
 			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width.toString(), "id": "mapWidth"}),
 			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height.toString(), "id": "mapHeight"}),
 			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square.toString(), "id": "mapSquareWidth"}),
@@ -171,7 +171,34 @@ class ItemLayer extends Item {
 				}})
 			]);
 		} else if (this.id === -2) { // Light
-			// Show/Edit Light properties
+			const colour = rpcFuncs.getLightColour(),
+			      checkboard = div({"class": "checkboard"}),
+			      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
+			      updatePreview = () => {
+				const colour = hex2Colour(colourInput.value);
+				colour.a = parseInt(alphaInput.value);
+				preview.style.setProperty("background-color", colour2RGBA(colour));
+			      },
+			      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
+			      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a.toString(), "oninput": updatePreview}),
+			      window = sh.addWindow("Change Light Colour", windowOptions);
+			return createHTML(window, {"class": "lightChange"}, [
+				h1("Change Light Colour"),
+				checkboard,
+				label({"for": "colourPick"}, "Colour: "),
+				colourInput,
+				br(),
+				label({"for": "alphaPick"}, "Alpha: "),
+				alphaInput,
+				br(),
+				button("Update", {"onclick": function(this: HTMLButtonElement) {
+					const colour = hex2Colour(colourInput.value);
+					colour.a = parseInt(alphaInput.value);
+					sh.addLoading(this.parentNode as HTMLDivElement, rpcFuncs.setLightColour(colour))
+					.then(() => sh.removeWindow(this.parentNode as HTMLDivElement))
+					.catch(e => showError(this, e));
+				}})
+			]);
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
@@ -182,7 +209,7 @@ class ItemLayer extends Item {
 			this.node.classList.add("selectedLayer");
 			selectedLayer = this;
 			maskSelected = false;
-			(this.parent.root.rpcFuncs as LayerRPC).setLayer(this.getPath());
+			rpcFuncs.setLayer(this.getPath());
 		}
 	}
 	rename() {
