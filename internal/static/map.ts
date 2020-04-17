@@ -394,7 +394,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			if (!selectedToken) {
 				return;
 			}
-			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px"}));
+			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`}));
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = selectedToken!.transform;
@@ -414,6 +414,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				break;
 			case 1:
 				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
+				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 				break;
 			case 2:
 			case 3:
