@@ -58,3 +58,14 @@
 .selectedLayer {
 	background-color: #eee;
 }
+
+.checkboard {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAIElEQVR4AWNowAsO4AWENY9qHtWMXxq/0QQ1j2oe1QwAiXnuH8TTV0gAAAAASUVORK5CYII=);
+	width: 200px;
+	height: 200px;
+}
+
+.checkboard div {
+	width: 200px;
+	height: 200px;
+}
