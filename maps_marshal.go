@@ -278,6 +278,7 @@ func (l *layer) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 	if l.Name == "" {
 		return ErrInvalidLayer
 	} else if l.Name == "Grid" {
+		x.Skip()
 		return nil
 	} else if l.Name == "Light" {
 		var fill string
