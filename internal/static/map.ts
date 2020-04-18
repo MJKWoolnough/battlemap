@@ -400,13 +400,10 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = selectedToken!.transform;
-			const r = -(Math.PI / 128) * rotation,
-			      c = Math.cos(r),
-			      s = Math.sin(r),
+			const r = -360 * rotation / 256,
 			      dx = e.clientX - tokenMousePos[0],
 			      dy = e.clientY - tokenMousePos[1],
-			      mDx = c * dx - s * dy,
-			      mDy = c * dy + s * dx;
+			      {x: mDx, y: mDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r));
 			tokenMousePos[0] = e.clientX;
 			tokenMousePos[1] = e.clientY;
 			switch (tokenDragMode) {
