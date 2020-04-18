@@ -2,7 +2,11 @@ svg {
 	cursor: var(--outline-cursor);
 }
 
-#outline  rect {
+#outline {
+	outline: none;
+}
+
+#outline rect {
 	stroke-width: 1;
 	stroke: #000;
 	width: 10px;
