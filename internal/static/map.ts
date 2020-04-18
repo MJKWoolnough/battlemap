@@ -411,6 +411,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				break;
 			case 1:
 				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
+				while (rotation < 0) {
+					rotation += 256;
+				}
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 				break;
 			default: {
