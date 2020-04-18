@@ -120,7 +120,7 @@ class SVGTransform {
 				}
 				break;
 			case "rotate":
-				this.rotation = 255 * parseInt(a) / 360;
+				this.rotation = 256 * parseInt(a) / 360;
 				break;
 			case "scale":
 				if (b) {
