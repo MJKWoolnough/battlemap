@@ -397,13 +397,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				return;
 			}
 			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`}));
+			tokenMousePos.x = selectedToken.transform.x;
+			tokenMousePos.y = selectedToken.transform.y;
+			tokenMousePos.width = selectedToken.transform.width;
+			tokenMousePos.height = selectedToken.transform.height;
+			tokenMousePos.rotation = selectedToken.transform.rotation;
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
-			let {x, y, width, height, rotation} = selectedToken!.transform;
-			const dx = e.clientX - tokenMousePos[0],
-			      dy = e.clientY - tokenMousePos[1];
-			tokenMousePos[0] = e.clientX;
-			tokenMousePos[1] = e.clientY;
+			let {x, y, width, height, rotation} = tokenMousePos;
+			const dx = e.clientX - tokenMousePos.mouseX,
+			      dy = e.clientY - tokenMousePos.mouseY;
 			switch (tokenDragMode) {
 			case 0:
 				x += dx;
@@ -471,24 +474,24 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			root.addEventListener("mouseup", tokenMouseUp);
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
 			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.transform.rotation + 143) >> 5)) % 4 + 2]);
-			tokenMousePos[0] = e.clientX;
-			tokenMousePos[1] = e.clientY;
+			tokenMousePos.mouseX = e.clientX;
+			tokenMousePos.mouseY = e.clientY;
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
-			selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
-			selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
-			selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
-			selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
-			selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
+			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
+			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
+			tokenMousePos.rotation = selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
+			tokenMousePos.width = selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
+			tokenMousePos.height = selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
 			const t = selectedToken!.transform.toString();
 			selectedToken!.node.setAttribute("transform", t);
 			outline.setAttribute("transform", t);
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
-		      tokenMousePos = [0, 0],
+		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      outline = g({"id": "outline"}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
