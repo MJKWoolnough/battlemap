@@ -472,6 +472,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
 			selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
 			selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
+			const t = selectedToken!.transform.toString();
+			selectedToken!.node.setAttribute("transform", t);
+			outline.setAttribute("transform", t);
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
 		      tokenMousePos = [0, 0],
