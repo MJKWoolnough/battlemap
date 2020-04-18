@@ -269,7 +269,8 @@ class SVGToken {
 		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
 	at(x: Int, y: Int) {
-		return x >= this.transform.x && x < this.transform.x + this.transform.width && y >= this.transform.y && y < this.transform.y + this.transform.height;
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
+		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
 	}
 }
 
@@ -299,7 +300,8 @@ class SVGShape {
 		this.node.setAttribute("stroke-width", w.toString());
 	}
 	at(x: Int, y: Int) {
-		return x >= this.transform.x && x < this.transform.x + this.transform.width && y >= this.transform.y && y < this.transform.y + this.transform.height;
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
+		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
 	}
 }
 
