@@ -1,7 +1,7 @@
 import {Colour, FromTo, IDName, Int, RPC, GridDetails, Layer, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {clearElement} from './lib/dom.js';
+import {autoFocus, clearElement} from './lib/dom.js';
 import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
@@ -396,7 +396,7 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			if (!selectedToken) {
 				return;
 			}
-			root.appendChild(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`}));
+			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
 			tokenMousePos.width = selectedToken.transform.width;
@@ -489,10 +489,18 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			const t = selectedToken!.transform.toString();
 			selectedToken!.node.setAttribute("transform", t);
 			outline.setAttribute("transform", t);
+			outline.focus();
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
-		      outline = g({"id": "outline"}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
+		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
+			if (e.key === "Delete") {
+				const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+				selectedLayer!.tokens.splice(pos, 1);
+				unselectToken();
+				rpc.removeToken(selectedLayerPath, pos).catch(alert);
+			}
+		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
