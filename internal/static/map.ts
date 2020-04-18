@@ -400,10 +400,8 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 		      }}),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = selectedToken!.transform;
-			const r = -360 * rotation / 256,
-			      dx = e.clientX - tokenMousePos[0],
-			      dy = e.clientY - tokenMousePos[1],
-			      {x: mDx, y: mDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r));
+			const dx = e.clientX - tokenMousePos[0],
+			      dy = e.clientY - tokenMousePos[1];
 			tokenMousePos[0] = e.clientX;
 			tokenMousePos[1] = e.clientY;
 			switch (tokenDragMode) {
@@ -415,31 +413,42 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 				break;
-			case 2:
-			case 3:
-			case 4:
-				y += mDy;
-				height -= mDy;
-				break;
-			case 7:
-			case 8:
-			case 9:
-				height += mDy;
-				break;
-			}
-			switch (tokenDragMode) {
-			case 2:
-			case 5:
-			case 7:
-				x += mDx;
-				width -= mDx;
-				break;
-			case 4:
-			case 6:
-			case 9:
-				width += mDx;
-				break;
-			}
+			default: {
+				const r = -360 * rotation / 256,
+				      {x: mDx, y: mDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
+				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2));
+				switch (tokenDragMode) {
+				case 2:
+				case 3:
+				case 4:
+					y += mDy;
+					height -= mDy;
+					break;
+				case 7:
+				case 8:
+				case 9:
+					height += mDy;
+					break;
+				}
+				switch (tokenDragMode) {
+				case 2:
+				case 5:
+				case 7:
+					x += mDx;
+					width -= mDx;
+					break;
+				case 4:
+				case 6:
+				case 9:
+					width += mDx;
+					break;
+				}
+				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
+				      {x: mx, y: my} = new DOMPoint(x, y).matrixTransform(fr),
+				      {x: nx, y: ny} = new DOMPoint(mx, my).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
+				x = nx;
+				y = ny;
+			}}
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
 			selectedToken!.transform.width = width;
