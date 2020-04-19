@@ -13,12 +13,11 @@ html, body {
 }
 
 #panels {
-	--panel-width: 300px;
 	position: fixed;
 	top: 0;
 	right: 0;
 	bottom: 0;
-	width: var(--panel-width);
+	width: var(--panel-width, 300px);
 	border-left: 1px solid #000;
 	transition: right 1s, border-color 1s;
 	background-color: #fff;
