@@ -4,13 +4,13 @@
 #mapList ul {
 	list-style: none;
 	margin: 0;
-	padding-left: 14px;
+	padding-left: calc(1em + 4px);
 }
 
 #mapList li > span:first-child {
 	display: inline-block;
-	width: 10px;
-	height: 0.8em;
+	width: 1em;
+	height: 1em;
 	margin: 0 2px;
 }
 
@@ -19,11 +19,18 @@
 }
 
 #mapList li.mapUser > span:first-child {
-	background-color: #00ff00 !important;
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF4AAABeBAMAAABY/L5dAAAAD1BMVEUAAAAAAAAAAAAAAAAAAABPDueNAAAABXRSTlOAoAD/cP3HI2gAAABNSURBVHgB7MqhEQAgDMXQwiQcbAD774asgIrK3k9snuVq1memIeXx52nj8Xhh7yjwyz8eX8l/K+Pj8Hg8XsLf0a1/NKp+VL0AAymABQDCyL/X6zlMUwAAAABJRU5ErkJggg==);
+	background-size: 1em;
+	background-repeat: no-repeat;
+	background-color: #ccffcc !important;
 }
 
-#mapList li.mapItem > span:nth-child(1), .hasMapUser > span:nth-child(1) {
-	background-color: #ccffcc;
+#mapList li.mapItem > span:nth-child(1) {
+	background-color: #eee;
+}
+
+.hasMapUser > span:nth-child(1) {
+	background-color: #ccffcc !important;
 }
 
 .hasMapCurrent > label, .mapCurrent {
