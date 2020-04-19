@@ -421,18 +421,25 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				break;
 			default: {
 				const r = -360 * rotation / 256,
-				      {x: mDx, y: mDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
+				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
 				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2));
+				let mDx = aDx, mDy = aDy;
 				switch (tokenDragMode) {
 				case 2:
 				case 3:
 				case 4:
+					if (height - mDy < 10) {
+						mDy = height - 10;
+					}
 					y += mDy;
 					height -= mDy;
 					break;
 				case 7:
 				case 8:
 				case 9:
+					if (height + mDy < 10) {
+						mDy = 10 - height;
+					}
 					height += mDy;
 					break;
 				}
@@ -440,12 +447,18 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				case 2:
 				case 5:
 				case 7:
+					if (width - mDx < 10) {
+						mDx = width - 10;
+					}
 					x += mDx;
 					width -= mDx;
 					break;
 				case 4:
 				case 6:
 				case 9:
+					if (width + mDx < 10) {
+						mDx = 10 - width;
+					}
 					width += mDx;
 					break;
 				}
