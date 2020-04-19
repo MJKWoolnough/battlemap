@@ -4,6 +4,10 @@
 	list-style: none;
 }
 
+#ImagesItems > div > ul, #AudioItems > div > ul {
+	padding-left: 0;
+}
+
 .imageIcon {
 	position: absolute;
 	top: var(--icon-top, 0);
