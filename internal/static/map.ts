@@ -371,7 +371,25 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 		tokens: SortNode.from<SVGToken | SVGShape, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : c instanceof SVGRectElement || c instanceof SVGCircleElement ? new SVGShape(c) : undefined)
 	};
       },
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+      ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1)) => {
+	mDx *= dX;
+	mDy *= dY;
+	if (mDy < mDx * height / width) {
+		mDy = mDx * height / width;
+	} else {
+		mDx = mDy * width / height;
+	}
+	if (width + mDx < 10) {
+		mDx = 10 - width;
+		mDy = 10 * height / width - height;
+	}
+	if (height + mDy < 10) {
+		mDx = 10 * width / height - width;
+		mDy = 10 - height;
+	}
+	return [mDx * dX, mDy * dY];
+      };
 
 export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -423,45 +441,21 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			default: {
 				const r = -360 * rotation / 256,
 				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
-				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2));
-				let mDx = aDx, mDy = aDy;
-				switch (tokenDragMode) {
-				case 2:
-				case 3:
-				case 4:
-					if (height - mDy < 10) {
-						mDy = height - 10;
-					}
-					y += mDy;
-					height -= mDy;
-					break;
-				case 7:
-				case 8:
-				case 9:
-					if (height + mDy < 10) {
-						mDy = 10 - height;
-					}
-					height += mDy;
-					break;
-				}
-				switch (tokenDragMode) {
-				case 2:
-				case 5:
-				case 7:
-					if (width - mDx < 10) {
-						mDx = width - 10;
-					}
+				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
+				      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
+				      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
+				      [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY);
+				if (dirX === -1) {
 					x += mDx;
 					width -= mDx;
-					break;
-				case 4:
-				case 6:
-				case 9:
-					if (width + mDx < 10) {
-						mDx = 10 - width;
-					}
+				} else if (dirX === 1) {
 					width += mDx;
-					break;
+				}
+				if (dirY === -1) {
+					y += mDy;
+					height -= mDy;
+				} else if (dirY === 1) {
+					height += mDy;
 				}
 				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
 				      {x: mx, y: my} = new DOMPoint(x, y).matrixTransform(fr),
