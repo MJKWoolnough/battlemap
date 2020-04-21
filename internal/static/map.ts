@@ -4,6 +4,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
+import {item, menu, place} from './lib/context.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
@@ -372,7 +373,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
       },
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
-export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
@@ -516,6 +517,16 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 				unselectToken();
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
 			}
+		      }, "oncontextmenu": (e: MouseEvent) => {
+			      e.preventDefault();
+			      place(base, [e.clientX, e.clientY], [
+				      item("Flip", () => {
+
+				      }),
+				      item("Flop", () => {
+
+				      })
+			      ]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
