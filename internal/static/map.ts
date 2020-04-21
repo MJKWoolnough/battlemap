@@ -482,6 +482,9 @@ export default function(rpc: RPC, shell: Shell, base: Node,  mapSelect: (fn: (ma
 			outline.setAttribute("transform", t);
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
+			if (e.button !== 0) {
+				return;
+			}
 			e.stopImmediatePropagation();
 			root.addEventListener("mousemove", tokenDrag);
 			root.addEventListener("mouseup", tokenMouseUp);
