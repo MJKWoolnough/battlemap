@@ -512,12 +512,15 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
-		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
-			if (e.key === "Delete") {
+		      deleteToken = () => {
 				const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 				selectedLayer!.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
+		      },
+		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
+			if (e.key === "Delete") {
+				deleteToken();
 			}
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			      e.preventDefault();
@@ -533,7 +536,8 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 					outline.focus();
 					rpc.flopToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.flop).catch(alert);
-				      })
+				      }),
+				      item("Delete", deleteToken)
 			      ]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
