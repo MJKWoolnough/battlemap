@@ -451,10 +451,10 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 		return ErrInvalidToken
 	}
 	if t.Flop {
-		translateX = -translateX - int64(t.Width)
+		translateX -= int64(t.Width)
 	}
 	if t.Flip {
-		translateY = -translateY - int64(t.Height)
+		translateY -= int64(t.Height)
 	}
 	t.X = translateX
 	t.Y = translateY
@@ -642,10 +642,10 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	translateX := t.X
 	translateY := t.Y
 	if t.Flip {
-		translateY = -int64(t.Height) - translateY
+		translateY += int64(t.Height)
 	}
 	if t.Flop {
-		translateX = -int64(t.Width) - translateX
+		translateX += int64(t.Width)
 	}
 	if translateX != 0 || translateY != 0 {
 		if translateY == 0 {
