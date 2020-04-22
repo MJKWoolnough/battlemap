@@ -108,7 +108,7 @@ class SVGTransform {
 	constructor(transform: string, width: Int, height: Int) {
 		this.width = width;
 		this.height = height;
-		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([0-9]+) *,? *([0-9]*) *,? *[0-9]* *\)/g)) {
+		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([\-]?[0-9]+) *,? *([\-]?[0-9]*) *,? *[\-]?[0-9]* *\)/g)) {
 			switch (fn) {
 			case "translate":
 				if (b) {
