@@ -56,7 +56,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 	      oldPath = dragging!.getPath();
 	let pos: Int,
 	    newPath: string;
-	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.checked) {
+	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.open) {
 		pos = 0;
 		dragging!.parent!.children.splice(currPos, 1);
 		this.children.unshift(dragging!);
@@ -220,14 +220,14 @@ class ItemLayer extends Item {
 class FolderLayer extends Folder {
 	id: Int;
 	hidden: boolean;
-	nameElem: HTMLLabelElement;
-	open: HTMLInputElement;
+	nameElem: HTMLSpanElement;
+	open: HTMLDetailsElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
-		this.open = this.node.firstChild as HTMLInputElement;
-		this.nameElem = this.node.firstChild!.nextSibling as HTMLLabelElement;
+		this.open = this.node.firstChild as HTMLDetailsElement;
+		this.nameElem = this.node.firstChild!.firstChild!.firstChild as HTMLSpanElement;
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
@@ -240,11 +240,11 @@ class FolderLayer extends Folder {
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild);
+			this.node.firstChild!.firstChild!.insertBefore(span({"class" : "layerVisibility", "onclick": () => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.node.firstChild!.firstChild!.firstChild);
 			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
 			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
-				if (this.open.checked) {
+				if (this.open.open) {
 					return;
 				}
 				dragStart.call(this, e)
