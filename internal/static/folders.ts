@@ -1,6 +1,6 @@
 import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, div, h1, input, label, li, option, span, select, ul} from './lib/html.js';
+import {br, button, details, div, h1, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {Shell} from './windows.js';
 import {showError, enterKey} from './misc.js';
@@ -121,12 +121,15 @@ export class Folder {
 		this.children = new SortNode<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
 		this.node = li([
-			input({"type": "checkbox", "class": "expander", "id": `folder_${folderID}`}),
-			label({"for": `folder_${folderID++}`}, name),
-			span({"class": "renameFolder", "onclick": this.rename.bind(this)}),
-			span({"class": "removeFolder", "onclick": this.remove.bind(this)}),
-			span({"class": "addFolder", "onclick": this.newFolder.bind(this)}),
-			this.children.node,
+			details([
+				summary([
+					span(name),
+					span({"class": "renameFolder", "onclick": this.rename.bind(this)}),
+					span({"class": "removeFolder", "onclick": this.remove.bind(this)}),
+					span({"class": "addFolder", "onclick": this.newFolder.bind(this)})
+				]),
+				this.children.node,
+			])
 		]);
 		Object.entries(children.folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f)));
 		Object.entries(children.items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
@@ -174,7 +177,8 @@ export class Folder {
 	get items() {
 		return this.children.filter(c => c instanceof Item) as Item[];
 	}
-	rename() {
+	rename(e: Event) {
+		e.preventDefault();
 		const root = this.root,
 		      shell = root.shell,
 		      oldPath = this.getPath() + "/",
@@ -183,7 +187,7 @@ export class Folder {
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
 		      window = shell.addWindow("Move Folder", windowOptions);
-		return createHTML(window, {"class": "renameFolder"}, [
+		return createHTML(window, [
 			h1("Move Folder"),
 			div(`Old Location: ${oldPath.slice(0, -1)}`),
 			label({"for": "folderName"}, "New Location: "),
@@ -196,7 +200,8 @@ export class Folder {
 			}).catch(e => showError(newName, e))})
 		])
 	}
-	remove() {
+	remove(e: Event) {
+		e.preventDefault();
 		const root = this.root,
 		      shell = root.shell,
 		      path = this.getPath(),
@@ -212,7 +217,8 @@ export class Folder {
 			}).catch(e => showError(pathDiv, e))}))
 		]);
 	}
-	newFolder() {
+	newFolder(e: Event) {
+		e.preventDefault();
 		const root = this.root,
 		      shell = root.shell,
 		      path = this.getPath(),
@@ -288,7 +294,8 @@ export class Root {
 		this.folder = new newFolder(this, null, "", rootFolder);
 		this.node = div([
 			fileType,
-			Array.from(this.folder.node.childNodes).slice(-2)
+			this.folder.node.firstChild!.firstChild!.lastChild!,
+			this.folder.node.firstChild!.lastChild!
 		]);
 		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
