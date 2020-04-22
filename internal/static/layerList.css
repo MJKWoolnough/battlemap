@@ -3,7 +3,7 @@
 	padding-left: calc(1em + 4px);
 }
 
-.dragging li, .dragging .layerFolder > div {
+#layerList li, #layerList .layerFolder > div {
 	position: relative;
 }
 
@@ -54,7 +54,7 @@
 	background-repeat: no-repeat;
 	background-position: 0 center;
 	position: absolute;
-	left: 0;
+	left: calc(-1em - 4px);
 }
 
 .layerHidden .layerVisibility {
