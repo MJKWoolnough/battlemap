@@ -61,20 +61,20 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children);
-		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.node.insertBefore(e, this.node.firstChild));
+		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.node.firstChild!.firstChild!.insertBefore(e, this.node.firstChild!.firstChild!.firstChild));
 	}
-	rename() {
+	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
 			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename while containing active map"));
 		} else {
-			return super.rename();
+			return super.rename(e);
 		}
 	}
-	remove() {
+	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
 			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove while containing active map"));
 		} else {
-			return super.remove();
+			return super.remove(e);
 		}
 	}
 }
