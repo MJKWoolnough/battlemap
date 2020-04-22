@@ -133,10 +133,10 @@ class SVGTransform {
 				break;
 			}
 			if (this.flop) {
-				this.x = -this.x - this.width;
+				this.x -= this.width;
 			}
 			if (this.flip) {
-				this.y = -this.y - this.height;
+				this.y -= this.height;
 			}
 		}
 	}
