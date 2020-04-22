@@ -140,26 +140,16 @@ class SVGTransform {
 			}
 		}
 	}
-	toString() {
+	toString(scale = true) {
 		let ret = "";
 		if (this.x !== 0 || this.y !== 0) {
-			ret += `translate(${this.flop ? this.x + this.width : this.x}, ${this.flip ? this.y + this.height : this.y}) `;
+			ret += `translate(${this.x + (scale && this.flop ? this.width : 0)}, ${this.y + (scale && this.flip ? this.height : 0)}) `;
 		}
-		if (this.flip || this.flop) {
+		if (scale && (this.flip || this.flop)) {
 			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
 		}
 		if (this.rotation !== 0) {
-			ret += `rotate(${(this.flop ? -1 : 1) * (this.flip ? -1 : 1) * 360 * this.rotation / 256}, ${this.width / 2}, ${this.height / 2})`;
-		}
-		return ret;
-	}
-	toStringNoScale() {
-		let ret = "";
-		if (this.x !== 0 || this.y !== 0) {
-			ret += `translate(${this.x}, ${this.y}) `;
-		}
-		if (this.rotation !== 0) {
-			ret += `rotate(${360 * this.rotation / 256}, ${this.width / 2}, ${this.height / 2})`;
+			ret += `rotate(${(scale && this.flop ? -1 : 1) * (scale && this.flip ? -1 : 1) * 360 * this.rotation / 256}, ${this.width / 2}, ${this.height / 2})`;
 		}
 		return ret;
 	}
@@ -425,7 +415,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			if (!selectedToken) {
 				return;
 			}
-			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toStringNoScale(), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
+			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
 			tokenMousePos.width = selectedToken.transform.width;
@@ -483,7 +473,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			selectedToken!.node.setAttribute("height", height.toString());
 			outline.style.setProperty("--outline-height", height.toString() + "px");
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
-			outline.setAttribute("transform", selectedToken!.transform.toStringNoScale());
+			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
 			if (e.button !== 0) {
@@ -507,7 +497,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			tokenMousePos.width = selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
 			tokenMousePos.height = selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
-			outline.setAttribute("transform", selectedToken!.transform.toStringNoScale());
+			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			outline.focus();
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      },
