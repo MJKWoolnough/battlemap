@@ -3,6 +3,10 @@
 	user-select: none;
 }
 
+summary::-webkit-details-marker {
+	display: none;
+}
+
 .folders summary {
 	padding-left: calc(1em + 2px);
 	list-style: none;
