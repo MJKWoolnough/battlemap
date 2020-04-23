@@ -4,7 +4,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {item, menu, place} from './lib/context.js';
+import place, {item, menu} from './lib/context.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 import {Shell} from './windows.js';
 
