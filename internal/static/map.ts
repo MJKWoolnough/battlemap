@@ -139,6 +139,9 @@ class SVGTransform {
 		if (this.flip) {
 			this.y -= this.height;
 		}
+		if (this.flip !== this.flop && this.rotation > 0) {
+			this.rotation = 256 - this.rotation;
+		}
 	}
 	toString(scale = true) {
 		let ret = "";
