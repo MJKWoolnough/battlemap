@@ -111,7 +111,7 @@ class SVGTransform {
 		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([\-]?[0-9]+) *,? *([\-]?[0-9]*) *,? *[\-]?[0-9]* *\)/g)) {
 			switch (fn) {
 			case "translate":
-				if (b) {
+				if (b !== undefined) {
 					this.x += parseInt(a);
 					this.y += parseInt(b);
 				} else {
@@ -132,12 +132,12 @@ class SVGTransform {
 				}
 				break;
 			}
-			if (this.flop) {
-				this.x -= this.width;
-			}
-			if (this.flip) {
-				this.y -= this.height;
-			}
+		}
+		if (this.flop) {
+			this.x -= this.width;
+		}
+		if (this.flip) {
+			this.y -= this.height;
 		}
 	}
 	toString(scale = true) {
