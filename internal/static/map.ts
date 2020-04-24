@@ -467,8 +467,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 					height += mDy;
 				}
 				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
-				      {x: mx, y: my} = new DOMPoint(x, y).matrixTransform(fr),
-				      {x: nx, y: ny} = new DOMPoint(mx, my).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
+				      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
 				x = nx;
 				y = ny;
 			}}
