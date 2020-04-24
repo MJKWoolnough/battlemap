@@ -136,11 +136,11 @@ class ItemLayer extends Item {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
 			const details = rpcFuncs.getMapDetails(),
-			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width.toString(), "id": "mapWidth"}),
-			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height.toString(), "id": "mapHeight"}),
-			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square.toString(), "id": "mapSquareWidth"}),
+			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width, "id": "mapWidth"}),
+			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height, "id": "mapHeight"}),
+			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.colour)}),
-			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke.toString(), "id": "mapSquareLineWidth"}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke, "id": "mapSquareLineWidth"}),
 			      window = sh.addWindow("Edit Map", windowOptions);
 			return createHTML(window, {"class": "mapAdd"}, [
 				h1("Edit Map"),
@@ -180,7 +180,7 @@ class ItemLayer extends Item {
 				preview.style.setProperty("background-color", colour2RGBA(colour));
 			      },
 			      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
-			      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a.toString(), "oninput": updatePreview}),
+			      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
 			      window = sh.addWindow("Change Light Colour", windowOptions);
 			return createHTML(window, {"class": "lightChange"}, [
 				h1("Change Light Colour"),
