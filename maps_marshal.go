@@ -404,6 +404,8 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 						t.Flip = true
 						pt.ExceptRun(")")
 						pt.Accept(")")
+					} else {
+						t.Flip = t.Flop
 					}
 					pt.Get()
 				case "rotate":
@@ -666,7 +668,11 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 		transform += "scale(-1, 1) "
 	}
 	if t.Rotation != 0 {
-		transform += "rotate(" + strconv.FormatUint(uint64(t.Rotation)*360/256, 10) + ", " + strconv.FormatUint(t.Width>>1, 10) + ", " + strconv.FormatUint(t.Height>>1, 10) + ")"
+		rot := int64(t.Rotation)
+		if t.Flip != t.Flop && rot > 0 {
+			rot = 256 - rot
+		}
+		transform += "rotate(" + strconv.FormatInt(rot*360/256, 10) + ", " + strconv.FormatUint(t.Width>>1, 10) + ", " + strconv.FormatUint(t.Height>>1, 10) + ")"
 	}
 	transform = strings.TrimSuffix(transform, " ")
 	switch t.TokenType {
