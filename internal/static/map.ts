@@ -415,7 +415,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			if (!selectedToken) {
 				return;
 			}
-			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width.toString() + "px", "--outline-height": selectedToken.transform.height.toString() + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
+			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
 			tokenMousePos.width = selectedToken.transform.width;
@@ -468,10 +468,10 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			selectedToken!.transform.width = width;
 			selectedToken!.transform.rotation = rotation;
 			selectedToken!.node.setAttribute("width", width.toString());
-			outline.style.setProperty("--outline-width", width.toString() + "px");
+			outline.style.setProperty("--outline-width", width + "px");
 			selectedToken!.transform.height = height;
 			selectedToken!.node.setAttribute("height", height.toString());
-			outline.style.setProperty("--outline-height", height.toString() + "px");
+			outline.style.setProperty("--outline-height", height + "px");
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      },
@@ -529,7 +529,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 				      }),
 				      item("Delete", deleteToken)
 			      ]);
-		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n.toString(), "onmousedown": tokenMouseDown}))),
+		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
 		      waitAdded = subFn<IDName[]>(),
