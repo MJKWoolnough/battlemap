@@ -384,7 +384,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
       ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1)) => {
 	mDx *= dX;
 	mDy *= dY;
-	if (mDy < mDx * height / width) {
+	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
 		mDy = mDx * height / width;
 	} else {
 		mDx = mDy * width / height;
