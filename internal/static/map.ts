@@ -292,13 +292,21 @@ class SVGShape {
 		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
 	get fill() {
-		return rgba2Colour(this.node.getAttribute("fill") || "");
+		const fill = this.node.getAttribute("fill") || "";
+		if (!fill.startsWith("rgb")) {
+			throw new Error("invalid fill access");
+		}
+		return rgba2Colour(fill);
 	}
 	set fill(c: Colour) {
 		this.node.setAttribute("fill", colour2RGBA(c));
 	}
 	get fillSrc() {
-		return (this.node.getAttribute("fill") || "url(#)").slice(5, -1);
+		const fill = this.node.getAttribute("fill") || "";
+		if (!fill.startsWith("url(#")) {
+			throw new Error("invalid fill access");
+		}
+		return fill.slice(5, -1);
 	}
 	set fillSrc(src: string) {
 		this.node.setAttribute("fill", "url(#" + src + ")");
