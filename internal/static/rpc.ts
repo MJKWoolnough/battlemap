@@ -126,7 +126,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"flipToken":       (path, pos, flip)                          => rpc.request("maps.flipToken", {path, pos, flip}),
 			"flopToken":       (path, pos, flop)                          => rpc.request("maps.flopToken", {path, pos, flop}),
 			"setTokenPattern": (path, pos)                                => rpc.request("maps.setTokenPattern", {path, pos}),
-			"setTokenImage":   (path, pos)                                => rpc.request("maps.setTokenSource", {path, pos}),
+			"setTokenImage":   (path, pos)                                => rpc.request("maps.setTokenImage", {path, pos}),
 			"setTokenSource":  (path, pos, source)                        => rpc.request("maps.setTokenSource", {path, pos, source}),
 			"setTokenLayer":   (path, pos, layer)                         => rpc.request("maps.setTokenLayer", {path, pos, layer}),
 			"setTokenTop":     (path, pos)                                => rpc.request("maps.setTokenTop", {path, pos}),
