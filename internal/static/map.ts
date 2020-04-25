@@ -189,10 +189,10 @@ class SVGImage extends SVGPattern {
 		super.height = h;
 	}
 	get source() {
-		return this.image.getAttribute("xlink:href") || "";
+		return this.image.getAttribute("href") || "";
 	}
 	set source(src: string) {
-		this.image.setAttribute("xlink:href", src);
+		this.image.setAttribute("href", src);
 	}
 	get translateX() {
 		return this.transform.x;
@@ -561,7 +561,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 					if (selectedToken instanceof SVGToken) {
 						newToken = new SVGShape(rect({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": selectedToken.transform.width, "height": selectedToken.transform.height, "href": selectedToken.node.getAttribute("href")!})))})`}));
 					} else if (selectedToken instanceof SVGShape && selectedToken.isPattern) {
-						newToken = new SVGToken(image({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "xlink:href": (definitions.list[selectedToken.fillSrc] as SVGImage).source}));
+						newToken = new SVGToken(image({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "href": (definitions.list[selectedToken.fillSrc] as SVGImage).source}));
 					} else {
 						return;
 					}
