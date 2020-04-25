@@ -308,6 +308,9 @@ class SVGShape {
 		}
 		return fill.slice(5, -1);
 	}
+	get isPattern() {
+		return (this.node.getAttribute("fill") || "").startsWith("url(#");
+	}
 	set fillSrc(src: string) {
 		this.node.setAttribute("fill", "url(#" + src + ")");
 	}
