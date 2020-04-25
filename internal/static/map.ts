@@ -297,6 +297,12 @@ class SVGShape {
 	set fill(c: Colour) {
 		this.node.setAttribute("fill", colour2RGBA(c));
 	}
+	get fillSrc() {
+		return (this.node.getAttribute("fill") || "url(#)").slice(5, -1);
+	}
+	set fillSrc(src: string) {
+		this.node.setAttribute("fill", "url(#" + src + ")");
+	}
 	get stroke() {
 		return rgba2Colour(this.node.getAttribute("stroke") || "");
 	}
