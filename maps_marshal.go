@@ -720,7 +720,7 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 				},
 				{
 					Name:  xml.Name{Local: "fill"},
-					Value: "url(#" + t.Source + ")",
+					Value: t.Source,
 				},
 				{
 					Name:  xml.Name{Local: "data-token"},
