@@ -514,6 +514,9 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 			tokenMousePos.mouseY = e.clientY;
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
+			if (!selectedToken) {
+				return;
+			}
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
