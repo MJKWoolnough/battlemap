@@ -256,10 +256,11 @@ class Defs {
 		let id = p.getAttribute("id");
 		if (!id) {
 			let i = 0;
-			while (!this.list[`Pattern_${i}`]) {
+			while (this.list[`Pattern_${i}`] !== undefined) {
 				i++;
-			};
+			}
 			id = `Pattern_${i}`;
+			p.setAttribute("id", id);
 		}
 		this.list[id] = SVGPattern.from(p);
 		this.defs.appendChild(p);
