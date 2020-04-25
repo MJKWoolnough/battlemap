@@ -563,7 +563,7 @@ export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: 
 						newToken = new SVGShape(rect({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": selectedToken.transform.width, "height": selectedToken.transform.height, "href": selectedToken.node.getAttribute("href")!})))})`}));
 						rpc.setTokenPattern(selectedLayerPath, pos).catch(alert);
 					} else if (selectedToken instanceof SVGShape && selectedToken.isPattern) {
-						newToken = new SVGToken(image({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "href": (definitions.list[selectedToken.fillSrc] as SVGImage).source}));
+						newToken = new SVGToken(image({"preserveAspectRatio": "none", "width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "href": (definitions.list[selectedToken.fillSrc] as SVGImage).source}));
 						rpc.setTokenImage(selectedLayerPath, pos).catch(alert);
 					} else {
 						return;
