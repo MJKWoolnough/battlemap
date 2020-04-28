@@ -6,7 +6,7 @@ import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu} from './lib/context.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
-import {Shell} from './windows.js';
+import {ShellElement} from './windows.js';
 
 type SVGLayer = Layer & {
 	node: SVGElement;
@@ -418,7 +418,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	return [mDx * dX, mDy * dY];
       };
 
-export default function(rpc: RPC, shell: Shell, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		layerNum = 0;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
