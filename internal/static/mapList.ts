@@ -2,8 +2,8 @@ import {FolderItems, Int, RPC, MapDetails} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
-import {Root, Folder, Item, windowOptions} from './folders.js';
-import {Shell} from './windows.js';
+import {Root, Folder, Item} from './folders.js';
+import {ShellElement, loadingWindow, windows} from './windows.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -19,7 +19,7 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 		}
 	}
       };
-let rpc: RPC, shell: Shell, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
+let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
@@ -27,7 +27,7 @@ class MapItem extends Item {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
 		this.nameSpan = this.node.firstChild as HTMLSpanElement;
-		this.node.insertBefore(span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
+		this.node.insertBefore(span({"class": "setUserMap", "window-title": "Set User Map", "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id);
 		}}), this.node.firstChild);
@@ -40,14 +40,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot rename active map"));
+			return autoFocus(shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot rename active map"))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return createHTML(autoFocus(shell.addWindow("Invalid Action", windowOptions)), h2("Cannot remove active map"));
+			return autoFocus(shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot remove active map"))));
 		} else {
 			return super.remove();
 		}
@@ -65,14 +65,14 @@ class MapFolder extends Folder {
 	}
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot rename while containing active map"));
+			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot rename while containing active map")));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return createHTML(shell.addWindow("Invalid Action", windowOptions), h2("Cannot remove while containing active map"));
+			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot remove while containing active map")));
 		} else {
 			return super.remove(e);
 		}
@@ -117,7 +117,7 @@ class MapRoot extends Root {
 	}
 }
 
-export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id: Int) => void) {
+export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentMap: (id: Int) => void) {
 	rpc = arpc;
 	shell = ashell;
 	sendCurrentMap = setCurrentMap;
@@ -161,7 +161,7 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
-				      window = shell.addWindow("New Map", windowOptions);
+				      window = shell.appendChild(windows({"window-title": "New Map"}));
 				return createHTML(window, {"class": "mapAdd"}, [
 					h1("New Map"),
 					label({"for": "mapName"}, "Name: "),
@@ -183,7 +183,7 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 					sqLineWidth,
 					br(),
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
-						shell.addLoading(this.parentNode as HTMLDivElement, rpc.newMap({
+						loadingWindow(rpc.newMap({
 							"id": 0,
 							"name": name.value,
 							"width": parseInt(width.value),
@@ -191,9 +191,9 @@ export default function(arpc: RPC, ashell: Shell, base: Node, setCurrentMap: (id
 							"square": parseInt(sqWidth.value),
 							"colour": hex2Colour(sqColour.value),
 							"stroke": parseInt(sqLineWidth.value)
-						})).then(({id, name}) => {
+						}), window).then(({id, name}) => {
 							root.addItem(id, name);
-							shell.removeWindow(this.parentNode as HTMLDivElement);
+							window.remove();
 						})
 						.catch(e => showError(this, e));
 					}})
