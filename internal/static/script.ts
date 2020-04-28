@@ -7,7 +7,7 @@ import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
 import loadMap from './map.js';
-import {Shell} from './windows.js';
+import {shell, desktop} from './windows.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -57,18 +57,18 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	      mapLoadPipe = new Pipe<Int>(),
 	      mapLayers = new Pipe<LayerRPC>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
-	      base = div(),
-	      shell = new Shell({"desktop": base});
+	      base = desktop(),
+	      s = shell(base);
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 		if (userLevel === 1) {
-			assets(rpc, shell, tabs.add("Images", spinner("imagesLoading")), "Images");
-			assets(rpc, shell, tabs.add("Audio", spinner("audioLoading")), "Audio");
-			mapList(rpc, shell, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-			loadMap(rpc, shell, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
-			layerList(shell, tabs.add("Layers", div()), mapLayers.receive);
+			assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
+			assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
+			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
+			loadMap(rpc, s, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
+			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
 			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
-			clearElement(document.body).appendChild(shell.html);
+			clearElement(document.body).appendChild(s);
 		} else {
 			return Promise.reject("Need to be logged in");
 		}
