@@ -1,33 +1,16 @@
+import {DOMBind, Props, Children} from './lib/dom.js';
 import {createHTML, div} from './lib/html.js';
-import {Shell as WindowsShell, WindowOptions, DialogOptions} from './lib/windows.js';
+import {ShellElement, WindowElement, desktop, shell, windows as awindows} from './lib/windows.js';
 
-type hasClose = {
-	showClose?: boolean;
-}
+export {ShellElement, WindowElement, desktop, shell};
 
-const addEscapeClose = (shell: WindowsShell, window: HTMLDivElement, options?: hasClose) => {
-	if (options && options.showClose) {
-		window.setAttribute("tabindex", "-1");
-		window.addEventListener("keyup", (e: KeyboardEvent) => {
-			if (e.keyCode === 27) {
-				shell.closeWindow(window);
-			}
-		});
+export const loadingWindow = (p: Promise<any>, parent: ShellElement|WindowElement, title = "Loading", content?: Children) => {
+        const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
+        parent.addWindow(w);
+        return p.finally(() => w.remove());
+},
+windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => createHTML(awindows({"tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
+	if (e.key === "Escape") {
+		this.remove();
 	}
-	return window;
-};
-
-export class Shell extends WindowsShell {
-	addLoading(w: HTMLDivElement | null, p: Promise<any>, title = "Loading", content?: HTMLElement) {
-		return p.finally(this.removeWindow.bind(this, createHTML(this.addDialog(w, {
-			"showTitlebar": true,
-			"title": title
-		}), content ? content : div({"class": "loadSpinner"}))));
-	}
-	addWindow(title: string, options?: WindowOptions): HTMLDivElement {
-		return addEscapeClose(this, super.addWindow(title, options), options);
-	}
-	addDialog(parent: HTMLDivElement | null, options?: DialogOptions): HTMLDivElement {
-		return addEscapeClose(this, super.addDialog(parent, options), options);
-	}
-}
+}}), props, children);
