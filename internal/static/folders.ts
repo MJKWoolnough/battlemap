@@ -2,7 +2,7 @@ import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
-import {Shell} from './windows.js';
+import {ShellElement, loadingWindow, windows} from './windows.js';
 import {showError, enterKey} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 
@@ -22,10 +22,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>();
 
-export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))), windowOptions = {
-	"showTitlebar": true,
-	"showClose": true
-};
+export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
 let folderID = 0;
 
@@ -53,7 +50,7 @@ export class Item {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.addWindow("Move Item", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Move Item"}));
 		return createHTML(window, {"class": "renameItem"}, [
 			h1("Move Item"),
 			div(`Old Location: ${parentPath}${this.name}`),
@@ -61,9 +58,9 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => loadingWindow(root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value), window).then(newPath => {
 				root.moveItem(parentPath + this.name, newPath);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(newName, e))})
 		]);
 	}
@@ -74,7 +71,7 @@ export class Item {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.addWindow("Link Item", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Link Item"}));
 		return createHTML(window, {"class": "linkItem"}, [
 			h1("Add Link"),
 			div(`Current Location: ${parentPath}${this.name}`),
@@ -82,9 +79,9 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Link", {"onclick": () => shell.addLoading(window, root.rpcFuncs.link(this.id, parents.value + newName.value)).then(newPath => {
+			button("Link", {"onclick": () => loadingWindow(root.rpcFuncs.link(this.id, parents.value + newName.value), window).then(newPath => {
 				root.addItem(this.id, newPath);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(newName, e))}),
 		]);
 	}
@@ -93,14 +90,14 @@ export class Item {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.addWindow("Remove Item", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Remove Item"}));
 		return createHTML(window, {"class": "removeItem"}, [
 			h1("Remove Item"),
 			div("Remove the following item?"),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.remove(path)).then(() => {
+			autoFocus(button("Yes, Remove!", {"onclick": () => loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
 				root.removeItem(path);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(pathDiv, e))}))
 		]);
 	}
@@ -186,7 +183,7 @@ export class Folder {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
-		      window = shell.addWindow("Move Folder", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Move Folder"}));
 		return createHTML(window, [
 			h1("Move Folder"),
 			div(`Old Location: ${oldPath.slice(0, -1)}`),
@@ -194,9 +191,9 @@ export class Folder {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => shell.addLoading(window, root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value)).then(newPath => {
+			button("Move", {"onclick": () => loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
 				root.moveFolder(oldPath.slice(0, -1), newPath);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(newName, e))})
 		])
 	}
@@ -206,14 +203,14 @@ export class Folder {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.addWindow("Remove Folder", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Remove Folder"}));
 		return createHTML(window, {"class": "folderRemove"}, [
 			h1("Remove Folder"),
 			div("Remove the following folder? NB: This will remove all folders and items it contains."),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => shell.addLoading(window, root.rpcFuncs.removeFolder(path)).then(() => {
+			autoFocus(button("Yes, Remove!", {"onclick": () => loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
 				root.removeFolder(path);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(pathDiv, e))}))
 		]);
 	}
@@ -223,15 +220,15 @@ export class Folder {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      folderName = autoFocus(input({"id": "folderName", "onkeypress": enterKey})),
-		      window = shell.addWindow("Add Folder", windowOptions);
+		      window = shell.appendChild(windows({"window-title": "Add Folder"}));
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1("Add Folder"),
 			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
 			folderName,
 			br(),
-			button("Add Folder", {"onclick": () => shell.addLoading(window, root.rpcFuncs.createFolder(path + "/" + folderName.value)).then(folder => {
+			button("Add Folder", {"onclick": () => loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
 				root.addFolder(folder);
-				shell.removeWindow(window);
+				window.remove();
 			}).catch(e => showError(folderName, e))})
 		]);
 	}
@@ -281,12 +278,12 @@ export class Folder {
 
 export class Root {
 	folder: Folder;
-	shell: Shell;
+	shell: ShellElement;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	node: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: Shell, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: ShellElement, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.shell = shell;
