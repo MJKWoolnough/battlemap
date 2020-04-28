@@ -9,7 +9,7 @@ export const loadingWindow = (p: Promise<any>, parent: ShellElement|WindowElemen
         parent.addWindow(w);
         return p.finally(() => w.remove());
 },
-windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => createHTML(awindows({"tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
+windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => createHTML(awindows({"hide-maximise": "true", "tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
 	if (e.key === "Escape") {
 		this.remove();
 	}
