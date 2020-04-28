@@ -121,7 +121,7 @@ html, body {
 	z-index: 9;
 }
 
-html .windowsShell {
+windows-shell {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -129,14 +129,14 @@ html .windowsShell {
 	bottom: 0;
 }
 
-html .windowsWindow {
+windows-window {
 	--window-left: 20px;
 	--window-top: 20px;
 	max-width: 100%;
 	max-height: 100%;
 }
 
-html .windowsWindow:not(.windowsResizable) {
+windows-window:not([resizable]) {
 	--window-left: 50%;
 	--window-top: 50%;
 	transform: translateX(-50%) translateY(-50%);
