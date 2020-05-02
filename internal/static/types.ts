@@ -97,6 +97,7 @@ export type RPC = {
 	setToken:        (path: string, pos: Int, x: Int, y: Int, width: Int, height: Int, rotation: Int) => Promise<void>;
 	flipToken:       (path: string, pos: Int, flip: boolean)                                          => Promise<void>;
 	flopToken:       (path: string, pos: Int, flop: boolean)                                          => Promise<void>;
+	setTokenSnap:    (path: string, pos: Int, snap: boolean)                                          => Promise<void>;
 	setTokenPattern: (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenImage:   (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenSource:  (path: string, pos: Int, source: string)                                         => Promise<void>;
