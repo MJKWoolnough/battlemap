@@ -247,7 +247,7 @@ func TestMapsMarshal(t *testing.T) {
 								&token{
 									Width:     3,
 									Height:    4,
-									Source:    "pattern_1",
+									Source:    "url(#pattern_1)",
 									TokenType: tokenPattern,
 									TokenData: 1,
 								},
