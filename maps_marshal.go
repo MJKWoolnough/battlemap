@@ -430,14 +430,12 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 				t.TokenType = tokenImage
 			}
 		case "fill":
-			if strings.HasPrefix(attr.Value, "url(") {
-				t.Source = strings.TrimSuffix(strings.TrimPrefix(attr.Value, "url(#"), ")")
-			} else {
-				t.Source = attr.Value
+			if !strings.HasPrefix(attr.Value, "url(") {
 				if t.TokenType == tokenPattern {
 					t.TokenType = tokenRect
 				}
 			}
+			t.Source = attr.Value
 		case "stroke":
 			err = t.Stroke.UnmarshalXMLAttr(attr)
 		case "stroke-width":
