@@ -444,6 +444,8 @@ func (t *token) UnmarshalXML(x *xml.Decoder, se xml.StartElement) error {
 			t.StrokeWidth, err = strconv.ParseUint(attr.Value, 10, 64)
 		case "data-token":
 			t.TokenData, err = strconv.ParseUint(attr.Value, 10, 64)
+		case "data-snap":
+			t.Snap, err = strconv.ParseBool(attr.Value)
 		}
 		if err != nil {
 			return fmt.Errorf("error unmarshling token: %w", err)
@@ -679,61 +681,61 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	case tokenImage:
 		se = xml.StartElement{
 			Name: xml.Name{Local: "image"},
-			Attr: []xml.Attr{
-				{
+			Attr: append(make([]xml.Attr, 0, 7),
+				xml.Attr{
 					Name:  xml.Name{Local: "preserveAspectRatio"},
 					Value: "none",
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "width"},
 					Value: strconv.FormatUint(t.Width, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "height"},
 					Value: strconv.FormatUint(t.Height, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "href"},
 					Value: t.Source,
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "data-token"},
 					Value: strconv.FormatUint(t.TokenData, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "transform"},
 					Value: transform,
 				},
-			},
+			),
 		}
 	case tokenPattern:
 		se = xml.StartElement{
 			Name: xml.Name{Local: "rect"},
-			Attr: []xml.Attr{
-				{
+			Attr: append(make([]xml.Attr, 0, 6),
+				xml.Attr{
 					Name:  xml.Name{Local: "width"},
 					Value: strconv.FormatUint(t.Width, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "height"},
 					Value: strconv.FormatUint(t.Height, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "fill"},
 					Value: t.Source,
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "data-token"},
 					Value: strconv.FormatUint(t.TokenData, 10),
 				},
-				{
+				xml.Attr{
 					Name:  xml.Name{Local: "transform"},
 					Value: transform,
 				},
-			},
+			),
 		}
 	case tokenRect:
-		attrs := make([]xml.Attr, 0, 7)
+		attrs := make([]xml.Attr, 0, 8)
 		attrs = append(attrs, xml.Attr{
 			Name:  xml.Name{Local: "width"},
 			Value: strconv.FormatUint(t.Width, 10),
@@ -771,7 +773,7 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 			}),
 		}
 	case tokenCircle:
-		attrs := make([]xml.Attr, 0, 7)
+		attrs := make([]xml.Attr, 0, 8)
 		attrs = append(attrs, xml.Attr{
 			Name:  xml.Name{Local: "rx"},
 			Value: strconv.FormatUint(t.Width, 10),
@@ -813,6 +815,9 @@ func (t *token) MarshalXML(x *xml.Encoder, se xml.StartElement) error {
 	}
 	if transform == "" {
 		se.Attr = se.Attr[:len(se.Attr)-1]
+	}
+	if t.Snap {
+		se.Attr = append(se.Attr, xml.Attr{Name: xml.Name{Local: "data-snap"}, Value: "true"})
 	}
 	if err := x.EncodeToken(se); err != nil {
 		return err
