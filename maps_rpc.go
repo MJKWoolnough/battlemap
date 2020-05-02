@@ -329,6 +329,25 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			tk.Flop = flopToken.Flop
 			return true
 		})
+	case "setTokenSnap":
+		var snapToken struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+			Snap bool   `json:"snap"`
+		}
+		if err := json.Unmarshal(data, &snapToken); err != nil {
+			return nil, err
+		}
+		if snapToken.Path == "/Grid" || snapToken.Path == "/Light" {
+			return nil, ErrInvalidLayerPath
+		}
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, snapToken.Path, snapToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
+			if tk.Snap == snapToken.Snap {
+				return false
+			}
+			tk.Snap = snapToken.Snap
+			return true
+		})
 	case "setTokenPattern":
 		var patternToken struct {
 			Path string `json:"path"`
