@@ -279,6 +279,16 @@ class SVGToken {
 		this.node = node;
 		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
+	get snap() {
+		return this.node.getAttribute("data-snap") === "true";
+	}
+	set snap(s: boolean) {
+		if (s) {
+			this.node.setAttribute("data-snap", "true");
+		} else {
+			this.node.removeAttribute("data-snap");
+		}
+	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
@@ -326,6 +336,16 @@ class SVGShape {
 	}
 	set strokeWidth(w: Int) {
 		this.node.setAttribute("stroke-width", w.toString());
+	}
+	get snap() {
+		return this.node.getAttribute("data-snap") === "true";
+	}
+	set snap(s: boolean) {
+		if (s) {
+			this.node.setAttribute("data-snap", "true");
+		} else {
+			this.node.removeAttribute("data-snap");
+		}
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
@@ -600,6 +620,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					selectedLayer!.tokens.splice(pos, 1, newToken);
 					selectedToken = newToken;
 				      }),
+				      item(selectedToken!.snap ? "Unsnap" : "Snap", () => rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap)),
 				      item("Delete", deleteToken)
 			      ]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
