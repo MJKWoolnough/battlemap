@@ -517,6 +517,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			if (!selectedToken) {
 				return;
 			}
+			const {x, y, width, height, rotation} = tokenMousePos;
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
@@ -528,7 +529,9 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			outline.focus();
-			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
+				rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
