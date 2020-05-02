@@ -54,6 +54,7 @@ type token struct {
 	Flop        bool
 	TokenData   uint64
 	TokenType   tokenType
+	Snap        bool
 }
 
 type tokenType uint8
