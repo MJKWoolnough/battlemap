@@ -513,7 +513,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      },
-		      tokenMouseUp = (e: MouseEvent) => {
+		      tokenMouseUp = () => {
 			if (!selectedToken) {
 				return;
 			}
@@ -538,9 +538,35 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
 		      },
 		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
-			if (e.key === "Delete") {
+			switch (e.key) {
+			case "Delete":
 				deleteToken();
+				break;
+			case "ArrowUp":
+			case "ArrowDown":
+			case "ArrowLeft":
+			case "ArrowRight":
+				rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 			}
+		      }, "onkeydown": (e: KeyboardEvent) => {
+			switch (e.key) {
+			case "ArrowUp":
+				selectedToken!.transform.y--;
+				break;
+			case "ArrowDown":
+				selectedToken!.transform.y++;
+				break;
+			case "ArrowLeft":
+				selectedToken!.transform.x--;
+				break;
+			case "ArrowRight":
+				selectedToken!.transform.x++;
+				break;
+			default:
+				return;
+			}
+			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			      e.preventDefault();
 			      place(base, [e.clientX, e.clientY], [
