@@ -565,17 +565,43 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
 		      },
 		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
-			switch (e.key) {
-			case "Delete":
+			if (e.key === "Delete") {
 				deleteToken();
-				break;
-			case "ArrowUp":
-			case "ArrowDown":
-			case "ArrowLeft":
-			case "ArrowRight":
-				rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+				return;
 			}
+			if (selectedToken!.snap) {
+				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				switch (e.key) {
+				case "ArrowUp":
+					selectedToken!.transform.y -= sq;
+					break;
+				case "ArrowDown":
+					selectedToken!.transform.y += sq;
+					break;
+				case "ArrowLeft":
+					selectedToken!.transform.x -= sq;
+					break;
+				case "ArrowRight":
+					selectedToken!.transform.x += sq;
+					break;
+				default:
+					return;
+				}
+			} else {
+				switch (e.key) {
+				case "ArrowUp":
+				case "ArrowDown":
+				case "ArrowLeft":
+				case "ArrowRight":
+				default:
+					return;
+				}
+			}
+			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      }, "onkeydown": (e: KeyboardEvent) => {
+			if (selectedToken!.snap) {
+				return;
+			}
 			switch (e.key) {
 			case "ArrowUp":
 				selectedToken!.transform.y--;
