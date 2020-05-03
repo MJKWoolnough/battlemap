@@ -455,32 +455,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.addToken(tk, tokenLayer.ToPos)
 			return true
 		})
-	case "setTokenTop":
-		var tokenTop struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
+	case "setTokenPos":
+		var tokenPos struct {
+			Path   string `json:"path"`
+			Pos    uint   `json:"pos"`
+			NewPos uint   `json:"newPos"`
 		}
-		if err := json.Unmarshal(data, &tokenTop); err != nil {
+		var err error
+		if err = json.Unmarshal(data, &tokenPos); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenTop.Path, tokenTop.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			l.removeToken(tokenTop.Pos)
-			l.addToken(tk, uint(len(l.Tokens)))
+		if e := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			if tokenPos.NewPos >= uint(len(l.Tokens)) {
+				err = ErrInvalidTokenPos
+				return false
+			}
+			l.removeToken(tokenPos.Pos)
+			l.addToken(tk, tokenPos.NewPos)
 			return true
-		})
-	case "setTokenBottom":
-		var tokenBottom struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
+		}); e != nil {
+			return nil, e
 		}
-		if err := json.Unmarshal(data, &tokenBottom); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenBottom.Path, tokenBottom.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			l.removeToken(tokenBottom.Pos)
-			l.addToken(tk, 0)
-			return true
-		})
+		return nil, err
 	case "setInitiative":
 		var initiative [][2]uint64
 		if err := json.Unmarshal(data, &initiative); err != nil {
@@ -572,4 +568,5 @@ var (
 	ErrCurrentlySelected         = errors.New("cannot remove or rename currently selected map")
 	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
 	ErrInvalidLayerPath          = errors.New("invalid layer path")
+	ErrInvalidTokenPos           = errors.New("invalid token pos")
 )
