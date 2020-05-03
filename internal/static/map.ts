@@ -600,10 +600,13 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				case "ArrowDown":
 				case "ArrowLeft":
 				case "ArrowRight":
+					break;
 				default:
 					return;
 				}
 			}
+			tokenMousePos.x = selectedToken!.transform.x;
+			tokenMousePos.y = selectedToken!.transform.y;
 			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (selectedToken!.snap) {
