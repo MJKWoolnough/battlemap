@@ -592,6 +592,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				default:
 					return;
 				}
+				selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+				outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			} else {
 				switch (e.key) {
 				case "ArrowUp":
