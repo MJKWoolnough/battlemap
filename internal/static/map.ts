@@ -149,6 +149,10 @@ class SVGTransform {
 			this.rotation = 256 - this.rotation;
 		}
 	}
+	align(sq: number) {
+		this.x = Math.round(this.x / sq) * sq;
+		this.y = Math.round(this.y / sq) * sq;
+	}
 	toString(scale = true) {
 		let ret = "";
 		if (this.x !== 0 || this.y !== 0) {
