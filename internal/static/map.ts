@@ -547,6 +547,9 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
+			if (selectedToken!.snap) {
+				selectedToken!.transform.align((definitions.list["gridPattern"] as SVGGrid).width);
+			}
 			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
 			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
 			tokenMousePos.rotation = selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
