@@ -623,21 +623,21 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
-			      e.preventDefault();
-			      place(base, [e.clientX, e.clientY], [
-				      item("Flip", () => {
+			e.preventDefault();
+			place(base, [e.clientX, e.clientY], [
+				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 					outline.focus();
 					rpc.flipToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.flip).catch(alert);
-				      }),
-				      item("Flop", () => {
+				}),
+				item("Flop", () => {
 					selectedToken!.transform.flop = !selectedToken!.transform.flop;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 					outline.focus();
 					rpc.flopToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.flop).catch(alert);
-				      }),
-				      item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
+				}),
+				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
 					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 					let newToken: SVGToken | SVGShape;
 					if (selectedToken instanceof SVGToken) {
@@ -651,10 +651,16 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					}
 					selectedLayer!.tokens.splice(pos, 1, newToken);
 					selectedToken = newToken;
-				      }),
-				      item(selectedToken!.snap ? "Unsnap" : "Snap", () => rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap)),
-				      item("Delete", deleteToken)
-			      ]);
+				}),
+				item(selectedToken!.snap ? "Unsnap" : "Snap", () => rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap).then(() => {
+					if (selectedToken!.snap && selectedToken!.transform.align((definitions.list["gridPattern"] as SVGGrid).width)) {
+						selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+						outline.setAttribute("transform", selectedToken!.transform.toString(false));
+						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+					}
+				})),
+				item("Delete", deleteToken)
+			]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
