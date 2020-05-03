@@ -150,8 +150,10 @@ class SVGTransform {
 		}
 	}
 	align(sq: number) {
+		const x = this.x, y = this.y;
 		this.x = Math.round(this.x / sq) * sq;
 		this.y = Math.round(this.y / sq) * sq;
+		return x !== this.x || y !== this.y;
 	}
 	toString(scale = true) {
 		let ret = "";
