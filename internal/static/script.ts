@@ -6,6 +6,7 @@ import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
+import characters from './characters.js';
 import loadMap from './map.js';
 import {shell, desktop} from './windows.js';
 
@@ -63,6 +64,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		if (userLevel === 1) {
 			assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
 			assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
+			characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
 			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, s, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
 			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
