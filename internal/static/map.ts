@@ -684,6 +684,13 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
 					}
 				}),
+				item(`Move Down`, () => {
+					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+					if (pos > 0) {
+						selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
+						rpc.setTokenPos(selectedLayerPath, pos, pos - 1);
+					}
+				}),
 				item("Delete", deleteToken)
 			]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
