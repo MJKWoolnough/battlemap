@@ -2,7 +2,7 @@ import {Int} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape} from './map_types.js';
-import {item, menu, List} from './lib/context.js';
+import {item, menu, disable, List} from './lib/context.js';
 
 let layerNum = 0;
 
@@ -88,4 +88,5 @@ ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 
 	}
 	return [mDx * dX, mDy * dY];
 },
-makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name)));
+noop = <T>(e: T) => e,
+makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : (e.name === "disabled" ? disable : noop)(item(e.name, fn.bind(e, path + e.name))));
