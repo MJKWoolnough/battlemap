@@ -101,7 +101,7 @@ export type RPC = {
 	setTokenPattern: (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenImage:   (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenSource:  (path: string, pos: Int, source: string)                                         => Promise<void>;
-	setTokenLayer:   (path: string, pos: Int, layer: Int[])                                           => Promise<void>;
+	setTokenLayer:   (from: string, fromPos: Int, to: string, toPos: Int)                             => Promise<void>;
 	setTokenPos:     (path: string, pos: Int, newPos: Int)                                            => Promise<void>;
 	setInitiative:   (initiative: Int[])                                                              => Promise<void>;
 
