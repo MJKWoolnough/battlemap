@@ -4,10 +4,10 @@ import {HTTPRequest} from './lib/conn.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import place, {item, menu} from './lib/context.js';
+import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash} from './map_fns.js';
+import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
 
 export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -196,7 +196,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
-			const items = [
+			const items: List = [
 				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
@@ -232,7 +232,10 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					}
 				})),
 			      ],
-			      tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+			      tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken),
+			      moveToLayer = makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+				rpc.setTokenLayer(selectedLayerPath, tokenPos, path, this.tokens.length).catch(alert)
+			      });
 			if (tokenPos > 0) {
 				items.push(
 					item(`Move to Top`, () => {
@@ -264,6 +267,9 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setTokenPos(selectedLayerPath, pos, 0);
 					})
 				);
+			}
+			if (moveToLayer.length > 0) {
+				items.push(menu("Move To Layer", moveToLayer));
 			}
 			items.push(item("Delete", deleteToken));
 			place(base, [e.clientX, e.clientY], items);
