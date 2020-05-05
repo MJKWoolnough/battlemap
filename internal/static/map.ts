@@ -282,7 +282,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
-			place(base, [e.clientX, e.clientY], [
+			const items = [
 				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
@@ -317,32 +317,42 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 					}
 				})),
-				item(`Move to Top`, () => {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-					selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
-					rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1);
-				}),
-				item(`Move to Bottom`, () => {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-					selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
-					rpc.setTokenPos(selectedLayerPath, pos, 0);
-				}),
-				item(`Move Up`, () => {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-					if (pos >= selectedLayer!.tokens.length - 1) {
-						selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
-					}
-				}),
-				item(`Move Down`, () => {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-					if (pos > 0) {
-						selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, pos - 1);
-					}
-				}),
-				item("Delete", deleteToken)
-			]);
+			      ],
+			      tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+			if (tokenPos > 0) {
+				items.push(
+					item(`Move to Top`, () => {
+						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
+						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1);
+					}),
+					item(`Move Up`, () => {
+						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						if (pos >= selectedLayer!.tokens.length - 1) {
+							selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
+							rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
+						}
+					})
+				);
+			}
+			if (tokenPos < selectedLayer!.tokens.length - 1) {
+				items.push(
+					item(`Move Down`, () => {
+						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						if (pos > 0) {
+							selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
+							rpc.setTokenPos(selectedLayerPath, pos, pos - 1);
+						}
+					}),
+					item(`Move to Bottom`, () => {
+						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
+						rpc.setTokenPos(selectedLayerPath, pos, 0);
+					})
+				);
+			}
+			items.push(item("Delete", deleteToken));
+			place(base, [e.clientX, e.clientY], items);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
