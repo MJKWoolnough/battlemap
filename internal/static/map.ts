@@ -112,7 +112,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
 			if (selectedToken!.snap) {
-				selectedToken!.transform.align((definitions.list["gridPattern"] as SVGGrid).width);
+				selectedToken!.transform.snap((definitions.list["gridPattern"] as SVGGrid).width);
 			}
 			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
 			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
@@ -225,13 +225,14 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					selectedLayer!.tokens.splice(pos, 1, newToken);
 					selectedToken = newToken;
 				}),
-				item(selectedToken!.snap ? "Unsnap" : "Snap", () => rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap).then(() => {
-					if (selectedToken!.snap && selectedToken!.transform.align((definitions.list["gridPattern"] as SVGGrid).width)) {
+				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
+					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
+					if (selectedToken!.snap && selectedToken!.transform.snap((definitions.list["gridPattern"] as SVGGrid).width)) {
 						selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 						outline.setAttribute("transform", selectedToken!.transform.toString(false));
 						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 					}
-				})),
+				}),
 				tokenPos > 0 ? [
 					item(`Move to Top`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
