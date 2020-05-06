@@ -144,11 +144,14 @@ export class SVGTransform {
 			this.rotation = 256 - this.rotation;
 		}
 	}
-	align(sq: number) {
-		const x = this.x, y = this.y;
-		this.x = Math.round(this.x / sq) * sq;
-		this.y = Math.round(this.y / sq) * sq;
-		return x !== this.x || y !== this.y;
+	snap(sq: number) {
+		const {x, y, width, height, rotation} = this;
+		this.x = Math.round(x / sq) * sq;
+		this.y = Math.round(y / sq) * sq;
+		this.width = Math.round(width / sq) * sq;
+		this.height = Math.round(height / sq) * sq;
+		this.rotation = Math.round(rotation / 32) * 32;
+		return x !== this.width || y !== this.y || width !== this.width || height !== this.height || rotation !== this.rotation;
 	}
 	toString(scale = true) {
 		let ret = "";
