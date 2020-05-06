@@ -234,6 +234,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			      ],
 			      tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken),
 			      moveToLayer = makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+				unselectToken();
 				rpc.setTokenLayer(selectedLayerPath, tokenPos, path, this.tokens.length).catch(alert)
 			      }, selectedLayer!.name);
 			if (tokenPos > 0) {
