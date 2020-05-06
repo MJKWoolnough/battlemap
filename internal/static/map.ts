@@ -196,7 +196,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
-			const items: List = [
+			const tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+			place(base, [e.clientX, e.clientY], [
 				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
@@ -231,14 +232,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 					}
 				})),
-			      ],
-			      tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken),
-			      moveToLayer = makeLayerContext(layerList, function(this: SVGLayer, path: string) {
-				unselectToken();
-				rpc.setTokenLayer(selectedLayerPath, tokenPos, path, this.tokens.length).catch(alert)
-			      }, selectedLayer!.name);
-			if (tokenPos > 0) {
-				items.push(
+				tokenPos > 0 ? [
 					item(`Move to Top`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
@@ -251,10 +245,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 							rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
 						}
 					})
-				);
-			}
-			if (tokenPos < selectedLayer!.tokens.length - 1) {
-				items.push(
+				] : [],
+				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move Down`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 						if (pos > 0) {
@@ -267,13 +259,14 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
 						rpc.setTokenPos(selectedLayerPath, pos, 0);
 					})
-				);
-			}
-			if (moveToLayer.length > 0) {
-				items.push(menu("Move To Layer", moveToLayer));
-			}
-			items.push(item("Delete", deleteToken));
-			place(base, [e.clientX, e.clientY], items);
+				] : [],
+				makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+					unselectToken();
+					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+					rpc.setTokenLayer(selectedLayerPath, pos, path, this.tokens.length).catch(alert)
+				}, selectedLayer!.name),
+				item("Delete", deleteToken)
+			]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
 		      definitions = new Defs(root),
 		      layerList = processLayers(root) as SVGFolder,
