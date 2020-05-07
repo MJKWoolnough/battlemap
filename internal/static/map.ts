@@ -119,6 +119,10 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			tokenMousePos.rotation = selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
 			tokenMousePos.width = selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
 			tokenMousePos.height = selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
+			selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
+			outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
+			selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
+			outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			outline.focus();
