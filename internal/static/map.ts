@@ -241,7 +241,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					}),
 					item(`Move Up`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-						if (pos >= selectedLayer!.tokens.length - 1) {
+						if (pos < selectedLayer!.tokens.length - 1) {
 							selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
 							rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
 						}
