@@ -150,7 +150,7 @@ export class SVGTransform {
 		this.y = Math.round(y / sq) * sq;
 		this.width = Math.round(width / sq) * sq;
 		this.height = Math.round(height / sq) * sq;
-		this.rotation = Math.round(rotation / 32) * 32;
+		this.rotation = Math.round(rotation / 32) * 32 % 256;
 		return x !== this.width || y !== this.y || width !== this.width || height !== this.height || rotation !== this.rotation;
 	}
 	toString(scale = true) {
