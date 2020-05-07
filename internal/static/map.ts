@@ -233,7 +233,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 					}
 				}),
-				tokenPos > 0 ? [
+				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
@@ -247,7 +247,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						}
 					})
 				] : [],
-				tokenPos < selectedLayer!.tokens.length - 1 ? [
+				tokenPos > 0 ? [
 					item(`Move Down`, () => {
 						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 						if (pos > 0) {
