@@ -261,11 +261,11 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						rpc.setTokenPos(selectedLayerPath, pos, 0);
 					})
 				] : [],
-				makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
 					unselectToken();
 					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
 					rpc.setTokenLayer(selectedLayerPath, pos, path, this.tokens.length).catch(alert)
-				}, selectedLayer!.name),
+				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
 		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
