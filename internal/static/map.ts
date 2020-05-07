@@ -47,11 +47,19 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			case 0:
 				x += dx;
 				y += dy;
+				if (selectedToken!.snap) {
+					const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+					x = Math.round(x / sq) * sq;
+					y = Math.round(y / sq) * sq;
+				}
 				break;
 			case 1:
 				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
 				while (rotation < 0) {
 					rotation += 256;
+				}
+				if (selectedToken!.snap) {
+					rotation = Math.round(rotation / 32) * 32 % 256;
 				}
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 				break;
@@ -73,6 +81,11 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					height -= mDy;
 				} else if (dirY === 1) {
 					height += mDy;
+				}
+				if (selectedToken!.snap) {
+					const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+					width = Math.round(width / sq) * sq;
+					height = Math.round(height / sq) * sq;
 				}
 				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
 				      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
@@ -111,9 +124,6 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			root.removeEventListener("mousemove", tokenDrag);
 			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
-			if (selectedToken!.snap) {
-				selectedToken!.transform.snap((definitions.list["gridPattern"] as SVGGrid).width);
-			}
 			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
 			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
 			tokenMousePos.rotation = selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
