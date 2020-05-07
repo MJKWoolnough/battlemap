@@ -42,13 +42,13 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = e.clientX - tokenMousePos.mouseX,
-			      dy = e.clientY - tokenMousePos.mouseY;
+			      dy = e.clientY - tokenMousePos.mouseY,
+			      sq = (definitions.list["gridPattern"] as SVGGrid).width;
 			switch (tokenDragMode) {
 			case 0:
 				x += dx;
 				y += dy;
 				if (selectedToken!.snap) {
-					const sq = (definitions.list["gridPattern"] as SVGGrid).width;
 					x = Math.round(x / sq) * sq;
 					y = Math.round(y / sq) * sq;
 				}
@@ -83,7 +83,6 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					height += mDy;
 				}
 				if (selectedToken!.snap) {
-					const sq = (definitions.list["gridPattern"] as SVGGrid).width;
 					width = Math.round(width / sq) * sq;
 					height = Math.round(height / sq) * sq;
 				}
@@ -91,6 +90,10 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
 				x = nx;
 				y = ny;
+				if (selectedToken!.snap) {
+					x = Math.round(x / sq) * sq;
+					y = Math.round(y / sq) * sq;
+				}
 			}}
 			selectedToken!.transform.x = x;
 			selectedToken!.transform.y = y;
