@@ -262,8 +262,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
-					unselectToken();
 					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+					unselectToken();
 					rpc.setTokenLayer(selectedLayerPath, pos, path, this.tokens.length).catch(alert)
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
