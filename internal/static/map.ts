@@ -69,7 +69,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
 				      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
 				      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
-				      [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY);
+				      [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
 				if (dirX === -1) {
 					x += mDx;
 					width -= mDx;
