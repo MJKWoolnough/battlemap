@@ -20,7 +20,7 @@ export class SVGPattern {
 	}
 	static from(p: SVGPatternElement) {
 		if (p.firstChild instanceof SVGPathElement) {
-			if (p.firstChild.getAttribute("id") === "gridPattern") {
+			if (p.getAttribute("id") === "gridPattern") {
 				return new SVGGrid(p.firstChild);
 			}
 			return new SVGPath(p.firstChild);
