@@ -85,6 +85,7 @@ export class SVGGrid extends SVGPath {
 	set width(w: Int) {
 		this.d = `M 0 ${w} V 0 H ${w}`;
 		super.width = w;
+		super.height = w;
 	}
 	get height() {
 		return this.width;
