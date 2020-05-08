@@ -136,18 +136,18 @@ class ItemLayer extends Item {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
 			const details = rpcFuncs.getMapDetails(),
-			      width = input({"type": "number", "min": "10", "max": "1000", "value": details.width, "id": "mapWidth"}),
-			      height = input({"type": "number", "min": "10", "max": "1000", "value": details.height, "id": "mapHeight"}),
-			      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": details.square, "id": "mapSquareWidth"}),
+			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.width / details.square), "id": "mapWidth"}),
+			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.height / details.square), "id": "mapHeight"}),
+			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.square, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.colour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke, "id": "mapSquareLineWidth"}),
 			      window = sh.appendChild(windows({"window-title": "Edit Map"}));
 			return createHTML(window, {"class": "mapAdd"}, [
 				h1("Edit Map"),
-				label({"for": "mapWidth"}, "Width: "),
+				label({"for": "mapWidth"}, "Width in Squares: "),
 				width,
 				br(),
-				label({"for": "mapHeight"}, "Height: "),
+				label({"for": "mapHeight"}, "Height in Squares: "),
 				height,
 				br(),
 				label({"for": "mapSquareWidth"}, "Square Size: "),
@@ -160,10 +160,11 @@ class ItemLayer extends Item {
 				sqLineWidth,
 				br(),
 				button("Apply", {"onclick": function(this: HTMLButtonElement) {
+					const sq = parseInt(sqWidth.value);
 					loadingWindow(rpcFuncs.setMapDetails({
-						"width": parseInt(width.value),
-						"height": parseInt(height.value),
-						"square": parseInt(sqWidth.value),
+						"width": parseInt(width.value) * sq,
+						"height": parseInt(height.value) * sq,
+						"square": sq,
 						"colour": hex2Colour(sqColour.value),
 						"stroke": parseInt(sqLineWidth.value)
 					}), window).then(() => window.remove())
