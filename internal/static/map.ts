@@ -250,12 +250,16 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						const sq = (definitions.list["gridPattern"] as SVGGrid).width,
 						      transform = selectedToken!.transform,
 						      {x, y, width, height, rotation} = transform;
-						transform.x = Math.round(x / sq) * sq;
-						transform.y = Math.round(y / sq) * sq;
-						transform.width = Math.max(Math.round(width / sq) * sq, sq);
-						transform.height = Math.max(Math.round(height / sq) * sq, sq);
-						transform.rotation = Math.round(rotation / 32) * 32 % 256;
+						tokenMousePos.x = transform.x = Math.round(x / sq) * sq;
+						tokenMousePos.y = transform.y = Math.round(y / sq) * sq;
+						tokenMousePos.width = transform.width = Math.max(Math.round(width / sq) * sq, sq);
+						tokenMousePos.height = transform.height = Math.max(Math.round(height / sq) * sq, sq);
+						tokenMousePos.rotation = transform.rotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== transform.width || y !== transform.y || width !== transform.width || height !== transform.height || rotation !== transform.rotation) {
+							selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
+							outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
+							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
+							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 							selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 							outline.setAttribute("transform", selectedToken!.transform.toString(false));
 							rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
