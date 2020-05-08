@@ -167,10 +167,10 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 					label({"for": "mapName"}, "Name: "),
 					name,
 					br(),
-					label({"for": "mapWidth"}, "Width: "),
+					label({"for": "mapWidth"}, "Width in Squares: "),
 					width,
 					br(),
-					label({"for": "mapHeight"}, "Height: "),
+					label({"for": "mapHeight"}, "Height in Squares: "),
 					height,
 					br(),
 					label({"for": "mapSquareWidth"}, "Square Size: "),
@@ -183,12 +183,13 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 					sqLineWidth,
 					br(),
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
+						const sq = parseInt(sqWidth.value);
 						loadingWindow(rpc.newMap({
 							"id": 0,
 							"name": name.value,
-							"width": parseInt(width.value),
-							"height": parseInt(height.value),
-							"square": parseInt(sqWidth.value),
+							"width": parseInt(width.value) * sq,
+							"height": parseInt(height.value) * sq,
+							"square": sq,
 							"colour": hex2Colour(sqColour.value),
 							"stroke": parseInt(sqLineWidth.value)
 						}), window).then(({id, name}) => {
