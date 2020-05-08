@@ -252,8 +252,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 						      {x, y, width, height, rotation} = transform;
 						transform.x = Math.round(x / sq) * sq;
 						transform.y = Math.round(y / sq) * sq;
-						transform.width = Math.round(width / sq) * sq;
-						transform.height = Math.round(height / sq) * sq;
+						transform.width = Math.max(Math.round(width / sq) * sq, sq);
+						transform.height = Math.max(Math.round(height / sq) * sq, sq);
 						transform.rotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== transform.width || y !== transform.y || width !== transform.width || height !== transform.height || rotation !== transform.rotation) {
 							selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
