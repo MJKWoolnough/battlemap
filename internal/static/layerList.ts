@@ -159,7 +159,7 @@ class ItemLayer extends Item {
 				label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
 				sqLineWidth,
 				br(),
-				button("Add", {"onclick": function(this: HTMLButtonElement) {
+				button("Apply", {"onclick": function(this: HTMLButtonElement) {
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value),
 						"height": parseInt(height.value),
