@@ -70,7 +70,7 @@ processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 	};
 },
 walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1)) => {
+ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
 	mDx *= dX;
 	mDy *= dY;
 	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
@@ -78,13 +78,13 @@ ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 
 	} else {
 		mDx = mDy * width / height;
 	}
-	if (width + mDx < 10) {
-		mDx = 10 - width;
-		mDy = 10 * height / width - height;
+	if (width + mDx < min) {
+		mDx = min - width;
+		mDy = min * height / width - height;
 	}
-	if (height + mDy < 10) {
-		mDx = 10 * width / height - width;
-		mDy = 10 - height;
+	if (height + mDy < min) {
+		mDx = min * width / height - width;
+		mDy = min - height;
 	}
 	return [mDx * dX, mDy * dY];
 },
