@@ -244,10 +244,20 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
-					if (selectedToken!.snap && selectedToken!.transform.snap((definitions.list["gridPattern"] as SVGGrid).width)) {
-						selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
-						outline.setAttribute("transform", selectedToken!.transform.toString(false));
-						rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+					if (selectedToken!.snap) {
+						const sq = (definitions.list["gridPattern"] as SVGGrid).width,
+						      transform = selectedToken!.transform,
+						      {x, y, width, height, rotation} = transform;
+						transform.x = Math.round(x / sq) * sq;
+						transform.y = Math.round(y / sq) * sq;
+						transform.width = Math.round(width / sq) * sq;
+						transform.height = Math.round(height / sq) * sq;
+						transform.rotation = Math.round(rotation / 32) * 32 % 256;
+						if (x !== transform.width || y !== transform.y || width !== transform.width || height !== transform.height || rotation !== transform.rotation) {
+							selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+							outline.setAttribute("transform", selectedToken!.transform.toString(false));
+							rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+						}
 					}
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
