@@ -9,9 +9,15 @@ import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
 import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
 
-export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		base.addEventListener("mousedown", (e: MouseEvent) => {
+			tokenMousePos.mouseX = e.clientX;
+			tokenMousePos.mouseY = e.clientY;
+			base.addEventListener("mousemove", viewDrag);
+			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
+		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -34,8 +40,8 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			if (!newToken || e.ctrlKey) {
 				tokenMousePos.mouseX = e.clientX;
 				tokenMousePos.mouseY = e.clientY;
-				root.addEventListener("mousemove", viewDrag);
-				root.addEventListener("mouseup", () => root.removeEventListener("mousemove", viewDrag), {"once": true});
+				base.addEventListener("mousemove", viewDrag);
+				base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
 				return;
 			}
 			selectedToken = newToken;
