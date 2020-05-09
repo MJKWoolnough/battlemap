@@ -20,6 +20,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		});
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
+			const x = parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
+			      y = parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
 			if (e.ctrlKey) {
 				if (e.deltaY < 0) {
 					zoom /= 0.95;
@@ -31,8 +33,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX;
 				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-				root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(deltaY) * sq) + "px");
-				root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + (Math.sign(deltaX) * sq) + "px");
+				root.style.setProperty("left", x + (Math.sign(deltaX) * sq) + "px");
+				root.style.setProperty("top", y + (Math.sign(deltaY) * sq) + "px");
 			}
 		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
