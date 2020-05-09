@@ -66,7 +66,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
 			characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
 			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-			loadMap(rpc, s, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
+			loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
 			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
 			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
