@@ -81,8 +81,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		      },
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
-			const dx = e.clientX - tokenMousePos.mouseX,
-			      dy = e.clientY - tokenMousePos.mouseY,
+			const dx = (e.clientX - tokenMousePos.mouseX) / zoom,
+			      dy = (e.clientY - tokenMousePos.mouseY) / zoom,
 			      sq = (definitions.list["gridPattern"] as SVGGrid).width;
 			switch (tokenDragMode) {
 			case 0:
