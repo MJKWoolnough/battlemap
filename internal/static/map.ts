@@ -11,7 +11,7 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 
 export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0, zoom = 1;
 		base.addEventListener("mousedown", (e: MouseEvent) => {
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
@@ -20,11 +20,20 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		});
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
-			const deltaY = e.shiftKey ? 0 : -e.deltaY,
-			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX;
-			const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(deltaY) * sq) + "px");
-			root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + (Math.sign(deltaX) * sq) + "px");
+			if (e.ctrlKey) {
+				if (e.deltaY < 0) {
+					zoom /= 0.95;
+				} else if (e.deltaY > 0) {
+					zoom *= 0.95;
+				}
+				root.setAttribute("transform", `scale(${zoom})`);
+			} else {
+				const deltaY = e.shiftKey ? 0 : -e.deltaY,
+				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX;
+				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(deltaY) * sq) + "px");
+				root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + (Math.sign(deltaX) * sq) + "px");
+			}
 		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
