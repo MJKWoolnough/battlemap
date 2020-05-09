@@ -20,22 +20,29 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		});
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
-			const x = parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
-			      y = parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
+			let x = parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
+			    y = parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
 			if (e.ctrlKey) {
+				const width = parseInt(root.getAttribute("width") || "0"),
+				      height = parseInt(root.getAttribute("height") || "0"),
+				      oldZoom = zoom;
 				if (e.deltaY < 0) {
 					zoom /= 0.95;
 				} else if (e.deltaY > 0) {
 					zoom *= 0.95;
 				}
+				x += (e.offsetX - (width / 2)) * (oldZoom - zoom)
+				y += (e.offsetY - (height / 2)) * (oldZoom - zoom)
 				root.setAttribute("transform", `scale(${zoom})`);
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
-				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX;
-				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-				root.style.setProperty("left", x + (Math.sign(deltaX) * sq) + "px");
-				root.style.setProperty("top", y + (Math.sign(deltaY) * sq) + "px");
+				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
+				      sq = -(definitions.list["gridPattern"] as SVGGrid).width;
+				x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * sq;
+				y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * sq;
 			}
+			root.style.setProperty("left", x + "px");
+			root.style.setProperty("top", y + "px");
 		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
