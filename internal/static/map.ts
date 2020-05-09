@@ -12,7 +12,7 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
+		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
 		      }, "ondrop": (e: DragEvent) => {
@@ -27,11 +27,18 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			if (!selectedLayer || e.button !== 0) {
 				return;
 			}
-			unselectToken();
-			selectedToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
-			if (!selectedToken) {
+			const newToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
+			if (!e.ctrlKey) {
+				unselectToken();
+			}
+			if (!newToken || e.ctrlKey) {
+				tokenMousePos.mouseX = e.clientX;
+				tokenMousePos.mouseY = e.clientY;
+				root.addEventListener("mousemove", viewDrag);
+				root.addEventListener("mouseup", () => root.removeEventListener("mousemove", viewDrag), {"once": true});
 				return;
 			}
+			selectedToken = newToken;
 			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
@@ -39,6 +46,14 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			tokenMousePos.height = selectedToken.transform.height;
 			tokenMousePos.rotation = selectedToken.transform.rotation;
 		      }}),
+		      viewDrag = (e: MouseEvent) => {
+			const dx = e.clientX - tokenMousePos.mouseX,
+			      dy = e.clientY - tokenMousePos.mouseY;
+			root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + dx + "px");
+			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + dy + "px");
+			tokenMousePos.mouseX = e.clientX;
+			tokenMousePos.mouseY = e.clientY;
+		      },
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = e.clientX - tokenMousePos.mouseX,
@@ -108,7 +123,7 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
-			if (e.button !== 0) {
+			if (e.button !== 0 || e.ctrlKey) {
 				return;
 			}
 			e.stopImmediatePropagation();
