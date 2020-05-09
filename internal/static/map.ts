@@ -45,6 +45,10 @@ export default function(rpc: RPC, shell: ShellElement, base: Element,  mapSelect
 			tokenMousePos.width = selectedToken.transform.width;
 			tokenMousePos.height = selectedToken.transform.height;
 			tokenMousePos.rotation = selectedToken.transform.rotation;
+		      }, "onwheel": (e: WheelEvent) => {
+			e.preventDefault();
+			const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(e.deltaY) * sq) + "px");
 		      }}),
 		      viewDrag = (e: MouseEvent) => {
 			const dx = e.clientX - tokenMousePos.mouseX,
