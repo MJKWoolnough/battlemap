@@ -20,8 +20,11 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		});
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
+			const deltaY = e.shiftKey ? 0 : -e.deltaY,
+			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX;
 			const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(e.deltaY) * sq) + "px");
+			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(deltaY) * sq) + "px");
+			root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + (Math.sign(deltaX) * sq) + "px");
 		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
