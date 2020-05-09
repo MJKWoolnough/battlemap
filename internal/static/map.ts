@@ -18,6 +18,11 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			base.addEventListener("mousemove", viewDrag);
 			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
 		});
+		base.addEventListener("wheel", (e: WheelEvent) => {
+			e.preventDefault();
+			const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(e.deltaY) * sq) + "px");
+		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -51,10 +56,6 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			tokenMousePos.width = selectedToken.transform.width;
 			tokenMousePos.height = selectedToken.transform.height;
 			tokenMousePos.rotation = selectedToken.transform.rotation;
-		      }, "onwheel": (e: WheelEvent) => {
-			e.preventDefault();
-			const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + (Math.sign(e.deltaY) * sq) + "px");
 		      }}),
 		      viewDrag = (e: MouseEvent) => {
 			const dx = e.clientX - tokenMousePos.mouseX,
