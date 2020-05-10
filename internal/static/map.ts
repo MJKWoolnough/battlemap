@@ -29,8 +29,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				} else if (e.deltaY > 0) {
 					zoom *= 0.95;
 				}
-				panX += (e.offsetX - (width / 2)) * (oldZoom - zoom)
-				panY += (e.offsetY - (height / 2)) * (oldZoom - zoom)
+				panX += Math.round((e.offsetX - (width / 2)) * (oldZoom - zoom));
+				panY += Math.round((e.offsetY - (height / 2)) * (oldZoom - zoom));
 				root.setAttribute("transform", `scale(${zoom})`);
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
@@ -51,8 +51,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			}
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
 			      src = `/images/${tokenData.id}`,
-			      x = e.clientX - parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
-			      y = e.clientY - parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
+			      x = e.clientX - panX,
+			      y = e.clientY - panY;
 			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${x}, ${y})`})));
 			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
 		      }, "onmousedown": (e: MouseEvent) => {
