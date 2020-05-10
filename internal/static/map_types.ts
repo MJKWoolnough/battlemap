@@ -101,36 +101,29 @@ export class SVGTransform {
 	flop: boolean = false;
 	width: Int;
 	height: Int;
-	constructor(transform: string, width: Int, height: Int) {
+	transform: SVGAnimatedTransformList;
+	constructor(transform: SVGAnimatedTransformList, width: Int, height: Int) {
+		this.transform = transform;
 		this.width = width;
 		this.height = height;
-		for (const [, fn, a, b] of transform.matchAll(/([a-z]+)\( *([\-]?[0-9]+) *,? *([\-]?[0-9]*) *,? *[\-]?[0-9]* *\)/g)) {
-			switch (fn) {
-			case "translate":
-				if (b !== undefined) {
-					this.x += parseInt(a);
-					this.y += parseInt(b);
-				} else {
-					const da = parseInt(a);
-					this.x += da;
-					this.y += da;
-				}
+		for (let i = 0; i < transform.baseVal.numberOfItems; i++) {
+			const svgTransform = transform.baseVal.getItem(i);
+			switch (svgTransform.type) {
+			case 2: // Translate
+				this.x += Math.round(svgTransform.matrix.e);
+				this.y += Math.round(svgTransform.matrix.f);
 				break;
-			case "rotate":
-				this.rotation = 256 * parseInt(a) / 360;
+			case 3: // Scale
+				this.flop = svgTransform.matrix.a === -1;
+				this.flip = svgTransform.matrix.d === -1;
+				break;
+			case 4: // Rotate
+				this.rotation = 256 * Math.round(svgTransform.angle) / 360;
 				while (this.rotation < 0) {
 					this.rotation += 256;
 				}
 				while (this.rotation >= 256) {
 					this.rotation -=256;
-				}
-				break;
-			case "scale":
-				if (b) {
-					this.flop = parseInt(a) === -1;
-					this.flip = parseInt(b) === -1;
-				} else {
-					this.flip = this.flop = parseInt(a) === -1;
 				}
 				break;
 			}
@@ -166,7 +159,7 @@ export class SVGImage extends SVGPattern {
 	constructor(image: SVGImageElement) {
 		super(image.parentNode as SVGPatternElement);
 		this.image = image;
-		this.transform = new SVGTransform(image.getAttribute("transform") || "", this.width, this.height);
+		this.transform = new SVGTransform(image.transform, this.width, this.height);
 	}
 	get width() {
 		return super.width;
@@ -273,7 +266,7 @@ export class SVGToken {
 	transform: SVGTransform;
 	constructor(node: SVGImageElement) {
 		this.node = node;
-		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+		this.transform = new SVGTransform(node.transform || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
 	get snap() {
 		return this.node.getAttribute("data-snap") === "true";
@@ -296,7 +289,7 @@ export class SVGShape {
 	transform: SVGTransform;
 	constructor(node: SVGRectElement | SVGCircleElement) {
 		this.node = node;
-		this.transform = new SVGTransform(node.getAttribute("transform") || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+		this.transform = new SVGTransform(node.transform, parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
 	get fill() {
 		const fill = this.node.getAttribute("fill") || "";
