@@ -264,7 +264,7 @@ export class SVGToken {
 	transform: SVGTransform;
 	constructor(node: SVGImageElement) {
 		this.node = node;
-		this.transform = new SVGTransform(node.transform || "", parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+		this.transform = new SVGTransform(node.transform, parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
 	}
 	get snap() {
 		return this.node.getAttribute("data-snap") === "true";
