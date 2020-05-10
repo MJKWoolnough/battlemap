@@ -11,7 +11,7 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 
 export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0, zoom = 1;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0, panX = 0, panY = 0, zoom = 1;
 		base.addEventListener("mousedown", (e: MouseEvent) => {
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
@@ -20,8 +20,6 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		});
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
-			let x = parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
-			    y = parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
 			if (e.ctrlKey) {
 				const width = parseInt(root.getAttribute("width") || "0"),
 				      height = parseInt(root.getAttribute("height") || "0"),
@@ -31,18 +29,18 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				} else if (e.deltaY > 0) {
 					zoom *= 0.95;
 				}
-				x += (e.offsetX - (width / 2)) * (oldZoom - zoom)
-				y += (e.offsetY - (height / 2)) * (oldZoom - zoom)
+				panX += (e.offsetX - (width / 2)) * (oldZoom - zoom)
+				panY += (e.offsetY - (height / 2)) * (oldZoom - zoom)
 				root.setAttribute("transform", `scale(${zoom})`);
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
 				      sq = -(definitions.list["gridPattern"] as SVGGrid).width;
-				x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * sq;
-				y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * sq;
+				panX += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * sq;
+				panY += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * sq;
 			}
-			root.style.setProperty("left", x + "px");
-			root.style.setProperty("top", y + "px");
+			root.style.setProperty("left", panX + "px");
+			root.style.setProperty("top", panY + "px");
 		});
 		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
 			e.preventDefault();
@@ -81,10 +79,10 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			tokenMousePos.rotation = selectedToken.transform.rotation;
 		      }}),
 		      viewDrag = (e: MouseEvent) => {
-			const dx = e.clientX - tokenMousePos.mouseX,
-			      dy = e.clientY - tokenMousePos.mouseY;
-			root.style.setProperty("left", parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")) + dx + "px");
-			root.style.setProperty("top", parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, "")) + dy + "px");
+			panX += e.clientX - tokenMousePos.mouseX;
+			panY += e.clientY - tokenMousePos.mouseY;
+			root.style.setProperty("left", panX + "px");
+			root.style.setProperty("top", panY + "px");
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      },
