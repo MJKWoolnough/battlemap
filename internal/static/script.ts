@@ -9,6 +9,7 @@ import layerList from './layerList.js';
 import characters from './characters.js';
 import loadMap from './map.js';
 import {shell, desktop} from './windows.js';
+import settings from './settings.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -68,6 +69,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
 			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
+			settings(rpc, tabs.add("Settings", div()), true);
 			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
