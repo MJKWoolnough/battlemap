@@ -101,9 +101,7 @@ export class SVGTransform {
 	flop: boolean = false;
 	width: Int;
 	height: Int;
-	transform: SVGAnimatedTransformList;
 	constructor(transform: SVGAnimatedTransformList, width: Int, height: Int) {
-		this.transform = transform;
 		this.width = width;
 		this.height = height;
 		for (let i = 0; i < transform.baseVal.numberOfItems; i++) {
