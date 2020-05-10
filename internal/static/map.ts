@@ -52,9 +52,11 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				return;
 			}
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
-			      src = `/images/${tokenData.id}`;
-			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${e.clientX}, ${e.clientY})`})));
-			rpc.addToken(selectedLayerPath, {"source": src, "x": e.clientX, "y": e.clientY, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
+			      src = `/images/${tokenData.id}`,
+			      x = e.clientX - parseInt((root.style.getPropertyValue("left") || "0").replace(/px$/, "")),
+			      y = e.clientY - parseInt((root.style.getPropertyValue("top") || "0").replace(/px$/, ""));
+			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${x}, ${y})`})));
+			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
