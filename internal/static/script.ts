@@ -74,7 +74,10 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
 		} else {
-			return Promise.reject("Need to be logged in");
+			settings(rpc, tabs.add("Settings", div()), true);
+			document.head.appendChild(style({"type": "text/css"}, tabs.css));
+			base.appendChild(tabs.html);
+			clearElement(document.body).appendChild(s);
 		}
 	}));
 }).catch((e: Error) => {
