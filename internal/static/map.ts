@@ -51,8 +51,10 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			}
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
 			      src = `/images/${tokenData.id}`,
-			      x = e.clientX - panX,
-			      y = e.clientY - panY;
+			      width = parseInt(root.getAttribute("width") || "0"),
+			      height = parseInt(root.getAttribute("height") || "0"),
+			      x = Math.round((e.clientX + ((zoom - 1) * width / 2) - panX) / zoom),
+			      y = Math.round((e.clientY + ((zoom - 1) * height / 2) - panY) / zoom);
 			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${x}, ${y})`})));
 			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
 		      }, "onmousedown": (e: MouseEvent) => {
