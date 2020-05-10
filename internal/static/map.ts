@@ -385,7 +385,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
 		{
-			const gridRect = rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)" }),
+			const gridRect = rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}),
 			      grid = getLayer(layerList, "/Grid");
 			if (grid && isSVGLayer(grid)) {
 				grid.tokens.filterRemove(() => true);
