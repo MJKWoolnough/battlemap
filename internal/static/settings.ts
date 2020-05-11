@@ -4,6 +4,6 @@ import {RPC} from './types.js';
 
 export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
-		button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, "Logout")
+		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, "Logout") : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, "Login")
 	]);
 };
