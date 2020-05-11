@@ -29,8 +29,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				} else if (e.deltaY > 0) {
 					zoom *= 0.95;
 				}
-				panX += Math.round((e.offsetX - (width / 2)) * (oldZoom - zoom));
-				panY += Math.round((e.offsetY - (height / 2)) * (oldZoom - zoom));
+				panX += e.clientX - (zoom * ((e.clientX + (oldZoom - 1) * width / 2) - panX) / oldZoom + panX - (zoom - 1) * width / 2);
+				panY += e.clientY - (zoom * ((e.clientY + (oldZoom - 1) * height / 2) - panY) / oldZoom + panY - (zoom - 1) * height / 2);
 				root.setAttribute("transform", `scale(${zoom})`);
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
