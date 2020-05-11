@@ -21,16 +21,16 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 		base.addEventListener("wheel", (e: WheelEvent) => {
 			e.preventDefault();
 			if (e.ctrlKey) {
-				const width = parseInt(root.getAttribute("width") || "0"),
-				      height = parseInt(root.getAttribute("height") || "0"),
+				const width = parseInt(root.getAttribute("width") || "0") / 2,
+				      height = parseInt(root.getAttribute("height") || "0") / 2,
 				      oldZoom = zoom;
 				if (e.deltaY < 0) {
 					zoom /= 0.95;
 				} else if (e.deltaY > 0) {
 					zoom *= 0.95;
 				}
-				panX += e.clientX - (zoom * ((e.clientX + (oldZoom - 1) * width / 2) - panX) / oldZoom + panX - (zoom - 1) * width / 2);
-				panY += e.clientY - (zoom * ((e.clientY + (oldZoom - 1) * height / 2) - panY) / oldZoom + panY - (zoom - 1) * height / 2);
+				panX += e.clientX - (zoom * ((e.clientX + (oldZoom - 1) * width) - panX) / oldZoom + panX - (zoom - 1) * width);
+				panY += e.clientY - (zoom * ((e.clientY + (oldZoom - 1) * height) - panY) / oldZoom + panY - (zoom - 1) * height);
 				root.setAttribute("transform", `scale(${zoom})`);
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
