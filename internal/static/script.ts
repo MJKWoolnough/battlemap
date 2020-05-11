@@ -74,7 +74,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
 		} else {
-			settings(rpc, tabs.add("Settings", div()), true);
+			settings(rpc, tabs.add("Settings", div()), false);
 			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
