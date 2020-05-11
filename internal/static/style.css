@@ -7,10 +7,25 @@
 @import url("map.css");
 
 html, body {
+	color: #000;
 	background-color: #fff;
 	margin: 0;
 	padding: 0;
 }
+
+.invert windows-desktop > div:first-child, .invert windows-window {
+	color: #fff;
+	background-color: #000;
+}
+
+.invert windows-window::part(title) {
+	color: #000;
+}
+
+.invert #panels {
+	filter: invert(1);
+}
+
 
 #panels {
 	position: fixed;
@@ -72,6 +87,15 @@ html, body {
 	cursor : pointer;
 }
 
+.invert #tabLabels > label:hover {
+	background : linear-gradient(to bottom, #088 1%, #ffecec 50%, #d1d1d1 100%);
+}
+
+.invert button {
+	border-style: inset;
+	border-color: #bbb;
+}
+
 #tabLabels > label:before, #tabs > label:after {
 	position: absolute;
 	bottom: -1px;
@@ -119,6 +143,15 @@ html, body {
 	height: 20px;
 	transition: background 1s;
 	z-index: 9;
+}
+
+.invert #panelGrabber {
+	border-color: #0ff;
+	background: #000;
+}
+
+.invert #panelHider:checked ~ #panels > #panelGrabber {
+	background: #fff;
 }
 
 windows-shell {
