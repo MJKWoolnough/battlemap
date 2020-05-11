@@ -1,5 +1,6 @@
 svg {
 	cursor: var(--outline-cursor);
+	background-color: #fff;
 }
 
 #outline {
