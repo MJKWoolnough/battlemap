@@ -1,6 +1,6 @@
 import {HTTPRequest} from './lib/conn.js';
 import {createHTML, button, br, h1, input, label} from './lib/html.js';
-import {RPC} from './types.js';
+import {Int, RPC} from './types.js';
 
 class BoolSetting {
 	name: string;
@@ -16,6 +16,18 @@ class BoolSetting {
 			window.localStorage.removeItem(this.name);
 		}
 		return b;
+	}
+}
+
+class IntSetting {
+	name: string;
+	value: Int;
+	constructor(name: string) {
+		this.name = name;
+		this.value = parseInt(window.localStorage.getItem("name") || "0");
+	}
+	set(i: Int) {
+		window.localStorage.setItem("name", i.toString());
 	}
 }
 
@@ -42,6 +54,6 @@ export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 				autosnap.set(this.checked);
 			}}),
 			label({"for": "autosnap"}, "Autosnap: ")
-		] : [],
+		] : []
 	]);
 };
