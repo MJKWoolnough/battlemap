@@ -33,7 +33,8 @@ class IntSetting {
 
 const invert = new BoolSetting("invert");
 
-export const autosnap = new BoolSetting("autosnap");
+export const autosnap = new BoolSetting("autosnap"),
+scrollAmount = new IntSetting("scrollAmount");
 
 export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 	const htmlElement = document.getElementsByTagName("html")[0];
@@ -53,7 +54,13 @@ export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 			input({"type": "checkbox", "id": "autosnap", "checked": window.localStorage.getItem("autosnap"), "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
 			}}),
-			label({"for": "autosnap"}, "Autosnap: ")
-		] : []
+			label({"for": "autosnap"}, "Autosnap: "),
+			br()
+		] : [],
+		label({"for": "scrollAmount"}, "Scroll (zero is square width): "),
+		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
+			scrollAmount.set(parseInt(this.value));
+			scrollAmount.value;
+		}})
 	]);
 };
