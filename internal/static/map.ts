@@ -8,7 +8,7 @@ import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
 import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
-import {autosnap} from './settings.js';
+import {autosnap, scrollAmount} from './settings.js';
 
 export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -36,9 +36,10 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-				      sq = -(definitions.list["gridPattern"] as SVGGrid).width;
-				panX += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * sq;
-				panY += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * sq;
+				      amount = scrollAmount.value || (definitions.list["gridPattern"] as SVGGrid).width;
+				console.log(scrollAmount.value, amount);
+				panX += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
+				panY += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
 			}
 			root.style.setProperty("left", panX + "px");
 			root.style.setProperty("top", panY + "px");
