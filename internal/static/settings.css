@@ -1,0 +1,22 @@
+#autosnap {
+	display: none;
+}
+
+#autosnap + label:after {
+	content: "✘";
+	color: #f00;
+}
+
+.invert #autosnap + label:after {
+	color: #0ff;
+}
+
+#autosnap:checked + label:after {
+	content: "✓";
+	color: #0f0;
+}
+
+
+.invert #autosnap:checked + label:after {
+	color: #f0f;
+}
