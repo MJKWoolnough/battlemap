@@ -1,6 +1,8 @@
 import {HTTPRequest} from './lib/conn.js';
-import {createHTML, button, br, h1} from './lib/html.js';
+import {createHTML, button, br, h1, input, label} from './lib/html.js';
 import {RPC} from './types.js';
+
+
 
 export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 	const htmlElement = document.getElementsByTagName("html")[0];
@@ -20,6 +22,17 @@ export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 				window.localStorage.removeItem("invert");
 				this.innerText = "Dark Mode";
 			}
-		}}, htmlElement.classList.contains("invert") ? "Light Mode" : "Dark Mode")
+		}}, htmlElement.classList.contains("invert") ? "Light Mode" : "Dark Mode"),
+		h1("Map Settings"),
+		loggedIn ? [
+			input({"type": "checkbox", "id": "autosnap", "checked": window.localStorage.getItem("autosnap"), "onchange": function(this: HTMLInputElement) {
+				if (this.checked) {
+					window.localStorage.setItem("autosnap", "");
+				} else {
+					window.localStorage.removeItem("autosnap");
+				}
+			}}),
+			label({"for": "autosnap"}, "Autosnap: ")
+		] : [],
 	]);
 };
