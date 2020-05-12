@@ -10,6 +10,7 @@ class BoolSetting {
 		this.value = window.localStorage.getItem(name) !== null;
 	}
 	set(b: boolean) {
+		this.value = b;
 		if (b) {
 			window.localStorage.setItem(this.name, "");
 		} else {
@@ -27,6 +28,7 @@ class IntSetting {
 		this.value = parseInt(window.localStorage.getItem("name") || "0");
 	}
 	set(i: Int) {
+		this.value = i;
 		window.localStorage.setItem("name", i.toString());
 	}
 }
