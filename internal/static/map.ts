@@ -8,6 +8,7 @@ import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
 import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
+import {autosnap} from './settings.js';
 
 export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
@@ -52,11 +53,24 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
 			      src = `/images/${tokenData.id}`,
 			      width = parseInt(root.getAttribute("width") || "0"),
-			      height = parseInt(root.getAttribute("height") || "0"),
-			      x = Math.round((e.clientX + ((zoom - 1) * width / 2) - panX) / zoom),
-			      y = Math.round((e.clientY + ((zoom - 1) * height / 2) - panY) / zoom);
-			selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tokenData.width, "height": tokenData.height, "transform": `translate(${x}, ${y})`})));
-			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tokenData.width, "height": tokenData.height, tokenType: 1} as Token).catch(alert);
+			      height = parseInt(root.getAttribute("height") || "0");
+			let x = Math.round((e.clientX + ((zoom - 1) * width / 2) - panX) / zoom),
+			    y = Math.round((e.clientY + ((zoom - 1) * height / 2) - panY) / zoom),
+			    tw = tokenData.width,
+			    th = tokenData.height;
+			if (autosnap.value) {
+				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				x = Math.round(x / sq) * sq;
+				y = Math.round(y / sq) * sq;
+				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
+				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
+			}
+			const pos = selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tw, "height": th, "transform": `translate(${x}, ${y})`, "data-snap" : autosnap.value ? "true" : "undefined"}))) - 1;
+			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tw, "height": th, tokenType: 1} as Token).then(() => {
+				if (autosnap.value) {
+					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
+				}
+			}).catch(alert);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
