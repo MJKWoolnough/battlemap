@@ -245,7 +245,7 @@ func getParentToken(l *layer, p string, pos uint) (*layer, *token) {
 	if parent == nil || parent.IsFolder {
 		return nil, nil
 	}
-	if uint(len(parent.Tokens)) < pos {
+	if uint(len(parent.Tokens)) <= pos {
 		return parent, nil
 	}
 	return parent, parent.Tokens[pos]
