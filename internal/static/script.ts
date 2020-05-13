@@ -55,8 +55,7 @@ pageLoad.then(() => {
 						e.preventDefault();
 						l.style.setProperty("display", "none");
 						if (i.checked) {
-							(Array.from(t.childNodes) as HTMLLabelElement[]).some((e, n) => {
-								console.log(n, e.style.getPropertyValue("display"));
+							(Array.from(t.childNodes) as HTMLLabelElement[]).some(e => {
 								if (e.style.getPropertyValue("display") !== "none") {
 									e.control!.click();
 									return true;
