@@ -45,7 +45,7 @@ pageLoad.then(() => {
 				      i = h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t),
 				      l = t.appendChild(label({"for": `tabSelector_${n++}`}, [
 					title,
-					popout ? span({"class": "popout", "onclick": (e: Event) => {
+					popout ? span({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 						const replaced = div();
 						p.replaceChild(replaced, base);
 						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => {
