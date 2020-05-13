@@ -1,14 +1,14 @@
 import RPC from './rpc.js';
 import {Int, LayerRPC, LayerFolder} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {div, h2, input, label, style} from './lib/html.js';
+import {div, h2, input, label, span, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
 import characters from './characters.js';
 import loadMap from './map.js';
-import {shell, desktop} from './windows.js';
+import {shell, desktop, windows} from './windows.js';
 import settings from './settings.js';
 
 declare const pageLoad: Promise<void>;
@@ -40,10 +40,18 @@ pageLoad.then(() => {
 		      ]);
 		let n = 0;
 		return Object.freeze({
-			"add": (title: string, contents: Node) => {
+			"add": (title: string, contents: Node, popout = true) => {
 				h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t);
-				t.appendChild(label({"for": `tabSelector_${n++}`}, title));
-				return p.appendChild(div(contents));
+				const base = p.appendChild(div(contents));
+				t.appendChild(label({"for": `tabSelector_${n++}`}, [
+					title,
+					popout ? span({"onclick": () => {
+						const replaced = div();
+						p.replaceChild(replaced, base);
+						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => p.replaceChild(base, replaced)}, base));
+					}}, "P") : []
+				]));
+				return base;
 			},
 			get css() {
 				return `
@@ -69,7 +77,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 			loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
 			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
-			settings(rpc, tabs.add("Settings", div()), true);
+			settings(rpc, tabs.add("Settings", div(), false), true);
 			document.head.appendChild(style({"type": "text/css"}, tabs.css));
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
