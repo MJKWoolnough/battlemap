@@ -48,7 +48,7 @@ pageLoad.then(() => {
 					popout ? span({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 						const replaced = div();
 						p.replaceChild(replaced, base);
-						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => {
+						s.appendChild(windows({"window-title": title, "class": "popoutWindow", "resizable": "true", "onremove": () => {
 							p.replaceChild(base, replaced);
 							l.style.removeProperty("display");
 						}}, base));
