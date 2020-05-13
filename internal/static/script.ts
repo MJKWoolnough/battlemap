@@ -42,16 +42,20 @@ pageLoad.then(() => {
 		return Object.freeze({
 			"add": (title: string, contents: Node, popout = true) => {
 				h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t);
-				const base = p.appendChild(div(contents));
-				t.appendChild(label({"for": `tabSelector_${n++}`}, [
+				const base = p.appendChild(div(contents)),
+				      l = t.appendChild(label({"for": `tabSelector_${n++}`}, [
 					title,
 					popout ? span({"onclick": (e: Event) => {
 						const replaced = div();
 						p.replaceChild(replaced, base);
-						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => p.replaceChild(base, replaced)}, base));
+						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => {
+							p.replaceChild(base, replaced);
+							l.style.removeProperty("display");
+						}}, base));
 						e.preventDefault();
+						l.style.setProperty("display", "none");
 					}}, "P") : []
-				]));
+				      ]));
 				return base;
 			},
 			get css() {
