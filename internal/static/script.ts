@@ -41,8 +41,8 @@ pageLoad.then(() => {
 		let n = 0;
 		return Object.freeze({
 			"add": (title: string, contents: Node, popout = true) => {
-				h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t);
 				const base = p.appendChild(div(contents)),
+				      i = h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t),
 				      l = t.appendChild(label({"for": `tabSelector_${n++}`}, [
 					title,
 					popout ? span({"onclick": (e: Event) => {
@@ -54,6 +54,16 @@ pageLoad.then(() => {
 						}}, base));
 						e.preventDefault();
 						l.style.setProperty("display", "none");
+						if (i.checked) {
+							(Array.from(t.childNodes) as HTMLLabelElement[]).some((e, n) => {
+								console.log(n, e.style.getPropertyValue("display"));
+								if (e.style.getPropertyValue("display") !== "none") {
+									e.control!.click();
+									return true;
+								}
+								return false;
+							})
+						}
 					}}, "P") : []
 				      ]));
 				return base;
