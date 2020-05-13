@@ -177,3 +177,14 @@ windows-window:not([resizable]) {
 	transform: translateX(-50%) translateY(-50%);
 }
 
+.popout {
+	display: inline-block;
+	margin-left: 5px;
+	margin-right: -10px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAAeklEQVR4Ae3OgQXAQBQE0avi+i8nIHAFJUkFw8k3vuywAOuND0vX5kp+WwON5rPlAxm3ECjjJgJl3ECgjGOgjGOgjGOgjGOgjGOgjGOgjGOgjGOgjGO5jGNgLc4HnoDTgceLBJwIhAIMEBwBBhhggAEG+BOgv67AtNMNKLYcwiNlZpIAAAAASUVORK5CYII=);
+	background-repeat: no-repeat;
+        background-position: center;
+        background-size: 1em 1em;
+	width: 1em;
+	height: 1em;
+}
