@@ -45,10 +45,11 @@ pageLoad.then(() => {
 				const base = p.appendChild(div(contents));
 				t.appendChild(label({"for": `tabSelector_${n++}`}, [
 					title,
-					popout ? span({"onclick": () => {
+					popout ? span({"onclick": (e: Event) => {
 						const replaced = div();
 						p.replaceChild(replaced, base);
 						s.appendChild(windows({"window-title": title, "resizable": "true", "onremove": () => p.replaceChild(base, replaced)}, base));
+						e.preventDefault();
 					}}, "P") : []
 				]));
 				return base;
