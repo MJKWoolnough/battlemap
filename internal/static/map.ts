@@ -177,7 +177,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			}
 			e.stopImmediatePropagation();
 			root.addEventListener("mousemove", tokenDrag);
-			root.addEventListener("mouseup", tokenMouseUp);
+			root.addEventListener("mouseup", tokenMouseUp, {"once": true});
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
 			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.transform.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos.mouseX = e.clientX;
@@ -189,7 +189,6 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			}
 			const {x, y, width, height, rotation} = tokenMousePos;
 			root.removeEventListener("mousemove", tokenDrag);
-			root.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
 			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
 			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
