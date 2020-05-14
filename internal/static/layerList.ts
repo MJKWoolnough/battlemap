@@ -25,7 +25,6 @@ const dragFn = (e: MouseEvent) => {
 	}
 	draggedName = undefined;
 	document.body.removeEventListener("mousemove", dragFn);
-	document.body.removeEventListener("mouseup", dropFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
       isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined,
@@ -96,7 +95,7 @@ function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
 	}
 	dragging = this;
 	document.body.addEventListener("mousemove", dragFn);
-	document.body.addEventListener("mouseup", dropFn);
+	document.body.addEventListener("mouseup", dropFn, {"once": true});
 }
 
 class ItemLayer extends Item {
