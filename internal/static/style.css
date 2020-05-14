@@ -188,7 +188,3 @@ windows-window:not([resizable]) {
 	width: 1em;
 	height: 1em;
 }
-
-.popoutWindow:not(:hover)::part(titlebar) {
-	display: none;
-}
