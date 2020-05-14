@@ -30,10 +30,7 @@ pageLoad.then(() => {
 				h.style.setProperty("--panel-width", x + "px");
 			}
 		      },
-		      mouseup = function() {
-			window.removeEventListener("mousemove", mousemove);
-			window.removeEventListener("mouseup", mouseup);
-		      },
+		      mouseup = () => window.removeEventListener("mousemove", mousemove),
 		      c = input({"id": "panelHider", "type": "checkbox"}),
 		      t = div({"id": "tabLabels"}),
 		      p = div({"id": "panelContainer"}),
@@ -41,7 +38,7 @@ pageLoad.then(() => {
 			label({"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
 				if (!c.checked) {
 					window.addEventListener("mousemove", mousemove);
-					window.addEventListener("mouseup", mouseup);
+					window.addEventListener("mouseup", mouseup, {"once": true});
 				}
 			}}),
 			div({"id": "tabs"}, [t, p])
