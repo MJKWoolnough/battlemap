@@ -11,6 +11,14 @@ import loadMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
 import settings from './settings.js';
 
+type savedWindow = {
+	out: boolean;
+	x: Int;
+	y: Int;
+	width: Int;
+	height: Int;
+}
+
 declare const pageLoad: Promise<void>;
 
 pageLoad.then(() => {
@@ -37,7 +45,24 @@ pageLoad.then(() => {
 				}
 			}}),
 			div({"id": "tabs"}, [t, p])
-		      ]);
+		      ]),
+		      windowData: Record<string, savedWindow> = JSON.parse(window.localStorage.getItem("windowData") || "{}"),
+		      updateWindowData = () => window.localStorage.setItem("windowData", JSON.stringify(windowData)),
+		      mo = new MutationObserver(list => {
+			      list.forEach(m => {
+				      if (m.target instanceof HTMLElement) {
+					      windowData[m.target.getAttribute("window-title") || ""] = {
+						"out": true,
+						"x": parseInt(m.target.style.getPropertyValue("--window-left")),
+						"y": parseInt(m.target.style.getPropertyValue("--window-top")),
+						"width": parseInt(m.target.style.getPropertyValue("--window-width") || "0"),
+						"height": parseInt(m.target.style.getPropertyValue("--window-height") || "0"),
+					      };
+				      }
+			      });
+			      updateWindowData();
+		      }),
+		      obsInit = {"attributeFilter": ["style"], "attributes": true};
 		let n = 0;
 		return Object.freeze({
 			"add": (title: string, contents: Node, popout = true) => {
@@ -48,10 +73,19 @@ pageLoad.then(() => {
 					popout ? span({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 						const replaced = div();
 						p.replaceChild(replaced, base);
-						s.appendChild(windows({"window-title": title, "class": "popoutWindow", "resizable": "true", "onremove": () => {
+						if (windowData[title]) {
+							windowData[title]["out"] = true;
+						} else {
+							windowData[title] = {"out": true, "x": 20, "y": 20, "width": 0, "height": 0};
+						}
+						updateWindowData();
+						const {x, y, width, height} = windowData[title];
+						mo.observe(s.appendChild(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 							p.replaceChild(base, replaced);
 							l.style.removeProperty("display");
-						}}, base));
+							windowData[title]["out"] = false;
+							updateWindowData();
+						}}, base)), obsInit);
 						e.preventDefault();
 						l.style.setProperty("display", "none");
 						if (i.checked) {
@@ -65,6 +99,9 @@ pageLoad.then(() => {
 						}
 					}}) : []
 				      ]));
+				if (popout && windowData[title] && windowData[title]["out"]) {
+					(l.lastChild as HTMLSpanElement).click();
+				}
 				return base;
 			},
 			get css() {
