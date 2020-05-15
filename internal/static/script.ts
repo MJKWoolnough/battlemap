@@ -1,6 +1,6 @@
 import RPC from './rpc.js';
 import {Int, LayerRPC, LayerFolder} from './types.js';
-import {createHTML, clearElement} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, span, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
@@ -77,12 +77,12 @@ pageLoad.then(() => {
 						}
 						updateWindowData();
 						const {x, y, width, height} = windowData[title];
-						mo.observe(s.appendChild(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+						mo.observe(s.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 							p.replaceChild(base, replaced);
 							l.style.removeProperty("display");
 							windowData[title]["out"] = false;
 							updateWindowData();
-						}}, base)), obsInit);
+						}}, base))), obsInit);
 						e.preventDefault();
 						l.style.setProperty("display", "none");
 						if (i.checked) {
