@@ -15,14 +15,16 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 			this.remove();
 		}
 	}}), props, children);
-	window.setTimeout(() => {
-		const {offsetWidth: width, offsetHeight: height} = w,
-		      {offsetWidth: swidth, offsetHeight: sheight} = w.parentNode as ShellElement;
-		w.style.setProperty("--window-width", width + "px");
-		w.style.setProperty("--window-height", height + "px");
-		w.style.setProperty("--window-left", ((swidth - width) / 2) + "px");
-		w.style.setProperty("--window-top", ((sheight - height) / 2) + "px");
-		w.style.removeProperty("visibility");
-	}, 0);
+	if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--windows-height"))) {
+		window.setTimeout(() => {
+			const {offsetWidth: width, offsetHeight: height} = w,
+			      {offsetWidth: swidth, offsetHeight: sheight} = w.parentNode as ShellElement;
+			w.style.setProperty("--window-width", width + "px");
+			w.style.setProperty("--window-height", height + "px");
+			w.style.setProperty("--window-left", ((swidth - width) / 2) + "px");
+			w.style.setProperty("--window-top", ((sheight - height) / 2) + "px");
+			w.style.removeProperty("visibility");
+		}, 0);
+	}
 	return w;
 };
