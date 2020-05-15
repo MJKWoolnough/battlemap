@@ -171,12 +171,6 @@ windows-window {
 	outline: none;
 }
 
-windows-window:not([resizable]) {
-	--window-left: 50%;
-	--window-top: 50%;
-	transform: translateX(-50%) translateY(-50%);
-}
-
 .popout {
 	display: inline-block;
 	margin-left: 5px;
