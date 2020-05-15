@@ -9,8 +9,19 @@ export const loadingWindow = (p: Promise<any>, parent: ShellElement|WindowElemen
         parent.addWindow(w);
         return p.finally(() => w.remove());
 },
-windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => createHTML(awindows({"hide-maximise": "true", "tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
-	if (e.key === "Escape") {
-		this.remove();
-	}
-}}), props, children);
+windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => {
+	const w = createHTML(awindows({"hide-maximise": "true", "tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
+		if (e.key === "Escape") {
+			this.remove();
+		}
+	}}), props, children);
+	window.setTimeout(() => {
+		const {offsetWidth: width, offsetHeight: height} = w,
+		      {offsetWidth: swidth, offsetHeight: sheight} = w.parentNode as ShellElement;
+		w.style.setProperty("--window-width", width + "px");
+		w.style.setProperty("--window-height", height + "px");
+		w.style.setProperty("--window-left", ((swidth - width) / 2) + "px");
+		w.style.setProperty("--window-top", ((sheight - height) / 2) + "px");
+	}, 0);
+	return w;
+};
