@@ -10,7 +10,7 @@ export const loadingWindow = (p: Promise<any>, parent: ShellElement|WindowElemen
         return p.finally(() => w.remove());
 },
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => {
-	const w = createHTML(awindows({"hide-maximise": "true", "tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
+	const w = createHTML(awindows({"style": "visibility: invisible", "hide-maximise": "true", "tabindex": "-1", "onkeyup": function(this: WindowElement, e: KeyboardEvent) {
 		if (e.key === "Escape") {
 			this.remove();
 		}
@@ -22,6 +22,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 		w.style.setProperty("--window-height", height + "px");
 		w.style.setProperty("--window-left", ((swidth - width) / 2) + "px");
 		w.style.setProperty("--window-top", ((sheight - height) / 2) + "px");
+		w.style.removeProperty("visibility");
 	}, 0);
 	return w;
 };
