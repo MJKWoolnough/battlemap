@@ -116,7 +116,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	      mapLayers = new Pipe<LayerRPC>(),
 	      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
 	      base = desktop(),
-	      s = shell(base);
+	      s = shell({"snap": 50}, base);
 	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 		if (userLevel === 1) {
 			assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
