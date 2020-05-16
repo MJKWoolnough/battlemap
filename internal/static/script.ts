@@ -30,7 +30,13 @@ const tabs = (function() {
 		}
 	      },
 	      mouseup = () => window.removeEventListener("mousemove", mousemove),
-	      c = input({"id": "panelHider", "type": "checkbox"}),
+	      c = input({"id": "panelHider", "type": "checkbox", "checked": window.localStorage.getItem("panelShow") === "" ? "checked" : undefined, "onchange": () => {
+		if (c.checked) {
+			window.localStorage.setItem("panelShow", "");
+		} else {
+			window.localStorage.removeItem("panelShow");
+		}
+	      }}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth") as string) || 300}px`}, [
