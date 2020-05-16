@@ -63,6 +63,11 @@ export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(parseInt(this.value));
 			scrollAmount.value;
-		}})
+		}}),
+		h1("Other"),
+		button({"onclick": () => {
+			window.localStorage.clear();
+			window.location.reload();
+		}}, "Clear All Settings (Cannot be undone)")
 	]);
 };
