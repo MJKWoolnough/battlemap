@@ -1,6 +1,11 @@
 svg {
 	cursor: var(--outline-cursor);
 	background-color: #fff;
+	overflow: visible;
+}
+
+g:not(#outline) {
+	clip-path: view-box;
 }
 
 #outline {
