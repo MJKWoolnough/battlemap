@@ -127,7 +127,8 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 					rotation = Math.round(rotation / 32) * 32 % 256;
 				}
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
-			}; break;
+			}
+			break;
 			default: {
 				const r = -360 * rotation / 256,
 				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
