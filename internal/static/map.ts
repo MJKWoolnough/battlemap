@@ -117,7 +117,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				}
 				break;
 			case 1:
-				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX, (y + height / 2) - e.clientY) / Math.PI);
+				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX + panX, (y + height / 2) - e.clientY + panY) / Math.PI);
 				while (rotation < 0) {
 					rotation += 256;
 				}
