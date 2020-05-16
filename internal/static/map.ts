@@ -37,7 +37,6 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
 				      amount = scrollAmount.value || (definitions.list["gridPattern"] as SVGGrid).width;
-				console.log(scrollAmount.value, amount);
 				panX += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
 				panY += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
 			}
