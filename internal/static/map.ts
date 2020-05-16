@@ -116,8 +116,10 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 					y = Math.round(y / sq) * sq;
 				}
 				break;
-			case 1:
-				rotation = Math.round(-128 * Math.atan2((x + width / 2) - e.clientX + panX, (y + height / 2) - e.clientY + panY) / Math.PI);
+			case 1: {
+				const sw = parseInt(root.getAttribute("width") || "0"),
+				      sh = parseInt(root.getAttribute("height") || "0");
+				rotation = Math.round(-128 * Math.atan2(zoom * (x + width / 2) + panX - (zoom - 1) * sw / 2 - e.clientX, zoom * (y + height / 2) + panY - (zoom - 1) * sh / 2 - e.clientY) / Math.PI);
 				while (rotation < 0) {
 					rotation += 256;
 				}
@@ -125,7 +127,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 					rotation = Math.round(rotation / 32) * 32 % 256;
 				}
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
-				break;
+			}; break;
 			default: {
 				const r = -360 * rotation / 256,
 				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
