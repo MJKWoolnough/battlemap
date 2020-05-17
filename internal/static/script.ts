@@ -131,12 +131,12 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 		loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
 		layerList(s, tabs.add("Layers", div()), mapLayers.receive);
-		settings(rpc, tabs.add("Settings", div(), false), true);
+		settings(rpc, s, tabs.add("Settings", div(), false), true);
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
 	} else {
-		settings(rpc, tabs.add("Settings", div()), false);
+		settings(rpc, s, tabs.add("Settings", div()), false);
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
