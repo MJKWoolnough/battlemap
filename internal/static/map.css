@@ -13,10 +13,10 @@ g:not(#outline) {
 }
 
 #outline rect {
-	stroke-width: 1;
+	stroke-width: calc(1px / var(--zoom, 1));
 	stroke: #000;
-	width: 10px;
-	height: 10px;
+	width: calc(10px / var(--zoom, 1));
+	height: calc(10px / var(--zoom, 1));
 	fill: #f00;
 }
 
@@ -28,49 +28,49 @@ g:not(#outline) {
 }
 
 #outline rect:nth-child(2) {
-	x: calc(var(--outline-width) / 2 - 5px);
-	y: -20px;
+	x: calc(var(--outline-width) / 2 - 5px / var(--zoom, 1));
+	y: calc(-20px / var(--zoom, 1));
 	cursor: var(--outline-cursor, cell);
 }
 
 #outline rect:nth-child(3) {
-	x: -5px;
-	y: -5px;
+	x: calc(-5px / var(--zoom, 1));
+	y: calc(-5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(4) {
-	x: calc(var(--outline-width) / 2 - 5px);
-	y: -5px;
+	x: calc(var(--outline-width) / 2 - 5px / var(--zoom, 1));
+	y: calc(-5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(5) {
-	x: calc(var(--outline-width) - 5px);
-	y: -5px;
+	x: calc(var(--outline-width) - 5px / var(--zoom, 1));
+	y: calc(-5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(6) {
-	x: -5px;
-	y: calc(var(--outline-height) / 2 - 5px);
+	x: calc(-5px / var(--zoom, 1));
+	y: calc(var(--outline-height) / 2 - 5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(7) {
-	x: calc(var(--outline-width) - 5px);
-	y: calc(var(--outline-height) / 2 - 5px);
+	x: calc(var(--outline-width) - 5px / var(--zoom, 1));
+	y: calc(var(--outline-height) / 2 - 5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(8) {
-	x: -5px;
-	y: calc(var(--outline-height) - 5px);
+	x: calc(-5px / var(--zoom, 1));
+	y: calc(var(--outline-height) - 5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(9) {
-	x: calc(var(--outline-width) / 2 - 5px);
-	y: calc(var(--outline-height) - 5px);
+	x: calc(var(--outline-width) / 2 - 5px / var(--zoom, 1));
+	y: calc(var(--outline-height) - 5px / var(--zoom, 1));
 }
 
 #outline rect:nth-child(10) {
-	x: calc(var(--outline-width) - 5px);
-	y: calc(var(--outline-height) - 5px);
+	x: calc(var(--outline-width) - 5px / var(--zoom, 1));
+	y: calc(var(--outline-height) - 5px / var(--zoom, 1));
 }
 
 .cursor_0 rect:nth-child(3), .cursor_0 rect:nth-child(10), .cursor_1 rect:nth-child(6), .cursor_1 rect:nth-child(7), .cursor_2 rect:nth-child(5), .cursor_2 rect:nth-child(8), .cursor_3 rect:nth-child(4), .cursor_3 rect:nth-child(9) {
