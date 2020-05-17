@@ -1,6 +1,7 @@
 import {HTTPRequest} from './lib/conn.js';
 import {createHTML, button, br, h1, input, label} from './lib/html.js';
 import {Int, RPC} from './types.js';
+import {ShellElement} from './windows.js';
 
 class BoolSetting {
 	name: string;
@@ -38,7 +39,7 @@ const invert = new BoolSetting("invert");
 export const autosnap = new BoolSetting("autosnap"),
 scrollAmount = new IntSetting("scrollAmount");
 
-export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
+export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, loggedIn: boolean) {
 	const htmlElement = document.getElementsByTagName("html")[0];
 	if (invert.value) {
 		htmlElement.classList.add("invert");
@@ -64,10 +65,13 @@ export default function (rpc: RPC, base: HTMLElement, loggedIn: boolean) {
 			scrollAmount.set(parseInt(this.value));
 			scrollAmount.value;
 		}}),
-		h1("Other"),
-		button({"onclick": () => {
+		h1("Reset"),
+		button({"onclick": () => shell.confirm("Are you sure?", "Are you sure that you wish to clear all settings? This cannot be undone").then(v => {
+			if (!v) {
+				return;
+			}
 			window.localStorage.clear();
 			window.location.reload();
-		}}, "Clear All Settings (Cannot be undone)")
+		})}, "Clear All Settings")
 	]);
 };
