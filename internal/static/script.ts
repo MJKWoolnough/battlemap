@@ -142,6 +142,7 @@ pageLoad.then(() => {
 			base.appendChild(tabs.html);
 			clearElement(document.body).appendChild(s);
 		}
+		s.realignWindows();
 	}));
 }).catch((e: Error) => {
 	console.log(e);
