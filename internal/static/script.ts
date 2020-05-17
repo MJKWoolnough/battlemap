@@ -123,29 +123,27 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       base = desktop(),
       s = shell({"snap": 50}, base);
 
-pageLoad.then(() => {
-	return RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
-		if (userLevel === 1) {
-			assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
-			assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
-			characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
-			mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-			loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
-			layerList(s, tabs.add("Layers", div()), mapLayers.receive);
-			settings(rpc, tabs.add("Settings", div(), false), true);
-			document.head.appendChild(style({"type": "text/css"}, tabs.css));
-			base.appendChild(tabs.html);
-			clearElement(document.body).appendChild(s);
-		} else {
-			settings(rpc, tabs.add("Settings", div()), false);
-			document.head.appendChild(style({"type": "text/css"}, tabs.css));
-			base.appendChild(tabs.html);
-			clearElement(document.body).appendChild(s);
-		}
-		s.realignWindows();
-		window.addEventListener("resize", () => s.realignWindows(), {"passive": true});
-	}));
-}).catch((e: Error) => {
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
+	if (userLevel === 1) {
+		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
+		assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
+		characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
+		mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
+		loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
+		layerList(s, tabs.add("Layers", div()), mapLayers.receive);
+		settings(rpc, tabs.add("Settings", div(), false), true);
+		document.head.appendChild(style({"type": "text/css"}, tabs.css));
+		base.appendChild(tabs.html);
+		clearElement(document.body).appendChild(s);
+	} else {
+		settings(rpc, tabs.add("Settings", div()), false);
+		document.head.appendChild(style({"type": "text/css"}, tabs.css));
+		base.appendChild(tabs.html);
+		clearElement(document.body).appendChild(s);
+	}
+	s.realignWindows();
+	window.addEventListener("resize", () => s.realignWindows(), {"passive": true});
+}))).catch((e: Error) => {
 	console.log(e);
 	alert(e);
 });
