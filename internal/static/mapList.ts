@@ -37,6 +37,7 @@ class MapItem extends Item {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
 		sendCurrentMap(this.id);
+		rpc.setCurrentMap(this.id);
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
