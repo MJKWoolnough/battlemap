@@ -143,6 +143,7 @@ pageLoad.then(() => {
 			clearElement(document.body).appendChild(s);
 		}
 		s.realignWindows();
+		window.addEventListener("resize", () => s.realignWindows(), {"passive": true});
 	}));
 }).catch((e: Error) => {
 	console.log(e);
