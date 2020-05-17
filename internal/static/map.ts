@@ -33,6 +33,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				panX += e.clientX - (zoom * ((e.clientX + (oldZoom - 1) * width) - panX) / oldZoom + panX - (zoom - 1) * width);
 				panY += e.clientY - (zoom * ((e.clientY + (oldZoom - 1) * height) - panY) / oldZoom + panY - (zoom - 1) * height);
 				root.setAttribute("transform", `scale(${zoom})`);
+				outline.style.setProperty("--zoom", zoom.toString());
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
