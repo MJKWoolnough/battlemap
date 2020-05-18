@@ -122,8 +122,8 @@ export class Folder {
 				summary([
 					span(name),
 					span({"class": "renameFolder", "onclick": this.rename.bind(this)}),
-					span({"class": "removeFolder", "onclick": this.remove.bind(this)}),
-					span({"class": "addFolder", "onclick": this.newFolder.bind(this)})
+					span({"class": "addFolder", "onclick": this.newFolder.bind(this)}),
+					span({"class": "removeFolder", "onclick": this.remove.bind(this)})
 				]),
 				this.children.node,
 			])
@@ -291,7 +291,7 @@ export class Root {
 		this.folder = new newFolder(this, null, "", rootFolder);
 		this.node = div([
 			fileType,
-			this.folder.node.firstChild!.firstChild!.lastChild!,
+			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
 			this.folder.node.firstChild!.lastChild!
 		]);
 		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
