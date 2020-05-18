@@ -16,6 +16,7 @@ summary::-webkit-details-marker {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAUUlEQVR4Ae3RAQYAMRRDwb3/pbtHCBSJziNAi/E/XU86YUOIsCVEfDOJCFebROR/Y4gazCne25CaQEBAOiEgICAgICAgICAgICAgbXsCkpP0A0MiHfEjk/BiAAAAAElFTkSuQmCC);
 	user-select: none;
 	outline: none;
+	cursor: pointer;
 }
 
 .folders details[open] > summary {
