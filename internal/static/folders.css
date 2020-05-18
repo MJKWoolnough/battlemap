@@ -22,6 +22,11 @@ summary::-webkit-details-marker {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAfElEQVR4AezViQmAQAwFUftv+ltCWPiLQ5yBcEbgee1jZvUyzALEgAEi5h084nA3fET/OiQCgOm/HmnOp3eSACF1BRLQrIFkhvB/qxVIKSHn3wj0aQjJNggfsR9yBSEk2yDHyySEEPjZMUdECOkjhMyI/RDw/BNiZu8gAAANjGenrLosDQAAAABJRU5ErkJggg==);
 }
 
+.folders summary, .foldersItem {
+	display: grid;
+	grid-template-columns: auto 1em 1em 1em;
+}
+
 .addFolder, .renameFolder, .removeFolder, .itemRename, .itemLink, .itemRemove, .layerMask {
 	user-select: none;
 	background-size: 1em;
@@ -32,7 +37,6 @@ summary::-webkit-details-marker {
 	display: inline-block;
 	margin-right: 0.2em;
 	cursor: pointer;
-	float: right;
 }
 
 .addFolder {
