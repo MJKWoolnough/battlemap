@@ -35,7 +35,7 @@ export class Item {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		this.node = li([
+		this.node = li({"class": "foldersItem"}, [
 			span(name, {"class": "item", "onclick": this.show.bind(this)}),
 			span({"class": "itemRename", "onclick": this.rename.bind(this)}),
 			span({"class": "itemLink", "onclick": this.link.bind(this)}),
@@ -117,7 +117,7 @@ export class Folder {
 		this.parent = parent;
 		this.children = new SortNode<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
-		this.node = li([
+		this.node = li({"class": "foldersFolder"}, [
 			details([
 				summary([
 					span(name),
