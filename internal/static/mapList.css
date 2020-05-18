@@ -34,7 +34,7 @@
 	background-color: #ccffcc !important;
 }
 
-.hasMapCurrent > label, .mapCurrent {
+.hasMapCurrent > details > summary, .mapCurrent {
 	background-color: #eee;
 }
 
