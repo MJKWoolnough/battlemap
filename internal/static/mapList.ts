@@ -60,10 +60,6 @@ class MapItem extends Item {
 }
 
 class MapFolder extends Folder {
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children);
-		[span({"class": "showCurrentMapFolder"}), span({"class": "showUserMapFolder"})].forEach(e => this.node.firstChild!.firstChild!.insertBefore(e, this.node.firstChild!.firstChild!.firstChild));
-	}
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
 			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot rename while containing active map")));
