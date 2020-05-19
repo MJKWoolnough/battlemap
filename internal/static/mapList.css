@@ -46,7 +46,3 @@
 	position: absolute;
 	left: 0px;
 }
-
-.setUserMap + .item {
-	cursor: pointer;
-}
