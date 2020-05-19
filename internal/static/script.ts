@@ -65,13 +65,33 @@ const tabs = (function() {
 		      });
 		      updateWindowData();
 	      }),
-	      obsInit = {"attributeFilter": ["style"], "attributes": true};
+	      obsInit = {"attributeFilter": ["style"], "attributes": true},
+	      tabs: HTMLLabelElement[] = [];
 	let n = 0;
 	return Object.freeze({
 		"add": (title: string, contents: Node, popout = true) => {
 			const base = p.appendChild(div(contents)),
 			      i = h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t),
-			      l = t.appendChild(label({"for": `tabSelector_${n++}`}, [
+			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
+				let a = pos, tl = tabs.length;
+				switch (e.key) {
+				case "ArrowLeft":
+					do {
+						a = (((a - 1) % tl) + tl) % tl;
+					} while (a !== pos && tabs[a].style.getPropertyValue("display") === "none");
+					break;
+				case "ArrowRight":
+					do {
+						a = (a + 1) % tl;
+					} while (a !== pos && tabs[a].style.getPropertyValue("display") === "none");
+					break;
+				case "Enter":
+					l.control!.click();
+				default:
+					return;
+				}
+				tabs[a].focus();
+			      }}, [
 				title,
 				popout ? span({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
@@ -92,7 +112,7 @@ const tabs = (function() {
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
-						(Array.from(t.childNodes) as HTMLLabelElement[]).some(e => {
+						tabs.some(e => {
 							if (e.style.getPropertyValue("display") !== "none") {
 								e.control!.click();
 								return true;
@@ -101,7 +121,9 @@ const tabs = (function() {
 						})
 					}
 				}}) : []
-			      ]));
+			      ])),
+			      pos = n++;
+			tabs.push(l);
 			if (popout && windowData[title] && windowData[title]["out"]) {
 				(l.lastChild as HTMLSpanElement).click();
 			}
