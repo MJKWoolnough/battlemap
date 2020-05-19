@@ -10,6 +10,7 @@ import characters from './characters.js';
 import loadMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
 import settings from './settings.js';
+import tools from './tools.js';
 
 type savedWindow = {
 	out: boolean;
@@ -131,6 +132,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
 		loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
 		layerList(s, tabs.add("Layers", div()), mapLayers.receive);
+		tools(rpc, s, tabs.add("Tools", div()));
 		settings(rpc, s, tabs.add("Settings", div(), false), true);
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
