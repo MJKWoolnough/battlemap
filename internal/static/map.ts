@@ -1,7 +1,7 @@
 import {Colour, FromTo, IDName, Int, RPC, GridDetails,  LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
-import {autoFocus, clearElement} from './lib/dom.js';
+import {autoFocus, clearElement, removeEventListeners} from './lib/dom.js';
 import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -12,6 +12,7 @@ import {autosnap, scrollAmount} from './settings.js';
 
 export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
+		base = removeEventListeners(base);
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0, panX = 0, panY = 0, zoom = 1;
 		base.addEventListener("mousedown", (e: MouseEvent) => {
 			tokenMousePos.mouseX = e.clientX;
