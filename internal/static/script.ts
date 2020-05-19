@@ -40,7 +40,7 @@ const tabs = (function() {
 	      }}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
-	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth") as string) || 300}px`}, [
+	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
 		label({"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
 			if (!c.checked) {
 				window.addEventListener("mousemove", mousemove);
