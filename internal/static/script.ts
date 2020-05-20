@@ -156,7 +156,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		layerList(s, tabs.add("Layers", div()), mapLayers.receive);
 		tools(rpc, s, tabs.add("Tools", div()));
 		settings(rpc, s, tabs.add("Settings", div(), false), true);
-		loadMap(rpc, s, base.appendChild(div({"style": "height: 100%"})), mapLoadPipe.receive, mapLayers.send);
+		loadMap(rpc, s, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
