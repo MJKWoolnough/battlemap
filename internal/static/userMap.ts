@@ -9,7 +9,7 @@ import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		base = removeEventListeners(base);
+		base = removeEventListeners(clearElement(base));
 		base.addEventListener("mousedown", (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
@@ -92,7 +92,7 @@ export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 		}
 		return [
 			base,
-			clearElement(base).appendChild(root),
+			base.appendChild(root),
 			panZoom,
 			outline,
 			definitions,
