@@ -98,6 +98,14 @@ export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 			definitions,
 			layerList,
 			remove
+		] as [
+			HTMLElement,
+			SVGSVGElement,
+			{ x: Int; y: Int; zoom: Int},
+			SVGGElement,
+			Defs,
+			SVGFolder,
+			(path: string) => [],
 		];
 	});
 }
