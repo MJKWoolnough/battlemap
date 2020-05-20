@@ -1,7 +1,6 @@
-import {Colour, FromTo, IDName, Int, RPC, GridDetails,  LayerFolder, LayerRPC, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, RPC, GridDetails, LayerFolder, LayerRPC, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
-import {HTTPRequest} from './lib/conn.js';
-import {autoFocus, clearElement, removeEventListeners} from './lib/dom.js';
+import {autoFocus} from './lib/dom.js';
 import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -9,105 +8,16 @@ import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
 import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
 import {autosnap, scrollAmount} from './settings.js';
+import {mapView} from './userMap.js';
 
-export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
-	mapSelect(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		base = removeEventListeners(base);
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0, panX = 0, panY = 0, zoom = 1;
-		base.addEventListener("mousedown", (e: MouseEvent) => {
-			tokenMousePos.mouseX = e.clientX;
-			tokenMousePos.mouseY = e.clientY;
-			base.addEventListener("mousemove", viewDrag);
-			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-		});
-		base.addEventListener("wheel", (e: WheelEvent) => {
-			e.preventDefault();
-			if (e.ctrlKey) {
-				const width = parseInt(root.getAttribute("width") || "0") / 2,
-				      height = parseInt(root.getAttribute("height") || "0") / 2,
-				      oldZoom = zoom;
-				if (e.deltaY < 0) {
-					zoom /= 0.95;
-				} else if (e.deltaY > 0) {
-					zoom *= 0.95;
-				}
-				panX += e.clientX - (zoom * ((e.clientX + (oldZoom - 1) * width) - panX) / oldZoom + panX - (zoom - 1) * width);
-				panY += e.clientY - (zoom * ((e.clientY + (oldZoom - 1) * height) - panY) / oldZoom + panY - (zoom - 1) * height);
-				root.setAttribute("transform", `scale(${zoom})`);
-				outline.style.setProperty("--zoom", zoom.toString());
-			} else {
-				const deltaY = e.shiftKey ? 0 : -e.deltaY,
-				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-				      amount = scrollAmount.value || (definitions.list["gridPattern"] as SVGGrid).width;
-				panX += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
-				panY += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
-			}
-			root.style.setProperty("left", panX + "px");
-			root.style.setProperty("top", panY + "px");
-		});
-		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": "", "ondragover": (e: DragEvent) => {
-			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
-		      }, "ondrop": (e: DragEvent) => {
-			if (selectedLayer === null) {
-				return;
-			}
-			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
-			      src = `/images/${tokenData.id}`,
-			      width = parseInt(root.getAttribute("width") || "0"),
-			      height = parseInt(root.getAttribute("height") || "0");
-			let x = Math.round((e.clientX + ((zoom - 1) * width / 2) - panX) / zoom),
-			    y = Math.round((e.clientY + ((zoom - 1) * height / 2) - panY) / zoom),
-			    tw = tokenData.width,
-			    th = tokenData.height;
-			if (autosnap.value) {
-				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
-				x = Math.round(x / sq) * sq;
-				y = Math.round(y / sq) * sq;
-				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
-				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
-			}
-			const pos = selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tw, "height": th, "transform": `translate(${x}, ${y})`, "data-snap" : autosnap.value ? "true" : "undefined"}))) - 1;
-			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tw, "height": th, tokenType: 1} as Token).then(() => {
-				if (autosnap.value) {
-					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
-				}
-			}).catch(alert);
-		      }, "onmousedown": (e: MouseEvent) => {
-			if (!selectedLayer || e.button !== 0) {
-				return;
-			}
-			const newToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
-			if (!e.ctrlKey) {
-				unselectToken();
-			}
-			if (!newToken || e.ctrlKey) {
-				tokenMousePos.mouseX = e.clientX;
-				tokenMousePos.mouseY = e.clientY;
-				base.addEventListener("mousemove", viewDrag);
-				base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-				return;
-			}
-			selectedToken = newToken;
-			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
-			tokenMousePos.x = selectedToken.transform.x;
-			tokenMousePos.y = selectedToken.transform.y;
-			tokenMousePos.width = selectedToken.transform.width;
-			tokenMousePos.height = selectedToken.transform.height;
-			tokenMousePos.rotation = selectedToken.transform.rotation;
-		      }}),
-		      viewDrag = (e: MouseEvent) => {
-			panX += e.clientX - tokenMousePos.mouseX;
-			panY += e.clientY - tokenMousePos.mouseY;
-			root.style.setProperty("left", panX + "px");
-			root.style.setProperty("top", panY + "px");
-			tokenMousePos.mouseX = e.clientX;
-			tokenMousePos.mouseY = e.clientY;
-		      },
+export default function(rpc: RPC, shell: ShellElement, base: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+	mapSelect(mapID => mapView(rpc, base, mapID).then(passed => {
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		const [base, root, panZoom, outline, definitions, layerList, remove] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
-			const dx = (e.clientX - tokenMousePos.mouseX) / zoom,
-			      dy = (e.clientY - tokenMousePos.mouseY) / zoom,
+			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
+			      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
 			      sq = (definitions.list["gridPattern"] as SVGGrid).width;
 			switch (tokenDragMode) {
 			case 0:
@@ -121,7 +31,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 			case 1: {
 				const sw = parseInt(root.getAttribute("width") || "0"),
 				      sh = parseInt(root.getAttribute("height") || "0");
-				rotation = Math.round(-128 * Math.atan2(zoom * (x + width / 2) + panX - (zoom - 1) * sw / 2 - e.clientX, zoom * (y + height / 2) + panY - (zoom - 1) * sh / 2 - e.clientY) / Math.PI);
+				rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * sw / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * sh / 2 - e.clientY) / Math.PI);
 				while (rotation < 0) {
 					rotation += 256;
 				}
@@ -217,7 +127,79 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				unselectToken();
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
 		      },
-		      outline = g({"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
+		      waitAdded = subFn<IDName[]>(),
+		      waitMoved = subFn<FromTo>(),
+		      waitRemoved = subFn<string>(),
+		      waitFolderAdded = subFn<string>(),
+		      waitFolderMoved = subFn<FromTo>(),
+		      waitFolderRemoved = subFn<string>(),
+		      waitLayerSetVisible = subFn<Int>(),
+		      waitLayerSetInvisible = subFn<Int>(),
+		      waitLayerAddMask = subFn<Int>(),
+		      waitLayerRemoveMask = subFn<Int>(),
+		      unselectToken = () => {
+			selectedToken = null;
+			if (outline.parentNode) {
+				outline.parentNode.removeChild(outline);
+			}
+		      },
+		      removeS = (path: string) => {
+			remove(path).forEach(e => {
+				if (selectedLayer === e) {
+					selectedLayer = null;
+				} else if (isSVGFolder(e) && walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
+				       selectedLayer  = null;
+				}
+			});
+		      };
+		createSVG(root, {"ondragover": (e: DragEvent) => {
+			e.preventDefault();
+			e.dataTransfer!.dropEffect = "link";
+		      }, "ondrop": (e: DragEvent) => {
+			if (selectedLayer === null) {
+				return;
+			}
+			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
+			      src = `/images/${tokenData.id}`,
+			      width = parseInt(root.getAttribute("width") || "0"),
+			      height = parseInt(root.getAttribute("height") || "0");
+			let x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
+			    y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom),
+			    tw = tokenData.width,
+			    th = tokenData.height;
+			if (autosnap.value) {
+				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				x = Math.round(x / sq) * sq;
+				y = Math.round(y / sq) * sq;
+				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
+				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
+			}
+			const pos = selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tw, "height": th, "transform": `translate(${x}, ${y})`, "data-snap" : autosnap.value ? "true" : "undefined"}))) - 1;
+			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tw, "height": th, tokenType: 1} as Token).then(() => {
+				if (autosnap.value) {
+					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
+				}
+			}).catch(alert);
+		      }, "onmousedown": (e: MouseEvent) => {
+			if (!selectedLayer || e.button !== 0) {
+				return;
+			}
+			const newToken = selectedLayer.tokens.reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
+			if (!e.ctrlKey) {
+				unselectToken();
+			}
+			if (!newToken || e.ctrlKey) {
+				return;
+			}
+			selectedToken = newToken;
+			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
+			tokenMousePos.x = selectedToken.transform.x;
+			tokenMousePos.y = selectedToken.transform.y;
+			tokenMousePos.width = selectedToken.transform.width;
+			tokenMousePos.height = selectedToken.transform.height;
+			tokenMousePos.rotation = selectedToken.transform.rotation;
+		}});
+		createSVG(outline, {"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
 			if (e.key === "Delete") {
 				deleteToken();
 				return;
@@ -368,37 +350,7 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		      }}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))),
-		      definitions = new Defs(root),
-		      layerList = processLayers(root) as SVGFolder,
-		      waitAdded = subFn<IDName[]>(),
-		      waitMoved = subFn<FromTo>(),
-		      waitRemoved = subFn<string>(),
-		      waitFolderAdded = subFn<string>(),
-		      waitFolderMoved = subFn<FromTo>(),
-		      waitFolderRemoved = subFn<string>(),
-		      waitLayerSetVisible = subFn<Int>(),
-		      waitLayerSetInvisible = subFn<Int>(),
-		      waitLayerAddMask = subFn<Int>(),
-		      waitLayerRemoveMask = subFn<Int>(),
-		      remove = (path: string) => {
-			const [fromParent, layer] = getParentLayer(layerList, path);
-			(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer)).forEach(e => {
-				if (selectedLayer === e) {
-					selectedLayer = null;
-				} else if (isSVGFolder(e)) {
-					if (walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
-						selectedLayer  = null;
-					}
-				}
-			});
-		      },
-		      unselectToken = () => {
-			selectedToken = null;
-			if (outline.parentNode) {
-				outline.parentNode.removeChild(outline);
-			}
-		      };
+		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown})));
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
@@ -458,11 +410,11 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				return rpc.renameLayer(path, name)
 			},
 			"remove": (path: string) => {
-				remove(path);
+				removeS(path);
 				return rpc.removeLayer(path);
 			},
 			"removeFolder": (path: string) => {
-				remove(path);
+				removeS(path);
 				return rpc.removeLayer(path);
 			},
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
@@ -526,6 +478,5 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement,  mapSe
 				return rpc.setLightColour(c);
 			}
 		});
-		clearElement(base).appendChild(root);
 	}));
 }
