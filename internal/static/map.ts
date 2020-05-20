@@ -10,8 +10,8 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 import {autosnap, scrollAmount} from './settings.js';
 import {mapView} from './userMap.js';
 
-export default function(rpc: RPC, shell: ShellElement, base: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
-	mapSelect(mapID => mapView(rpc, base, mapID).then(passed => {
+export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, root, panZoom, outline, definitions, layerList, remove] = passed,
 		      tokenDrag = (e: MouseEvent) => {
@@ -478,5 +478,6 @@ export default function(rpc: RPC, shell: ShellElement, base: HTMLElement, mapSel
 				return rpc.setLightColour(c);
 			}
 		});
+		oldBase = base;
 	}));
 }
