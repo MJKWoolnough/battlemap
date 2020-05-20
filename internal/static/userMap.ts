@@ -111,5 +111,5 @@ export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 }
 
 export default function(rpc: RPC, base: HTMLElement) {
-	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID));
+	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID).then(([newBase]) => base = newBase));
 }
