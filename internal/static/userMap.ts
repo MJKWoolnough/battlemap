@@ -1,22 +1,22 @@
 import {Int, RPC} from './types.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
+import {div} from './lib/html.js';
 import {createSVG, g, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGShape} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, isSVGLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
-export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
+export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		base = removeEventListeners(clearElement(base));
-		base.addEventListener("mousedown", (e: MouseEvent) => {
+		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": ""}),
+		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
 			base.addEventListener("mousemove", viewDrag);
 			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-		});
-		base.addEventListener("wheel", (e: WheelEvent) => {
+		}, "onwheel": (e: WheelEvent) => {
 			e.preventDefault();
 			if (e.ctrlKey) {
 				const width = parseInt(root.getAttribute("width") || "0") / 2,
@@ -40,8 +40,7 @@ export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 			}
 			root.style.setProperty("left", panZoom.x + "px");
 			root.style.setProperty("top", panZoom.y + "px");
-		});
-		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": ""}),
+		      }}, root),
 		      panZoom = {x: 0, y: 0, zoom: 1},
 		      outline = g(),
 		      viewPos = {mouseX: 0, mouseY: 0},
@@ -90,16 +89,17 @@ export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
 				layerList.children.push(processLayers(g({"data-name": "Light"}, lightRect)));
 			}
 		}
+		oldBase.replaceWith(base);
 		return [
 			base,
-			base.appendChild(root),
+			root,
 			panZoom,
 			outline,
 			definitions,
 			layerList,
 			remove
 		] as [
-			HTMLElement,
+			HTMLDivElement,
 			SVGSVGElement,
 			{ x: Int; y: Int; zoom: Int},
 			SVGGElement,
