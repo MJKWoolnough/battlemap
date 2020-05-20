@@ -10,6 +10,9 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 import {autosnap, scrollAmount} from './settings.js';
 import {mapView} from './userMap.js';
 
+declare const InstallTrigger: void;
+const ff = typeof InstallTrigger !== 'undefined';
+
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
@@ -192,7 +195,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": selectedToken.transform.width + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
+			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": (ff ? 0 : selectedToken.transform.width) + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
+			if (ff) {
+				window.setTimeout(() => outline.style.setProperty("--outline-width", selectedToken!.transform.width + "px"), 0);
+			}
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
 			tokenMousePos.width = selectedToken.transform.width;
