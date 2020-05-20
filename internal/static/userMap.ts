@@ -7,8 +7,8 @@ import {Defs, SVGFolder, SVGGrid, SVGShape} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, isSVGLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
-export default function(rpc: RPC, base: HTMLElement) {
-	rpc.waitCurrentUserMap().then(mapID => HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
+export function mapView(rpc: RPC, base: HTMLElement, mapID: Int) {
+	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
 		base = removeEventListeners(base);
 		base.addEventListener("mousedown", (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
@@ -90,5 +90,18 @@ export default function(rpc: RPC, base: HTMLElement) {
 				layerList.children.push(processLayers(g({"data-name": "Light"}, lightRect)));
 			}
 		}
-	}));
+		return [
+			base,
+			clearElement(base).appendChild(root),
+			panZoom,
+			outline,
+			definitions,
+			layerList,
+			remove
+		];
+	});
+}
+
+export default function(rpc: RPC, base: HTMLElement) {
+	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID));
 }
