@@ -78,11 +78,11 @@ ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 
 	} else {
 		mDx = mDy * width / height;
 	}
-	if (width + mDx < min) {
+	if (dX !== 0 && width + mDx < min) {
 		mDx = min - width;
 		mDy = min * height / width - height;
 	}
-	if (height + mDy < min) {
+	if (dY !== 0 && height + mDy < min) {
 		mDx = min * width / height - width;
 		mDy = min - height;
 	}
