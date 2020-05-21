@@ -286,8 +286,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			tk.X = setToken.X
 			tk.Y = setToken.Y
-			tk.Width = uint64(setToken.Width)
-			tk.Height = uint64(setToken.Height)
+			tk.Width = setToken.Width
+			tk.Height = setToken.Height
 			tk.Rotation = setToken.Rotation
 			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenChange, setToken, cd.ID)
 			return true
