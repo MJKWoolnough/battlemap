@@ -59,8 +59,6 @@ export type RPC = {
 	waitTokenAdd:          () => Subscription<Int>;        //check type
 	waitTokenRemove:       () => Subscription<Int>;        //check type
 	waitTokenMove:         () => Subscription<Int>;        //check type
-	waitTokenResize:       () => Subscription<Int>;        //check type
-	waitTokenRotate:       () => Subscription<Int>;        //check type
 	waitTokenSetToken:     () => Subscription<Int>;        //check type
 	waitTokenSetImage:     () => Subscription<Int>;        //check type
 	waitTokenSetPattern:   () => Subscription<Int>;        //check type
@@ -72,7 +70,7 @@ export type RPC = {
 
 	connID: () => Promise<Int>;
 
-	waitTokenChange:        () => Subscription<Token>;
+	waitTokenChange:        () => Subscription<TokenChange>;
 	waitMaskChange:         () => Subscription<Int>;
 
 	setCurrentMap: (id: Int) => Promise<void>;
@@ -190,4 +188,14 @@ export type LayerFolder = FolderItems & {
 	name: string;
 	hidden: boolean;
 	children: (Layer | LayerFolder)[];
+}
+
+export type TokenChange = {
+	path: string;
+	pos: Int;
+	x: Int;
+	y: Int;
+	width: Int;
+	height: Int;
+	rotation: Int;
 }
