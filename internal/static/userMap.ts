@@ -4,8 +4,8 @@ import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {createSVG, g, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGGrid, SVGShape} from './map_types.js';
-import {processLayers, getLayer, getParentLayer, isSVGLayer} from './map_fns.js';
+import {Defs, SVGFolder, SVGGrid, SVGShape, SVGToken} from './map_types.js';
+import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
@@ -90,6 +90,19 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			}
 		}
 		oldBase.replaceWith(base);
+		rpc.waitTokenChange().then(st => {
+			const [, token] = getParentToken(layerList, st.path, st.pos);
+			if (token instanceof SVGToken) {
+				token.transform.x = st.x;
+				token.transform.y = st.y;
+				token.transform.width = st.width;
+				token.transform.height = st.height;
+				token.transform.rotation = st.rotation;
+				token.node.setAttribute("width", st.width + "px");
+				token.node.setAttribute("height", st.height + "px");
+				token.node.setAttribute("transform", token.transform.toString());
+			}
+		});
 		return [
 			base,
 			root,
