@@ -72,6 +72,7 @@ const (
 	broadcastTokenSetToken
 	broadcastTokenSetImage
 	broadcastTokenSetPattern
+	broadcastTokenChange
 )
 
 func (s *socket) KickAdmins(except ID) {
