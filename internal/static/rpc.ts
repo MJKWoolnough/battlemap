@@ -23,11 +23,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenAdd":          () => rpc.await(-45, true),
 			"waitTokenRemove":       () => rpc.await(-46, true),
 			"waitTokenMove":         () => rpc.await(-47, true),
-			"waitTokenResize":       () => rpc.await(-48, true),
-			"waitTokenRotate":       () => rpc.await(-49, true),
 			"waitTokenSetToken":     () => rpc.await(-50, true),
 			"waitTokenSetImage":     () => rpc.await(-51, true),
 			"waitTokenSetPattern":   () => rpc.await(-52, true),
+			"waitTokenChange":       () => rpc.await(-53, true),
 
 			"images": {
 				"waitAdded":         () => rpc.await(-3, true),
