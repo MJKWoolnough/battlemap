@@ -476,5 +476,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 		});
 		oldBase = base;
+		rpc.waitTokenChange().then(st => {
+			if (st.path === selectedLayerPath && selectedLayer!.tokens.findIndex(e => e === selectedToken) === st.pos) {
+				tokenMouseUp();
+			}
+		});
 	}));
 }
