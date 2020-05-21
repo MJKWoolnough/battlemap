@@ -309,6 +309,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flip = flipToken.Flip
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlip, flipToken, cd.ID)
 			return true
 		})
 	case "flopToken":
@@ -328,6 +329,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flop = flopToken.Flop
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlop, flopToken, cd.ID)
 			return true
 		})
 	case "setTokenSnap":
