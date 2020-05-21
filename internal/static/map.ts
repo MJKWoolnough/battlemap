@@ -10,9 +10,6 @@ import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVG
 import {autosnap, scrollAmount} from './settings.js';
 import {mapView} from './userMap.js';
 
-declare const InstallTrigger: void;
-const ff = typeof InstallTrigger !== 'undefined';
-
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
@@ -142,9 +139,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitLayerRemoveMask = subFn<Int>(),
 		      unselectToken = () => {
 			selectedToken = null;
-			if (outline.parentNode) {
-				outline.parentNode.removeChild(outline);
-			}
+			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
 			remove(path).forEach(e => {
@@ -195,17 +190,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			root.appendChild(autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "--outline-width": (ff ? 0 : selectedToken.transform.width) + "px", "--outline-height": selectedToken.transform.height + "px", "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`})));
-			if (ff) {
-				window.setTimeout(() => outline.style.setProperty("--outline-width", selectedToken!.transform.width + "px"), 0);
-			}
+			autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "style": `--outline-width: ${selectedToken.transform.width}px; --outline-height: ${selectedToken.transform.height}px`, "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = selectedToken.transform.x;
 			tokenMousePos.y = selectedToken.transform.y;
 			tokenMousePos.width = selectedToken.transform.width;
 			tokenMousePos.height = selectedToken.transform.height;
 			tokenMousePos.rotation = selectedToken.transform.rotation;
-		}});
-		createSVG(outline, {"id": "outline", "tabindex": "-1", "onkeyup": (e: KeyboardEvent) => {
+		}}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 			if (e.key === "Delete") {
 				deleteToken();
 				return;
@@ -356,7 +347,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown})));
+		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))));
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
