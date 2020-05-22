@@ -64,6 +64,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, "/Light", func(_ *levelMap, l *layer) bool {
 			l.Tokens[0].Source = c.ToRGBA()
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapLightChange, c, cd.ID)
 			return true
 		}); err != nil {
 			return nil, err
