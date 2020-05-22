@@ -13,7 +13,7 @@ import {mapView} from './userMap.js';
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, root, panZoom, outline, definitions, layerList, remove] = passed,
+		const [base, root, panZoom, outline, definitions, layerList, remove, setLayerVisibility] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -149,6 +149,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				       selectedLayer  = null;
 				}
 			});
+		      },
+		      checkLayer = (path: string) => {
+			if (selectedLayerPath.startsWith(path)) {
+				unselectToken();
+				// select new layer???
+			}
 		      };
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			e.preventDefault();
@@ -420,15 +426,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return name;
 			}),
 			"setVisibility": (path: string, visibility: boolean) => {
-				const layer = getLayer(layerList, path)!;
-				if (layer === selectedLayer) {
-					unselectToken();
-				}
+				setLayerVisibility(path, visibility);
+				checkLayer(path);
 				if (visibility) {
-					layer.node.removeAttribute("visibility");
 					return rpc.showLayer(path);
 				} else {
-					layer.node.setAttribute("visibility", "hidden");
 					return rpc.hideLayer(path);
 				}
 			},
@@ -481,5 +483,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				tokenMouseUp();
 			}
 		});
+		rpc.waitLayerHide().then(checkLayer);
 	}));
 }
