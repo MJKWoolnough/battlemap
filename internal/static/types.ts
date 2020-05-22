@@ -71,6 +71,8 @@ export type RPC = {
 	connID: () => Promise<Int>;
 
 	waitTokenChange:        () => Subscription<TokenChange>;
+	waitTokenFlip:          () => Subscription<TokenFlip>;
+	waitTokenFlop:          () => Subscription<TokenFlop>;
 	waitMaskChange:         () => Subscription<Int>;
 
 	setCurrentMap: (id: Int) => Promise<void>;
@@ -190,12 +192,23 @@ export type LayerFolder = FolderItems & {
 	children: (Layer | LayerFolder)[];
 }
 
-export type TokenChange = {
+type TokenPos = {
 	path: string;
 	pos: Int;
+}
+
+export type TokenChange = TokenPos & {
 	x: Int;
 	y: Int;
 	width: Int;
 	height: Int;
 	rotation: Int;
+}
+
+type TokenFlip = TokenPos & {
+	flip: boolean;
+}
+
+type TokenFlop = TokenPos & {
+	flop: boolean;
 }
