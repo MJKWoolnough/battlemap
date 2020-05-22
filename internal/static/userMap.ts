@@ -4,7 +4,7 @@ import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {createSVG, g, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGGrid, SVGShape, SVGToken} from './map_types.js';
+import {Defs, SVGFolder, SVGGrid, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
@@ -90,6 +90,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			}
 		}
 		oldBase.replaceWith(base);
+		rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c);
 		rpc.waitTokenChange().then(st => {
 			const [, token] = getParentToken(layerList, st.path, st.pos);
 			if (token instanceof SVGToken) {
