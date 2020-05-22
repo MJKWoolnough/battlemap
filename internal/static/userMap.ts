@@ -57,6 +57,14 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 		      remove = (path: string) => {
 			const [fromParent, layer] = getParentLayer(layerList, path);
 			return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+		      },
+		      setLayerVisibility = (path: string, visibility: boolean) => {
+			const layer = getLayer(layerList, path)!;
+			if (visibility) {
+				layer.node.removeAttribute("visibility");
+			} else {
+				layer.node.setAttribute("visibility", "hidden");
+			}
 		      };
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
@@ -91,6 +99,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 		}
 		oldBase.replaceWith(base);
 		rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c);
+		rpc.waitLayerShow().then(path => setLayerVisibility(path, true));
+		rpc.waitLayerHide().then(path => setLayerVisibility(path, false));
 		rpc.waitTokenChange().then(st => {
 			const [, token] = getParentToken(layerList, st.path, st.pos);
 			if (token instanceof SVGToken) {
@@ -125,7 +135,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			outline,
 			definitions,
 			layerList,
-			remove
+			remove,
+			setLayerVisibility
 		] as [
 			HTMLDivElement,
 			SVGSVGElement,
@@ -134,6 +145,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			Defs,
 			SVGFolder,
 			(path: string) => [],
+			(path: string, visibility: boolean) => void
 		];
 	});
 }
