@@ -103,6 +103,20 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 				token.node.setAttribute("transform", token.transform.toString());
 			}
 		});
+		rpc.waitTokenFlip().then(tf => {
+			const [, token] = getParentToken(layerList, tf.path, tf.pos);
+			if (token instanceof SVGToken) {
+				token.transform.flip = tf.flip;
+				token.node.setAttribute("transform", token.transform.toString());
+			}
+		});
+		rpc.waitTokenFlop().then(tf => {
+			const [, token] = getParentToken(layerList, tf.path, tf.pos);
+			if (token instanceof SVGToken) {
+				token.transform.flop = tf.flop;
+				token.node.setAttribute("transform", token.transform.toString());
+			}
+		});
 		return [
 			base,
 			root,
