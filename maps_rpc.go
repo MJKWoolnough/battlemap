@@ -164,6 +164,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = false
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerShow, path, cd.ID)
 			return true
 		})
 	case "hideLayer":
@@ -179,6 +180,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = true
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerHide, path, cd.ID)
 			return true
 		})
 	case "addMask":
