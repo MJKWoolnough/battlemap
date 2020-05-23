@@ -300,7 +300,7 @@ func (f *folders) folderCreate(cd ConnData, data []byte) (string, error) {
 	newName := addFolderTo(parent.Folders, name, newFolder())
 	f.saveFolders()
 	dir = dir[:len(dir)-len(name)] + newName
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderAdd), dir, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderAdd), data, cd.ID)
 	return dir, nil
 }
 
@@ -337,7 +337,7 @@ func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
 	newName = addItemTo(newParent.Items, newName, iid)
 	f.saveFolders()
 	itemMove.To += "/" + newName
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemMove), itemMove, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemMove), data, cd.ID)
 	return itemMove.To, nil
 }
 
@@ -369,7 +369,7 @@ func (f *folders) folderMove(cd ConnData, data []byte) (string, error) {
 	newName = addFolderTo(newParent.Folders, newName, fd)
 	f.saveFolders()
 	folderMove.To += "/" + newName
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderMove), folderMove, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderMove), data, cd.ID)
 	return folderMove.To, nil
 }
 
@@ -387,7 +387,7 @@ func (f *folders) itemDelete(cd ConnData, data []byte) error {
 	delete(parent.Items, oldName)
 	f.unlink(iid)
 	f.saveFolders()
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), item, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), data, cd.ID)
 	return nil
 }
 
@@ -420,7 +420,7 @@ func (f *folders) folderDelete(cd ConnData, data []byte) error {
 		return false
 	})
 	f.saveFolders()
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), folder, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), data, cd.ID)
 	return nil
 }
 
@@ -444,7 +444,7 @@ func (f *folders) linkItem(cd ConnData, data []byte) (string, error) {
 	newName := addItemTo(parent.Items, name, link.ID)
 	f.saveFolders()
 	link.Name = link.Name[:len(link.Name)-len(name)] + newName
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemLink), link, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemLink), data, cd.ID)
 	return link.Name, nil
 }
 
