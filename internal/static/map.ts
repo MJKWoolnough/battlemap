@@ -13,7 +13,7 @@ import {mapView} from './userMap.js';
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, root, panZoom, outline, definitions, layerList, remove, setLayerVisibility] = passed,
+		const [base, root, panZoom, outline, definitions, layerList, remove, setLayerVisibility, setTokenType] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -281,20 +281,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
 					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
-					let newToken: SVGToken | SVGShape;
+					let typ = false;
 					if (selectedToken instanceof SVGToken) {
-						newToken = new SVGShape(rect({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": selectedToken.transform.width, "height": selectedToken.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": selectedToken.transform.width, "height": selectedToken.transform.height, "href": selectedToken.node.getAttribute("href")!})))})`}));
-						newToken.snap = selectedToken.snap;
+						typ = true;
 						rpc.setTokenPattern(selectedLayerPath, pos).catch(alert);
 					} else if (selectedToken instanceof SVGShape && selectedToken.isPattern) {
-						newToken = new SVGToken(image({"preserveAspectRatio": "none", "width": selectedToken.transform.width, "height": selectedToken.transform.height, "transform": selectedToken.transform.toString(), "href": (definitions.list[selectedToken.fillSrc] as SVGImage).source}));
-						newToken.snap = selectedToken.snap;
 						rpc.setTokenImage(selectedLayerPath, pos).catch(alert);
 					} else {
 						return;
 					}
-					selectedLayer!.tokens.splice(pos, 1, newToken);
-					selectedToken = newToken;
+					selectedToken = setTokenType(selectedLayerPath, pos, typ);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
