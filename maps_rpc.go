@@ -394,6 +394,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			tk.TokenType = tokenPattern
 			tk.Source = idStr
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenSetPattern, data, cd.ID)
 			return true
 
 		})
@@ -418,6 +419,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				delete(mp.Patterns, id)
 				tk.Source = p.Image.Source
 			}
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenSetImage, data, cd.ID)
 			return true
 		})
 	case "setTokenSource":
