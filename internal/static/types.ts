@@ -60,8 +60,8 @@ export type RPC = {
 	waitTokenRemove:       () => Subscription<Int>;        //check type
 	waitTokenMove:         () => Subscription<Int>;        //check type
 	waitTokenSetToken:     () => Subscription<Int>;        //check type
-	waitTokenSetImage:     () => Subscription<Int>;        //check type
-	waitTokenSetPattern:   () => Subscription<Int>;        //check type
+	waitTokenSetImage:     () => Subscription<TokenPos>;   //check type
+	waitTokenSetPattern:   () => Subscription<TokenPos>;   //check type
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
