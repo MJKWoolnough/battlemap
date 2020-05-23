@@ -25,7 +25,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrUnknownMap
 		}
 		m.Battlemap.config.Set("currentUserMap", &userMap)
-		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), cd.ID)
+		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), data, cd.ID)
 		return nil, nil
 	case "new":
 		var nm mapDetails
@@ -51,11 +51,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			mp.Width = md.Width
 			mp.Height = md.Height
 			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapItemChange, data, cd.ID)
 			return true
 		}); err != nil {
 			return nil, err
 		}
-		m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapItemChange, md, cd.ID)
 		return nil, nil
 	case "setLightColour":
 		var c colour
@@ -64,7 +64,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, "/Light", func(_ *levelMap, l *layer) bool {
 			l.Tokens[0].Source = c.ToRGBA()
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapLightChange, c, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapLightChange, data, cd.ID)
 			return true
 		}); err != nil {
 			return nil, err
@@ -164,7 +164,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = false
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerShow, path, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerShow, data, cd.ID)
 			return true
 		})
 	case "hideLayer":
@@ -180,7 +180,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = true
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerHide, path, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerHide, data, cd.ID)
 			return true
 		})
 	case "addMask":
@@ -292,7 +292,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			tk.Width = setToken.Width
 			tk.Height = setToken.Height
 			tk.Rotation = setToken.Rotation
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenChange, setToken, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenChange, data, cd.ID)
 			return true
 		})
 	case "flipToken":
@@ -312,7 +312,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flip = flipToken.Flip
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlip, flipToken, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlip, data, cd.ID)
 			return true
 		})
 	case "flopToken":
@@ -332,7 +332,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flop = flopToken.Flop
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlop, flopToken, cd.ID)
+			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlop, data, cd.ID)
 			return true
 		})
 	case "setTokenSnap":
