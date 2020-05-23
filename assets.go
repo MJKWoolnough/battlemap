@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type assetsDir struct {
@@ -113,17 +115,19 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	a.mu.Lock()
 	a.saveFolders()
 	a.mu.Unlock()
-	w.Header().Set(contentType, "application/json")
-	fmt.Fprintf(w, "{%q:%d", added[0].Name, added[0].ID)
+	var buf memio.Buffer
+	fmt.Fprintf(&buf, "{%q:%d", added[0].Name, added[0].ID)
 	for _, id := range added[1:] {
-		fmt.Fprintf(w, ",%q:%d", id.Name, id.ID)
+		fmt.Fprintf(&buf, ",%q:%d", id.Name, id.ID)
 	}
-	fmt.Fprint(w, "}")
+	fmt.Fprint(&buf, "}")
 	bid := broadcastImageItemAdd
 	if a.fileType == fileTypeAudio {
 		bid--
 	}
-	a.socket.broadcastAdminChange(bid, added, SocketIDFromRequest(r))
+	a.socket.broadcastAdminChange(bid, json.RawMessage(buf), SocketIDFromRequest(r))
+	w.Header().Set(contentType, "application/json")
+	w.Write(buf)
 	return nil
 }
 
