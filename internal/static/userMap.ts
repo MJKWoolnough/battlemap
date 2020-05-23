@@ -2,9 +2,9 @@ import {Int, RPC} from './types.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
-import {createSVG, g, rect, path, pattern} from './lib/svg.js';
+import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGGrid, SVGLayer, SVGShape, SVGToken} from './map_types.js';
+import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
@@ -65,6 +65,15 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			} else {
 				layer.node.setAttribute("visibility", "hidden");
 			}
+		      },
+		      setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
+			const [layer, token] = getParentToken(layerList, path, pos),
+			      newToken = imagePattern && token instanceof SVGToken ? new SVGShape(rect({"width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": token.transform.width, "height": token.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "href": token.node.getAttribute("href")!})))})`})) : token instanceof SVGShape ? new SVGToken(image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "href": (definitions.list[token.fillSrc] as SVGImage).source})) : null;
+			if (layer && newToken && token) {
+				newToken.snap = token.snap;
+				layer.tokens.splice(pos, 1, newToken);
+			}
+			return newToken;
 		      };
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
@@ -128,6 +137,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 				token.node.setAttribute("transform", token.transform.toString());
 			}
 		});
+		rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true));
+		rpc.waitTokenSetPattern().then(ti => setTokenType(ti.path, ti.pos, false));
 		return [
 			base,
 			root,
@@ -136,7 +147,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			definitions,
 			layerList,
 			remove,
-			setLayerVisibility
+			setLayerVisibility,
+			setTokenType
 		] as [
 			HTMLDivElement,
 			SVGSVGElement,
@@ -145,7 +157,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			Defs,
 			SVGFolder,
 			(path: string) => [],
-			(path: string, visibility: boolean) => void
+			(path: string, visibility: boolean) => void,
+			(path: string, pos: Int, imagePattern: boolean) => SVGToken | SVGShape | null
 		];
 	});
 }
