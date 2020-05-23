@@ -1,7 +1,8 @@
 import {Int} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape} from './map_types.js';
+import {image, pattern, rect} from './lib/svg.js';
+import {Defs, SVGLayer, SVGFolder, SVGImage, SVGToken, SVGShape} from './map_types.js';
 import {item, menu, List} from './lib/context.js';
 
 let layerNum = 0;
@@ -89,4 +90,25 @@ ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 
 	return [mDx * dX, mDy * dY];
 },
 noop = <T>(e: T) => e,
-makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled}));
+makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
+remove = (layerList: SVGFolder, path: string) => {
+	const [fromParent, layer] = getParentLayer(layerList, path);
+	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+},
+setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
+	const layer = getLayer(layerList, path)!;
+	if (visibility) {
+		layer.node.removeAttribute("visibility");
+	} else {
+		layer.node.setAttribute("visibility", "hidden");
+	}
+},
+setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int, imagePattern: boolean) => {
+	const [layer, token] = getParentToken(layerList, path, pos),
+	      newToken = imagePattern && token instanceof SVGToken ? new SVGShape(rect({"width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": token.transform.width, "height": token.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "href": token.node.getAttribute("href")!})))})`})) : token instanceof SVGShape ? new SVGToken(image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "href": (definitions.list[token.fillSrc] as SVGImage).source})) : null;
+	if (layer && newToken && token) {
+		newToken.snap = token.snap;
+		layer.tokens.splice(pos, 1, newToken);
+	}
+	return newToken;
+};
