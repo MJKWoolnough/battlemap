@@ -36,12 +36,12 @@ getParentLayer = (root: SVGFolder, path: string): [SVGFolder | null, SVGFolder |
 	}
 	return [parent, getLayer(parent, name)];
 },
-getParentToken = (root: SVGFolder, path: string, pos: Int) => {
+getParentToken = (root: SVGFolder, path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(root, path);
 	if (!parent || !isSVGLayer(parent)) {
 		return [null, null];
 	}
-	return [parent, parent.tokens[pos]];
+	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
 },
 idNames: Record<string, Int> = {
 	"": 0,
