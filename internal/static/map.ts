@@ -6,14 +6,14 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext} from './map_fns.js';
+import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, remove, setLayerVisibility, setTokenType} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, root, panZoom, outline, definitions, layerList, remove, setLayerVisibility, setTokenType] = passed,
+		const [base, root, panZoom, outline, definitions, layerList] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -142,7 +142,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
-			remove(path).forEach(e => {
+			remove(layerList, path).forEach(e => {
 				if (selectedLayer === e) {
 					selectedLayer = null;
 				} else if (isSVGFolder(e) && walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
@@ -290,7 +290,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					} else {
 						return;
 					}
-					selectedToken = setTokenType(selectedLayerPath, pos, typ);
+					selectedToken = setTokenType(layerList, definitions, selectedLayerPath, pos, typ);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
@@ -422,7 +422,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return name;
 			}),
 			"setVisibility": (path: string, visibility: boolean) => {
-				setLayerVisibility(path, visibility);
+				setLayerVisibility(layerList, path, visibility);
 				checkLayer(path);
 				if (visibility) {
 					return rpc.showLayer(path);
