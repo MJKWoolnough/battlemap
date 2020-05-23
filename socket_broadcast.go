@@ -2,8 +2,7 @@ package battlemap
 
 import (
 	"encoding/json"
-
-	"vimagination.zapto.org/jsonrpc"
+	"strconv"
 )
 
 const (
@@ -96,11 +95,30 @@ func (c *conn) kickAdmin() {
 	c.rpc.SendData(loggedOut)
 }
 
-func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
-	data, _ := json.Marshal(jsonrpc.Response{
-		ID:     broadcastCurrentUserMap,
-		Result: currentUserMap,
-	})
+var (
+	broadcastStart = []byte{'{', 'i', 'd', ':'}
+	broadcastMid   = []byte{',', 'r', 'e', 's', 'u', 'l', 't', ':'}
+	broadcastEnd   = []byte{'}'}
+)
+
+func buildBroadcast(id int, data json.RawMessage) []byte {
+	idStr := strconv.FormatInt(int64(id), 10)
+	dat := make([]byte, 0, len(broadcastStart)+len(idStr)+len(broadcastMid)+len(data)+len(broadcastEnd))
+	dat = append(dat, broadcastStart...)
+	dat = append(dat, idStr...)
+	dat = append(dat, broadcastMid...)
+	dat = append(dat, data...)
+	dat = append(dat, broadcastEnd...)
+	return dat
+}
+
+func toRawMessage(v interface{}) json.RawMessage {
+	data, _ := json.Marshal(v)
+	return data
+}
+
+func (s *socket) SetCurrentUserMap(currentUserMap uint64, data json.RawMessage, except ID) {
+	dat := buildBroadcast(broadcastCurrentUserMap, data)
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.Lock()
@@ -114,17 +132,14 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, except ID) {
 		id := c.ID
 		c.mu.RUnlock()
 		if except != id {
-			go c.rpc.SendData(data)
+			go c.rpc.SendData(dat)
 		}
 	}
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastMapChange(mID uint64, id int, data interface{}, except ID) {
-	dat, _ := json.Marshal(jsonrpc.Response{
-		ID:     id,
-		Result: data,
-	})
+func (s *socket) broadcastMapChange(mID uint64, id int, data json.RawMessage, except ID) {
+	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.RLock()
@@ -138,11 +153,8 @@ func (s *socket) broadcastMapChange(mID uint64, id int, data interface{}, except
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastAdminChange(id int, data interface{}, except ID) {
-	dat, _ := json.Marshal(jsonrpc.Response{
-		ID:     id,
-		Result: data,
-	})
+func (s *socket) broadcastAdminChange(id int, data json.RawMessage, except ID) {
+	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.RLock()
