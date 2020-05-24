@@ -466,12 +466,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, tokenLayer.FromPos, func(mp *levelMap, l *layer, tk *token) bool {
-			m := getLayer(&mp.layer, tokenLayer.To)
-			if m == nil {
+			ml := getLayer(&mp.layer, tokenLayer.To)
+			if ml == nil {
 				return false
 			}
 			l.removeToken(tokenLayer.FromPos)
-			m.addToken(tk, tokenLayer.ToPos)
+			ml.addToken(tk, tokenLayer.ToPos)
 			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data)
 			return true
 		})
