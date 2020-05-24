@@ -50,6 +50,7 @@ const (
 	broadcastLayerAdd
 	broadcastLayerFolderAdd
 	broadcastLayerMove
+	broadcastLayerRename
 	broadcastLayerRemove
 
 	broadcastMapLightChange
@@ -58,7 +59,7 @@ const (
 
 	broadcastLayerShow
 	broadcastLayerHide
-	broadcaseLayerMaskAdd
+	broadcastLayerMaskAdd
 	broadcastLayerMaskChange
 	broadcastLayerMaskRemove
 	broadcastLayerTokenOrder
