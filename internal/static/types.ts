@@ -45,9 +45,9 @@ export type RPC = {
 	waitCharacterChange:   () => Subscription<Int>;
 	waitMapChange:         () => Subscription<MapDetails>; //check type
 	waitLayerAdd:          () => Subscription<Layer>;      //check type
+	waitLayerFolderAdd:    () => Subscription<Layer>;      //check type
 	waitLayerRename:       () => Subscription<FromTo>;     //check type
 	waitLayerRemove:       () => Subscription<Int[]>;      //check type
-	waitLayerOrderChange:  () => Subscription<Int[]>;      //check type
 	waitMapLightChange:    () => Subscription<Colour>;     //check type
 	waitMapInitiative:     () => Subscription<IDName[]>;   //check type
 	waitLayerShow:         () => Subscription<string>;
@@ -58,10 +58,16 @@ export type RPC = {
 	waitLayerTokenOrder:   () => Subscription<Int[]>;      //check type
 	waitTokenAdd:          () => Subscription<Int>;        //check type
 	waitTokenRemove:       () => Subscription<Int>;        //check type
-	waitTokenMove:         () => Subscription<Int>;        //check type
+	waitTokenMoveLayer:    () => Subscription<Int>;        //check type
+	waitTokenMovePos:      () => Subscription<Int>;        //check type
 	waitTokenSetToken:     () => Subscription<Int>;        //check type
 	waitTokenSetImage:     () => Subscription<TokenPos>;   //check type
 	waitTokenSetPattern:   () => Subscription<TokenPos>;   //check type
+	waitTokenChange:       () => Subscription<TokenChange>;
+	waitTokenFlip:         () => Subscription<TokenFlip>;
+	waitTokenFlop:         () => Subscription<TokenFlop>;
+	waitTokenSnap:         () => Subscription<TokenSnap>;
+	waitTokenSourceChange: () => Subscription<TokenSource>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
@@ -69,11 +75,6 @@ export type RPC = {
 	maps:       FolderRPC,
 
 	connID: () => Promise<Int>;
-
-	waitTokenChange:        () => Subscription<TokenChange>;
-	waitTokenFlip:          () => Subscription<TokenFlip>;
-	waitTokenFlop:          () => Subscription<TokenFlop>;
-	waitMaskChange:         () => Subscription<Int>;
 
 	setCurrentMap: (id: Int) => Promise<void>;
 	getUserMap:    ()        => Promise<Int>;
@@ -211,4 +212,12 @@ type TokenFlip = TokenPos & {
 
 type TokenFlop = TokenPos & {
 	flop: boolean;
+}
+
+type TokenSnap = TokenPos & {
+	snap: boolean;
+}
+
+type TokenSource = TokenPos & {
+	source: string;
 }
