@@ -48,9 +48,9 @@ const (
 	broadcastMapItemChange
 
 	broadcastLayerAdd
-	broadcastLayerRename
+	broadcastLayerFolderAdd
+	broadcastLayerMove
 	broadcastLayerRemove
-	broadcastLayerOrderChange
 
 	broadcastMapLightChange
 
@@ -65,15 +65,16 @@ const (
 
 	broadcastTokenAdd
 	broadcastTokenRemove
-	broadcastTokenMove
-	broadcastTokenResize
-	broadcastTokenRotate
+	broadcastTokenMoveLayer
+	broadcastTokenMovePos
 	broadcastTokenSetToken
 	broadcastTokenSetImage
 	broadcastTokenSetPattern
 	broadcastTokenChange
 	broadcastTokenFlip
 	broadcastTokenFlop
+	broadcastTokenSnap
+	broadcastTokenSourceChange
 )
 
 func (s *socket) KickAdmins(except ID) {
