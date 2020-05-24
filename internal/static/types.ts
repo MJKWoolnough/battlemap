@@ -46,6 +46,7 @@ export type RPC = {
 	waitMapChange:         () => Subscription<MapDetails>; //check type
 	waitLayerAdd:          () => Subscription<Layer>;      //check type
 	waitLayerFolderAdd:    () => Subscription<Layer>;      //check type
+	waitLayerMove:         () => Subscription<FromTo>;     //check type
 	waitLayerRename:       () => Subscription<FromTo>;     //check type
 	waitLayerRemove:       () => Subscription<Int[]>;      //check type
 	waitMapLightChange:    () => Subscription<Colour>;     //check type
