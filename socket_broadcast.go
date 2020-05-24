@@ -138,7 +138,7 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, data json.RawMessage, 
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastMapChange(mID uint64, id int, data json.RawMessage, except ID) {
+func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage) {
 	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
@@ -146,7 +146,7 @@ func (s *socket) broadcastMapChange(mID uint64, id int, data json.RawMessage, ex
 		id := c.ID
 		currentMap := c.CurrentMap
 		c.mu.RUnlock()
-		if currentMap == mID && id != except {
+		if currentMap == cd.CurrentMap && id != cd.ID {
 			go c.rpc.SendData(dat)
 		}
 	}
