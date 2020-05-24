@@ -51,7 +51,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			mp.Width = md.Width
 			mp.Height = md.Height
 			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapItemChange, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
 			return true
 		}); err != nil {
 			return nil, err
@@ -64,7 +64,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, "/Light", func(_ *levelMap, l *layer) bool {
 			l.Tokens[0].Source = c.ToRGBA()
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastMapLightChange, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastMapLightChange, data)
 			return true
 		}); err != nil {
 			return nil, err
@@ -164,7 +164,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = false
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerShow, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastLayerShow, data)
 			return true
 		})
 	case "hideLayer":
@@ -180,7 +180,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Hidden = true
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastLayerHide, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastLayerHide, data)
 			return true
 		})
 	case "addMask":
@@ -292,7 +292,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			tk.Width = setToken.Width
 			tk.Height = setToken.Height
 			tk.Rotation = setToken.Rotation
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenChange, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenChange, data)
 			return true
 		})
 	case "flipToken":
@@ -312,7 +312,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flip = flipToken.Flip
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlip, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenFlip, data)
 			return true
 		})
 	case "flopToken":
@@ -332,7 +332,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Flop = flopToken.Flop
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenFlop, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenFlop, data)
 			return true
 		})
 	case "setTokenSnap":
@@ -394,7 +394,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			tk.TokenType = tokenPattern
 			tk.Source = idStr
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenSetPattern, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenSetPattern, data)
 			return true
 
 		})
@@ -419,7 +419,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				delete(mp.Patterns, id)
 				tk.Source = p.Image.Source
 			}
-			m.socket.broadcastMapChange(cd.CurrentMap, broadcastTokenSetImage, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenSetImage, data)
 			return true
 		})
 	case "setTokenSource":
