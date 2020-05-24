@@ -108,11 +108,9 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	m.saveFolders()
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
-	m.socket.broadcastAdminChange(broadcastMapItemAdd, toRawMessage(idName{ID: mid, Name: mp.Name}), id)
-	return idName{
-		ID:   mid,
-		Name: name,
-	}, nil
+	in := idName{ID: mid, Name: name}
+	m.socket.broadcastAdminChange(broadcastMapItemAdd, toRawMessage(in), id)
+	return in, nil
 }
 
 func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) *pattern {
