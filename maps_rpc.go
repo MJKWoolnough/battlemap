@@ -81,6 +81,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				Name: name,
 			})
 			mp.layers[name] = struct{}{}
+			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data)
 			return true
 		})
 		return name, err
@@ -90,12 +91,13 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		parent, name := splitAfterLastSlash(path)
-		err := m.updateMapLayer(cd.CurrentMap, parent, func(m *levelMap, l *layer) bool {
-			name = uniqueLayer(m.layers, name)
+		err := m.updateMapLayer(cd.CurrentMap, parent, func(lm *levelMap, l *layer) bool {
+			name = uniqueLayer(lm.layers, name)
 			l.Layers = append(l.Layers, &layer{
 				Name:     name,
 				IsFolder: true,
 			})
+			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
 			return true
 		})
 		return name, err
@@ -110,13 +112,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if rename.Path == "/Grid" || rename.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		err := m.updateMapLayer(cd.CurrentMap, rename.Path, func(m *levelMap, l *layer) bool {
+		err := m.updateMapLayer(cd.CurrentMap, rename.Path, func(lm *levelMap, l *layer) bool {
 			if l.Name == rename.Name {
 				return false
 			}
-			delete(m.layers, l.Name)
-			rename.Name = uniqueLayer(m.layers, rename.Name)
+			delete(lm.layers, l.Name)
+			rename.Name = uniqueLayer(lm.layers, rename.Name)
 			l.Name = rename.Name
+			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
 			return true
 		})
 		return rename.Name, err
@@ -146,6 +149,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			op.removeLayer(l.Name)
 			np.addLayer(l, moveLayer.Position)
+			m.socket.broadcastMapChange(cd, broadcastLayerMove, data)
 			return true
 		}); e != nil {
 			return nil, e
@@ -200,6 +204,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Mask = mask
+			m.socket.broadcastMapChange(cd, broadcastLayerMaskAdd, data)
 			return true
 		})
 	case "removeMask":
@@ -215,6 +220,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			l.Mask = ""
+			m.socket.broadcastMapChange(cd, broadcastLayerMaskRemove, data)
 			return true
 		})
 	case "removeLayer":
@@ -230,6 +236,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
 			l.removeLayer(name)
 			delete(mp.layers, name)
+			m.socket.broadcastMapChange(cd, broadcastLayerRemove, data)
 			return true
 		})
 		return nil, err
@@ -247,6 +254,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
 			l.Tokens = append(l.Tokens, newToken.token)
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
 			return true
 		}); err != nil {
 			return nil, err
@@ -265,6 +273,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		return nil, m.updateMapLayer(cd.CurrentMap, tokenPos.Path, func(mp *levelMap, l *layer) bool {
 			l.removeToken(tokenPos.Pos)
+			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
 		})
 	case "setToken":
@@ -352,6 +361,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Snap = snapToken.Snap
+			m.socket.broadcastMapChange(cd, broadcastTokenSnap, data)
 			return true
 		})
 	case "setTokenPattern":
@@ -439,6 +449,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			tk.Source = tokenSource.Source
+			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
 			return true
 		})
 	case "setTokenLayer":
@@ -461,6 +472,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			l.removeToken(tokenLayer.FromPos)
 			m.addToken(tk, tokenLayer.ToPos)
+			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data)
 			return true
 		})
 	case "setTokenPos":
@@ -480,6 +492,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			l.removeToken(tokenPos.Pos)
 			l.addToken(tk, tokenPos.NewPos)
+			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
 			return true
 		}); e != nil {
 			return nil, e
@@ -492,6 +505,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			mp.Initiative = initiative
+			m.socket.broadcastMapChange(cd, broadcastMapInitiative, data)
 			return true
 		})
 	case "remove":
