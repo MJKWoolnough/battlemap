@@ -97,6 +97,14 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			}
 			layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
 		});
+		rpc.waitTokenRemove().then(tk => {
+			const layer = getLayer(layerList, tk.path);
+			if (!layer || !isSVGLayer(layer)) {
+				// error
+				return;
+			}
+			layer.tokens.splice(tk.pos, 1);
+		});
 		rpc.waitTokenChange().then(st => {
 			const [, token] = getParentToken(layerList, st.path, st.pos);
 			if (token instanceof SVGToken) {
