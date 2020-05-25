@@ -57,7 +57,7 @@ export type RPC = {
 	waitLayerMaskChange:   () => Subscription<Int>;        //check type
 	waitLayerMaskRemove:   () => Subscription<Int>;        //check type
 	waitLayerTokenOrder:   () => Subscription<Int[]>;      //check type
-	waitTokenAdd:          () => Subscription<Int>;        //check type
+	waitTokenAdd:          () => Subscription<TokenAdd>;
 	waitTokenRemove:       () => Subscription<Int>;        //check type
 	waitTokenMoveLayer:    () => Subscription<Int>;        //check type
 	waitTokenMovePos:      () => Subscription<Int>;        //check type
@@ -197,6 +197,14 @@ export type LayerFolder = FolderItems & {
 type TokenPos = {
 	path: string;
 	pos: Int;
+}
+
+export type TokenAdd = TokenPos & {
+	source: string;
+	x: Int;
+	y: Int;
+	width: Int;
+	height: Int;
 }
 
 export type TokenChange = TokenPos & {
