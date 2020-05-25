@@ -116,11 +116,11 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	a.saveFolders()
 	a.mu.Unlock()
 	var buf memio.Buffer
-	fmt.Fprintf(&buf, "{%q:%d", added[0].Name, added[0].ID)
+	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}", added[0].ID, added[0].Name)
 	for _, id := range added[1:] {
-		fmt.Fprintf(&buf, ",%q:%d", id.Name, id.ID)
+		fmt.Fprintf(&buf, ",{\"id\":%d,\"name\":%q}", id.ID, id.Name)
 	}
-	fmt.Fprint(&buf, "}")
+	fmt.Fprint(&buf, "]")
 	bid := broadcastImageItemAdd
 	if a.fileType == fileTypeAudio {
 		bid--
