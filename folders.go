@@ -420,7 +420,7 @@ func (f *folders) folderDelete(cd ConnData, data []byte) error {
 		return false
 	})
 	f.saveFolders()
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), data, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderRemove), data, cd.ID)
 	return nil
 }
 
