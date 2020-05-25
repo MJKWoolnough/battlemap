@@ -138,7 +138,7 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 			return undefined;
 		      },
 		      setUserMap = (id: Int, setCurrent: boolean = false) => {
-			const m = findMap(root.folder, userMap);
+			const m = findMap(root.folder, id);
 			if (m) {
 				m.setUserMap();
 				if (setCurrent) {
