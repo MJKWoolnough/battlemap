@@ -2,7 +2,7 @@ import {Int, RPC} from './types.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
-import {createSVG, g, rect, path, pattern} from './lib/svg.js';
+import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, remove, setLayerVisibility, setTokenType} from './map_fns.js';
@@ -89,6 +89,14 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 		rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c);
 		rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true));
 		rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false));
+		rpc.waitTokenAdd().then(tk => {
+			const layer = getLayer(layerList, tk.path);
+			if (!layer || !isSVGLayer(layer)) {
+				// error
+				return;
+			}
+			layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
+		});
 		rpc.waitTokenChange().then(st => {
 			const [, token] = getParentToken(layerList, st.path, st.pos);
 			if (token instanceof SVGToken) {
