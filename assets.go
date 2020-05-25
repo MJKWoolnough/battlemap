@@ -127,6 +127,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	}
 	a.socket.broadcastAdminChange(bid, json.RawMessage(buf), SocketIDFromRequest(r))
 	w.Header().Set(contentType, "application/json")
+	w.Header().Set("Content-Length", strconv.FormatUint(uint64(len(buf)), 10))
 	w.Write(buf)
 	return nil
 }
