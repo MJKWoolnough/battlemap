@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type mapsDir struct {
@@ -61,9 +63,9 @@ type mapGrid struct {
 	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
 }
 
-func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
+func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 	if nm.Width == 0 || nm.Height == 0 {
-		return idName{}, ErrInvalidDimensions
+		return nil, ErrInvalidDimensions
 	}
 	m.mu.Lock()
 	m.lastID++
@@ -108,9 +110,10 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (idName, error) {
 	m.saveFolders()
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
-	in := idName{ID: mid, Name: name}
-	m.socket.broadcastAdminChange(broadcastMapItemAdd, toRawMessage(in), id)
-	return in, nil
+	var buf memio.Buffer
+	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", mid, name)
+	m.socket.broadcastAdminChange(broadcastMapItemAdd, json.RawMessage(buf), id)
+	return json.RawMessage(buf[1 : len(buf)-1]), nil
 }
 
 func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) *pattern {
