@@ -1,4 +1,4 @@
-import {Int, RPC} from './types.js';
+import {IDName, Int, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -82,8 +82,8 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 							}), window, "Uploading", div({"class": "loadBar"}, [
 								div("Uploading file(s)"),
 								bar
-							])).then((assets: Record<string, Int>) => {
-								Object.entries(assets).forEach(([name, id]) => root.addItem(id, name));
+							])).then((assets: IDName[]) => {
+								assets.forEach(({id, name}) => root.addItem(id, name));
 								window.remove();
 							}, showError.bind(null, this));
 						}}))
