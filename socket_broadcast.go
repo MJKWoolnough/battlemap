@@ -98,8 +98,8 @@ func (c *conn) kickAdmin() {
 }
 
 var (
-	broadcastStart = []byte{'{', 'i', 'd', ':'}
-	broadcastMid   = []byte{',', 'r', 'e', 's', 'u', 'l', 't', ':'}
+	broadcastStart = []byte{'{', '"', 'i', 'd', '"', ':'}
+	broadcastMid   = []byte{',', '"', 'r', 'e', 's', 'u', 'l', 't', '"', ':'}
 	broadcastEnd   = []byte{'}'}
 )
 
