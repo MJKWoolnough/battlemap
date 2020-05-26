@@ -77,11 +77,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			name = uniqueLayer(mp.layers, name)
-			mp.Layers = append(mp.Layers, &layer{
-				Name: name,
-			})
+			mp.Layers = append(mp.Layers, &layer{Name: name})
 			mp.layers[name] = struct{}{}
-			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerAdd, toRawMessage(name))
 			return true
 		})
 		return name, err
@@ -120,7 +118,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			delete(lm.layers, l.Name)
 			rename.Name = uniqueLayer(lm.layers, rename.Name)
 			l.Name = rename.Name
-			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerRename, toRawMessage(rename))
 			return true
 		})
 		return rename.Name, err
