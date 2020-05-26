@@ -108,10 +108,7 @@ setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int,
 	}
 	return newToken;
 },
-addLayerFolder = (layerList: SVGFolder, name: string) => {
-	layerList.children.push(processLayers(g({"data-name": name, "data-is-folder": "true"})));
-	return name;
-},
+addLayerFolder = (layerList: SVGFolder, path: string) => (layerList.children.push(processLayers(g({"data-name": splitAfterLastSlash(path), "data-is-folder": "true"}))), path),
 renameLayer = (layerList: SVGFolder, path: string, name: string) => getLayer(layerList, path)!.name = name,
 removeLayer = (layerList: SVGFolder, path: string) => {
 	const [fromParent, layer] = getParentLayer(layerList, path);
