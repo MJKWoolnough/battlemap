@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, remove, setLayerVisibility, setTokenType} from './map_fns.js';
+import {ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, setLayerVisibility, setTokenType} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -142,13 +142,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
-			remove(layerList, path).forEach(e => {
+			removeLayer(layerList, path).forEach(e => {
 				if (selectedLayer === e) {
 					selectedLayer = null;
 				} else if (isSVGFolder(e) && walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
 				       selectedLayer  = null;
 				}
 			});
+			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
 			if (selectedLayerPath.startsWith(path)) {
@@ -408,14 +409,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}
 				return rpc.renameLayer(path, name)
 			},
-			"remove": (path: string) => {
-				removeS(path);
-				return rpc.removeLayer(path);
-			},
-			"removeFolder": (path: string) => {
-				removeS(path);
-				return rpc.removeLayer(path);
-			},
+			"remove": removeS,
+			"removeFolder": removeS,
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				layerList.children.push(processLayers(g({"data-name": name})));
