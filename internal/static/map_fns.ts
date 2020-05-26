@@ -117,7 +117,7 @@ removeLayer = (layerList: SVGFolder, path: string) => {
 	const [fromParent, layer] = getParentLayer(layerList, path);
 	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 },
-addLayer = (layerList: SVGFolder, name: string) => layerList.children.push(processLayers(g({"data-name": name}))),
+addLayer = (layerList: SVGFolder, name: string) => (layerList.children.push(processLayers(g({"data-name": name}))), name),
 moveLayer = (layerList: SVGFolder, from: string, to: string, pos: Int) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(layerList, parentStr)!,
