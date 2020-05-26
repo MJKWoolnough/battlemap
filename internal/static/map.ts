@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, setLayerVisibility, setTokenType} from './map_fns.js';
+import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -398,13 +398,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
 			"moveFolder": (from: string, to: string) => Promise.reject("invalid"),
-			"renameLayer": (path: string, name: string) => {
-				getLayer(layerList, path)!.name = name;
-				if (selectedLayerPath === path) {
-					selectedLayerPath = splitAfterLastSlash(path)[0] + "/" + name;
-				}
-				return rpc.renameLayer(path, name)
-			},
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => renameLayer(layerList, path, name)),
 			"remove": removeS,
 			"removeFolder": removeS,
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
