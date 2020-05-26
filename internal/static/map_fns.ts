@@ -1,8 +1,8 @@
-import {Int} from './types.js';
+import {Colour, GridDetails, Int} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
-import {image, pattern, rect} from './lib/svg.js';
-import {Defs, SVGLayer, SVGFolder, SVGImage, SVGToken, SVGShape} from './map_types.js';
+import {g, image, pattern, rect} from './lib/svg.js';
+import {Defs, SVGLayer, SVGFolder, SVGGrid, SVGImage, SVGToken, SVGShape} from './map_types.js';
 import {item, menu, List} from './lib/context.js';
 
 let layerNum = 0;
@@ -91,10 +91,6 @@ ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 
 },
 noop = <T>(e: T) => e,
 makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
-remove = (layerList: SVGFolder, path: string) => {
-	const [fromParent, layer] = getParentLayer(layerList, path);
-	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
-},
 setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
 	const layer = getLayer(layerList, path)!;
 	if (visibility) {
@@ -111,4 +107,31 @@ setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int,
 		layer.tokens.splice(pos, 1, newToken);
 	}
 	return newToken;
-};
+},
+addLayerFolder = (layerList: SVGFolder, name: string) => {
+	layerList.children.push(processLayers(g({"data-name": name, "data-is-folder": "true"})));
+	return name;
+},
+renameLayer = (layerList: SVGFolder, path: string, name: string) => getLayer(layerList, path)!.name = name,
+removeLayer = (layerList: SVGFolder, path: string) => {
+	const [fromParent, layer] = getParentLayer(layerList, path);
+	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+},
+addLayer = (layerList: SVGFolder, name: string) => layerList.children.push(processLayers(g({"data-name": name}))),
+moveLayer = (layerList: SVGFolder, from: string, to: string, pos: Int) => {
+	const [parentStr, nameStr] = splitAfterLastSlash(from),
+	      fromParent = getLayer(layerList, parentStr)!,
+	      toParent = getLayer(layerList, to) as SVGFolder;
+	if (isSVGFolder(fromParent)) {
+		toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
+	}
+},
+setMapDetails = (root: SVGElement, definitions: Defs, details: GridDetails) => {
+	const grid = definitions.list["gridPattern"] as SVGGrid;
+	root.setAttribute("width", details["width"].toString());
+	root.setAttribute("height", details["height"].toString());
+	grid.width = details["square"];
+	grid.stroke = details["colour"];
+	grid.strokeWidth = details["stroke"];
+},
+setLightColour = (layerList: SVGFolder, c: Colour) => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
