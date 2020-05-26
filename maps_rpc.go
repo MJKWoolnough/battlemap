@@ -97,10 +97,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				Name:     name,
 				IsFolder: true,
 			})
-			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
+			path = parent + "/" + name
+			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, toRawMessage(path))
 			return true
 		})
-		return name, err
+		return path, err
 	case "renameLayer":
 		var rename struct {
 			Path string `json:"path"`
