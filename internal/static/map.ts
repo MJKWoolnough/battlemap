@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, setLayerVisibility, setTokenType} from './map_fns.js';
+import {addLayer, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, setLayerVisibility, setTokenType} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -412,7 +412,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"remove": removeS,
 			"removeFolder": removeS,
 			"link": (id: Int, path: string) => Promise.reject("invalid"),
-			"newLayer": (name: string) => rpc.addLayer(name).then(name => addLayerFolder(layerList, name)),
+			"newLayer": (name: string) => rpc.addLayer(name).then(name => addLayer(layerList, name)),
 			"setVisibility": (path: string, visibility: boolean) => {
 				setLayerVisibility(layerList, path, visibility);
 				checkLayer(path);
