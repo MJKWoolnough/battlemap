@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails} from './map_fns.js';
+import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -437,10 +437,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"getLightColour": () => {
 				return ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill
 			},
-			"setLightColour": (c: Colour) => {
-				((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
-				return rpc.setLightColour(c);
-			}
+			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(layerList, c)),
 		});
 		oldBase = base;
 		rpc.waitTokenChange().then(st => {
