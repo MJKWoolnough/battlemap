@@ -76,7 +76,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			newName = uniqueLayer(mp.layers, name)
+			newName := uniqueLayer(mp.layers, name)
 			if newName != name {
 				name = newName
 				data = toRawMessage(name)
@@ -94,7 +94,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		parent, name := splitAfterLastSlash(path)
 		err := m.updateMapLayer(cd.CurrentMap, parent, func(lm *levelMap, l *layer) bool {
-			newName = uniqueLayer(lm.layers, name)
+			newName := uniqueLayer(lm.layers, name)
 			if newName != name {
 				name = newName
 				path = parent + "/" + name
