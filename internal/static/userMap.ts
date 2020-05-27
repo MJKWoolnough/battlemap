@@ -5,7 +5,7 @@ import {div} from './lib/html.js';
 import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
-import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, remove, setLayerVisibility, setTokenType} from './map_fns.js';
+import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
