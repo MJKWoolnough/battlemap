@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer} from './map_fns.js';
+import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -433,15 +433,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					"stroke": grid.strokeWidth
 				}
 			},
-			"setMapDetails": (details: GridDetails) => {
-				const grid = definitions.list["gridPattern"] as SVGGrid;
-				root.setAttribute("width", details["width"].toString());
-				root.setAttribute("height", details["height"].toString());
-				grid.width = details["square"];
-				grid.stroke = details["colour"];
-				grid.strokeWidth = details["stroke"];
-				return rpc.setMapDetails(details);
-			},
+			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(setMapDetails(root, definitions, details)),
 			"getLightColour": () => {
 				return ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill
 			},
