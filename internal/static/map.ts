@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType} from './map_fns.js';
+import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
@@ -419,12 +419,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => {
-				const [parentStr, nameStr] = splitAfterLastSlash(from),
-				      fromParent = getLayer(layerList, parentStr)!,
-				      toParent = getLayer(layerList, to) as SVGFolder;
-				if (isSVGFolder(fromParent)) {
-					toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
-				}
+				moveLayer(layerList, from, to, pos);
 				unselectToken();
 				return rpc.moveLayer(from, to, pos);
 			},
