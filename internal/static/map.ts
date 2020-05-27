@@ -387,7 +387,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitMoved": () => waitMoved[1],
 			"waitRemoved": () => waitRemoved[1],
 			"waitLinked": () => new Subscription<IDName>(() => {}),
-			"waitFolderAdded": () => waitFolderAdded[1],
+			"waitFolderAdded": rpc.waitLayerFolderAdd,
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
 			"waitLayerSetVisible": () => waitLayerSetVisible[1],
@@ -445,6 +445,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				tokenMouseUp();
 			}
 		});
+		rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}]));
 		rpc.waitLayerHide().then(checkLayer);
 		rpc.waitLayerRemove().then(path => {
 			checkLayer(path);
