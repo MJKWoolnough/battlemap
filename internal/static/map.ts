@@ -446,5 +446,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 		});
 		rpc.waitLayerHide().then(checkLayer);
+		rpc.waitLayerRemove().then(checkLayer);
 	}));
 }
