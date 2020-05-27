@@ -446,6 +446,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 		});
 		rpc.waitLayerHide().then(checkLayer);
-		rpc.waitLayerRemove().then(checkLayer);
+		rpc.waitLayerRemove().then(path => {
+			checkLayer(path);
+			const layer = getLayer(layerList, path);
+			if (!layer) {
+				// error
+				return;
+			}
+			if (isSVGFolder(layer)) {
+				waitFolderRemoved[0](path);
+			} else {
+				waitRemoved[0](path);
+			}
+		});
 	}));
 }
