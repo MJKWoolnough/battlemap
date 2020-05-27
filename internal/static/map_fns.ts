@@ -130,5 +130,6 @@ setMapDetails = (root: SVGElement, definitions: Defs, details: GridDetails) => {
 	grid.width = details["square"];
 	grid.stroke = details["colour"];
 	grid.strokeWidth = details["stroke"];
+	return details;
 },
 setLightColour = (layerList: SVGFolder, c: Colour) => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
