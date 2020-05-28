@@ -287,8 +287,11 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 		selectedLayer = undefined;
 		maskSelected = false;
 		const list = new LayerRoot(layers, rpc, shell);
-		rpc.waitLayerSetVisible().then(id => {
-
+		rpc.waitLayerSetVisible().then(path => {
+			const l = list.getLayer(path);
+			if (l) {
+				l.node.classList.remove("layerHidden");
+			}
 		});
 		rpc.waitLayerSetInvisible().then(id => {
 
