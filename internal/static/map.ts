@@ -133,10 +133,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
 		      waitFolderRemoved = subFn<string>(),
-		      waitLayerSetVisible = subFn<Int>(),
-		      waitLayerSetInvisible = subFn<Int>(),
-		      waitLayerAddMask = subFn<Int>(),
-		      waitLayerRemoveMask = subFn<Int>(),
+		      waitLayerSetVisible = subFn<string>(),
+		      waitLayerSetInvisible = subFn<string>(),
+		      waitLayerAddMask = subFn<string>(),
+		      waitLayerRemoveMask = subFn<string>(),
 		      unselectToken = () => {
 			selectedToken = null;
 			outline.style.setProperty("display", "none");
