@@ -135,8 +135,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitFolderRemoved = subFn<string>(),
 		      waitLayerSetVisible = subFn<string>(),
 		      waitLayerSetInvisible = subFn<string>(),
-		      waitLayerAddMask = subFn<string>(),
-		      waitLayerRemoveMask = subFn<string>(),
 		      unselectToken = () => {
 			selectedToken = null;
 			outline.style.setProperty("display", "none");
@@ -392,8 +390,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitFolderRemoved": () => waitFolderRemoved[1],
 			"waitLayerSetVisible": () => waitLayerSetVisible[1],
 			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
-			"waitLayerAddMask": () => waitLayerAddMask[1],
-			"waitLayerRemoveMask": () => waitLayerRemoveMask[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
