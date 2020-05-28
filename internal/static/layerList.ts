@@ -111,11 +111,6 @@ class ItemLayer extends Item {
 			this.node.removeChild(this.node.lastChild!);
 		} else {
 			this.node.removeChild(this.node.lastChild!.previousSibling!);
-			this.node.insertBefore(span({"class": "layerMask", "onclick": () => {
-				this.show();
-				this.node.classList.add("selectedMask");
-				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
-			}}), this.node.firstChild!.nextSibling);
 			if (selectedLayer === undefined) {
 				this.show();
 			}
