@@ -263,6 +263,22 @@ class FolderLayer extends Folder {
 	}
 }
 
+class LayerRoot extends Root {
+	constructor(layers: FolderItems, rpc: LayerRPC, shell: ShellElement) {
+		super(layers, "Layer", rpc, shell, ItemLayer, FolderLayer);
+	}
+	getLayer(path: string) {
+		const [folder, sub] = this.resolvePath(path);
+		if (!folder) {
+			return null;
+		}
+		if (!sub) {
+			return folder;
+		}
+		return folder.children.filter(c => c.name === sub).pop();
+	}
+}
+
 export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
@@ -270,7 +286,7 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 	mapChange(rpc => rpc.list().then(layers => {
 		selectedLayer = undefined;
 		maskSelected = false;
-		const list = new Root(layers, "Layer", rpc, shell, ItemLayer, FolderLayer);
+		const list = new LayerRoot(layers, rpc, shell);
 		rpc.waitLayerSetVisible().then(id => {
 
 		});
