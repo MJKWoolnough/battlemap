@@ -22,10 +22,10 @@ export type FolderRPC = {
 }
 
 export type LayerRPC = FolderRPC & {
-	waitLayerSetVisible:   () => Subscription<Int>;
-	waitLayerSetInvisible: () => Subscription<Int>;
-	waitLayerAddMask:      () => Subscription<Int>;
-	waitLayerRemoveMask:   () => Subscription<Int>;
+	waitLayerSetVisible:   () => Subscription<string>;
+	waitLayerSetInvisible: () => Subscription<string>;
+	waitLayerAddMask:      () => Subscription<string>;
+	waitLayerRemoveMask:   () => Subscription<string>;
 
 	newLayer:         (path: string) => Promise<string>;
 	setVisibility:    (path: string, visible: boolean) => Promise<void>;
