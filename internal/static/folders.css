@@ -32,7 +32,7 @@ summary::-webkit-details-marker {
 	grid-template-columns: auto 1em 1em 1em;
 }
 
-.addFolder, .renameFolder, .removeFolder, .itemRename, .itemLink, .itemRemove, .layerMask {
+.addFolder, .renameFolder, .removeFolder, .itemRename, .itemLink, .itemRemove {
 	user-select: none;
 	background-size: 1em;
 	background-position: bottom center;

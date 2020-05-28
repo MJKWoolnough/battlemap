@@ -81,6 +81,6 @@
 	height: 200px;
 }
 
-.layerMask {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEwAAAA+AQMAAAC7s2+iAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAMVJREFUeAGtzAFmA0EUBuBvLRsIAxCEXGEBQZmrzBH2Bt2jvaPMEQIoKtM8EC2hqmPwee/9vwpAvQE1rCOgfD5YRucyIjR1PN5N03KUiyT4FQNg/RfWnTvJ0c1jT06xOUzxg54Hz1gDaH/lChAveAVM4QTJ3ZOOgNkLLoDlG2fAMcm4JbOvjMEJoSphTdroSU1SwyoPBK4ZMyXPWWbecQQzLGBBrnBGBnAFHTawQQdnGQAFBZiDN2D6yA/U/RKAw7gDeO/wBcJoWz+VWQM1AAAAAElFTkSuQmCC);
+#layerList .foldersItem {
+	grid-template-columns: auto 1em 1em;
 }
