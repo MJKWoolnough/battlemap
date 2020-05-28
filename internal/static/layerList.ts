@@ -6,7 +6,7 @@ import {showError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.j
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 
-let selectedLayer: ItemLayer | undefined, maskSelected = false, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
+let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
@@ -27,7 +27,7 @@ const dragFn = (e: MouseEvent) => {
 	document.body.removeEventListener("mousemove", dragFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
-      isLayer = (c: Layer | LayerFolder): c is Layer => (c as Layer).mask !== undefined,
+      isLayer = (c: Layer | LayerFolder): c is Layer => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
@@ -100,12 +100,10 @@ function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
 
 class ItemLayer extends Item {
 	hidden: boolean;
-	mask: string;
 	nameElem: HTMLSpanElement;
-	constructor(parent: Folder, id: Int, name: string, hidden = false, mask = "") {
+	constructor(parent: Folder, id: Int, name: string, hidden = false) {
 		super(parent, id, name);
 		this.hidden = hidden;
-		this.mask = mask;
 		this.nameElem = this.node.firstChild as HTMLSpanElement;
 		if (id < 0) {
 			this.node.removeChild(this.node.lastChild!);
@@ -116,7 +114,6 @@ class ItemLayer extends Item {
 			this.node.insertBefore(span({"class": "layerMask", "onclick": () => {
 				this.show();
 				this.node.classList.add("selectedMask");
-				maskSelected = true;
 				(parent.root.rpcFuncs as LayerRPC).setLayerMask(this.getPath());
 			}}), this.node.firstChild!.nextSibling);
 			if (selectedLayer === undefined) {
@@ -202,13 +199,9 @@ class ItemLayer extends Item {
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
-				if (maskSelected) {
-					selectedLayer.node.classList.remove("selectedMask");
-				}
 			}
 			this.node.classList.add("selectedLayer");
 			selectedLayer = this;
-			maskSelected = false;
 			rpcFuncs.setLayer(this.getPath());
 		}
 	}
@@ -236,7 +229,7 @@ class FolderLayer extends Folder {
 		}
 		this.id = lf.id;
 		if (lf.children) {
-			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.mask) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
+			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
@@ -285,7 +278,6 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 	sh = shell;
 	mapChange(rpc => rpc.list().then(layers => {
 		selectedLayer = undefined;
-		maskSelected = false;
 		const list = new LayerRoot(layers, rpc, shell);
 		rpc.waitLayerSetVisible().then(path => {
 			const l = list.getLayer(path);
@@ -298,12 +290,6 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 			if (l) {
 				l.node.classList.remove("layerHidden");
 			}
-		});
-		rpc.waitLayerAddMask().then(id => {
-
-		});
-		rpc.waitLayerRemoveMask().then(id => {
-
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
