@@ -44,7 +44,7 @@ export type RPC = {
 	waitMapChange:         () => Subscription<MapDetails>; //check type
 	waitLayerAdd:          () => Subscription<string>;
 	waitLayerFolderAdd:    () => Subscription<string>;
-	waitLayerMove:         () => Subscription<FromTo>;     //check type
+	waitLayerMove:         () => Subscription<LayerMove>;
 	waitLayerRename:       () => Subscription<FromTo>;     //check type
 	waitLayerRemove:       () => Subscription<string>;
 	waitMapLightChange:    () => Subscription<Colour>;     //check type
@@ -190,6 +190,10 @@ export type LayerFolder = FolderItems & {
 	name: string;
 	hidden: boolean;
 	children: (Layer | LayerFolder)[];
+}
+
+export type LayerMove = FromTo & {
+	position: Int;
 }
 
 type TokenPos = {
