@@ -1,4 +1,5 @@
 import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
+import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -283,6 +284,7 @@ export class Root {
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	node: HTMLElement;
+	cancel: () => void;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, shell: ShellElement, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
@@ -294,13 +296,15 @@ export class Root {
 			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
 			this.folder.node.firstChild!.lastChild!
 		]);
-		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
-		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
-		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
-		rpcFuncs.waitLinked().then(({id, name}) => this.addItem(id, name));
-		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
-		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
-		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
+		this.cancel = Subscription.canceller(
+			rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name))),
+			rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to)),
+			rpcFuncs.waitRemoved().then(item => this.removeItem(item)),
+			rpcFuncs.waitLinked().then(({id, name}) => this.addItem(id, name)),
+			rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder)),
+			rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to)),
+			rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder)),
+		);
 	}
 	get root() {
 		return this;
