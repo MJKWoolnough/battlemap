@@ -290,6 +290,13 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 				if (l) {
 					l.node.classList.remove("layerHidden");
 				}
+			}),
+			rpc.waitLayerPositionChange().then(ml => {
+				const l = list.getLayer(ml.to);
+				if (l) {
+					l.parent!.children.splice(l.parent!.children.indexOf(l), 1);
+					l.parent!.children.splice(ml.position, 0, l);
+				}
 			})
 		);
 		createHTML(clearElement(base), {"id": "layerList"}, [
