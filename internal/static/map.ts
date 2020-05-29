@@ -11,9 +11,11 @@ import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+	let canceller = () => {};
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
+		canceller();
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, root, panZoom, outline, definitions, layerList] = passed,
+		const [base, cancel, root, panZoom, outline, definitions, layerList] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -436,25 +438,28 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(layerList, c)),
 		});
 		oldBase = base;
-		rpc.waitTokenChange().then(st => {
-			if (st.path === selectedLayerPath && selectedLayer!.tokens.findIndex(e => e === selectedToken) === st.pos) {
-				tokenMouseUp();
-			}
-		});
-		rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}]));
-		rpc.waitLayerHide().then(checkLayer);
-		rpc.waitLayerRemove().then(path => {
-			checkLayer(path);
-			const layer = getLayer(layerList, path);
-			if (!layer) {
-				// error
-				return;
-			}
-			if (isSVGFolder(layer)) {
-				waitFolderRemoved[0](path);
-			} else {
-				waitRemoved[0](path);
-			}
-		});
+		canceller = Subscription.canceller(
+			{cancel},
+			rpc.waitTokenChange().then(st => {
+				if (st.path === selectedLayerPath && selectedLayer!.tokens.findIndex(e => e === selectedToken) === st.pos) {
+					tokenMouseUp();
+				}
+			}),
+			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
+			rpc.waitLayerHide().then(checkLayer),
+			rpc.waitLayerRemove().then(path => {
+				checkLayer(path);
+				const layer = getLayer(layerList, path);
+				if (!layer) {
+					// error
+					return;
+				}
+				if (isSVGFolder(layer)) {
+					waitFolderRemoved[0](path);
+				} else {
+					waitRemoved[0](path);
+				}
+			})
+		);
 	}));
 }
