@@ -135,7 +135,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
 		      waitFolderRemoved = subFn<string>(),
-		      waitPositionChange = subFn<LayerMove>(),
+		      waitLayerPositionChange = subFn<LayerMove>(),
 		      waitLayerSetVisible = subFn<string>(),
 		      waitLayerSetInvisible = subFn<string>(),
 		      unselectToken = () => {
@@ -393,6 +393,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitFolderRemoved": () => waitFolderRemoved[1],
 			"waitLayerSetVisible": () => waitLayerSetVisible[1],
 			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
+			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
@@ -459,7 +460,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				} else {
 					waitMoved[0](ml);
 				}
-				// ml.position
+				waitLayerPositionChange[0](ml);
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
