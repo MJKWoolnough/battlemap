@@ -1,4 +1,5 @@
 import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
+import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {noSort} from './lib/ordered.js';
@@ -271,21 +272,26 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
 	sh = shell;
+	let canceller = () => {};
 	mapChange(rpc => rpc.list().then(layers => {
+		canceller();
 		selectedLayer = undefined;
 		const list = new LayerRoot(layers, rpc, shell);
-		rpc.waitLayerSetVisible().then(path => {
-			const l = list.getLayer(path);
-			if (l) {
-				l.node.classList.remove("layerHidden");
-			}
-		});
-		rpc.waitLayerSetInvisible().then(path => {
-			const l = list.getLayer(path);
-			if (l) {
-				l.node.classList.remove("layerHidden");
-			}
-		});
+		canceller = Subscription.canceller(
+			list,
+			rpc.waitLayerSetVisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l.node.classList.remove("layerHidden");
+				}
+			}),
+			rpc.waitLayerSetInvisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l.node.classList.remove("layerHidden");
+				}
+			})
+		);
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
 				const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
