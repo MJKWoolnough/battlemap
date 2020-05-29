@@ -1,4 +1,5 @@
 import {Int, RPC} from './types.js';
+import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
@@ -86,56 +87,58 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			}
 		}
 		oldBase.replaceWith(base);
-		rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c);
-		rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true));
-		rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false));
-		rpc.waitTokenAdd().then(tk => {
-			const layer = getLayer(layerList, tk.path);
-			if (!layer || !isSVGLayer(layer)) {
-				// error
-				return;
-			}
-			layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
-		});
-		rpc.waitTokenRemove().then(tk => {
-			const layer = getLayer(layerList, tk.path);
-			if (!layer || !isSVGLayer(layer)) {
-				// error
-				return;
-			}
-			layer.tokens.splice(tk.pos, 1);
-		});
-		rpc.waitTokenChange().then(st => {
-			const [, token] = getParentToken(layerList, st.path, st.pos);
-			if (token instanceof SVGToken) {
-				token.transform.x = st.x;
-				token.transform.y = st.y;
-				token.transform.width = st.width;
-				token.transform.height = st.height;
-				token.transform.rotation = st.rotation;
-				token.node.setAttribute("width", st.width + "px");
-				token.node.setAttribute("height", st.height + "px");
-				token.node.setAttribute("transform", token.transform.toString());
-			}
-		});
-		rpc.waitTokenFlip().then(tf => {
-			const [, token] = getParentToken(layerList, tf.path, tf.pos);
-			if (token instanceof SVGToken) {
-				token.transform.flip = tf.flip;
-				token.node.setAttribute("transform", token.transform.toString());
-			}
-		});
-		rpc.waitTokenFlop().then(tf => {
-			const [, token] = getParentToken(layerList, tf.path, tf.pos);
-			if (token instanceof SVGToken) {
-				token.transform.flop = tf.flop;
-				token.node.setAttribute("transform", token.transform.toString());
-			}
-		});
-		rpc.waitTokenSetImage().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, true));
-		rpc.waitTokenSetPattern().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, false));
 		return [
 			base,
+			Subscription.canceller(
+				rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c),
+				rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true)),
+				rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false)),
+				rpc.waitTokenAdd().then(tk => {
+					const layer = getLayer(layerList, tk.path);
+					if (!layer || !isSVGLayer(layer)) {
+						// error
+						return;
+					}
+					layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
+				}),
+				rpc.waitTokenRemove().then(tk => {
+					const layer = getLayer(layerList, tk.path);
+					if (!layer || !isSVGLayer(layer)) {
+						// error
+						return;
+					}
+					layer.tokens.splice(tk.pos, 1);
+				}),
+				rpc.waitTokenChange().then(st => {
+					const [, token] = getParentToken(layerList, st.path, st.pos);
+					if (token instanceof SVGToken) {
+						token.transform.x = st.x;
+						token.transform.y = st.y;
+						token.transform.width = st.width;
+						token.transform.height = st.height;
+						token.transform.rotation = st.rotation;
+						token.node.setAttribute("width", st.width + "px");
+						token.node.setAttribute("height", st.height + "px");
+						token.node.setAttribute("transform", token.transform.toString());
+					}
+				}),
+				rpc.waitTokenFlip().then(tf => {
+					const [, token] = getParentToken(layerList, tf.path, tf.pos);
+					if (token instanceof SVGToken) {
+						token.transform.flip = tf.flip;
+						token.node.setAttribute("transform", token.transform.toString());
+					}
+				}),
+				rpc.waitTokenFlop().then(tf => {
+					const [, token] = getParentToken(layerList, tf.path, tf.pos);
+					if (token instanceof SVGToken) {
+						token.transform.flop = tf.flop;
+						token.node.setAttribute("transform", token.transform.toString());
+					}
+				}),
+				rpc.waitTokenSetImage().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, true)),
+				rpc.waitTokenSetPattern().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, false))
+			),
 			root,
 			panZoom,
 			outline,
@@ -143,6 +146,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			layerList
 		] as [
 			HTMLDivElement,
+			() => void,
 			SVGSVGElement,
 			{ x: Int; y: Int; zoom: Int},
 			SVGGElement,
@@ -153,5 +157,10 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 }
 
 export default function(rpc: RPC, base: HTMLElement) {
-	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID).then(([newBase]) => base = newBase));
+	let canceller = () => {}
+	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID).then(([newBase, cancel]) => {
+		canceller();
+		base = newBase;
+		canceller = cancel;
+	}));
 }
