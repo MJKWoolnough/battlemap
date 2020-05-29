@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, RPC, GridDetails, LayerFolder, LayerRPC, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, RPC, GridDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
@@ -135,6 +135,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
 		      waitFolderRemoved = subFn<string>(),
+		      waitPositionChange = subFn<LayerMove>(),
 		      waitLayerSetVisible = subFn<string>(),
 		      waitLayerSetInvisible = subFn<string>(),
 		      unselectToken = () => {
@@ -447,6 +448,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
 			rpc.waitLayerHide().then(checkLayer),
+			rpc.waitLayerMove().then(ml => {
+				const layer = getLayer(layerList, ml.to);
+				if (!layer) {
+					// error
+					return;
+				}
+				if (isSVGFolder(layer)) {
+					waitFolderMoved[0](ml);
+				} else {
+					waitMoved[0](ml);
+				}
+				// ml.position
+			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
 				const layer = getLayer(layerList, path);
