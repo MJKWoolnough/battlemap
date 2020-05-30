@@ -394,6 +394,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitLayerSetVisible": () => waitLayerSetVisible[1],
 			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
+			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
 			"move": (from: string, to: string) => Promise.reject("invalid"),
