@@ -262,9 +262,9 @@ class LayerRoot extends Root {
 			return null;
 		}
 		if (!sub) {
-			return folder;
+			return folder as FolderLayer;
 		}
-		return folder.children.filter(c => c.name === sub).pop();
+		return folder.children.filter(c => c.name === sub).pop() as FolderLayer | ItemLayer;
 	}
 }
 
@@ -296,6 +296,13 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 				if (l && l.parent!.children.length -1 !== ml.position) {
 					l.parent!.children.pop();
 					l.parent!.children.splice(ml.position, 0, l);
+				}
+			}),
+			rpc.waitLayerRename().then(lr => {
+				const l = list.getLayer(lr.path);
+				if (l) {
+					l.name = lr.name;
+					l.nameElem.innerText = lr.name;
 				}
 			})
 		);
