@@ -4,9 +4,11 @@ bm="$(dirname "$0")";
 data="$bm/internal/static/";
 jslibHTML="$(realpath "$bm/../jslib/html.sh")";
 jslibSVG="$(realpath "$bm/../jslib/svg.sh")";
+jslibJS="$(realpath "$bm/../jslib/lib.js/")";
 
 (
 	cd "$data";
+	cp -f "$jslibJS/"*.js "lib/";
 	head -n4 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
 	jslib -i "$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | $jslibHTML "lib/" | $jslibSVG "lib/" | terser -cm | tr -d '\n'; # --mangle-props <- TODO:test this
