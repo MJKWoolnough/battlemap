@@ -101,6 +101,12 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					}
 					layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
 				}),
+				rpc.waitTokenSnap().then(ts => {
+					const [, token] = getParentToken(layerList, ts.path, ts.pos);
+					if (token instanceof SVGToken) {
+						token.snap = true;
+					}
+				}),
 				rpc.waitTokenRemove().then(tk => {
 					const layer = getLayer(layerList, tk.path);
 					if (!layer || !isSVGLayer(layer)) {
