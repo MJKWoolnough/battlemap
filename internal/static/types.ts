@@ -25,6 +25,7 @@ export type LayerRPC = FolderRPC & {
 	waitLayerSetVisible:     () => Subscription<string>;
 	waitLayerSetInvisible:   () => Subscription<string>;
 	waitLayerPositionChange: () => Subscription<LayerMove>;
+	waitLayerRename:         () => Subscription<LayerRename>;
 
 	newLayer:         (path: string) => Promise<string>;
 	setVisibility:    (path: string, visible: boolean) => Promise<void>;
@@ -46,7 +47,7 @@ export type RPC = {
 	waitLayerAdd:          () => Subscription<string>;
 	waitLayerFolderAdd:    () => Subscription<string>;
 	waitLayerMove:         () => Subscription<LayerMove>;
-	waitLayerRename:       () => Subscription<FromTo>;     //check type
+	waitLayerRename:       () => Subscription<LayerRename>;
 	waitLayerRemove:       () => Subscription<string>;
 	waitMapLightChange:    () => Subscription<Colour>;     //check type
 	waitMapInitiative:     () => Subscription<IDName[]>;   //check type
@@ -195,6 +196,11 @@ export type LayerFolder = FolderItems & {
 
 export type LayerMove = FromTo & {
 	position: Int;
+}
+
+type LayerRename = {
+	path: string;
+	name: string;
 }
 
 type TokenPos = {
