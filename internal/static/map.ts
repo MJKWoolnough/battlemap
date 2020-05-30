@@ -132,12 +132,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
 		      waitRemoved = subFn<string>(),
-		      waitFolderAdded = subFn<string>(),
 		      waitFolderMoved = subFn<FromTo>(),
 		      waitFolderRemoved = subFn<string>(),
 		      waitLayerPositionChange = subFn<LayerMove>(),
-		      waitLayerSetVisible = subFn<string>(),
-		      waitLayerSetInvisible = subFn<string>(),
 		      unselectToken = () => {
 			selectedToken = null;
 			outline.style.setProperty("display", "none");
@@ -392,8 +389,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitFolderAdded": rpc.waitLayerFolderAdd,
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
-			"waitLayerSetVisible": () => waitLayerSetVisible[1],
-			"waitLayerSetInvisible": () => waitLayerSetInvisible[1],
+			"waitLayerSetVisible": rpc.waitLayerShow,
+			"waitLayerSetInvisible": rpc.waitLayerHide,
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
