@@ -157,7 +157,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 				// select new layer???
 			}
-		      };
+		      },
+		      invalidRPC = () => Promise.reject("invalid");
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
@@ -397,12 +398,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
-			"move": (from: string, to: string) => Promise.reject("invalid"),
-			"moveFolder": (from: string, to: string) => Promise.reject("invalid"),
+			"move": invalidRPC,
+			"moveFolder": invalidRPC,
 			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => renameLayer(layerList, path, name)),
 			"remove": removeS,
 			"removeFolder": removeS,
-			"link": (id: Int, path: string) => Promise.reject("invalid"),
+			"link": invalidRPC,
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => addLayer(layerList, name)),
 			"setVisibility": (path: string, visibility: boolean) => {
 				setLayerVisibility(layerList, path, visibility);
