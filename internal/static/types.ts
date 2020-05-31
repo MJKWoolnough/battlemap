@@ -56,11 +56,10 @@ export type RPC = {
 	waitLayerMaskAdd:      () => Subscription<Int>;        //check type
 	waitLayerMaskChange:   () => Subscription<Int>;        //check type
 	waitLayerMaskRemove:   () => Subscription<Int>;        //check type
-	waitLayerTokenOrder:   () => Subscription<Int[]>;      //check type
 	waitTokenAdd:          () => Subscription<TokenAdd>;
 	waitTokenRemove:       () => Subscription<TokenPos>;
 	waitTokenMoveLayer:    () => Subscription<Int>;        //check type
-	waitTokenMovePos:      () => Subscription<Int>;        //check type
+	waitTokenMovePos:      () => Subscription<TokenMovePos>;
 	waitTokenSetToken:     () => Subscription<Int>;        //check type
 	waitTokenSetImage:     () => Subscription<TokenPos>;   //check type
 	waitTokenSetPattern:   () => Subscription<TokenPos>;   //check type
@@ -222,6 +221,10 @@ export type TokenChange = TokenPos & {
 	width: Int;
 	height: Int;
 	rotation: Int;
+}
+
+export type TokenMovePos = TokenPos & {
+	newPos: Int;
 }
 
 type TokenFlip = TokenPos & {
