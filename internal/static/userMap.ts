@@ -6,7 +6,7 @@ import {div} from './lib/html.js';
 import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
-import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails} from './map_fns.js';
+import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
@@ -95,6 +95,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 				rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true)),
 				rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false)),
 				rpc.waitLayerAdd().then(name => addLayer(layerList, name)),
+				rpc.waitLayerMove().then(lm => moveLayer(layerList, lm.from, lm.to, lm.position)),
 				rpc.waitLayerFolderAdd().then(path => addLayerFolder(layerList, path)),
 				rpc.waitTokenAdd().then(tk => {
 					const layer = getLayer(layerList, tk.path);
