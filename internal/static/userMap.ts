@@ -6,7 +6,7 @@ import {div} from './lib/html.js';
 import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
-import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer} from './map_fns.js';
+import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
@@ -91,7 +91,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			base,
 			Subscription.canceller(
 				rpc.waitMapChange().then(mc => setMapDetails(root, definitions, mc)),
-				rpc.waitMapLightChange().then(c => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c),
+				rpc.waitMapLightChange().then(c => setLightColour(layerList, c)),
 				rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true)),
 				rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false)),
 				rpc.waitLayerAdd().then(name => addLayer(layerList, name)),
