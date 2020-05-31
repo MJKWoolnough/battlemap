@@ -149,7 +149,13 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					}
 				}),
 				rpc.waitTokenSetImage().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, true)),
-				rpc.waitTokenSetPattern().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, false))
+				rpc.waitTokenSetPattern().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, false)),
+				rpc.waitTokenMovePos().then(to => {
+					const [layer, token] = getParentToken(layerList, to.path, to.pos);
+					if (layer && token) {
+						layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
+					}
+				})
 			),
 			root,
 			panZoom,
