@@ -503,7 +503,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			l.removeToken(tokenPos.Pos)
 			l.addToken(tk, tokenPos.NewPos)
-			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerTokenOrder, data)
 			return true
 		}); e != nil {
 			return nil, e
