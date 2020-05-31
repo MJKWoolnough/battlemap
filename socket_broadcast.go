@@ -62,7 +62,6 @@ const (
 	broadcastLayerMaskAdd
 	broadcastLayerMaskChange
 	broadcastLayerMaskRemove
-	broadcastLayerTokenOrder
 
 	broadcastTokenAdd
 	broadcastTokenRemove
