@@ -465,10 +465,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		})
 	case "setTokenLayer":
 		var tokenLayer struct {
-			From    string `json:"from"`
-			FromPos uint   `json:"fromPos"`
-			To      string `json:"to"`
-			ToPos   uint   `json:"toPos"`
+			From string `json:"from"`
+			To   string `json:"to"`
+			Pos  uint   `json:"pos"`
 		}
 		if err := json.Unmarshal(data, &tokenLayer); err != nil {
 			return nil, err
@@ -476,13 +475,13 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if len(tokenLayer.From) == 0 || len(tokenLayer.To) == 0 || tokenLayer.From == "/Grid" || tokenLayer.From == "/Light" || tokenLayer.To == "/Grid" || tokenLayer.To == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, tokenLayer.FromPos, func(mp *levelMap, l *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, tokenLayer.Pos, func(mp *levelMap, l *layer, tk *token) bool {
 			ml := getLayer(&mp.layer, tokenLayer.To)
 			if ml == nil {
 				return false
 			}
-			l.removeToken(tokenLayer.FromPos)
-			ml.addToken(tk, tokenLayer.ToPos)
+			l.removeToken(tokenLayer.Pos)
+			ml.addToken(tk, uint(len(ml.Tokens)))
 			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data)
 			return true
 		})
