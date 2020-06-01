@@ -102,7 +102,7 @@ export type RPC = {
 	setTokenPattern: (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenImage:   (path: string, pos: Int)                                                         => Promise<void>;
 	setTokenSource:  (path: string, pos: Int, source: string)                                         => Promise<void>;
-	setTokenLayer:   (from: string, fromPos: Int, to: string, toPos: Int)                             => Promise<void>;
+	setTokenLayer:   (from: string, pos: Int, to: string)                                             => Promise<void>;
 	setTokenPos:     (path: string, pos: Int, newPos: Int)                                            => Promise<void>;
 	setInitiative:   (initiative: Int[])                                                              => Promise<void>;
 
@@ -228,8 +228,7 @@ export type TokenMovePos = TokenPos & {
 }
 
 export type TokenMoveLayer = FromTo & {
-	newPos: Int;
-	oldPos: Int;
+	pos: Int;
 }
 
 type TokenFlip = TokenPos & {
