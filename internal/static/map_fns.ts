@@ -6,6 +6,16 @@ import {Defs, SVGLayer, SVGFolder, SVGGrid, SVGImage, SVGToken, SVGShape} from '
 
 let layerNum = 0;
 
+const splitAfterLastSlash = (path: string) => {
+	const pos = path.lastIndexOf("/")
+	return [path.slice(0, pos), path.slice(pos+1)];
+      },
+      idNames: Record<string, Int> = {
+	"": 0,
+	"Grid": -1,
+	"Light": -2,
+      };
+
 export const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
@@ -13,10 +23,6 @@ export const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 },
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
-splitAfterLastSlash = (path: string) => {
-	const pos = path.lastIndexOf("/")
-	return [path.slice(0, pos), path.slice(pos+1)];
-},
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
@@ -43,11 +49,6 @@ getParentToken = (root: SVGFolder, path: string, pos: Int): [SVGLayer | null, SV
 	}
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
 },
-idNames: Record<string, Int> = {
-	"": 0,
-	"Grid": -1,
-	"Light": -2,
-},
 processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 	const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
 	      hidden = node.getAttribute("visibility") === "hidden",
@@ -69,7 +70,6 @@ processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 		tokens: SortNode.from<SVGToken | SVGShape, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : c instanceof SVGRectElement || c instanceof SVGCircleElement ? new SVGShape(c) : undefined)
 	};
 },
-noop = <T>(e: T) => e,
 setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
 	const layer = getLayer(layerList, path)!;
 	if (visibility) {
