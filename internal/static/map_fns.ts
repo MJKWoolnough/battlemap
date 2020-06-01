@@ -3,7 +3,6 @@ import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {g, image, pattern, rect} from './lib/svg.js';
 import {Defs, SVGLayer, SVGFolder, SVGGrid, SVGImage, SVGToken, SVGShape} from './map_types.js';
-import {item, menu, List} from './lib/context.js';
 
 let layerNum = 0;
 
@@ -70,27 +69,7 @@ processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
 		tokens: SortNode.from<SVGToken | SVGShape, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : c instanceof SVGRectElement || c instanceof SVGCircleElement ? new SVGShape(c) : undefined)
 	};
 },
-walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
-	mDx *= dX;
-	mDy *= dY;
-	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
-		mDy = mDx * height / width;
-	} else {
-		mDx = mDy * width / height;
-	}
-	if (dX !== 0 && width + mDx < min) {
-		mDx = min - width;
-		mDy = min * height / width - height;
-	}
-	if (dY !== 0 && height + mDy < min) {
-		mDx = min * width / height - width;
-		mDy = min - height;
-	}
-	return [mDx * dX, mDy * dY];
-},
 noop = <T>(e: T) => e,
-makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
 setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
 	const layer = getLayer(layerList, path)!;
 	if (visibility) {
