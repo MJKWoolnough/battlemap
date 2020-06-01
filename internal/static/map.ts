@@ -6,9 +6,30 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
-import {addLayer, addLayerFolder, ratio, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, walkFolders, splitAfterLastSlash, makeLayerContext, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_fns.js';
+import {addLayer, addLayerFolder, processLayers, subFn, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
+
+const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
+      ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
+	mDx *= dX;
+	mDy *= dY;
+	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
+		mDy = mDx * height / width;
+	} else {
+		mDx = mDy * width / height;
+	}
+	if (dX !== 0 && width + mDx < min) {
+		mDx = min - width;
+		mDy = min * height / width - height;
+	}
+	if (dY !== 0 && height + mDy < min) {
+		mDx = min * width / height - width;
+		mDy = min - height;
+	}
+	return [mDx * dX, mDy * dY];
+      },
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
