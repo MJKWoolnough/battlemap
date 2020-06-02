@@ -17,7 +17,11 @@ export default function (rpc: RPC, shell: ShellElement, base: Node) {
 	rpcFuncs.list().then(folderList => {
 		const root = new Root(folderList, "Characters", rpcFuncs, shell, Character);
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
-			button(`New Character`, {"onclick": () => {}}),
+			button(`New Character`, {"onclick": () => shell.prompt("New Character", "Please enter the character name: ").then(name => {
+				if (name) {
+					rpc.characterCreate(name).then(({id, name}) => root.addItem(id, name));
+				}
+			})}),
 			root.node
 		]);
 	});
