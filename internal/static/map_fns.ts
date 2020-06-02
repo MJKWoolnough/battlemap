@@ -16,12 +16,7 @@ const splitAfterLastSlash = (path: string) => {
 	"Light": -2,
       };
 
-export const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
-	let fn: (data: T) => void;
-	const sub = new Subscription<T>(resolver => fn = resolver);
-	return [fn!, sub];
-},
-isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
+export const isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
