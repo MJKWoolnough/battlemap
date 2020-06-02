@@ -29,7 +29,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error retrieving keystore location: %w", err)
 	}
 	sp := filepath.Join(b.config.BaseDir, string(location))
-	fileStore, err := keystore.NewFileStore(sp, sp, keystore.Base64Mangler)
+	fileStore, err := keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
