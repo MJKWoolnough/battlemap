@@ -106,7 +106,7 @@ export type RPC = {
 	setTokenPos:     (path: string, pos: Int, newPos: Int)                                            => Promise<void>;
 	setInitiative:   (initiative: Int[])                                                              => Promise<void>;
 
-	characterCreate: ()                                      => Promise<Int>;
+	characterCreate: (name: string)                          => Promise<IDName>;
 	characterSet:    (id: Int, data: Record<string, string>) => Promise<void>;
 	characterGet:    (id: Int, keys: string[])               => Promise<Record<string, string>>;
 	characterRemove: (id: Int, keys: string[])               => Promise<void>;
