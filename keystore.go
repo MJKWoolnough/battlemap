@@ -65,6 +65,7 @@ func (k *keystoreDir) create(cd ConnData, data []byte) (idName, error) {
 	k.lastID++
 	kid := k.lastID
 	name = addItemTo(k.root.Items, name, kid)
+	k.saveFolders()
 	k.mu.Unlock()
 	strID := strconv.FormatUint(kid, 10)
 	k.data.Set(strID, m)
