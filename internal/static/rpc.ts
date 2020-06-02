@@ -137,6 +137,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}),
 			"setInitiative":    initiative                                => rpc.request("maps.setInitiative", initiative),
 
+			"characterCreate": (name: string) => rpc.request("characters.create", name),
+
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
 			"loginRequirements": ()                         => rpc.request("auth.requirements"),
 			"login":              data                      => rpc.request("auth.login", data),
