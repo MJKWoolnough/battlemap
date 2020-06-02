@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type keystoreDir struct {
@@ -55,10 +56,10 @@ func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interfac
 	}
 }
 
-func (k *keystoreDir) create(cd ConnData, data []byte) (idName, error) {
+func (k *keystoreDir) create(cd ConnData, data []byte) (json.RawMessage, error) {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
-		return idName{}, err
+		return nil, err
 	}
 	m := keystore.NewMemStore()
 	k.mu.Lock()
@@ -70,11 +71,10 @@ func (k *keystoreDir) create(cd ConnData, data []byte) (idName, error) {
 	strID := strconv.FormatUint(kid, 10)
 	k.data.Set(strID, m)
 	k.Set(strconv.FormatUint(kid, 10), m)
-	// TODO: broadcast
-	return idName{
-		ID:   kid,
-		Name: name,
-	}, nil
+	var buf memio.Buffer
+	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", kid, name)
+	k.socket.broadcastAdminChange(broadcastCharacterItemAdd, json.RawMessage(buf), cd.ID)
+	return json.RawMessage(buf[1 : len(buf)-1]), nil
 }
 
 func (k *keystoreDir) set(cd ConnData, data []byte) error {
