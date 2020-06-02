@@ -1,0 +1,9 @@
+#characters ul {
+	margin: 0;
+	padding-left: calc(1em + 4px);
+	list-style: none;
+}
+
+#characters > div > ul {
+	padding-left: 0;
+}
