@@ -133,11 +133,11 @@ func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
 				return c.maps.RPCData(cd, submethod, data)
 			}
 		case "characters":
-			if cd.IsAdmin() {
+			if cd.IsAdmin() || submethod == "get" {
 				return c.chars.RPCData(cd, submethod, data)
 			}
 		case "tokens":
-			if cd.IsAdmin() {
+			if cd.IsAdmin() || submethod == "get" {
 				return c.tokens.RPCData(cd, submethod, data)
 			}
 		}
