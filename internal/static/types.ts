@@ -206,7 +206,7 @@ type TokenPos = {
 	pos: Int;
 }
 
-export type TokenAdd = TokenPos & {
+type TokenAdd = TokenPos & {
 	source: string;
 	x: Int;
 	y: Int;
@@ -214,7 +214,7 @@ export type TokenAdd = TokenPos & {
 	height: Int;
 }
 
-export type TokenChange = TokenPos & {
+type TokenChange = TokenPos & {
 	x: Int;
 	y: Int;
 	width: Int;
@@ -222,11 +222,11 @@ export type TokenChange = TokenPos & {
 	rotation: Int;
 }
 
-export type TokenMovePos = TokenPos & {
+type TokenMovePos = TokenPos & {
 	newPos: Int;
 }
 
-export type TokenMoveLayer = FromTo & {
+type TokenMoveLayer = FromTo & {
 	pos: Int;
 }
 
