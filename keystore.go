@@ -72,7 +72,7 @@ func (k *keystoreDir) create(cd ConnData, data []byte) (json.RawMessage, error) 
 	k.Set(strconv.FormatUint(kid, 10), m)
 	var buf memio.Buffer
 	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", kid, name)
-	k.socket.broadcastAdminChange(broadcastCharacterItemAdd, json.RawMessage(buf), cd.ID)
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), json.RawMessage(buf), cd.ID)
 	return json.RawMessage(buf[1 : len(buf)-1]), nil
 }
 
