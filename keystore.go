@@ -47,10 +47,8 @@ func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interfac
 		return nil, k.set(cd, data)
 	case "get":
 		return k.get(cd, data)
-	case "remove":
-		return nil, k.remove(cd, data)
-	case "delete":
-		return nil, k.delete(cd, data)
+	case "removeKeys":
+		return nil, k.removeKeys(cd, data)
 	default:
 		return k.folders.RPCData(cd, method, data)
 	}
@@ -125,7 +123,7 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (map[string]string, error) {
 	return kvs, nil
 }
 
-func (k *keystoreDir) remove(cd ConnData, data []byte) error {
+func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
 	var m struct {
 		ID   uint64   `json:"id"`
 		Keys []string `json:"keys"`
@@ -142,15 +140,6 @@ func (k *keystoreDir) remove(cd ConnData, data []byte) error {
 	ms.RemoveAll(m.Keys...)
 	// TODO: broadcast
 	return k.data.Set(strID, &ms)
-}
-
-func (k *keystoreDir) delete(cd ConnData, data []byte) error {
-	var id uint64
-	if err := json.Unmarshal(data, &id); err != nil {
-		return err
-	}
-	// TODO: broadcast
-	return k.data.Remove(strconv.FormatUint(id, 10))
 }
 
 type userKeystoreDir struct {
