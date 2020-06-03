@@ -15,8 +15,8 @@ import (
 
 type keystoreDir struct {
 	folders
-	Name   string
-	Socket uint8
+	Name    string
+	DirType uint8
 
 	mu     sync.RWMutex
 	nextID uint64
@@ -150,6 +150,19 @@ func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
 	ms.RemoveAll(m.Keys...)
 	// TODO: broadcast
 	return k.data.Set(strID, &ms)
+}
+
+const (
+	keystoreCharacter uint8 = iota
+	keystoreToken
+)
+
+func (k *keystoreDir) getBroadcastID(base int) int {
+	switch k.DirType {
+	case keystoreToken:
+		return base - 1
+	}
+	return base
 }
 
 // Errors
