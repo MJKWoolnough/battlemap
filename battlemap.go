@@ -50,6 +50,8 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	}
 	b.chars.Name = "Chars"
 	b.tokens.Name = "Tokens"
+	b.chars.DirType = keystoreCharacter
+	b.tokens.DirType = keystoreToken
 	b.images.fileType = fileTypeImage
 	b.sounds.fileType = fileTypeAudio
 	if a == nil {
