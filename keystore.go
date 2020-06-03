@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"sync"
 
 	"vimagination.zapto.org/keystore"
@@ -90,6 +91,9 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 		return keystore.ErrUnknownKey
 	}
 	for key, val := range m.Data {
+		if !strings.HasPrefix(val, "1") && !strings.HasPrefix(val, "0") {
+			val = "1" + val
+		}
 		ms.Set(key, keystore.String(val))
 	}
 	// TODO: broadcast
@@ -117,7 +121,13 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (map[string]string, error) {
 	for _, key := range m.Keys {
 		var d keystore.String
 		if err := ms.Get(key, &d); err == nil {
-			kvs[key] = string(d)
+			if cd.IsAdmin() {
+				kvs[key] = string(d)
+			} else {
+				if strings.HasPrefix(string(d), "0") {
+					kvs[key] = string(d[1:])
+				}
+			}
 		}
 	}
 	return kvs, nil
@@ -140,10 +150,6 @@ func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
 	ms.RemoveAll(m.Keys...)
 	// TODO: broadcast
 	return k.data.Set(strID, &ms)
-}
-
-type userKeystoreDir struct {
-	keystoreDir
 }
 
 // Errors
