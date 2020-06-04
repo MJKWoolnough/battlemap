@@ -100,7 +100,7 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 	return k.data.Set(strID, &ms)
 }
 
-func (k *keystoreDir) get(cd ConnData, data []byte) (map[string]string, error) {
+func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 	var m struct {
 		ID   uint64   `json:"id"`
 		Keys []string `json:"keys"`
@@ -117,20 +117,22 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (map[string]string, error) {
 	if m.Keys == nil {
 		m.Keys = ms.Keys()
 	}
-	kvs := make(map[string]string, len(m.Keys))
+	var buf memio.Buffer
 	for _, key := range m.Keys {
 		var d keystore.String
 		if err := ms.Get(key, &d); err == nil {
 			if cd.IsAdmin() {
-				kvs[key] = string(d)
+				fmt.Fprintf(&buf, ",%q:%q", key, d)
 			} else {
 				if strings.HasPrefix(string(d), "0") {
-					kvs[key] = string(d[1:])
+					fmt.Fprintf(&buf, ",%q:%q", key, d[1:])
 				}
 			}
 		}
 	}
-	return kvs, nil
+	buf.WriteByte('}')
+	buf[0] = '{'
+	return json.RawMessage(buf), nil
 }
 
 func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
