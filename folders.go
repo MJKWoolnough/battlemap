@@ -214,6 +214,7 @@ func (f *root) createFoldersIfNotExist(path string) *folder {
 			d = e
 		}
 	}
+	return d
 }
 
 func splitAfterLastSlash(p string) (string, string) {
