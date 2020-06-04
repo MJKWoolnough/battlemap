@@ -127,8 +127,7 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 	if len(keys) > 0 {
 		f.Set(folderMetadata, f.root)
 	}
-	json.NewEncoder(&f.json).Encode(f.root)
-	return nil
+	return f.encodeJSON()
 }
 
 func addItemTo(items map[string]uint64, name string, id uint64) string {
@@ -253,7 +252,15 @@ func (f *folders) exists(p string) bool {
 func (f *folders) saveFolders() {
 	f.Set(folderMetadata, f.root)
 	f.json = memio.Buffer{}
-	json.NewEncoder(&f.json).Encode(f.root)
+	f.encodeJSON()
+}
+
+func (f *folders) encodeJSON() error {
+	h := f.root.Folders[""]
+	delete(f.root.Folders, "")
+	err := json.NewEncoder(&f.json).Encode(f.root.folder)
+	f.root.Folders[""] = h
+	return err
 }
 
 func walkFolders(f *folder, fn func(map[string]uint64) bool) bool {
