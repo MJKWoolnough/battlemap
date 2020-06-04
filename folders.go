@@ -203,6 +203,19 @@ func (f *root) getFolder(path string) *folder {
 	return d
 }
 
+func (f *root) createFoldersIfNotExist(path string) *folder {
+	d := f.folder
+	for _, p := range strings.Split(path, "/") {
+		if e, ok := d.Folders[p]; ok {
+			d = e
+		} else {
+			e = newFolder()
+			d.Folders[p] = e
+			d = e
+		}
+	}
+}
+
 func splitAfterLastSlash(p string) (string, string) {
 	lastSlash := strings.LastIndexByte(p, '/')
 	if lastSlash >= 0 {
