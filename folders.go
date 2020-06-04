@@ -77,7 +77,8 @@ type folders struct {
 
 	mu     sync.RWMutex
 	lastID uint64
-	root   *folder
+	root
+	hidden root
 	links  map[uint64]uint64
 	json   memio.Buffer
 }
@@ -85,12 +86,12 @@ type folders struct {
 func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 	f.Battlemap = b
 	f.FileStore = store
-	f.root = newFolder()
+	f.root.folder = newFolder()
 	if err := f.Get(folderMetadata, f.root); err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	f.links = make(map[uint64]uint64)
-	f.processFolder(f.root)
+	f.processFolder(f.root.folder)
 	keys := f.Keys()
 	var gft getFileType
 	for _, k := range keys {
@@ -116,6 +117,12 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 			addItemTo(f.root.Items, k, f.lastID)
 			f.links[f.lastID] = 1
 		}
+	}
+	if h, ok := f.root.Folders[""]; ok {
+		f.hidden.folder = h
+	} else {
+		f.hidden.folder = newFolder()
+		f.root.Folders[""] = f.hidden.folder
 	}
 	if len(keys) > 0 {
 		f.Set(folderMetadata, f.root)
@@ -178,8 +185,12 @@ func (f *folders) processFolder(fd *folder) {
 	}
 }
 
-func (f *folders) getFolder(path string) *folder {
-	d := f.root
+type root struct {
+	*folder
+}
+
+func (f *root) getFolder(path string) *folder {
+	d := f.folder
 	for _, p := range strings.Split(path, "/") {
 		if p == "" {
 			continue
@@ -201,7 +212,7 @@ func splitAfterLastSlash(p string) (string, string) {
 	return "", p
 }
 
-func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *folder) {
+func (f *root) getParentFolder(p string) (parent *folder, name string, fd *folder) {
 	parentStr, name := splitAfterLastSlash(path.Clean(strings.TrimRight(p, "/")))
 	if parentStr != "" {
 		parent = f.getFolder(parentStr)
@@ -209,13 +220,13 @@ func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *fo
 			return nil, "", nil
 		}
 	} else {
-		parent = f.root
+		parent = f.folder
 	}
 	fd, _ = parent.Folders[name]
 	return parent, name, fd
 }
 
-func (f *folders) getFolderItem(p string) (parent *folder, name string, iid uint64) {
+func (f *root) getFolderItem(p string) (parent *folder, name string, iid uint64) {
 	dir, file := path.Split(p)
 	parent = f.getFolder(path.Clean(dir))
 	if parent == nil {
