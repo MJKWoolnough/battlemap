@@ -127,10 +127,8 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 		if err := ms.Get(key, &d); err == nil {
 			if cd.IsAdmin() {
 				fmt.Fprintf(&buf, ",%q:%q", key, d)
-			} else {
-				if strings.HasPrefix(string(d), "0") {
-					fmt.Fprintf(&buf, ",%q:%q", key, d[1:])
-				}
+			} else if strings.HasPrefix(string(d), "0") {
+				fmt.Fprintf(&buf, ",%q:%q", key, d[1:])
 			}
 		}
 	}
