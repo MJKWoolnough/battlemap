@@ -90,13 +90,17 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
+	var buf memio.Buffer
 	for key, val := range m.Data {
-		if !strings.HasPrefix(val, "1") && !strings.HasPrefix(val, "0") {
+		if strings.HasPrefix(val, "0") {
+			fmt.Fprintf(&buf, ",%q:%q", key, val[1:])
+		} else if !strings.HasPrefix(val, "1") {
 			val = "1" + val
 		}
 		ms.Set(key, keystore.String(val))
 	}
-	// TODO: broadcast
+	k.socket.broadcastAdminChange(broadcastCharacterItemChange, data, cd.ID)
+	k.socket.broadcastMapChange(cd, broadcastCharacterItemChange, json.RawMessage(buf))
 	return k.data.Set(strID, &ms)
 }
 
