@@ -269,11 +269,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			m.images.mu.Lock()
-			addItemTo(m.images.hidden.createFoldersIfNotExist(fmt.Sprintf("/maps/%d/%d", cd.CurrentMap, assetID)).Items, " ", assetID)
-			m.images.links[assetID] = m.links[assetID] + 1
-			m.images.saveFolders()
-			m.images.mu.Unlock()
+			m.images.setHiddenLink(fmt.Sprintf("/maps/%d", cd.CurrentMap), assetID)
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
 			return true
@@ -294,17 +290,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
 			assetID, _ := strconv.ParseUint(strings.TrimPrefix(tk.Source, "/images/"), 10, 64)
-			m.images.mu.Lock()
-			if m.images.links[assetID] > 0 {
-				f := m.images.hidden.getFolder(fmt.Sprintf("/maps/%d/%d", cd.CurrentMap, assetID))
-				for key := range f.Items {
-					delete(f.Items, key)
-					m.images.links[assetID] = m.links[assetID] - 1
-					break
-				}
-				m.images.saveFolders()
-			}
-			m.images.mu.Unlock()
+			m.images.removeHiddenLink(fmt.Sprintf("/maps/%d", cd.CurrentMap), assetID)
 			l.removeToken(tokenPos.Pos)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
