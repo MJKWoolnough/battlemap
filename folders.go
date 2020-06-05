@@ -270,10 +270,9 @@ func (f *folders) saveFolders() {
 }
 
 func (f *folders) encodeJSON() error {
-	h := f.root.Folders[""]
 	delete(f.root.Folders, "")
 	err := json.NewEncoder(&f.json).Encode(f.root.folder)
-	f.root.Folders[""] = h
+	f.root.Folders[""] = f.hidden
 	return err
 }
 
