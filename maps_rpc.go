@@ -272,6 +272,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.images.mu.Lock()
 			addItemTo(m.images.hidden.createFoldersIfNotExist(fmt.Sprintf("/maps/%d/%d", cd.CurrentMap, assetID)).Items, " ", assetID)
 			m.images.links[assetID] = m.links[assetID] + 1
+			m.images.saveFolders()
 			m.images.mu.Unlock()
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
@@ -301,6 +302,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 					m.images.links[assetID] = m.links[assetID] - 1
 					break
 				}
+				m.images.saveFolders()
 			}
 			m.images.mu.Unlock()
 			l.removeToken(tokenPos.Pos)
