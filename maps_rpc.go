@@ -291,7 +291,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if tokenPos.Path == "/Grid" || tokenPos.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, tokenPos.Path, func(mp *levelMap, l *layer) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
+			assetID, _ := strconv.ParseUint(strings.TrimPrefix(tk.Source, "/images/"), 10, 64)
+			m.images.mu.Lock()
+			if m.links[assetID] > 0 {
+				f := m.images.hidden.getFolder(fmt.Sprintf("/maps/%d/%d", cd.CurrentMap, assetID))
+				for key := range f.Items {
+					delete(f.Items, key)
+					m.links[assetID] = m.links[assetID] - 1
+					break
+				}
+			}
+			m.images.mu.Unlock()
 			l.removeToken(tokenPos.Pos)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
