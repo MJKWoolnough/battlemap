@@ -270,7 +270,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
 			m.images.mu.Lock()
-			m.images.hidden.createFoldersIfNotExist(fmt.Sprintf("/maps/%d/%s", cd.CurrentMap, newToken.Path)).Items[strconv.Itoa(len(l.Tokens))] = assetID
+			addItemTo(m.images.hidden.createFoldersIfNotExist(fmt.Sprintf("/maps/%d/%d", cd.CurrentMap, assetID)).Items, " ", assetID)
 			m.links[assetID] = m.links[assetID] + 1
 			m.images.mu.Unlock()
 			l.Tokens = append(l.Tokens, newToken.token)
