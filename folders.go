@@ -491,6 +491,43 @@ func (f *folders) getBroadcastID(base int) int {
 	return base
 }
 
+func (f *folders) setHiddenLink(path string, id uint64) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	count := f.links[id]
+	if count == 0 {
+		return ErrItemNotFound
+	}
+	addItemTo(f.hidden.createFoldersIfNotExist(path).Items, " ", id)
+	f.links[id] = count + 1
+	f.saveFolders()
+	return nil
+}
+
+func (f *folders) removeHiddenLink(path string, id uint64) error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	count := f.links[id]
+	if count == 0 {
+		return ErrItemNotFound
+	}
+	folder := f.hidden.getFolder(path)
+	if folder == nil {
+		return ErrFolderNotFound
+	}
+	for key := range folder.Items {
+		delete(folder.Items, key)
+		break
+	}
+	if len(folder.Items) == 0 {
+		parent, name, _ := f.getParentFolder(path)
+		delete(parent.Folders, name)
+	}
+	f.links[id] = count + 1
+	f.saveFolders()
+	return nil
+}
+
 const folderMetadata = "folders"
 
 // Errors
