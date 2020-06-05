@@ -264,7 +264,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if newToken.Path == "/Grid" || newToken.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		assetID, err := strconv.ParseUint(newToken.Source, 10, 64)
+		assetID, err := strconv.ParseUint(strings.TrimPrefix(newToken.Source, "/images/"), 10, 64)
 		if err != nil {
 			return nil, err
 		}
