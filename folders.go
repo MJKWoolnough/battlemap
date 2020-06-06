@@ -523,7 +523,7 @@ func (f *folders) removeHiddenLink(path string, id uint64) error {
 		parent, name, _ := f.getParentFolder(path)
 		delete(parent.Folders, name)
 	}
-	f.links[id] = count - 1
+	f.unlink(id)
 	f.saveFolders()
 	return nil
 }
