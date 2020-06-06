@@ -3,7 +3,6 @@ package battlemap
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -269,7 +268,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			m.images.setHiddenLink(fmt.Sprintf("/maps/%d", cd.CurrentMap), assetID)
+			m.images.setHiddenLink(assetID)
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
 			return true
@@ -300,7 +299,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				src = tk.Source
 			}
 			assetID, _ := strconv.ParseUint(strings.TrimPrefix(src, "/images/"), 10, 64)
-			m.images.removeHiddenLink(fmt.Sprintf("/maps/%d", cd.CurrentMap), assetID)
+			m.images.removeHiddenLink(assetID)
 			l.removeToken(tokenPos.Pos)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
