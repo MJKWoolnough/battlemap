@@ -288,18 +288,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
-			var src string
-			if tk.TokenType == tokenPattern {
-				id := strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")")
-				if p, ok := mp.Patterns[id]; ok {
-					delete(mp.Patterns, id)
-					src = p.Image.Source
-				}
-			} else {
-				src = tk.Source
-			}
-			assetID, _ := strconv.ParseUint(strings.TrimPrefix(src, "/images/"), 10, 64)
-			m.images.removeHiddenLink(assetID)
+			mapCleanupTokenRemove(m.Battlemap, mp, l, tk)
 			l.removeToken(tokenPos.Pos)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
