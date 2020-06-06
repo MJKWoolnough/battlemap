@@ -19,6 +19,39 @@ type mapsDir struct {
 	handler, indexes http.Handler
 }
 
+func mapCleanup(b *Battlemap, id uint64) {
+	mp := b.maps.maps[id]
+	if mp != nil {
+		delete(b.maps.maps, id)
+		mapCleanupLayerWalk(b, mp, &mp.layer)
+	}
+}
+
+func mapCleanupLayerWalk(b *Battlemap, mp *levelMap, layer *layer) {
+	for _, tk := range layer.Tokens {
+		mapCleanupTokenRemove(b, mp, layer, tk)
+	}
+	for _, l := range layer.Layers {
+		mapCleanupLayerWalk(b, mp, l)
+	}
+}
+
+func mapCleanupTokenRemove(b *Battlemap, mp *levelMap, layer *layer, tk *token) {
+	var src string
+	if tk.TokenType == tokenImage {
+		id := strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")")
+		if p, ok := mp.Patterns[id]; ok {
+			src = p.Image.Source
+		}
+	} else if tk.TokenType == tokenPattern {
+		src = tk.Source
+	} else {
+		return
+	}
+	assetID, _ := strconv.ParseUint(strings.TrimPrefix(src, "/images/"), 10, 64)
+	b.images.removeHiddenLink(assetID)
+}
+
 func (m *mapsDir) Init(b *Battlemap) error {
 	var location keystore.String
 	err := b.config.Get("MapsDir", &location)
@@ -31,7 +64,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	m.folders.fileType = fileTypeMap
-	m.folders.Init(b, store, nil)
+	m.folders.Init(b, store, mapCleanup)
 	m.maps = make(map[uint64]*levelMap, len(m.links))
 	for id := range m.links {
 		key := strconv.FormatUint(id, 10)
