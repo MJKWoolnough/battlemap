@@ -77,8 +77,8 @@ type folders struct {
 
 	mu     sync.RWMutex
 	lastID uint64
-	root
-	hidden root
+	root   *folder
+	hidden *folder
 	links  map[uint64]uint64
 	json   memio.Buffer
 }
@@ -86,12 +86,12 @@ type folders struct {
 func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 	f.Battlemap = b
 	f.FileStore = store
-	f.root.folder = newFolder()
+	f.root = newFolder()
 	if err := f.Get(folderMetadata, f.root); err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	f.links = make(map[uint64]uint64)
-	f.processFolder(f.root.folder)
+	f.processFolder(f.root)
 	keys := f.Keys()
 	var gft getFileType
 	for _, k := range keys {
@@ -119,10 +119,10 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 		}
 	}
 	if h, ok := f.root.Folders[""]; ok {
-		f.hidden.folder = h
+		f.hidden = h
 	} else {
-		f.hidden.folder = newFolder()
-		f.root.Folders[""] = f.hidden.folder
+		f.hidden = newFolder()
+		f.root.Folders[""] = f.hidden
 	}
 	if len(keys) > 0 {
 		f.Set(folderMetadata, f.root)
@@ -184,12 +184,8 @@ func (f *folders) processFolder(fd *folder) {
 	}
 }
 
-type root struct {
-	*folder
-}
-
-func (f *root) getFolder(path string) *folder {
-	d := f.folder
+func (f *folders) getFolder(path string) *folder {
+	d := f.root
 	for _, p := range strings.Split(path, "/") {
 		if p == "" {
 			continue
@@ -211,7 +207,7 @@ func splitAfterLastSlash(p string) (string, string) {
 	return "", p
 }
 
-func (f *root) getParentFolder(p string) (parent *folder, name string, fd *folder) {
+func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *folder) {
 	parentStr, name := splitAfterLastSlash(path.Clean(strings.TrimRight(p, "/")))
 	if parentStr != "" {
 		parent = f.getFolder(parentStr)
@@ -219,13 +215,13 @@ func (f *root) getParentFolder(p string) (parent *folder, name string, fd *folde
 			return nil, "", nil
 		}
 	} else {
-		parent = f.folder
+		parent = f.root
 	}
 	fd, _ = parent.Folders[name]
 	return parent, name, fd
 }
 
-func (f *root) getFolderItem(p string) (parent *folder, name string, iid uint64) {
+func (f *folders) getFolderItem(p string) (parent *folder, name string, iid uint64) {
 	dir, file := path.Split(p)
 	parent = f.getFolder(path.Clean(dir))
 	if parent == nil {
@@ -257,8 +253,8 @@ func (f *folders) saveFolders() {
 
 func (f *folders) encodeJSON() error {
 	delete(f.root.Folders, "")
-	err := json.NewEncoder(&f.json).Encode(f.root.folder)
-	f.root.Folders[""] = f.hidden.folder
+	err := json.NewEncoder(&f.json).Encode(f.root)
+	f.root.Folders[""] = f.hidden
 	return err
 }
 
