@@ -31,7 +31,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	m.folders.fileType = fileTypeMap
-	m.folders.Init(b, store)
+	m.folders.Init(b, store, nil)
 	m.maps = make(map[uint64]*levelMap, len(m.links))
 	for id := range m.links {
 		key := strconv.FormatUint(id, 10)

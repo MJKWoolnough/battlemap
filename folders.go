@@ -75,15 +75,16 @@ type folders struct {
 	*keystore.FileStore
 	fileType
 
-	mu     sync.RWMutex
-	lastID uint64
-	root   *folder
-	hidden *folder
-	links  map[uint64]uint64
-	json   memio.Buffer
+	mu      sync.RWMutex
+	lastID  uint64
+	root    *folder
+	hidden  *folder
+	links   map[uint64]uint64
+	json    memio.Buffer
+	cleanup func(*Battlemap, uint64)
 }
 
-func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
+func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Battlemap, uint64)) error {
 	f.Battlemap = b
 	f.FileStore = store
 	f.root = newFolder()
@@ -126,6 +127,11 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 	}
 	if len(keys) > 0 {
 		f.Set(folderMetadata, f.root)
+	}
+	if cleanup == nil {
+		f.cleanup = noopClean
+	} else {
+		f.cleanup = cleanup
 	}
 	return f.encodeJSON()
 }
@@ -408,6 +414,7 @@ func (f *folders) unlink(iid uint64) {
 	links := f.links[iid] - 1
 	if links == 0 {
 		delete(f.links, iid)
+		f.cleanup(f.Battlemap, iid)
 		f.Remove(strconv.FormatUint(iid, 10))
 	} else {
 		f.links[iid] = links
@@ -515,6 +522,8 @@ func (f *folders) removeHiddenLink(id uint64) error {
 	f.saveFolders()
 	return nil
 }
+
+func noopClean(_ *Battlemap, _ uint64) {}
 
 const folderMetadata = "folders"
 

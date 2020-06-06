@@ -42,7 +42,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
 	a.handler = http.FileServer(http.Dir(l))
-	return a.folders.Init(b, assetStore)
+	return a.folders.Init(b, assetStore, nil)
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
