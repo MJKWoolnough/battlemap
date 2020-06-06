@@ -491,28 +491,35 @@ func (f *folders) getBroadcastID(base int) int {
 	return base
 }
 
-func (f *folders) setHiddenLink(path string, id uint64) error {
+func (f *folders) setHiddenLink(id uint64) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	count := f.links[id]
 	if count == 0 {
 		return ErrItemNotFound
 	}
-	addItemTo(f.hidden.createFoldersIfNotExist(path).Items, " ", id)
+	idStr := strconv.FormatUint(id, 10)
+	folder, ok := f.hidden.Folders[idStr]
+	if !ok {
+		folder = newFolder()
+		f.hidden.Folders[idStr] = folder
+	}
+	addItemTo(folder.Items, " ", id)
 	f.links[id] = count + 1
 	f.saveFolders()
 	return nil
 }
 
-func (f *folders) removeHiddenLink(path string, id uint64) error {
+func (f *folders) removeHiddenLink(id uint64) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	count := f.links[id]
 	if count == 0 {
 		return ErrItemNotFound
 	}
-	folder := f.hidden.getFolder(path)
-	if folder == nil {
+	idStr := strconv.FormatUint(id, 10)
+	folder, ok := f.hidden.Folders[idStr]
+	if !ok {
 		return ErrFolderNotFound
 	}
 	for key := range folder.Items {
@@ -520,8 +527,7 @@ func (f *folders) removeHiddenLink(path string, id uint64) error {
 		break
 	}
 	if len(folder.Items) == 0 {
-		parent, name, _ := f.getParentFolder(path)
-		delete(parent.Folders, name)
+		delete(f.hidden.Folders, idStr)
 	}
 	f.unlink(id)
 	f.saveFolders()
