@@ -60,16 +60,15 @@ type keystoreDir struct {
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	var ms keystore.MemStore
-	err := k.data.Get(strconv.FormatUint(id, 10), &ms)
+	var ms keystoreMap
+	err := k.data.Get(strconv.FormatUint(id, 10), ms)
 	if err != nil {
 		return
 	}
-	for _, key := range ms.Keys() {
+	for key, data := range ms {
 		if f := k.IsLinkKey(key); f != nil {
-			var oldVal keystore.String
-			ms.Get(key, &oldVal)
-			id, _ := strconv.ParseUint(string(oldVal[1:]), 10, 64)
+			var id uint64
+			json.Unmarshal(data.Data, &id)
 			f.removeHiddenLink(id)
 		}
 	}
@@ -130,36 +129,33 @@ func (k *keystoreDir) create(cd ConnData, data []byte) (json.RawMessage, error) 
 
 func (k *keystoreDir) set(cd ConnData, data []byte) error {
 	var m struct {
-		ID   uint64            `json:"id"`
-		Data map[string]string `json:"data"`
+		ID   uint64                  `json:"id"`
+		Data map[string]keystoreData `json:"data"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	var ms keystore.MemStore
+	var ms keystoreMap
 	strID := strconv.FormatUint(m.ID, 10)
-	err := k.data.Get(strID, &ms)
+	err := k.data.Get(strID, ms)
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
 	var buf memio.Buffer
 	for key, val := range m.Data {
-		if strings.HasPrefix(val, "0") {
-			fmt.Fprintf(&buf, ",%q:%q", key, val[1:])
-		} else if !strings.HasPrefix(val, "1") {
-			val = "1" + val
+		if !val.Admin {
+			fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
 		}
 		if f := k.IsLinkKey(key); f != nil {
-			if ms.Exists(key) {
-				var oldVal keystore.String
-				ms.Get(key, &oldVal)
-				id, _ := strconv.ParseUint(string(oldVal[1:]), 10, 64)
+			var id uint64
+			if oldVal, ok := ms[key]; ok {
+				json.Unmarshal(oldVal.Data, &id)
 				f.removeHiddenLink(id)
 			}
-			id, _ := strconv.ParseUint(string(val[1:]), 10, 64)
+			json.Unmarshal(val.Data, &id)
 			f.setHiddenLink(id)
 		}
-		ms.Set(key, keystore.String(val))
+		ms[key] = val
 	}
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
 	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), json.RawMessage(buf))
@@ -187,23 +183,29 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
-	var ms keystore.MemStore
+	var ms keystoreMap
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, &ms)
 	if err != nil {
 		return nil, keystore.ErrUnknownKey
 	}
-	if m.Keys == nil {
-		m.Keys = ms.Keys()
-	}
 	var buf memio.Buffer
-	for _, key := range m.Keys {
-		var d keystore.String
-		if err := ms.Get(key, &d); err == nil {
+	if m.Keys == nil {
+		for key, val := range ms {
 			if cd.IsAdmin() {
-				fmt.Fprintf(&buf, ",%q:%q", key, d)
-			} else if strings.HasPrefix(string(d), "0") {
-				fmt.Fprintf(&buf, ",%q:%q", key, d[1:])
+				fmt.Fprintf(&buf, ",%q:{\"admin\":%t,\"data\":%q}", key, val.Admin, val.Data)
+			} else if !val.Admin {
+				fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
+			}
+		}
+	} else {
+		for _, key := range m.Keys {
+			if val, ok := ms[key]; ok {
+				if cd.IsAdmin() {
+					fmt.Fprintf(&buf, ",%q:{\"admin\":%t,\"data\":%q}", key, val.Admin, val.Data)
+				} else if !val.Admin {
+					fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
+				}
 			}
 		}
 	}
@@ -220,23 +222,24 @@ func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	var ms keystore.MemStore
+	var ms keystoreMap
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, &ms)
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
 	for _, key := range m.Keys {
-		if f := k.IsLinkKey(key); f != nil {
-			if ms.Exists(key) {
-				var val keystore.String
-				ms.Get(key, &val)
-				id, _ := strconv.ParseUint(string(val[1:]), 10, 64)
-				f.removeHiddenLink(id)
-			}
+		val, ok := ms[key]
+		if !ok {
+			continue
 		}
+		if f := k.IsLinkKey(key); f != nil {
+			var id uint64
+			json.Unmarshal(val.Data, &id)
+			f.removeHiddenLink(id)
+		}
+		delete(ms, key)
 	}
-	ms.RemoveAll(m.Keys...)
 	// TODO: broadcast
 	return k.data.Set(strID, &ms)
 }
