@@ -143,6 +143,7 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 		return keystore.ErrUnknownKey
 	}
 	var buf memio.Buffer
+	buf.WriteString("{\"data\":")
 	for key, val := range m.Data {
 		if val.User {
 			fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
@@ -158,8 +159,8 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 		}
 		ms[key] = val
 	}
-	buf.WriteByte('}')
-	buf[0] = '{'
+	fmt.Fprintf(&buf, "},\"id\":%d}", m.ID)
+	buf[8] = '{'
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
 	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), json.RawMessage(buf))
 	return k.data.Set(strID, &ms)
