@@ -97,11 +97,34 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 		} else if !strings.HasPrefix(val, "1") {
 			val = "1" + val
 		}
+		if f := k.IsLinkKey(key); f != nil {
+			if ms.Exists(key) {
+				var oldVal keystore.String
+				ms.Get(key, &oldVal)
+				id, _ := strconv.ParseUint(string(oldVal[1:]), 10, 64)
+				f.removeHiddenLink(id)
+			}
+			id, _ := strconv.ParseUint(string(val[1:]), 10, 64)
+			f.setHiddenLink(id)
+		}
 		ms.Set(key, keystore.String(val))
 	}
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
 	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), json.RawMessage(buf))
 	return k.data.Set(strID, &ms)
+}
+
+func (k *keystoreDir) IsLinkKey(key string) *folders {
+	if strings.HasPrefix(key, "store-image") {
+		return &k.images.folders
+	} else if strings.HasPrefix(key, "store-audio") {
+		return &k.sounds.folders
+	} else if strings.HasPrefix(key, "store-token") {
+		return &k.tokens.folders
+	} else if strings.HasPrefix(key, "store-character") {
+		return &k.chars.folders
+	}
+	return nil
 }
 
 func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
@@ -150,6 +173,16 @@ func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
 	err := k.data.Get(strID, &ms)
 	if err != nil {
 		return keystore.ErrUnknownKey
+	}
+	for _, key := range m.Keys {
+		if f := k.IsLinkKey(key); f != nil {
+			if ms.Exists(key) {
+				var val keystore.String
+				ms.Get(key, &val)
+				id, _ := strconv.ParseUint(string(val[1:]), 10, 64)
+				f.removeHiddenLink(id)
+			}
+		}
 	}
 	ms.RemoveAll(m.Keys...)
 	// TODO: broadcast
