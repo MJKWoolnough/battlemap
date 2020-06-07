@@ -158,6 +158,8 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 		}
 		ms[key] = val
 	}
+	buf.WriteByte('}')
+	buf[0] = '{'
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
 	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), json.RawMessage(buf))
 	return k.data.Set(strID, &ms)
