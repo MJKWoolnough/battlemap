@@ -35,6 +35,7 @@ func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
 			Data:  data,
 		}
 	}
+	return br.Count, br.Err
 }
 
 func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
