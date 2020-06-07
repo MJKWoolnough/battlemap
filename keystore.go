@@ -23,6 +23,22 @@ type keystoreDir struct {
 	data   *keystore.FileBackedMemStore
 }
 
+func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
+	var ms keystore.MemStore
+	err := k.data.Get(strconv.FormatUint(id, 10), &ms)
+	if err != nil {
+		return
+	}
+	for _, key := range ms.Keys() {
+		if f := k.IsLinkKey(key); f != nil {
+			var oldVal keystore.String
+			ms.Get(key, &oldVal)
+			id, _ := strconv.ParseUint(string(oldVal[1:]), 10, 64)
+			f.removeHiddenLink(id)
+		}
+	}
+}
+
 func (k *keystoreDir) Init(b *Battlemap) error {
 	var location keystore.String
 	err := b.config.Get(k.Name+"Dir", &location)
@@ -36,7 +52,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 	}
 	k.data = keystore.NewFileBackedMemStoreFromFileStore(fileStore)
 	k.fileType = fileTypeCharacter
-	k.folders.Init(b, fileStore, nil)
+	k.folders.Init(b, fileStore, k.cleanup)
 	return nil
 }
 
