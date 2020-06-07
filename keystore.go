@@ -16,8 +16,8 @@ import (
 )
 
 type keystoreData struct {
-	Admin bool            `json:"admin"`
-	Data  json.RawMessage `json:"data"`
+	User bool            `json:"user"`
+	Data json.RawMessage `json:"data"`
 }
 
 type keystoreMap map[string]keystoreData
@@ -27,12 +27,12 @@ func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
 	l := br.ReadUint64()
 	for i := uint64(0); i < l; i++ {
 		key := br.ReadString64()
-		admin := br.ReadBool()
+		user := br.ReadBool()
 		data := make(json.RawMessage, br.ReadUint64())
 		br.Read(data)
 		k[key] = keystoreData{
-			Admin: admin,
-			Data:  data,
+			User: user,
+			Data: data,
 		}
 	}
 	return br.Count, br.Err
@@ -43,7 +43,7 @@ func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
 	bw.WriteUint64(uint64(len(k)))
 	for key, data := range k {
 		bw.WriteString64(key)
-		bw.WriteBool(data.Admin)
+		bw.WriteBool(data.User)
 		bw.WriteUint64(uint64(len(data.Data)))
 		bw.Write(data.Data)
 	}
@@ -144,7 +144,7 @@ func (k *keystoreDir) set(cd ConnData, data []byte) error {
 	}
 	var buf memio.Buffer
 	for key, val := range m.Data {
-		if !val.Admin {
+		if val.User {
 			fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
 		}
 		if f := k.IsLinkKey(key); f != nil {
@@ -196,8 +196,8 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 	if m.Keys == nil {
 		for key, val := range ms {
 			if cd.IsAdmin() {
-				fmt.Fprintf(&buf, ",%q:{\"admin\":%t,\"data\":%q}", key, val.Admin, val.Data)
-			} else if !val.Admin {
+				fmt.Fprintf(&buf, ",%q:{\"user\":%t,\"data\":%q}", key, val.User, val.Data)
+			} else if val.User {
 				fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
 			}
 		}
@@ -205,8 +205,8 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 		for _, key := range m.Keys {
 			if val, ok := ms[key]; ok {
 				if cd.IsAdmin() {
-					fmt.Fprintf(&buf, ",%q:{\"admin\":%t,\"data\":%q}", key, val.Admin, val.Data)
-				} else if !val.Admin {
+					fmt.Fprintf(&buf, ",%q:{\"user\":%t,\"data\":%q}", key, val.User, val.Data)
+				} else if val.User {
 					fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
 				}
 			}
