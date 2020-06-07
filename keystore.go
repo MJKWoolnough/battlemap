@@ -4,14 +4,50 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"sync"
 
+	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 )
+
+type keystoreData struct {
+	Admin bool            `json:"admin"`
+	Data  json.RawMessage `json:"data"`
+}
+
+type keystoreMap map[string]keystoreData
+
+func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
+	br := byteio.StickyLittleEndianReader{Reader: r}
+	l := br.ReadUint64()
+	for i := uint64(0); i < l; i++ {
+		key := br.ReadString64()
+		admin := br.ReadBool()
+		data := make(json.RawMessage, br.ReadUint64())
+		br.Read(data)
+		k[key] = keystoreData{
+			Admin: admin,
+			Data:  data,
+		}
+	}
+}
+
+func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
+	bw := byteio.StickyLittleEndianWriter{Writer: w}
+	bw.WriteUint64(uint64(len(k)))
+	for key, data := range k {
+		bw.WriteString64(key)
+		bw.WriteBool(data.Admin)
+		bw.WriteUint64(uint64(len(data.Data)))
+		bw.Write(data.Data)
+	}
+	return bw.Count, bw.Err
+}
 
 type keystoreDir struct {
 	folders
