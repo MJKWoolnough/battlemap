@@ -491,47 +491,23 @@ func (f *folders) getBroadcastID(base int) int {
 	return base
 }
 
-func (f *folders) setHiddenLink(id uint64) error {
+func (f *folders) setHiddenLink(id uint64) {
 	f.mu.Lock()
-	defer f.mu.Unlock()
 	count := f.links[id]
 	if count == 0 {
-		return ErrItemNotFound
+		f.mu.Unlock()
+		return
 	}
-	idStr := strconv.FormatUint(id, 10)
-	folder, ok := f.hidden.Folders[idStr]
-	if !ok {
-		folder = newFolder()
-		f.hidden.Folders[idStr] = folder
-	}
-	addItemTo(folder.Items, " ", id)
 	f.links[id] = count + 1
 	f.saveFolders()
-	return nil
+	f.mu.Unlock()
 }
 
-func (f *folders) removeHiddenLink(id uint64) error {
+func (f *folders) removeHiddenLink(id uint64) {
 	f.mu.Lock()
-	defer f.mu.Unlock()
-	count := f.links[id]
-	if count == 0 {
-		return ErrItemNotFound
-	}
-	idStr := strconv.FormatUint(id, 10)
-	folder, ok := f.hidden.Folders[idStr]
-	if !ok {
-		return ErrFolderNotFound
-	}
-	for key := range folder.Items {
-		delete(folder.Items, key)
-		break
-	}
-	if len(folder.Items) == 0 {
-		delete(f.hidden.Folders, idStr)
-	}
 	f.unlink(id)
 	f.saveFolders()
-	return nil
+	f.mu.Unlock()
 }
 
 func noopClean(_ *Battlemap, _ uint64) {}
