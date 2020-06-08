@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -23,7 +24,11 @@ type keystoreData struct {
 type keystoreMap map[string]keystoreData
 
 func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
-	br := byteio.StickyLittleEndianReader{Reader: r}
+	g, err := gzip.NewReader(r)
+	if err != nil {
+		return 0, err
+	}
+	br := byteio.StickyLittleEndianReader{Reader: g}
 	l := br.ReadUint64()
 	for i := uint64(0); i < l; i++ {
 		key := br.ReadString64()
@@ -38,13 +43,18 @@ func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
-	bw := byteio.StickyLittleEndianWriter{Writer: w}
+	g, err := gzip.NewWriterLevel(w, gzip.BestCompression)
+	if err != nil {
+		return 0, err
+	}
+	bw := byteio.StickyLittleEndianWriter{Writer: g}
 	bw.WriteUint64(uint64(len(k)))
 	for key, data := range k {
 		bw.WriteString64(key)
 		bw.WriteBool(data.User)
 		bw.WriteBytes64(data.Data)
 	}
+	g.Close()
 	return bw.Count, bw.Err
 }
 
