@@ -411,13 +411,15 @@ func (f *folders) itemDelete(cd ConnData, data []byte) error {
 }
 
 func (f *folders) unlink(iid uint64) {
-	links := f.links[iid] - 1
+	links := f.links[iid]
 	if links == 0 {
+		return
+	} else if links == 1 {
 		delete(f.links, iid)
 		f.cleanup(f.Battlemap, iid)
 		f.Remove(strconv.FormatUint(iid, 10))
 	} else {
-		f.links[iid] = links
+		f.links[iid] = links - 1
 	}
 }
 
