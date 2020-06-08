@@ -28,8 +28,7 @@ func (k keystoreMap) ReadFrom(r io.Reader) (int64, error) {
 	for i := uint64(0); i < l; i++ {
 		key := br.ReadString64()
 		user := br.ReadBool()
-		data := make(json.RawMessage, br.ReadUint64())
-		br.Read(data)
+		data := br.ReadBytes64()
 		k[key] = keystoreData{
 			User: user,
 			Data: data,
@@ -44,8 +43,7 @@ func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
 	for key, data := range k {
 		bw.WriteString64(key)
 		bw.WriteBool(data.User)
-		bw.WriteUint64(uint64(len(data.Data)))
-		bw.Write(data.Data)
+		bw.WriteBytes64(data.Data)
 	}
 	return bw.Count, bw.Err
 }
