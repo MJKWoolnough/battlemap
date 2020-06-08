@@ -66,7 +66,6 @@ type folders struct {
 	mu      sync.RWMutex
 	lastID  uint64
 	root    *folder
-	hidden  *folder
 	links   map[uint64]uint64
 	json    memio.Buffer
 	cleanup func(*Battlemap, uint64)
@@ -106,12 +105,6 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 			addItemTo(f.root.Items, k, f.lastID)
 			f.links[f.lastID] = 1
 		}
-	}
-	if h, ok := f.root.Folders[""]; ok {
-		f.hidden = h
-	} else {
-		f.hidden = newFolder()
-		f.root.Folders[""] = f.hidden
 	}
 	if len(keys) > 0 {
 		f.Set(folderMetadata, f)
@@ -262,15 +255,12 @@ func (f *folders) exists(p string) bool {
 
 func (f *folders) saveFolders() {
 	f.Set(folderMetadata, f)
-	f.json = memio.Buffer{}
 	f.encodeJSON()
 }
 
 func (f *folders) encodeJSON() error {
-	delete(f.root.Folders, "")
-	err := json.NewEncoder(&f.json).Encode(f.root)
-	f.root.Folders[""] = f.hidden
-	return err
+	f.json = memio.Buffer{}
+	return json.NewEncoder(&f.json).Encode(f.root)
 }
 
 func walkFolders(f *folder, fn func(map[string]uint64) bool) bool {
