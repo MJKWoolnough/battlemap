@@ -28,18 +28,6 @@ func newFolder() *folder {
 	}
 }
 
-func (f *folder) WriteTo(w io.Writer) (int64, error) {
-	lw := byteio.StickyLittleEndianWriter{Writer: w}
-	f.WriteToX(&lw)
-	return lw.Count, lw.Err
-}
-
-func (f *folder) ReadFrom(r io.Reader) (int64, error) {
-	lr := byteio.StickyLittleEndianReader{Reader: r}
-	f.ReadFromX(&lr)
-	return lr.Count, lr.Err
-}
-
 func (f *folder) WriteToX(lw *byteio.StickyLittleEndianWriter) {
 	lw.WriteUint64(uint64(len(f.Folders)))
 	for name, fd := range f.Folders {
@@ -88,10 +76,10 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 	f.Battlemap = b
 	f.FileStore = store
 	f.root = newFolder()
-	if err := f.Get(folderMetadata, f.root); err != nil && os.IsNotExist(err) {
+	f.links = make(map[uint64]uint64)
+	if err := f.Get(folderMetadata, f); err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
-	f.links = make(map[uint64]uint64)
 	f.processFolder(f.root)
 	keys := f.Keys()
 	var gft getFileType
@@ -126,7 +114,7 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 		f.root.Folders[""] = f.hidden
 	}
 	if len(keys) > 0 {
-		f.Set(folderMetadata, f.root)
+		f.Set(folderMetadata, f)
 	}
 	if cleanup == nil {
 		f.cleanup = noopClean
@@ -134,6 +122,29 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 		f.cleanup = cleanup
 	}
 	return f.encodeJSON()
+}
+
+func (f *folders) WriteTo(w io.Writer) (int64, error) {
+	lw := byteio.StickyLittleEndianWriter{Writer: w}
+	f.root.WriteToX(&lw)
+	lw.WriteUint64(uint64(len(f.links)))
+	for id, links := range f.links {
+		lw.WriteUint64(id)
+		lw.WriteUint64(links)
+	}
+	return lw.Count, lw.Err
+}
+
+func (f *folders) ReadFrom(r io.Reader) (int64, error) {
+	lr := byteio.StickyLittleEndianReader{Reader: r}
+	f.root.ReadFromX(&lr)
+	count := lr.ReadUint64()
+	for i := uint64(0); i < count; i++ {
+		id := lr.ReadUint64()
+		links := lr.ReadUint64()
+		f.links[id] = links
+	}
+	return lr.Count, lr.Err
 }
 
 func addItemTo(items map[string]uint64, name string, id uint64) string {
@@ -185,8 +196,6 @@ func (f *folders) processFolder(fd *folder) {
 		if is > f.lastID {
 			f.lastID = is
 		}
-		il, _ := f.links[is]
-		f.links[is] = il + 1
 	}
 }
 
@@ -252,7 +261,7 @@ func (f *folders) exists(p string) bool {
 }
 
 func (f *folders) saveFolders() {
-	f.Set(folderMetadata, f.root)
+	f.Set(folderMetadata, f)
 	f.json = memio.Buffer{}
 	f.encodeJSON()
 }
