@@ -37,19 +37,9 @@ func mapCleanupLayerWalk(b *Battlemap, mp *levelMap, layer *layer) {
 }
 
 func mapCleanupTokenRemove(b *Battlemap, mp *levelMap, layer *layer, tk *token) {
-	var src string
-	if tk.TokenType == tokenImage {
-		id := strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")")
-		if p, ok := mp.Patterns[id]; ok {
-			src = p.Image.Source
-		}
-	} else if tk.TokenType == tokenPattern {
-		src = tk.Source
-	} else {
-		return
+	if tk.Source > 0 {
+		b.images.removeHiddenLink(tk.Source)
 	}
-	assetID, _ := strconv.ParseUint(strings.TrimPrefix(src, "/images/"), 10, 64)
-	b.images.removeHiddenLink(assetID)
 }
 
 func (m *mapsDir) Init(b *Battlemap) error {
@@ -109,27 +99,18 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 	mp := &levelMap{
 		Width:  nm.Width,
 		Height: nm.Height,
-		Patterns: map[string]*pattern{
-			"gridPattern": genGridPattern(nm.SquaresWidth, nm.SquaresColour, nm.SquaresStroke),
-		},
 		layers: map[string]struct{}{
 			"Layer": struct{}{},
 			"Light": struct{}{},
 			"Grid":  struct{}{},
 		},
 		layer: layer{
-			IsFolder: true,
 			Layers: []*layer{
 				&layer{
 					Name: "Layer",
 				},
 				&layer{
 					Name: "Light",
-					Tokens: []*token{
-						&token{
-							Source: "rgba(0, 0, 0, 0)",
-						},
-					},
 				},
 				&layer{
 					Name: "Grid",
@@ -147,24 +128,6 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", mid, name)
 	m.socket.broadcastAdminChange(broadcastMapItemAdd, json.RawMessage(buf), id)
 	return json.RawMessage(buf[1 : len(buf)-1]), nil
-}
-
-func genGridPattern(squaresWidth uint64, squaresColour colour, squaresStroke uint64) *pattern {
-	return &pattern{
-		ID:     "gridPattern",
-		Width:  squaresWidth,
-		Height: squaresWidth,
-		Path: &patternPath{
-			Path:        genGridPath(squaresWidth),
-			Stroke:      squaresColour,
-			StrokeWidth: squaresStroke,
-		},
-	}
-}
-
-func genGridPath(squaresWidth uint64) string {
-	sqStr := strconv.FormatUint(squaresWidth, 10)
-	return "M 0 " + sqStr + " V 0 H " + sqStr
 }
 
 func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
@@ -268,7 +231,7 @@ Loop:
 func getParentLayer(l *layer, p string) (*layer, *layer) {
 	parentStr, name := splitAfterLastSlash(strings.TrimRight(p, "/"))
 	parent := getLayer(l, parentStr)
-	if parent == nil || !parent.IsFolder {
+	if parent == nil || parent.Layers == nil {
 		return nil, nil
 	}
 	return parent, getLayer(parent, name)
@@ -276,7 +239,7 @@ func getParentLayer(l *layer, p string) (*layer, *layer) {
 
 func getParentToken(l *layer, p string, pos uint) (*layer, *token) {
 	parent := getLayer(l, p)
-	if parent == nil || parent.IsFolder {
+	if parent == nil || parent.Layers != nil {
 		return nil, nil
 	}
 	if uint(len(parent.Tokens)) <= pos {
