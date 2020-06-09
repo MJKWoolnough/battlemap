@@ -2,6 +2,7 @@ package battlemap
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 
@@ -27,7 +28,8 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 	} else if err != nil {
 		return sr.Count, err
 	}
-	return sr.Count, nil
+	l.layers = make(map[string]struct{})
+	return sr.Count, l.validate(l.layers)
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
@@ -48,6 +50,22 @@ type layer struct {
 	Hidden bool     `json:"hidden"`
 	Tokens []*token `json:"tokens"`
 	Layers []*layer `json:"layers"`
+}
+
+func (l *layer) validate(layers map[string]struct{}) error {
+	if _, ok := layers[l.Name]; ok {
+		return ErrDuplicateLayer
+	}
+	layers[l.Name] = struct{}{}
+	if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil {
+		return ErrInvalidLayer
+	}
+	for _, layer := range l.Layers {
+		if err := layer.validate(layers); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (l *layer) WriteTo(w io.Writer) {
@@ -110,3 +128,9 @@ type colour struct {
 func (c colour) WriteTo(w io.Writer) {
 	fmt.Fprintf(w, "{\"r\":%d,\"g\":%d,\"b\":%d,\"a\":%d}", c.R, c.G, c.B, c.A)
 }
+
+// Errors
+var (
+	ErrDuplicateLayer = errors.New("duplicate layer name")
+	ErrInvalidLayer   = errors.New("invalid layer structure")
+)
