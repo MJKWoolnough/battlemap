@@ -3,8 +3,6 @@ package battlemap
 import (
 	"encoding/json"
 	"errors"
-	"strconv"
-	"strings"
 
 	"vimagination.zapto.org/keystore"
 )
@@ -50,7 +48,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			mp.Width = md.Width
 			mp.Height = md.Height
-			mp.Patterns["gridPattern"] = genGridPattern(md.SquaresWidth, md.SquaresColour, md.SquaresStroke)
+			mp.GridSize = md.SquaresWidth
+			mp.GridStroke = md.SquaresStroke
+			mp.GridColour = md.SquaresColour
 			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
 			return true
 		}); err != nil {
@@ -62,8 +62,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &c); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, "/Light", func(_ *levelMap, l *layer) bool {
-			l.Tokens[0].Source = c.ToRGBA()
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Light = c
 			m.socket.broadcastMapChange(cd, broadcastMapLightChange, data)
 			return true
 		}); err != nil {
@@ -101,8 +101,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				data = toRawMessage(path)
 			}
 			l.Layers = append(l.Layers, &layer{
-				Name:     name,
-				IsFolder: true,
+				Name:   name,
+				Layers: []*layer{},
 			})
 			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
 			return true
@@ -154,7 +154,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			np := getLayer(&mp.layer, moveLayer.To)
-			if np == nil || !np.IsFolder {
+			if np == nil || np.Layers == nil {
 				err = ErrUnknownLayer
 				return false
 			}
@@ -210,11 +210,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapLayer(cd.CurrentMap, addMask.Path, func(_ *levelMap, l *layer) bool {
-			mask := "/masks/" + strconv.FormatUint(addMask.Mask, 10)
-			if l.Mask == mask {
+			if l.Mask == addMask.Mask {
 				return false
 			}
-			l.Mask = mask
+			l.Mask = addMask.Mask
 			m.socket.broadcastMapChange(cd, broadcastLayerMaskAdd, data)
 			return true
 		})
@@ -227,10 +226,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapLayer(cd.CurrentMap, path, func(_ *levelMap, l *layer) bool {
-			if l.Mask == "" {
+			if l.Mask == 0 {
 				return false
 			}
-			l.Mask = ""
+			l.Mask = 0
 			m.socket.broadcastMapChange(cd, broadcastLayerMaskRemove, data)
 			return true
 		})
@@ -263,12 +262,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if newToken.Path == "/Grid" || newToken.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
-		assetID, err := strconv.ParseUint(strings.TrimPrefix(newToken.Source, "/images/"), 10, 64)
-		if err != nil {
-			return nil, err
-		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			m.images.setHiddenLink(assetID)
+			m.images.setHiddenLink(newToken.Source)
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
 			return true
@@ -393,34 +388,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, patternToken.Path, patternToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
-			if tk.TokenType != tokenImage {
+			if tk.PatternWidth > 0 {
 				return false
 			}
-			var (
-				num    uint64
-				idName string
-			)
-			for {
-				idName = "Pattern_" + strconv.FormatUint(num, 10)
-				if _, ok := mp.Patterns[idName]; !ok {
-					break
-				}
-				num++
-			}
-			idStr := "url(#" + idName + ")"
-			mp.Patterns[idName] = &pattern{
-				ID:     idName,
-				Width:  tk.Width,
-				Height: tk.Height,
-				Image: &token{
-					Source:    tk.Source,
-					Width:     tk.Width,
-					Height:    tk.Height,
-					TokenType: tokenImage,
-				},
-			}
-			tk.TokenType = tokenPattern
-			tk.Source = idStr
+			tk.PatternWidth = tk.Width
+			tk.PatternHeight = tk.Height
 			m.socket.broadcastMapChange(cd, broadcastTokenSetPattern, data)
 			return true
 
@@ -437,15 +409,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, imageToken.Path, imageToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
-			if tk.TokenType != tokenPattern {
+			if tk.PatternWidth == 0 {
 				return false
 			}
-			tk.TokenType = tokenImage
-			id := strings.TrimSuffix(strings.TrimPrefix(tk.Source, "url(#"), ")")
-			if p, ok := mp.Patterns[id]; ok {
-				delete(mp.Patterns, id)
-				tk.Source = p.Image.Source
-			}
+			tk.PatternWidth = 0
+			tk.PatternHeight = 0
 			m.socket.broadcastMapChange(cd, broadcastTokenSetImage, data)
 			return true
 		})
@@ -453,7 +421,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		var tokenSource struct {
 			Path   string `json:"path"`
 			Pos    uint   `json:"pos"`
-			Source string `json:"source"`
+			Source uint64 `json:"source"`
 		}
 		if err := json.Unmarshal(data, &tokenSource); err != nil {
 			return nil, err
@@ -462,9 +430,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenSource.Path, tokenSource.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
-			if tk.TokenType != tokenImage || tk.Source == tokenSource.Source {
-				return false
-			}
 			tk.Source = tokenSource.Source
 			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
 			return true
@@ -514,16 +479,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			return nil, e
 		}
 		return nil, err
-	case "setInitiative":
-		var initiative [][2]uint64
-		if err := json.Unmarshal(data, &initiative); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Initiative = initiative
-			m.socket.broadcastMapChange(cd, broadcastMapInitiative, data)
-			return true
-		})
+	/*
+		case "setInitiative":
+			var initiative [][2]uint64
+			if err := json.Unmarshal(data, &initiative); err != nil {
+				return nil, err
+			}
+			return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+				mp.Initiative = initiative
+				m.socket.broadcastMapChange(cd, broadcastMapInitiative, data)
+				return true
+			})
+	*/
 	case "remove":
 		var (
 			mapPath string
