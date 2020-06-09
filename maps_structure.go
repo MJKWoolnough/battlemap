@@ -57,7 +57,7 @@ func (l *layer) validate(layers map[string]struct{}) error {
 		return ErrDuplicateLayer
 	}
 	layers[l.Name] = struct{}{}
-	if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil {
+	if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Grid" && (l.Tokens != nil || l.Layers != nil) || l.Name == "Light" && l.Layers != nil {
 		return ErrInvalidLayer
 	}
 	for _, layer := range l.Layers {
