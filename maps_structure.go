@@ -61,7 +61,7 @@ func (l *layer) validate(layers map[string]struct{}) error {
 		if l.Tokens != nil || l.Layers != nil {
 			return ErrInvalidLayer
 		}
-	} else if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Light" && l.Layers != nil {
+	} else if l.Layers != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Light" && l.Layers != nil {
 		return ErrInvalidLayer
 	}
 	for _, layer := range l.Layers {
