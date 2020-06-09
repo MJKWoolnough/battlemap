@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -18,7 +19,18 @@ type levelMap struct {
 	layer
 }
 
-func (l levelMap) WriteTo(w io.Writer) (int64, error) {
+func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
+	sr := rwcount.Reader{Reader: r}
+	err := json.NewDecoder(&sr).Decode(l)
+	if sr.Err != nil {
+		return sr.Count, sr.Err
+	} else if err != nil {
+		return sr.Count, err
+	}
+	return sr.Count, nil
+}
+
+func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	sw := rwcount.Writer{Writer: w}
 	fmt.Fprintf(&sw, "{\"width\":%d,\"height\":%d,\"gridSize\":%d,\"gridStroke\":%d,\"gridColour\":", l.Width, l.Height, l.GridSize, l.GridStroke)
 	l.GridColour.WriteTo(&sw)
@@ -38,7 +50,7 @@ type layer struct {
 	Layers []*layer `json:"layers"`
 }
 
-func (l layer) WriteTo(w io.Writer) {
+func (l *layer) WriteTo(w io.Writer) {
 	fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t,", l.Name, l.Mask, l.Hidden)
 	if l.Tokens != nil {
 		fmt.Fprint(w, "\"tokens\":[")
@@ -77,7 +89,7 @@ type token struct {
 	Snap          bool   `json:"snap"`
 }
 
-func (t token) WriteTo(w io.Writer) {
+func (t *token) WriteTo(w io.Writer) {
 	fmt.Fprintf(w, "{\"src\":%q,\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"rotation\":%d,\"flip\":%t,\"flop\":%t,\"snap\":%t", t.Source, t.X, t.Y, t.Width, t.Height, t.Rotation, t.Flip, t.Flop, t.Snap)
 	if t.PatternWidth > 0 && t.PatternHeight > 0 {
 		fmt.Fprintf(w, ",\"patternWidth\":%d,\"patternHeight\":%d", t.PatternWidth, t.PatternHeight)
