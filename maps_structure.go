@@ -57,7 +57,11 @@ func (l *layer) validate(layers map[string]struct{}) error {
 		return ErrDuplicateLayer
 	}
 	layers[l.Name] = struct{}{}
-	if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Grid" && (l.Tokens != nil || l.Layers != nil) || l.Name == "Light" && l.Layers != nil {
+	if l.Name == "Grid" {
+		if l.Tokens != nil || l.Layers != nil {
+			return ErrInvalidLayer
+		}
+	} else if l.Tokens != nil && l.Tokens != nil || l.Tokens == nil && l.Layers == nil || l.Name == "Light" && l.Layers != nil {
 		return ErrInvalidLayer
 	}
 	for _, layer := range l.Layers {
@@ -70,15 +74,7 @@ func (l *layer) validate(layers map[string]struct{}) error {
 
 func (l *layer) WriteTo(w io.Writer) {
 	fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t,", l.Name, l.Mask, l.Hidden)
-	if l.Tokens != nil {
-		fmt.Fprint(w, "\"tokens\":[")
-		for n, t := range l.Tokens {
-			if n > 0 {
-				fmt.Fprint(w, ",")
-			}
-			t.WriteTo(w)
-		}
-	} else {
+	if l.Layers != nil {
 		fmt.Fprint(w, "\"layers\":[")
 		for n, l := range l.Layers {
 			if n > 0 {
@@ -87,6 +83,14 @@ func (l *layer) WriteTo(w io.Writer) {
 			fmt.Fprint(w, "{")
 			l.WriteTo(w)
 			fmt.Fprint(w, "}")
+		}
+	} else if l.Name == "Grid" {
+		fmt.Fprint(w, "\"tokens\":[")
+		for n, t := range l.Tokens {
+			if n > 0 {
+				fmt.Fprint(w, ",")
+			}
+			t.WriteTo(w)
 		}
 	}
 	fmt.Fprint(w, "]")
