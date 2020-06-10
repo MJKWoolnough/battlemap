@@ -29,7 +29,7 @@ const (
 	fileTypeUnknown fileType = iota
 	fileTypeImage
 	fileTypeAudio
-	fileTypeCharacter
+	fileTypeKeystore
 	fileTypeMap
 )
 
@@ -39,9 +39,9 @@ func getType(mime string) fileType {
 		return fileTypeImage
 	case "application/ogg", "audio/mpeg":
 		return fileTypeAudio
-	case "text/plain":
-		return fileTypeCharacter
-	case "text/xml":
+	case "application/x-gzip":
+		return fileTypeKeystore
+	case "text/plain; charset=utf-8":
 		return fileTypeMap
 	}
 	return fileTypeUnknown
