@@ -1,5 +1,5 @@
-import {Colour, Int, LayerTokens, LayerFolder} from './types.js';
-import {defs} from './lib/svg.js';
+import {Colour, Int, LayerTokens, LayerFolder, Token} from './types.js';
+import {defs, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 
@@ -101,7 +101,7 @@ export class SVGTransform {
 	flop: boolean = false;
 	width: Int;
 	height: Int;
-	constructor(transform: SVGAnimatedTransformList, width: Int, height: Int) {
+	constructor(token: Token) {
 		this.width = width;
 		this.height = height;
 		for (let i = 0; i < transform.baseVal.numberOfItems; i++) {
@@ -285,9 +285,9 @@ export class SVGToken {
 export class SVGShape {
 	node: SVGRectElement | SVGCircleElement;
 	transform: SVGTransform;
-	constructor(node: SVGRectElement | SVGCircleElement) {
-		this.node = node;
-		this.transform = new SVGTransform(node.transform, parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
+	constructor(token: Token) {
+		this.transform = new SVGTransform(token);
+		this.node = rect({"transform": this.transform.toString()});
 	}
 	get fill() {
 		const fill = this.node.getAttribute("fill") || "";
