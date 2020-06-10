@@ -49,7 +49,7 @@ type layer struct {
 	Mask   uint64   `json:"mask"`
 	Hidden bool     `json:"hidden"`
 	Tokens []*token `json:"tokens"`
-	Layers []*layer `json:"layers"`
+	Layers []*layer `json:"children"`
 }
 
 func (l *layer) validate(layers map[string]struct{}) error {
@@ -75,7 +75,7 @@ func (l *layer) validate(layers map[string]struct{}) error {
 func (l *layer) WriteTo(w io.Writer) {
 	fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t,", l.Name, l.Mask, l.Hidden)
 	if l.Layers != nil {
-		fmt.Fprint(w, "\"layers\":[")
+		fmt.Fprint(w, "\"children\":[")
 		for n, l := range l.Layers {
 			if n > 0 {
 				fmt.Fprint(w, ",")
