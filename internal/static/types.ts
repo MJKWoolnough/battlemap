@@ -126,30 +126,14 @@ export type RPC = {
 	close: () => void;
 };
 
-export type MapData = {
+export type MapData = LayerFolder & {
 	width: Int;
 	height: Int;
 	gridSize: Int;
 	gridStroke: Int;
 	gridColour: Colour;
 	light: Colour;
-	children: LayerData[];
 };
-
-type LayerData = {
-	id: Int;
-	name: string;
-	mask: Int;
-	hidden: boolean;
-};
-
-type LayerTokensData = LayerData & {
-	tokens: Token[];
-};
-
-type LayerFolderData = LayerData & {
-	children: LayerData[];
-}
 
 export type IDName = {
 	id:   Int;
@@ -184,7 +168,7 @@ export type GridDetails = {
 }
 
 export type Token = {
-	source:      string;
+	source:      Int;
 	stroke:      Colour;
 	strokeWidth: Int;
 	x:           Int;
@@ -198,18 +182,19 @@ export type Token = {
 	tokenType:   Int;
 };
 
-export type Layer = {
+export type LayerTokens = {
 	id: Int;
 	name: string;
 	hidden: boolean;
-	mask: string;
+	mask: Int;
+	tokens: Token[];
 }
 
 export type LayerFolder = FolderItems & {
 	id: Int;
 	name: string;
 	hidden: boolean;
-	children: (Layer | LayerFolder)[];
+	children: (LayerTokens | LayerFolder)[];
 }
 
 export type LayerMove = FromTo & {
