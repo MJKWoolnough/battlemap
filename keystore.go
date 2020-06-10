@@ -95,7 +95,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
 	k.data = keystore.NewFileBackedMemStoreFromFileStore(fileStore)
-	k.fileType = fileTypeCharacter
+	k.fileType = fileTypeKeystore
 	k.folders.Init(b, fileStore, k.cleanup)
 	return nil
 }
