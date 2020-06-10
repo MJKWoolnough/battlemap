@@ -1,17 +1,18 @@
-import {Int, RPC} from './types.js';
+import {Int, RPC, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
-import {createSVG, g, image, rect, path, pattern} from './lib/svg.js';
+import {g, image, rect, path, pattern, svg} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_fns.js';
 import {scrollAmount} from './settings.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
-	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "document"}).then(mapData => {
-		const root = createSVG((mapData as Document).getElementsByTagName("svg")[0], {"style": "position: absolute", "data-is-folder": "true", "data-name": ""}),
+	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}).then((mapData: MapData) => {
+		const layerList = processLayers(mapData) as SVGFolder,
+		      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}),
 		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
@@ -53,8 +54,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
 		      },
-		      definitions = new Defs(root),
-		      layerList = processLayers(root) as SVGFolder;
+		      definitions = new Defs(root);
 		if (!definitions.list["gridPattern"]) {
 			definitions.add(pattern({"id": "gridPattern"}, path()));
 		}
