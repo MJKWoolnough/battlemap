@@ -1,9 +1,9 @@
-import {Colour, Int, Layer, LayerFolder} from './types.js';
+import {Colour, Int, LayerTokens, LayerFolder} from './types.js';
 import {defs} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 
-export type SVGLayer = Layer & {
+export type SVGLayer = LayerTokens & {
 	node: SVGElement;
 	tokens: SortNode<SVGToken | SVGShape>;
 };
