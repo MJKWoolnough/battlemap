@@ -126,10 +126,30 @@ export type RPC = {
 	close: () => void;
 };
 
-export type Map = {
-	id:   Int;
-	name: string;
+export type MapData = {
+	width: Int;
+	height: Int;
+	gridSize: Int;
+	gridStroke: Int;
+	gridColour: Colour;
+	light: Colour;
+	children: LayerData[];
 };
+
+type LayerData = {
+	id: Int;
+	name: string;
+	mask: Int;
+	hidden: boolean;
+};
+
+type LayerTokensData = LayerData & {
+	tokens: Token[];
+};
+
+type LayerFolderData = LayerData & {
+	children: LayerData[];
+}
 
 export type IDName = {
 	id:   Int;
