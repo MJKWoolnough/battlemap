@@ -1,4 +1,4 @@
-import {Colour, GridDetails, Int} from './types.js';
+import {Colour, GridDetails, Int, LayerFolder, LayerTokens} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {g, image, pattern, rect} from './lib/svg.js';
@@ -44,26 +44,26 @@ getParentToken = (root: SVGFolder, path: string, pos: Int): [SVGLayer | null, SV
 	}
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
 },
-processLayers = (node: SVGElement): SVGFolder | SVGLayer => {
-	const name = node.getAttribute("data-name") ?? `Layer ${layerNum++}`,
-	      hidden = node.getAttribute("visibility") === "hidden",
-	      id = idNames[name] ?? 1;
-	return node.getAttribute("data-is-folder") === "true" ? {
-		id,
-		node,
-		name,
-		hidden,
-		children: SortNode.from<SVGFolder | SVGLayer>(node, c => c instanceof SVGGElement ? processLayers(c) : undefined),
-		folders: {},
-		items: {},
-	} : {
-		id,
-		node,
-		name,
-		hidden,
-		mask: node.getAttribute("mask") || "",
-		tokens: SortNode.from<SVGToken | SVGShape, SVGElement>(node, c => c instanceof SVGImageElement ? new SVGToken(c) : c instanceof SVGRectElement || c instanceof SVGCircleElement ? new SVGShape(c) : undefined)
-	};
+isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
+processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
+	if (!layer["name"]) {
+		layer["name"] = `Layer ${layerNum++}`;
+	}
+	const node = g();
+	if (isLayerFolder(layer)) {
+		const children = new SortNode<SVGFolder | SVGLayer>(node);
+		layer.children.forEach(c => children.push(processLayers(c)));
+		return Object.assign(layer, {node, children});
+	}
+	const tokens = new SortNode<SVGToken | SVGShape>(node);
+	layer.tokens.forEach(t => {
+		if (t["source"] === 0) {
+			tokens.push(new SVGShape(t));
+		} else {
+			tokens.push(new SVGToken(t));
+		}
+	});
+	return Object.assign(layer, {id: idNames[name] ?? 1, node, tokens});
 },
 setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
 	const layer = getLayer(layerList, path)!;
@@ -82,13 +82,13 @@ setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int,
 	}
 	return newToken;
 },
-addLayerFolder = (layerList: SVGFolder, path: string) => (layerList.children.push(processLayers(g({"data-name": splitAfterLastSlash(path), "data-is-folder": "true"}))), path),
+addLayerFolder = (layerList: SVGFolder, path: string) => (layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (layerList: SVGFolder, path: string, name: string) => getLayer(layerList, path)!.name = name,
 removeLayer = (layerList: SVGFolder, path: string) => {
 	const [fromParent, layer] = getParentLayer(layerList, path);
 	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 },
-addLayer = (layerList: SVGFolder, name: string) => (layerList.children.push(processLayers(g({"data-name": name}))), name),
+addLayer = (layerList: SVGFolder, name: string) => (layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": []})), name),
 moveLayer = (layerList: SVGFolder, from: string, to: string, pos: Int) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(layerList, parentStr)!,
