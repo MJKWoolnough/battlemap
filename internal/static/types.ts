@@ -80,7 +80,7 @@ export type RPC = {
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
 
-	newMap:         (map: MapDetails)  => Promise<IDName>;
+	newMap:         (map: NewMap)      => Promise<IDName>;
 	setMapDetails:  (map: GridDetails) => Promise<void>;
 	setLightColour: (c: Colour)        => Promise<void>;
 
@@ -157,6 +157,10 @@ export type Colour = {
 export type MapDetails = GridDetails & {
 	width: Int;
 	height: Int;
+}
+
+export type NewMap = MapDetails & {
+	name: string;
 }
 
 export type GridDetails = {
