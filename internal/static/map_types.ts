@@ -81,10 +81,34 @@ export class SVGTransform {
 export class SVGToken {
 	node: SVGImageElement;
 	transform: SVGTransform;
+	source: Int;
+	stroke: Colour;
+	strokeWidth: Int;
+	x: Int;
+	y: Int;
+	width: Int;
+	height: Int;
+	rotation: Int;
+	flip: boolean;
+	flop: boolean;
+	tokenData: Int;
+	tokenType: Int;
 	snap: boolean;
 	constructor(token: Token) {
 		this.node = image();
 		this.transform = new SVGTransform(token);
+		this.source = token.source;
+		this.stroke = token.stroke;
+		this.strokeWidth = token.strokeWidth;
+		this.x = token.x;
+		this.y = token.y;
+		this.width = token.width;
+		this.height = token.height;
+		this.rotation = token.rotation;
+		this.flip = token.flip;
+		this.flop = token.flop;
+		this.tokenData = token.tokenData;
+		this.tokenType = token.tokenType;
 		this.snap = token.snap;
 	}
 	at(x: Int, y: Int) {
@@ -96,54 +120,35 @@ export class SVGToken {
 export class SVGShape {
 	node: SVGRectElement | SVGCircleElement;
 	transform: SVGTransform;
+	source: Int;
+	stroke: Colour;
+	strokeWidth: Int;
+	x: Int;
+	y: Int;
+	width: Int;
+	height: Int;
+	rotation: Int;
+	flip: boolean;
+	flop: boolean;
+	tokenData: Int;
+	tokenType: Int;
+	snap: boolean;
 	constructor(token: Token) {
 		this.transform = new SVGTransform(token);
 		this.node = rect({"transform": this.transform.toString()});
-	}
-	get fill() {
-		const fill = this.node.getAttribute("fill") || "";
-		if (!fill.startsWith("rgb")) {
-			throw new Error("invalid fill access");
-		}
-		return rgba2Colour(fill);
-	}
-	set fill(c: Colour) {
-		this.node.setAttribute("fill", colour2RGBA(c));
-	}
-	get fillSrc() {
-		const fill = this.node.getAttribute("fill") || "";
-		if (!fill.startsWith("url(#")) {
-			throw new Error("invalid fill access");
-		}
-		return fill.slice(5, -1);
-	}
-	get isPattern() {
-		return (this.node.getAttribute("fill") || "").startsWith("url(#");
-	}
-	set fillSrc(src: string) {
-		this.node.setAttribute("fill", "url(#" + src + ")");
-	}
-	get stroke() {
-		return rgba2Colour(this.node.getAttribute("stroke") || "");
-	}
-	set stroke(s: Colour) {
-		this.node.setAttribute("stroke", colour2RGBA(s));
-	}
-	get strokeWidth() {
-		return parseInt(this.node.getAttribute("stroke-width") || "0");
-	}
-	set strokeWidth(w: Int) {
-		this.node.setAttribute("stroke-width", w.toString());
-	}
-	get snap() {
-		return this.node.getAttribute("data-snap") === "true";
-	}
-	set snap(s: boolean) {
-		if (s) {
-			this.node.setAttribute("data-snap", "true");
-		} else {
-			this.node.removeAttribute("data-snap");
-		}
+		this.source = token.source;
+		this.stroke = token.stroke;
+		this.strokeWidth = token.strokeWidth;
+		this.x = token.x;
+		this.y = token.y;
+		this.width = token.width;
+		this.height = token.height;
+		this.rotation = token.rotation;
+		this.flip = token.flip;
+		this.flop = token.flop;
+		this.tokenData = token.tokenData;
+		this.tokenType = token.tokenType;
+		this.snap = token.snap;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
