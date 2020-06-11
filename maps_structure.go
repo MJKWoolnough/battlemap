@@ -29,7 +29,19 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 		return sr.Count, err
 	}
 	l.layers = make(map[string]struct{})
-	return sr.Count, l.validate(l.layers)
+	err = l.validate(l.layers, true)
+	if err != nil {
+		return sr.Count, err
+	}
+	if _, ok := l.layers["Grid"]; !ok {
+		l.Layers = append(l.Layers, &layer{Name: "Grid", Tokens: []*token{}})
+		l.layers["Grid"] = struct{}{}
+	}
+	if _, ok := l.layers["Light"]; !ok {
+		l.Layers = append(l.Layers, &layer{Name: "Light", Tokens: []*token{}})
+		l.layers["Light"] = struct{}{}
+	}
+	return sr.Count, nil
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
@@ -52,7 +64,7 @@ type layer struct {
 	Layers []*layer `json:"children"`
 }
 
-func (l *layer) validate(layers map[string]struct{}) error {
+func (l *layer) validate(layers map[string]struct{}, first bool) error {
 	if _, ok := layers[l.Name]; ok {
 		return ErrDuplicateLayer
 	}
@@ -65,7 +77,10 @@ func (l *layer) validate(layers map[string]struct{}) error {
 		return ErrInvalidLayer
 	}
 	for _, layer := range l.Layers {
-		if err := layer.validate(layers); err != nil {
+		if !first && (l.Name == "Grid" || l.Name == "Light") {
+			return ErrInvalidLayer
+		}
+		if err := layer.validate(layers, false); err != nil {
 			return err
 		}
 	}
