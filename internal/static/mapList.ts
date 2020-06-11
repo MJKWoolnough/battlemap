@@ -182,13 +182,12 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
 						const sq = parseInt(sqWidth.value);
 						loadingWindow(rpc.newMap({
-							"id": 0,
 							"name": name.value,
 							"width": parseInt(width.value) * sq,
 							"height": parseInt(height.value) * sq,
-							"square": sq,
-							"colour": hex2Colour(sqColour.value),
-							"stroke": parseInt(sqLineWidth.value)
+							"gridSize": sq,
+							"gridColour": hex2Colour(sqColour.value),
+							"gridStroke": parseInt(sqLineWidth.value)
 						}), window).then(({id, name}) => {
 							root.addItem(id, name);
 							window.remove();
