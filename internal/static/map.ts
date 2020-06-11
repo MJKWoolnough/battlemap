@@ -5,7 +5,7 @@ import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, SVGGrid, SVGImage, Defs, SVGToken, SVGShape} from './map_types.js';
+import {SVGLayer, SVGFolder, Defs, SVGToken, SVGShape} from './map_types.js';
 import {addLayer, addLayerFolder, processLayers, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
@@ -41,12 +41,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		canceller();
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, root, panZoom, outline, definitions, layerList] = passed,
+		const [base, cancel, root, panZoom, outline, definitions, layerList, mapData] = passed,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
 			      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
-			      sq = (definitions.list["gridPattern"] as SVGGrid).width;
+			      sq = mapData.gridSize;
 			switch (tokenDragMode) {
 			case 0:
 				x += dx;
@@ -198,7 +198,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			    tw = tokenData.width,
 			    th = tokenData.height;
 			if (autosnap.value) {
-				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				const sq = mapData.gridSize;
 				x = Math.round(x / sq) * sq;
 				y = Math.round(y / sq) * sq;
 				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
@@ -234,7 +234,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			if (selectedToken!.snap) {
-				const sq = (definitions.list["gridPattern"] as SVGGrid).width;
+				const sq = mapData.gridSize;
 				switch (e.key) {
 				case "ArrowUp":
 					selectedToken!.transform.y -= sq;
@@ -321,7 +321,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
 					if (selectedToken!.snap) {
-						const sq = (definitions.list["gridPattern"] as SVGGrid).width,
+						const sq = mapData.gridSize,
 						      transform = selectedToken!.transform,
 						      {x, y, width, height, rotation} = transform;
 						tokenMousePos.x = transform.x = Math.round(x / sq) * sq;
@@ -377,37 +377,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				item("Delete", deleteToken)
 			]);
 		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))));
-		if (!definitions.list["gridPattern"]) {
-			definitions.add(pattern({"id": "gridPattern"}, path()));
-		}
-		{
-			const gridRect = rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}),
-			      grid = getLayer(layerList, "/Grid");
-			if (grid && isSVGLayer(grid)) {
-				grid.tokens.filterRemove(() => true);
-				grid.tokens.push(new SVGShape(gridRect));
-			} else {
-				layerList.children.push(processLayers(g({"data-name": "Grid"}, gridRect)));
-			}
-		}
-		{
-			const lightRect = rect({"width": "100%", "height": "100%", "fill": "transparent" }),
-			      light = getLayer(layerList, "/Light");
-			if (light && isSVGLayer(light)) {
-				if (light.tokens.length !== 1) {
-					light.tokens.filterRemove(() => true);
-					light.tokens.push(new SVGShape(lightRect));
-				} else {
-					const rect = light.tokens[0];
-					if (!(rect instanceof SVGShape) || rect.node.getAttribute("width") !== "100%" || rect.node.getAttribute("height") !== "100%") {
-						light.tokens.filterRemove(() => true);
-						light.tokens.push(new SVGShape(lightRect));
-					}
-				}
-			} else {
-				layerList.children.push(processLayers(g({"data-name": "Light"}, lightRect)));
-			}
-		}
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -449,20 +418,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 				return rpc.moveLayer(from, to, pos);
 			},
-			"getMapDetails": () => {
-				const grid = definitions.list["gridPattern"] as SVGGrid;
-				return {
-					"width": parseInt(root.getAttribute("width")!),
-					"height": parseInt(root.getAttribute("height")!),
-					"square": grid.width,
-					"colour": grid.stroke,
-					"stroke": grid.strokeWidth
-				}
-			},
+			"getMapDetails": () => mapData,
 			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(setMapDetails(root, definitions, details)),
-			"getLightColour": () => {
-				return ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill
-			},
+			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(layerList, c)),
 		});
 		oldBase = base;
