@@ -1,16 +1,17 @@
-import {Int, RPC, MapData} from './types.js';
+import {Int, RPC, GridDetails, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {g, image, rect, path, pattern, svg} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGGrid, SVGImage, SVGLayer, SVGShape, SVGToken} from './map_types.js';
+import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_fns.js';
 import {scrollAmount} from './settings.js';
+import {colour2RGBA} from './misc.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
-	return HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}).then((mapData: MapData) => {
+	return (HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}) as Promise<MapData>).then(mapData => {
 		const layerList = processLayers(mapData) as SVGFolder,
 		      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}),
 		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
@@ -36,7 +37,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			} else {
 				const deltaY = e.shiftKey ? 0 : -e.deltaY,
 				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-				      amount = scrollAmount.value || (definitions.list["gridPattern"] as SVGGrid).width;
+				      amount = scrollAmount.value || mapData.gridSize;
 				panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
 				panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
 			}
@@ -55,37 +56,9 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			viewPos.mouseY = e.clientY;
 		      },
 		      definitions = new Defs(root);
-		if (!definitions.list["gridPattern"]) {
-			definitions.add(pattern({"id": "gridPattern"}, path()));
-		}
-		{
-			const gridRect = rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}),
-			      grid = getLayer(layerList, "/Grid");
-			if (grid && isSVGLayer(grid)) {
-				grid.tokens.filterRemove(() => true);
-				grid.tokens.push(new SVGShape(gridRect));
-			} else {
-				layerList.children.push(processLayers(g({"data-name": "Grid"}, gridRect)));
-			}
-		}
-		{
-			const lightRect = rect({"width": "100%", "height": "100%", "fill": "transparent" }),
-			      light = getLayer(layerList, "/Light");
-			if (light && isSVGLayer(light)) {
-				if (light.tokens.length !== 1) {
-					light.tokens.filterRemove(() => true);
-					light.tokens.push(new SVGShape(lightRect));
-				} else {
-					const rect = light.tokens[0];
-					if (!(rect instanceof SVGShape) || rect.node.getAttribute("width") !== "100%" || rect.node.getAttribute("height") !== "100%") {
-						light.tokens.filterRemove(() => true);
-						light.tokens.push(new SVGShape(lightRect));
-					}
-				}
-			} else {
-				layerList.children.push(processLayers(g({"data-name": "Light"}, lightRect)));
-			}
-		}
+		definitions.setGrid(mapData);
+		(getLayer(layerList, "/Grid") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+		(getLayer(layerList, "/Light") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 		oldBase.replaceWith(base);
 		return [
 			base,
@@ -105,7 +78,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 						// error
 						return;
 					}
-					layer.tokens.push(new SVGToken(image({"href": tk.source, "preserveAspectRatio": "none", "width": tk.width, "height": tk.height, "transform": `translate(${tk.x}, ${tk.y})`})))
+					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": {r: 0, g: 0, b: 0, a:0}, "strokeWidth": 0, "snap": false, "tokenType": 0})))
 				}),
 				rpc.waitTokenMoveLayer().then(tm => {
 					const [parent, token] = getParentToken(layerList, tm.from, tm.pos);
@@ -170,7 +143,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			panZoom,
 			outline,
 			definitions,
-			layerList
+			layerList,
+			mapData
 		] as [
 			HTMLDivElement,
 			() => void,
@@ -178,7 +152,8 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			{ x: Int; y: Int; zoom: Int},
 			SVGGElement,
 			Defs,
-			SVGFolder
+			SVGFolder,
+			MapData
 		];
 	});
 }
