@@ -154,7 +154,10 @@ export type Colour = {
 	a: Int;
 };
 
-export type MapDetails = GridDetails & IDName
+export type MapDetails = GridDetails & {
+	width: Int;
+	height: Int;
+}
 
 export type GridDetails = {
 	gridSize:  Int;
