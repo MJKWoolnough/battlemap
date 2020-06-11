@@ -1,5 +1,5 @@
-import {Colour, Int, LayerTokens, LayerFolder, Token} from './types.js';
-import {defs, rect} from './lib/svg.js';
+import {Colour, GridDetails, Int, LayerTokens, LayerFolder, Token} from './types.js';
+import {defs, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 
@@ -13,84 +13,37 @@ export type SVGFolder = LayerFolder & {
 	children: SortNode<SVGFolder | SVGLayer>;
 };
 
-export class SVGPattern {
-	pattern: SVGPatternElement;
-	constructor(pattern: SVGPatternElement) {
-		this.pattern = pattern;
+export class Defs {
+	defs: SVGDefsElement;
+	list: Record<string, SVGPatternElement> = {};
+	constructor(root: Node) {
+		this.defs = root.appendChild(defs());
 	}
-	static from(p: SVGPatternElement) {
-		if (p.firstChild instanceof SVGPathElement) {
-			if (p.getAttribute("id") === "gridPattern") {
-				return new SVGGrid(p.firstChild);
+	add(p: SVGPatternElement) {
+		let id = p.getAttribute("id");
+		if (!id) {
+			let i = 0;
+			while (this.list[`Pattern_${i}`] !== undefined) {
+				i++;
 			}
-			return new SVGPath(p.firstChild);
-		} else if (p.firstChild instanceof SVGImageElement) {
-			return new SVGImage(p.firstChild);
+			id = `Pattern_${i}`;
+			p.setAttribute("id", id);
 		}
-		return new SVGPattern(p);
+		//this.list[id] = SVGPattern.from(p);
+		this.defs.appendChild(p);
+		return id;
 	}
-	get id() {
-		return this.pattern.getAttribute("id") || "";
+	remove(id: string) {
+		this.defs.removeChild(this.list[id]);
+		delete(this.list[id]);
 	}
-	get width() {
-		return parseInt(this.pattern.getAttribute("width") || "0");
+	setGrid(grid: GridDetails) {
+		const old = this.list["grid"];
+		if (old) {
+			this.defs.removeChild(old);
+		}
+		this.list["grid"] = this.defs.appendChild(pattern({"id": "gridPattern", "width": grid.gridSize, "height": grid.gridSize}, path({"path": `M 0 ${grid.gridSize} V 0 H ${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke})));
 	}
-	set width(w: Int) {
-		this.pattern.setAttribute("width", w.toString());
-	}
-	get height() {
-		return parseInt(this.pattern.getAttribute("height") || "0");
-	}
-	set height(h: Int) {
-		this.pattern.setAttribute("height", h.toString());
-	}
-}
-
-export class SVGPath extends SVGPattern {
-	path: SVGPathElement;
-	constructor(path: SVGPathElement) {
-		super(path.parentNode as SVGPatternElement);
-		this.path = path;
-	}
-	get d() {
-		return this.path.getAttribute("d") || "";
-	}
-	set d(d: string) {
-		this.path.setAttribute("d", d);
-	}
-	get fill() {
-		return rgba2Colour(this.path.getAttribute("fill") || "");
-	}
-	set fill(f: Colour) {
-		this.path.setAttribute("fill", colour2RGBA(f));
-	}
-	get stroke() {
-		return rgba2Colour(this.path.getAttribute("stroke") || "");
-	}
-	set stroke(s: Colour) {
-		this.path.setAttribute("stroke", colour2RGBA(s));
-	}
-	get strokeWidth() {
-		return parseInt(this.path.getAttribute("stroke-width") || "0");
-	}
-	set strokeWidth(w: Int) {
-		this.path.setAttribute("stroke-width", w.toString());
-	}
-}
-
-export class SVGGrid extends SVGPath {
-	get width() {
-		return super.width;
-	}
-	set width(w: Int) {
-		this.d = `M 0 ${w} V 0 H ${w}`;
-		super.width = w;
-		super.height = w;
-	}
-	get height() {
-		return this.width;
-	}
-	set height(h: Int) {}
 }
 
 export class SVGTransform {
@@ -102,39 +55,13 @@ export class SVGTransform {
 	width: Int;
 	height: Int;
 	constructor(token: Token) {
-		this.width = width;
-		this.height = height;
-		for (let i = 0; i < transform.baseVal.numberOfItems; i++) {
-			const svgTransform = transform.baseVal.getItem(i);
-			switch (svgTransform.type) {
-			case 2: // Translate
-				this.x += Math.round(svgTransform.matrix.e);
-				this.y += Math.round(svgTransform.matrix.f);
-				break;
-			case 3: // Scale
-				this.flop = svgTransform.matrix.a === -1;
-				this.flip = svgTransform.matrix.d === -1;
-				break;
-			case 4: // Rotate
-				this.rotation = 256 * Math.round(svgTransform.angle) / 360;
-				while (this.rotation < 0) {
-					this.rotation += 256;
-				}
-				while (this.rotation >= 256) {
-					this.rotation -=256;
-				}
-				break;
-			}
-		}
-		if (this.flop) {
-			this.x -= this.width;
-		}
-		if (this.flip) {
-			this.y -= this.height;
-		}
-		if (this.flip !== this.flop && this.rotation > 0) {
-			this.rotation = 256 - this.rotation;
-		}
+		this.width = token.width;
+		this.height = token.height;
+		this.x = token.x;
+		this.y = token.y;
+		this.rotation = token.rotation;
+		this.flip = token.flip;
+		this.flop = token.flop;
 	}
 	toString(scale = true) {
 		let ret = "";
@@ -151,130 +78,14 @@ export class SVGTransform {
 	}
 }
 
-export class SVGImage extends SVGPattern {
-	image: SVGImageElement;
-	transform: SVGTransform;
-	constructor(image: SVGImageElement) {
-		super(image.parentNode as SVGPatternElement);
-		this.image = image;
-		this.transform = new SVGTransform(image.transform, this.width, this.height);
-	}
-	get width() {
-		return super.width;
-	}
-	set width(w: Int) {
-		this.transform.width = w;
-		this.updateTransform();
-		super.width = w;
-	}
-	get height() {
-		return super.height;
-	}
-	set height(h: Int) {
-		this.transform.height = h;
-		this.updateTransform();
-		super.height = h;
-	}
-	get source() {
-		return this.image.getAttribute("href") || "";
-	}
-	set source(src: string) {
-		this.image.setAttribute("href", src);
-	}
-	get translateX() {
-		return this.transform.x;
-	}
-	set translateX(x: Int) {
-		this.transform.x = x;
-		this.updateTransform();
-	}
-	get translateY() {
-		return this.transform.x;
-	}
-	set translateY(y: Int) {
-		this.transform.y = y;
-		this.updateTransform();
-	}
-	get translate() {
-		return [this.transform.x, this.transform.y];
-	}
-	set translate(t: [Int, Int]) {
-		this.transform.x = t[0];
-		this.transform.y = t[1];
-		this.updateTransform();
-	}
-	get rotation() {
-		return this.transform.rotation;
-	}
-	set rotation(r: Int) {
-		this.transform.rotation = r;
-		this.updateTransform();
-	}
-	get flip() {
-		return this.transform.flip;
-	}
-	set flip(f: boolean) {
-		this.flip = f;
-		this.updateTransform();
-	}
-	get flop() {
-		return this.transform.flop;
-	}
-	set flop(f: boolean) {
-		this.flop = f;
-		this.updateTransform();
-	}
-	updateTransform() {
-		this.image.setAttribute("transform", this.transform.toString());
-	}
-}
-
-export class Defs {
-	defs: SVGDefsElement;
-	list: Record<string, SVGPattern | SVGImage> = {};
-	constructor(root: Node) {
-		this.defs = root.appendChild(defs(SortNode.from(root).filterRemove(({node}) => node instanceof SVGDefsElement).flatMap(c => Array.from(c.node.childNodes))));
-		(Array.from(this.defs.childNodes).filter(c => c instanceof SVGPatternElement) as SVGPatternElement[]).forEach(c => {
-			const p = SVGPattern.from(c);
-			this.list[p.id] = p;
-		});
-	}
-	add(p: SVGPatternElement) {
-		let id = p.getAttribute("id");
-		if (!id) {
-			let i = 0;
-			while (this.list[`Pattern_${i}`] !== undefined) {
-				i++;
-			}
-			id = `Pattern_${i}`;
-			p.setAttribute("id", id);
-		}
-		this.list[id] = SVGPattern.from(p);
-		this.defs.appendChild(p);
-		return id;
-	}
-	remove(id: string) {
-		this.defs.removeChild(this.list[id].pattern);
-		delete(this.list[id]);
-	}
-}
-
 export class SVGToken {
 	node: SVGImageElement;
 	transform: SVGTransform;
-	constructor(node: SVGImageElement) {
-		this.node = node;
-		this.transform = new SVGTransform(node.transform, parseInt(node.getAttribute("width") || "0"), parseInt(node.getAttribute("height") || "0"));
-	}
-	get snap() {
-		return this.node.getAttribute("data-snap") === "true";
-	}
-	set snap(s: boolean) {
-		if (s) {
-			this.node.setAttribute("data-snap", "true");
-		} else {
-			this.node.removeAttribute("data-snap");
-		}
+	snap: boolean;
+	constructor(token: Token) {
+		this.node = image();
+		this.transform = new SVGTransform(token);
+		this.snap = token.snap;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
