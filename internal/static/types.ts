@@ -126,13 +126,10 @@ export type RPC = {
 	close: () => void;
 };
 
-export type MapData = LayerFolder & {
+export type MapData = LayerFolder & GridDetails & {
 	width: Int;
 	height: Int;
-	gridSize: Int;
-	gridStroke: Int;
-	gridColour: Colour;
-	light: Colour;
+	lightColour: Colour;
 };
 
 export type IDName = {
@@ -160,11 +157,9 @@ export type Colour = {
 export type MapDetails = GridDetails & IDName
 
 export type GridDetails = {
-	width:  Int;
-	height: Int;
-	square: Int;
-	colour: Colour;
-	stroke: Int;
+	gridSize:  Int;
+	gridStroke: Int;
+	gridColour: Colour;
 }
 
 export type Token = {
@@ -180,6 +175,7 @@ export type Token = {
 	flop:        boolean;
 	tokenData:   Int;
 	tokenType:   Int;
+	snap:        boolean;
 };
 
 export type LayerTokens = {
@@ -212,7 +208,7 @@ type TokenPos = {
 }
 
 type TokenAdd = TokenPos & {
-	source: string;
+	source: Int;
 	x: Int;
 	y: Int;
 	width: Int;
