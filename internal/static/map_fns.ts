@@ -1,8 +1,9 @@
-import {Colour, GridDetails, Int, LayerFolder, LayerTokens} from './types.js';
+import {Colour, MapDetails, Int, LayerFolder, LayerTokens} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {g, image, pattern, rect} from './lib/svg.js';
-import {Defs, SVGLayer, SVGFolder, SVGGrid, SVGImage, SVGToken, SVGShape} from './map_types.js';
+import {Defs, SVGLayer, SVGFolder, SVGToken, SVGShape} from './map_types.js';
+import {colour2RGBA} from './misc.js';
 
 let layerNum = 0;
 
@@ -97,13 +98,10 @@ moveLayer = (layerList: SVGFolder, from: string, to: string, pos: Int) => {
 		toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 	}
 },
-setMapDetails = (root: SVGElement, definitions: Defs, details: GridDetails) => {
-	const grid = definitions.list["gridPattern"] as SVGGrid;
+setMapDetails = (root: SVGElement, definitions: Defs, details: MapDetails) => {
 	root.setAttribute("width", details["width"].toString());
 	root.setAttribute("height", details["height"].toString());
-	grid.width = details["square"];
-	grid.stroke = details["colour"];
-	grid.strokeWidth = details["stroke"];
+	definitions.setGrid(details);
 	return details;
 },
-setLightColour = (layerList: SVGFolder, c: Colour) => ((getLayer(layerList, "/Light") as SVGLayer).tokens[0] as SVGShape).fill = c;
+setLightColour = (layerList: SVGFolder, c: Colour) => (getLayer(layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c));
