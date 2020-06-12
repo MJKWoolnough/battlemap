@@ -19,18 +19,13 @@ export class Defs {
 	constructor(root: Node) {
 		this.defs = root.appendChild(defs());
 	}
-	add(p: SVGPatternElement) {
-		let id = p.getAttribute("id");
-		if (!id) {
-			let i = 0;
-			while (this.list[`Pattern_${i}`] !== undefined) {
-				i++;
-			}
-			id = `Pattern_${i}`;
-			p.setAttribute("id", id);
+	add(t: SVGToken) {
+		let i = 0;
+		while (this.list[`Pattern_${i}`] !== undefined) {
+			i++;
 		}
-		//this.list[id] = SVGPattern.from(p);
-		this.defs.appendChild(p);
+		const id = `Pattern_${i}`;
+		this.list[id] = this.defs.appendChild(pattern({"id": id, "width": t.width, "height": t.height}, t.node.cloneNode(false)));
 		return id;
 	}
 	remove(id: string) {
