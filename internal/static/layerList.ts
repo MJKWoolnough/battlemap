@@ -128,11 +128,11 @@ class ItemLayer extends Item {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
 			const details = rpcFuncs.getMapDetails(),
-			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.width / details.square), "id": "mapWidth"}),
-			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.height / details.square), "id": "mapHeight"}),
-			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.square, "id": "mapSquareWidth"}),
-			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.colour)}),
-			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.stroke, "id": "mapSquareLineWidth"}),
+			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.width / details.gridSize), "id": "mapWidth"}),
+			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.height / details.gridSize), "id": "mapHeight"}),
+			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
+			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
 			      window = sh.appendChild(windows({"window-title": "Edit Map"}));
 			return createHTML(window, {"class": "mapAdd"}, [
 				h1("Edit Map"),
@@ -156,9 +156,9 @@ class ItemLayer extends Item {
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value) * sq,
 						"height": parseInt(height.value) * sq,
-						"square": sq,
-						"colour": hex2Colour(sqColour.value),
-						"stroke": parseInt(sqLineWidth.value)
+						"gridSize": sq,
+						"gridColour": hex2Colour(sqColour.value),
+						"gridStroke": parseInt(sqLineWidth.value)
 					}), window).then(() => window.remove())
 					.catch(e => showError(this, e));
 				}})
