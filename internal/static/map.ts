@@ -9,6 +9,7 @@ import {SVGLayer, SVGFolder, Defs, SVGToken, SVGShape} from './map_types.js';
 import {addLayer, addLayerFolder, processLayers, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
+import {noColour} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -204,8 +205,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
 				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
 			}
-			const pos = selectedLayer.tokens.push(new SVGToken(image({"href": src, "preserveAspectRatio": "none", "width": tw, "height": th, "transform": `translate(${x}, ${y})`, "data-snap" : autosnap.value ? "true" : "undefined"}))) - 1;
-			rpc.addToken(selectedLayerPath, {"source": src, x, y, "width": tw, "height": th, tokenType: 1} as Token).then(() => {
+			const token = {"source": tokenData.id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
+			const pos = selectedLayer.tokens.push(new SVGToken(token)) - 1;
+			rpc.addToken(selectedLayerPath, token).then(() => {
 				if (autosnap.value) {
 					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
 				}
