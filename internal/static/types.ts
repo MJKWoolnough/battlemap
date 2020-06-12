@@ -170,19 +170,21 @@ export type GridDetails = {
 }
 
 export type Token = {
-	source:      Int;
-	stroke:      Colour;
-	strokeWidth: Int;
-	x:           Int;
-	y:           Int;
-	width:       Int;
-	height:      Int;
-	rotation:    Int;
-	flip:        boolean;
-	flop:        boolean;
-	tokenData:   Int;
-	tokenType:   Int;
-	snap:        boolean;
+	source:        Int;
+	stroke:        Colour;
+	strokeWidth:   Int;
+	x:             Int;
+	y:             Int;
+	width:         Int;
+	height:        Int;
+	patternWidth:  Int;
+	patternHeight: Int;
+	rotation:      Int;
+	flip:          boolean;
+	flop:          boolean;
+	tokenData:     Int;
+	tokenType:     Int;
+	snap:          boolean;
 };
 
 export type LayerTokens = {
