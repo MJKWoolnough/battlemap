@@ -75,13 +75,18 @@ setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) =
 	}
 },
 setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int, imagePattern: boolean) => {
-	const [layer, token] = getParentToken(layerList, path, pos),
-	      newToken = imagePattern && token instanceof SVGToken ? new SVGShape(rect({"width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "fill": `url(#${definitions.add(pattern({"width": token.transform.width, "height": token.transform.height, "patternUnits": "userSpaceOnUse"}, image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "href": token.node.getAttribute("href")!})))})`})) : token instanceof SVGShape ? new SVGToken(image({"preserveAspectRatio": "none", "width": token.transform.width, "height": token.transform.height, "transform": token.transform.toString(), "href": (definitions.list[token.fillSrc] as SVGImage).source})) : null;
-	if (layer && newToken && token) {
-		newToken.snap = token.snap;
-		layer.tokens.splice(pos, 1, newToken);
+	const [layer, token] = getParentToken(layerList, path, pos);
+	if (!token) {
+		return;
 	}
-	return newToken;
+	const oldNode = token.node;
+	if (imagePattern) {
+		definitions.remove(token.node.getAttribute("fill")!.replace(/^url(#/, "").replace(/)$/, ""));
+		token.node = image({"preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": token.transform.toString(), "href": `/images/${token.source}`});
+	} else {
+		token.node = rect({"width": token.width, "height": token.height, "transform": token.transform.toString(), "fill": `url(#${definitions.add(token as SVGToken)})`});
+	}
+	oldNode.replaceWith(token.node);
 },
 addLayerFolder = (layerList: SVGFolder, path: string) => (layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (layerList: SVGFolder, path: string, name: string) => getLayer(layerList, path)!.name = name,
