@@ -74,7 +74,7 @@ export class SVGTransform {
 }
 
 export class SVGToken {
-	node: SVGImageElement;
+	node: SVGImageElement | SVGRectElement;
 	transform: SVGTransform;
 	source: Int;
 	stroke: Colour;
@@ -90,7 +90,6 @@ export class SVGToken {
 	tokenType: Int;
 	snap: boolean;
 	constructor(token: Token) {
-		this.node = image();
 		this.transform = new SVGTransform(token);
 		this.source = token.source;
 		this.stroke = token.stroke;
@@ -105,6 +104,11 @@ export class SVGToken {
 		this.tokenData = token.tokenData;
 		this.tokenType = token.tokenType;
 		this.snap = token.snap;
+		if (token.patternWidth > 0) {
+			this.node = rect({"width": token.width, "height": token.height, "transform": this.transform.toString(), "fill": `url(#${/*definitions.add(this)*/1})`});
+		} else {
+			this.node = image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": this.transform.toString()});
+		}
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
