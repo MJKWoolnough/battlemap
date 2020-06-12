@@ -32,7 +32,7 @@ class ImageAsset extends Item {
 					e.preventDefault();
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				e.dataTransfer!.setData("imageAsset", JSON.stringify({id: this.id.toString(), width: img.naturalWidth, height: img.naturalHeight}));
+				e.dataTransfer!.setData("imageAsset", JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
 				this.icon.style.setProperty("transform", "translateX(-9999px)");
 			}
 		});
