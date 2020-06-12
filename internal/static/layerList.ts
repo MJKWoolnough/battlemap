@@ -1,4 +1,4 @@
-import {Int, LayerRPC, Layer, LayerFolder, FolderItems, FolderRPC} from './types.js';
+import {Int, LayerRPC, LayerTokens, LayerFolder, FolderItems, FolderRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
@@ -28,7 +28,7 @@ const dragFn = (e: MouseEvent) => {
 	document.body.removeEventListener("mousemove", dragFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
-      isLayer = (c: Layer | LayerFolder): c is Layer => (c as LayerFolder).children === undefined,
+      isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
