@@ -110,6 +110,10 @@ export class SVGToken {
 			this.node = image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": this.transform.toString()});
 		}
 	}
+	static from(token: Token) {
+		const transform = new SVGTransform(token);
+		return Object.assign(token, {"node": token.patternWidth > 0 ? rect({"width": token.width, "height": token.height, "transform": transform.toString(), "fill": `url(#${/*definitions.add(this)*/1})`}) : image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()}), transform, "prototype": SVGToken}) as SVGTransform
+	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
