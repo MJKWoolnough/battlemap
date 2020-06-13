@@ -265,4 +265,13 @@ setMapDetails = (root: SVGElement, definitions: Defs, details: MapDetails) => {
 	definitions.setGrid(details);
 	return details;
 },
-setLightColour = (layerList: SVGFolder, c: Colour) => (getLayer(layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c));
+setLightColour = (layerList: SVGFolder, c: Colour) => (getLayer(layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c)),
+globals = {
+	"definitions": null,
+	"root": null,
+	"layerList": null
+} as unknown as {
+	definitions: Defs,
+	root: SVGSVGElement,
+	layerList: SVGFolder
+};
