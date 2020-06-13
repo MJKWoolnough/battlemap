@@ -5,7 +5,7 @@ import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, Defs, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour} from './map_shared.js';
+import {SVGLayer, SVGFolder, Defs, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals} from './map_shared.js';
 import {autosnap} from './settings.js';
 import {mapView} from './userMap.js';
 import {noColour} from './misc.js';
@@ -41,7 +41,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
 		canceller();
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, root, panZoom, outline, definitions, layerList, mapData] = passed,
+		const [base, cancel, panZoom, outline, mapData] = passed,
+		      {root, definitions, layerList} = globals,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
