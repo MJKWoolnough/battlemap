@@ -186,16 +186,16 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 	}
 	return false;
 }) ? layer : null,
-getParentLayer = (root: SVGFolder, path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
+getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
-	      parent = getLayer(root, parentStr);
+	      parent = getLayer(globals.layerList, parentStr);
 	if (!parent || !isSVGFolder(parent)) {
 		return [null, null];
 	}
 	return [parent, getLayer(parent, name)];
 },
-getParentToken = (root: SVGFolder, path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
-	const parent = getLayer(root, path);
+getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
+	const parent = getLayer(globals.layerList, path);
 	if (!parent || !isSVGLayer(parent)) {
 		return [null, null];
 	}
@@ -222,50 +222,50 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 	});
 	return Object.assign(layer, {id: idNames[name] ?? 1, node, tokens});
 },
-setLayerVisibility = (layerList: SVGFolder, path: string, visibility: boolean) => {
-	const layer = getLayer(layerList, path)!;
+setLayerVisibility = (path: string, visibility: boolean) => {
+	const layer = getLayer(globals.layerList, path)!;
 	if (visibility) {
 		layer.node.removeAttribute("visibility");
 	} else {
 		layer.node.setAttribute("visibility", "hidden");
 	}
 },
-setTokenType = (layerList: SVGFolder, definitions: Defs, path: string, pos: Int, imagePattern: boolean) => {
-	const [layer, token] = getParentToken(layerList, path, pos);
+setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
+	const [layer, token] = getParentToken(path, pos);
 	if (!token) {
 		return;
 	}
 	const oldNode = token.node;
 	if (imagePattern) {
-		definitions.remove(token.node.getAttribute("fill")!.replace(/^url(#/, "").replace(/)$/, ""));
+		globals.definitions.remove(token.node.getAttribute("fill")!.replace(/^url(#/, "").replace(/)$/, ""));
 		token.node = image({"preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": token.transform.toString(), "href": `/images/${token.source}`});
 	} else {
-		token.node = rect({"width": token.width, "height": token.height, "transform": token.transform.toString(), "fill": `url(#${definitions.add(token as SVGToken)})`});
+		token.node = rect({"width": token.width, "height": token.height, "transform": token.transform.toString(), "fill": `url(#${globals.definitions.add(token as SVGToken)})`});
 	}
 	oldNode.replaceWith(token.node);
 },
-addLayerFolder = (layerList: SVGFolder, path: string) => (layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
-renameLayer = (layerList: SVGFolder, path: string, name: string) => getLayer(layerList, path)!.name = name,
-removeLayer = (layerList: SVGFolder, path: string) => {
-	const [fromParent, layer] = getParentLayer(layerList, path);
+addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
+renameLayer = (path: string, name: string) => getLayer(globals.layerList, path)!.name = name,
+removeLayer = (path: string) => {
+	const [fromParent, layer] = getParentLayer(path);
 	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 },
-addLayer = (layerList: SVGFolder, name: string) => (layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": []})), name),
-moveLayer = (layerList: SVGFolder, from: string, to: string, pos: Int) => {
+addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": []})), name),
+moveLayer = (from: string, to: string, pos: Int) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
-	      fromParent = getLayer(layerList, parentStr)!,
-	      toParent = getLayer(layerList, to) as SVGFolder;
+	      fromParent = getLayer(globals.layerList, parentStr)!,
+	      toParent = getLayer(globals.layerList, to) as SVGFolder;
 	if (isSVGFolder(fromParent)) {
 		toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 	}
 },
-setMapDetails = (root: SVGElement, definitions: Defs, details: MapDetails) => {
-	root.setAttribute("width", details["width"].toString());
-	root.setAttribute("height", details["height"].toString());
-	definitions.setGrid(details);
+setMapDetails = (details: MapDetails) => {
+	globals.root.setAttribute("width", details["width"].toString());
+	globals.root.setAttribute("height", details["height"].toString());
+	globals.definitions.setGrid(details);
 	return details;
 },
-setLightColour = (layerList: SVGFolder, c: Colour) => (getLayer(layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c)),
+setLightColour = (c: Colour) => ((getLayer(globals.layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c)), c),
 globals = {
 	"definitions": null,
 	"root": null,
