@@ -63,15 +63,15 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 		return [
 			base,
 			Subscription.canceller(
-				rpc.waitMapChange().then(mc => setMapDetails(root, definitions, mc)),
-				rpc.waitMapLightChange().then(c => setLightColour(layerList, c)),
-				rpc.waitLayerShow().then(path => setLayerVisibility(layerList, path, true)),
-				rpc.waitLayerHide().then(path => setLayerVisibility(layerList, path, false)),
-				rpc.waitLayerAdd().then(name => addLayer(layerList, name)),
-				rpc.waitLayerFolderAdd().then(path => addLayerFolder(layerList, path)),
-				rpc.waitLayerMove().then(lm => moveLayer(layerList, lm.from, lm.to, lm.position)),
-				rpc.waitLayerRename().then(lr => renameLayer(layerList, lr.path, lr.name)),
-				rpc.waitLayerRemove().then(path => removeLayer(layerList, path)),
+				rpc.waitMapChange().then(mc => setMapDetails(mc)),
+				rpc.waitMapLightChange().then(c => setLightColour(c)),
+				rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
+				rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
+				rpc.waitLayerAdd().then(addLayer),
+				rpc.waitLayerFolderAdd().then(path => addLayerFolder(path)),
+				rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
+				rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
+				rpc.waitLayerRemove().then(removeLayer),
 				rpc.waitTokenAdd().then(tk => {
 					const layer = getLayer(layerList, tk.path);
 					if (!layer || !isSVGLayer(layer)) {
@@ -81,7 +81,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
 				}),
 				rpc.waitTokenMoveLayer().then(tm => {
-					const [parent, token] = getParentToken(layerList, tm.from, tm.pos);
+					const [parent, token] = getParentToken(tm.from, tm.pos);
 					if (token instanceof SVGToken && parent) {
 						const newParent = getLayer(layerList, tm.to);
 						if (newParent && isSVGLayer(newParent)) {
@@ -90,7 +90,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					}
 				}),
 				rpc.waitTokenSnap().then(ts => {
-					const [, token] = getParentToken(layerList, ts.path, ts.pos);
+					const [, token] = getParentToken(ts.path, ts.pos);
 					if (token instanceof SVGToken) {
 						token.snap = true;
 					}
@@ -104,7 +104,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					layer.tokens.splice(tk.pos, 1);
 				}),
 				rpc.waitTokenChange().then(st => {
-					const [, token] = getParentToken(layerList, st.path, st.pos);
+					const [, token] = getParentToken(st.path, st.pos);
 					if (token instanceof SVGToken) {
 						token.transform.x = st.x;
 						token.transform.y = st.y;
@@ -117,23 +117,23 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					}
 				}),
 				rpc.waitTokenFlip().then(tf => {
-					const [, token] = getParentToken(layerList, tf.path, tf.pos);
+					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
 						token.transform.flip = tf.flip;
 						token.node.setAttribute("transform", token.transform.toString());
 					}
 				}),
 				rpc.waitTokenFlop().then(tf => {
-					const [, token] = getParentToken(layerList, tf.path, tf.pos);
+					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
 						token.transform.flop = tf.flop;
 						token.node.setAttribute("transform", token.transform.toString());
 					}
 				}),
-				rpc.waitTokenSetImage().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, true)),
-				rpc.waitTokenSetPattern().then(ti => setTokenType(layerList, definitions, ti.path, ti.pos, false)),
+				rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
+				rpc.waitTokenSetPattern().then(ti => setTokenType(ti.path, ti.pos, false)),
 				rpc.waitTokenMovePos().then(to => {
-					const [layer, token] = getParentToken(layerList, to.path, to.pos);
+					const [layer, token] = getParentToken(to.path, to.pos);
 					if (layer && token) {
 						layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
 					}
