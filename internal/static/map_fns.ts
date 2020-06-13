@@ -61,7 +61,7 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 		if (t["source"] === 0) {
 			tokens.push(new SVGShape(t));
 		} else {
-			tokens.push(new SVGToken(t));
+			tokens.push(SVGToken.from(t));
 		}
 	});
 	return Object.assign(layer, {id: idNames[name] ?? 1, node, tokens});
