@@ -78,7 +78,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 						// error
 						return;
 					}
-					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
+					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
 				}),
 				rpc.waitTokenMoveLayer().then(tm => {
 					const [parent, token] = getParentToken(layerList, tm.from, tm.pos);
