@@ -5,8 +5,7 @@ import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {g, image, rect, path, pattern, svg} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map_types.js';
-import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_fns.js';
+import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken, processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_shared.js';
 import {scrollAmount} from './settings.js';
 import {colour2RGBA, noColour} from './misc.js';
 
