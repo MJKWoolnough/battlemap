@@ -8,7 +8,7 @@ import {SortNode} from './lib/ordered.js';
 import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map_types.js';
 import {processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_fns.js';
 import {scrollAmount} from './settings.js';
-import {colour2RGBA} from './misc.js';
+import {colour2RGBA, noColour} from './misc.js';
 
 export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 	return (HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}) as Promise<MapData>).then(mapData => {
@@ -78,7 +78,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 						// error
 						return;
 					}
-					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": {r: 0, g: 0, b: 0, a:0}, "strokeWidth": 0, "snap": false, "tokenType": 0})))
+					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
 				}),
 				rpc.waitTokenMoveLayer().then(tm => {
 					const [parent, token] = getParentToken(layerList, tm.from, tm.pos);
