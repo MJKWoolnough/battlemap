@@ -5,7 +5,7 @@ import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {g, image, rect, path, pattern, svg} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
-import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken, processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour} from './map_shared.js';
+import {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken, processLayers, getLayer, getParentLayer, getParentToken, isSVGLayer, setLayerVisibility, setTokenType, addLayer, addLayerFolder, setMapDetails, moveLayer, renameLayer, removeLayer, setLightColour, globals} from './map_shared.js';
 import {scrollAmount} from './settings.js';
 import {colour2RGBA, noColour} from './misc.js';
 
@@ -55,6 +55,7 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 			viewPos.mouseY = e.clientY;
 		      },
 		      definitions = new Defs(root);
+		Object.assign(globals, {definitions, root, layerList});
 		definitions.setGrid(mapData);
 		(getLayer(layerList, "/Grid") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 		(getLayer(layerList, "/Light") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
@@ -138,20 +139,14 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 					}
 				})
 			),
-			root,
 			panZoom,
 			outline,
-			definitions,
-			layerList,
 			mapData
 		] as [
 			HTMLDivElement,
 			() => void,
-			SVGSVGElement,
 			{ x: Int; y: Int; zoom: Int},
 			SVGGElement,
-			Defs,
-			SVGFolder,
 			MapData
 		];
 	});
