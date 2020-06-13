@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, RPC, GridDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
@@ -167,7 +167,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
-			removeLayer(layerList, path).forEach(e => {
+			removeLayer(path).forEach(e => {
 				if (selectedLayer === e) {
 					selectedLayer = null;
 				} else if (isSVGFolder(e) && walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
@@ -318,7 +318,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					} else {
 						return;
 					}
-					selectedToken = setTokenType(layerList, definitions, selectedLayerPath, pos, typ);
+					selectedToken = setTokenType(selectedLayerPath, pos, typ);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
@@ -392,16 +392,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path).then(path => addLayerFolder(layerList, path)),
+			"createFolder": (path: string) => rpc.addLayerFolder(path).then(addLayerFolder),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => renameLayer(layerList, path, name)),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => renameLayer(path, name)),
 			"remove": removeS,
 			"removeFolder": removeS,
 			"link": invalidRPC,
-			"newLayer": (name: string) => rpc.addLayer(name).then(name => addLayer(layerList, name)),
+			"newLayer": (name: string) => rpc.addLayer(name).then(addLayer),
 			"setVisibility": (path: string, visibility: boolean) => {
-				setLayerVisibility(layerList, path, visibility);
+				setLayerVisibility(path, visibility);
 				checkLayer(path);
 				if (visibility) {
 					return rpc.showLayer(path);
@@ -416,14 +416,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, pos: Int) => {
-				moveLayer(layerList, from, to, pos);
+				moveLayer(from, to, pos);
 				unselectToken();
 				return rpc.moveLayer(from, to, pos);
 			},
 			"getMapDetails": () => mapData,
-			"setMapDetails": (details: GridDetails) => rpc.setMapDetails(setMapDetails(root, definitions, details)),
+			"setMapDetails": (details: MapDetails) => rpc.setMapDetails(setMapDetails(details)),
 			"getLightColour": () => mapData.lightColour,
-			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(layerList, c)),
+			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(c)),
 		});
 		oldBase = base;
 		canceller = Subscription.canceller(
