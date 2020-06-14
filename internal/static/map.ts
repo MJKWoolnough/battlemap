@@ -43,6 +43,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel, panZoom, outline, mapData] = passed,
 		      {root, definitions, layerList} = globals,
+		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -146,12 +147,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			outline.focus();
 			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
-				rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
-				const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+				const pos = getSelectedTokenPos();
 				selectedLayer!.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(selectedLayerPath, pos).catch(alert);
@@ -268,7 +269,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			tokenMousePos.x = selectedToken!.transform.x;
 			tokenMousePos.y = selectedToken!.transform.y;
-			rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (selectedToken!.snap) {
 				return;
@@ -293,22 +294,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
-			const tokenPos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+			const tokenPos = getSelectedTokenPos();
 			place(base, [e.clientX, e.clientY], [
 				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 					outline.focus();
-					rpc.flipToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.flip).catch(alert);
+					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flip).catch(alert);
 				}),
 				item("Flop", () => {
 					selectedToken!.transform.flop = !selectedToken!.transform.flop;
 					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 					outline.focus();
-					rpc.flopToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.flop).catch(alert);
+					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flop).catch(alert);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+					const pos = getSelectedTokenPos();
 					let typ = false;
 					if (selectedToken instanceof SVGToken) {
 						typ = true;
@@ -318,10 +319,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					} else {
 						return;
 					}
-					selectedToken = setTokenType(selectedLayerPath, pos, typ);
+					//selectedToken = setTokenType(selectedLayerPath, pos, typ);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
-					rpc.setTokenSnap(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.snap = !selectedToken!.snap);
+					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap);
 					if (selectedToken!.snap) {
 						const sq = mapData.gridSize,
 						      transform = selectedToken!.transform,
@@ -338,18 +339,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 							selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
 							outline.setAttribute("transform", selectedToken!.transform.toString(false));
-							rpc.setToken(selectedLayerPath, selectedLayer!.tokens.findIndex(e => e === selectedToken), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 						}
 					}
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
-						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
 						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1);
 					}),
 					item(`Move Up`, () => {
-						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						const pos = getSelectedTokenPos();
 						if (pos < selectedLayer!.tokens.length - 1) {
 							selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
 							rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
@@ -358,20 +359,20 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				] : [],
 				tokenPos > 0 ? [
 					item(`Move Down`, () => {
-						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						const pos = getSelectedTokenPos();
 						if (pos > 0) {
 							selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
 							rpc.setTokenPos(selectedLayerPath, pos, pos - 1);
 						}
 					}),
 					item(`Move to Bottom`, () => {
-						const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
 						rpc.setTokenPos(selectedLayerPath, pos, 0);
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
-					const pos = selectedLayer!.tokens.findIndex(e => e === selectedToken);
+					const pos = getSelectedTokenPos();
 					unselectToken();
 					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0])
 					rpc.setTokenLayer(selectedLayerPath, pos, path).catch(alert)
@@ -429,7 +430,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		canceller = Subscription.canceller(
 			{cancel},
 			rpc.waitTokenChange().then(st => {
-				if (st.path === selectedLayerPath && selectedLayer!.tokens.findIndex(e => e === selectedToken) === st.pos) {
+				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
 					tokenMouseUp();
 				}
 			}),
