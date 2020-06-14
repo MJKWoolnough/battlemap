@@ -103,17 +103,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					y = Math.round(y / sq) * sq;
 				}
 			}}
-			selectedToken!.transform.x = x;
-			selectedToken!.transform.y = y;
-			selectedToken!.transform.width = width;
-			selectedToken!.transform.rotation = rotation;
+			selectedToken!.x = x;
+			selectedToken!.y = y;
+			selectedToken!.width = width;
+			selectedToken!.rotation = rotation;
 			selectedToken!.node.setAttribute("width", width.toString());
 			outline.style.setProperty("--outline-width", width + "px");
-			selectedToken!.transform.height = height;
+			selectedToken!.height = height;
 			selectedToken!.node.setAttribute("height", height.toString());
 			outline.style.setProperty("--outline-height", height + "px");
 			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.transform.toString(false));
+			outline.setAttribute("transform", selectedToken!.toString(false));
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
 			if (e.button !== 0 || e.ctrlKey) {
@@ -123,7 +123,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			document.body.addEventListener("mousemove", tokenDrag);
 			document.body.addEventListener("mouseup", tokenMouseUp, {"once": true});
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.transform.rotation + 143) >> 5)) % 4 + 2]);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      },
@@ -134,20 +134,20 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			const {x, y, width, height, rotation} = tokenMousePos;
 			document.body.removeEventListener("mousemove", tokenDrag);
 			root.style.removeProperty("--outline-cursor");
-			tokenMousePos.x = selectedToken!.transform.x = Math.round(selectedToken!.transform.x);
-			tokenMousePos.y = selectedToken!.transform.y = Math.round(selectedToken!.transform.y);
-			tokenMousePos.rotation = selectedToken!.transform.rotation = Math.round(selectedToken!.transform.rotation);
-			tokenMousePos.width = selectedToken!.transform.width = Math.round(selectedToken!.transform.width);
-			tokenMousePos.height = selectedToken!.transform.height = Math.round(selectedToken!.transform.height);
+			tokenMousePos.x = selectedToken!.x = Math.round(selectedToken!.x);
+			tokenMousePos.y = selectedToken!.y = Math.round(selectedToken!.y);
+			tokenMousePos.rotation = selectedToken!.rotation = Math.round(selectedToken!.rotation);
+			tokenMousePos.width = selectedToken!.width = Math.round(selectedToken!.width);
+			tokenMousePos.height = selectedToken!.height = Math.round(selectedToken!.height);
 			selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
 			outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
 			selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 			outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.transform.toString(false));
+			outline.setAttribute("transform", selectedToken!.toString(false));
 			outline.focus();
 			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
-				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -225,12 +225,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.transform.toString(false), "style": `--outline-width: ${selectedToken.transform.width}px; --outline-height: ${selectedToken.transform.height}px`, "class": `cursor_${((selectedToken.transform.rotation + 143) >> 5) % 4}`}));
-			tokenMousePos.x = selectedToken.transform.x;
-			tokenMousePos.y = selectedToken.transform.y;
-			tokenMousePos.width = selectedToken.transform.width;
-			tokenMousePos.height = selectedToken.transform.height;
-			tokenMousePos.rotation = selectedToken.transform.rotation;
+			autoFocus(createSVG(outline, {"transform": selectedToken.toString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			tokenMousePos.x = selectedToken.x;
+			tokenMousePos.y = selectedToken.y;
+			tokenMousePos.width = selectedToken.width;
+			tokenMousePos.height = selectedToken.height;
+			tokenMousePos.rotation = selectedToken.rotation;
 		}}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 			if (e.key === "Delete") {
 				deleteToken();
@@ -240,22 +240,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				const sq = mapData.gridSize;
 				switch (e.key) {
 				case "ArrowUp":
-					selectedToken.transform.y -= sq;
+					selectedToken.y -= sq;
 					break;
 				case "ArrowDown":
-					selectedToken.transform.y += sq;
+					selectedToken.y += sq;
 					break;
 				case "ArrowLeft":
-					selectedToken.transform.x -= sq;
+					selectedToken.x -= sq;
 					break;
 				case "ArrowRight":
-					selectedToken.transform.x += sq;
+					selectedToken.x += sq;
 					break;
 				default:
 					return;
 				}
 				selectedToken.updateNode();
-				outline.setAttribute("transform", selectedToken!.transform.toString(false));
+				outline.setAttribute("transform", selectedToken!.toString(false));
 			} else {
 				switch (e.key) {
 				case "ArrowUp":
@@ -267,46 +267,46 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return;
 				}
 			}
-			tokenMousePos.x = selectedToken!.transform.x;
-			tokenMousePos.y = selectedToken!.transform.y;
-			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+			tokenMousePos.x = selectedToken!.x;
+			tokenMousePos.y = selectedToken!.y;
+			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
 			}
 			switch (e.key) {
 			case "ArrowUp":
-				selectedToken.transform.y--;
+				selectedToken.y--;
 				break;
 			case "ArrowDown":
-				selectedToken.transform.y++;
+				selectedToken.y++;
 				break;
 			case "ArrowLeft":
-				selectedToken.transform.x--;
+				selectedToken.x--;
 				break;
 			case "ArrowRight":
-				selectedToken.transform.x++;
+				selectedToken.x++;
 				break;
 			default:
 				return;
 			}
 			selectedToken.updateNode();
-			outline.setAttribute("transform", selectedToken!.transform.toString(false));
+			outline.setAttribute("transform", selectedToken!.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
 			const tokenPos = getSelectedTokenPos();
 			place(base, [e.clientX, e.clientY], [
 				item("Flip", () => {
-					selectedToken!.transform.flip = !selectedToken!.transform.flip;
+					selectedToken!.flip = !selectedToken!.flip;
 					selectedToken!.updateNode();
 					outline.focus();
-					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flip).catch(alert);
+					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flip).catch(alert);
 				}),
 				item("Flop", () => {
-					selectedToken!.transform.flop = !selectedToken!.transform.flop;
+					selectedToken!.flop = !selectedToken!.flop;
 					selectedToken!.updateNode();
 					outline.focus();
-					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flop).catch(alert);
+					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(alert);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
 					const pos = getSelectedTokenPos();
@@ -325,21 +325,20 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap);
 					if (selectedToken!.snap) {
 						const sq = mapData.gridSize,
-						      transform = selectedToken!.transform,
-						      {x, y, width, height, rotation} = transform;
-						tokenMousePos.x = transform.x = Math.round(x / sq) * sq;
-						tokenMousePos.y = transform.y = Math.round(y / sq) * sq;
-						tokenMousePos.width = transform.width = Math.max(Math.round(width / sq) * sq, sq);
-						tokenMousePos.height = transform.height = Math.max(Math.round(height / sq) * sq, sq);
-						tokenMousePos.rotation = transform.rotation = Math.round(rotation / 32) * 32 % 256;
-						if (x !== transform.width || y !== transform.y || width !== transform.width || height !== transform.height || rotation !== transform.rotation) {
+						      {x, y, width, height, rotation} = selectedToken!;
+						tokenMousePos.x = selectedToken!.x = Math.round(x / sq) * sq;
+						tokenMousePos.y = selectedToken!.y = Math.round(y / sq) * sq;
+						tokenMousePos.width = selectedToken!.width = Math.max(Math.round(width / sq) * sq, sq);
+						tokenMousePos.height = selectedToken!.height = Math.max(Math.round(height / sq) * sq, sq);
+						tokenMousePos.rotation = selectedToken!.rotation = Math.round(rotation / 32) * 32 % 256;
+						if (x !== selectedToken!.width || y !== selectedToken!.y || width !== selectedToken!.width || height !== selectedToken!.height || rotation !== selectedToken!.rotation) {
 							selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
 							outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
 							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 							selectedToken!.updateNode();
-							outline.setAttribute("transform", selectedToken!.transform.toString(false));
-							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
+							outline.setAttribute("transform", selectedToken!.toString(false));
+							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
 						}
 					}
 				}),
