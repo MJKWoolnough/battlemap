@@ -98,15 +98,37 @@ export class SVGToken {
 	}
 	static from(token: Token) {
 		const transform = new SVGTransform(token),
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {"node": image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()}), transform, "prototype": SVGToken}), SVGToken);
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {"node": image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()})}), SVGToken);
 		if (token.patternWidth > 0) {
-			svgToken.node = rect({"width": token.width, "height": token.height, "transform": transform.toString(), "fill": `url(#${globals.definitions.add(svgToken)})`});
+			const {width, height} = token;
+			svgToken.width = token.patternWidth;
+			svgToken.height = token.patternHeight;
+			svgToken.setPattern(true);
+			svgToken.width = width;
+			svgToken.height = height;
 		}
 		return svgToken;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
+	}
+	setPattern(isPattern: boolean) {
+		if (isPattern) {
+			if (this.patternWidth > 0) {
+				return;
+			}
+			const node = rect({"width": this.width, "height": this.height, "transform": this.transform.toString(), "fill": `url(#${globals.definitions.add(this)})`});
+			this.node.replaceWith(node);
+			this.node = node;
+			this.patternWidth = this.width;
+			this.patternHeight = this.height;
+		} else if (this.patternWidth > 0) {
+			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
+			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transform.toString()});
+			this.node.replaceWith(node);
+			this.node = node;
+		}
 	}
 	get isPattern() {
 		return this.patternWidth > 0;
