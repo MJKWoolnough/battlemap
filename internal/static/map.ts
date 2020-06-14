@@ -309,17 +309,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(alert);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
-					const pos = getSelectedTokenPos();
-					let typ = false;
-					if (selectedToken instanceof SVGToken) {
-						typ = true;
-						rpc.setTokenPattern(selectedLayerPath, pos).catch(alert);
-					} else if (selectedToken instanceof SVGShape && selectedToken.isPattern) {
-						rpc.setTokenImage(selectedLayerPath, pos).catch(alert);
-					} else {
+					if (!(selectedToken instanceof SVGToken)) {
 						return;
 					}
-					//selectedToken = setTokenType(selectedLayerPath, pos, typ);
+					const pos = getSelectedTokenPos(),
+					      isPattern = selectedToken!.isPattern;
+					selectedToken.setPattern(!isPattern);
+					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(alert);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap);
