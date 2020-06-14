@@ -85,6 +85,8 @@ export class SVGToken {
 	y: Int;
 	width: Int;
 	height: Int;
+	patternWidth: Int;
+	patternHeight: Int;
 	rotation: Int;
 	flip: boolean;
 	flop: boolean;
@@ -100,6 +102,8 @@ export class SVGToken {
 		this.y = token.y;
 		this.width = token.width;
 		this.height = token.height;
+		this.patternWidth = token.width;
+		this.patternHeight = token.height;
 		this.rotation = token.rotation;
 		this.flip = token.flip;
 		this.flop = token.flop;
@@ -122,6 +126,9 @@ export class SVGToken {
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
+	}
+	get isPattern() {
+		return this.patternWidth > 0;
 	}
 }
 
@@ -161,6 +168,9 @@ export class SVGShape {
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
+	}
+	get isPattern() {
+		return false;
 	}
 }
 
