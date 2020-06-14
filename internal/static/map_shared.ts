@@ -1,7 +1,7 @@
 import {Colour, GridDetails, MapDetails, Int, LayerFolder, LayerTokens, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
-import {defs, g, image, path, pattern, rect} from './lib/svg.js';
+import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 
 
@@ -75,9 +75,8 @@ export class SVGTransform {
 	}
 }
 
-export class SVGToken {
+export class SVGToken extends SVGTransform {
 	node: SVGImageElement | SVGRectElement;
-	transform: SVGTransform;
 	source: Int;
 	stroke: Colour;
 	strokeWidth: Int;
@@ -95,10 +94,12 @@ export class SVGToken {
 	snap: boolean;
 	constructor(token: Token) {
 		throw new Error("use from");
+		super(token);
 	}
 	static from(token: Token) {
-		const transform = new SVGTransform(token),
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {"node": image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()})}), SVGToken);
+		const node = image(),
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken);
+		createSVG(node, {"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.toString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
 			svgToken.width = token.patternWidth;
@@ -111,21 +112,21 @@ export class SVGToken {
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
-		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
+		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	setPattern(isPattern: boolean) {
 		if (isPattern) {
 			if (this.patternWidth > 0) {
 				return;
 			}
-			const node = rect({"width": this.width, "height": this.height, "transform": this.transform.toString(), "fill": `url(#${globals.definitions.add(this)})`});
+			const node = rect({"width": this.width, "height": this.height, "transform": this.toString(), "fill": `url(#${globals.definitions.add(this)})`});
 			this.node.replaceWith(node);
 			this.node = node;
 			this.patternWidth = this.width;
 			this.patternHeight = this.height;
 		} else if (this.patternWidth > 0) {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transform.toString()});
+			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.toString()});
 			this.node.replaceWith(node);
 			this.node = node;
 		}
@@ -136,13 +137,12 @@ export class SVGToken {
 	updateNode() {
 		this.node.setAttribute("width", this.width + "");
 		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.transform.toString());
+		this.node.setAttribute("transform", this.toString());
 	}
 }
 
-export class SVGShape {
+export class SVGShape extends SVGTransform {
 	node: SVGRectElement | SVGCircleElement;
-	transform: SVGTransform;
 	source: Int;
 	stroke: Colour;
 	strokeWidth: Int;
@@ -157,8 +157,8 @@ export class SVGShape {
 	tokenType: Int;
 	snap: boolean;
 	constructor(token: Token) {
-		this.transform = new SVGTransform(token);
-		this.node = rect({"transform": this.transform.toString()});
+		super(token);
+		this.node = rect({"transform": this.toString()});
 		this.source = token.source;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
@@ -175,7 +175,7 @@ export class SVGShape {
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
-		return rx >= 0 && rx < this.transform.width && ry >= 0 && ry < this.transform.height;
+		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	get isPattern() {
 		return false;
@@ -183,7 +183,7 @@ export class SVGShape {
 	updateNode() {
 		this.node.setAttribute("width", this.width + "");
 		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.transform.toString());
+		this.node.setAttribute("transform", this.toString());
 	}
 }
 
