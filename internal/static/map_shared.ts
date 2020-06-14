@@ -94,26 +94,7 @@ export class SVGToken {
 	tokenType: Int;
 	snap: boolean;
 	constructor(token: Token) {
-		this.transform = new SVGTransform(token);
-		this.source = token.source;
-		this.stroke = token.stroke;
-		this.strokeWidth = token.strokeWidth;
-		this.x = token.x;
-		this.y = token.y;
-		this.width = token.width;
-		this.height = token.height;
-		this.patternWidth = token.width;
-		this.patternHeight = token.height;
-		this.rotation = token.rotation;
-		this.flip = token.flip;
-		this.flop = token.flop;
-		this.tokenData = token.tokenData;
-		this.tokenType = token.tokenType;
-		this.snap = token.snap;
-			this.node = image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": this.transform.toString()});
-		if (token.patternWidth > 0) {
-			this.node = rect({"width": token.width, "height": token.height, "transform": this.transform.toString(), "fill": `url(#${globals.definitions.add(this)})`});
-		}
+		throw new Error("use from");
 	}
 	static from(token: Token) {
 		const transform = new SVGTransform(token),
