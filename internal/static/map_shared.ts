@@ -258,17 +258,10 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 },
 setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
 	const [layer, token] = getParentToken(path, pos);
-	if (!token) {
+	if (!token || !(token instanceof SVGToken)) {
 		return;
 	}
-	const oldNode = token.node;
-	if (imagePattern) {
-		globals.definitions.remove(token.node.getAttribute("fill")!.replace(/^url(#/, "").replace(/)$/, ""));
-		token.node = image({"preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": token.transform.toString(), "href": `/images/${token.source}`});
-	} else {
-		token.node = rect({"width": token.width, "height": token.height, "transform": token.transform.toString(), "fill": `url(#${globals.definitions.add(token as SVGToken)})`});
-	}
-	oldNode.replaceWith(token.node);
+	token.setPattern(!imagePattern);
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => getLayer(globals.layerList, path)!.name = name,
