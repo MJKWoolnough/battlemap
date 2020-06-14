@@ -112,7 +112,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			selectedToken!.transform.height = height;
 			selectedToken!.node.setAttribute("height", height.toString());
 			outline.style.setProperty("--outline-height", height + "px");
-			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+			selectedToken!.updateNode();
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
@@ -143,7 +143,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
 			selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 			outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
-			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+			selectedToken!.updateNode();
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			outline.focus();
 			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
@@ -236,25 +236,25 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				deleteToken();
 				return;
 			}
-			if (selectedToken!.snap) {
+			if (selectedToken && selectedToken!.snap) {
 				const sq = mapData.gridSize;
 				switch (e.key) {
 				case "ArrowUp":
-					selectedToken!.transform.y -= sq;
+					selectedToken.transform.y -= sq;
 					break;
 				case "ArrowDown":
-					selectedToken!.transform.y += sq;
+					selectedToken.transform.y += sq;
 					break;
 				case "ArrowLeft":
-					selectedToken!.transform.x -= sq;
+					selectedToken.transform.x -= sq;
 					break;
 				case "ArrowRight":
-					selectedToken!.transform.x += sq;
+					selectedToken.transform.x += sq;
 					break;
 				default:
 					return;
 				}
-				selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+				selectedToken.updateNode();
 				outline.setAttribute("transform", selectedToken!.transform.toString(false));
 			} else {
 				switch (e.key) {
@@ -271,26 +271,26 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			tokenMousePos.y = selectedToken!.transform.y;
 			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 		      }, "onkeydown": (e: KeyboardEvent) => {
-			if (selectedToken!.snap) {
+			if (!selectedToken || selectedToken.snap) {
 				return;
 			}
 			switch (e.key) {
 			case "ArrowUp":
-				selectedToken!.transform.y--;
+				selectedToken.transform.y--;
 				break;
 			case "ArrowDown":
-				selectedToken!.transform.y++;
+				selectedToken.transform.y++;
 				break;
 			case "ArrowLeft":
-				selectedToken!.transform.x--;
+				selectedToken.transform.x--;
 				break;
 			case "ArrowRight":
-				selectedToken!.transform.x++;
+				selectedToken.transform.x++;
 				break;
 			default:
 				return;
 			}
-			selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+			selectedToken.updateNode();
 			outline.setAttribute("transform", selectedToken!.transform.toString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
@@ -298,13 +298,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			place(base, [e.clientX, e.clientY], [
 				item("Flip", () => {
 					selectedToken!.transform.flip = !selectedToken!.transform.flip;
-					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+					selectedToken!.updateNode();
 					outline.focus();
 					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flip).catch(alert);
 				}),
 				item("Flop", () => {
 					selectedToken!.transform.flop = !selectedToken!.transform.flop;
-					selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+					selectedToken!.updateNode();
 					outline.focus();
 					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.flop).catch(alert);
 				}),
@@ -337,7 +337,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
 							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
-							selectedToken!.node.setAttribute("transform", selectedToken!.transform.toString());
+							selectedToken!.updateNode();
 							outline.setAttribute("transform", selectedToken!.transform.toString(false));
 							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.transform.x, selectedToken!.transform.y, selectedToken!.transform.width, selectedToken!.transform.height, selectedToken!.transform.rotation).catch(alert);
 						}
