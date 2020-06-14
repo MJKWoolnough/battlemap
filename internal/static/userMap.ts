@@ -106,28 +106,28 @@ export function mapView(rpc: RPC, oldBase: HTMLElement, mapID: Int) {
 				rpc.waitTokenChange().then(st => {
 					const [, token] = getParentToken(st.path, st.pos);
 					if (token instanceof SVGToken) {
-						token.transform.x = st.x;
-						token.transform.y = st.y;
-						token.transform.width = st.width;
-						token.transform.height = st.height;
-						token.transform.rotation = st.rotation;
+						token.x = st.x;
+						token.y = st.y;
+						token.width = st.width;
+						token.height = st.height;
+						token.rotation = st.rotation;
 						token.node.setAttribute("width", st.width + "px");
 						token.node.setAttribute("height", st.height + "px");
-						token.node.setAttribute("transform", token.transform.toString());
+						token.node.setAttribute("transform", token.toString());
 					}
 				}),
 				rpc.waitTokenFlip().then(tf => {
 					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
-						token.transform.flip = tf.flip;
-						token.node.setAttribute("transform", token.transform.toString());
+						token.flip = tf.flip;
+						token.node.setAttribute("transform", token.toString());
 					}
 				}),
 				rpc.waitTokenFlop().then(tf => {
 					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
-						token.transform.flop = tf.flop;
-						token.node.setAttribute("transform", token.transform.toString());
+						token.flop = tf.flop;
+						token.node.setAttribute("transform", token.toString());
 					}
 				}),
 				rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
