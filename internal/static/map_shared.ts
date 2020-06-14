@@ -111,6 +111,11 @@ export class SVGToken {
 	get isPattern() {
 		return this.patternWidth > 0;
 	}
+	updateNode() {
+		this.node.setAttribute("width", this.width + "");
+		this.node.setAttribute("height", this.height + "");
+		this.node.setAttribute("transform", this.transform.toString());
+	}
 }
 
 export class SVGShape {
@@ -152,6 +157,11 @@ export class SVGShape {
 	}
 	get isPattern() {
 		return false;
+	}
+	updateNode() {
+		this.node.setAttribute("width", this.width + "");
+		this.node.setAttribute("height", this.height + "");
+		this.node.setAttribute("transform", this.transform.toString());
 	}
 }
 
