@@ -106,15 +106,18 @@ export class SVGToken {
 		this.tokenData = token.tokenData;
 		this.tokenType = token.tokenType;
 		this.snap = token.snap;
-		if (token.patternWidth > 0) {
-			this.node = rect({"width": token.width, "height": token.height, "transform": this.transform.toString(), "fill": `url(#${/*definitions.add(this)*/1})`});
-		} else {
 			this.node = image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": this.transform.toString()});
+		if (token.patternWidth > 0) {
+			this.node = rect({"width": token.width, "height": token.height, "transform": this.transform.toString(), "fill": `url(#${globals.definitions.add(this)})`});
 		}
 	}
 	static from(token: Token) {
-		const transform = new SVGTransform(token);
-		return Object.setPrototypeOf(Object.assign(token, {"node": token.patternWidth > 0 ? rect({"width": token.width, "height": token.height, "transform": transform.toString(), "fill": `url(#${/*definitions.add(this)*/1})`}) : image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()}), transform, "prototype": SVGToken}), SVGToken);
+		const transform = new SVGTransform(token),
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {"node": image({"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": transform.toString()}), transform, "prototype": SVGToken}), SVGToken);
+		if (token.patternWidth > 0) {
+			svgToken.node = rect({"width": token.width, "height": token.height, "transform": transform.toString(), "fill": `url(#${globals.definitions.add(svgToken)})`});
+		}
+		return svgToken;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
