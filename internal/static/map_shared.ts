@@ -4,7 +4,6 @@ import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect} from './lib/svg.js';
 import {colour2RGBA, rgba2Colour} from './misc.js';
 
-
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
 	tokens: SortNode<SVGToken | SVGShape>;
