@@ -303,8 +303,20 @@ globals = {
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 	return (HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}) as Promise<MapData>).then(mapData => {
-		const layerList = processLayers(mapData) as SVGFolder,
-		      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}),
+		const root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}),
+		      layerList = (() => {
+			      const children = new SortNode<SVGFolder | SVGLayer>(root);
+			      mapData.children.forEach(c => children.push(processLayers(c)));
+			      return {
+				id: 0,
+				name: "",
+				hidden: false,
+				node: root,
+				children,
+				folders: {},
+				items: {},
+			      } as SVGFolder;
+		      })(),
 		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
