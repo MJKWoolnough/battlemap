@@ -100,7 +100,7 @@ func (l *layer) WriteTo(w io.Writer, full bool) {
 			l.WriteTo(w, true)
 			fmt.Fprint(w, "}")
 		}
-	} else if l.Name == "Grid" {
+	} else if l.Name != "Grid" {
 		fmt.Fprint(w, ",\"tokens\":[")
 		for n, t := range l.Tokens {
 			if n > 0 {
