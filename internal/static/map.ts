@@ -19,7 +19,7 @@ export type SVGFolder = LayerFolder & {
 	children: SortNode<SVGFolder | SVGLayer>;
 };
 
-export class Defs {
+class Defs {
 	defs: SVGDefsElement;
 	list: Record<string, SVGPatternElement> = {};
 	constructor(root: Node) {
@@ -47,7 +47,7 @@ export class Defs {
 	}
 }
 
-export class SVGTransform {
+class SVGTransform {
 	x: Int = 0;
 	y: Int = 0;
 	rotation: Int = 0;
@@ -203,20 +203,7 @@ const splitAfterLastSlash = (path: string) => {
 	"Light": -2,
       };
 
-export const isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
-isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
-getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
-	if (!isSVGFolder(layer)) {
-		return false;
-	}
-	const a = (layer.children as SortNode<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
-	if (a) {
-		layer = a;
-		return true;
-	}
-	return false;
-}) ? layer : null,
-getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
+export const getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
 	      parent = getLayer(globals.layerList, parentStr);
 	if (!parent || !isSVGFolder(parent)) {
@@ -230,7 +217,21 @@ getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape
 		return [null, null];
 	}
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
-},
+};
+
+export const isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
+isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
+getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
+	if (!isSVGFolder(layer)) {
+		return false;
+	}
+	const a = (layer.children as SortNode<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
+	if (a) {
+		layer = a;
+		return true;
+	}
+	return false;
+}) ? layer : null,
 isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
 processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 	if (!layer["name"]) {
