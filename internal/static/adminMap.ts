@@ -5,7 +5,7 @@ import {createSVG, g, image, path, pattern, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, Defs, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, getParentLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, isSVGLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView} from './map.js';
 import {autosnap} from './settings.js';
 import {noColour} from './misc.js';
 
