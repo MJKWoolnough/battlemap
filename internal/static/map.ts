@@ -253,7 +253,7 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 			}
 		});
 	}
-	return Object.assign(layer, {id: idNames[name] ?? 1, node, tokens});
+	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(globals.layerList, path)!;
