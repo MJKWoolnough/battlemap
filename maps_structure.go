@@ -50,7 +50,6 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.GridColour.WriteTo(&sw)
 	fmt.Fprint(&sw, ",\"lightColour\":")
 	l.Light.WriteTo(&sw)
-	fmt.Fprint(&sw, ",")
 	l.layer.WriteTo(&sw, false)
 	fmt.Fprint(&sw, "}")
 	return sw.Count, sw.Err
@@ -89,10 +88,10 @@ func (l *layer) validate(layers map[string]struct{}, first bool) error {
 
 func (l *layer) WriteTo(w io.Writer, full bool) {
 	if full {
-		fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t,", l.Name, l.Mask, l.Hidden)
+		fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t", l.Name, l.Mask, l.Hidden)
 	}
 	if l.Layers != nil {
-		fmt.Fprint(w, "\"children\":[")
+		fmt.Fprint(w, ",\"children\":[")
 		for n, l := range l.Layers {
 			if n > 0 {
 				fmt.Fprint(w, ",")
@@ -102,13 +101,15 @@ func (l *layer) WriteTo(w io.Writer, full bool) {
 			fmt.Fprint(w, "}")
 		}
 	} else if l.Name == "Grid" {
-		fmt.Fprint(w, "\"tokens\":[")
+		fmt.Fprint(w, ",\"tokens\":[")
 		for n, t := range l.Tokens {
 			if n > 0 {
 				fmt.Fprint(w, ",")
 			}
 			t.WriteTo(w)
 		}
+	} else {
+		return
 	}
 	fmt.Fprint(w, "]")
 }
