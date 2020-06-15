@@ -244,13 +244,15 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 		return Object.assign(layer, {node, children});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
-	layer.tokens.forEach(t => {
-		if (t["source"] === 0) {
-			tokens.push(new SVGShape(t));
-		} else {
-			tokens.push(SVGToken.from(t));
-		}
-	});
+	if (layer.name !== "Grid") {
+		layer.tokens.forEach(t => {
+			if (t["source"] === 0) {
+				tokens.push(new SVGShape(t));
+			} else {
+				tokens.push(SVGToken.from(t));
+			}
+		});
+	}
 	return Object.assign(layer, {id: idNames[name] ?? 1, node, tokens});
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
