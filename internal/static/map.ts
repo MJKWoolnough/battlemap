@@ -64,7 +64,7 @@ class SVGTransform {
 		this.flip = token.flip;
 		this.flop = token.flop;
 	}
-	toString(scale = true) {
+	transformString(scale = true) {
 		let ret = "";
 		if (this.x !== 0 || this.y !== 0) {
 			ret += `translate(${this.x + (scale && this.flop ? this.width : 0)}, ${this.y + (scale && this.flip ? this.height : 0)}) `;
@@ -103,7 +103,7 @@ export class SVGToken extends SVGTransform {
 	static from(token: Token) {
 		const node = image(),
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken);
-		createSVG(node, {"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.toString()});
+		createSVG(node, {"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
 			svgToken.width = token.patternWidth;
@@ -123,14 +123,14 @@ export class SVGToken extends SVGTransform {
 			if (this.patternWidth > 0) {
 				return;
 			}
-			const node = rect({"width": this.width, "height": this.height, "transform": this.toString(), "fill": `url(#${globals.definitions.add(this)})`});
+			const node = rect({"width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
 			this.node.replaceWith(node);
 			this.node = node;
 			this.patternWidth = this.width;
 			this.patternHeight = this.height;
 		} else if (this.patternWidth > 0) {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.toString()});
+			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
 			this.node.replaceWith(node);
 			this.node = node;
 		}
@@ -141,7 +141,7 @@ export class SVGToken extends SVGTransform {
 	updateNode() {
 		this.node.setAttribute("width", this.width + "");
 		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.toString());
+		this.node.setAttribute("transform", this.transformString());
 	}
 }
 
@@ -162,7 +162,7 @@ export class SVGShape extends SVGTransform {
 	snap: boolean;
 	constructor(token: Token) {
 		super(token);
-		this.node = rect({"transform": this.toString()});
+		this.node = rect({"transform": this.transformString()});
 		this.source = token.source;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
@@ -187,7 +187,7 @@ export class SVGShape extends SVGTransform {
 	updateNode() {
 		this.node.setAttribute("width", this.width + "");
 		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.toString());
+		this.node.setAttribute("transform", this.transformString());
 	}
 }
 
@@ -417,21 +417,21 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 						token.rotation = st.rotation;
 						token.node.setAttribute("width", st.width + "px");
 						token.node.setAttribute("height", st.height + "px");
-						token.node.setAttribute("transform", token.toString());
+						token.node.setAttribute("transform", token.transformString());
 					}
 				}),
 				rpc.waitTokenFlip().then(tf => {
 					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
 						token.flip = tf.flip;
-						token.node.setAttribute("transform", token.toString());
+						token.node.setAttribute("transform", token.transformString());
 					}
 				}),
 				rpc.waitTokenFlop().then(tf => {
 					const [, token] = getParentToken(tf.path, tf.pos);
 					if (token instanceof SVGToken) {
 						token.flop = tf.flop;
-						token.node.setAttribute("transform", token.toString());
+						token.node.setAttribute("transform", token.transformString());
 					}
 				}),
 				rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
