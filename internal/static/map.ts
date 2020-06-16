@@ -81,7 +81,7 @@ class SVGTransform {
 
 export class SVGToken extends SVGTransform {
 	node: SVGImageElement | SVGRectElement;
-	source: Int;
+	src: Int;
 	stroke: Colour;
 	strokeWidth: Int;
 	x: Int;
@@ -103,7 +103,7 @@ export class SVGToken extends SVGTransform {
 	static from(token: Token) {
 		const node = image(),
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken.prototype);
-		createSVG(node, {"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
+		createSVG(node, {"href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
 			svgToken.width = token.patternWidth;
@@ -130,7 +130,7 @@ export class SVGToken extends SVGTransform {
 			this.patternHeight = this.height;
 		} else if (this.patternWidth > 0) {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"href": `/images/${this.source}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
+			const node = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
 			this.node.replaceWith(node);
 			this.node = node;
 		}
@@ -147,7 +147,7 @@ export class SVGToken extends SVGTransform {
 
 export class SVGShape extends SVGTransform {
 	node: SVGRectElement | SVGCircleElement;
-	source: Int;
+	src: Int;
 	stroke: Colour;
 	strokeWidth: Int;
 	x: Int;
@@ -163,7 +163,7 @@ export class SVGShape extends SVGTransform {
 	constructor(token: Token) {
 		super(token);
 		this.node = rect({"transform": this.transformString()});
-		this.source = token.source;
+		this.src = token.src;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
 		this.x = token.x;
@@ -246,7 +246,7 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid") {
 		layer.tokens.forEach(t => {
-			if (t["source"] === 0) {
+			if (t["src"] === 0) {
 				tokens.push(new SVGShape(t));
 			} else {
 				tokens.push(SVGToken.from(t));
