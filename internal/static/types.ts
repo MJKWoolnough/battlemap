@@ -170,7 +170,7 @@ export type GridDetails = {
 }
 
 export type Token = {
-	source:        Int;
+	src:           Int;
 	stroke:        Colour;
 	strokeWidth:   Int;
 	x:             Int;
@@ -217,7 +217,7 @@ type TokenPos = {
 }
 
 type TokenAdd = TokenPos & {
-	source: Int;
+	src: Int;
 	x: Int;
 	y: Int;
 	width: Int;
@@ -253,5 +253,5 @@ type TokenSnap = TokenPos & {
 }
 
 type TokenSource = TokenPos & {
-	source: string;
+	src: string;
 }
