@@ -31,7 +31,7 @@ class Defs {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list[id] = this.defs.appendChild(pattern({"id": id, "width": t.width, "height": t.height}, t.node.cloneNode(false)));
+		this.list[id] = this.defs.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.width, "height": t.height}, t.node.cloneNode(false)));
 		return id;
 	}
 	remove(id: string) {
@@ -43,7 +43,7 @@ class Defs {
 		if (old) {
 			this.defs.removeChild(old);
 		}
-		this.list["grid"] = this.defs.appendChild(pattern({"id": "gridPattern", "width": grid.gridSize, "height": grid.gridSize}, path({"path": `M 0 ${grid.gridSize} V 0 H ${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke})));
+		this.list["grid"] = this.defs.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M 0 ${grid.gridSize} V 0 H ${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
 	}
 }
 
