@@ -112,7 +112,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			selectedToken!.node.setAttribute("height", height.toString());
 			outline.style.setProperty("--outline-height", height + "px");
 			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.toString(false));
+			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      },
 		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
 			if (e.button !== 0 || e.ctrlKey) {
@@ -143,7 +143,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 			outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.toString(false));
+			outline.setAttribute("transform", selectedToken!.transformString(false));
 			outline.focus();
 			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
 				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
@@ -224,7 +224,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.toString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = selectedToken.x;
 			tokenMousePos.y = selectedToken.y;
 			tokenMousePos.width = selectedToken.width;
@@ -254,7 +254,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return;
 				}
 				selectedToken.updateNode();
-				outline.setAttribute("transform", selectedToken!.toString(false));
+				outline.setAttribute("transform", selectedToken.transformString(false));
 			} else {
 				switch (e.key) {
 				case "ArrowUp":
@@ -290,7 +290,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken.updateNode();
-			outline.setAttribute("transform", selectedToken!.toString(false));
+			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
 			const tokenPos = getSelectedTokenPos();
@@ -332,7 +332,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
 							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 							selectedToken!.updateNode();
-							outline.setAttribute("transform", selectedToken!.toString(false));
+							outline.setAttribute("transform", selectedToken!.transformString(false));
 							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
 						}
 					}
