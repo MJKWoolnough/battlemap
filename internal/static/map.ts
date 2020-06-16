@@ -102,7 +102,7 @@ export class SVGToken extends SVGTransform {
 	}
 	static from(token: Token) {
 		const node = image(),
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken);
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken.prototype);
 		createSVG(node, {"href": `/images/${token.source}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
@@ -322,7 +322,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 			viewPos.mouseY = e.clientY;
 			base.addEventListener("mousemove", viewDrag);
 			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-		}, "onwheel": (e: WheelEvent) => {
+		      }, "onwheel": (e: WheelEvent) => {
 			e.preventDefault();
 			if (e.ctrlKey) {
 				const width = parseInt(root.getAttribute("width") || "0") / 2,
