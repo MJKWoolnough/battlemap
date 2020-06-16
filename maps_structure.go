@@ -130,7 +130,7 @@ type token struct {
 }
 
 func (t *token) WriteTo(w io.Writer) {
-	fmt.Fprintf(w, "{\"src\":%q,\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"rotation\":%d,\"flip\":%t,\"flop\":%t,\"snap\":%t", t.Source, t.X, t.Y, t.Width, t.Height, t.Rotation, t.Flip, t.Flop, t.Snap)
+	fmt.Fprintf(w, "{\"src\":%d,\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"rotation\":%d,\"flip\":%t,\"flop\":%t,\"snap\":%t", t.Source, t.X, t.Y, t.Width, t.Height, t.Rotation, t.Flip, t.Flop, t.Snap)
 	if t.PatternWidth > 0 && t.PatternHeight > 0 {
 		fmt.Fprintf(w, ",\"patternWidth\":%d,\"patternHeight\":%d", t.PatternWidth, t.PatternHeight)
 	}
