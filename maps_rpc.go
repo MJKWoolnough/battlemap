@@ -421,7 +421,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		var tokenSource struct {
 			Path   string `json:"path"`
 			Pos    uint   `json:"pos"`
-			Source uint64 `json:"source"`
+			Source uint64 `json:"src"`
 		}
 		if err := json.Unmarshal(data, &tokenSource); err != nil {
 			return nil, err
