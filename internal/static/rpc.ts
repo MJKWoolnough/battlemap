@@ -132,7 +132,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenSnap":    (path, pos, snap)                          => rpc.request("maps.setTokenSnap", {path, pos, snap}),
 			"setTokenPattern": (path, pos)                                => rpc.request("maps.setTokenPattern", {path, pos}),
 			"setTokenImage":   (path, pos)                                => rpc.request("maps.setTokenImage", {path, pos}),
-			"setTokenSource":  (path, pos, source)                        => rpc.request("maps.setTokenSource", {path, pos, source}),
+			"setTokenSource":  (path, pos, src)                           => rpc.request("maps.setTokenSource", {path, pos, src}),
 			"setTokenLayer":   (from, pos, to)                            => rpc.request("maps.setTokenLayer", {from, pos, to}),
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}),
 			"setInitiative":    initiative                                => rpc.request("maps.setInitiative", initiative),
