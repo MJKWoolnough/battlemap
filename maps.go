@@ -81,9 +81,9 @@ type mapDimensions struct {
 }
 
 type mapGrid struct {
-	SquaresWidth  uint64 `json:"square" xml:"square,attr"`
-	SquaresColour colour `json:"colour" xml:"colour,attr"`
-	SquaresStroke uint64 `json:"stroke" xml:"stroke,attr"`
+	GridSize   uint64 `json:"gridSize" xml:"square,attr"`
+	GridColour colour `json:"gridColour" xml:"colour,attr"`
+	GridStroke uint64 `json:"gridStroke" xml:"stroke,attr"`
 }
 
 func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
@@ -97,8 +97,11 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 		nm.Name = "Map " + strconv.FormatUint(mid, 10)
 	}
 	mp := &levelMap{
-		Width:  nm.Width,
-		Height: nm.Height,
+		Width:      nm.Width,
+		Height:     nm.Height,
+		GridSize:   nm.GridSize,
+		GridColour: nm.GridColour,
+		GridStroke: nm.GridStroke,
 		layers: map[string]struct{}{
 			"Layer": struct{}{},
 			"Light": struct{}{},

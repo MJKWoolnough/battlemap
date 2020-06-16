@@ -48,9 +48,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			}
 			mp.Width = md.Width
 			mp.Height = md.Height
-			mp.GridSize = md.SquaresWidth
-			mp.GridStroke = md.SquaresStroke
-			mp.GridColour = md.SquaresColour
+			mp.GridSize = md.GridSize
+			mp.GridColour = md.GridColour
+			mp.GridStroke = md.GridStroke
 			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
 			return true
 		}); err != nil {
