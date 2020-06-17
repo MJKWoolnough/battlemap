@@ -206,6 +206,7 @@ export const getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVG
 	}
 	return [parent, getLayer(parent, name)];
 },
+isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
 getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(globals.layerList, path);
 	if (!parent || !isSVGLayer(parent)) {
@@ -215,7 +216,6 @@ getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape
 };
 
 export const isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
-isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
