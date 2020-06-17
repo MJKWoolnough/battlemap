@@ -67,7 +67,6 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		if (this.parent === dragging!.parent) {
 			pos -= pos > currPos ? 1 : 0;
 			if (pos === currPos) {
-				dropFn();
 				return;
 			}
 			this.parent!.children.splice(currPos, 1);
@@ -80,7 +79,6 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		newPath = (this.parent as FolderLayer).getPath();
 	}
 	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos), sh).catch(alert);
-	dropFn();
 }
 
 function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
