@@ -2,7 +2,7 @@ import {Colour, GridDetails, MapDetails, Int, LayerFolder, LayerTokens, Token, R
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
-import {colour2RGBA, rgba2Colour, noColour} from './misc.js';
+import {colour2RGBA, noColour} from './misc.js';
 import {HTTPRequest} from './lib/conn.js';
 import {clearElement, removeEventListeners} from './lib/dom.js';
 import {div} from './lib/html.js';
