@@ -288,7 +288,7 @@ setMapDetails = (details: MapDetails) => {
 	globals.definitions.setGrid(details);
 	return details;
 },
-setLightColour = (c: Colour) => ((getLayer(globals.layerList, "/Light") as SVGLayer).tokens[0].node.setAttribute("fill", colour2RGBA(c)), c),
+setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(c)), c),
 globals = {
 	"definitions": null,
 	"root": null,
@@ -359,8 +359,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 		      };
 		Object.assign(globals, {definitions, root, layerList});
 		definitions.setGrid(mapData);
-		(getLayer(layerList, "/Grid") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-		(getLayer(layerList, "/Light") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
+		(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+		(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 		oldBase.replaceWith(base);
 		return [
 			base,
