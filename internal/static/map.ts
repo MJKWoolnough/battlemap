@@ -7,7 +7,6 @@ import {HTTPRequest} from './lib/conn.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 
-
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
 	tokens: SortNode<SVGToken | SVGShape>;
