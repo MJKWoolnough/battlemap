@@ -126,9 +126,7 @@ export type RPC = {
 	close: () => void;
 };
 
-export type MapData = LayerFolder & GridDetails & {
-	width: Int;
-	height: Int;
+export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 };
 
