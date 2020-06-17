@@ -20,30 +20,27 @@ export type SVGFolder = LayerFolder & {
 };
 
 class Defs {
-	defs: SVGDefsElement;
+	node = defs();
 	list: Record<string, SVGPatternElement> = {};
-	constructor(root: Node) {
-		this.defs = root.appendChild(defs());
-	}
 	add(t: SVGToken) {
 		let i = 0;
 		while (this.list[`Pattern_${i}`] !== undefined) {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list[id] = this.defs.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.width, "height": t.height}, t.node.cloneNode(false)));
+		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.width, "height": t.height}, t.node.cloneNode(false)));
 		return id;
 	}
 	remove(id: string) {
-		this.defs.removeChild(this.list[id]);
+		this.node.removeChild(this.list[id]);
 		delete(this.list[id]);
 	}
 	setGrid(grid: GridDetails) {
 		const old = this.list["grid"];
 		if (old) {
-			this.defs.removeChild(old);
+			this.node.removeChild(old);
 		}
-		this.list["grid"] = this.defs.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M 0 ${grid.gridSize} V 0 H ${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
+		this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M 0 ${grid.gridSize} V 0 H ${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
 	}
 }
 
@@ -303,20 +300,23 @@ globals = {
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 	return (HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}) as Promise<MapData>).then(mapData => {
-		const root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}),
-		      layerList = (() => {
-			      const children = new SortNode<SVGFolder | SVGLayer>(root);
-			      mapData.children.forEach(c => children.push(processLayers(c)));
-			      return {
+		const layerList = (() => {
+			const node = g(),
+			children = new SortNode<SVGFolder | SVGLayer>(node);
+			mapData.children.forEach(c => children.push(processLayers(c)));
+			return {
 				id: 0,
 				name: "",
 				hidden: false,
-				node: root,
+				node,
 				children,
 				folders: {},
 				items: {},
-			      } as SVGFolder;
+			} as SVGFolder;
 		      })(),
+		      definitions = new Defs(),
+		      outline = g(),
+		      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
 		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
@@ -348,7 +348,6 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 			root.style.setProperty("top", panZoom.y + "px");
 		      }}, root),
 		      panZoom = {x: 0, y: 0, zoom: 1},
-		      outline = g(),
 		      viewPos = {mouseX: 0, mouseY: 0},
 		      viewDrag = (e: MouseEvent) => {
 			panZoom.x += e.clientX - viewPos.mouseX;
@@ -357,8 +356,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
 			root.style.setProperty("top", panZoom.y + "px");
 			viewPos.mouseX = e.clientX;
 			viewPos.mouseY = e.clientY;
-		      },
-		      definitions = new Defs(root);
+		      };
 		Object.assign(globals, {definitions, root, layerList});
 		definitions.setGrid(mapData);
 		(getLayer(layerList, "/Grid") as SVGLayer).tokens.node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
