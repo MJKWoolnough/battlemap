@@ -296,167 +296,164 @@ globals = {
 	root: SVGSVGElement,
 	layerList: SVGFolder
 },
-mapView = (rpc: RPC, oldBase: HTMLElement, mapID: Int) => {
-	return (HTTPRequest(`/maps/${mapID}?d=${Date.now()}`, {"response": "json"}) as Promise<MapData>).then(mapData => {
-		const layerList = (() => {
-			const node = g(),
-			children = new SortNode<SVGFolder | SVGLayer>(node);
-			mapData.children.forEach(c => children.push(processLayers(c)));
-			return {
-				id: 0,
-				name: "",
-				hidden: false,
-				node,
-				children,
-				folders: {},
-				items: {},
-			} as SVGFolder;
-		      })(),
-		      definitions = new Defs(),
-		      outline = g(),
-		      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
-		      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
-			viewPos.mouseX = e.clientX;
-			viewPos.mouseY = e.clientY;
-			base.addEventListener("mousemove", viewDrag);
-			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-		      }, "onwheel": (e: WheelEvent) => {
-			e.preventDefault();
-			if (e.ctrlKey) {
-				const width = parseInt(root.getAttribute("width") || "0") / 2,
-				      height = parseInt(root.getAttribute("height") || "0") / 2,
-				      oldZoom = panZoom.zoom;
-				if (e.deltaY < 0) {
-					panZoom.zoom /= 0.95;
-				} else if (e.deltaY > 0) {
-					panZoom.zoom *= 0.95;
-				}
-				panZoom.x += e.clientX - (panZoom.zoom * ((e.clientX + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
-				panZoom.y += e.clientY - (panZoom.zoom * ((e.clientY + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-				root.setAttribute("transform", `scale(${panZoom.zoom})`);
-				outline.style.setProperty("--zoom", panZoom.zoom.toString());
-			} else {
-				const deltaY = e.shiftKey ? 0 : -e.deltaY,
-				      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-				      amount = scrollAmount.value || mapData.gridSize;
-				panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
-				panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
+mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
+	const layerList = (() => {
+		const node = g(),
+		children = new SortNode<SVGFolder | SVGLayer>(node);
+		mapData.children.forEach(c => children.push(processLayers(c)));
+		return {
+			id: 0,
+			name: "",
+			hidden: false,
+			node,
+			children,
+			folders: {},
+			items: {},
+		} as SVGFolder;
+	      })(),
+	      definitions = new Defs(),
+	      outline = g(),
+	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
+	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
+		viewPos.mouseX = e.clientX;
+		viewPos.mouseY = e.clientY;
+		base.addEventListener("mousemove", viewDrag);
+		base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
+	      }, "onwheel": (e: WheelEvent) => {
+		e.preventDefault();
+		if (e.ctrlKey) {
+			const width = parseInt(root.getAttribute("width") || "0") / 2,
+			      height = parseInt(root.getAttribute("height") || "0") / 2,
+			      oldZoom = panZoom.zoom;
+			if (e.deltaY < 0) {
+				panZoom.zoom /= 0.95;
+			} else if (e.deltaY > 0) {
+				panZoom.zoom *= 0.95;
 			}
-			root.style.setProperty("left", panZoom.x + "px");
-			root.style.setProperty("top", panZoom.y + "px");
-		      }}, root),
-		      panZoom = {x: 0, y: 0, zoom: 1},
-		      viewPos = {mouseX: 0, mouseY: 0},
-		      viewDrag = (e: MouseEvent) => {
-			panZoom.x += e.clientX - viewPos.mouseX;
-			panZoom.y += e.clientY - viewPos.mouseY;
-			root.style.setProperty("left", panZoom.x + "px");
-			root.style.setProperty("top", panZoom.y + "px");
-			viewPos.mouseX = e.clientX;
-			viewPos.mouseY = e.clientY;
-		      };
-		Object.assign(globals, {definitions, root, layerList});
-		definitions.setGrid(mapData);
-		(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-		(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
-		oldBase.replaceWith(base);
-		return [
-			base,
-			Subscription.canceller(
-				rpc.waitMapChange().then(mc => setMapDetails(mc)),
-				rpc.waitMapLightChange().then(c => setLightColour(c)),
-				rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
-				rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
-				rpc.waitLayerAdd().then(addLayer),
-				rpc.waitLayerFolderAdd().then(path => addLayerFolder(path)),
-				rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
-				rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
-				rpc.waitLayerRemove().then(removeLayer),
-				rpc.waitTokenAdd().then(tk => {
-					const layer = getLayer(layerList, tk.path);
-					if (!layer || !isSVGLayer(layer)) {
-						// error
-						return;
+			panZoom.x += e.clientX - (panZoom.zoom * ((e.clientX + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
+			panZoom.y += e.clientY - (panZoom.zoom * ((e.clientY + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
+			root.setAttribute("transform", `scale(${panZoom.zoom})`);
+			outline.style.setProperty("--zoom", panZoom.zoom.toString());
+		} else {
+			const deltaY = e.shiftKey ? 0 : -e.deltaY,
+			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
+			      amount = scrollAmount.value || mapData.gridSize;
+			panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
+			panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
+		}
+		root.style.setProperty("left", panZoom.x + "px");
+		root.style.setProperty("top", panZoom.y + "px");
+	      }}, root),
+	      panZoom = {x: 0, y: 0, zoom: 1},
+	      viewPos = {mouseX: 0, mouseY: 0},
+	      viewDrag = (e: MouseEvent) => {
+		panZoom.x += e.clientX - viewPos.mouseX;
+		panZoom.y += e.clientY - viewPos.mouseY;
+		root.style.setProperty("left", panZoom.x + "px");
+		root.style.setProperty("top", panZoom.y + "px");
+		viewPos.mouseX = e.clientX;
+		viewPos.mouseY = e.clientY;
+	      };
+	Object.assign(globals, {definitions, root, layerList});
+	definitions.setGrid(mapData);
+	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
+	oldBase.replaceWith(base);
+	return [
+		base,
+		Subscription.canceller(
+			rpc.waitMapChange().then(mc => setMapDetails(mc)),
+			rpc.waitMapLightChange().then(c => setLightColour(c)),
+			rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
+			rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
+			rpc.waitLayerAdd().then(addLayer),
+			rpc.waitLayerFolderAdd().then(path => addLayerFolder(path)),
+			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
+			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
+			rpc.waitLayerRemove().then(removeLayer),
+			rpc.waitTokenAdd().then(tk => {
+				const layer = getLayer(layerList, tk.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
+			}),
+			rpc.waitTokenMoveLayer().then(tm => {
+				const [parent, token] = getParentToken(tm.from, tm.pos);
+				if (token instanceof SVGToken && parent) {
+					const newParent = getLayer(layerList, tm.to);
+					if (newParent && isSVGLayer(newParent)) {
+						newParent.tokens.push(parent.tokens.splice(tm.pos, 1)[0]);
 					}
-					layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})))
-				}),
-				rpc.waitTokenMoveLayer().then(tm => {
-					const [parent, token] = getParentToken(tm.from, tm.pos);
-					if (token instanceof SVGToken && parent) {
-						const newParent = getLayer(layerList, tm.to);
-						if (newParent && isSVGLayer(newParent)) {
-							newParent.tokens.push(parent.tokens.splice(tm.pos, 1)[0]);
-						}
-					}
-				}),
-				rpc.waitTokenSnap().then(ts => {
-					const [, token] = getParentToken(ts.path, ts.pos);
-					if (token instanceof SVGToken) {
-						token.snap = true;
-					}
-				}),
-				rpc.waitTokenRemove().then(tk => {
-					const layer = getLayer(layerList, tk.path);
-					if (!layer || !isSVGLayer(layer)) {
-						// error
-						return;
-					}
-					layer.tokens.splice(tk.pos, 1);
-				}),
-				rpc.waitTokenChange().then(st => {
-					const [, token] = getParentToken(st.path, st.pos);
-					if (token instanceof SVGToken) {
-						token.x = st.x;
-						token.y = st.y;
-						token.width = st.width;
-						token.height = st.height;
-						token.rotation = st.rotation;
-						token.node.setAttribute("width", st.width + "px");
-						token.node.setAttribute("height", st.height + "px");
-						token.node.setAttribute("transform", token.transformString());
-					}
-				}),
-				rpc.waitTokenFlip().then(tf => {
-					const [, token] = getParentToken(tf.path, tf.pos);
-					if (token instanceof SVGToken) {
-						token.flip = tf.flip;
-						token.node.setAttribute("transform", token.transformString());
-					}
-				}),
-				rpc.waitTokenFlop().then(tf => {
-					const [, token] = getParentToken(tf.path, tf.pos);
-					if (token instanceof SVGToken) {
-						token.flop = tf.flop;
-						token.node.setAttribute("transform", token.transformString());
-					}
-				}),
-				rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
-				rpc.waitTokenSetPattern().then(ti => setTokenType(ti.path, ti.pos, false)),
-				rpc.waitTokenMovePos().then(to => {
-					const [layer, token] = getParentToken(to.path, to.pos);
-					if (layer && token) {
-						layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
-					}
-				})
-			),
-			panZoom,
-			outline,
-			mapData
-		] as [
-			HTMLDivElement,
-			() => void,
-			{ x: Int; y: Int; zoom: Int},
-			SVGGElement,
-			MapData
-		];
-	});
+				}
+			}),
+			rpc.waitTokenSnap().then(ts => {
+				const [, token] = getParentToken(ts.path, ts.pos);
+				if (token instanceof SVGToken) {
+					token.snap = true;
+				}
+			}),
+			rpc.waitTokenRemove().then(tk => {
+				const layer = getLayer(layerList, tk.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				layer.tokens.splice(tk.pos, 1);
+			}),
+			rpc.waitTokenChange().then(st => {
+				const [, token] = getParentToken(st.path, st.pos);
+				if (token instanceof SVGToken) {
+					token.x = st.x;
+					token.y = st.y;
+					token.width = st.width;
+					token.height = st.height;
+					token.rotation = st.rotation;
+					token.node.setAttribute("width", st.width + "px");
+					token.node.setAttribute("height", st.height + "px");
+					token.node.setAttribute("transform", token.transformString());
+				}
+			}),
+			rpc.waitTokenFlip().then(tf => {
+				const [, token] = getParentToken(tf.path, tf.pos);
+				if (token instanceof SVGToken) {
+					token.flip = tf.flip;
+					token.node.setAttribute("transform", token.transformString());
+				}
+			}),
+			rpc.waitTokenFlop().then(tf => {
+				const [, token] = getParentToken(tf.path, tf.pos);
+				if (token instanceof SVGToken) {
+					token.flop = tf.flop;
+					token.node.setAttribute("transform", token.transformString());
+				}
+			}),
+			rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
+			rpc.waitTokenSetPattern().then(ti => setTokenType(ti.path, ti.pos, false)),
+			rpc.waitTokenMovePos().then(to => {
+				const [layer, token] = getParentToken(to.path, to.pos);
+				if (layer && token) {
+					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
+				}
+			})
+		),
+		panZoom,
+		outline,
+	] as [
+		HTMLDivElement,
+		() => void,
+		{ x: Int; y: Int; zoom: Int},
+		SVGGElement,
+	];
 };
 
 export default function(rpc: RPC, base: HTMLElement) {
 	let canceller = () => {}
-	rpc.waitCurrentUserMap().then(mapID => mapView(rpc, base, mapID).then(([newBase, cancel]) => {
+	rpc.waitCurrentUserMapData().then(mapData => {
+		const [newBase, cancel] = mapView(rpc, base, mapData);
 		canceller();
 		base = newBase;
 		canceller = cancel;
-	}));
+	});
 }
