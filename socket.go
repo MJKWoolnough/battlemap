@@ -46,7 +46,7 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 		},
 	}
 	c.rpc.Send(jsonrpc.Response{
-		ID:     -2,
+		ID:     broadcastCurrentUserMap,
 		Result: cu,
 	})
 	c.rpc.Handle()
