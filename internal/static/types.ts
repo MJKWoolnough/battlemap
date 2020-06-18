@@ -42,6 +42,7 @@ export type LayerRPC = FolderRPC & {
 export type RPC = {
 	waitLogin:             () => Promise<Int>;
 	waitCurrentUserMap:    () => Subscription<Int>;
+	waitCurrentUserMapData:() => Subscription<MapData>;
 	waitCharacterChange:   () => Subscription<Int>;
 	waitMapChange:         () => Subscription<MapDetails>;
 	waitLayerAdd:          () => Subscription<string>;
