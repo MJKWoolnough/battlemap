@@ -17,7 +17,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitMapInitiative":     () => rpc.await(-39, true),
 			"waitLayerShow":         () => rpc.await(-40, true),
 			"waitLayerHide":         () => rpc.await(-41, true),
-			"waitLayerMaskAdd":      () => rpc.await(-41, true),
+			"waitLayerMaskAdd":      () => rpc.await(-42, true),
 			"waitLayerMaskChange":   () => rpc.await(-43, true),
 			"waitLayerMaskRemove":   () => rpc.await(-44, true),
 			"waitTokenAdd":          () => rpc.await(-45, true),
