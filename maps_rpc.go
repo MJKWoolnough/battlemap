@@ -19,12 +19,23 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &userMap); err != nil {
 			return nil, err
 		}
-		if _, ok := m.links[uint64(userMap)]; !ok {
+		mData, ok := m.mapsJSON[uint64(userMap)]
+		if !ok {
 			return nil, ErrUnknownMap
 		}
 		m.Battlemap.config.Set("currentUserMap", &userMap)
-		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), data, cd.ID)
+		m.Battlemap.socket.SetCurrentUserMap(uint64(userMap), data, mData, cd.ID)
 		return nil, nil
+	case "getMapData":
+		var mapID uint64
+		if err := json.Unmarshal(data, &mapID); err != nil {
+			return nil, err
+		}
+		j, ok := m.mapsJSON[mapID]
+		if !ok {
+			return nil, ErrUnknownMap
+		}
+		return j, nil
 	case "new":
 		var nm mapDetails
 		if err := json.Unmarshal(data, &nm); err != nil {
