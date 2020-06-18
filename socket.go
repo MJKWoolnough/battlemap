@@ -27,10 +27,12 @@ func (s *socket) Init(b *Battlemap) error {
 }
 
 func (s *socket) ServeConn(wconn *websocket.Conn) {
-	var cu keystore.Uint64
+	var (
+		cu keystore.Uint64
+		c  conn
+	)
 	s.config.Get("currentUserMap", &cu)
 	a := s.auth.AuthConn(wconn)
-	var c conn
 	s.mu.Lock()
 	s.nextID++
 	id := s.nextID
@@ -45,10 +47,20 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 			AuthConn:   a,
 		},
 	}
-	c.rpc.Send(jsonrpc.Response{
-		ID:     broadcastCurrentUserMap,
-		Result: cu,
-	})
+	if c.IsAdmin() {
+		c.rpc.Send(jsonrpc.Response{
+			ID:     broadcastCurrentUserMap,
+			Result: uint64(cu),
+		})
+	} else {
+		s.maps.mu.RLock()
+		mapData := s.maps.mapsJSON[uint64(cu)]
+		s.maps.mu.RUnlock()
+		c.rpc.Send(jsonrpc.Response{
+			ID:     broadcastCurrentUserMapData,
+			Result: mapData,
+		})
+	}
 	c.rpc.Handle()
 	s.mu.Lock()
 	delete(s.conns, &c)
