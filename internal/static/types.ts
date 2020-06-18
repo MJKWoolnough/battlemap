@@ -80,6 +80,7 @@ export type RPC = {
 	setCurrentMap: (id: Int) => Promise<void>;
 	getUserMap:    ()        => Promise<Int>;
 	setUserMap:    (id: Int) => Promise<void>;
+	getMapData:    (id: Int) => Promise<MapData>;
 
 	newMap:         (map: NewMap)      => Promise<IDName>;
 	setMapDetails:  (map: GridDetails) => Promise<void>;
