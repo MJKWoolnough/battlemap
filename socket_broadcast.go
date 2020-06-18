@@ -119,23 +119,22 @@ func toRawMessage(v interface{}) json.RawMessage {
 	return data
 }
 
-func (s *socket) SetCurrentUserMap(currentUserMap uint64, data json.RawMessage, except ID) {
+func (s *socket) SetCurrentUserMap(currentUserMap uint64, data, mData json.RawMessage, except ID) {
 	dat := buildBroadcast(broadcastCurrentUserMap, data)
+	mdat := buildBroadcast(broadcastCurrentUserMapData, mData)
 	s.mu.RLock()
 	for c := range s.conns {
 		c.mu.Lock()
-		if c.ID == 0 {
+		id := c.ID
+		if c.IsAdmin() {
+			if except != id {
+				go c.rpc.SendData(dat)
+			}
+		} else {
 			c.CurrentMap = currentUserMap
+			go c.rpc.SendData(mdat)
 		}
 		c.mu.Unlock()
-	}
-	for c := range s.conns {
-		c.mu.RLock()
-		id := c.ID
-		c.mu.RUnlock()
-		if except != id {
-			go c.rpc.SendData(dat)
-		}
 	}
 	s.mu.RUnlock()
 }
