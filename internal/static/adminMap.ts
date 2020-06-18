@@ -37,10 +37,10 @@ const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disable
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
-	mapSelect(mapID => mapView(rpc, oldBase, mapID).then(passed => {
+	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, panZoom, outline, mapData] = passed,
+		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
