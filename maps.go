@@ -57,6 +57,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	m.folders.fileType = fileTypeMap
 	m.folders.Init(b, store, mapCleanup)
 	m.maps = make(map[uint64]*levelMap, len(m.links))
+	m.mapsJSON = make(map[uint64]json.RawMessage, len(m.links))
 	for id := range m.links {
 		key := strconv.FormatUint(id, 10)
 		mp := new(levelMap)
