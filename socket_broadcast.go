@@ -8,6 +8,7 @@ import (
 const (
 	broadcastIsAdmin = -1 - iota
 	broadcastCurrentUserMap
+	broadcastCurrentUserMapData
 
 	broadcastImageItemAdd
 	broadcastAudioItemAdd
