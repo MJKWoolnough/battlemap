@@ -96,9 +96,7 @@ func (c *conn) kickAdmin() {
 	c.rpc.SendData(loggedOut)
 }
 
-var (
-	broadcastStart = []byte{'{', '"', 'i', 'd', '"', ':', ' ', '0', ',', '"', 'r', 'e', 's', 'u', 'l', 't', '"', ':'}
-)
+const broadcastStart = "{\"id\": 0,\"result\":"
 
 func buildBroadcast(id int, data json.RawMessage) []byte {
 	l := len(broadcastStart) + len(data) + 1
