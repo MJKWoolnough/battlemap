@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 
+	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/rwcount"
 )
 
@@ -18,10 +19,11 @@ type levelMap struct {
 	Light      colour `json:"lightColour"`
 	layers     map[string]struct{}
 	layer
+	JSON memio.Buffer `json:"-"`
 }
 
 func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
-	sr := rwcount.Reader{Reader: r}
+	sr := rwcount.Reader{Reader: io.TeeReader(r, &l.JSON)}
 	err := json.NewDecoder(&sr).Decode(l)
 	if sr.Err != nil {
 		return sr.Count, sr.Err
