@@ -16,7 +16,6 @@ import (
 type mapsDir struct {
 	folders
 	maps             map[uint64]*levelMap
-	mapsJSON         map[uint64]json.RawMessage
 	handler, indexes http.Handler
 }
 
@@ -57,7 +56,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	m.folders.fileType = fileTypeMap
 	m.folders.Init(b, store, mapCleanup)
 	m.maps = make(map[uint64]*levelMap, len(m.links))
-	m.mapsJSON = make(map[uint64]json.RawMessage, len(m.links))
 	for id := range m.links {
 		key := strconv.FormatUint(id, 10)
 		mp := new(levelMap)
@@ -65,9 +63,6 @@ func (m *mapsDir) Init(b *Battlemap) error {
 			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
 		m.maps[id] = mp
-		var buf memio.Buffer
-		mp.WriteTo(&buf)
-		m.mapsJSON[id] = json.RawMessage(buf)
 	}
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
@@ -142,10 +137,7 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 	m.mu.Lock()
 	mp, ok := m.maps[id]
 	if ok && fn(mp) {
-		var buf memio.Buffer
-		mp.WriteTo(&buf)
-		m.mapsJSON[id] = json.RawMessage(buf)
-		m.Set(strconv.FormatUint(id, 10), &buf)
+		m.Set(strconv.FormatUint(id, 10), mp)
 	}
 	m.mu.Unlock()
 	if !ok {
