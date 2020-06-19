@@ -48,14 +48,15 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
-	sw := rwcount.Writer{Writer: w}
-	fmt.Fprintf(&sw, "{\"width\":%d,\"height\":%d,\"gridSize\":%d,\"gridStroke\":%d,\"gridColour\":", l.Width, l.Height, l.GridSize, l.GridStroke)
-	l.GridColour.WriteTo(&sw)
-	fmt.Fprint(&sw, ",\"lightColour\":")
-	l.Light.WriteTo(&sw)
-	l.layer.WriteTo(&sw, false)
-	fmt.Fprint(&sw, "}")
-	return sw.Count, sw.Err
+	l.JSON = l.JSON[:0]
+	fmt.Fprintf(&l.JSON, "{\"width\":%d,\"height\":%d,\"gridSize\":%d,\"gridStroke\":%d,\"gridColour\":", l.Width, l.Height, l.GridSize, l.GridStroke)
+	l.GridColour.WriteTo(&l.JSON)
+	fmt.Fprint(&l.JSON, ",\"lightColour\":")
+	l.Light.WriteTo(&l.JSON)
+	l.layer.WriteTo(&l.JSON, false)
+	fmt.Fprint(&l.JSON, "}")
+	n, err := w.Write(l.JSON)
+	return int64(n), err
 }
 
 type layer struct {
