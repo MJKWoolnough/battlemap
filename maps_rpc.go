@@ -19,6 +19,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &userMap); err != nil {
 			return nil, err
 		}
+		m.mu.RLock()
+		defer m.mu.RUnlock()
 		mp, ok := m.maps[uint64(userMap)]
 		if !ok {
 			return nil, ErrUnknownMap
@@ -31,6 +33,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		if err := json.Unmarshal(data, &mapID); err != nil {
 			return nil, err
 		}
+		m.mu.RLock()
+		defer m.mu.RUnlock()
 		mp, ok := m.maps[mapID]
 		if !ok {
 			return nil, ErrUnknownMap
