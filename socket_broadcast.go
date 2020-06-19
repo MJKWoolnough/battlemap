@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"strconv"
 )
 
 const (
@@ -98,19 +97,18 @@ func (c *conn) kickAdmin() {
 }
 
 var (
-	broadcastStart = []byte{'{', '"', 'i', 'd', '"', ':'}
-	broadcastMid   = []byte{',', '"', 'r', 'e', 's', 'u', 'l', 't', '"', ':'}
-	broadcastEnd   = []byte{'}'}
+	broadcastStart = []byte{'{', '"', 'i', 'd', '"', ':', ' ', '0', ',', '"', 'r', 'e', 's', 'u', 'l', 't', '"', ':'}
 )
 
 func buildBroadcast(id int, data json.RawMessage) []byte {
-	idStr := strconv.FormatInt(int64(id), 10)
-	dat := make([]byte, 0, len(broadcastStart)+len(idStr)+len(broadcastMid)+len(data)+len(broadcastEnd))
-	dat = append(dat, broadcastStart...)
-	dat = append(dat, idStr...)
-	dat = append(dat, broadcastMid...)
-	dat = append(dat, data...)
-	dat = append(dat, broadcastEnd...)
+	l := len(broadcastStart) + len(data) + 1
+	dat := make([]byte, l)
+	copy(dat[copy(dat, broadcastStart):], data)
+	if id > 9 {
+		dat[6] = byte('0' + id/10)
+	}
+	dat[7] = byte('0' + id%10)
+	dat[l-1] = '}'
 	return dat
 }
 
