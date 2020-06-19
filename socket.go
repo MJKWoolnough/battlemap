@@ -54,11 +54,11 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 		})
 	} else {
 		s.maps.mu.RLock()
-		mapData := s.maps.mapsJSON[uint64(cu)]
+		mapData := s.maps.maps[uint64(cu)]
 		s.maps.mu.RUnlock()
 		c.rpc.Send(jsonrpc.Response{
 			ID:     broadcastCurrentUserMapData,
-			Result: mapData,
+			Result: json.RawMessage(mapData.JSON),
 		})
 	}
 	c.rpc.Handle()
