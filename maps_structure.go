@@ -23,6 +23,7 @@ type levelMap struct {
 }
 
 func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
+	l.JSON = l.JSON[:0]
 	sr := rwcount.Reader{Reader: io.TeeReader(r, &l.JSON)}
 	err := json.NewDecoder(&sr).Decode(l)
 	if sr.Err != nil {
