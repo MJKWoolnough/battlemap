@@ -87,7 +87,6 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 		"/login/":   b.auth,
 		"/images/":  &b.images,
 		"/audio/":   &b.sounds,
-		"/maps/":    &b.maps,
 		"/masks/":   &b.masks,
 		"/files/":   &b.files,
 		"/plugins/": &b.plugins,
