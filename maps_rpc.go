@@ -139,12 +139,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 				return false
 			}
 			delete(lm.layers, l.Name)
-			newName := uniqueLayer(lm.layers, rename.Name)
-			if newName != rename.Name {
-				rename.Name = newName
-				data = append(appendString(append(appendString(append(data[:0], "{\"path\":"...), rename.Path), ",\"name\":"...), rename.Name), '}')
+			l.Name = uniqueLayer(lm.layers, rename.Name)
+			if l.Name != rename.Name {
+				data = append(appendString(append(appendString(append(data[:0], "{\"path\":"...), rename.Path), ",\"name\":"...), l.Name), '}')
 			}
-			l.Name = rename.Name
 			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
 			return true
 		})
