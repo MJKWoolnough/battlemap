@@ -101,7 +101,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data)
 			return true
 		})
-		return name, err
+		return json.RawMessage(data), err
 	case "addLayerFolder":
 		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
@@ -122,7 +122,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
 			return true
 		})
-		return path, err
+		return json.RawMessage(data), err
 	case "renameLayer":
 		var rename struct {
 			Path string `json:"path"`
@@ -147,7 +147,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
 			return true
 		})
-		return rename.Name, err
+		return json.RawMessage(data), err
 	case "moveLayer":
 		var moveLayer struct {
 			From     string `json:"from"`
@@ -179,7 +179,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 		}); e != nil {
 			return nil, e
 		}
-		return moveLayer.To, err
+		return nil, err
 	case "showLayer":
 		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
