@@ -390,7 +390,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(addLayerFolder),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(name => renameLayer(path, name)),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => renameLayer(path, name)),
 			"remove": removeS,
 			"removeFolder": removeS,
 			"link": invalidRPC,
