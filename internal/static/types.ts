@@ -88,7 +88,7 @@ export type RPC = {
 
 	addLayer:        (name: string)                                                                   => Promise<string>;
 	addLayerFolder:  (path: string)                                                                   => Promise<string>;
-	renameLayer:     (path: string, name: string)                                                     => Promise<string>;
+	renameLayer:     (path: string, name: string)                                                     => Promise<LayerRename>;
 	moveLayer:       (from: string, to: string, position: Int)                                        => Promise<void>;
 	showLayer:       (path: string)                                                                   => Promise<void>;
 	hideLayer:       (path: string)                                                                   => Promise<void>;
