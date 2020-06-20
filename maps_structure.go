@@ -165,8 +165,37 @@ func (c colour) appendTo(p []byte) []byte {
 	return append(p, '}')
 }
 
+const hex = "0123456789abcdef"
+
 func appendString(p []byte, s string) []byte {
-	return strconv.AppendQuote(p, s)
+	last := 0
+	char := byte(0)
+	p = append(p, '"')
+	for n, c := range s {
+		switch c {
+		case '"', '\\', '/':
+			char = byte(c)
+		case '\b':
+			char = 'b'
+		case '\f':
+			char = 'f'
+		case '\n':
+			char = 'n'
+		case '\r':
+			char = 'r'
+		case '\t':
+			char = 't'
+		default:
+			if c < 0x20 { // control characters
+				p = append(append(p, s[last:n]...), '\\', 'u', '0', '0', hex[c>>4], hex[c&0xf])
+				last = n + 1
+			}
+			continue
+		}
+		p = append(append(p, s[last:n]...), '\\', char)
+		last = n + 1
+	}
+	return append(append(p, s[last:]...), '"')
 }
 
 func appendNum(p []byte, n uint8) []byte {
