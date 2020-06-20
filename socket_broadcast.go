@@ -111,11 +111,6 @@ func buildBroadcast(id int, data json.RawMessage) []byte {
 	return dat
 }
 
-func toRawMessage(v interface{}) json.RawMessage {
-	data, _ := json.Marshal(v)
-	return data
-}
-
 func (s *socket) SetCurrentUserMap(currentUserMap uint64, data, mData json.RawMessage, except ID) {
 	dat := buildBroadcast(broadcastCurrentUserMap, data)
 	mdat := buildBroadcast(broadcastCurrentUserMapData, mData)
