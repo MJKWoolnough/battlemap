@@ -100,7 +100,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
+func (k *keystoreDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "create":
 		return k.create(cd, data)
@@ -115,7 +115,7 @@ func (k *keystoreDir) RPCData(cd ConnData, method string, data []byte) (interfac
 	}
 }
 
-func (k *keystoreDir) create(cd ConnData, data []byte) (json.RawMessage, error) {
+func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
 		return nil, err
@@ -136,7 +136,7 @@ func (k *keystoreDir) create(cd ConnData, data []byte) (json.RawMessage, error) 
 	return json.RawMessage(buf[1 : len(buf)-1]), nil
 }
 
-func (k *keystoreDir) set(cd ConnData, data []byte) error {
+func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	var m struct {
 		ID   uint64                  `json:"id"`
 		Data map[string]keystoreData `json:"data"`
@@ -187,7 +187,7 @@ func (k *keystoreDir) IsLinkKey(key string) *folders {
 	return nil
 }
 
-func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
+func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var m struct {
 		ID   uint64   `json:"id"`
 		Keys []string `json:"keys"`
@@ -226,7 +226,7 @@ func (k *keystoreDir) get(cd ConnData, data []byte) (json.RawMessage, error) {
 	return json.RawMessage(buf), nil
 }
 
-func (k *keystoreDir) removeKeys(cd ConnData, data []byte) error {
+func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	var m struct {
 		ID   uint64   `json:"id"`
 		Keys []string `json:"keys"`

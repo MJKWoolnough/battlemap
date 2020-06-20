@@ -312,7 +312,7 @@ func (a *authConn) IsAdmin() bool {
 	return admin
 }
 
-func (a *authConn) RPCData(cd ConnData, submethod string, data []byte) (interface{}, error) {
+func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
 	if a.IsAdmin() {
 		switch submethod {
 		case "loggedIn":

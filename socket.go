@@ -73,7 +73,7 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 // The RPC data method will receive all 'auth' methods called via RPC.
 type AuthConn interface {
 	IsAdmin() bool
-	RPCData(connData ConnData, method string, data []byte) (interface{}, error)
+	RPCData(connData ConnData, method string, data json.RawMessage) (interface{}, error)
 }
 
 type conn struct {
@@ -102,7 +102,7 @@ type ConnData struct {
 	AuthConn
 }
 
-func (c *conn) HandleRPC(method string, data []byte) (interface{}, error) {
+func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
 	c.mu.RLock()
 	cd := c.ConnData
 	c.mu.RUnlock()

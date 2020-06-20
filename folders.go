@@ -275,7 +275,7 @@ func walkFolders(f *folder, fn func(map[string]uint64) bool) bool {
 	return false
 }
 
-func (f *folders) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
+func (f *folders) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	if cd.IsAdmin() {
 		switch method {
 		case "list":
@@ -304,7 +304,7 @@ func (f *folders) list() json.RawMessage {
 	return json.RawMessage(data)
 }
 
-func (f *folders) folderCreate(cd ConnData, data []byte) (string, error) {
+func (f *folders) folderCreate(cd ConnData, data json.RawMessage) (string, error) {
 	var dir string
 	if err := json.Unmarshal(data, &dir); err != nil {
 		return "", err
@@ -327,7 +327,7 @@ type fromTo struct {
 	To   string `json:"to"`
 }
 
-func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
+func (f *folders) itemMove(cd ConnData, data json.RawMessage) (string, error) {
 	var itemMove fromTo
 	if err := json.Unmarshal(data, &itemMove); err != nil {
 		return "", err
@@ -359,7 +359,7 @@ func (f *folders) itemMove(cd ConnData, data []byte) (string, error) {
 	return itemMove.To, nil
 }
 
-func (f *folders) folderMove(cd ConnData, data []byte) (string, error) {
+func (f *folders) folderMove(cd ConnData, data json.RawMessage) (string, error) {
 	var folderMove fromTo
 	if err := json.Unmarshal(data, &folderMove); err != nil {
 		return "", err
@@ -391,7 +391,7 @@ func (f *folders) folderMove(cd ConnData, data []byte) (string, error) {
 	return folderMove.To, nil
 }
 
-func (f *folders) itemDelete(cd ConnData, data []byte) error {
+func (f *folders) itemDelete(cd ConnData, data json.RawMessage) error {
 	var item string
 	if err := json.Unmarshal(data, &item); err != nil {
 		return err
@@ -422,7 +422,7 @@ func (f *folders) unlink(iid uint64) {
 	}
 }
 
-func (f *folders) folderDelete(cd ConnData, data []byte) error {
+func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
 	var folder string
 	if err := json.Unmarshal(data, &folder); err != nil {
 		return err
@@ -445,7 +445,7 @@ func (f *folders) folderDelete(cd ConnData, data []byte) error {
 	return nil
 }
 
-func (f *folders) linkItem(cd ConnData, data []byte) (string, error) {
+func (f *folders) linkItem(cd ConnData, data json.RawMessage) (string, error) {
 	var link idName
 	if err := json.Unmarshal(data, &link); err != nil {
 		return "", err

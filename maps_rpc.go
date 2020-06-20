@@ -7,7 +7,7 @@ import (
 	"vimagination.zapto.org/keystore"
 )
 
-func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{}, error) {
+func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
 		m.mu.RLock()
@@ -101,7 +101,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data)
 			return true
 		})
-		return json.RawMessage(data), err
+		return data, err
 	case "addLayerFolder":
 		var path string
 		if err := json.Unmarshal(data, &path); err != nil {
@@ -122,7 +122,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
 			return true
 		})
-		return json.RawMessage(data), err
+		return data, err
 	case "renameLayer":
 		var rename struct {
 			Path string `json:"path"`
@@ -147,7 +147,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
 			return true
 		})
-		return json.RawMessage(data), err
+		return data, err
 	case "moveLayer":
 		var moveLayer struct {
 			From     string `json:"from"`
