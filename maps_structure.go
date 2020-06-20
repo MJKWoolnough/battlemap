@@ -3,8 +3,8 @@ package battlemap
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
+	"strconv"
 
 	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/rwcount"
@@ -48,13 +48,14 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
-	l.JSON = l.JSON[:0]
-	fmt.Fprintf(&l.JSON, "{\"width\":%d,\"height\":%d,\"gridSize\":%d,\"gridStroke\":%d,\"gridColour\":", l.Width, l.Height, l.GridSize, l.GridStroke)
-	l.GridColour.WriteTo(&l.JSON)
-	fmt.Fprint(&l.JSON, ",\"lightColour\":")
-	l.Light.WriteTo(&l.JSON)
-	l.layer.WriteTo(&l.JSON, false)
-	fmt.Fprint(&l.JSON, "}")
+	l.JSON = strconv.AppendUint(append(l.JSON[:0], "{\"width\":"...), l.Width, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"height\":"...), l.Height, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridSize, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridStroke, 10)
+	l.JSON = l.GridColour.appendTo(append(l.JSON, ",\"gridColour\":"...))
+	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
+	l.JSON = l.layer.appendTo(l.JSON, false)
+	l.JSON = append(l.JSON, '}')
 	n, err := w.Write(l.JSON)
 	return int64(n), err
 }
@@ -90,32 +91,32 @@ func (l *layer) validate(layers map[string]struct{}, first bool) error {
 	return nil
 }
 
-func (l *layer) WriteTo(w io.Writer, full bool) {
+func (l *layer) appendTo(p []byte, full bool) []byte {
 	if full {
-		fmt.Fprintf(w, "\"name\":%q,\"mask\":%d,\"hidden\":%t", l.Name, l.Mask, l.Hidden)
+		p = appendString(append(p, "\"name\":"...), l.Name)
+		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
+		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
 	}
 	if l.Layers != nil {
-		fmt.Fprint(w, ",\"children\":[")
+		p = append(p, ",\"children\":["...)
 		for n, l := range l.Layers {
 			if n > 0 {
-				fmt.Fprint(w, ",")
+				p = append(p, ',')
 			}
-			fmt.Fprint(w, "{")
-			l.WriteTo(w, true)
-			fmt.Fprint(w, "}")
+			p = append(l.appendTo(append(p, '{'), true), '}')
 		}
 	} else if l.Name != "Grid" {
-		fmt.Fprint(w, ",\"tokens\":[")
+		p = append(p, ",\"tokens\":["...)
 		for n, t := range l.Tokens {
 			if n > 0 {
-				fmt.Fprint(w, ",")
+				p = append(p, ',')
 			}
-			t.WriteTo(w)
+			p = t.appendTo(p)
 		}
 	} else {
-		return
+		return p
 	}
-	fmt.Fprint(w, "]")
+	return append(p, ']')
 }
 
 type token struct {
@@ -133,15 +134,20 @@ type token struct {
 	Snap          bool   `json:"snap"`
 }
 
-func (t *token) WriteTo(w io.Writer) {
-	fmt.Fprintf(w, "{\"src\":%d,\"x\":%d,\"y\":%d,\"width\":%d,\"height\":%d,\"rotation\":%d,\"flip\":%t,\"flop\":%t,\"snap\":%t", t.Source, t.X, t.Y, t.Width, t.Height, t.Rotation, t.Flip, t.Flop, t.Snap)
-	if t.PatternWidth > 0 && t.PatternHeight > 0 {
-		fmt.Fprintf(w, ",\"patternWidth\":%d,\"patternHeight\":%d", t.PatternWidth, t.PatternHeight)
-	}
-	if t.TokenData > 0 {
-		fmt.Fprintf(w, ",\"tokenData\":%d", t.TokenData)
-	}
-	fmt.Fprint(w, "}")
+func (t *token) appendTo(p []byte) []byte {
+	p = strconv.AppendUint(append(p, "{\"src\":"...), t.Source, 10)
+	p = strconv.AppendInt(append(p, ",\"x\":"...), t.X, 10)
+	p = strconv.AppendInt(append(p, ",\"y\":"...), t.Y, 10)
+	p = strconv.AppendUint(append(p, ",\"width\":"...), t.Width, 10)
+	p = strconv.AppendUint(append(p, ",\"height\":"...), t.Height, 10)
+	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
+	p = strconv.AppendBool(append(p, ",\"flip\":"...), t.Flip)
+	p = strconv.AppendBool(append(p, ",\"flop\":"...), t.Flop)
+	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
+	p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
+	p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
+	p = strconv.AppendUint(append(p, ",\"tokenData\":"...), t.TokenData, 10)
+	return append(p, '}')
 }
 
 type colour struct {
@@ -151,8 +157,30 @@ type colour struct {
 	A uint8 `json:"a"`
 }
 
-func (c colour) WriteTo(w io.Writer) {
-	fmt.Fprintf(w, "{\"r\":%d,\"g\":%d,\"b\":%d,\"a\":%d}", c.R, c.G, c.B, c.A)
+func (c colour) appendTo(p []byte) []byte {
+	p = appendNum(append(p, "{\"r\":"...), c.R)
+	p = appendNum(append(p, ",\"g\":"...), c.G)
+	p = appendNum(append(p, ",\"b\":"...), c.B)
+	p = appendNum(append(p, ",\"a\":"...), c.A)
+	return append(p, '}')
+}
+
+func appendString(p []byte, s string) []byte {
+	return strconv.AppendQuote(p, s)
+}
+
+func appendNum(p []byte, n uint8) []byte {
+	if n >= 100 {
+		c := n / 100
+		n -= c * 100
+		p = append(p, '0'+c)
+	}
+	if n >= 10 {
+		c := n / 10
+		n -= c * 10
+		p = append(p, '0'+c)
+	}
+	return append(p, '0'+n)
 }
 
 // Errors
