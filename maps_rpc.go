@@ -94,7 +94,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			newName := uniqueLayer(mp.layers, name)
 			if newName != name {
 				name = newName
-				data = toRawMessage(name)
+				data = appendString(data[:0], name)
 			}
 			mp.Layers = append(mp.Layers, &layer{Name: name})
 			mp.layers[name] = struct{}{}
@@ -113,7 +113,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			if newName != name {
 				name = newName
 				path = parent + "/" + name
-				data = toRawMessage(path)
+				data = appendString(data[:0], path)
 			}
 			l.Layers = append(l.Layers, &layer{
 				Name:   name,
@@ -142,7 +142,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data []byte) (interface{},
 			newName := uniqueLayer(lm.layers, rename.Name)
 			if newName != rename.Name {
 				rename.Name = newName
-				data = toRawMessage(rename)
+				data = append(appendString(append(appendString(append(data[:0], "{\"path\":"...), rename.Path), ",\"name\":"...), rename.Name), '}')
 			}
 			l.Name = rename.Name
 			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
