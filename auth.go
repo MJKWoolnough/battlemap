@@ -331,8 +331,7 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) 
 			if a.login(ndata.Old) == nil {
 				return nil, ErrInvalidPassword
 			}
-			sessionData := a.UpdatePasswordGetData(ndata.New, cd.ID)
-			return sessionData, nil
+			return a.UpdatePasswordGetData(ndata.New, cd.ID), nil
 		}
 	} else {
 		switch submethod {
@@ -356,7 +355,7 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) 
 	return nil, ErrUnknownMethod
 }
 
-var req = []string{"password"}
+var req = json.RawMessage("[\"password\"]")
 
 type psuedoHeaders http.Header
 
