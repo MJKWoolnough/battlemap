@@ -13,7 +13,6 @@ import (
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
-	"vimagination.zapto.org/memio"
 )
 
 type keystoreData struct {
@@ -130,10 +129,9 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	strID := strconv.FormatUint(kid, 10)
 	k.data.Set(strID, m)
 	k.Set(strconv.FormatUint(kid, 10), m)
-	var buf memio.Buffer
-	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", kid, name)
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), json.RawMessage(buf), cd.ID)
-	return json.RawMessage(buf[1 : len(buf)-1]), nil
+	buf := append(appendString(append(strconv.AppendUint(append(json.RawMessage{}, "[{\"id\":"...), kid, 10), ",\"name\":"...), name), '}', ']')
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
+	return buf[1 : len(buf)-1], nil
 }
 
 func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
@@ -144,17 +142,20 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
+	if len(m.Data) == 0 {
+		return nil
+	}
 	var ms keystoreMap
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, ms)
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
-	var buf memio.Buffer
-	buf.WriteString("{\"data\":")
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
+	buf := append(data[:0], "{\"data\":"...)
 	for key, val := range m.Data {
 		if val.User {
-			fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
+			buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
 		}
 		if f := k.IsLinkKey(key); f != nil {
 			var id uint64
@@ -167,10 +168,9 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
-	fmt.Fprintf(&buf, "},\"id\":%d}", m.ID)
 	buf[8] = '{'
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
-	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), json.RawMessage(buf))
+	buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
+	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), buf)
 	return k.data.Set(strID, &ms)
 }
 
@@ -201,29 +201,33 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 	if err != nil {
 		return nil, keystore.ErrUnknownKey
 	}
-	var buf memio.Buffer
+	var buf json.RawMessage
 	if m.Keys == nil {
 		for key, val := range ms {
 			if cd.IsAdmin() {
-				fmt.Fprintf(&buf, ",%q:{\"user\":%t,\"data\":%q}", key, val.User, val.Data)
+				buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
 			} else if val.User {
-				fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
+				buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
 			}
 		}
 	} else {
 		for _, key := range m.Keys {
 			if val, ok := ms[key]; ok {
 				if cd.IsAdmin() {
-					fmt.Fprintf(&buf, ",%q:{\"user\":%t,\"data\":%q}", key, val.User, val.Data)
+					buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
 				} else if val.User {
-					fmt.Fprintf(&buf, ",%q:%q", key, val.Data)
+					buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
 				}
 			}
 		}
 	}
-	buf.WriteByte('}')
-	buf[0] = '{'
-	return json.RawMessage(buf), nil
+	if len(buf) == 0 {
+		buf = json.RawMessage{'{', '}'}
+	} else {
+		buf[0] = '{'
+		buf = append(buf, '}')
+	}
+	return buf, nil
 }
 
 func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
