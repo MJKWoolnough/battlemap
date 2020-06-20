@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"encoding/json"
 	"fmt"
 	"image"
 	"image/png"
@@ -101,10 +102,6 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) error {
 	if isRoot(r.URL.Path) {
 		w.WriteHeader(http.StatusNotAcceptable)
 	} else if idStr := strings.TrimLeft(strings.TrimPrefix(r.URL.Path, "/"), "0"); m.store.Exists(idStr) {
-		id, err := strconv.ParseUint(idStr, 10, 64)
-		if err != nil {
-			return err
-		}
 		im, _, err := image.Decode(r.Body)
 		r.Body.Close()
 		if err != nil {
@@ -121,7 +118,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) error {
 			im = gim
 		}
 		m.store.Set(idStr, pngWriterTo{im})
-		m.socket.broadcastMapChange(ConnData{ID: SocketIDFromRequest(r)}, broadcastLayerMaskChange, toRawMessage(id))
+		m.socket.broadcastMapChange(ConnData{ID: SocketIDFromRequest(r)}, broadcastLayerMaskChange, json.RawMessage(idStr))
 	} else {
 		http.NotFound(w, r)
 	}
