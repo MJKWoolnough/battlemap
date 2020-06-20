@@ -101,7 +101,8 @@ const broadcastStart = "{\"id\": 0,\"result\":"
 func buildBroadcast(id int, data json.RawMessage) []byte {
 	l := len(broadcastStart) + len(data) + 1
 	dat := make([]byte, l)
-	copy(dat[copy(dat, broadcastStart):], data)
+	copy(dat, broadcastStart)
+	copy(dat[len(broadcastStart):], data)
 	if id > 9 {
 		dat[6] = byte('0' + id/10)
 	}
