@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"vimagination.zapto.org/keystore"
-	"vimagination.zapto.org/memio"
 )
 
 type mapsDir struct {
@@ -127,10 +126,9 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 	m.saveFolders()
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
-	var buf memio.Buffer
-	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}]", mid, name)
-	m.socket.broadcastAdminChange(broadcastMapItemAdd, json.RawMessage(buf), id)
-	return json.RawMessage(buf[1 : len(buf)-1]), nil
+	buf := append(appendString(append(strconv.AppendUint(append(json.RawMessage{}, "[{\"id\":"...), mid, 10), ",\"name\":"...), name), '}', ']')
+	m.socket.broadcastAdminChange(broadcastMapItemAdd, buf, id)
+	return buf[1 : len(buf)-1], nil
 }
 
 func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
