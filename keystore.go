@@ -168,9 +168,11 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
-	buf[8] = '{'
-	buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
-	k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), buf)
+	if len(buf) > 8 {
+		buf[8] = '{'
+		buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
+		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), buf)
+	}
 	return k.data.Set(strID, &ms)
 }
 
