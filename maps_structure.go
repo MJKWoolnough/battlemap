@@ -130,8 +130,8 @@ type token struct {
 	Rotation      uint8  `json:"rotation"`
 	Flip          bool   `json:"flip"`
 	Flop          bool   `json:"flop"`
-	TokenData     uint64 `json:"tokenData"`
 	Snap          bool   `json:"snap"`
+	TokenData     uint64 `json:"tokenData"`
 }
 
 func (t *token) appendTo(p []byte) []byte {
@@ -169,7 +169,7 @@ const hex = "0123456789abcdef"
 
 func appendString(p []byte, s string) []byte {
 	last := 0
-	char := byte(0)
+	var char byte
 	p = append(p, '"')
 	for n, c := range s {
 		switch c {
