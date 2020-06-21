@@ -240,16 +240,24 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
+	if len(m.Keys) == 0 {
+		return nil
+	}
 	var ms keystoreMap
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, &ms)
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemRemove), data, cd.ID)
+	buf := append(data[:0], "{\"keys\":"...)
 	for _, key := range m.Keys {
 		val, ok := ms[key]
 		if !ok {
 			continue
+		}
+		if val.User {
+			buf = appendString(append(buf, ','), key)
 		}
 		if f := k.IsLinkKey(key); f != nil {
 			var id uint64
@@ -258,7 +266,11 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		}
 		delete(ms, key)
 	}
-	// TODO: broadcast
+	if len(buf) > 8 {
+		buf[8] = '['
+		buf = append(strconv.AppendUint(append(buf, "],\"id\":"...), m.ID, 10), '}')
+		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemRemove), buf)
+	}
 	return k.data.Set(strID, &ms)
 }
 
