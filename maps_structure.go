@@ -130,8 +130,8 @@ type token struct {
 	Rotation      uint8  `json:"rotation"`
 	Flip          bool   `json:"flip"`
 	Flop          bool   `json:"flop"`
-	Snap          bool   `json:"snap"`
 	TokenData     uint64 `json:"tokenData"`
+	Snap          bool   `json:"snap"`
 }
 
 func (t *token) appendTo(p []byte) []byte {
