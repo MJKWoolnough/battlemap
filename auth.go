@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -291,7 +292,7 @@ func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
 	}
 	if a.IsAdmin(w.Request()) {
 		w.Write(loggedIn)
-		c.admin = true
+		atomic.StoreInt32(&c.admin, 1)
 	} else {
 		w.Write(loggedOut)
 	}
@@ -300,16 +301,11 @@ func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
 
 type authConn struct {
 	*auth
-
-	mu    sync.RWMutex
-	admin bool
+	admin int32
 }
 
 func (a *authConn) IsAdmin() bool {
-	a.mu.RLock()
-	admin := a.admin
-	a.mu.RUnlock()
-	return admin
+	return atomic.LoadInt32(&a.admin) == 1
 }
 
 func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
@@ -318,9 +314,7 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) 
 		case "loggedIn":
 			return true, nil
 		case "logout":
-			a.mu.Lock()
-			a.admin = false
-			a.mu.Unlock()
+			atomic.StoreInt32(&a.admin, 0)
 			return nil, nil
 		case "changePassword":
 			var ndata struct {
@@ -344,9 +338,7 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) 
 			if len(sessionData) == 0 {
 				return nil, ErrInvalidPassword
 			}
-			a.mu.Lock()
-			a.admin = true
-			a.mu.Unlock()
+			atomic.StoreInt32(&a.admin, 1)
 			return sessionData, nil
 		case "requirements":
 			return req, nil
