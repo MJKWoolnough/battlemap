@@ -51,7 +51,7 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = strconv.AppendUint(append(l.JSON[:0], "{\"width\":"...), l.Width, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"height\":"...), l.Height, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridSize, 10)
-	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridStroke, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridStroke\":"...), l.GridStroke, 10)
 	l.JSON = l.GridColour.appendTo(append(l.JSON, ",\"gridColour\":"...))
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = l.layer.appendTo(l.JSON, false)
