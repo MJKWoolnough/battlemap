@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
@@ -62,9 +61,7 @@ type keystoreDir struct {
 	Name    string
 	DirType uint8
 
-	mu     sync.RWMutex
-	nextID uint64
-	data   *keystore.FileBackedMemStore
+	data *keystore.FileBackedMemStore
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
