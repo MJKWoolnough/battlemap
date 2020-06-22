@@ -105,7 +105,7 @@ type ConnData struct {
 func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
 	cd := ConnData{
 		CurrentMap: atomic.LoadUint64(&c.CurrentMap),
-		ID:         c.ID,
+		ID:         ID(atomic.LoadUint64((*uint64)(&c.ID))),
 		AuthConn:   c.AuthConn,
 	}
 	pos := strings.IndexByte(method, '.')

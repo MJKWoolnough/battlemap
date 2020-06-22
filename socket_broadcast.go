@@ -81,9 +81,7 @@ const (
 func (s *socket) KickAdmins(except ID) {
 	s.mu.RLock()
 	for c := range s.conns {
-		c.mu.RLock()
 		id := c.ID
-		c.mu.RUnlock()
 		if id > 0 && id != except {
 			go c.kickAdmin()
 		}
@@ -91,9 +89,7 @@ func (s *socket) KickAdmins(except ID) {
 	s.mu.RUnlock()
 }
 func (c *conn) kickAdmin() {
-	c.mu.Lock()
-	c.ID = 0
-	c.mu.Unlock()
+	atomic.StoreUint64((*uint64)(&c.ID), 0)
 	c.rpc.SendData(loggedOut)
 }
 
