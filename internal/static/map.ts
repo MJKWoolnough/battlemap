@@ -186,8 +186,6 @@ export class SVGShape extends SVGTransform {
 	}
 }
 
-let layerNum = 0;
-
 const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
@@ -229,9 +227,6 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 }) ? layer : null,
 isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
 processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
-	if (!layer["name"]) {
-		layer["name"] = `Layer ${layerNum++}`;
-	}
 	const node = g();
 	if (layer.hidden) {
 		node.setAttribute("visibility", "hidden");
