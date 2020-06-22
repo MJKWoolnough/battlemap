@@ -233,6 +233,9 @@ processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
 		layer["name"] = `Layer ${layerNum++}`;
 	}
 	const node = g();
+	if (layer.hidden) {
+		node.setAttribute("visibility", "hidden");
+	}
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
 		layer.children.forEach(c => children.push(processLayers(c)));
