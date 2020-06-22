@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/jsonrpc"
@@ -80,7 +81,6 @@ type conn struct {
 	*Battlemap
 	rpc *jsonrpc.Server
 
-	mu sync.RWMutex
 	ConnData
 }
 
@@ -103,9 +103,11 @@ type ConnData struct {
 }
 
 func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
-	c.mu.RLock()
-	cd := c.ConnData
-	c.mu.RUnlock()
+	cd := ConnData{
+		CurrentMap: atomic.LoadUint64(&c.CurrentMap),
+		ID:         c.ID,
+		AuthConn:   c.AuthConn,
+	}
 	pos := strings.IndexByte(method, '.')
 	if method[:pos] == "auth" {
 		return cd.RPCData(cd, method[pos+1:], data)
@@ -120,9 +122,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
 			return nil, err
 		}
-		c.mu.Lock()
-		c.CurrentMap = cd.CurrentMap
-		c.mu.Unlock()
+		atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
 		return nil, nil
 	default:
 		submethod := method[pos+1:]

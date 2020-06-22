@@ -2,6 +2,7 @@ package battlemap
 
 import (
 	"encoding/json"
+	"sync/atomic"
 )
 
 const (
@@ -118,17 +119,15 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, data, mData json.RawMe
 	mdat := buildBroadcast(broadcastCurrentUserMapData, mData)
 	s.mu.RLock()
 	for c := range s.conns {
-		c.mu.Lock()
 		id := c.ID
 		if c.IsAdmin() {
 			if except != id {
 				go c.rpc.SendData(dat)
 			}
 		} else {
-			c.CurrentMap = currentUserMap
+			atomic.StoreUint64(&c.CurrentMap, currentUserMap)
 			go c.rpc.SendData(mdat)
 		}
-		c.mu.Unlock()
 	}
 	s.mu.RUnlock()
 }
@@ -137,10 +136,8 @@ func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage) {
 	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
-		c.mu.RLock()
 		id := c.ID
-		currentMap := c.CurrentMap
-		c.mu.RUnlock()
+		currentMap := atomic.LoadUint64(&c.CurrentMap)
 		if currentMap == cd.CurrentMap && id != cd.ID {
 			go c.rpc.SendData(dat)
 		}
@@ -152,9 +149,7 @@ func (s *socket) broadcastAdminChange(id int, data json.RawMessage, except ID) {
 	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
-		c.mu.RLock()
 		id := c.ID
-		c.mu.RUnlock()
 		if id > 0 && id != except {
 			go c.rpc.SendData(dat)
 		}
