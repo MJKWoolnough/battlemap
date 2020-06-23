@@ -40,7 +40,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node) {
 						this.setAttribute("disabled", "disabled");
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => {
 							root.addItem(id, name);
-							return rpc.characterSet(id, {"store-image-icon": icon.toString()});
+							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon.toString()}});
 						}), w).catch(e => {
 							showError(name, e);
 							this.removeAttribute("disabled");
