@@ -180,6 +180,7 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 					sqLineWidth,
 					br(),
 					button("Add", {"onclick": function(this: HTMLButtonElement) {
+						this.setAttribute("disabled", "disabled");
 						const sq = parseInt(sqWidth.value);
 						loadingWindow(rpc.newMap({
 							"name": name.value,
@@ -192,7 +193,10 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 							root.addItem(id, name);
 							window.remove();
 						})
-						.catch(e => showError(this, e));
+						.catch(e => {
+							showError(this, e);
+							this.removeAttribute("disabled");
+						});
 					}})
 				])
 			}}),
