@@ -40,11 +40,17 @@ const dragFn = (e: MouseEvent) => {
 		label({"for": "renameLayer"}, "Name: "),
 		newName,
 		br(),
-		button("Rename", {"onclick": () => loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), name!), window).then(name => {
-			self.name = name;
-			self.nameElem.innerText = name;
-			window.remove();
-		}).catch(e => showError(newName, e))})
+		button("Rename", {"onclick": function(this: HTMLButtonElement) {
+			this.setAttribute("disabled", "disabled");
+			loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), name!), window).then(name => {
+				self.name = name;
+				self.nameElem.innerText = name;
+				window.remove();
+			}).catch(e => {
+				showError(newName, e);
+				this.removeAttribute("disabled");
+			});
+		}})
 	]);
       };
 
@@ -150,6 +156,7 @@ class ItemLayer extends Item {
 				sqLineWidth,
 				br(),
 				button("Apply", {"onclick": function(this: HTMLButtonElement) {
+					this.setAttribute("disabled", "disabled");
 					const sq = parseInt(sqWidth.value);
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value) * sq,
@@ -158,7 +165,10 @@ class ItemLayer extends Item {
 						"gridColour": hex2Colour(sqColour.value),
 						"gridStroke": parseInt(sqLineWidth.value)
 					}), window).then(() => window.remove())
-					.catch(e => showError(this, e));
+					.catch(e => {
+						showError(this, e);
+						this.removeAttribute("disabled");
+					});
 				}})
 			]);
 		} else if (this.id === -2) { // Light
@@ -183,11 +193,15 @@ class ItemLayer extends Item {
 				alphaInput,
 				br(),
 				button("Update", {"onclick": function(this: HTMLButtonElement) {
+					this.setAttribute("disabled", "disabled");
 					const colour = hex2Colour(colourInput.value);
 					colour.a = parseInt(alphaInput.value);
 					loadingWindow(rpcFuncs.setLightColour(colour), window)
 					.then(() => window.remove())
-					.catch(e => showError(this, e));
+					.catch(e => {
+						showError(this, e);
+						this.removeAttribute("disabled");
+					});
 				}})
 			]);
 		} else {
@@ -313,10 +327,16 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 					label({"for": "layerName"}, "Layer Name"),
 					name,
 					br(),
-					button("Add Layer", {"onclick": () => loadingWindow(rpc.newLayer(name.value), window).then(name => {
-						list.addItem(1, name);
-						window.remove();
-					}).catch(e => showError(name, e))})
+					button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
+						this.setAttribute("disabled", "disabled");
+						loadingWindow(rpc.newLayer(name.value), window).then(name => {
+							list.addItem(1, name);
+							window.remove();
+						}).catch(e => {
+							showError(name, e);
+							this.removeAttribute("disabled");
+						});
+					}})
 				]);
 			}}),
 			list.node
