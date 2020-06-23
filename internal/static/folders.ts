@@ -45,7 +45,8 @@ export class Item {
 	}
 	show() {}
 	rename() {
-		const root = this.parent.root,
+		const self = this,
+		      root = this.parent.root,
 		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
@@ -59,14 +60,21 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => loadingWindow(root.rpcFuncs.move(parentPath + this.name, parents.value + newName.value), window).then(newPath => {
-				root.moveItem(parentPath + this.name, newPath);
-				window.remove();
-			}).catch(e => showError(newName, e))})
+			button("Move", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value), window).then(newPath => {
+					root.moveItem(parentPath + self.name, newPath);
+					window.remove();
+				}).catch(e => {
+					showError(newName, e);
+					this.removeAttribute("disabled");
+				});
+			}})
 		]);
 	}
 	link() {
-		const root = this.parent.root,
+		const self = this,
+		      root = this.parent.root,
 		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
@@ -80,10 +88,16 @@ export class Item {
 			parents,
 			newName,
 			br(),
-			button("Link", {"onclick": () => loadingWindow(root.rpcFuncs.link(this.id, parents.value + newName.value), window).then(newPath => {
-				root.addItem(this.id, newPath);
-				window.remove();
-			}).catch(e => showError(newName, e))}),
+			button("Link", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.link(self.id, parents.value + newName.value), window).then(newPath => {
+					root.addItem(self.id, newPath);
+					window.remove();
+				}).catch(e => {
+					showError(newName, e);
+					this.removeAttribute("disabled");
+				});
+			}}),
 		]);
 	}
 	remove() {
@@ -96,10 +110,16 @@ export class Item {
 			h1("Remove Item"),
 			div("Remove the following item?"),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
-				root.removeItem(path);
-				window.remove();
-			}).catch(e => showError(pathDiv, e))}))
+			autoFocus(button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
+					root.removeItem(path);
+					window.remove();
+				}).catch(e => {
+					showError(pathDiv, e);
+					this.removeAttribute("disabled");
+				});
+			}}))
 		]);
 	}
 	getPath() {
@@ -192,10 +212,16 @@ export class Folder {
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": () => loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
-				root.moveFolder(oldPath.slice(0, -1), newPath);
-				window.remove();
-			}).catch(e => showError(newName, e))})
+			button("Move", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
+					root.moveFolder(oldPath.slice(0, -1), newPath);
+					window.remove();
+				}).catch(e => {
+					showError(newName, e);
+					this.removeAttribute("disabled");
+				});
+			}})
 		])
 	}
 	remove(e: Event) {
@@ -209,10 +235,16 @@ export class Folder {
 			h1("Remove Folder"),
 			div("Remove the following folder? NB: This will remove all folders and items it contains."),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": () => loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
-				root.removeFolder(path);
-				window.remove();
-			}).catch(e => showError(pathDiv, e))}))
+			autoFocus(button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
+					root.removeFolder(path);
+					window.remove();
+				}).catch(e => {
+					showError(pathDiv, e);
+					this.removeAttribute("disabled");
+				});
+			}}))
 		]);
 	}
 	newFolder(e: Event) {
@@ -227,10 +259,16 @@ export class Folder {
 			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
 			folderName,
 			br(),
-			button("Add Folder", {"onclick": () => loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
-				root.addFolder(folder);
-				window.remove();
-			}).catch(e => showError(folderName, e))})
+			button("Add Folder", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
+					root.addFolder(folder);
+					window.remove();
+				}).catch(e => {
+					showError(folderName, e);
+					this.removeAttribute("disabled");
+				});
+			}})
 		]);
 	}
 	addItem(id: Int, name: string) {
