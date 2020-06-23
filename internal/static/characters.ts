@@ -19,7 +19,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node) {
 			button(`New Character`, {"onclick": () => {
 				const name = autoFocus(input({"id": "characterName"}));
 				let icon = 0,
-				      w = shell.appendChild(windows({"window-title": "New Character"}, [
+				      w = shell.appendChild(windows({"window-title": "New Character", "ondragover": () => w.focus()}, [
 					h1("New Character"),
 					label({"for": "characterName"}, "Character Name: "),
 					name,
