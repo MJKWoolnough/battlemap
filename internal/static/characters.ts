@@ -17,8 +17,8 @@ export default function (rpc: RPC, shell: ShellElement, base: Node) {
 		const root = new Root(folderList, "Characters", rpcFuncs, shell, Character);
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(`New Character`, {"onclick": () => {
-				const name = autoFocus(input({"id": "characterName"}));
-				let icon = 0,
+				let icon = 0;
+				const name = autoFocus(input({"id": "characterName"})),
 				      w = shell.appendChild(windows({"window-title": "New Character", "ondragover": () => w.focus()}, [
 					h1("New Character"),
 					label({"for": "characterName"}, "Character Name: "),
