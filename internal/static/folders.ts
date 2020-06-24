@@ -272,9 +272,11 @@ export class Folder {
 		]);
 	}
 	addItem(id: Int, name: string) {
-		if (!this.getItem(name)) {
-			this.children.push(new this.root.newItem(this, id, name));
+		const item = this.getItem(name);
+		if (item) {
+			return item;
 		}
+		return this.children.push(new this.root.newItem(this, id, name));
 	}
 	getItem(name: string) {
 		return this.items.filter(i => i.name === name).pop();
@@ -357,7 +359,7 @@ export class Root {
 	addItem(id: Int, path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder) {
-			folder.addItem(id, name);
+			return folder.addItem(id, name);
 		}
 	}
 	getItem(path: string) {
