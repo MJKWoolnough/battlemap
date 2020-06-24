@@ -1,4 +1,4 @@
-import {Int, RPC} from './types.js';
+import {Int, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
@@ -9,8 +9,15 @@ let rpc: RPC;
 
 class Character extends Item {
 	icon = div(img({"class": "imageIcon"}));
+	data: Record<string, KeystoreData> = {};
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
+		rpc.characterGet(id, []).then(data => {
+			this.data = data;
+			if (data["store-image-icon"]) {
+				this.setIcon(parseInt(data["store-image-icon"].data));
+			}
+		});
 	}
 	setIcon(id: Int) {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
