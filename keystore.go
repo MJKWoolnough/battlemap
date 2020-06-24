@@ -148,7 +148,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemChange), data, cd.ID)
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataChange), data, cd.ID)
 	buf := append(data[:0], "{\"data\":"...)
 	for key, val := range m.Data {
 		if val.User {
@@ -168,7 +168,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '{'
 		buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
-		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemChange), buf)
+		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
 	}
 	return k.data.Set(strID, &ms)
 }
@@ -246,7 +246,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if err != nil {
 		return keystore.ErrUnknownKey
 	}
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemRemove), data, cd.ID)
+	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataRemove), data, cd.ID)
 	buf := append(data[:0], "{\"keys\":"...)
 	for _, key := range m.Keys {
 		val, ok := ms[key]
@@ -266,7 +266,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '['
 		buf = append(strconv.AppendUint(append(buf, "],\"id\":"...), m.ID, 10), '}')
-		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterItemRemove), buf)
+		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
 	}
 	return k.data.Set(strID, &ms)
 }
