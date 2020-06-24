@@ -45,8 +45,12 @@ const (
 	broadcastCharacterFolderRemove
 	broadcastMapFolderRemove
 
-	broadcastCharacterItemChange
 	broadcastMapItemChange
+
+	broadcastCharacterDataChange
+	broadcastTokenDataChange
+	broadcastCharacterDataRemove
+	broadcastTokenDataRemove
 
 	broadcastLayerAdd
 	broadcastLayerFolderAdd
