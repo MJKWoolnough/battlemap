@@ -40,36 +40,37 @@ export type LayerRPC = FolderRPC & {
 }
 
 export type RPC = {
-	waitLogin:               () => Promise<Int>;
-	waitCurrentUserMap:      () => Subscription<Int>;
-	waitCurrentUserMapData:  () => Subscription<MapData>;
-	waitCharacterDataChange: () => Subscription<Int>;
-	waitCharacterDataRemove: () => Subscription<Int>;
-	waitMapChange:           () => Subscription<MapDetails>;
-	waitLayerAdd:            () => Subscription<string>;
-	waitLayerFolderAdd:      () => Subscription<string>;
-	waitLayerMove:           () => Subscription<LayerMove>;
-	waitLayerRename:         () => Subscription<LayerRename>;
-	waitLayerRemove:         () => Subscription<string>;
-	waitMapLightChange:      () => Subscription<Colour>;
-	waitMapInitiative:       () => Subscription<IDName[]>;   //check type
-	waitLayerShow:           () => Subscription<string>;
-	waitLayerHide:           () => Subscription<string>;
-	waitLayerMaskAdd:        () => Subscription<Int>;        //check type
-	waitLayerMaskChange:     () => Subscription<Int>;        //check type
-	waitLayerMaskRemove:     () => Subscription<Int>;        //check type
-	waitTokenAdd:            () => Subscription<TokenAdd>;
-	waitTokenRemove:         () => Subscription<TokenPos>;
-	waitTokenMoveLayer:      () => Subscription<TokenMoveLayer>;
-	waitTokenMovePos:        () => Subscription<TokenMovePos>;
-	waitTokenSetToken:       () => Subscription<Int>;        //check type
-	waitTokenSetImage:       () => Subscription<TokenPos>;   //check type
-	waitTokenSetPattern:     () => Subscription<TokenPos>;   //check type
-	waitTokenChange:         () => Subscription<TokenChange>;
-	waitTokenFlip:           () => Subscription<TokenFlip>;
-	waitTokenFlop:           () => Subscription<TokenFlop>;
-	waitTokenSnap:           () => Subscription<TokenSnap>;
-	waitTokenSourceChange:   () => Subscription<TokenSource>;
+	waitLogin:                   () => Promise<Int>;
+	waitCurrentUserMap:          () => Subscription<Int>;
+	waitCurrentUserMapData:      () => Subscription<MapData>;
+	waitCharacterDataChange:     () => Subscription<KeystoreDataChange>;
+	waitCharacterDataChangeUser: () => Subscription<KeystoreDataChangeUser>;
+	waitCharacterDataRemove:     () => Subscription<KeystoreDataRemove>;
+	waitMapChange:               () => Subscription<MapDetails>;
+	waitLayerAdd:                () => Subscription<string>;
+	waitLayerFolderAdd:          () => Subscription<string>;
+	waitLayerMove:               () => Subscription<LayerMove>;
+	waitLayerRename:             () => Subscription<LayerRename>;
+	waitLayerRemove:             () => Subscription<string>;
+	waitMapLightChange:          () => Subscription<Colour>;
+	waitMapInitiative:           () => Subscription<IDName[]>;   //check type
+	waitLayerShow:               () => Subscription<string>;
+	waitLayerHide:               () => Subscription<string>;
+	waitLayerMaskAdd:            () => Subscription<Int>;        //check type
+	waitLayerMaskChange:         () => Subscription<Int>;        //check type
+	waitLayerMaskRemove:         () => Subscription<Int>;        //check type
+	waitTokenAdd:                () => Subscription<TokenAdd>;
+	waitTokenRemove:             () => Subscription<TokenPos>;
+	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
+	waitTokenMovePos:            () => Subscription<TokenMovePos>;
+	waitTokenSetToken:           () => Subscription<Int>;        //check type
+	waitTokenSetImage:           () => Subscription<TokenPos>;   //check type
+	waitTokenSetPattern:         () => Subscription<TokenPos>;   //check type
+	waitTokenChange:             () => Subscription<TokenChange>;
+	waitTokenFlip:               () => Subscription<TokenFlip>;
+	waitTokenFlop:               () => Subscription<TokenFlop>;
+	waitTokenSnap:               () => Subscription<TokenSnap>;
+	waitTokenSourceChange:       () => Subscription<TokenSource>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
@@ -263,3 +264,18 @@ export type KeystoreData = {
 	user: boolean;
 	data: string;
 };
+
+export type KeystoreDataChange = {
+	id: Int;
+	data: Record<string, KeystoreData>;
+}
+
+export type KeystoreDataChangeUser = {
+	id: Int;
+	data: Record<string, string>;
+}
+
+type KeystoreDataRemove = {
+	id: Int;
+	keys: string[];
+}
