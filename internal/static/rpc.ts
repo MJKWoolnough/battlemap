@@ -1,5 +1,5 @@
 import RPC from './lib/rpc_ws.js';
-import {RPC as RPCType} from './types.js';
+import {RPC as RPCType, KeystoreData} from './types.js';
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
@@ -142,6 +142,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterCreate":      name      => rpc.request("characters.create", name),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
 			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}),
+			"characterGetUser":    (id, keys) => rpc.request("characters.get", {id, keys}).then((data : Record<string, string | KeystoreData>) => {
+				const keys = Object.keys(data)
+				if (keys.length > 0 && typeof data[keys[0]] !== "string") {
+					keys.forEach(k => data[k] = (data[k] as KeystoreData).data);
+				}
+				return data;
+			}),
 			"characterGetAll":      id        => rpc.request("characters.get", {id}),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
