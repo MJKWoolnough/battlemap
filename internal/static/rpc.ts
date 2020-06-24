@@ -142,13 +142,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterCreate":      name      => rpc.request("characters.create", name),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
 			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}),
-			"characterGetUser":    (id, keys) => rpc.request("characters.get", {id, keys}).then((data : Record<string, string | KeystoreData>) => {
-				const keys = Object.keys(data)
-				if (keys.length > 0 && typeof data[keys[0]] !== "string") {
-					keys.forEach(k => data[k] = (data[k] as KeystoreData).data);
-				}
-				return data;
-			}),
+			"characterGetUser":    (id, keys) => rpc.request("characters.get", {id, keys}).then(userData),
 			"characterGetAll":      id        => rpc.request("characters.get", {id}),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
@@ -162,3 +156,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		} as RPCType);
 	})
 }
+
+const userData = (data : Record<string, string | KeystoreData>) => {
+	const keys = Object.keys(data)
+	if (keys.length > 0 && typeof data[keys[0]] !== "string") {
+		keys.forEach(k => data[k] = (data[k] as KeystoreData).data);
+	}
+	return data;
+};
