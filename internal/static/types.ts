@@ -110,7 +110,8 @@ export type RPC = {
 
 	characterCreate:     (name: string)                                => Promise<IDName>;
 	characterSet:        (id: Int, data: Record<string, KeystoreData>) => Promise<void>;
-	characterGet:        (id: Int, keys: string[])                     => Promise<Record<string, KeystoreData> | Record<string, string>>;
+	characterGet:        (id: Int, keys: string[])                     => Promise<Record<string, KeystoreData>>;
+	characterGetUser:    (id: Int, keys: string[])                     => Promise<Record<string, string>>;
 	characterGetAll:     (id: Int)                                     => Promise<Record<string, KeystoreData>>;
 	characterRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
 
@@ -257,7 +258,7 @@ type TokenSource = TokenPos & {
 	src: string;
 }
 
-type KeystoreData = {
+export type KeystoreData = {
 	user: boolean;
 	data: string;
 };
