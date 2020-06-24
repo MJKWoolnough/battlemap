@@ -5,14 +5,21 @@ import {ShellElement, loadingWindow, windows} from './windows.js';
 import {showError} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 
+let rpc: RPC;
+
 class Character extends Item {
+	icon = div(img({"class": "imageIcon"}));
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
 	}
+	setIcon(id: Int) {
+		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
+	}
 }
 
-export default function (rpc: RPC, shell: ShellElement, base: Node) {
-	const rpcFuncs = rpc["characters"];
+export default function (arpc: RPC, shell: ShellElement, base: Node) {
+	const rpcFuncs = arpc["characters"];
+	rpc = arpc;
 	rpcFuncs.list().then(folderList => {
 		const root = new Root(folderList, "Characters", rpcFuncs, shell, Character);
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
@@ -39,7 +46,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node) {
 					button("Create", {"onclick": function(this: HTMLButtonElement) {
 						this.setAttribute("disabled", "disabled");
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => {
-							root.addItem(id, name);
+							(root.addItem(id, name) as Character).setIcon(icon);
 							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon.toString()}});
 						}), w).catch(e => {
 							showError(name, e);
