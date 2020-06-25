@@ -76,5 +76,11 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 			}}),
 			root.node
 		]);
+		rpc.waitCharacterDataChange().then(data => {
+			const char = root.characters.get(data.id);
+			if (char) {
+				Object.assign(char.data, data.data);
+			}
+		});
 	});
 };
