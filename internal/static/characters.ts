@@ -82,5 +82,11 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 				Object.assign(char.data, data.data);
 			}
 		});
+		rpc.waitCharacterDataRemove().then(data => {
+			const char = root.characters.get(data.id);
+			if (char) {
+				data.keys.forEach(k => delete char.data[k]);
+			}
+		});
 	});
 };
