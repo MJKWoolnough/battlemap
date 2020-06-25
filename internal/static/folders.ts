@@ -1,7 +1,7 @@
 import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, details, div, h1, input, label, li, option, select, span, summary, ul} from './lib/html.js';
+import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {showError, enterKey} from './misc.js';
@@ -125,6 +125,39 @@ export class Item {
 	getPath() {
 		return this.parent.getPath() + "/" + this.name;
 	}
+}
+
+export class DraggableItem extends Item {
+	icon: HTMLDivElement = div(img({"class": "imageIcon"}));
+	constructor(parent: Folder, id: Int, name: string) {
+		super(parent, id, name);
+		createHTML(this.node.firstChild!, {
+			"draggable": "true",
+			"onmousemove": (e: MouseEvent) => {
+				this.icon.style.setProperty("--icon-top", (e.clientY + 5) + "px");
+				this.icon.style.setProperty("--icon-left",(e.clientX + 5) + "px");
+				if (!this.icon.parentNode) {
+					document.body.appendChild(this.icon);
+				}
+			},
+			"onmouseout": () => {
+				if (this.icon.parentNode) {
+					document.body.removeChild(this.icon);
+				}
+				this.icon.style.removeProperty("transform");
+			},
+			"ondragstart": (e: DragEvent) => {
+				const img = this.icon.firstChild as HTMLImageElement;
+				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+					e.preventDefault();
+				}
+				e.dataTransfer!.setDragImage(this.icon, -5, -5);
+				this.setDragData(e.dataTransfer!, img);
+				this.icon.style.setProperty("transform", "translateX(-9999px)");
+			}
+		});
+	}
+	setDragData(dt: DataTransfer, img: HTMLImageElement) {}
 }
 
 export class Folder {
