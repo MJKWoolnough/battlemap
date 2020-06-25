@@ -18,9 +18,21 @@ class Character extends Item {
 				this.setIcon(parseInt(data["store-image-icon"].data));
 			}
 		});
+		(parent.root as CharacterRoot).characters.set(id, this);
 	}
 	setIcon(id: Int) {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
+	}
+}
+
+class CharacterRoot extends Root {
+	characters = new Map<Int, Character>();
+	removeItem(name: string) {
+		const id = super.removeItem(name);
+		if (id > 0) {
+			this.characters.delete(id);
+		}
+		return id;
 	}
 }
 
@@ -28,7 +40,7 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 	const rpcFuncs = arpc["characters"];
 	rpc = arpc;
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, "Characters", rpcFuncs, shell, Character);
+		const root = new CharacterRoot(folderList, "Characters", rpcFuncs, shell, Character);
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(`New Character`, {"onclick": () => {
 				let icon = 0;
