@@ -80,6 +80,10 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 			const char = root.characters.get(data.id);
 			if (char) {
 				Object.assign(char.data, data.data);
+				const icon = data.data["store-image-icon"];
+				if (icon) {
+					char.setIcon(parseInt(icon.data));
+				}
 			}
 		});
 		rpc.waitCharacterDataRemove().then(data => {
