@@ -137,8 +137,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
-			      window = sh.appendChild(windows({"window-title": "Edit Map"}));
-			return createHTML(window, {"class": "mapAdd"}, [
+			      window = sh.appendChild(windows({"window-title": "Edit Map", "class": "mapAdd"}, [
 				h1("Edit Map"),
 				label({"for": "mapWidth"}, "Width in Squares: "),
 				width,
@@ -170,7 +169,8 @@ class ItemLayer extends Item {
 						this.removeAttribute("disabled");
 					});
 				}})
-			]);
+			      ]));
+			return window;
 		} else if (this.id === -2) { // Light
 			const colour = rpcFuncs.getLightColour(),
 			      checkboard = div({"class": "checkboard"}),
@@ -182,8 +182,7 @@ class ItemLayer extends Item {
 			      },
 			      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
 			      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
-			      window = sh.appendChild(windows({"window-title": "Change Light Colour"}));
-			return createHTML(window, {"class": "lightChange"}, [
+			      window = sh.appendChild(windows({"window-title": "Change Light Colour", "class": "lightChange"}, [
 				h1("Change Light Colour"),
 				checkboard,
 				label({"for": "colourPick"}, "Colour: "),
@@ -203,7 +202,8 @@ class ItemLayer extends Item {
 						this.removeAttribute("disabled");
 					});
 				}})
-			]);
+			      ]));
+			return window;
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
