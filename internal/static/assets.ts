@@ -4,38 +4,15 @@ import {audio, button, div, form, h1, img, input, label, progress} from './lib/h
 import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {showError} from './misc.js';
-import {Root, Folder, Item} from './folders.js';
+import {Root, Folder, DraggableItem, Item} from './folders.js';
 
-class ImageAsset extends Item {
-	icon: HTMLDivElement;
+class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
-		this.icon = div(img({"src": `/images/${this.id}`, "class": "imageIcon"}));
-		createHTML(this.node.firstChild!, {
-			"draggable": "true",
-			"onmousemove": (e: MouseEvent) => {
-				this.icon.style.setProperty("--icon-top", (e.clientY + 5) + "px");
-				this.icon.style.setProperty("--icon-left",(e.clientX + 5) + "px");
-				if (!this.icon.parentNode) {
-					document.body.appendChild(this.icon);
-				}
-			},
-			"onmouseout": () => {
-				if (this.icon.parentNode) {
-					document.body.removeChild(this.icon);
-				}
-				this.icon.style.removeProperty("transform");
-			},
-			"ondragstart": (e: DragEvent) => {
-				const img = this.icon.firstChild as HTMLImageElement;
-				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
-					e.preventDefault();
-				}
-				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				e.dataTransfer!.setData("imageAsset", JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
-				this.icon.style.setProperty("transform", "translateX(-9999px)");
-			}
-		});
+		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${this.id}`);
+	}
+	setDragData(dt: DataTransfer, img: HTMLImageElement) {
+		dt.setData("imageAsset", JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
 	}
 	show() {
 		const root = this.parent.root;
