@@ -3,12 +3,11 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {showError} from './misc.js';
-import {Root, Folder, Item} from './folders.js';
+import {Root, Folder, DraggableItem} from './folders.js';
 
 let rpc: RPC;
 
-class Character extends Item {
-	icon = div(img({"class": "imageIcon"}));
+class Character extends DraggableItem {
 	data: Record<string, KeystoreData> = {};
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
