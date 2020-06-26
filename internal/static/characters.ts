@@ -5,7 +5,7 @@ import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js'
 import {showError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 
-let rpc: RPC;
+let rpc: RPC, n = 0;
 
 class Character extends DraggableItem {
 	data: Record<string, KeystoreData> = {};
@@ -26,6 +26,7 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
+		n++;
 		const self = this,
 		      root = self.parent.root,
 		      changes: Record<string, KeystoreData> = {},
@@ -51,6 +52,16 @@ class Character extends DraggableItem {
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
+			Object.keys(self.data).filter(k => k !== "store-image-icon").map((k, m) => [
+				label({"for": `character_${n}_${m}`}, k),
+				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
+					if (!self.data[k] || self.data[k].data !== this.value) {
+						changes[k] = {"user": false, "data": this.value};
+						changed = true;
+					}
+				}}),
+				br()
+			]),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				const keys = Object.keys(changes);
