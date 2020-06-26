@@ -22,6 +22,9 @@ class Character extends DraggableItem {
 	setIcon(id: Int) {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
 	}
+	dragName() {
+		return "character";
+	}
 }
 
 class CharacterRoot extends Root {
