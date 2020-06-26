@@ -40,8 +40,8 @@ class Character extends DraggableItem {
 			h1(this.name),
 			label("Character Image: "),
 			div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-				e.preventDefault();
 				if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
+					e.preventDefault();
 					e.dataTransfer.dropEffect = "link";
 				}
 			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
