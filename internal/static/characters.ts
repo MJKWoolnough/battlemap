@@ -17,7 +17,7 @@ class Character extends DraggableItem {
 				this.setIcon(parseInt(data["store-image-icon"].data));
 			}
 		});
-		(parent.root as CharacterRoot).characters.set(id, this);
+		characters.set(id, this);
 	}
 	setIcon(id: Int) {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
@@ -28,15 +28,16 @@ class Character extends DraggableItem {
 }
 
 class CharacterRoot extends Root {
-	characters = new Map<Int, Character>();
 	removeItem(name: string) {
 		const id = super.removeItem(name);
 		if (id > 0) {
-			this.characters.delete(id);
+			characters.delete(id);
 		}
 		return id;
 	}
 }
+
+export const characters = new Map<Int, Character>();
 
 export default function (arpc: RPC, shell: ShellElement, base: Node) {
 	const rpcFuncs = arpc["characters"];
