@@ -6,6 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView} from './map.js';
+import {characters} from './characters.js';
 import {autosnap} from './settings.js';
 import {noColour} from './misc.js';
 
@@ -184,20 +185,43 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      },
 		      invalidRPC = () => Promise.reject("invalid");
 		createSVG(root, {"ondragover": (e: DragEvent) => {
-			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
+			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageAsset"))) {
+				e.preventDefault();
+				e.dataTransfer!.dropEffect = "link";
+			}
 		      }, "ondrop": (e: DragEvent) => {
 			if (selectedLayer === null) {
 				return;
 			}
+			let id: Int , tw: Int, th: Int, charID: Int = 0, src: string;
+			if (e.dataTransfer!.types.includes("character")) {
+				const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
+				      char = characters.get(tokenData.id)!;
+				charID = tokenData.id;
+				id = parseInt(char.data["store-image-icon"].data);
+				if (char.data["store-image-asset"]) {
+					parseInt(char.data["store-image-asset"].data)
+				}
+				tw = tokenData.width;
+				th = tokenData.height;
+				if (char.data["tokenWidth"]) {
+					tw = parseInt(char.data["tokenWidth"].data);
+				}
+				if (char.data["tokenHeight"]) {
+					tw = parseInt(char.data["tokenHeight"].data);
+				}
+			} else {
+				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+				id = tokenData.id;
+				tw = tokenData.width;
+				th = tokenData.height;
+				src = `/images/${tokenData.id}`;
+			}
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
-			      src = `/images/${tokenData.id}`,
 			      width = parseInt(root.getAttribute("width") || "0"),
 			      height = parseInt(root.getAttribute("height") || "0");
 			let x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
-			    y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom),
-			    tw = tokenData.width,
-			    th = tokenData.height;
+			    y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
 			if (autosnap.value) {
 				const sq = mapData.gridSize;
 				x = Math.round(x / sq) * sq;
@@ -205,7 +229,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
 				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
 			}
-			const token = {"src": tokenData.id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
+			const token = {"src": id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
 			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
 			rpc.addToken(selectedLayerPath, token).then(() => {
 				if (autosnap.value) {
