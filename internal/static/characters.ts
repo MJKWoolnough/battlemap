@@ -33,7 +33,7 @@ class Character extends DraggableItem {
 		      removes: string[] = [];
 		let changed = false;
 		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
-			if (changed) {
+			if (removes.length > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
 				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(() => this.remove());
 			}
@@ -47,8 +47,7 @@ class Character extends DraggableItem {
 				}
 			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				changed = true;
-				changes["store-image-icon"] = tokenData.id.toString();
+				changes["store-image-icon"] = {"user": self.data["store-image-icon"].user, "data": tokenData.id.toString()};
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
@@ -56,7 +55,11 @@ class Character extends DraggableItem {
 				label({"for": `character_${n}_${m}`}, k),
 				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
 					if (changes[k]) {
-						changes[k].data = this.value;
+						if (this.value === self.data[k].data && changes[k].user === self.data[k].user) {
+							delete changes[k];
+						} else {
+							changes[k].data = this.value;
+						}
 					} else {
 						changes[k] = {"user": self.data[k].user, "data": this.value};
 					}
