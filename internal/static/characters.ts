@@ -26,8 +26,10 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
-		const root = this.parent.root,
-		      changes: Record<string, string> = {};
+		const self = this,
+		      root = self.parent.root,
+		      changes: Record<string, KeystoreData> = {},
+		      removes: string[] = [];
 		let changed = false;
 		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
 			if (changed) {
@@ -49,7 +51,25 @@ class Character extends DraggableItem {
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
-			button("Save", {"onclick": function(this: HTMLButtonElement) {}})
+			button("Save", {"onclick": function(this: HTMLButtonElement) {
+				this.setAttribute("disabled", "disabled");
+				const keys = Object.keys(changes);
+				let p = Promise.resolve();
+				if (keys.length > 0) {
+					p = p.then(() => rpc.characterSet(self.id, changes)).then(() => {
+						keys.forEach(k => delete changes[k]);
+						Object.assign(self.data, changes);
+					});
+				}
+				if (removes.length > 0) {
+					p = p.then(() => rpc.characterRemoveKeys(self.id, removes)).then(() => {
+						removes.splice(0, removes.length);
+					});
+				}
+				p.then(() => changed = false)
+				.catch(console.log)
+				.finally(() => this.removeAttribute("disabled"));
+			}})
 		]))));
 	}
 }
