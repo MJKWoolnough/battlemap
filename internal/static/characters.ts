@@ -1,7 +1,7 @@
 import {Int, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {showError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 
@@ -24,6 +24,33 @@ class Character extends DraggableItem {
 	}
 	dragName() {
 		return "character";
+	}
+	show() {
+		const root = this.parent.root,
+		      changes: Record<string, string> = {};
+		let changed = false;
+		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
+			if (changed) {
+				e.preventDefault();
+				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(() => this.remove());
+			}
+		}}, [
+			h1(this.name),
+			label("Character Image: "),
+			div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+				e.preventDefault();
+				if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
+					e.dataTransfer.dropEffect = "link";
+				}
+			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+				changed = true;
+				changes["store-image-icon"] = tokenData.id.toString();
+				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
+			br(),
+			button("Save", {"onclick": function(this: HTMLButtonElement) {}})
+		]))));
 	}
 }
 
