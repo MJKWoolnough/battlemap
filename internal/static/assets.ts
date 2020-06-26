@@ -11,8 +11,8 @@ class ImageAsset extends DraggableItem {
 		super(parent, id, name);
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${this.id}`);
 	}
-	setDragData(dt: DataTransfer, img: HTMLImageElement) {
-		dt.setData("imageAsset", JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
+	dragName() {
+		return "imageAsset";
 	}
 	show() {
 		const root = this.parent.root;

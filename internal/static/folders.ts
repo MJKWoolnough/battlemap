@@ -152,12 +152,12 @@ export class DraggableItem extends Item {
 					e.preventDefault();
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				this.setDragData(e.dataTransfer!, img);
+				e.dataTransfer!.setData(this.dragName(), JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
 				this.icon.style.setProperty("transform", "translateX(-9999px)");
 			}
 		});
 	}
-	setDragData(dt: DataTransfer, img: HTMLImageElement) {}
+	dragName() {return ""}
 }
 
 export class Folder {
