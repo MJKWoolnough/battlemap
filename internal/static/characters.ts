@@ -55,9 +55,10 @@ class Character extends DraggableItem {
 			Object.keys(self.data).filter(k => k !== "store-image-icon").map((k, m) => [
 				label({"for": `character_${n}_${m}`}, k),
 				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
-					if (!self.data[k] || self.data[k].data !== this.value) {
-						changes[k] = {"user": false, "data": this.value};
-						changed = true;
+					if (changes[k]) {
+						changes[k].data = this.value;
+					} else {
+						changes[k] = {"user": self.data[k].user, "data": this.value};
 					}
 				}}),
 				br()
