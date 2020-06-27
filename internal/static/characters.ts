@@ -88,6 +88,7 @@ class Character extends DraggableItem {
 			]),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
+				removes.forEach(k => delete changes[k]);
 				const keys = Object.keys(changes);
 				let p = Promise.resolve();
 				if (keys.length > 0) {
