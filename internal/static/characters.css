@@ -25,3 +25,7 @@
 .userVisibility:checked + label {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAApCAYAAABOScuyAAAAv0lEQVR4Ae3UAQYDMRSE4d6pd9o79U57pymKV0qN/deMkIkHwvjEk8fF6J7xQ6HZPlDe765h8+AeeoM3WJ+zAniwG8wjju2DfWwRPNgFwAZ2gxEYYAtggC2Aj9XAJ8fmwOLYHPoEqxBHP+/DKjKvL+zxe+9DefjuGh4O5Vjbpn/FcayBFiiPg2WXi8NhjwbM0RzLwRxeABtwjqVg8NoAC8AA3gfDn8THKgA24F0wQE/6YLS3ffBksFUwyAYvAH4D8Qycpav4CwsAAAAASUVORK5CYII=);
 }
+
+.characterDataRemove:checked + .itemRemove {
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABOAQAAAABEDQbJAAAAcklEQVR4AWPACfj//4Ex5f//I5eJCRCyYACyxR7K/EdlJsIKXKAeoqCBOswf9Q//t0OYH+wP/GeGMD/bn/lvTF/mKNMewmRAZcqDmf/ATHAMgZn84HgDJxJ2cGT+ADGZwcwPICYjmPkAkWIaYCkYTwoHAKvwfUn9rDoRAAAAAElFTkSuQmCC);
+}
