@@ -30,10 +30,10 @@ class Character extends DraggableItem {
 		const self = this,
 		      root = self.parent.root,
 		      changes: Record<string, KeystoreData> = {},
-		      removes: string[] = [];
+		      removes = new Set<string>();
 		let changed = false;
 		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
-			if (removes.length > 0 || Object.keys(changes).length > 0) {
+			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
 				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(() => this.remove());
 			}
@@ -88,9 +88,9 @@ class Character extends DraggableItem {
 						Object.assign(self.data, changes);
 					});
 				}
-				if (removes.length > 0) {
-					p = p.then(() => rpc.characterRemoveKeys(self.id, removes)).then(() => {
-						removes.splice(0, removes.length);
+				if (removes.size > 0) {
+					p = p.then(() => rpc.characterRemoveKeys(self.id, Array.from(removes.values()))).then(() => {
+						removes.clear();
 					});
 				}
 				p.then(() => changed = false)
