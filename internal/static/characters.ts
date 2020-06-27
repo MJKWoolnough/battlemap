@@ -35,7 +35,11 @@ class Character extends DraggableItem {
 		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
-				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(() => this.remove());
+				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
+					if (t) {
+						this.remove();
+					}
+				});
 			}
 		}}, [
 			h1(this.name),
