@@ -89,20 +89,21 @@ class Character extends DraggableItem {
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				removes.forEach(k => delete changes[k]);
-				const keys = Object.keys(changes);
-				let p = Promise.resolve();
+				const keys = Object.keys(changes),
+				      ps: Promise<void>[] = [];
 				if (keys.length > 0) {
-					p = p.then(() => rpc.characterSet(self.id, changes)).then(() => {
+					ps.push(rpc.characterSet(self.id, changes).then(() => {
 						keys.forEach(k => delete changes[k]);
 						Object.assign(self.data, changes);
-					});
+					}));
 				}
 				if (removes.size > 0) {
-					p = p.then(() => rpc.characterRemoveKeys(self.id, Array.from(removes.values()))).then(() => {
+					ps.push(rpc.characterRemoveKeys(self.id, Array.from(removes.values())).then(() => {
 						removes.clear();
-					});
+					}));
 				}
-				p.then(() => changed = false)
+				Promise.all(ps)
+				.then(() => changed = false)
 				.catch(console.log)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
