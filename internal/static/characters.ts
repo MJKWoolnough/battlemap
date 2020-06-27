@@ -54,26 +54,10 @@ class Character extends DraggableItem {
 			Object.keys(self.data).filter(k => k !== "store-image-icon").map((k, m) => [
 				label({"for": `character_${n}_${m}`}, k),
 				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
-					if (changes[k]) {
-						if (this.value === self.data[k].data && changes[k].user === self.data[k].user) {
-							delete changes[k];
-						} else {
-							changes[k].data = this.value;
-						}
-					} else {
-						changes[k] = {"user": self.data[k].user, "data": this.value};
-					}
+					changes[k] = Object.assign(changes[k] || {"user": self.data[k].user}, {"data": this.value});
 				}}),
 				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${m}_user`, "checked": self.data[k].user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
-					if (changes[k]) {
-						if (changes[k].data === self.data[k].data && this.checked === self.data[k].user) {
-							delete changes[k];
-						} else {
-							changes[k].data = this.value;
-						}
-					} else {
-						changes[k] = {"user": this.checked, "data": self.data[k].data};
-					}
+					changes[k] = Object.assign(changes[k] || {"data": self.data[k].data}, {"user": this.checked});
 				}}),
 				label({"for": `character_${n}_${m}_user`}),
 				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${m}_remove`, "onchange": function(this: HTMLInputElement) {
@@ -89,7 +73,14 @@ class Character extends DraggableItem {
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				removes.forEach(k => delete changes[k]);
-				const keys = Object.keys(changes),
+				const keys = Object.keys(changes).filter(k => {
+					const old = self.data[k];
+					if (old && old.user === changes[k].user && old.data === changes[k].data) {
+						delete changes[k];
+						return false;
+					}
+					return true;
+				      }),
 				      ps: Promise<void>[] = [];
 				if (keys.length > 0) {
 					ps.push(rpc.characterSet(self.id, changes).then(() => {
