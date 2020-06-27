@@ -76,6 +76,14 @@ class Character extends DraggableItem {
 					}
 				}}),
 				label({"for": `character_${n}_${m}_user`}),
+				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${m}_remove`, "onchange": function(this: HTMLInputElement) {
+					if (this.checked) {
+						removes.add(k);
+					} else {
+						removes.delete(k);
+					}
+				}}),
+				label({"for": `character_${n}_${m}_remove`, "class": "itemRemove"}),
 				br()
 			]),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
