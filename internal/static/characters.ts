@@ -64,7 +64,7 @@ class Character extends DraggableItem {
 						changes[k] = {"user": self.data[k].user, "data": this.value};
 					}
 				}}),
-				input({"type": "checkbox", "id": `character_${n}_${m}_user`, "checked": self.data[k].user ? "checked" : undefined, "style": "display: none", "onchange": function(this: HTMLInputElement) {
+				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${m}_user`, "checked": self.data[k].user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
 					if (changes[k]) {
 						if (changes[k].data === self.data[k].data && this.checked === self.data[k].user) {
 							delete changes[k];
@@ -75,7 +75,7 @@ class Character extends DraggableItem {
 						changes[k] = {"user": this.checked, "data": self.data[k].data};
 					}
 				}}),
-				label({"for": `character_${n}_${m}_user`, "class": "characterUser"}),
+				label({"for": `character_${n}_${m}_user`}),
 				br()
 			]),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
