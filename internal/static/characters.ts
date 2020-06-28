@@ -27,22 +27,22 @@ class Character extends DraggableItem {
 	}
 	show() {
 		n++;
+		let changed = false;
 		const self = this,
 		      root = self.parent.root,
 		      changes: Record<string, KeystoreData> = {},
 		      removes = new Set<string>(),
-		      added = div();
-		let changed = false;
-		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
+		      added = div(),
+		      w = createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": (e: Event) => {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
-				this.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
+				w.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
 					if (t) {
-						this.remove();
+						w.remove();
 					}
 				});
 			}
-		}}, [
+		      }}, [
 			h1(this.name),
 			label("Character Image: "),
 			div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
@@ -108,7 +108,7 @@ class Character extends DraggableItem {
 				.catch(console.log)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
-		]))));
+		      ]))));
 	}
 }
 
