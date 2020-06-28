@@ -76,6 +76,11 @@ class Character extends DraggableItem {
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
 			inputs,
+			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
+				if (key) {
+					createHTML(inputs, adder(key));
+				}
+			})}),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				const rms = Array.from(removes.values()).filter(k => {
