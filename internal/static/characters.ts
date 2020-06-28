@@ -34,11 +34,11 @@ class Character extends DraggableItem {
 		      removes = new Set<string>(),
 		      adder = (k: string) => [
 				label({"for": `character_${n}_${row}`}, k),
-				input({"id": `character_${n}_${row}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"user": self.data[k].user}, {"data": this.value});
+				input({"id": `character_${n}_${row}`, "value": self.data[k]?.data || "", "onchange": function(this: HTMLInputElement) {
+					changes[k] = Object.assign(changes[k] || {"user": self.data[k]?.user ?? false}, {"data": this.value});
 				}}),
-				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": self.data[k].user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"data": self.data[k].data}, {"user": this.checked});
+				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": self.data[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
+					changes[k] = Object.assign(changes[k] || {"data": self.data[k]?.data ?? ""}, {"user": this.checked});
 				}}),
 				label({"for": `character_${n}_${row}_user`}),
 				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
