@@ -27,28 +27,28 @@ class Character extends DraggableItem {
 	}
 	show() {
 		n++;
-		let changed = false;
+		let changed = false, row = 0;
 		const self = this,
 		      root = self.parent.root,
 		      changes: Record<string, KeystoreData> = {},
 		      removes = new Set<string>(),
-		      adder = (k: string, m: Int) => [
-				label({"for": `character_${n}_${m}`}, k),
-				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
+		      adder = (k: string) => [
+				label({"for": `character_${n}_${row}`}, k),
+				input({"id": `character_${n}_${row}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
 					changes[k] = Object.assign(changes[k] || {"user": self.data[k].user}, {"data": this.value});
 				}}),
-				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${m}_user`, "checked": self.data[k].user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
+				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": self.data[k].user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
 					changes[k] = Object.assign(changes[k] || {"data": self.data[k].data}, {"user": this.checked});
 				}}),
-				label({"for": `character_${n}_${m}_user`}),
-				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${m}_remove`, "onchange": function(this: HTMLInputElement) {
+				label({"for": `character_${n}_${row}_user`}),
+				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 					if (this.checked) {
 						removes.add(k);
 					} else {
 						removes.delete(k);
 					}
 				}}),
-				label({"for": `character_${n}_${m}_remove`, "class": "itemRemove"}),
+				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 				br()
 		      ],
 		      inputs = div(Object.keys(self.data).filter(k => k !== "store-image-icon").sort().map(adder)),
