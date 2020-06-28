@@ -44,8 +44,10 @@ class Character extends DraggableItem {
 				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 					if (this.checked) {
 						removes.add(k);
+						document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.setAttribute("disabled", "disabled");
 					} else {
 						removes.delete(k);
+						document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.removeAttribute("disabled");
 					}
 				}}),
 				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
