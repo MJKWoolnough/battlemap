@@ -55,7 +55,7 @@ class Character extends DraggableItem {
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
-			Object.keys(self.data).filter(k => k !== "store-image-icon").map((k, m) => [
+			Object.keys(self.data).filter(k => k !== "store-image-icon").sort().map((k, m) => [
 				label({"for": `character_${n}_${m}`}, k),
 				input({"id": `character_${n}_${m}`, "value": self.data[k].data, "onchange": function(this: HTMLInputElement) {
 					changes[k] = Object.assign(changes[k] || {"user": self.data[k].user}, {"data": this.value});
