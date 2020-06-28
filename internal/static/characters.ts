@@ -30,7 +30,8 @@ class Character extends DraggableItem {
 		const self = this,
 		      root = self.parent.root,
 		      changes: Record<string, KeystoreData> = {},
-		      removes = new Set<string>();
+		      removes = new Set<string>(),
+		      added = div();
 		let changed = false;
 		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": function(this: WindowElement, e: Event) {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
@@ -74,6 +75,7 @@ class Character extends DraggableItem {
 				label({"for": `character_${n}_${m}_remove`, "class": "itemRemove"}),
 				br()
 			]),
+			added,
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				removes.forEach(k => delete changes[k]);
