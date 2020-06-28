@@ -78,8 +78,11 @@ class Character extends DraggableItem {
 			added,
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
-				removes.forEach(k => delete changes[k]);
-				const keys = Object.keys(changes).filter(k => {
+				const rms = Array.from(removes.values()).filter(k => {
+					delete changes[k];
+					return self.data[k] !== undefined;
+				      }),
+				      keys = Object.keys(changes).filter(k => {
 					const old = self.data[k];
 					if (old && old.user === changes[k].user && old.data === changes[k].data) {
 						delete changes[k];
@@ -95,7 +98,7 @@ class Character extends DraggableItem {
 					}));
 				}
 				if (removes.size > 0) {
-					ps.push(rpc.characterRemoveKeys(self.id, Array.from(removes.values())).then(() => {
+					ps.push(rpc.characterRemoveKeys(self.id, rms).then(() => {
 						removes.clear();
 						removes.forEach(k => delete self.data[k]);
 					}));
