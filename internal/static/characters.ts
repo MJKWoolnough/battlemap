@@ -97,6 +97,7 @@ class Character extends DraggableItem {
 				if (removes.size > 0) {
 					ps.push(rpc.characterRemoveKeys(self.id, Array.from(removes.values())).then(() => {
 						removes.clear();
+						removes.forEach(k => delete self.data[k]);
 					}));
 				}
 				Promise.all(ps)
