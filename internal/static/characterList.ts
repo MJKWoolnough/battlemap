@@ -4,6 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {showError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
+import {characterData} from './characters.js';
 
 let rpc: RPC, n = 0;
 
@@ -11,7 +12,7 @@ class Character extends DraggableItem {
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
 		rpc.characterGet(id, []).then(d => {
-			data.set(id, d);
+			characterData.set(id, d);
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
 			}
@@ -27,7 +28,7 @@ class Character extends DraggableItem {
 	show() {
 		n++;
 		let changed = false, row = 0;
-		const d = data.get(this.id)!,
+		const d = characterData.get(this.id)!,
 		      id = this.id,
 		      root = this.parent.root,
 		      changes: Record<string, KeystoreData> = {},
@@ -131,8 +132,6 @@ class CharacterRoot extends Root {
 
 const characters = new Map<Int, Character>();
 
-export const data = new Map<Int, Record<string, KeystoreData>>();
-
 export default function (arpc: RPC, shell: ShellElement, base: Node) {
 	const rpcFuncs = arpc["characters"];
 	rpc = arpc;
@@ -174,19 +173,12 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 			root.node
 		]);
 		rpc.waitCharacterDataChange().then(d => {
-			const char = characters.get(d.id);
-			if (char) {
-				Object.assign(data.get(d.id), d.data);
-				const icon = d.data["store-image-icon"];
-				if (icon) {
+			const icon = d.data["store-image-icon"];
+			if (icon) {
+				const char = characters.get(d.id);
+				if (char) {
 					char.setIcon(parseInt(icon.data));
 				}
-			}
-		});
-		rpc.waitCharacterDataRemove().then(d => {
-			const char = data.get(d.id);
-			if (char) {
-				d.keys.forEach(k => delete char[k]);
 			}
 		});
 	});
