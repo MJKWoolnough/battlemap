@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
-import characters from './characters.js';
+import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
