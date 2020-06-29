@@ -138,7 +138,7 @@ func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage) {
 	for c := range s.conns {
 		id := c.ID
 		currentMap := atomic.LoadUint64(&c.CurrentMap)
-		if currentMap == cd.CurrentMap && id != cd.ID {
+		if id != cd.ID && (currentMap == cd.CurrentMap || cd.CurrentMap == 0) {
 			go c.rpc.SendData(dat)
 		}
 	}
