@@ -8,13 +8,12 @@ import {Root, Folder, DraggableItem} from './folders.js';
 let rpc: RPC, n = 0;
 
 class Character extends DraggableItem {
-	data: Record<string, KeystoreData> = {};
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
-		rpc.characterGet(id, []).then(data => {
-			this.data = data;
-			if (data["store-image-icon"]) {
-				this.setIcon(parseInt(data["store-image-icon"].data));
+		rpc.characterGet(id, []).then(d => {
+			data.set(id, d);
+			if (d["store-image-icon"]) {
+				this.setIcon(parseInt(d["store-image-icon"].data));
 			}
 		});
 		characters.set(id, this);
@@ -28,17 +27,18 @@ class Character extends DraggableItem {
 	show() {
 		n++;
 		let changed = false, row = 0;
-		const self = this,
-		      root = self.parent.root,
+		const d = data.get(this.id)!,
+		      id = this.id,
+		      root = this.parent.root,
 		      changes: Record<string, KeystoreData> = {},
 		      removes = new Set<string>(),
 		      adder = (k: string) => [
 				label({"for": `character_${n}_${row}`}, k),
-				input({"id": `character_${n}_${row}`, "value": self.data[k]?.data || "", "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"user": self.data[k]?.user ?? false}, {"data": this.value});
+				input({"id": `character_${n}_${row}`, "value": d[k]?.data || "", "onchange": function(this: HTMLInputElement) {
+					changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 				}}),
-				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": self.data[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"data": self.data[k]?.data ?? ""}, {"user": this.checked});
+				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
+					changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
 				}}),
 				label({"for": `character_${n}_${row}_user`}),
 				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
@@ -53,7 +53,7 @@ class Character extends DraggableItem {
 				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 				br()
 		      ],
-		      inputs = div(Object.keys(self.data).filter(k => k !== "store-image-icon").sort().map(adder)),
+		      inputs = div(Object.keys(d).filter(k => k !== "store-image-icon").sort().map(adder)),
 		      w = createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "onclose": (e: Event) => {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
@@ -73,7 +73,7 @@ class Character extends DraggableItem {
 				}
 			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				changes["store-image-icon"] = {"user": self.data["store-image-icon"].user, "data": tokenData.id.toString()};
+				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id.toString()};
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
@@ -87,10 +87,10 @@ class Character extends DraggableItem {
 				this.setAttribute("disabled", "disabled");
 				const rms = Array.from(removes.values()).filter(k => {
 					delete changes[k];
-					return self.data[k] !== undefined;
+					return d[k] !== undefined;
 				      }),
 				      keys = Object.keys(changes).filter(k => {
-					const old = self.data[k];
+					const old = d[k];
 					if (old && old.user === changes[k].user && old.data === changes[k].data) {
 						delete changes[k];
 						return false;
@@ -99,15 +99,15 @@ class Character extends DraggableItem {
 				      }),
 				      ps: Promise<void>[] = [];
 				if (keys.length > 0) {
-					ps.push(rpc.characterSet(self.id, changes).then(() => {
+					ps.push(rpc.characterSet(id, changes).then(() => {
 						keys.forEach(k => delete changes[k]);
-						Object.assign(self.data, changes);
+						Object.assign(d, changes);
 					}));
 				}
 				if (removes.size > 0) {
-					ps.push(rpc.characterRemoveKeys(self.id, rms).then(() => {
+					ps.push(rpc.characterRemoveKeys(id, rms).then(() => {
 						removes.clear();
-						removes.forEach(k => delete self.data[k]);
+						removes.forEach(k => delete d[k]);
 					}));
 				}
 				Promise.all(ps)
@@ -129,7 +129,9 @@ class CharacterRoot extends Root {
 	}
 }
 
-export const characters = new Map<Int, Character>();
+const characters = new Map<Int, Character>();
+
+export const data = new Map<Int, Record<string, KeystoreData>>();
 
 export default function (arpc: RPC, shell: ShellElement, base: Node) {
 	const rpcFuncs = arpc["characters"];
@@ -171,20 +173,20 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 			}}),
 			root.node
 		]);
-		rpc.waitCharacterDataChange().then(data => {
-			const char = characters.get(data.id);
+		rpc.waitCharacterDataChange().then(d => {
+			const char = characters.get(d.id);
 			if (char) {
-				Object.assign(char.data, data.data);
-				const icon = data.data["store-image-icon"];
+				Object.assign(data.get(d.id), d.data);
+				const icon = d.data["store-image-icon"];
 				if (icon) {
 					char.setIcon(parseInt(icon.data));
 				}
 			}
 		});
-		rpc.waitCharacterDataRemove().then(data => {
-			const char = characters.get(data.id);
+		rpc.waitCharacterDataRemove().then(d => {
+			const char = data.get(d.id);
 			if (char) {
-				data.keys.forEach(k => delete char.data[k]);
+				d.keys.forEach(k => delete char[k]);
 			}
 		});
 	});
