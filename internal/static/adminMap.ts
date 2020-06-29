@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView} from './map.js';
-import {characters} from './characters.js';
+import {data as characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import {noColour} from './misc.js';
 
@@ -196,19 +196,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			let id: Int , tw: Int, th: Int, charID: Int = 0, src: string;
 			if (e.dataTransfer!.types.includes("character")) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
-				      char = characters.get(tokenData.id)!;
+				      char = characterData.get(tokenData.id)!;
 				charID = tokenData.id;
-				id = parseInt(char.data["store-image-icon"].data);
-				if (char.data["store-image-asset"]) {
-					parseInt(char.data["store-image-asset"].data)
+				id = parseInt(char["store-image-icon"].data);
+				if (char["store-image-asset"]) {
+					parseInt(char["store-image-asset"].data)
 				}
 				tw = tokenData.width;
 				th = tokenData.height;
-				if (char.data["tokenWidth"]) {
-					tw = parseInt(char.data["tokenWidth"].data);
+				if (char["tokenWidth"]) {
+					tw = parseInt(char["tokenWidth"].data);
 				}
-				if (char.data["tokenHeight"]) {
-					tw = parseInt(char.data["tokenHeight"].data);
+				if (char["tokenHeight"]) {
+					tw = parseInt(char["tokenHeight"].data);
 				}
 			} else {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
