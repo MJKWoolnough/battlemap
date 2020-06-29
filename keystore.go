@@ -168,6 +168,9 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '{'
 		buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
+		if k.DirType == keystoreCharacter {
+			cd.CurrentMap = 0
+		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
 	}
 	return k.data.Set(strID, &ms)
@@ -266,6 +269,9 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '['
 		buf = append(strconv.AppendUint(append(buf, "],\"id\":"...), m.ID, 10), '}')
+		if k.DirType == keystoreCharacter {
+			cd.CurrentMap = 0
+		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
 	}
 	return k.data.Set(strID, &ms)
