@@ -44,7 +44,6 @@ export type RPC = {
 	waitCurrentUserMap:          () => Subscription<Int>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
 	waitCharacterDataChange:     () => Subscription<KeystoreDataChange>;
-	waitCharacterDataChangeUser: () => Subscription<KeystoreDataChangeUser>;
 	waitCharacterDataRemove:     () => Subscription<KeystoreDataRemove>;
 	waitMapChange:               () => Subscription<MapDetails>;
 	waitLayerAdd:                () => Subscription<string>;
@@ -113,7 +112,6 @@ export type RPC = {
 	characterCreate:     (name: string)                                => Promise<IDName>;
 	characterSet:        (id: Int, data: Record<string, KeystoreData>) => Promise<void>;
 	characterGet:        (id: Int, keys: string[])                     => Promise<Record<string, KeystoreData>>;
-	characterGetUser:    (id: Int, keys: string[])                     => Promise<Record<string, string>>;
 	characterGetAll:     (id: Int)                                     => Promise<Record<string, KeystoreData>>;
 	characterRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
 
@@ -268,11 +266,6 @@ export type KeystoreData = {
 export type KeystoreDataChange = {
 	id: Int;
 	data: Record<string, KeystoreData>;
-}
-
-export type KeystoreDataChangeUser = {
-	id: Int;
-	data: Record<string, string>;
 }
 
 type KeystoreDataRemove = {
