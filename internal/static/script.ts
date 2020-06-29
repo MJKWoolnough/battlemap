@@ -12,6 +12,7 @@ import loadUserMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
 import settings from './settings.js';
 import tools from './tools.js';
+import characterStore from './characters.js';
 
 type savedWindow = {
 	out: boolean;
@@ -148,6 +149,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       s = shell({"snap": 50}, base);
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
+	characterStore(rpc);
 	if (userLevel === 1) {
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
 		assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
