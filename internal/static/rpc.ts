@@ -9,8 +9,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":                   () => rpc.await(broadcastIsAdmin),
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
-			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true),
-			"waitCharacterDataChangeUser": () => rpc.await(broadcastCharacterDataChange, true).then(d => (d.data = userData(d.data), d)),
+			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(d => (d.data = userData(d.data), d)),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true),
@@ -145,8 +144,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"characterCreate":      name      => rpc.request("characters.create", name),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
-			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}),
-			"characterGetUser":    (id, keys) => rpc.request("characters.get", {id, keys}).then(userData),
+			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}).then(userData),
 			"characterGetAll":      id        => rpc.request("characters.get", {id}),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
@@ -163,8 +161,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 const userData = (data : Record<string, string | KeystoreData>) => {
 	const keys = Object.keys(data)
-	if (keys.length > 0 && typeof data[keys[0]] !== "string") {
-		keys.forEach(k => data[k] = (data[k] as KeystoreData).data);
+	if (keys.length > 0 && typeof data[keys[0]] === "string") {
+		keys.forEach(k => data[k] = {"data": data[k], "user": false} as KeystoreData);
 	}
 	return data;
 };
