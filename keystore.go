@@ -116,7 +116,7 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	if err := json.Unmarshal(data, &name); err != nil {
 		return nil, err
 	}
-	m := keystore.NewMemStore()
+	m := make(keystoreMap)
 	k.mu.Lock()
 	k.lastID++
 	kid := k.lastID
