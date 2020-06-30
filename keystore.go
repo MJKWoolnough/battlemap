@@ -69,7 +69,8 @@ type keystoreDir struct {
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	ms, ok := k.data[strconv.FormatUint(id, 10)]
+	strID := strconv.FormatUint(id, 10)
+	ms, ok := k.data[strID]
 	if !ok {
 		return
 	}
@@ -80,6 +81,7 @@ func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
 			f.removeHiddenLink(id)
 		}
 	}
+	delete(k.data, strID)
 }
 
 func (k *keystoreDir) Init(b *Battlemap) error {
