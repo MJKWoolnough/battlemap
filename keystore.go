@@ -94,6 +94,14 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
 	k.data = make(map[string]keystoreMap)
+	for id := range k.links {
+		idStr := strconv.FormatUint(id, 10)
+		km := make(keystoreMap)
+		if err := k.fileStore.Get(idStr, km); err != nil {
+			return err
+		}
+		k.data[idStr] = km
+	}
 	k.fileType = fileTypeKeystore
 	k.folders.Init(b, k.fileStore, k.cleanup)
 	return nil
