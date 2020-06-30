@@ -65,11 +65,11 @@ type keystoreDir struct {
 	fileStore *keystore.FileStore
 
 	mu   sync.RWMutex
-	data map[uint64]keystoreMap
+	data map[string]keystoreMap
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	ms, ok := k.data[id]
+	ms, ok := k.data[strconv.FormatUint(id, 10)]
 	if !ok {
 		return
 	}
@@ -93,7 +93,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 	if err != nil {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
-	k.data = make(map[uint64]keystoreMap)
+	k.data = make(map[string]keystoreMap)
 	k.fileType = fileTypeKeystore
 	k.folders.Init(b, k.fileStore, k.cleanup)
 	return nil
@@ -125,9 +125,9 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	kid := k.lastID
 	name = addItemTo(k.root.Items, name, kid)
 	k.saveFolders()
-	k.data[kid] = m
-	k.mu.Unlock()
 	strID := strconv.FormatUint(kid, 10)
+	k.data[strID] = m
+	k.mu.Unlock()
 	k.fileStore.Set(strID, m)
 	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), name), '}', ']')
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
@@ -136,7 +136,7 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 
 func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	var m struct {
-		ID   uint64                  `json:"id"`
+		ID   json.RawMessage         `json:"id"`
 		Data map[string]keystoreData `json:"data"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
@@ -147,7 +147,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	}
 	k.mu.Lock()
 	defer k.mu.Unlock()
-	ms, ok := k.data[m.ID]
+	ms, ok := k.data[string(m.ID)]
 	if !ok {
 		return keystore.ErrUnknownKey
 	}
@@ -168,16 +168,15 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
-	strID := strconv.FormatUint(m.ID, 10)
 	if len(buf) > 8 {
 		buf[8] = '{'
-		buf = append(append(append(buf, "},\"id\":"...), strID...), '}')
+		buf = append(append(append(buf, "},\"id\":"...), m.ID...), '}')
 		if k.DirType == keystoreCharacter {
 			cd.CurrentMap = 0
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
 	}
-	return k.fileStore.Set(strID, ms)
+	return k.fileStore.Set(string(m.ID), ms)
 }
 
 func (k *keystoreDir) IsLinkKey(key string) *folders {
@@ -195,14 +194,14 @@ func (k *keystoreDir) IsLinkKey(key string) *folders {
 
 func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var m struct {
-		ID   uint64   `json:"id"`
-		Keys []string `json:"keys"`
+		ID   json.RawMessage `json:"id"`
+		Keys []string        `json:"keys"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
 	k.mu.RLock()
-	ms, ok := k.data[m.ID]
+	ms, ok := k.data[string(m.ID)]
 	if !ok {
 		k.mu.RUnlock()
 		return nil, keystore.ErrUnknownKey
@@ -239,8 +238,8 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 
 func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	var m struct {
-		ID   uint64   `json:"id"`
-		Keys []string `json:"keys"`
+		ID   json.RawMessage `json:"id"`
+		Keys []string        `json:"keys"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
@@ -249,7 +248,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		return nil
 	}
 	k.mu.Lock()
-	ms, ok := k.data[m.ID]
+	ms, ok := k.data[string(m.ID)]
 	if !ok {
 		k.mu.Unlock()
 		return keystore.ErrUnknownKey
@@ -272,16 +271,15 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		delete(ms, key)
 	}
 	k.mu.Unlock()
-	strID := strconv.FormatUint(m.ID, 10)
 	if len(buf) > 8 {
 		buf[8] = '['
-		buf = append(append(append(buf, "],\"id\":"...), strID...), '}')
+		buf = append(append(append(buf, "],\"id\":"...), m.ID...), '}')
 		if k.DirType == keystoreCharacter {
 			cd.CurrentMap = 0
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
 	}
-	return k.fileStore.Set(strID, &ms)
+	return k.fileStore.Set(string(m.ID), &ms)
 }
 
 const (
