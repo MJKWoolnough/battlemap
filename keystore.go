@@ -129,7 +129,7 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	k.mu.Unlock()
 	strID := strconv.FormatUint(kid, 10)
 	k.fileStore.Set(strID, m)
-	buf := append(appendString(append(strconv.AppendUint(append(json.RawMessage{}, "[{\"id\":"...), kid, 10), ",\"name\":"...), name), '}', ']')
+	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), name), '}', ']')
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
 }
@@ -168,15 +168,16 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
+	strID := strconv.FormatUint(m.ID, 10)
 	if len(buf) > 8 {
 		buf[8] = '{'
-		buf = append(strconv.AppendUint(append(buf, "},\"id\":"...), m.ID, 10), '}')
+		buf = append(append(append(buf, "},\"id\":"...), strID...), '}')
 		if k.DirType == keystoreCharacter {
 			cd.CurrentMap = 0
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
 	}
-	return k.fileStore.Set(strconv.FormatUint(m.ID, 10), ms)
+	return k.fileStore.Set(strID, ms)
 }
 
 func (k *keystoreDir) IsLinkKey(key string) *folders {
@@ -268,15 +269,16 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		}
 		delete(ms, key)
 	}
+	strID := strconv.FormatUint(m.ID, 10)
 	if len(buf) > 8 {
 		buf[8] = '['
-		buf = append(strconv.AppendUint(append(buf, "],\"id\":"...), m.ID, 10), '}')
+		buf = append(append(append(buf, "],\"id\":"...), strID...), '}')
 		if k.DirType == keystoreCharacter {
 			cd.CurrentMap = 0
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
 	}
-	return k.fileStore.Set(strconv.FormatUint(m.ID, 10), &ms)
+	return k.fileStore.Set(strID, &ms)
 }
 
 const (
