@@ -159,6 +159,14 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 					}}, "Drag icon here"),
 					br(),
 					button("Create", {"onclick": function(this: HTMLButtonElement) {
+						if (!name.value) {
+							w.alert("Error", "A character needs a name");
+							return;
+						}
+						if (!icon) {
+							w.alert("Error", "A character needs an icon");
+							return;
+						}
 						this.setAttribute("disabled", "disabled");
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => {
 							(root.addItem(id, name) as Character).setIcon(icon);
