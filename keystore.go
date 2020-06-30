@@ -65,7 +65,7 @@ type keystoreDir struct {
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	var ms keystoreMap
+	ms := make(keystoreMap)
 	err := k.data.Get(strconv.FormatUint(id, 10), ms)
 	if err != nil {
 		return
@@ -142,7 +142,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if len(m.Data) == 0 {
 		return nil
 	}
-	var ms keystoreMap
+	ms := make(keystoreMap)
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, ms)
 	if err != nil {
@@ -197,7 +197,7 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
-	var ms keystoreMap
+	ms := make(keystoreMap)
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, &ms)
 	if err != nil {
@@ -243,7 +243,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(m.Keys) == 0 {
 		return nil
 	}
-	var ms keystoreMap
+	ms := make(keystoreMap)
 	strID := strconv.FormatUint(m.ID, 10)
 	err := k.data.Get(strID, &ms)
 	if err != nil {
