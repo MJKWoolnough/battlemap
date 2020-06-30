@@ -171,7 +171,9 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => {
 							(root.addItem(id, name) as Character).setIcon(icon);
 							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon.toString()}});
-						}), w).catch(e => {
+						}), w)
+						.then(() => w.remove())
+						.catch(e => {
 							showError(name, e);
 							this.removeAttribute("disabled");
 						});
