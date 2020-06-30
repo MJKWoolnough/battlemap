@@ -309,7 +309,9 @@ export class Folder {
 		if (item) {
 			return item;
 		}
-		return this.children.push(new this.root.newItem(this, id, name));
+		const newItem = new this.root.newItem(this, id, name);
+		this.children.push(newItem);
+		return newItem;
 	}
 	getItem(name: string) {
 		return this.items.filter(i => i.name === name).pop();
