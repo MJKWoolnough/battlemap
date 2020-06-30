@@ -25,6 +25,7 @@ type savedWindow = {
 declare const pageLoad: Promise<void>;
 
 const tabs = (function() {
+	let n = 0;
 	const mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
@@ -68,9 +69,8 @@ const tabs = (function() {
 		      updateWindowData();
 	      }),
 	      obsInit = {"attributeFilter": ["style"], "attributes": true},
-	      tabs: HTMLLabelElement[] = [];
-	let n = 0;
-	return Object.freeze({
+	      tabs: HTMLLabelElement[] = [],
+	      o = Object.freeze({
 		"add": (title: string, contents: Node, popout = true) => {
 			const base = p.appendChild(div(contents)),
 			      i = h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t),
@@ -114,13 +114,7 @@ const tabs = (function() {
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
-						tabs.some(e => {
-							if (e.style.getPropertyValue("display") !== "none") {
-								e.control!.click();
-								return true;
-							}
-							return false;
-						})
+						o.selectFirst()
 					}
 				}}) : []
 			      ])),
@@ -139,8 +133,18 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):after`).join(",")}{box-shadow: -2px 2px 0 #fff}
 `;
 		},
-		get html() {return createHTML(null, [c , h]);}
+		get html() {return createHTML(null, [c , h]);},
+		selectFirst() {
+			tabs.some(e => {
+				if (e.style.getPropertyValue("display") !== "none") {
+					e.control!.click();
+					return true;
+				}
+				return false;
+			});
+		}
 	});
+	return o;
       }()),
       mapLoadPipe = new Pipe<Int>(),
       mapLayers = new Pipe<LayerRPC>(),
@@ -162,6 +166,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
+		tabs.selectFirst();
 	} else {
 		settings(rpc, s, tabs.add("Settings", div()), false);
 		loadUserMap(rpc, base.appendChild(div({"style": "height: 100%"})));
