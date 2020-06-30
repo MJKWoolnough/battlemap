@@ -248,8 +248,10 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(m.Keys) == 0 {
 		return nil
 	}
+	k.mu.Lock()
 	ms, ok := k.data[m.ID]
 	if !ok {
+		k.mu.Unlock()
 		return keystore.ErrUnknownKey
 	}
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataRemove), data, cd.ID)
@@ -269,6 +271,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		}
 		delete(ms, key)
 	}
+	k.mu.Unlock()
 	strID := strconv.FormatUint(m.ID, 10)
 	if len(buf) > 8 {
 		buf[8] = '['
