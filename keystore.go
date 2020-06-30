@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
@@ -61,13 +62,15 @@ type keystoreDir struct {
 	Name    string
 	DirType uint8
 
-	data *keystore.FileBackedMemStore
+	fileStore *keystore.FileStore
+
+	mu   sync.RWMutex
+	data map[uint64]keystoreMap
 }
 
 func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	ms := make(keystoreMap)
-	err := k.data.Get(strconv.FormatUint(id, 10), ms)
-	if err != nil {
+	ms, ok := k.data[id]
+	if !ok {
 		return
 	}
 	for key, data := range ms {
@@ -86,13 +89,13 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error retrieving keystore location: %w", err)
 	}
 	sp := filepath.Join(b.config.BaseDir, string(location))
-	fileStore, err := keystore.NewFileStore(sp, sp, keystore.NoMangle)
+	k.fileStore, err = keystore.NewFileStore(sp, sp, keystore.NoMangle)
 	if err != nil {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
-	k.data = keystore.NewFileBackedMemStoreFromFileStore(fileStore)
+	k.data = make(map[uint64]keystoreMap)
 	k.fileType = fileTypeKeystore
-	k.folders.Init(b, fileStore, k.cleanup)
+	k.folders.Init(b, k.fileStore, k.cleanup)
 	return nil
 }
 
@@ -122,10 +125,10 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	kid := k.lastID
 	name = addItemTo(k.root.Items, name, kid)
 	k.saveFolders()
+	k.data[kid] = m
 	k.mu.Unlock()
 	strID := strconv.FormatUint(kid, 10)
-	k.data.Set(strID, m)
-	k.Set(strconv.FormatUint(kid, 10), m)
+	k.fileStore.Set(strID, m)
 	buf := append(appendString(append(strconv.AppendUint(append(json.RawMessage{}, "[{\"id\":"...), kid, 10), ",\"name\":"...), name), '}', ']')
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
@@ -142,10 +145,10 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if len(m.Data) == 0 {
 		return nil
 	}
-	ms := make(keystoreMap)
-	strID := strconv.FormatUint(m.ID, 10)
-	err := k.data.Get(strID, ms)
-	if err != nil {
+	k.mu.Lock()
+	defer k.mu.Unlock()
+	ms, ok := k.data[m.ID]
+	if !ok {
 		return keystore.ErrUnknownKey
 	}
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataChange), data, cd.ID)
@@ -173,7 +176,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
 	}
-	return k.data.Set(strID, &ms)
+	return k.fileStore.Set(strconv.FormatUint(m.ID, 10), ms)
 }
 
 func (k *keystoreDir) IsLinkKey(key string) *folders {
@@ -197,10 +200,10 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err
 	}
-	ms := make(keystoreMap)
-	strID := strconv.FormatUint(m.ID, 10)
-	err := k.data.Get(strID, &ms)
-	if err != nil {
+	k.mu.RLock()
+	ms, ok := k.data[m.ID]
+	if !ok {
+		k.mu.RUnlock()
 		return nil, keystore.ErrUnknownKey
 	}
 	var buf json.RawMessage
@@ -223,6 +226,7 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 			}
 		}
 	}
+	k.mu.RUnlock()
 	if len(buf) == 0 {
 		buf = json.RawMessage{'{', '}'}
 	} else {
@@ -243,10 +247,8 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(m.Keys) == 0 {
 		return nil
 	}
-	ms := make(keystoreMap)
-	strID := strconv.FormatUint(m.ID, 10)
-	err := k.data.Get(strID, &ms)
-	if err != nil {
+	ms, ok := k.data[m.ID]
+	if !ok {
 		return keystore.ErrUnknownKey
 	}
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataRemove), data, cd.ID)
@@ -274,7 +276,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		}
 		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
 	}
-	return k.data.Set(strID, &ms)
+	return k.fileStore.Set(strconv.FormatUint(m.ID, 10), &ms)
 }
 
 const (
