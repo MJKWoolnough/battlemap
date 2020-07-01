@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
@@ -64,7 +63,6 @@ type keystoreDir struct {
 
 	fileStore *keystore.FileStore
 
-	mu   sync.RWMutex
 	data map[string]keystoreMap
 }
 
