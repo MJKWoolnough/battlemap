@@ -218,7 +218,7 @@ func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, e
 		return nil, keystore.ErrUnknownKey
 	}
 	var buf json.RawMessage
-	if m.Keys == nil {
+	if len(m.Keys) == 0 {
 		for key, val := range ms {
 			if cd.IsAdmin() {
 				buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
