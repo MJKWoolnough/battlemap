@@ -134,6 +134,7 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	k.lastID++
 	kid := k.lastID
 	name = addItemTo(k.root.Items, name, kid)
+	k.links[kid] = 1
 	k.saveFolders()
 	strID := strconv.FormatUint(kid, 10)
 	k.data[strID] = m
