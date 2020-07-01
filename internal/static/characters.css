@@ -8,7 +8,7 @@
 	padding-left: 0;
 }
 
-.userVisibility {
+.characterDataRemove, .userVisibility {
 	display: none;
 }
 
