@@ -111,8 +111,10 @@ class Character extends DraggableItem {
 						removes.forEach(k => delete d[k]);
 					}));
 				}
-				Promise.all(ps)
-				.then(() => changed = false)
+				loadingWindow(Promise.all(ps), w)
+				.then(() => {
+					changed = false;
+				})
 				.catch(console.log)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
