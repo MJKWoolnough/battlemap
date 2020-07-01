@@ -55,7 +55,7 @@ class Character extends DraggableItem {
 				br()
 		      ],
 		      inputs = div(Object.keys(d).filter(k => k !== "store-image-icon").sort().map(adder)),
-		      w = createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+		      w = createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
 				w.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
