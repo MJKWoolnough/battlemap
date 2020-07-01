@@ -102,19 +102,19 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 		GridColour: nm.GridColour,
 		GridStroke: nm.GridStroke,
 		layers: map[string]struct{}{
-			"Layer": struct{}{},
-			"Light": struct{}{},
-			"Grid":  struct{}{},
+			"Layer": {},
+			"Light": {},
+			"Grid":  {},
 		},
 		layer: layer{
 			Layers: []*layer{
-				&layer{
+				{
 					Name: "Layer",
 				},
-				&layer{
+				{
 					Name: "Light",
 				},
-				&layer{
+				{
 					Name: "Grid",
 				},
 			},
