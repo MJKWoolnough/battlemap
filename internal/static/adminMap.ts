@@ -228,8 +228,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				tw = Math.max(Math.round(tw / sq) * sq, sq);
 				th = Math.max(Math.round(th / sq) * sq, sq);
 			}
-			const token = {"src": id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
-			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
+			const token = {"src": id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value},
+			      pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
 			rpc.addToken(selectedLayerPath, token).then(() => {
 				if (autosnap.value) {
 					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
