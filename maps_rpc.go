@@ -493,6 +493,22 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, e
 		}
 		return nil, err
+	case "setAsToken":
+		var tokenPos struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		var rm json.RawMessage
+		if err := json.Unmarshal(data, &tokenPos); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			tk.TokenData, rm = m.tokens.createFromID()
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return rm, nil
 	/*
 		case "setInitiative":
 			var initiative [][2]uint64
