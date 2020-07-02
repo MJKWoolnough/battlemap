@@ -217,8 +217,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				th = tokenData.height;
 				src = `/images/${tokenData.id}`;
 			}
-			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset")),
-			      width = parseInt(root.getAttribute("width") || "0"),
+			const width = parseInt(root.getAttribute("width") || "0"),
 			      height = parseInt(root.getAttribute("height") || "0");
 			let x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
 			    y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
@@ -226,8 +225,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				const sq = mapData.gridSize;
 				x = Math.round(x / sq) * sq;
 				y = Math.round(y / sq) * sq;
-				tw = Math.max(Math.round(tokenData.width / sq) * sq, sq);
-				th = Math.max(Math.round(tokenData.height / sq) * sq, sq);
+				tw = Math.max(Math.round(tw / sq) * sq, sq);
+				th = Math.max(Math.round(th / sq) * sq, sq);
 			}
 			const token = {"src": id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
 			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
