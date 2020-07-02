@@ -21,7 +21,7 @@ type Battlemap struct {
 	images  assetsDir
 	sounds  assetsDir
 	chars   keystoreDir
-	tokens  keystoreDir
+	tokens  tokensDir
 	maps    mapsDir
 	masks   masksDir
 	files   filesDir
