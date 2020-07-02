@@ -306,6 +306,19 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	return k.fileStore.Set(string(m.ID), &ms)
 }
 
+type tokensDir struct {
+	keystoreDir
+}
+
+func (t *tokensDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+	switch method {
+	case "create", "list", "createFolder", "move", "moveFolder", "remove", "removeFolder", "link":
+		return nil, ErrUnknownMethod
+	default:
+		return t.keystoreDir.RPCData(cd, method, data)
+	}
+}
+
 const (
 	keystoreCharacter uint8 = iota
 	keystoreToken
