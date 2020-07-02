@@ -522,7 +522,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			if tk.TokenData == 0 {
 				return false
 			}
-			m.tokens.itemDelete(cd, json.RawMessage(append(strconv.AppendUint(append(make([]byte, 0, 32), '"'), tk.TokenData, 10), '"')))
+			m.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
 			tk.TokenData = 0
 			return true
 		}); err != nil {
