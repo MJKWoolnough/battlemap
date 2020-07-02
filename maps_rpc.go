@@ -3,6 +3,7 @@ package battlemap
 import (
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"vimagination.zapto.org/keystore"
 )
@@ -509,6 +510,25 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return rm, nil
+	case "unsetAsToken":
+		var tokenPos struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &tokenPos); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			if tk.TokenData == 0 {
+				return false
+			}
+			m.tokens.itemDelete(cd, json.RawMessage(append(strconv.AppendUint(append(make([]byte, 0, 32), '"'), tk.TokenData, 10), '"')))
+			tk.TokenData = 0
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	/*
 		case "setInitiative":
 			var initiative [][2]uint64
