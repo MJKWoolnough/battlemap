@@ -39,6 +39,9 @@ func mapCleanupTokenRemove(b *Battlemap, mp *levelMap, layer *layer, tk *token) 
 	if tk.Source > 0 {
 		b.images.removeHiddenLink(tk.Source)
 	}
+	if tk.TokenData > 0 {
+		b.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
+	}
 }
 
 func (m *mapsDir) Init(b *Battlemap) error {
