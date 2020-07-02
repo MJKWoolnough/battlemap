@@ -101,14 +101,14 @@ class Character extends DraggableItem {
 				      ps: Promise<void>[] = [];
 				if (keys.length > 0) {
 					ps.push(rpc.characterSet(id, changes).then(() => {
-						keys.forEach(k => delete changes[k]);
 						Object.assign(d, changes);
+						keys.forEach(k => delete changes[k]);
 					}));
 				}
 				if (removes.size > 0) {
 					ps.push(rpc.characterRemoveKeys(id, rms).then(() => {
-						removes.clear();
 						removes.forEach(k => delete d[k]);
+						removes.clear();
 					}));
 				}
 				loadingWindow(Promise.all(ps), w)
