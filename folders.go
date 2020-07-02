@@ -396,6 +396,11 @@ func (f *folders) itemDelete(cd ConnData, data json.RawMessage) error {
 	if err := json.Unmarshal(data, &item); err != nil {
 		return err
 	}
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), data, cd.ID)
+	return f.itemDeleteString(item)
+}
+
+func (f *folders) itemDeleteString(item string) error {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	parent, oldName, iid := f.getFolderItem(item)
@@ -405,7 +410,6 @@ func (f *folders) itemDelete(cd ConnData, data json.RawMessage) error {
 	delete(parent.Items, oldName)
 	f.unlink(iid)
 	f.saveFolders()
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemRemove), data, cd.ID)
 	return nil
 }
 
