@@ -112,7 +112,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 func (k *keystoreDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "create":
-		return k.create(cd, data)
+		return k.createFromName(cd, data)
 	case "set":
 		return nil, k.set(cd, data)
 	case "get":
@@ -124,7 +124,7 @@ func (k *keystoreDir) RPCData(cd ConnData, method string, data json.RawMessage) 
 	}
 }
 
-func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
+func (k *keystoreDir) createFromName(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
 		return nil, err
@@ -143,6 +143,19 @@ func (k *keystoreDir) create(cd ConnData, data json.RawMessage) (json.RawMessage
 	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), name), '}', ']')
 	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
+}
+
+func (k *keystoreDir) createFromID(cd ConnData) json.RawMessage {
+	m := make(keystoreMap)
+	k.mu.Lock()
+	k.lastID++
+	kid := k.lastID
+	name := addItemTo(k.root.Items, strconv.FormatUint(kid, 10), kid)
+	k.links[kid] = 1
+	k.saveFolders()
+	k.data[name] = m
+	k.mu.Unlock()
+	return json.RawMessage(name)
 }
 
 func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
