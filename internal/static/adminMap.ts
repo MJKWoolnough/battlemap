@@ -237,7 +237,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			      });
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
-				.then(id => rpc.tokenSet(id, {"store-character-id": (token.tokenData = id).toString()}))
+				.then(id => rpc.tokenSet(id, {"store-character-id": {"user": false, "data": token.tokenData = id}}))
 				.catch(console.log);
 			}
 			p.catch(alert);
