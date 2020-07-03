@@ -300,9 +300,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
 			mapCleanupTokenRemove(m.Battlemap, mp, l, tk)
 			l.removeToken(tokenPos.Pos)
-			if tk.TokenData > 0 {
-				m.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
-			}
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
 		})
