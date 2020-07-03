@@ -261,7 +261,7 @@ type TokenSource = TokenPos & {
 
 export type KeystoreData = {
 	user: boolean;
-	data: string;
+	data: any;
 };
 
 export type KeystoreDataChange = {
