@@ -11,7 +11,7 @@ let rpc: RPC, n = 0;
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
-		rpc.characterGet(id, []).then(d => {
+		rpc.characterGetAll(id).then(d => {
 			characterData.set(id, d);
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
