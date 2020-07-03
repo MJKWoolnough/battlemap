@@ -115,11 +115,12 @@ export type RPC = {
 	characterGetAll:     (id: Int)                                     => Promise<Record<string, KeystoreData>>;
 	characterRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
 
-	tokenCreate: () => Promise<Int>;
-	tokenSet:    (id: Int, data: Record<string, string>) => Promise<void>;
-	tokenGet:    (id: Int, keys: string[])               => Promise<Record<string, string>>;
-	tokenRemove: (id: Int, keys: string[])               => Promise<void>;
-	tokenDelete: (id: Int)                               => Promise<void>;
+	tokenCreate:     (path: string, pos: Int)                => Promise<Int>;
+	tokenSet:        (id: Int, data: Record<string, string>) => Promise<void>;
+	tokenGet:        (id: Int, keys: string[])               => Promise<Record<string, string>>;
+	tokenGetAll:     (id: Int, keys: string[])               => Promise<Record<string, string>>;
+	tokenRemoveKeys: (id: Int, keys: string[])               => Promise<void>;
+	tokenDelete:     (path: string, pos: Int)                => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
