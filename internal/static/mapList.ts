@@ -1,7 +1,7 @@
 import {FolderItems, Int, RPC, MapDetails} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
-import {showError, enterKey, hex2Colour, colour2Hex} from './misc.js';
+import {handleError, enterKey, hex2Colour, colour2Hex} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 
@@ -193,10 +193,8 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 							root.addItem(id, name);
 							window.remove();
 						})
-						.catch(e => {
-							showError(this, e);
-							this.removeAttribute("disabled");
-						});
+						.catch(handleError)
+						.finally(() => this.removeAttribute("disabled"));
 					}})
 				])
 			}}),
