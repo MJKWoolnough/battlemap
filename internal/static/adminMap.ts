@@ -8,7 +8,7 @@ import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView} from './map.js';
 import {characterData} from './characters.js';
 import {autosnap} from './settings.js';
-import {noColour} from './misc.js';
+import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -147,7 +147,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.setAttribute("transform", selectedToken!.transformString(false));
 			outline.focus();
 			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
-				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
+				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -155,7 +155,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				const pos = getSelectedTokenPos();
 				selectedLayer!.tokens.splice(pos, 1);
 				unselectToken();
-				rpc.removeToken(selectedLayerPath, pos).catch(alert);
+				rpc.removeToken(selectedLayerPath, pos).catch(handleError);
 		      },
 		      waitAdded = subFn<IDName[]>(),
 		      waitMoved = subFn<FromTo>(),
@@ -232,14 +232,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			      pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
 			let p = rpc.addToken(selectedLayerPath, token).then(() => {
 				if (autosnap.value) {
-					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(alert);
+					return rpc.setTokenSnap(selectedLayerPath, pos, true).catch(handleError);
 				}
 			      });
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
 				.then(id => rpc.tokenSet(id, {"store-character-id": {"user": false, "data": token.tokenData = id}}))
 			}
-			p.catch(alert);
+			p.catch(handleError);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
@@ -296,7 +296,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			tokenMousePos.x = selectedToken!.x;
 			tokenMousePos.y = selectedToken!.y;
-			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
+			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
@@ -327,13 +327,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					selectedToken!.flip = !selectedToken!.flip;
 					selectedToken!.updateNode();
 					outline.focus();
-					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flip).catch(alert);
+					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flip).catch(handleError);
 				}),
 				item("Flop", () => {
 					selectedToken!.flop = !selectedToken!.flop;
 					selectedToken!.updateNode();
 					outline.focus();
-					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(alert);
+					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(handleError);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
 					if (!(selectedToken instanceof SVGToken)) {
@@ -342,7 +342,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					const pos = getSelectedTokenPos(),
 					      isPattern = selectedToken!.isPattern;
 					selectedToken.setPattern(!isPattern);
-					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(alert);
+					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(handleError);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap);
@@ -361,7 +361,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
 							selectedToken!.updateNode();
 							outline.setAttribute("transform", selectedToken!.transformString(false));
-							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(alert);
+							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
 						}
 					}
 				}),
@@ -397,7 +397,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					const pos = getSelectedTokenPos();
 					unselectToken();
 					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0])
-					rpc.setTokenLayer(selectedLayerPath, pos, path).catch(alert)
+					rpc.setTokenLayer(selectedLayerPath, pos, path).catch(handleError)
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
