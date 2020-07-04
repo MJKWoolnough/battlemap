@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {noSort} from './lib/ordered.js';
-import {showError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
+import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 
@@ -46,10 +46,9 @@ const dragFn = (e: MouseEvent) => {
 				self.name = name;
 				self.nameElem.innerText = name;
 				window.remove();
-			}).catch(e => {
-				showError(newName, e);
-				this.removeAttribute("disabled");
-			});
+			})
+			.catch(handleError)
+			.finally(() => this.removeAttribute("disabled"));
 		}})
 	]);
       };
@@ -84,7 +83,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		}
 		newPath = (this.parent as FolderLayer).getPath();
 	}
-	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos), sh).catch(alert);
+	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos), sh).catch(handleError);
 }
 
 function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
@@ -164,10 +163,8 @@ class ItemLayer extends Item {
 						"gridColour": hex2Colour(sqColour.value),
 						"gridStroke": parseInt(sqLineWidth.value)
 					}), window).then(() => window.remove())
-					.catch(e => {
-						showError(this, e);
-						this.removeAttribute("disabled");
-					});
+					.catch(handleError)
+					.finally(() => this.removeAttribute("disabled"));
 				}})
 			      ]));
 			return window;
@@ -197,10 +194,8 @@ class ItemLayer extends Item {
 					colour.a = parseInt(alphaInput.value);
 					loadingWindow(rpcFuncs.setLightColour(colour), window)
 					.then(() => window.remove())
-					.catch(e => {
-						showError(this, e);
-						this.removeAttribute("disabled");
-					});
+					.catch(handleError)
+					.finally(() => this.removeAttribute("disabled"));
 				}})
 			      ]));
 			return window;
@@ -332,10 +327,9 @@ export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: 
 						loadingWindow(rpc.newLayer(name.value), window).then(name => {
 							list.addItem(1, name);
 							window.remove();
-						}).catch(e => {
-							showError(name, e);
-							this.removeAttribute("disabled");
-						});
+						})
+						.catch(handleError)
+						.finally(() => this.removeAttribute("disabled"));
 					}})
 				]);
 			}}),
