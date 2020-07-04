@@ -3,7 +3,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {showError} from './misc.js';
+import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 
 class ImageAsset extends DraggableItem {
@@ -63,10 +63,9 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 							])).then((assets: IDName[]) => {
 								assets.forEach(({id, name}) => root.addItem(id, name));
 								window.remove();
-							}, e => {
-								showError(this, e);
-								this.removeAttribute("disabled");
-							});
+							})
+							.catch(handleError)
+							.finally(() => this.removeAttribute("disabled"));
 						}}))
 					])
 				]));
