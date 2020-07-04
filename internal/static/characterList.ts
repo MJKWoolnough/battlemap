@@ -2,7 +2,7 @@ import {Int, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
-import {showError} from './misc.js';
+import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {characterData} from './characters.js';
 
@@ -115,7 +115,7 @@ class Character extends DraggableItem {
 				.then(() => {
 					changed = false;
 				})
-				.catch(console.log)
+				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
 		      ]))));
@@ -175,10 +175,8 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon.toString()}});
 						}), w)
 						.then(() => w.remove())
-						.catch(e => {
-							showError(name, e);
-							this.removeAttribute("disabled");
-						});
+						.catch(handleError)
+						.finally(() => this.removeAttribute("disabled"));
 					}})
 				      ]));
 			}}),
