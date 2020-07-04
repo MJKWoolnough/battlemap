@@ -29,7 +29,7 @@ class MapItem extends Item {
 		this.nameSpan = this.node.firstChild as HTMLSpanElement;
 		this.node.insertBefore(span({"class": "setUserMap", "window-title": "Set User Map", "onclick": () => {
 			this.setUserMap();
-			rpc.setUserMap(id);
+			rpc.setUserMap(id).catch(handleError);
 		}}), this.node.firstChild);
 		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
@@ -37,7 +37,7 @@ class MapItem extends Item {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
 		sendCurrentMap(this.id);
-		rpc.setCurrentMap(this.id);
+		rpc.setCurrentMap(this.id).catch(handleError);
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
@@ -200,5 +200,6 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 			}}),
 			root.node
 		]);
-	});
+	})
+	.catch(handleError);
 }
