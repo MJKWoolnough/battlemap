@@ -4,7 +4,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {showError, enterKey} from './misc.js';
+import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 
 interface ItemConstructor {
@@ -65,10 +65,9 @@ export class Item {
 				loadingWindow(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value), window).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
-				}).catch(e => {
-					showError(newName, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}})
 		]);
 	}
@@ -93,10 +92,9 @@ export class Item {
 				loadingWindow(root.rpcFuncs.link(self.id, parents.value + newName.value), window).then(newPath => {
 					root.addItem(self.id, newPath);
 					window.remove();
-				}).catch(e => {
-					showError(newName, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}}),
 		]);
 	}
@@ -115,10 +113,9 @@ export class Item {
 				loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
 					root.removeItem(path);
 					window.remove();
-				}).catch(e => {
-					showError(pathDiv, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}}))
 		]);
 	}
@@ -250,10 +247,9 @@ export class Folder {
 				loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
-				}).catch(e => {
-					showError(newName, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}})
 		])
 	}
@@ -273,10 +269,9 @@ export class Folder {
 				loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
 					root.removeFolder(path);
 					window.remove();
-				}).catch(e => {
-					showError(pathDiv, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}}))
 		]);
 	}
@@ -297,10 +292,9 @@ export class Folder {
 				loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
 					root.addFolder(folder);
 					window.remove();
-				}).catch(e => {
-					showError(folderName, e);
-					this.removeAttribute("disabled");
-				});
+				})
+				.catch(handleError)
+				.finally(() => this.removeAttribute("disabled"));
 			}})
 		]);
 	}
