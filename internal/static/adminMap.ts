@@ -345,7 +345,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(handleError);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
-					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap);
+					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap).catch(handleError);
 					if (selectedToken!.snap) {
 						const sq = mapData.gridSize,
 						      {x, y, width, height, rotation} = selectedToken!;
@@ -369,13 +369,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					item(`Move to Top`, () => {
 						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1);
+						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1).catch(handleError);
 					}),
 					item(`Move Up`, () => {
 						const pos = getSelectedTokenPos();
 						if (pos < selectedLayer!.tokens.length - 1) {
 							selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
-							rpc.setTokenPos(selectedLayerPath, pos, pos + 1);
+							rpc.setTokenPos(selectedLayerPath, pos, pos + 1).catch(handleError);
 						}
 					})
 				] : [],
@@ -384,13 +384,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						const pos = getSelectedTokenPos();
 						if (pos > 0) {
 							selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
-							rpc.setTokenPos(selectedLayerPath, pos, pos - 1);
+							rpc.setTokenPos(selectedLayerPath, pos, pos - 1).catch(handleError);
 						}
 					}),
 					item(`Move to Bottom`, () => {
 						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, 0);
+						rpc.setTokenPos(selectedLayerPath, pos, 0).catch(handleError);
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
