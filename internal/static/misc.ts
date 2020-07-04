@@ -1,5 +1,6 @@
 import {createHTML} from './lib/dom.js';
 import {Colour} from './types.js';
+import {ShellElement} from './windows.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
@@ -35,4 +36,8 @@ rgba2Colour = (rgba: string): Colour => {
 	return {"r": parseInt(colours[0]), "g": parseInt(colours[1]), "b": parseInt(colours[2]), "a": (parseFloat(colours[3]) * 255)|0};
 },
 colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${(c.a / 255).toString()})`,
-noColour = {"r": 0, "g": 0, "b": 0, "a": 0};
+noColour = {"r": 0, "g": 0, "b": 0, "a": 0},
+handleError = (e: Error | string) => {
+	console.log(e);
+	(document.body.getElementsByTagName("windows-shell")[0] as ShellElement).alert("Error", e instanceof Error ? e.message : e);
+};
