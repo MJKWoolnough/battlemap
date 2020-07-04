@@ -16,7 +16,7 @@ class Character extends DraggableItem {
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
 			}
-		});
+		}).catch(handleError);
 		characters.set(id, this);
 	}
 	setIcon(id: Int) {
