@@ -434,6 +434,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 				if (layer && token) {
 					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
 				}
+			}),
+			rpc.waitTokenUnsetData().then(tu => {
+				const [, token] = getParentToken(tu.path, tu.pos);
+				if (token instanceof SVGToken) {
+					token.tokenData = 0;
+				}
 			})
 		),
 		panZoom,
