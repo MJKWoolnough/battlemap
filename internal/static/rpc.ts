@@ -36,6 +36,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenFlop":               () => rpc.await(broadcastTokenFlop, true),
 			"waitTokenSnap":               () => rpc.await(broadcastTokenSnap, true),
 			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true),
+			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true),
 
 			"images": {
 				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true),
