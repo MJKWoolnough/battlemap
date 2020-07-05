@@ -323,6 +323,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			e.preventDefault();
 			const tokenPos = getSelectedTokenPos();
 			place(base, [e.clientX, e.clientY], [
+				selectedToken!.tokenData > 0 ? item("Unset as Token", () => {
+					const thisToken = selectedToken!;
+					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos()).then(id => thisToken.tokenData = id).catch(handleError);
+				}): [],
 				item("Flip", () => {
 					selectedToken!.flip = !selectedToken!.flip;
 					selectedToken!.updateNode();
