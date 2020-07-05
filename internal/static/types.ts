@@ -70,6 +70,7 @@ export type RPC = {
 	waitTokenFlop:               () => Subscription<TokenFlop>;
 	waitTokenSnap:               () => Subscription<TokenSnap>;
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
+	waitTokenUnsetData:          () => Subscription<TokenPos>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
