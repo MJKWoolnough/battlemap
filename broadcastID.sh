@@ -21,4 +21,4 @@ data="$(cat "$rpcFile")";
 		echo "$line";
 	done;
 	cat - | grep -v "const broadcast";
-) < <(echo "$data") | awk -v RS='\n\n\n' 1 #> "$rpcFile";
+) < <(echo "$data") | awk -v RS='\n\n\n' 1 > "$rpcFile";
