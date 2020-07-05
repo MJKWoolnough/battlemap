@@ -80,6 +80,7 @@ const (
 	broadcastTokenFlop
 	broadcastTokenSnap
 	broadcastTokenSourceChange
+	broadcastTokenUnsetData
 )
 
 func (s *socket) KickAdmins(except ID) {
