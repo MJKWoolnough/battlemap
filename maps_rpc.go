@@ -524,6 +524,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			m.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
 			tk.TokenData = 0
+			m.socket.broadcastMapChange(cd, broadcastTokenUnsetData, data)
 			return true
 		}); err != nil {
 			return nil, err
