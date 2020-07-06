@@ -5,8 +5,9 @@ import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js'
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {characterData} from './characters.js';
+import characterEdit from './keystoreEdit.js';
 
-let rpc: RPC, n = 0;
+let rpc: RPC;
 
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Int, name: string) {
@@ -26,99 +27,7 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
-		n++;
-		let changed = false, row = 0;
-		const d = characterData.get(this.id)!,
-		      id = this.id,
-		      root = this.parent.root,
-		      changes: Record<string, KeystoreData> = {},
-		      removes = new Set<string>(),
-		      adder = (k: string) => [
-				label({"for": `character_${n}_${row}`}, k),
-				input({"id": `character_${n}_${row}`, "value": d[k]?.data || "", "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
-				}}),
-				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
-					changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
-				}}),
-				label({"for": `character_${n}_${row}_user`}),
-				input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
-					if (this.checked) {
-						removes.add(k);
-						document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.setAttribute("disabled", "disabled");
-					} else {
-						removes.delete(k);
-						document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.removeAttribute("disabled");
-					}
-				}}),
-				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
-				br()
-		      ],
-		      inputs = div(Object.keys(d).filter(k => k !== "store-image-icon").sort().map(adder)),
-		      w = createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
-			if (removes.size > 0 || Object.keys(changes).length > 0) {
-				e.preventDefault();
-				w.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
-					if (t) {
-						w.remove();
-					}
-				});
-			}
-		      }}, [
-			h1(this.name),
-			label("Character Image: "),
-			div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
-					e.preventDefault();
-					e.dataTransfer.dropEffect = "link";
-				}
-			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
-				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
-			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
-			br(),
-			inputs,
-			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
-				if (key) {
-					createHTML(inputs, adder(key));
-				}
-			})}),
-			button("Save", {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
-				const rms = Array.from(removes.values()).filter(k => {
-					delete changes[k];
-					return d[k] !== undefined;
-				      }),
-				      keys = Object.keys(changes).filter(k => {
-					const old = d[k];
-					if (old && old.user === changes[k].user && old.data === changes[k].data) {
-						delete changes[k];
-						return false;
-					}
-					return true;
-				      }),
-				      ps: Promise<void>[] = [];
-				if (keys.length > 0) {
-					ps.push(rpc.characterSet(id, changes).then(() => {
-						Object.assign(d, changes);
-						keys.forEach(k => delete changes[k]);
-					}));
-				}
-				if (removes.size > 0) {
-					ps.push(rpc.characterRemoveKeys(id, rms).then(() => {
-						removes.forEach(k => delete d[k]);
-						removes.clear();
-					}));
-				}
-				loadingWindow(Promise.all(ps), w)
-				.then(() => {
-					changed = false;
-				})
-				.catch(handleError)
-				.finally(() => this.removeAttribute("disabled"));
-			}})
-		      ]))));
+		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!, true);
 	}
 }
 
