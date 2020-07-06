@@ -505,6 +505,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
 			tk.TokenData, rm = m.tokens.createFromID()
+			if cap(data) >= len(rm)+len(data)+6 {
+				data = data[:len(data)-1]
+			} else {
+				data = append(make(json.RawMessage, 0, len(rm)+len(data)+6), data...)
+			}
+			m.socket.broadcastMapChange(cd, broadcastTokenSetData, append(append(append(data[:len(data)-1], ',', '"', 'i', 'd', '"', ':'), rm...), '}'))
 			return true
 		}); err != nil {
 			return nil, err
