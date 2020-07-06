@@ -435,6 +435,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
 				}
 			}),
+			rpc.waitTokenSetData().then(td => {
+				const [, token] = getParentToken(td.path, td.pos);
+				if (token instanceof SVGToken) {
+					token.tokenData = td.id;
+				}
+			}),
 			rpc.waitTokenUnsetData().then(tu => {
 				const [, token] = getParentToken(tu.path, tu.pos);
 				if (token instanceof SVGToken) {
