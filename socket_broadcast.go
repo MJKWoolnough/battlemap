@@ -80,6 +80,7 @@ const (
 	broadcastTokenFlop
 	broadcastTokenSnap
 	broadcastTokenSourceChange
+	broadcastTokenSetData
 	broadcastTokenUnsetData
 )
 
