@@ -74,7 +74,7 @@ class Character extends DraggableItem {
 				}
 			}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id.toString()};
+				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
 				clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": (this.icon.firstChild as HTMLImageElement).getAttribute("src"), "style": "max-width: 100%; max-height: 100%"})),
 			br(),
@@ -172,7 +172,7 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 						this.setAttribute("disabled", "disabled");
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => {
 							(root.addItem(id, name) as Character).setIcon(icon);
-							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon.toString()}});
+							return rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon}});
 						}), w)
 						.then(() => w.remove())
 						.catch(handleError)
