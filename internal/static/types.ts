@@ -70,6 +70,7 @@ export type RPC = {
 	waitTokenFlop:               () => Subscription<TokenFlop>;
 	waitTokenSnap:               () => Subscription<TokenSnap>;
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
+	waitTokenSetData:            () => Subscription<TokenID>;
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
 
 	images:     FolderRPC,
@@ -258,6 +259,10 @@ type TokenSnap = TokenPos & {
 
 type TokenSource = TokenPos & {
 	src: string;
+}
+
+type TokenID = TokenPos & {
+	id: Int;
 }
 
 export type KeystoreData = {
