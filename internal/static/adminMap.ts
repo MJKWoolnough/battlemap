@@ -40,7 +40,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
+		const [base, cancel, panZoom, outline, tokens] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
