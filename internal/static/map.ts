@@ -6,6 +6,7 @@ import {colour2RGBA, noColour} from './misc.js';
 import {HTTPRequest} from './lib/conn.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
+import {characterData} from './characters.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -294,7 +295,7 @@ globals = {
 	root: SVGSVGElement,
 	layerList: SVGFolder
 },
-mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
+mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 	const layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
@@ -362,7 +363,14 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 		if (!isLayerFolder(l)) {
 			l.tokens.forEach(t => {
 				if (t.tokenData) {
-					rpc.tokenGetAll(t.tokenData).then(d => tokens[t.tokenData] = d);
+					const tID = t.tokenData;
+					rpc.tokenGetAll(tID).then(d => {
+						tokens[tID] = d;
+						if (loadChars && d["store-character-id"]) {
+							const cID = d["store-character-id"].data as number;
+							rpc.characterGetAll(cID).then(d => characterData.set(cID, d));
+						}
+					});
 				}
 			})
 		}
@@ -474,7 +482,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 export default function(rpc: RPC, base: HTMLElement) {
 	let canceller = () => {}
 	rpc.waitCurrentUserMapData().then(mapData => {
-		const [newBase, cancel] = mapView(rpc, base, mapData);
+		const [newBase, cancel] = mapView(rpc, base, mapData, true);
 		canceller();
 		base = newBase;
 		canceller = cancel;
