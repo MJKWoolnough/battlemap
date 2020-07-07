@@ -358,6 +358,16 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 	oldBase.replaceWith(base);
+	walkFolders(layerList, l => {
+		if (!isLayerFolder(l)) {
+			l.tokens.forEach(t => {
+				if (t.tokenData) {
+					rpc.tokenGetAll(t.tokenData).then(d => tokens[t.tokenData] = d);
+				}
+			})
+		}
+		return false;
+	});
 	return [
 		base,
 		Subscription.canceller(
