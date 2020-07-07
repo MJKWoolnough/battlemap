@@ -170,7 +170,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			removeLayer(path).forEach(e => {
 				if (selectedLayer === e) {
 					selectedLayer = null;
-				} else if (isSVGFolder(e) && walkFolders(e, (e: SVGFolder | SVGLayer) => Object.is(e, selectedLayer))) {
+				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, selectedLayer))) {
 				       selectedLayer  = null;
 				}
 			});
