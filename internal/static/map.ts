@@ -352,7 +352,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 		viewPos.mouseX = e.clientX;
 		viewPos.mouseY = e.clientY;
 	      },
-	      tokens: Record<Int, KeystoreData> = {}
+	      tokens: Record<Int, Record<string, KeystoreData>> = {}
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -457,7 +457,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 		() => void,
 		{ x: Int; y: Int; zoom: Int},
 		SVGGElement,
-		Record<Int, KeystoreData>
+		Record<Int, Record<string, KeystoreData>>
 	];
 };
 
