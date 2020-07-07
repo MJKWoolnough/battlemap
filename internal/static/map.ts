@@ -1,4 +1,4 @@
-import {Colour, GridDetails, MapDetails, Int, LayerFolder, LayerTokens, Token, RPC, MapData} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Int, LayerFolder, LayerTokens, Token, RPC, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
@@ -351,7 +351,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 		root.style.setProperty("top", panZoom.y + "px");
 		viewPos.mouseX = e.clientX;
 		viewPos.mouseY = e.clientY;
-	      };
+	      },
+	      tokens: Record<Int, KeystoreData> = {}
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -450,11 +451,13 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData) => {
 		),
 		panZoom,
 		outline,
+		tokens
 	] as [
 		HTMLDivElement,
 		() => void,
 		{ x: Int; y: Int; zoom: Int},
 		SVGGElement,
+		Record<Int, KeystoreData>
 	];
 };
 
