@@ -211,7 +211,8 @@ getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape
 		return [null, null];
 	}
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
-};
+},
+walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
