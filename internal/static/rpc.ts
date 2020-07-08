@@ -150,12 +150,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterGetAll":      id        => rpc.request("characters.get", {id}).then(userData),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
-			"tokenCreate":     (path, pos) => rpc.request("tokens.create", {path, pos}),
+			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}),
 			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}),
 			"tokenGet":        (id, keys)  => rpc.request("tokens.get", {id, keys}).then(userData),
 			"tokenGetAll":      id         => rpc.request("tokens.get", {id}).then(userData),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
-			"tokenDelete":     (path, pos) => rpc.request("tokens.remove", {path, pos}),
+			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
 			"loginRequirements": ()                         => rpc.request("auth.requirements"),
