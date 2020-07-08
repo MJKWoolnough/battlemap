@@ -366,8 +366,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 					const tID = t.tokenData;
 					rpc.tokenGetAll(tID).then(d => {
 						tokens[tID] = d;
-						if (loadChars && d["store-character-id"]) {
-							const cID = d["store-character-id"].data as number;
+						if (loadChars && typeof d["store-character-id"] === "number") {
+							const cID = d["store-character-id"].data;
 							rpc.characterGetAll(cID).then(d => characterData.set(cID, d));
 						}
 					});
