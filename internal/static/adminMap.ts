@@ -321,32 +321,44 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      }, "oncontextmenu": (e: MouseEvent) => {
 			e.preventDefault();
-			const tokenPos = getSelectedTokenPos();
+			const tokenPos = getSelectedTokenPos(),
+			      currToken = selectedToken!;
 			place(base, [e.clientX, e.clientY], [
-				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken && selectedToken.tokenData && tokenEdit(shell, rpc, selectedToken.tokenData, "Edit Token", tokens[selectedToken.tokenData], false)) : [],
+				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokens[selectedToken!.tokenData], false)) : [],
 				selectedToken!.tokenData === 0 ? item("Set as Token", () => {
-					const thisToken = selectedToken!;
+					if (selectedToken !== currToken) {
+						return;
+					}
 					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
-					.then(id => thisToken.tokenData = id)
+					.then(id => currToken.tokenData = id)
 					.catch(handleError);
 				}) : item("Unset as Token", () => {
+					if (selectedToken !== currToken) {
+						return;
+					}
 					selectedToken!.tokenData = 0;
 					rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
 				}),
 				item("Flip", () => {
+					if (selectedToken !== currToken) {
+						return;
+					}
 					selectedToken!.flip = !selectedToken!.flip;
 					selectedToken!.updateNode();
 					outline.focus();
 					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flip).catch(handleError);
 				}),
 				item("Flop", () => {
+					if (selectedToken !== currToken) {
+						return;
+					}
 					selectedToken!.flop = !selectedToken!.flop;
 					selectedToken!.updateNode();
 					outline.focus();
 					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(handleError);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
-					if (!(selectedToken instanceof SVGToken)) {
+					if (selectedToken !== currToken || !(selectedToken instanceof SVGToken)) {
 						return;
 					}
 					const pos = getSelectedTokenPos(),
@@ -355,6 +367,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(handleError);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
+					if (selectedToken !== currToken) {
+						return;
+					}
 					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap).catch(handleError);
 					if (selectedToken!.snap) {
 						const sq = mapData.gridSize,
@@ -377,11 +392,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
 						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
 						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1).catch(handleError);
 					}),
 					item(`Move Up`, () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
 						const pos = getSelectedTokenPos();
 						if (pos < selectedLayer!.tokens.length - 1) {
 							selectedLayer!.tokens.splice(pos + 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
@@ -391,6 +412,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				] : [],
 				tokenPos > 0 ? [
 					item(`Move Down`, () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
 						const pos = getSelectedTokenPos();
 						if (pos > 0) {
 							selectedLayer!.tokens.splice(pos - 1, 0, selectedLayer!.tokens.splice(pos, 1)[0]);
@@ -398,12 +422,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						}
 					}),
 					item(`Move to Bottom`, () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
 						const pos = getSelectedTokenPos();
 						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
 						rpc.setTokenPos(selectedLayerPath, pos, 0).catch(handleError);
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+					if (selectedToken !== currToken) {
+						return;
+					}
 					const pos = getSelectedTokenPos();
 					unselectToken();
 					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0])
