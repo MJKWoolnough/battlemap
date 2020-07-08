@@ -233,7 +233,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			let p = rpc.addToken(selectedLayerPath, token)
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
-				.then(id => rpc.tokenSet(id, {"store-character-id": {"user": false, "data": token.tokenData = id}}))
+				.then(id => rpc.tokenSet(id, tokens[token.tokenData = id] = {"store-character-id": {"user": false, "data": charID}}))
 			}
 			p.catch(handleError);
 		      }, "onmousedown": (e: MouseEvent) => {
