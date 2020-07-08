@@ -332,7 +332,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (selectedToken !== currToken) {
 						return;
 					}
-					selectedToken!.tokenData = 0;
+					delete tokens[selectedToken.tokenData];
+					selectedToken.tokenData = 0;
 					rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
 				}),
 				item("Flip", () => {
