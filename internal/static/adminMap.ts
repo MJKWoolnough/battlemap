@@ -326,7 +326,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return;
 					}
 					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
-					.then(id => currToken.tokenData = id)
+					.then(id => tokens[currToken.tokenData = id] = {})
 					.catch(handleError);
 				}) : item("Unset as Token", () => {
 					if (selectedToken !== currToken) {
