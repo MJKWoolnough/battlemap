@@ -9,6 +9,7 @@ import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, proce
 import {characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import {noColour, handleError} from './misc.js';
+import tokenEdit from './keystoreEdit.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -322,6 +323,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			e.preventDefault();
 			const tokenPos = getSelectedTokenPos();
 			place(base, [e.clientX, e.clientY], [
+				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken && selectedToken.tokenData && tokenEdit(shell, rpc, selectedToken.tokenData, "Edit Token", tokens[selectedToken.tokenData], false)) : [],
 				selectedToken!.tokenData === 0 ? item("Set as Token", () => {
 					const thisToken = selectedToken!;
 					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
