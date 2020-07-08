@@ -322,14 +322,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			place(base, [e.clientX, e.clientY], [
 				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokens[selectedToken!.tokenData], false)) : [],
 				selectedToken!.tokenData === 0 ? item("Set as Token", () => {
-					if (selectedToken !== currToken) {
+					if (selectedToken !== currToken && currToken.tokenData === 0) {
 						return;
 					}
 					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
 					.then(id => tokens[currToken.tokenData = id] = {})
 					.catch(handleError);
 				}) : item("Unset as Token", () => {
-					if (selectedToken !== currToken) {
+					if (selectedToken !== currToken || currToken.tokenData !== 0) {
 						return;
 					}
 					delete tokens[selectedToken.tokenData];
