@@ -7,7 +7,7 @@ import {characterData} from './characters.js';
 
 let n = 0;
 
-export default function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record<string, KeystoreData>, character: boolean) {
+export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record<string, KeystoreData>, character: boolean) {
 		n++;
 		let changed = false, row = 0;
 		const changes: Record<string, KeystoreData> = {},
@@ -58,9 +58,10 @@ export default function (shell: ShellElement, rpc: RPC, id: Int, name: string, d
 					clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 				} else {
 					changes["store-character-id"] = {"user": false, "data": tokenData.id};
-					clearElement(this).appendChild(img({"src": `/images/${characterData.get(tokenData.id)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}));
+					const charData = characterData.get(tokenData.id)!;
+					clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, true)}));
 				}
-			}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(id)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : []),
+			}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, true)}) : []),
 			br(),
 			inputs,
 			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
