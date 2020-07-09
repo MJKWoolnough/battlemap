@@ -43,6 +43,11 @@ const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disable
       waitLayerPositionChange = subFn<LayerMove>(),
       invalidRPC = () => Promise.reject("invalid");
 
+export const getToken = () => {
+	return sharedToken;
+};
+let sharedToken: undefined | Token;
+
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
