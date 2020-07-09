@@ -123,6 +123,7 @@ export type RPC = {
 	tokenGetAll:     (id: Int)                                     => Promise<Record<string, KeystoreData>>;
 	tokenRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
 	tokenDelete:     (path: string, pos: Int)                      => Promise<void>;
+	tokenClone:      (id: Int)                                     => Promise<Int>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
