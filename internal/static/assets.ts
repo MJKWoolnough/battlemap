@@ -12,7 +12,7 @@ class ImageAsset extends DraggableItem {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${this.id}`);
 	}
 	dragName() {
-		return "imageAsset";
+		return "imageasset";
 	}
 	show() {
 		const root = this.parent.root;
