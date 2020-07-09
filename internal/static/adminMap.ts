@@ -34,7 +34,14 @@ const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disable
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
-};
+      },
+      waitAdded = subFn<IDName[]>(),
+      waitMoved = subFn<FromTo>(),
+      waitRemoved = subFn<string>(),
+      waitFolderMoved = subFn<FromTo>(),
+      waitFolderRemoved = subFn<string>(),
+      waitLayerPositionChange = subFn<LayerMove>(),
+      invalidRPC = () => Promise.reject("invalid");
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
@@ -157,12 +164,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 				rpc.removeToken(selectedLayerPath, pos).catch(handleError);
 		      },
-		      waitAdded = subFn<IDName[]>(),
-		      waitMoved = subFn<FromTo>(),
-		      waitRemoved = subFn<string>(),
-		      waitFolderMoved = subFn<FromTo>(),
-		      waitFolderRemoved = subFn<string>(),
-		      waitLayerPositionChange = subFn<LayerMove>(),
 		      unselectToken = () => {
 			selectedToken = null;
 			outline.style.setProperty("display", "none");
@@ -182,8 +183,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 				// select new layer???
 			}
-		      },
-		      invalidRPC = () => Promise.reject("invalid");
+		      };
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 				e.preventDefault();
