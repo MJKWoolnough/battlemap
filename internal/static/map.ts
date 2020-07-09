@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Int, LayerFolder, LayerTo
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
-import {colour2RGBA, noColour} from './misc.js';
+import {colour2RGBA, noColour, handleError} from './misc.js';
 import {HTTPRequest} from './lib/conn.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
@@ -368,9 +368,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 						tokens[tID] = d;
 						if (loadChars && typeof d["store-character-id"] === "number") {
 							const cID = d["store-character-id"].data;
-							rpc.characterGetAll(cID).then(d => characterData.set(cID, d));
+							rpc.characterGetAll(cID).then(d => characterData.set(cID, d)).catch(handleError);
 						}
-					});
+					}).catch(handleError);
 				}
 			})
 		}
