@@ -156,6 +156,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"tokenGetAll":      id         => rpc.request("tokens.get", {id}).then(userData),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
+			"tokenClone":       id         => rpc.request("tokens.clone", id),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
 			"loginRequirements": ()                         => rpc.request("auth.requirements"),
