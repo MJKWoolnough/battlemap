@@ -60,7 +60,7 @@ export default function (shell: ShellElement, rpc: RPC, id: Int, name: string, d
 					changes["store-character-id"] = {"user": false, "data": tokenData.id};
 					clearElement(this).appendChild(img({"src": `/images/${characterData.get(tokenData.id)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}));
 				}
-			}}, character ? img({"src": `/images/${d["store-image-icon"]}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(id)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : []),
+			}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(id)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : []),
 			br(),
 			inputs,
 			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
