@@ -120,18 +120,18 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 }
 
 type token struct {
-	Source        uint64 `json:"src"`
-	X             int64  `json:"x"`
-	Y             int64  `json:"y"`
-	Width         uint64 `json:"width"`
-	Height        uint64 `json:"height"`
-	PatternWidth  uint64 `json:"patternWidth"`
-	PatternHeight uint64 `json:"patternHeight"`
-	Rotation      uint8  `json:"rotation"`
-	Flip          bool   `json:"flip"`
-	Flop          bool   `json:"flop"`
-	TokenData     uint64 `json:"tokenData"`
-	Snap          bool   `json:"snap"`
+	Source        uint64          `json:"src"`
+	X             int64           `json:"x"`
+	Y             int64           `json:"y"`
+	Width         uint64          `json:"width"`
+	Height        uint64          `json:"height"`
+	PatternWidth  uint64          `json:"patternWidth"`
+	PatternHeight uint64          `json:"patternHeight"`
+	Rotation      uint8           `json:"rotation"`
+	Flip          bool            `json:"flip"`
+	Flop          bool            `json:"flop"`
+	TokenData     json.RawMessage `json:"tokenData"`
+	Snap          bool            `json:"snap"`
 }
 
 func (t *token) appendTo(p []byte) []byte {
@@ -146,7 +146,7 @@ func (t *token) appendTo(p []byte) []byte {
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
 	p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
 	p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
-	p = strconv.AppendUint(append(p, ",\"tokenData\":"...), t.TokenData, 10)
+	p = append(append(p, ",\"tokenData\":"...), t.TokenData...)
 	return append(p, '}')
 }
 

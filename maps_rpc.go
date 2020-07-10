@@ -1,9 +1,9 @@
 package battlemap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-	"strconv"
 
 	"vimagination.zapto.org/keystore"
 )
@@ -504,7 +504,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			tk.TokenData, rm = m.tokens.createFromID()
+			tk.TokenData = m.tokens.createFromID()
 			if cap(data) >= len(rm)+len(data)+6 {
 				data = data[:len(data)-1]
 			} else {
@@ -525,11 +525,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			if tk.TokenData == 0 {
+			if bytes.Equal(tk.TokenData, zeroJSON) {
 				return false
 			}
-			m.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
-			tk.TokenData = 0
+			m.tokens.itemDeleteString(string(tk.TokenData))
+			tk.TokenData = zeroJSON
 			m.socket.broadcastMapChange(cd, broadcastTokenUnsetData, data)
 			return true
 		}); err != nil {

@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,12 +36,14 @@ func mapCleanupLayerWalk(b *Battlemap, mp *levelMap, layer *layer) {
 	}
 }
 
+var zeroJSON = json.RawMessage{'0'}
+
 func mapCleanupTokenRemove(b *Battlemap, mp *levelMap, layer *layer, tk *token) {
 	if tk.Source > 0 {
 		b.images.removeHiddenLink(tk.Source)
 	}
-	if tk.TokenData > 0 {
-		b.tokens.itemDeleteString(strconv.FormatUint(tk.TokenData, 10))
+	if !bytes.Equal(tk.TokenData, zeroJSON) {
+		b.tokens.itemDeleteString(string(tk.TokenData))
 	}
 }
 

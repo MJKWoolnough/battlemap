@@ -145,7 +145,7 @@ func (k *keystoreDir) createFromName(cd ConnData, data json.RawMessage) (json.Ra
 	return buf[1 : len(buf)-1], nil
 }
 
-func (k *keystoreDir) createFromID() (uint64, json.RawMessage) {
+func (k *keystoreDir) createFromID() json.RawMessage {
 	m := make(keystoreMap)
 	k.mu.Lock()
 	k.lastID++
@@ -155,7 +155,7 @@ func (k *keystoreDir) createFromID() (uint64, json.RawMessage) {
 	k.saveFolders()
 	k.data[name] = m
 	k.mu.Unlock()
-	return kid, json.RawMessage(name)
+	return json.RawMessage(name)
 }
 
 func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
