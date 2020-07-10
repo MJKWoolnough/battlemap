@@ -203,7 +203,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			if (selectedLayer === null) {
 				return;
 			}
-			let id: Int , tw: Int, th: Int, charID: Int = 0, src: string;
+			let id: Int , tw: Int, th: Int, charID: Int = 0;
 			if (e.dataTransfer!.types.includes("character")) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tokenData.id)!;
@@ -225,7 +225,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				id = tokenData.id;
 				tw = tokenData.width;
 				th = tokenData.height;
-				src = `/images/${tokenData.id}`;
 			}
 			const width = parseInt(root.getAttribute("width") || "0"),
 			      height = parseInt(root.getAttribute("height") || "0");
