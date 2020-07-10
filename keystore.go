@@ -322,6 +322,8 @@ func (t *tokensDir) RPCData(cd ConnData, method string, data json.RawMessage) (i
 }
 
 func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	d, ok := t.data[string(data)]
 	if !ok {
 		return nil, ErrItemNotFound
@@ -330,14 +332,12 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	for k, v := range d {
 		m[k] = v
 	}
-	t.mu.Lock()
 	t.lastID++
 	kid := t.lastID
 	name := addItemTo(t.root.Items, strconv.FormatUint(kid, 10), kid)
 	t.links[kid] = 1
 	t.saveFolders()
 	t.data[name] = m
-	t.mu.Unlock()
 	return json.RawMessage(name), nil
 }
 
