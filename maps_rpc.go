@@ -277,7 +277,16 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if newToken.Path == "/Grid" || newToken.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
+		tokenID := zeroJSON
+		var e error
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
+			if newToken.TokenData != nil && !bytes.Equal(newToken.TokenData, zeroJSON) {
+				if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData); e != nil {
+					return false
+				}
+				tokenID = newToken.TokenData
+				data = json.RawMessage(newToken.appendTo(data[:0]))
+			}
 			m.images.setHiddenLink(newToken.Source)
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
@@ -285,7 +294,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}); err != nil {
 			return nil, err
 		}
-		return nil, nil
+		return tokenID, e
 	case "removeToken":
 		var tokenPos struct {
 			Path string `json:"path"`
