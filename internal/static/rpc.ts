@@ -11,6 +11,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
 			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(d => (d.data = userData(d.data), d)),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
+			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(d => (d.data = userData(d.data), d)),
+			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true),
 			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true),
