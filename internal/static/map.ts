@@ -6,7 +6,7 @@ import {colour2RGBA, noColour, handleError} from './misc.js';
 import {HTTPRequest} from './lib/conn.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
-import {characterData} from './characters.js';
+import {characterData, tokenData} from './characters.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -352,8 +352,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		root.style.setProperty("top", panZoom.y + "px");
 		viewPos.mouseX = e.clientX;
 		viewPos.mouseY = e.clientY;
-	      },
-	      tokens: Record<Int, Record<string, KeystoreData>> = {}
+	      };
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -365,7 +364,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 				if (t.tokenData) {
 					const tID = t.tokenData;
 					rpc.tokenGetAll(tID).then(d => {
-						tokens[tID] = d;
+						tokenData.set(tID, d);
 						if (loadChars && typeof d["store-character-id"] === "number") {
 							const cID = d["store-character-id"].data;
 							rpc.characterGetAll(cID).then(d => characterData.set(cID, d)).catch(handleError);
@@ -468,14 +467,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 			})
 		),
 		panZoom,
-		outline,
-		tokens
+		outline
 	] as [
 		HTMLDivElement,
 		() => void,
 		{ x: Int; y: Int; zoom: Int},
 		SVGGElement,
-		Record<Int, Record<string, KeystoreData>>
 	];
 };
 

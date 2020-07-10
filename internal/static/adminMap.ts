@@ -6,7 +6,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, processLayers, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, setTokenType, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
-import {characterData} from './characters.js';
+import {characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import {noColour, handleError} from './misc.js';
 import tokenEdit from './keystoreEdit.js';
@@ -58,7 +58,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		canceller();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, panZoom, outline, tokens] = mapView(rpc, oldBase, mapData),
+		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
@@ -203,7 +203,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			if (selectedLayer === null) {
 				return;
 			}
-			let id: Int , tw: Int, th: Int, charID: Int = 0;
+			let id: Int , tw: Int, th: Int, charID: Int = 0, src: string;
 			if (e.dataTransfer!.types.includes("character")) {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tokenData.id)!;
@@ -225,6 +225,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				id = tokenData.id;
 				tw = tokenData.width;
 				th = tokenData.height;
+				src = `/images/${tokenData.id}`;
 			}
 			const width = parseInt(root.getAttribute("width") || "0"),
 			      height = parseInt(root.getAttribute("height") || "0");
@@ -242,7 +243,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			let p = rpc.addToken(selectedLayerPath, token)
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
-				.then(id => rpc.tokenSet(id, tokens[token.tokenData = id] = {"store-character-id": {"user": false, "data": charID}}))
+				.then(id => {
+					const data = {"store-character-id": {"user": false, "data": charID}};
+					tokenData.set(token.tokenData = id, data)
+					rpc.tokenSet(id, data)
+				})
 			}
 			p.catch(handleError);
 		      }, "onmousedown": (e: MouseEvent) => {
@@ -329,19 +334,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			const tokenPos = getSelectedTokenPos(),
 			      currToken = selectedToken!;
 			place(base, [e.clientX, e.clientY], [
-				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokens[selectedToken!.tokenData], false)) : [],
+				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokenData.get(selectedToken!.tokenData)!, false)) : [],
 				selectedToken!.tokenData === 0 ? item("Set as Token", () => {
 					if (selectedToken !== currToken && currToken.tokenData === 0) {
 						return;
 					}
 					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
-					.then(id => tokens[currToken.tokenData = id] = {})
+					.then(id => tokenData.set(currToken.tokenData = id, {}))
 					.catch(handleError);
 				}) : item("Unset as Token", () => {
 					if (selectedToken !== currToken || currToken.tokenData !== 0) {
 						return;
 					}
-					delete tokens[selectedToken.tokenData];
+					tokenData.delete(selectedToken.tokenData);
 					selectedToken.tokenData = 0;
 					rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
 				}),
