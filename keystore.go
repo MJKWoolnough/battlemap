@@ -331,6 +331,11 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	m := make(keystoreMap)
 	for k, v := range d {
 		m[k] = v
+		if f := t.IsLinkKey(k); f != nil {
+			var id uint64
+			json.Unmarshal(v.Data, &id)
+			f.setHiddenLink(id)
+		}
 	}
 	t.lastID++
 	kid := t.lastID
