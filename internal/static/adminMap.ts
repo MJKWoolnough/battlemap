@@ -44,15 +44,20 @@ const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disable
       invalidRPC = () => Promise.reject("invalid");
 
 export const getToken = () => {
-	return sharedToken;
+	if (selectedToken instanceof SVGToken) {
+		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = selectedToken;
+		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
+	}
+	return undefined;
 };
-let sharedToken: undefined | Token;
+let selectedToken: SVGToken | SVGShape | null = null;
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", selectedToken: SVGToken | SVGShape | null = null, tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		selectedToken = null;
+		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel, panZoom, outline, tokens] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
