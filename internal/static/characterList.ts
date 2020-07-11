@@ -19,7 +19,10 @@ class Character extends DraggableItem {
 			}
 			if (d["store-token-id"]) {
 				const id = d["store-token-id"].data;
-				rpc.tokenGetAll(id).then(d => tokenData.set(id, d));
+				if (!tokenData.has(id)) {
+					tokenData.set(id, {});
+					rpc.tokenGetAll(id).then(d => tokenData.set(id, d));
+				}
 			}
 		}).catch(handleError);
 		characters.set(id, this);
