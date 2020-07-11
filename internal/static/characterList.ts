@@ -4,7 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {characterData} from './characters.js';
+import {characterData, tokenData} from './characters.js';
 import characterEdit from './keystoreEdit.js';
 
 let rpc: RPC;
@@ -16,6 +16,10 @@ class Character extends DraggableItem {
 			characterData.set(id, d);
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
+			}
+			if (d["store-token-id"]) {
+				const id = d["store-token-id"].data;
+				rpc.tokenGetAll(id).then(d => tokenData.set(id, d));
 			}
 		}).catch(handleError);
 		characters.set(id, this);
