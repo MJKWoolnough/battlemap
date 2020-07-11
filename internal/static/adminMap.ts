@@ -204,7 +204,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			let charID = 0;
-			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
+			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value},
+			      width = parseInt(root.getAttribute("width") || "0"),
+			      height = parseInt(root.getAttribute("height") || "0");
 			if (e.dataTransfer!.types.includes("character")) {
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tD.id)!;
@@ -225,8 +227,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				token.width = tokenData.width;
 				token.height = tokenData.height;
 			}
-			const width = parseInt(root.getAttribute("width") || "0"),
-			      height = parseInt(root.getAttribute("height") || "0");
 			token.x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom);
 			token.y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
 			if (token.snap && token.tokenData === 0) {
