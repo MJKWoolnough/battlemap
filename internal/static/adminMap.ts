@@ -203,49 +203,46 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			if (selectedLayer === null) {
 				return;
 			}
-			let id: Int , tw: Int, th: Int, charID: Int = 0, src: string;
+			let charID = 0;
+			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
 			if (e.dataTransfer!.types.includes("character")) {
-				const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
-				      char = characterData.get(tokenData.id)!;
-				charID = tokenData.id;
-				id = parseInt(char["store-image-icon"].data);
-				if (char["store-image-asset"]) {
-					parseInt(char["store-image-asset"].data)
+				const tD = JSON.parse(e.dataTransfer!.getData("character")),
+				      char = characterData.get(tD.id)!;
+				if (char["tokenData"]) {
+					Object.assign(token, tokenData.get(char["tokenData"].data));
+				} else {
+					charID = tD.id;
+					token.src = parseInt(char["store-image-icon"].data);
+					token.width = tD.width;
+					token.height = tD.height;
 				}
-				tw = tokenData.width;
-				th = tokenData.height;
-				if (char["tokenWidth"]) {
-					tw = parseInt(char["tokenWidth"].data);
-				}
-				if (char["tokenHeight"]) {
-					tw = parseInt(char["tokenHeight"].data);
+				if (char["store-token-id"]) {
+					token.tokenData = char["store-token-id"].data;
 				}
 			} else {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				id = tokenData.id;
-				tw = tokenData.width;
-				th = tokenData.height;
-				src = `/images/${tokenData.id}`;
+				token.src = tokenData.id;
+				token.width = tokenData.width;
+				token.height = tokenData.height;
 			}
 			const width = parseInt(root.getAttribute("width") || "0"),
 			      height = parseInt(root.getAttribute("height") || "0");
-			let x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
-			    y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
-			if (autosnap.value) {
+			token.x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom);
+			token.y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
+			if (token.snap && token.tokenData === 0) {
 				const sq = mapData.gridSize;
-				x = Math.round(x / sq) * sq;
-				y = Math.round(y / sq) * sq;
-				tw = Math.max(Math.round(tw / sq) * sq, sq);
-				th = Math.max(Math.round(th / sq) * sq, sq);
+				token.x = Math.round(token.x / sq) * sq;
+				token.y = Math.round(token.y / sq) * sq;
+				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
+				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
-			const token = {"src": id, "x": x, "y": y, "width": tw, "height": th, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value},
-			      pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
+			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
 			let p = rpc.addToken(selectedLayerPath, token)
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
 				.then(id => {
 					const data = {"store-character-id": {"user": false, "data": charID}};
-					tokenData.set(token.tokenData = id, data)
+					tokenData.set(token.tokenData = id, data);
 					rpc.tokenSet(id, data)
 				})
 			}
