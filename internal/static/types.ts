@@ -224,13 +224,7 @@ type TokenPos = {
 	pos: Int;
 }
 
-type TokenAdd = TokenPos & {
-	src: Int;
-	x: Int;
-	y: Int;
-	width: Int;
-	height: Int;
-}
+type TokenAdd = TokenPos & Token;
 
 type TokenChange = TokenPos & {
 	x: Int;
