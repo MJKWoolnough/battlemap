@@ -396,6 +396,16 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 				delete tk["path"];
 				delete tk["pos"];
 				layer.tokens.push(new SVGToken(tk));
+				if (tk.tokenData) {
+					const tID = tk.tokenData;
+					rpc.tokenGetAll(tID).then(d => {
+						tokenData.set(tID, d);
+						if (loadChars && typeof d["store-character-id"] === "number") {
+							const cID = d["store-character-id"].data;
+							rpc.characterGetAll(cID).then(d => characterData.set(cID, d)).catch(handleError);
+						}
+					}).catch(handleError);
+				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
 				const [parent, token] = getParentToken(tm.from, tm.pos);
