@@ -393,7 +393,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 					// error
 					return;
 				}
-				layer.tokens.push(new SVGToken(Object.assign(tk, {"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0})));
+				layer.tokens.push(new SVGToken(Object.assign({"rotation": 0, "patternWidth": 0, "patternHeight": 0, "flip": false, "flop": false, "tokenData": 0, "stroke": noColour, "strokeWidth": 0, "snap": false, "tokenType": 0}, tk)));
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
 				const [parent, token] = getParentToken(tm.from, tm.pos);
