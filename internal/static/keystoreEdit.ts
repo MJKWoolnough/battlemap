@@ -99,6 +99,10 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 			inputs,
 			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
 				if (key) {
+					if (reserved(key, character)) {
+						w.alert("Reserved key", "Key entered is reserved and cannot be used for user data");
+						return;
+					}
 					if (d[key] !== undefined) {
 						w.alert("Existing key", "Key entered already exists");
 						return;
