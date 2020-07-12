@@ -63,6 +63,11 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 				}
 			}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, true)}) : []),
 			br(),
+			character ? [
+				label("Token: "),
+				div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center"}, button("Use currently selected token")),
+				br(),
+			] : [],
 			inputs,
 			button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
 				if (key) {
