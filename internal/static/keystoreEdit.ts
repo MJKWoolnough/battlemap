@@ -33,7 +33,7 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 				br()
 		      ],
-		      inputs = div(Object.keys(d).filter(k => (k !== "store-image-icon") === character && (k !== "store-character-id") !== character).sort().map(adder)),
+		      inputs = div(Object.keys(d).filter(k => (k !== "store-image-icon") === character && (k !== "store-token-id") === character && (k !== "token-data") === character && (k !== "store-character-id") !== character).sort().map(adder)),
 		      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
