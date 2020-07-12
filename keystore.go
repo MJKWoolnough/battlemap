@@ -340,7 +340,7 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	t.lastID++
 	kid := t.lastID
 	name := strconv.FormatUint(kid, 10)
-	t.links[kid] = 1
+	t.links[kid] = 0
 	t.saveFolders()
 	t.data[name] = m
 	return json.RawMessage(name), nil
