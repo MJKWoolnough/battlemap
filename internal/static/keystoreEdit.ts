@@ -4,12 +4,13 @@ import {createHTML, br, button, div, h1,  img, input, label} from './lib/html.js
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {characterData} from './characters.js';
+import {getToken} from './adminMap.js';
 
 let n = 0;
 
 export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record<string, KeystoreData>, character: boolean) {
 		n++;
-		let changed = false, row = 0;
+		let changed = false, row = 0, tokenClone = 0;
 		const changes: Record<string, KeystoreData> = {},
 		      removes = new Set<string>(),
 		      adder = (k: string) => [
@@ -65,7 +66,22 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 			br(),
 			character ? [
 				label("Token: "),
-				div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center"}, button("Use currently selected token")),
+				div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center"}, [
+					button({"onclick": function(this: HTMLDivElement) {
+						const data = getToken();
+						if (!data) {
+							shell.alert("Select token", "No token selected");
+							return;
+						}
+						if (this.nextSibling) {
+							this.nextSibling.remove();
+						}
+						tokenClone = data.tokenData;
+						changes["tokenData"] = {"user": false, data};
+						this.parentNode!.appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
+					}}, "Use currently selected token"),
+					d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
+				]),
 				br(),
 			] : [],
 			inputs,
