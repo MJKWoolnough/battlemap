@@ -14,7 +14,7 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 		      removes = new Set<string>(),
 		      adder = (k: string) => [
 				label({"for": `character_${n}_${row}`}, k),
-				input({"id": `character_${n}_${row}`, "value": d[k]?.data || "", "onchange": function(this: HTMLInputElement) {
+				input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 					changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 				}}),
 				input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
