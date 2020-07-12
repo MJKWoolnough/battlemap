@@ -150,7 +150,7 @@ func (k *keystoreDir) createFromID() json.RawMessage {
 	k.mu.Lock()
 	k.lastID++
 	kid := k.lastID
-	name := addItemTo(k.root.Items, strconv.FormatUint(kid, 10), kid)
+	name := strconv.FormatUint(kid, 10)
 	k.links[kid] = 1
 	k.saveFolders()
 	k.data[name] = m
@@ -339,7 +339,7 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	}
 	t.lastID++
 	kid := t.lastID
-	name := addItemTo(t.root.Items, strconv.FormatUint(kid, 10), kid)
+	name := strconv.FormatUint(kid, 10)
 	t.links[kid] = 1
 	t.saveFolders()
 	t.data[name] = m
