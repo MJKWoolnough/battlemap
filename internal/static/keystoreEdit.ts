@@ -8,6 +8,18 @@ import {getToken} from './adminMap.js';
 
 let n = 0;
 
+const reserved = (key: string, character: boolean) => {
+	switch (key) {
+	case "store-character-id":
+		return !character;
+	case "store-image-icon":
+	case "store-token-id":
+	case "token-data":
+		return character;
+	}
+	return false;
+};
+
 export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record<string, KeystoreData>, character: boolean) {
 		n++;
 		let changed = false, row = 0, tokenClone = 0;
@@ -34,7 +46,7 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 				label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 				br()
 		      ],
-		      inputs = div(Object.keys(d).filter(k => (k !== "store-image-icon") === character && (k !== "store-token-id") === character && (k !== "token-data") === character && (k !== "store-character-id") !== character).sort().map(adder)),
+		      inputs = div(Object.keys(d).filter(k => reserved(k, character)).sort().map(adder)),
 		      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 			if (removes.size > 0 || Object.keys(changes).length > 0) {
 				e.preventDefault();
