@@ -4,8 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {characterData, tokenData} from './characters.js';
-import characterEdit from './keystoreEdit.js';
+import {edit as characterEdit, characterData, tokenData} from './characters.js';
 
 let rpc: RPC;
 
