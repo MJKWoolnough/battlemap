@@ -7,16 +7,16 @@ import {getToken} from './adminMap.js';
 
 let rpc: RPC, n = 0;
 
-const reserved = (key: string, character: boolean) => {
+const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
 	case "store-character-id":
-		return !character;
+		return character;
 	case "store-image-icon":
 	case "store-token-id":
 	case "token-data":
-		return character;
+		return !character;
 	}
-	return false;
+	return true;
 };
 
 export const characterData = new Map<Int, Record<string, KeystoreData>>(),
@@ -47,7 +47,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 			label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 			br()
 	      ],
-	      inputs = div(Object.keys(d).filter(k => reserved(k, character)).sort().map(adder)),
+	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
 	      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
@@ -100,7 +100,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 		inputs,
 		button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
 			if (key) {
-				if (reserved(key, character)) {
+				if (!allowedKey(key, character)) {
 					w.alert("Reserved key", "Key entered is reserved and cannot be used for user data");
 					return;
 				}
