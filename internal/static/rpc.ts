@@ -20,7 +20,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true),
 			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true),
 			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true),
-			"waitMapInitiative":           () => rpc.await(broadcastMapInitiative, true),
 			"waitLayerShow":               () => rpc.await(broadcastLayerShow, true),
 			"waitLayerHide":               () => rpc.await(broadcastLayerHide, true),
 			"waitLayerMaskAdd":            () => rpc.await(broadcastLayerMaskAdd, true),
@@ -144,7 +143,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenSource":  (path, pos, src)                           => rpc.request("maps.setTokenSource", {path, pos, src}),
 			"setTokenLayer":   (from, pos, to)                            => rpc.request("maps.setTokenLayer", {from, pos, to}),
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}),
-			"setInitiative":    initiative                                => rpc.request("maps.setInitiative", initiative),
 
 			"characterCreate":      name      => rpc.request("characters.create", name),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
