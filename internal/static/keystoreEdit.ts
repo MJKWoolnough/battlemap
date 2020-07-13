@@ -112,34 +112,34 @@ export default function edit(shell: ShellElement, rpc: RPC, id: Int, name: strin
 			})}),
 			button("Save", {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
-				const rms = Array.from(removes.values()).filter(k => {
-					delete changes[k];
-					return d[k] !== undefined;
-				      }),
-				      keys = Object.keys(changes).filter(k => {
-					const old = d[k];
-					if (old && old.user === changes[k].user && old.data === changes[k].data) {
+				(tokenClone ? rpc.tokenClone(tokenClone).then(data => changes["store-token-id"] = {"user": false, data}) as Promise<void> : Promise.resolve()).then(() => {
+					const rms = Array.from(removes.values()).filter(k => {
 						delete changes[k];
-						return false;
+						return d[k] !== undefined;
+					      }),
+					      keys = Object.keys(changes).filter(k => {
+						const old = d[k];
+						if (old && old.user === changes[k].user && old.data === changes[k].data) {
+							delete changes[k];
+							return false;
+						}
+						return true;
+					      }),
+					      ps: Promise<void>[] = [];
+					if (keys.length > 0) {
+						ps.push((character ? rpc.characterSet : rpc.tokenSet)(id, changes).then(() => {
+							Object.assign(d, changes);
+							keys.forEach(k => delete changes[k]);
+						}));
 					}
-					return true;
-				      }),
-				      ps: Promise<void>[] = [];
-				if (keys.length > 0) {
-					ps.push((character ? rpc.characterSet : rpc.tokenSet)(id, changes).then(() => {
-						Object.assign(d, changes);
-						keys.forEach(k => delete changes[k]);
-					}));
-				}
-				if (removes.size > 0) {
-					ps.push((character ? rpc.characterRemoveKeys : rpc.tokenRemoveKeys)(id, rms).then(() => {
-						removes.forEach(k => delete d[k]);
-						removes.clear();
-					}));
-				}
-				loadingWindow(Promise.all(ps), w)
-				.then(() => {
-					changed = false;
+					if (removes.size > 0) {
+						ps.push((character ? rpc.characterRemoveKeys : rpc.tokenRemoveKeys)(id, rms).then(() => {
+							removes.forEach(k => delete d[k]);
+							removes.clear();
+						}));
+					}
+					return loadingWindow(Promise.all(ps), w)
+					.then(() => changed = false);
 				})
 				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
