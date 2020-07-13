@@ -54,7 +54,6 @@ export type RPC = {
 	waitLayerRename:             () => Subscription<LayerRename>;
 	waitLayerRemove:             () => Subscription<string>;
 	waitMapLightChange:          () => Subscription<Colour>;
-	waitMapInitiative:           () => Subscription<IDName[]>;   //check type
 	waitLayerShow:               () => Subscription<string>;
 	waitLayerHide:               () => Subscription<string>;
 	waitLayerMaskAdd:            () => Subscription<Int>;        //check type
@@ -111,7 +110,6 @@ export type RPC = {
 	setTokenSource:  (path: string, pos: Int, source: string)                                         => Promise<void>;
 	setTokenLayer:   (from: string, pos: Int, to: string)                                             => Promise<void>;
 	setTokenPos:     (path: string, pos: Int, newPos: Int)                                            => Promise<void>;
-	setInitiative:   (initiative: Int[])                                                              => Promise<void>;
 
 	characterCreate:     (name: string)                                => Promise<IDName>;
 	characterSet:        (id: Int, data: Record<string, KeystoreData>) => Promise<void>;
