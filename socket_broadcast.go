@@ -60,8 +60,6 @@ const (
 
 	broadcastMapLightChange
 
-	broadcastMapInitiative
-
 	broadcastLayerShow
 	broadcastLayerHide
 	broadcastLayerMaskAdd
