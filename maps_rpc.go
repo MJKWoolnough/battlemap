@@ -545,18 +545,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, nil
-	/*
-		case "setInitiative":
-			var initiative [][2]uint64
-			if err := json.Unmarshal(data, &initiative); err != nil {
-				return nil, err
-			}
-			return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-				mp.Initiative = initiative
-				m.socket.broadcastMapChange(cd, broadcastMapInitiative, data)
-				return true
-			})
-	*/
 	case "remove":
 		var (
 			mapPath string
