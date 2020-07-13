@@ -29,7 +29,7 @@ type Battlemap struct {
 	mux     http.ServeMux
 }
 
-// New creates a new, initialise Battlemap type, using the given path as its
+// New creates a new, initialised Battlemap type, using the given path as its
 // datastore directory.
 //
 // The passed Auth module will be used for authenticating all users and setting
