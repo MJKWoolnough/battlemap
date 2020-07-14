@@ -47,20 +47,6 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	return int64(n), nil
 }
 
-type bufReaderWriterTo struct {
-	Buf    []byte
-	Reader io.Reader
-}
-
-func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
-	n, err := w.Write(b.Buf)
-	if err != nil {
-		return int64(n), err
-	}
-	m, err := io.Copy(w, b.Reader)
-	return int64(n) + m, err
-}
-
 type acceptType string
 
 func (a *acceptType) Handle(m httpaccept.Mime) bool {

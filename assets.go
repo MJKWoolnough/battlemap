@@ -132,6 +132,20 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
+type bufReaderWriterTo struct {
+	Buf    []byte
+	Reader io.Reader
+}
+
+func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(b.Buf)
+	if err != nil {
+		return int64(n), err
+	}
+	m, err := io.Copy(w, b.Reader)
+	return int64(n) + m, err
+}
+
 const invalidFilenameChars = "\x00\r\n\\/"
 
 // Errors
