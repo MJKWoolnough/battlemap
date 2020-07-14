@@ -17,7 +17,6 @@ const (
 
 type getFileType struct {
 	Buffer [512]byte
-	BufLen int
 	Type   fileType
 }
 
@@ -26,7 +25,6 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	if err != nil {
 		return int64(n), err
 	}
-	g.BufLen = n
 	switch http.DetectContentType(g.Buffer[:n]) {
 	case "image/gif", "image/png", "image/jpeg", "image/webp", "video/apng":
 		g.Type = fileTypeImage
