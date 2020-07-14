@@ -85,7 +85,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 		gft.Type = fileTypeUnknown
-		_, err = gft.ReadFrom(p)
+		bufLen, err := gft.ReadFrom(p)
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		a.links[id] = 1
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
-		if err = a.Set(idStr, bufReaderWriterTo{gft.Buffer[:gft.BufLen], p}); err != nil {
+		if err = a.Set(idStr, bufReaderWriterTo{gft.Buffer[:bufLen], p}); err != nil {
 			return err
 		}
 		filename := p.FileName()
