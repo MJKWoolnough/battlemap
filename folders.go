@@ -80,6 +80,14 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	f.processFolder(f.root)
+	changed := false
+	for key, links := range f.links {
+		if links == 0 {
+			store.Remove(strconv.FormatUint(key, 10))
+			changed = true
+			delete(f.links, key)
+		}
+	}
 	keys := f.Keys()
 	var gft getFileType
 	for _, k := range keys {
@@ -96,6 +104,7 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 				if _, ok := f.links[n]; !ok {
 					addItemTo(f.root.Items, k, n)
 					f.links[n] = 1
+					changed = true
 				}
 				continue
 			}
@@ -104,9 +113,10 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore, cleanup func(*Ba
 			f.lastID++
 			addItemTo(f.root.Items, k, f.lastID)
 			f.links[f.lastID] = 1
+			changed = true
 		}
 	}
-	if len(keys) > 0 {
+	if changed {
 		f.Set(folderMetadata, f)
 	}
 	if cleanup == nil {
