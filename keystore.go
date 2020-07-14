@@ -155,6 +155,7 @@ func (k *keystoreDir) createFromID() json.RawMessage {
 	k.saveFolders()
 	k.data[name] = m
 	k.mu.Unlock()
+	k.fileStore.Set(name, m)
 	return json.RawMessage(name)
 }
 
