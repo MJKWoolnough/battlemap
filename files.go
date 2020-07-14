@@ -120,3 +120,11 @@ func (f *filesDir) Delete(w http.ResponseWriter, r *http.Request) error {
 	w.WriteHeader(http.StatusNoContent)
 	return nil
 }
+
+type readerWriterTo struct {
+	Reader io.Reader
+}
+
+func (r readerWriterTo) WriteTo(w io.Writer) (int64, error) {
+	return io.Copy(w, r.Reader)
+}

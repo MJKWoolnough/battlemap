@@ -7,14 +7,6 @@ import (
 	"vimagination.zapto.org/httpaccept"
 )
 
-type readerWriterTo struct {
-	Reader io.Reader
-}
-
-func (r readerWriterTo) WriteTo(w io.Writer) (int64, error) {
-	return io.Copy(w, r.Reader)
-}
-
 type fileType uint8
 
 const (
