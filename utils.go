@@ -15,14 +15,6 @@ func (r readerWriterTo) WriteTo(w io.Writer) (int64, error) {
 	return io.Copy(w, r.Reader)
 }
 
-type writerReaderFrom struct {
-	Writer io.Writer
-}
-
-func (w writerReaderFrom) ReadFrom(r io.Reader) (int64, error) {
-	return io.Copy(w.Writer, r)
-}
-
 type fileType uint8
 
 const (
