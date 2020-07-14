@@ -3,8 +3,6 @@ package battlemap
 import (
 	"io"
 	"net/http"
-
-	"vimagination.zapto.org/httpaccept"
 )
 
 type fileType uint8
@@ -45,25 +43,6 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	g.BufLen = n
 	g.Type = getType(http.DetectContentType(g.Buffer[:n]))
 	return int64(n), nil
-}
-
-type acceptType string
-
-func (a *acceptType) Handle(m httpaccept.Mime) bool {
-	if m.Match("text/plain") {
-		*a = "txt"
-		return true
-	} else if m.Match("text/xml") {
-		*a = "xml"
-		return true
-	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
-		*a = "json"
-		return true
-	} else if m.Match("application/x-www-form-urlencoded") {
-		*a = "form"
-		return true
-	}
-	return false
 }
 
 func isRoot(path string) bool {
