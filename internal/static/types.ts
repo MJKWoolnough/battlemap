@@ -165,7 +165,7 @@ export type MapDetails = GridDetails & {
 	height: Int;
 }
 
-export type NewMap = MapDetails & {
+type NewMap = MapDetails & {
 	name: string;
 }
 
@@ -265,7 +265,7 @@ export type KeystoreData = {
 	data: any;
 };
 
-export type KeystoreDataChange = {
+type KeystoreDataChange = {
 	id: Int;
 	data: Record<string, KeystoreData>;
 }
