@@ -1,8 +1,7 @@
-import {Int, FolderRPC, FolderItems, FromTo, IDName} from './types.js';
+import {Int, FolderRPC, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
-import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {createHTML, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
-import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
