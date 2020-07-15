@@ -224,25 +224,26 @@ const splitAfterLastSlash = (path: string) => {
 		return;
 	}
 	token.setPattern(!imagePattern);
-      };
-
-export const getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
+      },
+      getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
 	      parent = getLayer(globals.layerList, parentStr);
 	if (!parent || !isSVGFolder(parent)) {
 		return [null, null];
 	}
 	return [parent, getLayer(parent, name)];
-},
-isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
-getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
+      },
+      isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
+      isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
+      getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(globals.layerList, path);
 	if (!parent || !isSVGLayer(parent)) {
 		return [null, null];
 	}
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
-},
-walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+      };
+
+export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
@@ -255,7 +256,6 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 	}
 	return false;
 }) ? layer : null,
-isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(globals.layerList, path)!;
 	if (visibility) {
