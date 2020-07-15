@@ -1,7 +1,7 @@
-import {FolderItems, Int, RPC, MapDetails} from './types.js';
+import {Int, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
-import {handleError, enterKey, hex2Colour, colour2Hex} from './misc.js';
+import {handleError, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 
