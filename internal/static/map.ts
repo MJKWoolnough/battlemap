@@ -195,6 +195,35 @@ const splitAfterLastSlash = (path: string) => {
 	"": 0,
 	"Grid": -1,
 	"Light": -2,
+      },
+      processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
+	const node = g();
+	if (layer.hidden) {
+		node.setAttribute("visibility", "hidden");
+	}
+	if (isLayerFolder(layer)) {
+		const children = new SortNode<SVGFolder | SVGLayer>(node);
+		layer.children.forEach(c => children.push(processLayers(c)));
+		return Object.assign(layer, {node, children});
+	}
+	const tokens = new SortNode<SVGToken | SVGShape>(node);
+	if (layer.name !== "Grid") {
+		layer.tokens.forEach(t => {
+			if (t["src"] === 0) {
+				tokens.push(new SVGShape(t));
+			} else {
+				tokens.push(SVGToken.from(t));
+			}
+		});
+	}
+	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
+      },
+      setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
+	const [layer, token] = getParentToken(path, pos);
+	if (!token || !(token instanceof SVGToken)) {
+		return;
+	}
+	token.setPattern(!imagePattern);
       };
 
 export const getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
@@ -227,28 +256,6 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 	return false;
 }) ? layer : null,
 isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
-	const node = g();
-	if (layer.hidden) {
-		node.setAttribute("visibility", "hidden");
-	}
-	if (isLayerFolder(layer)) {
-		const children = new SortNode<SVGFolder | SVGLayer>(node);
-		layer.children.forEach(c => children.push(processLayers(c)));
-		return Object.assign(layer, {node, children});
-	}
-	const tokens = new SortNode<SVGToken | SVGShape>(node);
-	if (layer.name !== "Grid") {
-		layer.tokens.forEach(t => {
-			if (t["src"] === 0) {
-				tokens.push(new SVGShape(t));
-			} else {
-				tokens.push(SVGToken.from(t));
-			}
-		});
-	}
-	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
-},
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(globals.layerList, path)!;
 	if (visibility) {
@@ -256,13 +263,6 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	} else {
 		layer.node.setAttribute("visibility", "hidden");
 	}
-},
-setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
-	const [layer, token] = getParentToken(path, pos);
-	if (!token || !(token instanceof SVGToken)) {
-		return;
-	}
-	token.setPattern(!imagePattern);
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => getLayer(globals.layerList, path)!.name = name,
