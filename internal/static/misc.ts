@@ -1,4 +1,3 @@
-import {createHTML} from './lib/dom.js';
 import {Colour} from './types.js';
 import {ShellElement} from './windows.js';
 
