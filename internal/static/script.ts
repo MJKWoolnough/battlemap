@@ -1,5 +1,5 @@
 import RPC from './rpc.js';
-import {Int, LayerRPC, LayerFolder} from './types.js';
+import {Int, LayerRPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, span, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
