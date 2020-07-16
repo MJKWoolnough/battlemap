@@ -29,3 +29,23 @@
 .characterDataRemove:checked + .itemRemove {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABOAgMAAAARGNP3AAAADFBMVEUAAAAAAACZmZnMzMx+9uKvAAAAAXRSTlMAQObYZgAAAKVJREFUeAHt0wEGxDAQheEX9AjpeXKEIpOlUAB6nu0RiuR+BazdjJGYRBdgt+gPwweJyEAylPNoGohrzabc7hob2eIvbaAuD1jqAx7vrsNh6e11KTu9s6W+8zeAWZPuiT/btqYYeCijOe3EQ9mS7eBx220XNcyNTV8taItio/730YEb9H7sENOLtImZWZmHFKrwEZJdq20OkgmFokeJalM1U8iD+wC4BLOAPTGS8AAAAABJRU5ErkJggg==);
 }
+
+.tokenSelector {
+	overflow: hidden;
+	display: inline-block;
+	user-select: none;
+	width: 200px;
+	height: 200px;
+	border: 1px solid #888;
+	text-align: center;
+	position: relative;
+}
+
+.tokenSelector > button {
+	position: absolute;
+	background-color: transparent;
+	width: 200px;
+	height: 200px;
+	color: #000;
+	text-shadow: #fff 0 0 5px;
+}
