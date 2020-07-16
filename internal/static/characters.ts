@@ -79,7 +79,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 		br(),
 		character ? [
 			label("Token: "),
-			div({"class": "tokenSelector", "style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center"}, [
+			div({"class": "tokenSelector"}, [
 				button({"onclick": function(this: HTMLDivElement) {
 					const data = getToken();
 					if (!data) {
