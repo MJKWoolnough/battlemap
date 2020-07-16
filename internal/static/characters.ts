@@ -108,6 +108,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 					w.alert("Existing key", "Key entered already exists");
 					return;
 				}
+				changes[key] = {"user": false, "data": ""};
 				createHTML(inputs, adder(key));
 			}
 		})}),
