@@ -104,7 +104,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 					w.alert("Reserved key", "Key entered is reserved and cannot be used for user data");
 					return;
 				}
-				if (d[key] !== undefined) {
+				if (d[key] !== undefined || changes[key] !== undefined) {
 					w.alert("Existing key", "Key entered already exists");
 					return;
 				}
