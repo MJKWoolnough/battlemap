@@ -90,7 +90,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 						this.nextSibling.remove();
 					}
 					tokenClone = data.tokenData;
-					changes["tokenData"] = {"user": false, data};
+					changes["token-data"] = {"user": false, data};
 					this.parentNode!.appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
 				}}, "Use currently selected token"),
 				d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
