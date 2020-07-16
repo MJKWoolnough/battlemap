@@ -83,7 +83,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record
 				button({"onclick": function(this: HTMLDivElement) {
 					const data = getToken();
 					if (!data) {
-						shell.alert("Select token", "No token selected");
+						w.alert("Select token", "No token selected");
 						return;
 					}
 					if (this.nextSibling) {
