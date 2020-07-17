@@ -210,7 +210,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tD.id)!;
 				if (char["token-data"]) {
-					Object.assign(token, tokenData.get(char["token-data"].data));
+					Object.assign(token, char["token-data"].data);
 				} else {
 					charID = tD.id;
 					token.src = parseInt(char["store-image-icon"].data);
