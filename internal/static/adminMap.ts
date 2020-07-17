@@ -514,7 +514,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			rpc.waitLayerMove().then(ml => {
 				const layer = getLayer(layerList, ml.to);
 				if (!layer) {
-					// error
+					handleError("Invalid layer move");
 					return;
 				}
 				if (isSVGFolder(layer)) {
@@ -528,7 +528,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				checkLayer(path);
 				const layer = getLayer(layerList, path);
 				if (!layer) {
-					// error
+					handleError("Invalid layer remove");
 					return;
 				}
 				if (isSVGFolder(layer)) {
