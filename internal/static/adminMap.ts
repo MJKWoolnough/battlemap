@@ -514,6 +514,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
 					tokenMouseUp();
 				}
+				clearUndo();
 			}),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
 			rpc.waitLayerHide().then(checkLayer),
@@ -529,6 +530,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					waitMoved[0](ml);
 				}
 				waitLayerPositionChange[0](ml);
+				clearUndo();
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
@@ -542,6 +544,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				} else {
 					waitRemoved[0](path);
 				}
+				clearUndo();
 			})
 		);
 	}));
