@@ -61,6 +61,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      {root, definitions, layerList} = globals,
 		      undoList: Function[] = [],
 		      redoList: Function[] = [],
+		      clearUndo = () => {
+			undoList.splice(0, undoList.length);
+			redoList.splice(0, redoList.length);
+		      },
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
