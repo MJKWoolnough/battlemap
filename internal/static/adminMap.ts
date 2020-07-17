@@ -59,6 +59,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
+		      undoList: Function[] = [],
+		      redoList: Function[] = [],
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
