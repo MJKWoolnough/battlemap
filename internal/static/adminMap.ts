@@ -236,7 +236,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
 			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
-			let p = rpc.addToken(selectedLayerPath, token);
+			let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
+			if (token.tokenData) {
+				p = p.then(id => {
+					tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
+					token.tokenData = id;
+				});
+			}
 			if (charID) {
 				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
 				.then(id => {
