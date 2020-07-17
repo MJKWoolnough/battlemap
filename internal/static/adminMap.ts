@@ -276,7 +276,26 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			tokenMousePos.width = selectedToken.width;
 			tokenMousePos.height = selectedToken.height;
 			tokenMousePos.rotation = selectedToken.rotation;
-		}}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+		      }, "onkeypress": (e: KeyboardEvent) => {
+			if (e.ctrlKey) {
+				switch (e.key) {
+				case 'z':
+					if (!e.shiftKey) {
+						const undo = undoList.pop();
+						if (undo) {
+							undo();
+						}
+						break;
+					}
+				case 'r':
+				case 'y':
+					const redo = redoList.pop();
+					if (redo) {
+						redo();
+					}
+				}
+			}
+		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 			if (e.key === "Delete") {
 				deleteToken();
 				return;
