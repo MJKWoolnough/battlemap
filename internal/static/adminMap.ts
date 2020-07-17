@@ -545,7 +545,24 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					waitRemoved[0](path);
 				}
 				clearUndo();
-			})
+			}),
+			...([
+				rpc.waitLayerRename,
+				rpc.waitMapLightChange,
+				rpc.waitTokenAdd,
+				rpc.waitTokenRemove,
+				rpc.waitTokenMoveLayer,
+				rpc.waitTokenMovePos,
+				rpc.waitTokenSetToken,
+				rpc.waitTokenSetImage,
+				rpc.waitTokenSetPattern,
+				rpc.waitTokenFlip,
+				rpc.waitTokenFlop,
+				rpc.waitTokenSnap,
+				rpc.waitTokenSourceChange,
+				rpc.waitTokenSetData,
+				rpc.waitTokenUnsetData
+			] as (() => Subscription<any>)[]).map(p => p().then(clearUndo))
 		);
 	}));
 }
