@@ -82,6 +82,8 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	return json.NewEncoder(&p.json).Encode(list)
 }
 
+func (*pluginsDir) Cleanup() {}
+
 func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "" {
 		w.Header().Set("Content-Type", "application/json")

@@ -27,6 +27,8 @@ func (s *socket) Init(b *Battlemap) error {
 	return nil
 }
 
+func (*socket) Cleanup() {}
+
 func (s *socket) ServeConn(wconn *websocket.Conn) {
 	var (
 		cu keystore.Uint64
