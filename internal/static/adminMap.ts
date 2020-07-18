@@ -285,6 +285,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						if (undo) {
 							undo();
 						}
+						e.preventDefault();
 						break;
 					}
 				case 'r':
@@ -293,6 +294,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (redo) {
 						redo();
 					}
+					e.preventDefault();
 				}
 			}
 		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
