@@ -19,33 +19,7 @@ type mapsDir struct {
 	handler, indexes http.Handler
 }
 
-func mapCleanup(b *Battlemap, id uint64) {
-	mp := b.maps.maps[id]
-	if mp != nil {
-		delete(b.maps.maps, id)
-		mapCleanupLayerWalk(b, mp, &mp.layer)
-	}
-}
-
-func mapCleanupLayerWalk(b *Battlemap, mp *levelMap, layer *layer) {
-	for _, tk := range layer.Tokens {
-		mapCleanupTokenRemove(b, mp, layer, tk)
-	}
-	for _, l := range layer.Layers {
-		mapCleanupLayerWalk(b, mp, l)
-	}
-}
-
 var zeroJSON = json.RawMessage{'0'}
-
-func mapCleanupTokenRemove(b *Battlemap, mp *levelMap, layer *layer, tk *token) {
-	if tk.Source > 0 {
-		b.images.removeHiddenLink(tk.Source)
-	}
-	if !bytes.Equal(tk.TokenData, zeroJSON) {
-		b.tokens.itemDeleteString(string(tk.TokenData))
-	}
-}
 
 func (m *mapsDir) Init(b *Battlemap) error {
 	var location keystore.String
@@ -59,7 +33,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	m.folders.fileType = fileTypeMap
-	m.folders.Init(b, store, mapCleanup)
+	m.folders.Init(b, store)
 	m.maps = make(map[uint64]*levelMap, len(m.links))
 	for id := range m.links {
 		key := strconv.FormatUint(id, 10)
@@ -71,6 +45,34 @@ func (m *mapsDir) Init(b *Battlemap) error {
 	}
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
+}
+
+func (m *mapsDir) Cleanup() {
+	m.folders.cleanup(func(id uint64) {
+		mp := m.maps[id]
+		if mp != nil {
+			delete(m.maps, id)
+			m.cleanupLayerWalk(mp, &mp.layer)
+		}
+	})
+}
+
+func (m *mapsDir) cleanupLayerWalk(mp *levelMap, layer *layer) {
+	for _, tk := range layer.Tokens {
+		m.cleanupTokenRemove(mp, layer, tk)
+	}
+	for _, l := range layer.Layers {
+		m.cleanupLayerWalk(mp, l)
+	}
+}
+
+func (m *mapsDir) cleanupTokenRemove(mp *levelMap, layer *layer, tk *token) {
+	if tk.Source > 0 {
+		m.images.removeHiddenLink(tk.Source)
+	}
+	if !bytes.Equal(tk.TokenData, zeroJSON) {
+		m.tokens.itemDeleteString(string(tk.TokenData))
+	}
 }
 
 type mapDetails struct {
