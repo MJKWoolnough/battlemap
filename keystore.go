@@ -66,20 +66,22 @@ type keystoreDir struct {
 	data map[string]keystoreMap
 }
 
-func (k *keystoreDir) cleanup(_ *Battlemap, id uint64) {
-	strID := strconv.FormatUint(id, 10)
-	ms, ok := k.data[strID]
-	if !ok {
-		return
-	}
-	for key, data := range ms {
-		if f := k.IsLinkKey(key); f != nil {
-			var id uint64
-			json.Unmarshal(data.Data, &id)
-			f.removeHiddenLink(id)
+func (k *keystoreDir) Cleanup() {
+	k.folders.cleanup(func(id uint64) {
+		strID := strconv.FormatUint(id, 10)
+		ms, ok := k.data[strID]
+		if !ok {
+			return
 		}
-	}
-	delete(k.data, strID)
+		for key, data := range ms {
+			if f := k.IsLinkKey(key); f != nil {
+				var id uint64
+				json.Unmarshal(data.Data, &id)
+				f.removeHiddenLink(id)
+			}
+		}
+		delete(k.data, strID)
+	})
 }
 
 func (k *keystoreDir) Init(b *Battlemap) error {
@@ -94,7 +96,7 @@ func (k *keystoreDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating keystore: %w", err)
 	}
 	k.fileType = fileTypeKeystore
-	if err := k.folders.Init(b, k.fileStore, k.cleanup); err != nil {
+	if err := k.folders.Init(b, k.fileStore); err != nil {
 		return fmt.Errorf("error parsing keystore folders: %w", err)
 	}
 	k.data = make(map[string]keystoreMap)
