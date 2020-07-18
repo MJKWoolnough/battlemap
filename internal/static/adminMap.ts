@@ -276,7 +276,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			tokenMousePos.width = selectedToken.width;
 			tokenMousePos.height = selectedToken.height;
 			tokenMousePos.rotation = selectedToken.rotation;
-		      }, "onkeypress": (e: KeyboardEvent) => {
+		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
 				switch (e.key) {
 				case 'z':
