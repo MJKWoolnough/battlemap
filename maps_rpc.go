@@ -307,7 +307,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
-			mapCleanupTokenRemove(m.Battlemap, mp, l, tk)
+			m.cleanupTokenRemove(mp, l, tk)
 			l.removeToken(tokenPos.Pos)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
