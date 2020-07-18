@@ -174,10 +174,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
-				const pos = getSelectedTokenPos();
-				selectedLayer!.tokens.splice(pos, 1);
-				unselectToken();
-				rpc.removeToken(selectedLayerPath, pos).catch(handleError);
+			const pos = getSelectedTokenPos();
+			selectedLayer!.tokens.splice(pos, 1);
+			unselectToken();
+			rpc.removeToken(selectedLayerPath, pos).catch(handleError);
 		      },
 		      unselectToken = () => {
 			selectedToken = null;
