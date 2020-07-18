@@ -241,23 +241,36 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
-			const pos = selectedLayer.tokens.push(SVGToken.from(token)) - 1;
-			let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
-			if (token.tokenData) {
-				p = p.then(id => {
-					tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
-					token.tokenData = id;
+			const l = selectedLayer,
+			      lp = selectedLayerPath,
+			      doIt = () => {
+				const pos = l.tokens.push(SVGToken.from(token)) - 1;
+				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
+				if (token.tokenData) {
+					p = p.then(id => {
+						tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
+						token.tokenData = id;
+					});
+				}
+				if (charID) {
+					p = p.then(() => rpc.tokenCreate(lp, pos))
+					.then(id => {
+						const data = {"store-character-id": {"user": false, "data": charID}};
+						tokenData.set(token.tokenData = id, data);
+						rpc.tokenSet(id, data)
+					})
+				}
+				p.catch(handleError);
+				undoList.push(() => {
+					if (selectedToken === token) {
+						unselectToken();
+					}
+					l.tokens.pop();
+					rpc.removeToken(lp, pos).catch(handleError);
+					redoList.push(doIt);
 				});
-			}
-			if (charID) {
-				p = p.then(() => rpc.tokenCreate(selectedLayerPath, pos))
-				.then(id => {
-					const data = {"store-character-id": {"user": false, "data": charID}};
-					tokenData.set(token.tokenData = id, data);
-					rpc.tokenSet(id, data)
-				})
-			}
-			p.catch(handleError);
+			};
+			doIt();
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
