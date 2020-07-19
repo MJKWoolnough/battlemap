@@ -24,9 +24,9 @@ class BoolSetting {
 class IntSetting {
 	name: string;
 	value: Int;
-	constructor(name: string) {
+	constructor(name: string, starting = "0") {
 		this.name = name;
-		this.value = parseInt(window.localStorage.getItem("name") || "0");
+		this.value = parseInt(window.localStorage.getItem("name") || starting);
 	}
 	set(i: Int) {
 		this.value = i;
@@ -38,7 +38,7 @@ const invert = new BoolSetting("invert");
 
 export const autosnap = new BoolSetting("autosnap"),
 scrollAmount = new IntSetting("scrollAmount"),
-undoLimit = new IntSetting("undoLimit");
+undoLimit = new IntSetting("undoLimit", "100");
 
 export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, loggedIn: boolean) {
 	const htmlElement = document.getElementsByTagName("html")[0];
