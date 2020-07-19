@@ -7,7 +7,7 @@ import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
-import {autosnap} from './settings.js';
+import {autosnap, undoLimit} from './settings.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
@@ -61,6 +61,15 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      {root, definitions, layerList} = globals,
 		      undoList: Function[] = [],
 		      redoList: Function[] = [],
+		      undoPush = (fn: Function) => {
+			if (undoLimit.value === 0) {
+				return;
+			}
+			if (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
+				undoList.shift();
+			}
+			undoList.push(fn);
+		      },
 		      clearUndo = () => {
 			undoList.splice(0, undoList.length);
 			redoList.splice(0, redoList.length);
@@ -182,7 +191,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				l.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(lp, pos).catch(handleError);
-				undoList.push(() => {
+				undoPush(() => {
 					l.tokens.splice(pos, 0, token);
 					rpc.addToken(lp, token).catch(handleError);
 					redoList.push(doIt);
@@ -272,7 +281,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					})
 				}
 				p.catch(handleError);
-				undoList.push(() => {
+				undoPush(() => {
 					if (selectedToken === token) {
 						unselectToken();
 					}
