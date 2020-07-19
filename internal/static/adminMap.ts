@@ -61,9 +61,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      {root, definitions, layerList} = globals,
 		      undoList: Function[] = [],
 		      redoList: Function[] = [],
-		      undoPush = (fn: Function) => {
+		      undoPush = (fn: Function, again: boolean) => {
 			if (undoLimit.value === 0) {
 				return;
+			}
+			if (!again) {
+				redoList.splice(0, redoList.length);
 			}
 			if (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
 				undoList.shift();
@@ -187,7 +190,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			      token = selectedToken as SVGToken,
 			      l = selectedLayer!,
 			      lp = selectedLayerPath,
-			      doIt = () => {
+			      doIt = (again = true) => {
 				l.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(lp, pos).catch(handleError);
@@ -195,9 +198,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					l.tokens.splice(pos, 0, token);
 					rpc.addToken(lp, token).catch(handleError);
 					redoList.push(doIt);
-				});
+				}, again);
 			      };
-			doIt();
+			doIt(false);
 		      },
 		      unselectToken = () => {
 			selectedToken = null;
@@ -263,7 +266,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			const l = selectedLayer,
 			      lp = selectedLayerPath,
-			      doIt = () => {
+			      doIt = (again = true) => {
 				const pos = l.tokens.push(SVGToken.from(token)) - 1;
 				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
 				if (token.tokenData) {
@@ -288,9 +291,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					l.tokens.pop();
 					rpc.removeToken(lp, pos).catch(handleError);
 					redoList.push(doIt);
-				});
+				}, again);
 			};
-			doIt();
+			doIt(false);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
