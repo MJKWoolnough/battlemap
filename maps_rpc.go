@@ -281,7 +281,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		var e error
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
 			if newToken.TokenData != nil && !bytes.Equal(newToken.TokenData, zeroJSON) {
-				if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData); e != nil {
+				if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData, true); e != nil {
 					return false
 				}
 				tokenID = newToken.TokenData

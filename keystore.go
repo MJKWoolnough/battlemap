@@ -318,13 +318,13 @@ func (t *tokensDir) RPCData(cd ConnData, method string, data json.RawMessage) (i
 	case "create", "list", "createFolder", "move", "moveFolder", "remove", "removeFolder", "link":
 		return nil, ErrUnknownMethod
 	case "clone":
-		return t.cloneData(data)
+		return t.cloneData(data, false)
 	default:
 		return t.keystoreDir.RPCData(cd, method, data)
 	}
 }
 
-func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
+func (t *tokensDir) cloneData(data json.RawMessage, setLink bool) (json.RawMessage, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	d, ok := t.data[string(data)]
@@ -333,6 +333,9 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	}
 	id, _ := strconv.ParseUint(string(data), 10, 64)
 	if l := t.links[id]; l == 0 {
+		if setLink {
+			t.links[id] = 1
+		}
 		return data, nil
 	}
 	m := make(keystoreMap)
@@ -347,7 +350,11 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	t.lastID++
 	kid := t.lastID
 	name := strconv.FormatUint(kid, 10)
-	t.links[kid] = 0
+	if setLink {
+		t.links[kid] = 1
+	} else {
+		t.links[kid] = 0
+	}
 	t.saveFolders()
 	t.data[name] = m
 	t.fileStore.Set(name, m)
