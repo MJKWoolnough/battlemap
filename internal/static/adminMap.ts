@@ -67,9 +67,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			if (!again) {
 				redoList.splice(0, redoList.length);
-			}
-			if (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
-				undoList.shift();
+				if (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
+					undoList.shift();
+				}
 			}
 			undoList.push(fn);
 		      },
