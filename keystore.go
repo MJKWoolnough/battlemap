@@ -331,6 +331,10 @@ func (t *tokensDir) cloneData(data json.RawMessage) (json.RawMessage, error) {
 	if !ok {
 		return nil, ErrItemNotFound
 	}
+	id, _ := strconv.ParseUint(string(data), 10, 64)
+	if l := t.links[id]; l == 0 {
+		return data, nil
+	}
 	m := make(keystoreMap)
 	for k, v := range d {
 		m[k] = v
