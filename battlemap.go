@@ -63,7 +63,10 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	} else {
 		b.auth = a
 	}
-	for module, init := range map[string]interface{ Init(b *Battlemap) error }{
+	mods := map[string]interface {
+		Init(b *Battlemap) error
+		Cleanup()
+	}{
 		"Socket":  &b.socket,
 		"Images":  &b.images,
 		"Sounds":  &b.sounds,
@@ -73,10 +76,14 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		"Masks":   &b.masks,
 		"Files":   &b.files,
 		"Plugins": &b.plugins,
-	} {
+	}
+	for module, init := range mods {
 		if err := init.Init(b); err != nil {
 			return fmt.Errorf(moduleError, module, err)
 		}
+	}
+	for _, cleanup := range mods {
+		cleanup.Cleanup()
 	}
 	return nil
 }
