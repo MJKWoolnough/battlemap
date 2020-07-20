@@ -165,23 +165,62 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			if (!selectedToken) {
 				return;
 			}
-			const {x, y, width, height, rotation} = tokenMousePos;
 			document.body.removeEventListener("mousemove", tokenDrag);
 			root.style.removeProperty("--outline-cursor");
-			tokenMousePos.x = selectedToken!.x = Math.round(selectedToken!.x);
-			tokenMousePos.y = selectedToken!.y = Math.round(selectedToken!.y);
-			tokenMousePos.rotation = selectedToken!.rotation = Math.round(selectedToken!.rotation);
-			tokenMousePos.width = selectedToken!.width = Math.round(selectedToken!.width);
-			tokenMousePos.height = selectedToken!.height = Math.round(selectedToken!.height);
-			selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
-			outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
-			selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
-			outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
-			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.transformString(false));
-			outline.focus();
-			if (tokenMousePos.x !== x || tokenMousePos.y !== y || tokenMousePos.width !== width || tokenMousePos.height !== height || tokenMousePos.rotation !== rotation) {
-				rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
+			const {x, y, width, height, rotation} = tokenMousePos,
+			      newX = Math.round(selectedToken!.x),
+			      newY = Math.round(selectedToken!.y),
+			      newRotation = Math.round(selectedToken!.rotation),
+			      newWidth = Math.round(selectedToken!.width),
+			      newHeight = Math.round(selectedToken!.height);
+			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
+				const token = selectedToken,
+				      tokenPos = getSelectedTokenPos(),
+				      lp = selectedLayerPath,
+				      doIt = (again = true) => {
+					token.x = newX;
+					token.y = newY;
+					token.rotation = newRotation;
+					token.width = newWidth;
+					token.height = newHeight;
+					token.node.setAttribute("width", newWidth.toString());
+					token.node.setAttribute("height", newHeight.toString());
+					token.updateNode();
+					if (token === selectedToken) {
+						tokenMousePos.x = newX;
+						tokenMousePos.y = newY;
+						tokenMousePos.rotation = newRotation;
+						tokenMousePos.width = newWidth;
+						tokenMousePos.height = newHeight;
+						outline.style.setProperty("--outline-width", newWidth + "px");
+						outline.style.setProperty("--outline-height", newHeight + "px");
+						outline.setAttribute("transform", token.transformString(false));
+					}
+					rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
+					undoPush(() => {
+						token.x = x;
+						token.y = y;
+						token.rotation = rotation;
+						token.width = width;
+						token.height = height;
+						token.node.setAttribute("width", width.toString());
+						token.node.setAttribute("height", height.toString());
+						token.updateNode();
+						if (token === selectedToken) {
+							tokenMousePos.x = x;
+							tokenMousePos.y = y;
+							tokenMousePos.rotation = rotation;
+							tokenMousePos.width = width;
+							tokenMousePos.height = height;
+							outline.style.setProperty("--outline-width", width + "px");
+							outline.style.setProperty("--outline-height", height + "px");
+							outline.setAttribute("transform", token.transformString(false));
+						}
+						rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
+						redoList.push(doIt);
+					}, again);
+				      };
+				doIt(false);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
