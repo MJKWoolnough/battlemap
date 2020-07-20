@@ -547,25 +547,69 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (selectedToken !== currToken) {
 						return;
 					}
-					rpc.setTokenSnap(selectedLayerPath, getSelectedTokenPos(), selectedToken!.snap = !selectedToken!.snap).catch(handleError);
-					if (selectedToken!.snap) {
-						const sq = mapData.gridSize,
-						      {x, y, width, height, rotation} = selectedToken!;
-						tokenMousePos.x = selectedToken!.x = Math.round(x / sq) * sq;
-						tokenMousePos.y = selectedToken!.y = Math.round(y / sq) * sq;
-						tokenMousePos.width = selectedToken!.width = Math.max(Math.round(width / sq) * sq, sq);
-						tokenMousePos.height = selectedToken!.height = Math.max(Math.round(height / sq) * sq, sq);
-						tokenMousePos.rotation = selectedToken!.rotation = Math.round(rotation / 32) * 32 % 256;
-						if (x !== selectedToken!.x || y !== selectedToken!.y || width !== selectedToken!.width || height !== selectedToken!.height || rotation !== selectedToken!.rotation) {
-							selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
-							outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
-							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
-							outline.style.setProperty("--outline-height", tokenMousePos.height + "px");
-							selectedToken!.updateNode();
-							outline.setAttribute("transform", selectedToken!.transformString(false));
-							rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
+					const lp = selectedLayerPath,
+					      tokenPos = getSelectedTokenPos(),
+					      snap = currToken.snap,
+					      sq = mapData.gridSize,
+					      {x, y, width, height, rotation} = currToken;
+					if (!snap) {
+						const newX = Math.round(x / sq) * sq,
+						      newY = Math.round(y / sq) * sq,
+						      newWidth = Math.max(Math.round(width / sq) * sq, sq),
+						      newHeight = Math.max(Math.round(height / sq) * sq, sq),
+						      newRotation = Math.round(rotation / 32) * 32 % 256;
+						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
+							const doIt = (again = true) => {
+								currToken.node.setAttribute("width", (currToken.width = newWidth).toString());
+								currToken.node.setAttribute("height", (currToken.height = newHeight).toString());
+								currToken.x = newX;
+								currToken.y = newY;
+								currToken.rotation = newRotation;
+								currToken.updateNode();
+								if (currToken === selectedToken) {
+									tokenMousePos.x = newX;
+									tokenMousePos.y = newY;
+									tokenMousePos.width = newWidth;
+									tokenMousePos.height = newHeight;
+									tokenMousePos.rotation = newRotation;
+									outline.style.setProperty("--outline-width", newWidth + "px");
+									outline.style.setProperty("--outline-height", newHeight + "px");
+									outline.setAttribute("transform", currToken.transformString(false));
+								}
+								rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
+								rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
+								undoPush(() => {
+									currToken.node.setAttribute("width", (currToken.width = width).toString());
+									currToken.node.setAttribute("height", (currToken.height = height).toString());
+									currToken.x = x;
+									currToken.y = y;
+									currToken.rotation = rotation;
+									currToken.updateNode();
+									if (currToken === selectedToken) {
+										outline.style.setProperty("--outline-width", (tokenMousePos.width = width) + "px");
+										outline.style.setProperty("--outline-height", (tokenMousePos.height = height) + "px");
+										tokenMousePos.x = x;
+										tokenMousePos.y = y;
+										tokenMousePos.rotation = rotation;
+										outline.setAttribute("transform", currToken.transformString(false));
+									}
+									rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
+									rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
+									redoList.push(doIt);
+								}, again);
+							};
+							doIt(false);
+							return;
 						}
 					}
+					const doIt = (again = true) => {
+						rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
+						undoPush(() => {
+							rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
+							redoList.push(doIt);
+						}, again);
+					      };
+					doIt(false);
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
