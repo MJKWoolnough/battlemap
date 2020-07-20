@@ -65,7 +65,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(parseInt(this.value));
 		}}),
-		label({"for": "undoLimit"}, "Undo Limit (-1 for infinite): "),
+		label({"for": "undoLimit"}, "Undo Limit (-1 for infinite, 0 to disable): "),
 		input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
 			undoLimit.set(parseInt(this.value));
 		}}),
