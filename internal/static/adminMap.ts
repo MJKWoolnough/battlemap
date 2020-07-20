@@ -526,13 +526,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					outline.focus();
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
-					if (selectedToken !== currToken || !(selectedToken instanceof SVGToken)) {
+					if (selectedToken !== currToken || !(currToken instanceof SVGToken)) {
 						return;
 					}
-					const pos = getSelectedTokenPos(),
-					      isPattern = selectedToken!.isPattern;
-					selectedToken.setPattern(!isPattern);
-					(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, pos).catch(handleError);
+					const tokenPos = getSelectedTokenPos(),
+					      lp = selectedLayerPath,
+					      isPattern = currToken.isPattern,
+					      doIt = (again = true) => {
+						currToken.setPattern(!isPattern);
+						(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, tokenPos).catch(handleError);
+						undoPush(() => {
+							currToken.setPattern(!isPattern);
+							(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(selectedLayerPath, tokenPos).catch(handleError);
+							redoList.push(doIt);
+						}, again);
+					      };
+					doIt(false);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					if (selectedToken !== currToken) {
