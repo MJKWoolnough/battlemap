@@ -487,10 +487,21 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (selectedToken !== currToken) {
 						return;
 					}
-					selectedToken!.flip = !selectedToken!.flip;
-					selectedToken!.updateNode();
+					const lp = selectedLayerPath,
+					      flip = !currToken.flip,
+					      doIt = (again = true) => {
+						currToken.flip = flip;
+						currToken.updateNode();
+						rpc.flipToken(lp, tokenPos, flip).catch(handleError);
+						undoPush(() => {
+							currToken.flip = !flip;
+							currToken.updateNode();
+							rpc.flipToken(lp, tokenPos, !flip).catch(handleError);
+							redoList.push(doIt);
+						}, again);
+					      };
+					doIt(false);
 					outline.focus();
-					rpc.flipToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flip).catch(handleError);
 				}),
 				item("Flop", () => {
 					if (selectedToken !== currToken) {
