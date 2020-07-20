@@ -488,6 +488,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return;
 					}
 					const lp = selectedLayerPath,
+					      tokenPos = getSelectedTokenPos(),
 					      flip = !currToken.flip,
 					      doIt = (again = true) => {
 						currToken.flip = flip;
@@ -508,6 +509,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return;
 					}
 					const lp = selectedLayerPath,
+					      tokenPos = getSelectedTokenPos(),
 					      flop = !currToken.flop,
 					      doIt = (again = true) => {
 						currToken.flop = flop;
