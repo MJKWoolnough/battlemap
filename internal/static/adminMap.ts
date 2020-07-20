@@ -556,7 +556,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						tokenMousePos.width = selectedToken!.width = Math.max(Math.round(width / sq) * sq, sq);
 						tokenMousePos.height = selectedToken!.height = Math.max(Math.round(height / sq) * sq, sq);
 						tokenMousePos.rotation = selectedToken!.rotation = Math.round(rotation / 32) * 32 % 256;
-						if (x !== selectedToken!.width || y !== selectedToken!.y || width !== selectedToken!.width || height !== selectedToken!.height || rotation !== selectedToken!.rotation) {
+						if (x !== selectedToken!.x || y !== selectedToken!.y || width !== selectedToken!.width || height !== selectedToken!.height || rotation !== selectedToken!.rotation) {
 							selectedToken!.node.setAttribute("width", tokenMousePos.width.toString());
 							outline.style.setProperty("--outline-width", tokenMousePos.width + "px");
 							selectedToken!.node.setAttribute("height", tokenMousePos.height.toString());
