@@ -657,7 +657,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					}
 					const pos = getSelectedTokenPos();
 					unselectToken();
-					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0])
+					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
 					rpc.setTokenLayer(selectedLayerPath, pos, path).catch(handleError)
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
