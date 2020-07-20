@@ -334,30 +334,33 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}
 			}
 		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+			if (!selectedToken) {
+				return;
+			}
 			if (e.key === "Delete") {
 				deleteToken();
 				return;
 			}
+			let newX = selectedToken.x,
+			    newY = selectedToken.y;
 			if (selectedToken && selectedToken!.snap) {
 				const sq = mapData.gridSize;
 				switch (e.key) {
 				case "ArrowUp":
-					selectedToken.y -= sq;
+					newY -= sq;
 					break;
 				case "ArrowDown":
-					selectedToken.y += sq;
+					newY += sq;
 					break;
 				case "ArrowLeft":
-					selectedToken.x -= sq;
+					newX -= sq;
 					break;
 				case "ArrowRight":
-					selectedToken.x += sq;
+					newX += sq;
 					break;
 				default:
 					return;
 				}
-				selectedToken.updateNode();
-				outline.setAttribute("transform", selectedToken.transformString(false));
 			} else {
 				switch (e.key) {
 				case "ArrowUp":
@@ -369,9 +372,35 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return;
 				}
 			}
-			tokenMousePos.x = selectedToken!.x;
-			tokenMousePos.y = selectedToken!.y;
-			rpc.setToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.x, selectedToken!.y, selectedToken!.width, selectedToken!.height, selectedToken!.rotation).catch(handleError);
+			const oldX = tokenMousePos.x,
+			      oldY = tokenMousePos.y,
+			      token = selectedToken,
+			      tokenPos = getSelectedTokenPos(),
+			      lp = selectedLayerPath,
+			      doIt = (again = true) => {
+				token.x = newX;
+				token.y = newY;
+				token.updateNode();
+				if (selectedToken === token) {
+					tokenMousePos.x = newX;
+					tokenMousePos.y = newY;
+					outline.setAttribute("transform", token.transformString(false));
+				}
+				rpc.setToken(lp, tokenPos, newX, newY, token.width, token.height, token.rotation).catch(handleError);
+				undoPush(() => {
+					token.x = oldX;
+					token.y = oldY;
+					token.updateNode();
+					if (selectedToken === token) {
+						tokenMousePos.x = oldX;
+						tokenMousePos.y = oldY;
+						outline.setAttribute("transform", token.transformString(false));
+					}
+					rpc.setToken(lp, tokenPos, oldX, oldY, token.width, token.height, token.rotation).catch(handleError);
+					redoList.push(doIt);
+				}, again);
+			      };
+			doIt(false);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
