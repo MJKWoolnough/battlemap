@@ -507,10 +507,21 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (selectedToken !== currToken) {
 						return;
 					}
-					selectedToken!.flop = !selectedToken!.flop;
-					selectedToken!.updateNode();
+					const lp = selectedLayerPath,
+					      flop = !currToken.flop,
+					      doIt = (again = true) => {
+						currToken.flop = flop;
+						currToken.updateNode();
+						rpc.flopToken(lp, tokenPos, flop).catch(handleError);
+						undoPush(() => {
+							currToken.flop = !flop;
+							currToken.updateNode();
+							rpc.flopToken(lp, tokenPos, !flop).catch(handleError);
+							redoList.push(doIt);
+						}, again);
+					      };
+					doIt(false);
 					outline.focus();
-					rpc.flopToken(selectedLayerPath, getSelectedTokenPos(), selectedToken!.flop).catch(handleError);
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
 					if (selectedToken !== currToken || !(selectedToken instanceof SVGToken)) {
