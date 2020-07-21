@@ -8,6 +8,7 @@ import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap, undoLimit} from './settings.js';
+import {addUndo} from './undo.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
@@ -178,7 +179,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				const token = selectedToken,
 				      tokenPos = getSelectedTokenPos(),
 				      lp = selectedLayerPath,
-				      doIt = (again = true) => {
+				      doIt = () => {
 					token.x = newX;
 					token.y = newY;
 					token.rotation = newRotation;
@@ -198,7 +199,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						outline.setAttribute("transform", token.transformString(false));
 					}
 					rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
-					undoPush(() => {
+					return () => {
 						token.x = x;
 						token.y = y;
 						token.rotation = rotation;
@@ -218,10 +219,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							outline.setAttribute("transform", token.transformString(false));
 						}
 						rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
-						redoList.push(doIt);
-					}, again);
+						return doIt;
+					};
 				      };
-				doIt(false);
+				addUndo(doIt);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -230,17 +231,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			      token = selectedToken as SVGToken,
 			      l = selectedLayer!,
 			      lp = selectedLayerPath,
-			      doIt = (again = true) => {
+			      doIt = () => {
 				l.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(lp, pos).catch(handleError);
-				undoPush(() => {
+				return () => {
 					l.tokens.splice(pos, 0, token);
 					rpc.addToken(lp, token).catch(handleError);
-					redoList.push(doIt);
-				}, again);
+					return doIt;
+				};
 			      };
-			doIt(false);
+			addUndo(doIt);
 		      },
 		      unselectToken = () => {
 			selectedToken = null;
@@ -306,7 +307,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			const l = selectedLayer,
 			      lp = selectedLayerPath,
-			      doIt = (again = true) => {
+			      doIt = () => {
 				const pos = l.tokens.push(SVGToken.from(token)) - 1;
 				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
 				if (token.tokenData) {
@@ -324,16 +325,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					})
 				}
 				p.catch(handleError);
-				undoPush(() => {
+				return () => {
 					if (selectedToken === token) {
 						unselectToken();
 					}
 					l.tokens.pop();
 					rpc.removeToken(lp, pos).catch(handleError);
-					redoList.push(doIt);
-				}, again);
+					return doIt;
+				};
 			};
-			doIt(false);
+			addUndo(doIt);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
@@ -417,7 +418,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			      token = selectedToken,
 			      tokenPos = getSelectedTokenPos(),
 			      lp = selectedLayerPath,
-			      doIt = (again = true) => {
+			      doIt = () => {
 				token.x = newX;
 				token.y = newY;
 				token.updateNode();
@@ -427,7 +428,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					outline.setAttribute("transform", token.transformString(false));
 				}
 				rpc.setToken(lp, tokenPos, newX, newY, token.width, token.height, token.rotation).catch(handleError);
-				undoPush(() => {
+				return () => {
 					token.x = oldX;
 					token.y = oldY;
 					token.updateNode();
@@ -437,10 +438,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						outline.setAttribute("transform", token.transformString(false));
 					}
 					rpc.setToken(lp, tokenPos, oldX, oldY, token.width, token.height, token.rotation).catch(handleError);
-					redoList.push(doIt);
-				}, again);
+					return doIt;
+				};
 			      };
-			doIt(false);
+			addUndo(doIt);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
@@ -491,18 +492,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					const lp = selectedLayerPath,
 					      tokenPos = getSelectedTokenPos(),
 					      flip = !currToken.flip,
-					      doIt = (again = true) => {
+					      doIt = () => {
 						currToken.flip = flip;
 						currToken.updateNode();
 						rpc.flipToken(lp, tokenPos, flip).catch(handleError);
-						undoPush(() => {
+						return () => {
 							currToken.flip = !flip;
 							currToken.updateNode();
 							rpc.flipToken(lp, tokenPos, !flip).catch(handleError);
-							redoList.push(doIt);
-						}, again);
+							return doIt;
+						};
 					      };
-					doIt(false);
+					addUndo(doIt);
 					outline.focus();
 				}),
 				item("Flop", () => {
@@ -512,18 +513,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					const lp = selectedLayerPath,
 					      tokenPos = getSelectedTokenPos(),
 					      flop = !currToken.flop,
-					      doIt = (again = true) => {
+					      doIt = () => {
 						currToken.flop = flop;
 						currToken.updateNode();
 						rpc.flopToken(lp, tokenPos, flop).catch(handleError);
-						undoPush(() => {
+						return () => {
 							currToken.flop = !flop;
 							currToken.updateNode();
 							rpc.flopToken(lp, tokenPos, !flop).catch(handleError);
-							redoList.push(doIt);
-						}, again);
+							return doIt;
+						};
 					      };
-					doIt(false);
+					addUndo(doIt);
 					outline.focus();
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
@@ -533,16 +534,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					const tokenPos = getSelectedTokenPos(),
 					      lp = selectedLayerPath,
 					      isPattern = currToken.isPattern,
-					      doIt = (again = true) => {
+					      doIt = () => {
 						currToken.setPattern(!isPattern);
 						(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, tokenPos).catch(handleError);
-						undoPush(() => {
+						return () => {
 							currToken.setPattern(!isPattern);
 							(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(selectedLayerPath, tokenPos).catch(handleError);
-							redoList.push(doIt);
-						}, again);
+							return doIt;
+						};
 					      };
-					doIt(false);
+					addUndo(doIt);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					if (selectedToken !== currToken) {
@@ -560,7 +561,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						      newHeight = Math.max(Math.round(height / sq) * sq, sq),
 						      newRotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
-							const doIt = (again = true) => {
+							const doIt = () => {
 								currToken.node.setAttribute("width", (currToken.width = newWidth).toString());
 								currToken.node.setAttribute("height", (currToken.height = newHeight).toString());
 								currToken.x = newX;
@@ -579,7 +580,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 								}
 								rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
 								rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
-								undoPush(() => {
+								return () => {
 									currToken.node.setAttribute("width", (currToken.width = width).toString());
 									currToken.node.setAttribute("height", (currToken.height = height).toString());
 									currToken.x = x;
@@ -596,21 +597,21 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 									}
 									rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
 									rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
-									redoList.push(doIt);
-								}, again);
+									return doIt;
+								};
 							};
-							doIt(false);
+							addUndo(doIt);
 							return;
 						}
 					}
-					const doIt = (again = true) => {
+					const doIt = () => {
 						rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
-						undoPush(() => {
+						return () => {
 							rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
-							redoList.push(doIt);
-						}, again);
+							return doIt;
+						};
 					      };
-					doIt(false);
+					addUndo(doIt);
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
