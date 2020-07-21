@@ -63,6 +63,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		      redoList: Function[] = [],
 		      undoPush = (fn: Function, again: boolean) => {
 			if (undoLimit.value === 0) {
+				undoList.splice(0, undoList.length);
+				redoList.splice(0, redoList.length);
 				return;
 			}
 			if (!again) {
