@@ -594,9 +594,20 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						if (selectedToken !== currToken) {
 							return;
 						}
-						const pos = getSelectedTokenPos();
-						selectedLayer!.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, selectedLayer!.tokens.length-1).catch(handleError);
+						const tokenPos = getSelectedTokenPos(),
+						      l = selectedLayer!,
+						      newPos = l.tokens.length - 1,
+						      lp = selectedLayerPath,
+						      doIt = () => {
+							l.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
+							rpc.setTokenPos(lp, tokenPos, newPos).catch(handleError);
+							return () => {
+								l.tokens.splice(tokenPos, 0, l.tokens.pop()!);
+								rpc.setTokenPos(lp, newPos, tokenPos).catch(handleError);
+								return doIt;
+							};
+						      };
+						addUndo(doIt);
 					}),
 					item(`Move Up`, () => {
 						if (selectedToken !== currToken) {
