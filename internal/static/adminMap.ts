@@ -7,8 +7,8 @@ import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
-import {autosnap, undoLimit} from './settings.js';
-import {addUndo} from './undo.js';
+import {autosnap} from './settings.js';
+import {addUndo, undo, redo, clearUndo} from './undo.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
@@ -56,29 +56,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 	let canceller = () => {};
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
+		clearUndo();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
-		      undoList: Function[] = [],
-		      redoList: Function[] = [],
-		      undoPush = (fn: Function, again: boolean) => {
-			if (undoLimit.value === 0) {
-				clearUndo();
-				return;
-			}
-			if (!again) {
-				redoList.splice(0, redoList.length);
-				while (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
-					undoList.shift();
-				}
-			}
-			undoList.push(fn);
-		      },
-		      clearUndo = () => {
-			undoList.splice(0, undoList.length);
-			redoList.splice(0, redoList.length);
-		      },
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
@@ -358,19 +340,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				switch (e.key) {
 				case 'z':
 					if (!e.shiftKey) {
-						const undo = undoList.pop();
-						if (undo) {
-							undo();
-						}
+						undo();
 						e.preventDefault();
 						break;
 					}
 				case 'r':
 				case 'y':
-					const redo = redoList.pop();
-					if (redo) {
-						redo();
-					}
+					redo();
 					e.preventDefault();
 				}
 			}
