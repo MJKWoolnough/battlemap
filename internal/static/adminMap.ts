@@ -655,9 +655,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						if (selectedToken !== currToken) {
 							return;
 						}
-						const pos = getSelectedTokenPos();
-						selectedLayer!.tokens.unshift(selectedLayer!.tokens.splice(pos, 1)[0]);
-						rpc.setTokenPos(selectedLayerPath, pos, 0).catch(handleError);
+						const tokenPos = getSelectedTokenPos(),
+						      l = selectedLayer!,
+						      lp = selectedLayerPath,
+						      doIt = () => {
+							l.tokens.unshift(l.tokens.splice(tokenPos, 1)[0]);
+							rpc.setTokenPos(lp, tokenPos, 0).catch(handleError);
+							return () => {
+								l.tokens.splice(tokenPos, 0, l.tokens.shift()!);
+								rpc.setTokenPos(lp, 0, tokenPos).catch(handleError);
+								return doIt;
+							};
+						      };
+						addUndo(doIt);
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
