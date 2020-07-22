@@ -237,6 +237,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				       selectedLayer  = null;
 				}
 			});
+			clearUndo();
 			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
