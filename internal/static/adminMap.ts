@@ -748,7 +748,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return rpc.moveLayer(from, to, pos);
 			},
 			"getMapDetails": () => mapData,
-			"setMapDetails": (details: MapDetails) => rpc.setMapDetails(setMapDetails(details)),
+			"setMapDetails": (details: MapDetails) => {
+				const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
+				      doIt = () => {
+					rpc.setMapDetails(setMapDetails(oldDetails))
+					return () => {
+						rpc.setMapDetails(setMapDetails(details))
+						return doIt;
+					};
+				      };
+				addUndo(() => doIt);
+				return rpc.setMapDetails(setMapDetails(details))
+			},
 			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => {
 				const oldColour = mapData.lightColour,
