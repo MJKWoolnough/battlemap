@@ -742,22 +742,32 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, pos: Int, oldPos: Int) => {
+			"moveLayer": (from: string, to: string, position: Int, oldPos: Int) => {
 				const doIt = () => {
 					unselectToken();
 					moveLayer(to, from, oldPos);
 					rpc.moveLayer(to, from, oldPos);
+					waitLayerPositionChange[0]({
+						"from": to,
+						"to": from,
+						"position": oldPos
+					});
 					return () => {
 						unselectToken();
-						moveLayer(from, to, pos);
-						rpc.moveLayer(from, to, pos);
+						moveLayer(from, to, position);
+						rpc.moveLayer(from, to, position);
+						waitLayerPositionChange[0]({
+							to,
+							from,
+							position
+						});
 						return doIt;
 					};
 				      };
 				addUndo(() => doIt);
 				unselectToken();
-				moveLayer(from, to, pos);
-				return rpc.moveLayer(from, to, pos);
+				moveLayer(from, to, position);
+				return rpc.moveLayer(from, to, position);
 			},
 			"getMapDetails": () => mapData,
 			"setMapDetails": (details: MapDetails) => {
