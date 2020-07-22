@@ -83,7 +83,7 @@ function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
 		}
 		newPath = (this.parent as FolderLayer).getPath();
 	}
-	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos), sh).catch(handleError);
+	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh).catch(handleError);
 }
 
 function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
