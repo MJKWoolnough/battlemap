@@ -719,13 +719,21 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"link": invalidRPC,
 			"newLayer": (name: string) => rpc.addLayer(name).then(addLayer),
 			"setVisibility": (path: string, visibility: boolean) => {
+				const doIt = () => {
+					checkLayer(path);
+					setLayerVisibility(path, !visibility);
+					(!visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
+					return () => {
+						checkLayer(path);
+						setLayerVisibility(path, visibility);
+						(visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
+						return doIt;
+					};
+				      };
+				addUndo(() => doIt);
 				setLayerVisibility(path, visibility);
 				checkLayer(path);
-				if (visibility) {
-					return rpc.showLayer(path);
-				} else {
-					return rpc.hideLayer(path);
-				}
+				return (!visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
 				selectedLayer = getLayer(layerList, path) as SVGLayer;
