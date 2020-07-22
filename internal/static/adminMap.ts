@@ -750,7 +750,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"getMapDetails": () => mapData,
 			"setMapDetails": (details: MapDetails) => rpc.setMapDetails(setMapDetails(details)),
 			"getLightColour": () => mapData.lightColour,
-			"setLightColour": (c: Colour) => rpc.setLightColour(setLightColour(c)),
+			"setLightColour": (c: Colour) => {
+				const oldColour = mapData.lightColour,
+				      doIt = () => {
+					rpc.setLightColour(setLightColour(oldColour))
+					return () => {
+						rpc.setLightColour(setLightColour(c))
+						return doIt;
+					};
+				      };
+				addUndo(() => doIt);
+				return rpc.setLightColour(setLightColour(c))
+			},
 		});
 		oldBase = base;
 		canceller = Subscription.canceller(
