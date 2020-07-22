@@ -674,10 +674,25 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					if (selectedToken !== currToken) {
 						return;
 					}
-					const pos = getSelectedTokenPos();
-					unselectToken();
-					this.tokens.push(selectedLayer!.tokens.splice(pos, 1)[0]);
-					rpc.setTokenLayer(selectedLayerPath, pos, path).catch(handleError)
+					const tokenPos = getSelectedTokenPos(),
+					      l = selectedLayer!,
+					      lp = selectedLayerPath,
+					      doIt = () => {
+						if (currToken === selectedToken) {
+							unselectToken();
+						}
+						this.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
+						rpc.setTokenLayer(lp, tokenPos, path).catch(handleError);
+						return () => {
+							if (currToken === selectedToken) {
+								unselectToken();
+							}
+							l.tokens.splice(tokenPos, 0, this.tokens.pop()!);
+							rpc.setTokenLayer(path, this.tokens.length, lp).then(() => rpc.setTokenPos(path, l.tokens.length - 1, tokenPos)).catch(handleError);
+							return doIt;
+						};
+					      };
+					addUndo(doIt);
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
