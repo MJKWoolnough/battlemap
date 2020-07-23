@@ -8,7 +8,7 @@ import {ShellElement} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
-import {addUndo, undo, redo, clearUndo} from './undo.js';
+import Undo from './undo.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
@@ -56,11 +56,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 	let canceller = () => {};
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
-		clearUndo();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
+		      undo = new Undo(),
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
@@ -204,7 +204,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return doIt;
 					};
 				      };
-				addUndo(doIt);
+				undo.add(doIt);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -223,7 +223,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return doIt;
 				};
 			      };
-			addUndo(doIt);
+			undo.add(doIt);
 		      },
 		      unselectToken = () => {
 			selectedToken = null;
@@ -237,7 +237,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				       selectedLayer  = null;
 				}
 			});
-			clearUndo();
+			undo.clear();
 			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
@@ -317,7 +317,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return doIt;
 				};
 			};
-			addUndo(doIt);
+			undo.add(doIt);
 		      }, "onmousedown": (e: MouseEvent) => {
 			if (!selectedLayer || e.button !== 0) {
 				return;
@@ -341,13 +341,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				switch (e.key) {
 				case 'z':
 					if (!e.shiftKey) {
-						undo();
+						undo.undo();
 						e.preventDefault();
 						break;
 					}
 				case 'r':
 				case 'y':
-					redo();
+					undo.redo();
 					e.preventDefault();
 				}
 			}
@@ -418,7 +418,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return doIt;
 				};
 			      };
-			addUndo(doIt);
+			undo.add(doIt);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
@@ -480,7 +480,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							return doIt;
 						};
 					      };
-					addUndo(doIt);
+					undo.add(doIt);
 					outline.focus();
 				}),
 				item("Flop", () => {
@@ -501,7 +501,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							return doIt;
 						};
 					      };
-					addUndo(doIt);
+					undo.add(doIt);
 					outline.focus();
 				}),
 				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
@@ -520,7 +520,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							return doIt;
 						};
 					      };
-					addUndo(doIt);
+					undo.add(doIt);
 				}),
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					if (selectedToken !== currToken) {
@@ -577,7 +577,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 									return doIt;
 								};
 							};
-							addUndo(doIt);
+							undo.add(doIt);
 							return;
 						}
 					}
@@ -588,7 +588,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							return doIt;
 						};
 					      };
-					addUndo(doIt);
+					undo.add(doIt);
 				}),
 				tokenPos < selectedLayer!.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
@@ -608,7 +608,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 								return doIt;
 							};
 						      };
-						addUndo(doIt);
+						undo.add(doIt);
 					}),
 					item(`Move Up`, () => {
 						if (selectedToken !== currToken) {
@@ -627,7 +627,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 									return doIt;
 								};
 							      };
-							addUndo(doIt);
+							undo.add(doIt);
 						}
 					})
 				] : [],
@@ -649,7 +649,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 									return doIt;
 								};
 							      };
-							addUndo(doIt);
+							undo.add(doIt);
 						}
 					}),
 					item(`Move to Bottom`, () => {
@@ -668,7 +668,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 								return doIt;
 							};
 						      };
-						addUndo(doIt);
+						undo.add(doIt);
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
@@ -693,7 +693,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							return doIt;
 						};
 					      };
-					addUndo(doIt);
+					undo.add(doIt);
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
@@ -731,7 +731,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return undoIt;
 					};
 				      };
-				addUndo(() => undoIt);
+				undo.add(() => undoIt);
 				setLayerVisibility(path, visibility);
 				checkLayer(path);
 				return (!visibility ? rpc.showLayer : rpc.hideLayer)(path);
@@ -764,7 +764,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return undoIt;
 					};
 				      };
-				addUndo(() => undoIt);
+				undo.add(() => undoIt);
 				unselectToken();
 				moveLayer(from, to, position);
 				return rpc.moveLayer(from, to, position);
@@ -779,7 +779,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return undoIt;
 					};
 				      };
-				addUndo(() => undoIt);
+				undo.add(() => undoIt);
 				return rpc.setMapDetails(setMapDetails(details))
 			},
 			"getLightColour": () => mapData.lightColour,
@@ -792,7 +792,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						return undoIt;
 					};
 				      };
-				addUndo(() => undoIt);
+				undo.add(() => undoIt);
 				return rpc.setLightColour(setLightColour(c))
 			},
 		});
@@ -803,7 +803,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
 					tokenMouseUp();
 				}
-				clearUndo();
+				undo.clear();
 			}),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
 			rpc.waitLayerHide().then(checkLayer),
@@ -815,7 +815,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}
 				(isSVGFolder(layer) ? waitFolderMoved : waitMoved)[0](ml);
 				waitLayerPositionChange[0](ml);
-				clearUndo();
+				undo.clear();
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
@@ -825,7 +825,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					return;
 				}
 				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
-				clearUndo();
+				undo.clear();
 			}),
 			...([
 				rpc.waitLayerRename,
@@ -843,7 +843,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				rpc.waitTokenSourceChange,
 				rpc.waitTokenSetData,
 				rpc.waitTokenUnsetData
-			] as (() => Subscription<any>)[]).map(p => p().then(clearUndo))
+			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
 		);
 	}));
 }
