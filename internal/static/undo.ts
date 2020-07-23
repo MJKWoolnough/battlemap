@@ -11,11 +11,11 @@ export const clearUndo = () => {
 },
 addUndo = (fn: Fn) => {
 	const undo = fn();
+	redoList.splice(0, redoList.length);
 	if (undoLimit.value === 0) {
-		clearUndo();
+		undoList.splice(0, undoList.length);
 		return;
 	}
-	redoList.splice(0, redoList.length);
 	while (undoLimit.value !== -1 && undoList.length >= undoLimit.value) {
 		undoList.shift();
 	}
