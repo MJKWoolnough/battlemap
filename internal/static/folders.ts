@@ -36,10 +36,10 @@ export class Item {
 		this.name = name;
 		this.parent = parent;
 		this.node = li({"class": "foldersItem"}, [
-			span(name, {"class": "item", "onclick": this.show.bind(this)}),
-			span({"class": "itemRename", "onclick": this.rename.bind(this)}),
-			span({"class": "itemLink", "onclick": this.link.bind(this)}),
-			span({"class": "itemRemove", "onclick": this.remove.bind(this)}),
+			span(name, {"class": "item", "onclick": () => this.show()}),
+			span({"class": "itemRename", "onclick": () => this.rename()}),
+			span({"class": "itemLink", "onclick": () => this.link()}),
+			span({"class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
 	show() {}
@@ -171,9 +171,9 @@ export class Folder {
 			details([
 				summary([
 					span(name),
-					span({"class": "renameFolder", "onclick": this.rename.bind(this)}),
-					span({"class": "addFolder", "onclick": this.newFolder.bind(this)}),
-					span({"class": "removeFolder", "onclick": this.remove.bind(this)})
+					span({"class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
+					span({"class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
+					span({"class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
 				this.children.node,
 			])
