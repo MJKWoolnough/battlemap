@@ -11,7 +11,7 @@ import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {noColour, handleError} from './misc.js';
 
-const makeLayerContext = (folder: SVGFolder, fn: (path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, fn.bind(e, path + e.name), {"disabled": e.name === disabled})),
+const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
 	mDx *= dX;
 	mDy *= dY;
@@ -671,7 +671,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						undo.add(doIt);
 					})
 				] : [],
-				menu("Move To Layer", makeLayerContext(layerList, function(this: SVGLayer, path: string) {
+				menu("Move To Layer", makeLayerContext(layerList, (sl: SVGLayer, path: string) => {
 					if (selectedToken !== currToken) {
 						return;
 					}
@@ -682,14 +682,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						if (currToken === selectedToken) {
 							unselectToken();
 						}
-						this.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
+						sl.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
 						rpc.setTokenLayer(lp, tokenPos, path).catch(handleError);
 						return () => {
 							if (currToken === selectedToken) {
 								unselectToken();
 							}
-							l.tokens.splice(tokenPos, 0, this.tokens.pop()!);
-							rpc.setTokenLayer(path, this.tokens.length, lp).then(() => rpc.setTokenPos(path, l.tokens.length - 1, tokenPos)).catch(handleError);
+							l.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
+							rpc.setTokenLayer(path, sl.tokens.length, lp).then(() => rpc.setTokenPos(path, l.tokens.length - 1, tokenPos)).catch(handleError);
 							return doIt;
 						};
 					      };
