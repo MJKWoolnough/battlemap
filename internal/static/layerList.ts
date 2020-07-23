@@ -51,56 +51,54 @@ const dragFn = (e: MouseEvent) => {
 			.finally(() => this.removeAttribute("disabled"));
 		}})
 	]);
-      };
-
-function dragPlace(this: ItemLayer | FolderLayer, beforeAfter: boolean) {
-	if (dragging!.id < 0 && this.parent !== dragging!.parent) {
+      },
+      dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
+	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
 		return;
 	}
 	const currPos = dragging!.parent!.children.indexOf(dragging!),
 	      oldPath = dragging!.getPath();
 	let pos: Int,
 	    newPath: string;
-	if (dragging!.id >= 0 && beforeAfter && isFolder(this) && this.open.open) {
+	if (dragging!.id >= 0 && beforeAfter && isFolder(l) && l.open.open) {
 		pos = 0;
 		dragging!.parent!.children.splice(currPos, 1);
-		this.children.unshift(dragging!);
-		newPath = this.getPath();
-		dragging!.parent = this;
+		l.children.unshift(dragging!);
+		newPath = l.getPath();
+		dragging!.parent = l;
 	} else {
-		pos = this.parent!.children.indexOf(this) + (beforeAfter ? 1 : 0);
-		if (this.parent === dragging!.parent) {
+		pos = l.parent!.children.indexOf(l) + (beforeAfter ? 1 : 0);
+		if (l.parent === dragging!.parent) {
 			pos -= pos > currPos ? 1 : 0;
 			if (pos === currPos) {
 				return;
 			}
-			this.parent!.children.splice(currPos, 1);
-			this.parent!.children.splice(pos, 0, dragging!);
+			l.parent!.children.splice(currPos, 1);
+			l.parent!.children.splice(pos, 0, dragging!);
 		} else {
 			dragging!.parent!.children.splice(currPos, 1);
-			this.parent!.children.splice(pos, 0, dragging!);
-			dragging!.parent = this.parent;
+			l.parent!.children.splice(pos, 0, dragging!);
+			dragging!.parent = l.parent;
 		}
-		newPath = (this.parent as FolderLayer).getPath();
+		newPath = (l.parent as FolderLayer).getPath();
 	}
-	loadingWindow((this.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh).catch(handleError);
-}
-
-function dragStart(this: ItemLayer | FolderLayer, e: MouseEvent) {
+	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh).catch(handleError);
+      },
+      dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging) {
 		return;
 	}
-	if (this.id < 0) {
+	if (l.id < 0) {
 		dragBase.classList.add("draggingSpecial");
 	}
-	dragOffset = this.nameElem.offsetLeft - e.clientX;
-	for (let e = this.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
+	dragOffset = l.nameElem.offsetLeft - e.clientX;
+	for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
 		dragOffset += e.offsetLeft!;
 	}
-	dragging = this;
+	dragging = l;
 	document.body.addEventListener("mousemove", dragFn);
 	document.body.addEventListener("mouseup", dropFn, {"once": true});
-}
+      ;}
 
 class ItemLayer extends Item {
 	hidden: boolean;
@@ -123,9 +121,9 @@ class ItemLayer extends Item {
 			this.node.classList.add("layerHidden");
 		}
 		this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.node.firstChild);
-		this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
-		this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
-		this.nameElem.addEventListener("mousedown", dragStart.bind(this));
+		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
+		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
+		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
 	}
 	show() {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
@@ -240,13 +238,13 @@ class FolderLayer extends Folder {
 				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError);
 				e.preventDefault()
 			}}), this.node.firstChild!.firstChild!.firstChild);
-			this.node.appendChild(div({"class": "dragBefore", "onmouseup": dragPlace.bind(this, false)}));
-			this.node.appendChild(div({"class": "dragAfter", "onmouseup": dragPlace.bind(this, true)}));
+			this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
+			this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
 				if (this.open.open) {
 					return;
 				}
-				dragStart.call(this, e);
+				dragStart(this, e);
 			});
 			this.node.insertBefore(div(Array.from(this.node.childNodes).filter(e => !(e instanceof HTMLUListElement || e instanceof HTMLInputElement))), this.node.lastChild);
 		}
