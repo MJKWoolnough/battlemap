@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Int, LayerFolder, LayerTo
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
-import {colour2RGBA, noColour, handleError} from './misc.js';
+import {colour2RGBA, handleError} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
