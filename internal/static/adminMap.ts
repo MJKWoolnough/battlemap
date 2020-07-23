@@ -720,7 +720,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"link": invalidRPC,
 			"newLayer": (name: string) => rpc.addLayer(name).then(addLayer),
 			"setVisibility": (path: string, visibility: boolean) => {
-				const doIt = () => {
+				const undoIt = () => {
 					checkLayer(path);
 					setLayerVisibility(path, !visibility);
 					(!visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
@@ -728,10 +728,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 						checkLayer(path);
 						setLayerVisibility(path, visibility);
 						(visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
-						return doIt;
+						return undoIt;
 					};
 				      };
-				addUndo(() => doIt);
+				addUndo(() => undoIt);
 				setLayerVisibility(path, visibility);
 				checkLayer(path);
 				return (!visibility ? rpc.showLayer : rpc.hideLayer)(path);
@@ -743,7 +743,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, position: Int, oldPos: Int) => {
-				const doIt = () => {
+				const undoIt = () => {
 					unselectToken();
 					moveLayer(to, from, oldPos);
 					rpc.moveLayer(to, from, oldPos);
@@ -761,10 +761,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 							from,
 							position
 						});
-						return doIt;
+						return undoIt;
 					};
 				      };
-				addUndo(() => doIt);
+				addUndo(() => undoIt);
 				unselectToken();
 				moveLayer(from, to, position);
 				return rpc.moveLayer(from, to, position);
@@ -772,27 +772,27 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			"getMapDetails": () => mapData,
 			"setMapDetails": (details: MapDetails) => {
 				const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
-				      doIt = () => {
+				      undoIt = () => {
 					rpc.setMapDetails(setMapDetails(oldDetails))
 					return () => {
 						rpc.setMapDetails(setMapDetails(details))
-						return doIt;
+						return undoIt;
 					};
 				      };
-				addUndo(() => doIt);
+				addUndo(() => undoIt);
 				return rpc.setMapDetails(setMapDetails(details))
 			},
 			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => {
 				const oldColour = mapData.lightColour,
-				      doIt = () => {
+				      undoIt = () => {
 					rpc.setLightColour(setLightColour(oldColour))
 					return () => {
 						rpc.setLightColour(setLightColour(c))
-						return doIt;
+						return undoIt;
 					};
 				      };
-				addUndo(() => doIt);
+				addUndo(() => undoIt);
 				return rpc.setLightColour(setLightColour(c))
 			},
 		});
