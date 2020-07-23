@@ -813,11 +813,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					handleError("Invalid layer move");
 					return;
 				}
-				if (isSVGFolder(layer)) {
-					waitFolderMoved[0](ml);
-				} else {
-					waitMoved[0](ml);
-				}
+				(isSVGFolder(layer) ? waitFolderMoved : waitMoved)[0](ml);
 				waitLayerPositionChange[0](ml);
 				clearUndo();
 			}),
@@ -828,11 +824,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					handleError("Invalid layer remove");
 					return;
 				}
-				if (isSVGFolder(layer)) {
-					waitFolderRemoved[0](path);
-				} else {
-					waitRemoved[0](path);
-				}
+				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
 				clearUndo();
 			}),
 			...([
