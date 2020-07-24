@@ -73,7 +73,7 @@ export type RPC = {
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
 	waitTokenSetData:            () => Subscription<TokenID>;
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
-	waitBroadcast:               () => Subscription<any>;
+	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
@@ -132,7 +132,7 @@ export type RPC = {
 	changePassword:    (oldPassword: string, newPassword: string) => Promise<string>;
 	logout:            ()                                         => Promise<void>;
 
-	broadcast:         (data: any)                                => Promise<void>;
+	broadcast:         (data: Broadcast) => Promise<void>;
 
 	close: () => void;
 };
@@ -214,6 +214,11 @@ export type LayerFolder = FolderItems & {
 export type LayerMove = FromTo & {
 	position: Int;
 }
+
+export type Broadcast = {
+	type: Int;
+	data: any;
+};
 
 type LayerRename = {
 	path: string;
