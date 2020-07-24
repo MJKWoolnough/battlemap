@@ -14,15 +14,14 @@ interface FolderConstructor {
 	new (root: Root, parent: Folder | null, name: string, children: FolderItems): Folder;
 }
 
-export type FolderSorter = (a: Folder, b: Folder) => number;
-export type ItemSorter = (a: Item, b: Item) => number;
-export type Sorter = (a: Item | Folder, b: Item | Folder) => number;
+type FolderSorter = (a: Folder, b: Folder) => number;
+type ItemSorter = (a: Item, b: Item) => number;
+type Sorter = (a: Item | Folder, b: Item | Folder) => number;
 
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,
-      sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>();
-
-export const getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
+      sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
+      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
 let folderID = 0;
 
