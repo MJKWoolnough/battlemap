@@ -118,14 +118,13 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 	case "conn.connID":
 		return cd.ID, nil
 	case "maps.setCurrentMap":
-		if !cd.IsAdmin() {
-			return nil, ErrUnknownMethod
+		if cd.IsAdmin() {
+			if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
+				return nil, err
+			}
+			atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
+			return nil, nil
 		}
-		if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
-			return nil, err
-		}
-		atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
-		return nil, nil
 	default:
 		submethod := method[pos+1:]
 		method = method[:pos]
