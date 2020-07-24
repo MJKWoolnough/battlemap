@@ -73,6 +73,7 @@ export type RPC = {
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
 	waitTokenSetData:            () => Subscription<TokenID>;
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
+	waitBroadcast:               () => Subscription<any>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
@@ -130,6 +131,8 @@ export type RPC = {
 	login:             (data: object)                             => Promise<string>;
 	changePassword:    (oldPassword: string, newPassword: string) => Promise<string>;
 	logout:            ()                                         => Promise<void>;
+
+	broadcast:         (data: any)                                => Promise<void>;
 
 	close: () => void;
 };
