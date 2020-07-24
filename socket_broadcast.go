@@ -80,6 +80,8 @@ const (
 	broadcastTokenSourceChange
 	broadcastTokenSetData
 	broadcastTokenUnsetData
+
+	broadcastAny
 )
 
 func (s *socket) KickAdmins(except ID) {
