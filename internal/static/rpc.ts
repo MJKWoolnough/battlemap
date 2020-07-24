@@ -39,6 +39,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true),
 			"waitTokenSetData":            () => rpc.await(broadcastTokenSetData, true),
 			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true),
+			"waitBroadcast":               () => rpc.await(broadcastAny, true),
 
 			"images": {
 				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true),
@@ -163,6 +164,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"login":              data                      => rpc.request("auth.login", data),
 			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}),
 			"logout":            ()                         => rpc.request("auth.logout"),
+
+			"broadcast":          data                      => rpc.request("broadcast", data),
 
 			"close": rpc.close
 		} as RPCType);
