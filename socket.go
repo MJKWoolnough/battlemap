@@ -125,6 +125,12 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
 			return nil, nil
 		}
+	case "broadcast":
+		if cd.IsAdmin() {
+			cd.CurrentMap = 0
+			c.socket.broadcastMapChange(cd, broadcastAny, data)
+			return nil, nil
+		}
 	default:
 		submethod := method[pos+1:]
 		method = method[:pos]
