@@ -377,12 +377,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	return [
 		base,
 		Subscription.canceller(
-			rpc.waitMapChange().then(mc => setMapDetails(mc)),
-			rpc.waitMapLightChange().then(c => setLightColour(c)),
+			rpc.waitMapChange().then(setMapDetails),
+			rpc.waitMapLightChange().then(setLightColour),
 			rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
 			rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
 			rpc.waitLayerAdd().then(addLayer),
-			rpc.waitLayerFolderAdd().then(path => addLayerFolder(path)),
+			rpc.waitLayerFolderAdd().then(addLayerFolder),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
 			rpc.waitLayerRemove().then(removeLayer),
