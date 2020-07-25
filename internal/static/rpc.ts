@@ -50,7 +50,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
 
-				"list":        ()         => rpc.request("imageAssets.list"),
+				"list":        ()         => rpc.request("imageAssets.list").then(checkFolderItems),
 				"createFolder": path      => rpc.request("imageAssets.createFolder", path),
 				"move":        (from, to) => rpc.request("imageAssets.move", {from, to}),
 				"moveFolder":  (from, to) => rpc.request("imageAssets.moveFolder", {from, to}),
@@ -68,7 +68,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
 
-				"list":        ()         => rpc.request("audioAssets.list"),
+				"list":        ()         => rpc.request("audioAssets.list").then(checkFolderItems),
 				"createFolder": path      => rpc.request("audioAssets.createFolder", path),
 				"move":        (from, to) => rpc.request("audioAssets.move", {from, to}),
 				"moveFolder":  (from, to) => rpc.request("audioAssets.moveFolder", {from, to}),
@@ -86,7 +86,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
 
-				"list":        ()         => rpc.request("characters.list"),
+				"list":        ()         => rpc.request("characters.list").then(checkFolderItems),
 				"createFolder": path      => rpc.request("characters.createFolder", path),
 				"move":        (from, to) => rpc.request("characters.move", {from, to}),
 				"moveFolder":  (from, to) => rpc.request("characters.moveFolder", {from, to}),
@@ -104,7 +104,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
 
-				"list":        ()         => rpc.request("maps.list"),
+				"list":        ()         => rpc.request("maps.list").then(checkFolderItems),
 				"createFolder": path      => rpc.request("maps.createFolder", path),
 				"move":        (from, to) => rpc.request("maps.move", {from, to}),
 				"moveFolder":  (from, to) => rpc.request("maps.moveFolder", {from, to}),
@@ -243,6 +243,34 @@ const checkInt = (data: any) => {
 	}
 	if (typeof data["to"] !== "string") {
 		throw new Error(`invalid FromTo object, key 'to' contains invalid data: ${JSON.stringify(data["to"])}`);
+	}
+	return data;
+      },
+      checkFolderItems = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting FolderItems object, got ${JSON.stringify(data)}`);
+	}
+	const {folders, items} = data;
+	if (typeof folders !== "object") {
+		throw new Error(`invalid FolderItems object, key 'folders' contains invalid data: ${JSON.stringify(folders)}`);
+	}
+	if (typeof items !== "object") {
+		throw new Error(`invalid FolderItems object, key 'items' contains invalid data: ${JSON.stringify(items)}`);
+	}
+	for (const key in folders) {
+		if (typeof key !== "string") {
+			throw new Error(`invalid FolderItems object, key 'folder' contains an invalid key: ${JSON.stringify(key)}`);
+		}
+		checkFolderItems(folders[key]);
+	}
+	for (const key in items) {
+		if (typeof key !== "string") {
+			throw new Error(`invalid FolderItems object, key 'items' contains an invalid key: ${JSON.stringify(key)}`);
+		}
+		const id = items[key];
+		if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
+			throw new Error(`invalid FolderItems object, items key '${key}' contains invalid data: ${JSON.stringify(id)}`);
+		}
 	}
 	return data;
       },
