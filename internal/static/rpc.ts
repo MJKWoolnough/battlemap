@@ -51,12 +51,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("imageAssets.list").then(checkFolderItems),
-				"createFolder": path      => rpc.request("imageAssets.createFolder", path),
-				"move":        (from, to) => rpc.request("imageAssets.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("imageAssets.moveFolder", {from, to}),
+				"createFolder": path      => rpc.request("imageAssets.createFolder", path).then(checkString),
+				"move":        (from, to) => rpc.request("imageAssets.move", {from, to}).then(checkString),
+				"moveFolder":  (from, to) => rpc.request("imageAssets.moveFolder", {from, to}).then(checkString),
 				"remove":       path      => rpc.request("imageAssets.remove", path),
 				"removeFolder": path      => rpc.request("imageAssets.removeFolder", path),
-				"link":        (id, name) => rpc.request("imageAssets.link", {id, name}),
+				"link":        (id, name) => rpc.request("imageAssets.link", {id, name}).then(checkString),
 			},
 
 			"audio": {
@@ -69,12 +69,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("audioAssets.list").then(checkFolderItems),
-				"createFolder": path      => rpc.request("audioAssets.createFolder", path),
-				"move":        (from, to) => rpc.request("audioAssets.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("audioAssets.moveFolder", {from, to}),
+				"createFolder": path      => rpc.request("audioAssets.createFolder", path).then(checkString),
+				"move":        (from, to) => rpc.request("audioAssets.move", {from, to}).then(checkString),
+				"moveFolder":  (from, to) => rpc.request("audioAssets.moveFolder", {from, to}).then(checkString),
 				"remove":       path      => rpc.request("audioAssets.remove", path),
 				"removeFolder": path      => rpc.request("audioAssets.removeFolder", path),
-				"link":        (id, name) => rpc.request("audioAssets.link", {id, name}),
+				"link":        (id, name) => rpc.request("audioAssets.link", {id, name}).then(checkString),
 			},
 
 			"characters": {
@@ -87,12 +87,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("characters.list").then(checkFolderItems),
-				"createFolder": path      => rpc.request("characters.createFolder", path),
-				"move":        (from, to) => rpc.request("characters.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("characters.moveFolder", {from, to}),
+				"createFolder": path      => rpc.request("characters.createFolder", path).then(checkString),
+				"move":        (from, to) => rpc.request("characters.move", {from, to}).then(checkString),
+				"moveFolder":  (from, to) => rpc.request("characters.moveFolder", {from, to}).then(checkString),
 				"remove":       path      => rpc.request("characters.remove", path),
 				"removeFolder": path      => rpc.request("characters.removeFolder", path),
-				"link":        (id, name) => rpc.request("characters.link", {id, name}),
+				"link":        (id, name) => rpc.request("characters.link", {id, name}).then(checkString),
 			},
 
 			"maps": {
@@ -105,12 +105,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("maps.list").then(checkFolderItems),
-				"createFolder": path      => rpc.request("maps.createFolder", path),
-				"move":        (from, to) => rpc.request("maps.move", {from, to}),
-				"moveFolder":  (from, to) => rpc.request("maps.moveFolder", {from, to}),
+				"createFolder": path      => rpc.request("maps.createFolder", path).then(checkString),
+				"move":        (from, to) => rpc.request("maps.move", {from, to}).then(checkString),
+				"moveFolder":  (from, to) => rpc.request("maps.moveFolder", {from, to}).then(checkString),
 				"remove":       path      => rpc.request("maps.remove", path),
 				"removeFolder": path      => rpc.request("maps.removeFolder", path),
-				"link":        (id, name) => rpc.request("maps.link", {id, name}),
+				"link":        (id, name) => rpc.request("maps.link", {id, name}).then(checkString),
 			},
 
 			"connID": () => rpc.request("conn.connID"),
