@@ -43,11 +43,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"images": {
 				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastImageItemMove, true),
+				"waitMoved":         () => rpc.await(broadcastImageItemMove, true).then(checkFromTo),
 				"waitRemoved":       () => rpc.await(broadcastImageItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastImageItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastImageFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true),
+				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("imageAssets.list"),
@@ -61,11 +61,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"audio": {
 				"waitAdded":         () => rpc.await(broadcastAudioItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastAudioItemMove, true),
+				"waitMoved":         () => rpc.await(broadcastAudioItemMove, true).then(checkFromTo),
 				"waitRemoved":       () => rpc.await(broadcastAudioItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastAudioItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastAudioFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true),
+				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("audioAssets.list"),
@@ -79,11 +79,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"characters": {
 				"waitAdded":         () => rpc.await(broadcastCharacterItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastCharacterItemMove, true),
+				"waitMoved":         () => rpc.await(broadcastCharacterItemMove, true).then(checkFromTo),
 				"waitRemoved":       () => rpc.await(broadcastCharacterItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastCharacterItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastCharacterFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true),
+				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("characters.list"),
@@ -97,11 +97,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"maps": {
 				"waitAdded":         () => rpc.await(broadcastMapItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastMapItemMove, true),
+				"waitMoved":         () => rpc.await(broadcastMapItemMove, true).then(checkFromTo),
 				"waitRemoved":       () => rpc.await(broadcastMapItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastMapItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastMapFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true),
+				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true).then(checkFromTo),
 				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("maps.list"),
@@ -232,6 +232,18 @@ const checkInt = (data: any) => {
 	}
 	data.id = data.id ?? 0;
 	data.name = data.name ?? "";
+	return data;
+      },
+      checkFromTo = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting FromTo object, got ${JSON.stringify(data)}`);
+	}
+	if (typeof data["from"] !== "string") {
+		throw new Error(`invalid FromTo object, key 'from' contains invalid data: ${JSON.stringify(data["from"])}`);
+	}
+	if (typeof data["to"] !== "string") {
+		throw new Error(`invalid FromTo object, key 'to' contains invalid data: ${JSON.stringify(data["to"])}`);
+	}
 	return data;
       },
       userData = (data : Record<string, string | KeystoreData>) => {
