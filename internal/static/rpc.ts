@@ -6,8 +6,8 @@ const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserM
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
 		return Object.freeze({
-			"waitLogin":                   () => rpc.await(broadcastIsAdmin),
-			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true),
+			"waitLogin":                   () => rpc.await(broadcastIsAdmin).then(checkInt),
+			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
 			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(d => (d.data = userData(d.data), d)),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
@@ -116,7 +116,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"connID": () => rpc.request("conn.connID"),
 
 			"setCurrentMap":  id => rpc.request("maps.setCurrentMap", id),
-			"getUserMap":    ()  => rpc.request("maps.getUserMap"),
+			"getUserMap":    ()  => rpc.request("maps.getUserMap").then(checkInt),
 			"setUserMap":     id => rpc.request("maps.setUserMap", id),
 			"getMapData":     id => rpc.request("maps.getMapData", id),
 
@@ -133,7 +133,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"addMask":         (path, mask)                               => rpc.request("maps.addMask", {path, mask}),
 			"removeMask":       path                                      => rpc.request("maps.removeMask", path),
 			"removeLayer":      path                                      => rpc.request("maps.removeLayer", path),
-			"addToken":        (path, token)                              => rpc.request("maps.addToken", Object.assign(token, {"path": path})),
+			"addToken":        (path, token)                              => rpc.request("maps.addToken", Object.assign(token, {"path": path})).then(checkInt),
 			"removeToken":     (path, pos)                                => rpc.request("maps.removeToken", {path, pos}),
 			"setToken":        (path, pos, x, y, width, height, rotation) => rpc.request("maps.setToken", {path, pos, x, y, width, height, rotation}),
 			"flipToken":       (path, pos, flip)                          => rpc.request("maps.flipToken", {path, pos, flip}),
@@ -151,13 +151,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterGetAll":      id        => rpc.request("characters.get", {id}).then(userData),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
-			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}),
+			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkInt),
 			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}),
 			"tokenGet":        (id, keys)  => rpc.request("tokens.get", {id, keys}).then(userData),
 			"tokenGetAll":      id         => rpc.request("tokens.get", {id}).then(userData),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
-			"tokenClone":       id         => rpc.request("tokens.clone", id),
+			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
 			"loginRequirements": ()                         => rpc.request("auth.requirements"),
@@ -172,7 +172,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 	})
 }
 
-const userData = (data : Record<string, string | KeystoreData>) => {
+const checkInt = (data: any) => {
+	if (typeof data !== "number" || data % 1 !== 0) {
+		throw new Error(`expecting Int type, got ${JSON.stringify(data)}`);
+	}
+	return data;
+      },
+      userData = (data : Record<string, string | KeystoreData>) => {
 	const keys = Object.keys(data)
 	if (keys.length > 0 && typeof data[keys[0]] === "string") {
 		keys.forEach(k => data[k] = {"data": data[k], "user": false} as KeystoreData);
