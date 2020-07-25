@@ -19,7 +19,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true),
 			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true),
 			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true).then(checkString),
-			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true),
+			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true).then(checkColour),
 			"waitLayerShow":               () => rpc.await(broadcastLayerShow, true).then(checkString),
 			"waitLayerHide":               () => rpc.await(broadcastLayerHide, true).then(checkString),
 			"waitLayerMaskAdd":            () => rpc.await(broadcastLayerMaskAdd, true),
@@ -122,7 +122,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"newMap":         map    => rpc.request("maps.new", map),
 			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map),
-			"setLightColour": colour => rpc.request("maps.setLightColour", colour),
+			"setLightColour": colour => rpc.request("maps.setLightColour", colour).then(checkColour),
 
 			"addLayer":         name                                      => rpc.request("maps.addLayer", name).then(checkString),
 			"addLayerFolder":   path                                      => rpc.request("maps.addLayerFolder", path).then(checkString),
@@ -182,6 +182,31 @@ const checkInt = (data: any) => {
 	if (typeof data !== "string") {
 		throw new Error(`expecting String type, got ${JSON.stringify(data)}`);
 	}
+	return data;
+      },
+      checkColour = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting Colour object, got ${JSON.stringify(data)}`);
+	}
+	for (const key in data) {
+		switch (key) {
+		case 'r':
+		case 'g':
+		case 'b':
+		case 'a':
+			const c = data[key];
+			if (typeof c !== "number" || c % 1 !== 0 || c < 0 || c > 255) {
+				throw new Error(`invalid Colour object, key ${key} contains invalid data: ${JSON.stringify(c)}`);
+			}
+			break;
+		default:
+			delete data[key];
+		}
+	}
+	data.r = data.r ?? 0;
+	data.g = data.g ?? 0;
+	data.b = data.b ?? 0;
+	data.a = data.a ?? 0;
 	return data;
       },
       userData = (data : Record<string, string | KeystoreData>) => {
