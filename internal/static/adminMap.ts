@@ -133,18 +133,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			selectedToken!.updateNode();
 			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      },
-		      tokenMouseDown = function(this: SVGRectElement, e: MouseEvent) {
-			if (e.button !== 0 || e.ctrlKey) {
-				return;
-			}
-			e.stopImmediatePropagation();
-			document.body.addEventListener("mousemove", tokenDrag);
-			document.body.addEventListener("mouseup", tokenMouseUp, {"once": true});
-			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
-			tokenMousePos.mouseX = e.clientX;
-			tokenMousePos.mouseY = e.clientY;
-		      },
 		      tokenMouseUp = () => {
 			if (!selectedToken) {
 				return;
@@ -697,7 +685,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": tokenMouseDown}))));
+		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+			if (e.button !== 0 || e.ctrlKey) {
+				return;
+			}
+			e.stopImmediatePropagation();
+			document.body.addEventListener("mousemove", tokenDrag);
+			document.body.addEventListener("mouseup", tokenMouseUp, {"once": true});
+			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
+			tokenMousePos.mouseX = e.clientX;
+			tokenMousePos.mouseY = e.clientY;
+		      }}))));
 		setLayers({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
