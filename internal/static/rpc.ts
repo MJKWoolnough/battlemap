@@ -178,7 +178,7 @@ const checkInt = (data: any) => {
 	}
 	return data;
       },
-      checkString = (data: string) => {
+      checkString = (data: any) => {
 	if (typeof data !== "string") {
 		throw new Error(`expecting String type, got ${JSON.stringify(data)}`);
 	}
