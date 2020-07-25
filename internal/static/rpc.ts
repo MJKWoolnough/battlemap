@@ -196,7 +196,7 @@ const checkInt = (data: any) => {
 		case 'a':
 			const c = data[key];
 			if (typeof c !== "number" || c % 1 !== 0 || c < 0 || c > 255) {
-				throw new Error(`invalid Colour object, key ${key} contains invalid data: ${JSON.stringify(c)}`);
+				throw new Error(`invalid Colour object, key '${key}' contains invalid data: ${JSON.stringify(c)}`);
 			}
 			break;
 		default:
@@ -216,14 +216,14 @@ const checkInt = (data: any) => {
 	for (const key in data) {
 		switch (key) {
 		case "id":
-			const id = data[key];
+			const id = data["id"];
 			if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
-				throw new Error(`invalid ID in IDName, got ${JSON.stringify(id)}`);
+				throw new Error(`invalid IDName object, key 'ID' contains invalid data: ${JSON.stringify(id)}`);
 			}
 			break;
 		case "name":
-			if (typeof data[key] !== "string") {
-				throw new Error(`invalid Name in IDName, got ${JSON.stringify(data[key])}`);
+			if (typeof data["name"] !== "string") {
+				throw new Error(`invalid IDName object, key 'name' contains invalid data: ${JSON.stringify(data[key])}`);
 			}
 			break;
 		default:
