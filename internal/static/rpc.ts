@@ -14,14 +14,14 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(d => (d.data = userData(d.data), d)),
 			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
-			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true),
-			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true),
+			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
+			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
 			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true),
 			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true),
-			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true),
+			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true).then(checkString),
 			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true),
-			"waitLayerShow":               () => rpc.await(broadcastLayerShow, true),
-			"waitLayerHide":               () => rpc.await(broadcastLayerHide, true),
+			"waitLayerShow":               () => rpc.await(broadcastLayerShow, true).then(checkString),
+			"waitLayerHide":               () => rpc.await(broadcastLayerHide, true).then(checkString),
 			"waitLayerMaskAdd":            () => rpc.await(broadcastLayerMaskAdd, true),
 			"waitLayerMaskChange":         () => rpc.await(broadcastLayerMaskChange, true),
 			"waitLayerMaskRemove":         () => rpc.await(broadcastLayerMaskRemove, true),
@@ -44,11 +44,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"images": {
 				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true),
 				"waitMoved":         () => rpc.await(broadcastImageItemMove, true),
-				"waitRemoved":       () => rpc.await(broadcastImageItemRemove, true),
+				"waitRemoved":       () => rpc.await(broadcastImageItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastImageItemLink, true),
-				"waitFolderAdded":   () => rpc.await(broadcastImageFolderAdd, true),
+				"waitFolderAdded":   () => rpc.await(broadcastImageFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true),
-				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true),
+				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("imageAssets.list"),
 				"createFolder": path      => rpc.request("imageAssets.createFolder", path),
@@ -62,11 +62,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"audio": {
 				"waitAdded":         () => rpc.await(broadcastAudioItemAdd, true),
 				"waitMoved":         () => rpc.await(broadcastAudioItemMove, true),
-				"waitRemoved":       () => rpc.await(broadcastAudioItemRemove, true),
+				"waitRemoved":       () => rpc.await(broadcastAudioItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastAudioItemLink, true),
-				"waitFolderAdded":   () => rpc.await(broadcastAudioFolderAdd, true),
+				"waitFolderAdded":   () => rpc.await(broadcastAudioFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true),
-				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true),
+				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("audioAssets.list"),
 				"createFolder": path      => rpc.request("audioAssets.createFolder", path),
@@ -80,11 +80,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characters": {
 				"waitAdded":         () => rpc.await(broadcastCharacterItemAdd, true),
 				"waitMoved":         () => rpc.await(broadcastCharacterItemMove, true),
-				"waitRemoved":       () => rpc.await(broadcastCharacterItemRemove, true),
+				"waitRemoved":       () => rpc.await(broadcastCharacterItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastCharacterItemLink, true),
-				"waitFolderAdded":   () => rpc.await(broadcastCharacterFolderAdd, true),
+				"waitFolderAdded":   () => rpc.await(broadcastCharacterFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true),
-				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true),
+				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("characters.list"),
 				"createFolder": path      => rpc.request("characters.createFolder", path),
@@ -98,11 +98,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"maps": {
 				"waitAdded":         () => rpc.await(broadcastMapItemAdd, true),
 				"waitMoved":         () => rpc.await(broadcastMapItemMove, true),
-				"waitRemoved":       () => rpc.await(broadcastMapItemRemove, true),
+				"waitRemoved":       () => rpc.await(broadcastMapItemRemove, true).then(checkString),
 				"waitLinked":        () => rpc.await(broadcastMapItemLink, true),
-				"waitFolderAdded":   () => rpc.await(broadcastMapFolderAdd, true),
+				"waitFolderAdded":   () => rpc.await(broadcastMapFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true),
-				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true),
+				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
 
 				"list":        ()         => rpc.request("maps.list"),
 				"createFolder": path      => rpc.request("maps.createFolder", path),
@@ -124,8 +124,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map),
 			"setLightColour": colour => rpc.request("maps.setLightColour", colour),
 
-			"addLayer":         name                                      => rpc.request("maps.addLayer", name),
-			"addLayerFolder":   path                                      => rpc.request("maps.addLayerFolder", path),
+			"addLayer":         name                                      => rpc.request("maps.addLayer", name).then(checkString),
+			"addLayerFolder":   path                                      => rpc.request("maps.addLayerFolder", path).then(checkString),
 			"renameLayer":     (path, name)                               => rpc.request("maps.renameLayer", {path, name}),
 			"moveLayer":       (from, to, position)                       => rpc.request("maps.moveLayer", {from, to, position}),
 			"showLayer":        path                                      => rpc.request("maps.showLayer", path),
@@ -160,9 +160,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
-			"loginRequirements": ()                         => rpc.request("auth.requirements"),
-			"login":              data                      => rpc.request("auth.login", data),
-			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}),
+			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
+			"login":              data                      => rpc.request("auth.login", data).then(checkString),
+			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}).then(checkString),
 			"logout":            ()                         => rpc.request("auth.logout"),
 
 			"broadcast":          data                      => rpc.request("broadcast", data),
@@ -175,6 +175,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 const checkInt = (data: any) => {
 	if (typeof data !== "number" || data % 1 !== 0) {
 		throw new Error(`expecting Int type, got ${JSON.stringify(data)}`);
+	}
+	return data;
+      },
+      checkString = (data: string) => {
+	if (typeof data !== "string") {
+		throw new Error(`expecting String type, got ${JSON.stringify(data)}`);
 	}
 	return data;
       },
