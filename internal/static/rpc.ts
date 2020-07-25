@@ -42,10 +42,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitBroadcast":               () => rpc.await(broadcastAny, true),
 
 			"images": {
-				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true),
+				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true).then(checkIDName),
 				"waitMoved":         () => rpc.await(broadcastImageItemMove, true),
 				"waitRemoved":       () => rpc.await(broadcastImageItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastImageItemLink, true),
+				"waitLinked":        () => rpc.await(broadcastImageItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastImageFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true),
 				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
@@ -60,10 +60,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			},
 
 			"audio": {
-				"waitAdded":         () => rpc.await(broadcastAudioItemAdd, true),
+				"waitAdded":         () => rpc.await(broadcastAudioItemAdd, true).then(checkIDName),
 				"waitMoved":         () => rpc.await(broadcastAudioItemMove, true),
 				"waitRemoved":       () => rpc.await(broadcastAudioItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastAudioItemLink, true),
+				"waitLinked":        () => rpc.await(broadcastAudioItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastAudioFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true),
 				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
@@ -78,10 +78,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			},
 
 			"characters": {
-				"waitAdded":         () => rpc.await(broadcastCharacterItemAdd, true),
+				"waitAdded":         () => rpc.await(broadcastCharacterItemAdd, true).then(checkIDName),
 				"waitMoved":         () => rpc.await(broadcastCharacterItemMove, true),
 				"waitRemoved":       () => rpc.await(broadcastCharacterItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastCharacterItemLink, true),
+				"waitLinked":        () => rpc.await(broadcastCharacterItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastCharacterFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true),
 				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
@@ -96,10 +96,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			},
 
 			"maps": {
-				"waitAdded":         () => rpc.await(broadcastMapItemAdd, true),
+				"waitAdded":         () => rpc.await(broadcastMapItemAdd, true).then(checkIDName),
 				"waitMoved":         () => rpc.await(broadcastMapItemMove, true),
 				"waitRemoved":       () => rpc.await(broadcastMapItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastMapItemLink, true),
+				"waitLinked":        () => rpc.await(broadcastMapItemLink, true).then(checkIDName),
 				"waitFolderAdded":   () => rpc.await(broadcastMapFolderAdd, true).then(checkString),
 				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true),
 				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
@@ -120,7 +120,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setUserMap":     id => rpc.request("maps.setUserMap", id),
 			"getMapData":     id => rpc.request("maps.getMapData", id),
 
-			"newMap":         map    => rpc.request("maps.new", map),
+			"newMap":         map    => rpc.request("maps.new", map).then(checkIDName),
 			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map),
 			"setLightColour": colour => rpc.request("maps.setLightColour", colour).then(checkColour),
 
@@ -145,7 +145,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenLayer":   (from, pos, to)                            => rpc.request("maps.setTokenLayer", {from, pos, to}),
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}),
 
-			"characterCreate":      name      => rpc.request("characters.create", name),
+			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
 			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}).then(userData),
 			"characterGetAll":      id        => rpc.request("characters.get", {id}).then(userData),
@@ -207,6 +207,31 @@ const checkInt = (data: any) => {
 	data.g = data.g ?? 0;
 	data.b = data.b ?? 0;
 	data.a = data.a ?? 0;
+	return data;
+      },
+      checkIDName = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting IDName object, got ${JSON.stringify(data)}`);
+	}
+	for (const key in data) {
+		switch (key) {
+		case "id":
+			const id = data[key];
+			if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
+				throw new Error(`invalid ID in IDName, got ${JSON.stringify(id)}`);
+			}
+			break;
+		case "name":
+			if (typeof data[key] !== "string") {
+				throw new Error(`invalid Name in IDName, got ${JSON.stringify(data[key])}`);
+			}
+			break;
+		default:
+			delete data[key];
+		}
+	}
+	data.id = data.id ?? 0;
+	data.name = data.name ?? "";
 	return data;
       },
       userData = (data : Record<string, string | KeystoreData>) => {
