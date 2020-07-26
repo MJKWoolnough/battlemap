@@ -10,9 +10,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
 			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreDataChange),
-			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
+			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true).then(checkKeystoreDataRemove),
 			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
-			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
+			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true).then(checkKeystoreDataRemove),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
@@ -302,5 +302,24 @@ const checkInt = (data: any) => {
 		throw new Error(`expecting Uint type, got ${JSON.stringify(data)}`);
 	}
 	checkKeystoreData(data["data"]);
+	return data;
+      },
+      checkKeystoreDataRemove = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
+	}
+	const id = data["id"],
+	      keys = data["keys"];
+	if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
+		throw new Error(`invalid KeystoreDataRemove object, key 'id' does not contain Uint type, got ${JSON.stringify(id)}`);
+	}
+	if (!(keys instanceof Array)) {
+		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(keys)}`);
+	}
+	for (const key of keys) {
+		if (typeof key !== "string") {
+			throw new Error(`invalid KeystoreDataRemove object, invalid key: ${JSON.stringify(key)}`);
+		}
+	}
 	return data;
       };
