@@ -362,11 +362,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 			l.tokens.forEach(t => {
 				if (t.tokenData) {
 					const tID = t.tokenData;
-					rpc.tokenGetAll(tID).then(d => {
+					rpc.tokenGet(tID).then(d => {
 						tokenData.set(tID, d);
 						if (loadChars && typeof d["store-character-id"] === "number") {
 							const cID = d["store-character-id"].data;
-							rpc.characterGetAll(cID).then(d => characterData.set(cID, d)).catch(handleError);
+							rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
 						}
 					}).catch(handleError);
 				}
@@ -397,11 +397,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 				layer.tokens.push(new SVGToken(tk));
 				if (tk.tokenData) {
 					const tID = tk.tokenData;
-					rpc.tokenGetAll(tID).then(d => {
+					rpc.tokenGet(tID).then(d => {
 						tokenData.set(tID, d);
 						if (loadChars && typeof d["store-character-id"] === "number") {
 							const cID = d["store-character-id"].data;
-							rpc.characterGetAll(cID).then(d => characterData.set(cID, d)).catch(handleError);
+							rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
 						}
 					}).catch(handleError);
 				}
