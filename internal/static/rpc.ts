@@ -9,9 +9,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":                   () => rpc.await(broadcastIsAdmin).then(checkInt),
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
-			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(d => (d.data = userData(d.data), d)),
+			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
-			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(d => (d.data = userData(d.data), d)),
+			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true),
 			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
@@ -147,12 +147,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
-			"characterGet":      id        => rpc.request("characters.get", id).then(userData),
+			"characterGet":      id        => rpc.request("characters.get", id),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
 			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkInt),
 			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}),
-			"tokenGet":         id         => rpc.request("tokens.get", id).then(userData),
+			"tokenGet":         id         => rpc.request("tokens.get", id),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
@@ -271,12 +271,4 @@ const checkInt = (data: any) => {
 		}
 	}
 	return data;
-      },
-      userData = (data : Record<string, string | KeystoreData>) => {
-	const keys = Object.keys(data)
-	if (keys.length > 0 && typeof data[keys[0]] === "string") {
-		keys.forEach(k => data[k] = {"data": data[k], "user": false} as KeystoreData);
-	}
-	return data;
-};
-
+      };
