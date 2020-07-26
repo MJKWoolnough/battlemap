@@ -219,38 +219,19 @@ func (k *keystoreDir) IsLinkKey(key string) *folders {
 	return nil
 }
 
-func (k *keystoreDir) get(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
-	var m struct {
-		ID   json.RawMessage `json:"id"`
-		Keys []string        `json:"keys"`
-	}
-	if err := json.Unmarshal(data, &m); err != nil {
-		return nil, err
-	}
+func (k *keystoreDir) get(cd ConnData, id json.RawMessage) (json.RawMessage, error) {
 	k.mu.RLock()
-	ms, ok := k.data[string(m.ID)]
+	ms, ok := k.data[string(id)]
 	if !ok {
 		k.mu.RUnlock()
 		return nil, keystore.ErrUnknownKey
 	}
 	var buf json.RawMessage
-	if len(m.Keys) == 0 {
-		for key, val := range ms {
-			if cd.IsAdmin() {
-				buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
-			} else if val.User {
-				buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
-			}
-		}
-	} else {
-		for _, key := range m.Keys {
-			if val, ok := ms[key]; ok {
-				if cd.IsAdmin() {
-					buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
-				} else if val.User {
-					buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
-				}
-			}
+	for key, val := range ms {
+		if cd.IsAdmin() {
+			buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
+		} else if val.User {
+			buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
 		}
 	}
 	k.mu.RUnlock()
