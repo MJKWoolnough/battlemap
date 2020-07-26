@@ -9,9 +9,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":                   () => rpc.await(broadcastIsAdmin).then(checkInt),
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
-			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreData),
+			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreDataChange),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
-			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreData),
+			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
 			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
@@ -291,5 +291,16 @@ const checkInt = (data: any) => {
 			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
+	return data;
+      },
+      checkKeystoreDataChange = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
+	}
+	const id = data["id"];
+	if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
+		throw new Error(`expecting Uint type, got ${JSON.stringify(data)}`);
+	}
+	checkKeystoreData(data["data"]);
 	return data;
       };
