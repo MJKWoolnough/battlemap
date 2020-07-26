@@ -11,7 +11,7 @@ let rpc: RPC;
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Int, name: string) {
 		super(parent, id, name);
-		rpc.characterGetAll(id).then(d => {
+		rpc.characterGet(id).then(d => {
 			characterData.set(id, d);
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
@@ -20,7 +20,7 @@ class Character extends DraggableItem {
 				const id = d["store-token-id"].data;
 				if (!tokenData.has(id)) {
 					tokenData.set(id, {});
-					rpc.tokenGetAll(id).then(d => tokenData.set(id, d));
+					rpc.tokenGet(id).then(d => tokenData.set(id, d));
 				}
 			}
 		}).catch(handleError);
