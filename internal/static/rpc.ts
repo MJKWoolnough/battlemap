@@ -147,14 +147,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
-			"characterGet":        (id, keys) => rpc.request("characters.get", {id, keys}).then(userData),
-			"characterGetAll":      id        => rpc.request("characters.get", {id}).then(userData),
+			"characterGet":      id        => rpc.request("characters.get", id).then(userData),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
 			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkInt),
 			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}),
-			"tokenGet":        (id, keys)  => rpc.request("tokens.get", {id, keys}).then(userData),
-			"tokenGetAll":      id         => rpc.request("tokens.get", {id}).then(userData),
+			"tokenGet":         id         => rpc.request("tokens.get", id).then(userData),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
