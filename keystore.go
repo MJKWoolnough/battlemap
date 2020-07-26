@@ -182,7 +182,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	buf := append(data[:0], "{\"data\":"...)
 	for key, val := range m.Data {
 		if val.User {
-			buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
+			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
 		}
 		if f := k.IsLinkKey(key); f != nil {
 			var id uint64
@@ -228,10 +228,8 @@ func (k *keystoreDir) get(cd ConnData, id json.RawMessage) (json.RawMessage, err
 	}
 	var buf json.RawMessage
 	for key, val := range ms {
-		if cd.IsAdmin() {
+		if cd.IsAdmin() || val.User {
 			buf = append(append(append(strconv.AppendBool(append(appendString(append(buf, ','), key), ":{\"user\":"...), val.User), ",\"data\":"...), val.Data...), '}')
-		} else if val.User {
-			buf = append(append(appendString(append(buf, ','), key), ':'), val.Data...)
 		}
 	}
 	k.mu.RUnlock()
