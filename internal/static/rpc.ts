@@ -9,9 +9,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":                   () => rpc.await(broadcastIsAdmin).then(checkInt),
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
 			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
-			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true),
+			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreData),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true),
-			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true),
+			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreData),
 			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true),
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
@@ -147,12 +147,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}),
-			"characterGet":      id        => rpc.request("characters.get", id),
+			"characterGet":      id        => rpc.request("characters.get", id).then(checkKeystoreData),
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}),
 
 			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkInt),
 			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}),
-			"tokenGet":         id         => rpc.request("tokens.get", id),
+			"tokenGet":         id         => rpc.request("tokens.get", id).then(checkKeystoreData),
 			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}),
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
@@ -268,6 +268,27 @@ const checkInt = (data: any) => {
 		const id = items[key];
 		if (typeof id !== "number" || id % 1 !== 0 || id < 0) {
 			throw new Error(`invalid FolderItems object, items key '${key}' contains invalid data: ${JSON.stringify(id)}`);
+		}
+	}
+	return data;
+      },
+      checkKeystoreData = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting KeystoreData object, got ${JSON.stringify(data)}`);
+	}
+	for (const key in data) {
+		if (typeof key !== "string") {
+			throw new Error(`invalid KeystoreData object, invalid key: ${JSON.stringify(key)}`);
+		}
+		const kd = data[key];
+		if (typeof kd !== "object") {
+			throw new Error(`invalid KeystoreData object, key '${key}' contains invalid data: ${JSON.stringify(kd)}`);
+		}
+		if (typeof kd["user"] !== "boolean") {
+			throw new Error(`invalid KeystoreData object, key '${key}' contains an invalid user type: ${JSON.stringify(kd["user"])}`);
+		}
+		if (kd["data"] === undefined) {
+			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
 	return data;
