@@ -13,7 +13,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true).then(checkKeystoreDataRemove),
 			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
 			"waitTokenDataRemove":         () => rpc.await(broadcastTokenDataRemove, true).then(checkKeystoreDataRemove),
-			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true),
+			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
 			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true),
@@ -319,6 +319,30 @@ const checkInt = (data: any) => {
 	for (const key of keys) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid KeystoreDataRemove object, invalid key: ${JSON.stringify(key)}`);
+		}
+	}
+	return data;
+      },
+      checkMapDetails = (data: any) => {
+	if (typeof data !== "object") {
+		throw new Error(`expecting MapDetails object, got ${JSON.stringify(data)}`);
+	}
+	for (const key in data) {
+		switch (key) {
+		case "gridSize":
+		case "gridStroke":
+		case "width":
+		case "height":
+			const num = data[key];
+			if (typeof num !== "number" || num % 1 !== 0 || num < 0) {
+				throw new Error(`invalid KeystoreDataRemove object, key '${key}' does not contain Uint type, got ${JSON.stringify(num)}`);
+			}
+			break;
+		case "gridColour":
+			checkColour(data[key]);
+			break;
+		default:
+			delete data[key];
 		}
 	}
 	return data;
