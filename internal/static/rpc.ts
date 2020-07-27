@@ -32,7 +32,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenSetToken":           () => rpc.await(broadcastTokenSetToken, true),
 			"waitTokenSetImage":           () => rpc.await(broadcastTokenSetImage, true).then(checkTokenPos),
 			"waitTokenSetPattern":         () => rpc.await(broadcastTokenSetPattern, true).then(checkTokenPos),
-			"waitTokenChange":             () => rpc.await(broadcastTokenChange, true),
+			"waitTokenChange":             () => rpc.await(broadcastTokenChange, true).then(checkTokenChange),
 			"waitTokenFlip":               () => rpc.await(broadcastTokenFlip, true),
 			"waitTokenFlop":               () => rpc.await(broadcastTokenFlop, true),
 			"waitTokenSnap":               () => rpc.await(broadcastTokenSnap, true),
@@ -314,9 +314,18 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 	}
 	return data;
       },
-      checkTokenPos = (data: any) => {
-	checkObject(data, "TokenPos");
-	checkString(data["path"], "TokenPos", "path");
-	checkUint(data["pos"], "TokenPos", "pos");
+      checkTokenPos = (data: any, name = "TokenPos") => {
+	checkObject(data, name);
+	checkString(data["path"], name, "path");
+	checkUint(data["pos"], name, "pos");
+	return data;
+      },
+      checkTokenChange = (data: any) => {
+	checkTokenPos(data, "TokenChange");
+	checkInt(data["x"], "TokenChange", "x");
+	checkInt(data["x"], "TokenChange", "y");
+	checkUint(data["x"], "TokenChange", "withh");
+	checkUint(data["x"], "TokenChange", "height");
+	checkUint(data["x"], "TokenChange", "rotation", 255);
 	return data;
       };
