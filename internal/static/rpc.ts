@@ -27,17 +27,17 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerMaskRemove":         () => rpc.await(broadcastLayerMaskRemove, true),
 			"waitTokenAdd":                () => rpc.await(broadcastTokenAdd, true),
 			"waitTokenRemove":             () => rpc.await(broadcastTokenRemove, true).then(checkTokenPos),
-			"waitTokenMoveLayer":          () => rpc.await(broadcastTokenMoveLayer, true),
-			"waitTokenMovePos":            () => rpc.await(broadcastTokenMovePos, true),
+			"waitTokenMoveLayer":          () => rpc.await(broadcastTokenMoveLayer, true).then(checkTokenMoveLayer),
+			"waitTokenMovePos":            () => rpc.await(broadcastTokenMovePos, true).then(checkTokenMovePos),
 			"waitTokenSetToken":           () => rpc.await(broadcastTokenSetToken, true),
 			"waitTokenSetImage":           () => rpc.await(broadcastTokenSetImage, true).then(checkTokenPos),
 			"waitTokenSetPattern":         () => rpc.await(broadcastTokenSetPattern, true).then(checkTokenPos),
 			"waitTokenChange":             () => rpc.await(broadcastTokenChange, true).then(checkTokenChange),
-			"waitTokenFlip":               () => rpc.await(broadcastTokenFlip, true),
-			"waitTokenFlop":               () => rpc.await(broadcastTokenFlop, true),
-			"waitTokenSnap":               () => rpc.await(broadcastTokenSnap, true),
-			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true),
-			"waitTokenSetData":            () => rpc.await(broadcastTokenSetData, true),
+			"waitTokenFlip":               () => rpc.await(broadcastTokenFlip, true).then(checkTokenFlip),
+			"waitTokenFlop":               () => rpc.await(broadcastTokenFlop, true).then(checkTokenFlop),
+			"waitTokenSnap":               () => rpc.await(broadcastTokenSnap, true).then(checkTokenSnap),
+			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true).then(checkTokenSource),
+			"waitTokenSetData":            () => rpc.await(broadcastTokenSetData, true).then(checkTokenID),
 			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
 			"waitBroadcast":               () => rpc.await(broadcastAny, true),
 
@@ -330,5 +330,40 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 	checkUint(data["x"], "TokenChange", "withh");
 	checkUint(data["x"], "TokenChange", "height");
 	checkUint(data["x"], "TokenChange", "rotation", 255);
+	return data;
+      },
+      checkTokenMovePos = (data: any) => {
+	checkTokenPos(data, "TokenMovePos");
+	checkUint(data["newPos"], "TokenMovePos", "newPos");
+	return data;
+      },
+      checkTokenMoveLayer = (data: any) => {
+	checkTokenPos(data, "TokenMoveLayer");
+	checkUint(data["pos"], "TokenMoveLayer", "pos");
+	return data;
+      },
+      checkTokenFlip = (data: any) => {
+	checkTokenPos(data, "TokenFlop");
+	checkBoolean(data["flip"], "TokenFlip", "flip");
+	return data;
+      },
+      checkTokenFlop = (data: any) => {
+	checkTokenPos(data, "TokenFlop");
+	checkBoolean(data["flop"], "TokenFlop", "flop");
+	return data;
+      },
+      checkTokenSnap = (data: any) => {
+	checkTokenPos(data, "TokenSnap");
+	checkBoolean(data["snap"], "TokenSnap", "snap");
+	return data;
+      },
+      checkTokenSource = (data: any) => {
+	checkTokenPos(data, "TokenMoveSource");
+	checkString(data["src"], "TokenSource", "src");
+	return data;
+      },
+      checkTokenID = (data: any) => {
+	checkTokenPos(data, "TokenID");
+	checkUint(data["id"], "TokenID", "id");
 	return data;
       };
