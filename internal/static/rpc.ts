@@ -179,6 +179,11 @@ const checkInt = (data: any) => {
       checkUint = (data: any, max = Number.MAX_SAFE_INTEGER) => {
 	return typeof data != "number" || data % 1 !== 0 || data < 0 || data > max;
       },
+      checkObject = (data: any, name: string, key?: string) => {
+	if (typeof data !== "object") {
+		throw new Error(key === undefined ? `expecting ${name} object, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}`);
+	}
+      },
       checkString = (data: any) => {
 	if (typeof data !== "string") {
 		throw new Error(`expecting String type, got ${JSON.stringify(data)}`);
@@ -186,9 +191,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkColour = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting Colour object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "Colour");
 	for (const key in data) {
 		switch (key) {
 		case 'r':
@@ -211,9 +214,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkIDName = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting IDName object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "IDName");
 	for (const key in data) {
 		switch (key) {
 		case "id":
@@ -236,9 +237,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkFromTo = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting FromTo object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "FromTo");
 	if (typeof data["from"] !== "string") {
 		throw new Error(`invalid FromTo object, key 'from' contains invalid data: ${JSON.stringify(data["from"])}`);
 	}
@@ -248,16 +247,10 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkFolderItems = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting FolderItems object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "FolderItems");
 	const {folders, items} = data;
-	if (typeof folders !== "object") {
-		throw new Error(`invalid FolderItems object, key 'folders' contains invalid data: ${JSON.stringify(folders)}`);
-	}
-	if (typeof items !== "object") {
-		throw new Error(`invalid FolderItems object, key 'items' contains invalid data: ${JSON.stringify(items)}`);
-	}
+	checkObject(folders, "FolderItems", "folders");
+	checkObject(items, "FolderItems", "items");
 	for (const key in folders) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid FolderItems object, key 'folder' contains an invalid key: ${JSON.stringify(key)}`);
@@ -276,17 +269,13 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkKeystoreData = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting KeystoreData object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "KeystoreData");
 	for (const key in data) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid KeystoreData object, invalid key: ${JSON.stringify(key)}`);
 		}
 		const kd = data[key];
-		if (typeof kd !== "object") {
-			throw new Error(`invalid KeystoreData object, key '${key}' contains invalid data: ${JSON.stringify(kd)}`);
-		}
+		checkObject(kd, "KeystoreData", key);
 		if (typeof kd["user"] !== "boolean") {
 			throw new Error(`invalid KeystoreData object, key '${key}' contains an invalid user type: ${JSON.stringify(kd["user"])}`);
 		}
@@ -297,6 +286,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkKeystoreDataChange = (data: any) => {
+	checkObject(data, "KeystoreDataChange");
 	if (typeof data !== "object") {
 		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
 	}
@@ -307,9 +297,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkKeystoreDataRemove = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "KeystoreDataRemove");
 	const id = data["id"],
 	      keys = data["keys"];
 	if (checkUint(id)) {
@@ -326,9 +314,7 @@ const checkInt = (data: any) => {
 	return data;
       },
       checkMapDetails = (data: any) => {
-	if (typeof data !== "object") {
-		throw new Error(`expecting MapDetails object, got ${JSON.stringify(data)}`);
-	}
+	checkObject(data, "MapDetails");
 	for (const key in data) {
 		switch (key) {
 		case "gridSize":
