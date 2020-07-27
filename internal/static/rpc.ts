@@ -26,19 +26,19 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerMaskChange":         () => rpc.await(broadcastLayerMaskChange, true),
 			"waitLayerMaskRemove":         () => rpc.await(broadcastLayerMaskRemove, true),
 			"waitTokenAdd":                () => rpc.await(broadcastTokenAdd, true),
-			"waitTokenRemove":             () => rpc.await(broadcastTokenRemove, true),
+			"waitTokenRemove":             () => rpc.await(broadcastTokenRemove, true).then(checkTokenPos),
 			"waitTokenMoveLayer":          () => rpc.await(broadcastTokenMoveLayer, true),
 			"waitTokenMovePos":            () => rpc.await(broadcastTokenMovePos, true),
 			"waitTokenSetToken":           () => rpc.await(broadcastTokenSetToken, true),
-			"waitTokenSetImage":           () => rpc.await(broadcastTokenSetImage, true),
-			"waitTokenSetPattern":         () => rpc.await(broadcastTokenSetPattern, true),
+			"waitTokenSetImage":           () => rpc.await(broadcastTokenSetImage, true).then(checkTokenPos),
+			"waitTokenSetPattern":         () => rpc.await(broadcastTokenSetPattern, true).then(checkTokenPos),
 			"waitTokenChange":             () => rpc.await(broadcastTokenChange, true),
 			"waitTokenFlip":               () => rpc.await(broadcastTokenFlip, true),
 			"waitTokenFlop":               () => rpc.await(broadcastTokenFlop, true),
 			"waitTokenSnap":               () => rpc.await(broadcastTokenSnap, true),
 			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true),
 			"waitTokenSetData":            () => rpc.await(broadcastTokenSetData, true),
-			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true),
+			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
 			"waitBroadcast":               () => rpc.await(broadcastAny, true),
 
 			"images": {
@@ -312,5 +312,11 @@ const checkInt = (data: any) => {
 			delete data[key];
 		}
 	}
+	return data;
+      },
+      checkTokenPos = (data: any) => {
+	checkObject(data, "TokenPos");
+	checkString(data["path"], "TokenPos", "path");
+	checkUint(data["pos"], "TokenPos", "pos");
 	return data;
       };
