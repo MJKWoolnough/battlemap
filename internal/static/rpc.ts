@@ -176,7 +176,7 @@ const checkInt = (data: any) => {
 	}
 	return data;
       },
-      checkUint = (data: any, oName: string, key: string, max = Number.MAX_SAFE_INTEGER) => {
+      checkUint = (data: any, name: string, key: string, max = Number.MAX_SAFE_INTEGER) => {
 	if (typeof data != "number" || data % 1 !== 0 || data < 0 || data > max) {
 		throw new Error(`invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}`);
 	}
@@ -186,9 +186,9 @@ const checkInt = (data: any) => {
 		throw new Error(key === undefined ? `expecting ${name} object, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}`);
 	}
       },
-      checkString = (data: any) => {
+      checkString = (data: any, name = "String", key?: string) => {
 	if (typeof data !== "string") {
-		throw new Error(`expecting String type, got ${JSON.stringify(data)}`);
+		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}`);
 	}
 	return data;
       },
@@ -220,9 +220,7 @@ const checkInt = (data: any) => {
 			checkUint(data[key], "IDName", key);
 			break;
 		case "name":
-			if (typeof data["name"] !== "string") {
-				throw new Error(`invalid IDName object, key 'name' contains invalid data: ${JSON.stringify(data[key])}`);
-			}
+			checkString(data["name"], "IDName", "name");
 			break;
 		default:
 			delete data[key];
@@ -234,12 +232,8 @@ const checkInt = (data: any) => {
       },
       checkFromTo = (data: any) => {
 	checkObject(data, "FromTo");
-	if (typeof data["from"] !== "string") {
-		throw new Error(`invalid FromTo object, key 'from' contains invalid data: ${JSON.stringify(data["from"])}`);
-	}
-	if (typeof data["to"] !== "string") {
-		throw new Error(`invalid FromTo object, key 'to' contains invalid data: ${JSON.stringify(data["to"])}`);
-	}
+	checkString(data["from"], "FromTo", "from");
+	checkString(data["to"], "FromTo", "to");
 	return data;
       },
       checkFolderItems = (data: any) => {
