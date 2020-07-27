@@ -199,7 +199,7 @@ const checkInt = (data: any) => {
 		case 'b':
 		case 'a':
 			const c = data[key];
-			if (checkUint(c, 255)) {
+			if (!checkUint(c, 255)) {
 				throw new Error(`invalid Colour object, key '${key}' contains invalid data: ${JSON.stringify(c)}`);
 			}
 			break;
@@ -219,7 +219,7 @@ const checkInt = (data: any) => {
 		switch (key) {
 		case "id":
 			const id = data["id"];
-			if (checkUint(id)) {
+			if (!checkUint(id)) {
 				throw new Error(`invalid IDName object, key 'ID' contains invalid data: ${JSON.stringify(id)}`);
 			}
 			break;
@@ -262,7 +262,7 @@ const checkInt = (data: any) => {
 			throw new Error(`invalid FolderItems object, key 'items' contains an invalid key: ${JSON.stringify(key)}`);
 		}
 		const id = items[key];
-		if (checkUint(id)) {
+		if (!checkUint(id)) {
 			throw new Error(`invalid FolderItems object, items key '${key}' contains invalid data: ${JSON.stringify(id)}`);
 		}
 	}
@@ -290,7 +290,7 @@ const checkInt = (data: any) => {
 	if (typeof data !== "object") {
 		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
 	}
-	if (checkUint(data["id"])) {
+	if (!checkUint(data["id"])) {
 		throw new Error(`expecting Uint type, got ${JSON.stringify(data["id"])}`);
 	}
 	checkKeystoreData(data["data"]);
@@ -300,7 +300,7 @@ const checkInt = (data: any) => {
 	checkObject(data, "KeystoreDataRemove");
 	const id = data["id"],
 	      keys = data["keys"];
-	if (checkUint(id)) {
+	if (!checkUint(id)) {
 		throw new Error(`invalid KeystoreDataRemove object, key 'id' does not contain Uint type, got ${JSON.stringify(id)}`);
 	}
 	if (!(keys instanceof Array)) {
@@ -321,7 +321,7 @@ const checkInt = (data: any) => {
 		case "gridStroke":
 		case "width":
 		case "height":
-			if (checkUint(data[key])) {
+			if (!checkUint(data[key])) {
 				throw new Error(`invalid KeystoreDataRemove object, key '${key}' does not contain Uint type, got ${JSON.stringify(data[key])}`);
 			}
 			break;
