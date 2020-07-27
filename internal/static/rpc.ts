@@ -172,13 +172,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 const checkInt = (data: any, name = "Int", key?: string) => {
 	if (typeof data !== "number" || data % 1 !== 0) {
-		throw new Error(key === undefined ? `expecting Int type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid Int: ${JSON.stringify(data)}`);
+		throw new Error(key === undefined ? `expecting Int type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}`);
 	}
 	return data;
       },
       checkUint = (data: any, name: string, key: string, max = Number.MAX_SAFE_INTEGER) => {
 	if (typeof data != "number" || data % 1 !== 0 || data < 0 || data > max) {
-		throw new Error(`invalid ${name} object, key '${key}' contains invalid Uint: ${JSON.stringify(data)}`);
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}`);
 	}
       },
       checkObject = (data: any, name: string, key?: string) => {
@@ -188,9 +188,14 @@ const checkInt = (data: any, name = "Int", key?: string) => {
       },
       checkString = (data: any, name = "String", key?: string) => {
 	if (typeof data !== "string") {
-		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid string: ${JSON.stringify(data)}`);
+		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}`);
 	}
 	return data;
+      },
+      checkBoolean = (data: any, name: string, key: string) => {
+	if (typeof data !== "boolean") {
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}`);
+	}
       },
       checkColour = (data: any) => {
 	checkObject(data, "Colour");
@@ -263,9 +268,7 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 		}
 		const kd = data[key];
 		checkObject(kd, "KeystoreData", key);
-		if (typeof kd["user"] !== "boolean") {
-			throw new Error(`invalid KeystoreData object, key '${key}' contains an invalid user type: ${JSON.stringify(kd["user"])}`);
-		}
+		checkBoolean(kd["user"], "KeystoreData", "user");
 		if (kd["data"] === undefined) {
 			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
