@@ -366,4 +366,23 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 	checkTokenPos(data, "TokenID");
 	checkUint(data["id"], "TokenID", "id");
 	return data;
+      },
+      checkToken = (data: any, name = "Token") => {
+	checkObject(data, name);
+	checkUint(data["src"], name, "src");
+	checkColour(data["stroke"]);
+	checkUint(data["strokeWidth"], name, "strokeWidth");
+	checkInt(data["x"], name, "x");
+	checkInt(data["y"], name, "y");
+	checkUint(data["width"], name, "width");
+	checkUint(data["height"], name, "height");
+	checkUint(data["patternWidth"], name, "patternWidth");
+	checkUint(data["patternHeight"], name, "patternHeight");
+	checkUint(data["rotation"], name, "rotation");
+	checkBoolean(data["flip"], name, "flip");
+	checkBoolean(data["flop"], name, "flop");
+	checkUint(data["tokenData"], name, "tokenData");
+	checkUint(data["tokenType"], name, "tokenType");
+	checkBoolean(data["snap"], name, "snap");
+	return data;
       };
