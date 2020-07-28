@@ -252,15 +252,9 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	checkObject(data, "FolderItems", "folders");
 	checkObject(data, "FolderItems", "items");
 	for (const key in data["folders"]) {
-		if (typeof key !== "string") {
-			throw new Error(`invalid FolderItems object, key 'folder' contains an invalid key: ${JSON.stringify(key)}`);
-		}
 		checkFolderItems(data["folders"][key]);
 	}
 	for (const key in data["items"]) {
-		if (typeof key !== "string") {
-			throw new Error(`invalid FolderItems object, key 'items' contains an invalid key: ${JSON.stringify(key)}`);
-		}
 		checkUint(data["items"], "FolderItems", key);
 	}
 	return data;
@@ -268,9 +262,6 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       checkKeystoreData = (data: any) => {
 	checkObject(data, "KeystoreData");
 	for (const key in data) {
-		if (typeof key !== "string") {
-			throw new Error(`invalid KeystoreData object, invalid key: ${JSON.stringify(key)}`);
-		}
 		checkObject(data, "KeystoreData", key);
 		checkBoolean(data[key], "KeystoreData", "user");
 		if (data[key]["data"] === undefined) {
@@ -291,14 +282,8 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       checkKeystoreDataRemove = (data: any) => {
 	checkObject(data, "KeystoreDataRemove");
 	checkUint(data, "KeystoreDataRemove", "id");
-	const keys = data["keys"];
-	if (!(keys instanceof Array)) {
-		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(keys)}`);
-	}
-	for (const key of keys) {
-		if (typeof key !== "string") {
-			throw new Error(`invalid KeystoreDataRemove object, invalid key: ${JSON.stringify(key)}`);
-		}
+	if (!(data["keys"] instanceof Array)) {
+		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(data["keys"])}`);
 	}
 	return data;
       },
