@@ -326,10 +326,10 @@ const checkInt = (data: any, name = "Int", key?: string) => {
       checkTokenChange = (data: any) => {
 	checkTokenPos(data, "TokenChange");
 	checkInt(data["x"], "TokenChange", "x");
-	checkInt(data["x"], "TokenChange", "y");
-	checkUint(data["x"], "TokenChange", "withh");
-	checkUint(data["x"], "TokenChange", "height");
-	checkUint(data["x"], "TokenChange", "rotation", 255);
+	checkInt(data["y"], "TokenChange", "y");
+	checkUint(data["width"], "TokenChange", "width");
+	checkUint(data["height"], "TokenChange", "height");
+	checkUint(data["rotation"], "TokenChange", "rotation", 255);
 	return data;
       },
       checkTokenMovePos = (data: any) => {
