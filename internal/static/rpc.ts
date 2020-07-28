@@ -205,40 +205,16 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       },
       checkColour = (data: any) => {
 	checkObject(data, "Colour");
-	for (const key in data) {
-		switch (key) {
-		case 'r':
-		case 'g':
-		case 'b':
-		case 'a':
-			checkUint(data, "Colour", key, 255);
-			break;
-		default:
-			delete data[key];
-		}
-	}
-	data.r = data.r ?? 0;
-	data.g = data.g ?? 0;
-	data.b = data.b ?? 0;
-	data.a = data.a ?? 0;
+	checkUint(data, "Colour", "r", 255);
+	checkUint(data, "Colour", "g", 255);
+	checkUint(data, "Colour", "b", 255);
+	checkUint(data, "Colour", "a", 255);
 	return data;
       },
       checkIDName = (data: any) => {
 	checkObject(data, "IDName");
-	for (const key in data) {
-		switch (key) {
-		case "id":
-			checkUint(data, "IDName", key);
-			break;
-		case "name":
-			checkString(data, "IDName", "name");
-			break;
-		default:
-			delete data[key];
-		}
-	}
-	data.id = data.id ?? 0;
-	data.name = data.name ?? "";
+	checkUint(data, "IDName", "id");
+	checkString(data, "IDName", "name");
 	return data;
       },
       checkFromTo = (data: any, name = "FromTo") => {
@@ -305,21 +281,11 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       },
       checkMapDetails = (data: any, name = "MapDetails") => {
 	checkObject(data, name);
-	for (const key in data) {
-		switch (key) {
-		case "gridSize":
-		case "gridStroke":
-		case "width":
-		case "height":
-			checkUint(data, name, key);
-			break;
-		case "gridColour":
-			checkColour(data[key]);
-			break;
-		default:
-			delete data[key];
-		}
-	}
+	checkUint(data, name, "gridSize");
+	checkUint(data, name, "gridStroke");
+	checkUint(data, name, "gridWidth");
+	checkUint(data, name, "gridHeight");
+	checkColour(data["gridColour"]);
 	return data;
       },
       checkTokenPos = (data: any, name = "TokenPos") => {
