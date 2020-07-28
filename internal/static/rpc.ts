@@ -285,6 +285,11 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	if (!(data["keys"] instanceof Array)) {
 		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(data["keys"])}`);
 	}
+	for (const key of data["keys"]) {
+		if (typeof key !== "string") {
+			throw new Error(`invalid KeystoreDataRemove object, 'keys' contains an invalid key: ${JSON.stringify(key)}`);
+		}
+	}
 	return data;
       },
       checkMapDetails = (data: any, name = "MapDetails") => {
