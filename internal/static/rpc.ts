@@ -17,7 +17,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
 			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true).then(checkLayerMove),
-			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true),
+			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true).then(checkLayerRename),
 			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true).then(checkString),
 			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true).then(checkColour),
 			"waitLayerShow":               () => rpc.await(broadcastLayerShow, true).then(checkString),
@@ -126,7 +126,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"addLayer":         name                                      => rpc.request("maps.addLayer", name).then(checkString),
 			"addLayerFolder":   path                                      => rpc.request("maps.addLayerFolder", path).then(checkString),
-			"renameLayer":     (path, name)                               => rpc.request("maps.renameLayer", {path, name}),
+			"renameLayer":     (path, name)                               => rpc.request("maps.renameLayer", {path, name}).then(checkLayerRename),
 			"moveLayer":       (from, to, position)                       => rpc.request("maps.moveLayer", {from, to, position}),
 			"showLayer":        path                                      => rpc.request("maps.showLayer", path),
 			"hideLayer":        path                                      => rpc.request("maps.hideLayer", path),
@@ -250,6 +250,12 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       checkLayerMove = (data: any) => {
 	checkFromTo(data, "LayerMove");
 	checkUint(data, "LayerMove", "position");
+	return data;
+      },
+      checkLayerRename = (data: any) => {
+	checkObject(data, "LayerRename");
+	checkString(data, "LayerRename", "path");
+	checkString(data, "LayerRename", "name");
 	return data;
       },
       checkFolderItems = (data: any) => {
