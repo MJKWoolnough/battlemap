@@ -39,7 +39,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenSourceChange":       () => rpc.await(broadcastTokenSourceChange, true).then(checkTokenSource),
 			"waitTokenSetData":            () => rpc.await(broadcastTokenSetData, true).then(checkTokenID),
 			"waitTokenUnsetData":          () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
-			"waitBroadcast":               () => rpc.await(broadcastAny, true),
+			"waitBroadcast":               () => rpc.await(broadcastAny, true).then(checkBroadcast),
 
 			"images": {
 				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true).then(checkIDName),
@@ -388,5 +388,12 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	checkMapDetails(data, "MapData");
 	checkColour(data["lightColour"]);
 	checkLayerFolder(data, "MapData");
+	return data;
+      },
+      checkBroadcast = (data: any) => {
+	checkObject(data, "Broadcast");
+	if (data["type"] === undefined) {
+		throw new Error("invalid Broadcast object, missing 'type' key");
+	}
 	return data;
       };
