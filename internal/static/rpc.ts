@@ -8,7 +8,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		return Object.freeze({
 			"waitLogin":                   () => rpc.await(broadcastIsAdmin).then(checkInt),
 			"waitCurrentUserMap":          () => rpc.await(broadcastCurrentUserMap, true).then(checkInt),
-			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true),
+			"waitCurrentUserMapData":      () => rpc.await(broadcastCurrentUserMapData, true).then(checkMapData),
 			"waitCharacterDataChange":     () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreDataChange),
 			"waitCharacterDataRemove":     () => rpc.await(broadcastCharacterDataRemove, true).then(checkKeystoreDataRemove),
 			"waitTokenDataChange":         () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
@@ -118,7 +118,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setCurrentMap":  id => rpc.request("maps.setCurrentMap", id),
 			"getUserMap":    ()  => rpc.request("maps.getUserMap").then(checkInt),
 			"setUserMap":     id => rpc.request("maps.setUserMap", id),
-			"getMapData":     id => rpc.request("maps.getMapData", id),
+			"getMapData":     id => rpc.request("maps.getMapData", id).then(checkMapData),
 
 			"newMap":         map    => rpc.request("maps.new", map).then(checkIDName),
 			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map),
@@ -383,5 +383,36 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       checkTokenAdd = (data: any) => {
 	checkTokenPos(data, "TokenAdd");
 	checkToken(data, "TokenAdd");
+	return data;
+      },
+      checkLayerFolder = (data: any, name = "LayerFolder") => {
+	checkUint(data, name, "id");
+	checkString(data, name, "name");
+	checkBoolean(data, name, "hidden");
+	if (!(data["children"] instanceof Array)) {
+		throw new Error(`invalid LayerFolder object, key 'children' does not contain Array type, got ${JSON.stringify(data["children"])}`);
+	}
+	for (const c of data["children"]) {
+		checkObject(c, "LayerFolder");
+		if (c.mask === undefined) {
+			checkLayerFolder(c);
+		} else {
+			checkUint(c, "LayerTokens", "id");
+			checkString(c, "LayerTokens", "name");
+			checkBoolean(c, "LayerTokens", "hidden");
+			checkUint(c, "LayerTokens", "mask");
+			if (!(c["tokens"] instanceof Array)) {
+				throw new Error(`invalid LayerTokens object, key 'tokens' does not contain Array type, got ${JSON.stringify(c["tokens"])}`);
+			}
+			for (const t of c["tokens"]) {
+				checkToken(t);
+			}
+		}
+	}
+      },
+      checkMapData = (data: any) => {
+	checkMapDetails(data, "MapData");
+	checkColour(data["lightColour"]);
+	checkLayerFolder(data, "MapData");
 	return data;
       };
