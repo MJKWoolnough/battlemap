@@ -170,31 +170,37 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 	})
 }
 
-const checkInt = (data: any, name = "Int", key?: string) => {
-	if (typeof data !== "number" || data % 1 !== 0) {
-		throw new Error(key === undefined ? `expecting Int type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}`);
+const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[key],
+      checkInt = (data: any, name = "Int", key?: string) => {
+	const d = dataOrKey(data, key);
+	if (typeof d !== "number" || d % 1 !== 0) {
+		throw new Error(key === undefined ? `expecting Int type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(d)}`);
 	}
-	return data;
+	return d;
       },
       checkUint = (data: any, name: string, key: string, max = Number.MAX_SAFE_INTEGER) => {
-	if (typeof data != "number" || data % 1 !== 0 || data < 0 || data > max) {
-		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}`);
+	const d = data[key];
+	if (typeof d != "number" || d % 1 !== 0 || d < 0 || d > max) {
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(d)}`);
 	}
       },
       checkObject = (data: any, name: string, key?: string) => {
-	if (typeof data !== "object") {
-		throw new Error(key === undefined ? `expecting ${name} object, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}`);
+	const d = dataOrKey(data, key);
+	if (typeof d !== "object") {
+		throw new Error(key === undefined ? `expecting ${name} object, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(d)}`);
 	}
       },
       checkString = (data: any, name = "String", key?: string) => {
-	if (typeof data !== "string") {
-		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(data)}` : `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}`);
+	const d = dataOrKey(data, key);
+	if (typeof d !== "string") {
+		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(d)}`);
 	}
 	return data;
       },
       checkBoolean = (data: any, name: string, key: string) => {
-	if (typeof data !== "boolean") {
-		throw new Error(`invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}`);
+	const d = data[key];
+	if (typeof d !== "boolean") {
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}`);
 	}
       },
       checkColour = (data: any) => {
@@ -205,7 +211,7 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 		case 'g':
 		case 'b':
 		case 'a':
-			checkUint(data[key], "Colour", key, 255);
+			checkUint(data, "Colour", key, 255);
 			break;
 		default:
 			delete data[key];
@@ -222,10 +228,10 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 	for (const key in data) {
 		switch (key) {
 		case "id":
-			checkUint(data[key], "IDName", key);
+			checkUint(data, "IDName", key);
 			break;
 		case "name":
-			checkString(data["name"], "IDName", "name");
+			checkString(data, "IDName", "name");
 			break;
 		default:
 			delete data[key];
@@ -237,26 +243,25 @@ const checkInt = (data: any, name = "Int", key?: string) => {
       },
       checkFromTo = (data: any) => {
 	checkObject(data, "FromTo");
-	checkString(data["from"], "FromTo", "from");
-	checkString(data["to"], "FromTo", "to");
+	checkString(data, "FromTo", "from");
+	checkString(data, "FromTo", "to");
 	return data;
       },
       checkFolderItems = (data: any) => {
 	checkObject(data, "FolderItems");
-	const {folders, items} = data;
-	checkObject(folders, "FolderItems", "folders");
-	checkObject(items, "FolderItems", "items");
-	for (const key in folders) {
+	checkObject(data, "FolderItems", "folders");
+	checkObject(data, "FolderItems", "items");
+	for (const key in data["folders"]) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid FolderItems object, key 'folder' contains an invalid key: ${JSON.stringify(key)}`);
 		}
-		checkFolderItems(folders[key]);
+		checkFolderItems(data["folders"][key]);
 	}
-	for (const key in items) {
+	for (const key in data["items"]) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid FolderItems object, key 'items' contains an invalid key: ${JSON.stringify(key)}`);
 		}
-		checkUint(data[key], "FolderItems", key);
+		checkUint(data["items"], "FolderItems", key);
 	}
 	return data;
       },
@@ -266,10 +271,9 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 		if (typeof key !== "string") {
 			throw new Error(`invalid KeystoreData object, invalid key: ${JSON.stringify(key)}`);
 		}
-		const kd = data[key];
-		checkObject(kd, "KeystoreData", key);
-		checkBoolean(kd["user"], "KeystoreData", "user");
-		if (kd["data"] === undefined) {
+		checkObject(data, "KeystoreData", key);
+		checkBoolean(data[key], "KeystoreData", "user");
+		if (data[key]["data"] === undefined) {
 			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
@@ -280,13 +284,13 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 	if (typeof data !== "object") {
 		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
 	}
-	checkUint(data["id"], "FolderItems", "id");
+	checkUint(data, "FolderItems", "id");
 	checkKeystoreData(data["data"]);
 	return data;
       },
       checkKeystoreDataRemove = (data: any) => {
 	checkObject(data, "KeystoreDataRemove");
-	checkUint(data["id"], "KeystoreDataRemove", "id");
+	checkUint(data, "KeystoreDataRemove", "id");
 	const keys = data["keys"];
 	if (!(keys instanceof Array)) {
 		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(keys)}`);
@@ -306,7 +310,7 @@ const checkInt = (data: any, name = "Int", key?: string) => {
 		case "gridStroke":
 		case "width":
 		case "height":
-			checkUint(data[key], "MapDetails", key);
+			checkUint(data, "MapDetails", key);
 			break;
 		case "gridColour":
 			checkColour(data[key]);
@@ -319,70 +323,70 @@ const checkInt = (data: any, name = "Int", key?: string) => {
       },
       checkTokenPos = (data: any, name = "TokenPos") => {
 	checkObject(data, name);
-	checkString(data["path"], name, "path");
-	checkUint(data["pos"], name, "pos");
+	checkString(data, name, "path");
+	checkUint(data, name, "pos");
 	return data;
       },
       checkTokenChange = (data: any) => {
 	checkTokenPos(data, "TokenChange");
-	checkInt(data["x"], "TokenChange", "x");
-	checkInt(data["y"], "TokenChange", "y");
-	checkUint(data["width"], "TokenChange", "width");
-	checkUint(data["height"], "TokenChange", "height");
-	checkUint(data["rotation"], "TokenChange", "rotation", 255);
+	checkInt(data, "TokenChange", "x");
+	checkInt(data, "TokenChange", "y");
+	checkUint(data, "TokenChange", "width");
+	checkUint(data, "TokenChange", "height");
+	checkUint(data, "TokenChange", "rotation", 255);
 	return data;
       },
       checkTokenMovePos = (data: any) => {
 	checkTokenPos(data, "TokenMovePos");
-	checkUint(data["newPos"], "TokenMovePos", "newPos");
+	checkUint(data, "TokenMovePos", "newPos");
 	return data;
       },
       checkTokenMoveLayer = (data: any) => {
 	checkTokenPos(data, "TokenMoveLayer");
-	checkUint(data["pos"], "TokenMoveLayer", "pos");
+	checkUint(data, "TokenMoveLayer", "pos");
 	return data;
       },
       checkTokenFlip = (data: any) => {
 	checkTokenPos(data, "TokenFlop");
-	checkBoolean(data["flip"], "TokenFlip", "flip");
+	checkBoolean(data, "TokenFlip", "flip");
 	return data;
       },
       checkTokenFlop = (data: any) => {
 	checkTokenPos(data, "TokenFlop");
-	checkBoolean(data["flop"], "TokenFlop", "flop");
+	checkBoolean(data, "TokenFlop", "flop");
 	return data;
       },
       checkTokenSnap = (data: any) => {
 	checkTokenPos(data, "TokenSnap");
-	checkBoolean(data["snap"], "TokenSnap", "snap");
+	checkBoolean(data, "TokenSnap", "snap");
 	return data;
       },
       checkTokenSource = (data: any) => {
 	checkTokenPos(data, "TokenMoveSource");
-	checkString(data["src"], "TokenSource", "src");
+	checkString(data, "TokenSource", "src");
 	return data;
       },
       checkTokenID = (data: any) => {
 	checkTokenPos(data, "TokenID");
-	checkUint(data["id"], "TokenID", "id");
+	checkUint(data, "TokenID", "id");
 	return data;
       },
       checkToken = (data: any, name = "Token") => {
 	checkObject(data, name);
-	checkUint(data["src"], name, "src");
+	checkUint(data, name, "src");
 	checkColour(data["stroke"]);
-	checkUint(data["strokeWidth"], name, "strokeWidth");
-	checkInt(data["x"], name, "x");
-	checkInt(data["y"], name, "y");
-	checkUint(data["width"], name, "width");
-	checkUint(data["height"], name, "height");
-	checkUint(data["patternWidth"], name, "patternWidth");
-	checkUint(data["patternHeight"], name, "patternHeight");
-	checkUint(data["rotation"], name, "rotation");
-	checkBoolean(data["flip"], name, "flip");
-	checkBoolean(data["flop"], name, "flop");
-	checkUint(data["tokenData"], name, "tokenData");
-	checkUint(data["tokenType"], name, "tokenType");
-	checkBoolean(data["snap"], name, "snap");
+	checkUint(data, name, "strokeWidth");
+	checkInt(data, name, "x");
+	checkInt(data, name, "y");
+	checkUint(data, name, "width");
+	checkUint(data, name, "height");
+	checkUint(data, name, "patternWidth");
+	checkUint(data, name, "patternHeight");
+	checkUint(data, name, "rotation");
+	checkBoolean(data, name, "flip");
+	checkBoolean(data, name, "flop");
+	checkUint(data, name, "tokenData");
+	checkUint(data, name, "tokenType");
+	checkBoolean(data, name, "snap");
 	return data;
       };
