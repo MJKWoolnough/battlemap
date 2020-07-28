@@ -25,7 +25,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLayerMaskAdd":            () => rpc.await(broadcastLayerMaskAdd, true),
 			"waitLayerMaskChange":         () => rpc.await(broadcastLayerMaskChange, true),
 			"waitLayerMaskRemove":         () => rpc.await(broadcastLayerMaskRemove, true),
-			"waitTokenAdd":                () => rpc.await(broadcastTokenAdd, true),
+			"waitTokenAdd":                () => rpc.await(broadcastTokenAdd, true).then(checkTokenAdd),
 			"waitTokenRemove":             () => rpc.await(broadcastTokenRemove, true).then(checkTokenPos),
 			"waitTokenMoveLayer":          () => rpc.await(broadcastTokenMoveLayer, true).then(checkTokenMoveLayer),
 			"waitTokenMovePos":            () => rpc.await(broadcastTokenMovePos, true).then(checkTokenMovePos),
@@ -373,5 +373,10 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	checkUint(data, name, "tokenData");
 	checkUint(data, name, "tokenType");
 	checkBoolean(data, name, "snap");
+	return data;
+      },
+      checkTokenAdd = (data: any) => {
+	checkTokenPos(data, "TokenAdd");
+	checkToken(data, "Token");
 	return data;
       };
