@@ -203,6 +203,12 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 		throw new Error(`invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}`);
 	}
       },
+      checkArray = (data: any, name: string, key: string) => {
+	const d = data[key];
+	if (!(d instanceof Array)) {
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(d)}`);
+	}
+      },
       checkColour = (data: any) => {
 	checkObject(data, "Colour");
 	checkUint(data, "Colour", "r", 255);
@@ -259,9 +265,6 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       },
       checkKeystoreDataChange = (data: any) => {
 	checkObject(data, "KeystoreDataChange");
-	if (typeof data !== "object") {
-		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
-	}
 	checkUint(data, "KeystoreDataChange", "id");
 	checkKeystoreData(data["data"]);
 	return data;
@@ -269,9 +272,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       checkKeystoreDataRemove = (data: any) => {
 	checkObject(data, "KeystoreDataRemove");
 	checkUint(data, "KeystoreDataRemove", "id");
-	if (!(data["keys"] instanceof Array)) {
-		throw new Error(`invalid KeystoreDataRemove object, key 'keys' does not contain Array type, got ${JSON.stringify(data["keys"])}`);
-	}
+	checkArray(data, "KeystoreDataRemove", "keys");
 	for (const key of data["keys"]) {
 		if (typeof key !== "string") {
 			throw new Error(`invalid KeystoreDataRemove object, 'keys' contains an invalid key: ${JSON.stringify(key)}`);
@@ -366,9 +367,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	checkUint(data, name, "id");
 	checkString(data, name, "name");
 	checkBoolean(data, name, "hidden");
-	if (!(data["children"] instanceof Array)) {
-		throw new Error(`invalid LayerFolder object, key 'children' does not contain Array type, got ${JSON.stringify(data["children"])}`);
-	}
+	checkArray(data, name, "children");
 	for (const c of data["children"]) {
 		checkObject(c, "LayerFolder");
 		if (c.mask === undefined) {
@@ -378,9 +377,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 			checkString(c, "LayerTokens", "name");
 			checkBoolean(c, "LayerTokens", "hidden");
 			checkUint(c, "LayerTokens", "mask");
-			if (!(c["tokens"] instanceof Array)) {
-				throw new Error(`invalid LayerTokens object, key 'tokens' does not contain Array type, got ${JSON.stringify(c["tokens"])}`);
-			}
+			checkArray(c, "LayerTokens", "tokens");
 			for (const t of c["tokens"]) {
 				checkToken(t);
 			}
