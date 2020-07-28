@@ -16,7 +16,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitMapChange":               () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
 			"waitLayerAdd":                () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":          () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
-			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true),
+			"waitLayerMove":               () => rpc.await(broadcastLayerMove, true).then(checkLayerMove),
 			"waitLayerRename":             () => rpc.await(broadcastLayerRename, true),
 			"waitLayerRemove":             () => rpc.await(broadcastLayerRemove, true).then(checkString),
 			"waitMapLightChange":          () => rpc.await(broadcastMapLightChange, true).then(checkColour),
@@ -241,10 +241,15 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	data.name = data.name ?? "";
 	return data;
       },
-      checkFromTo = (data: any) => {
-	checkObject(data, "FromTo");
-	checkString(data, "FromTo", "from");
-	checkString(data, "FromTo", "to");
+      checkFromTo = (data: any, name = "FromTo") => {
+	checkObject(data, name);
+	checkString(data, name, "from");
+	checkString(data, name, "to");
+	return data;
+      },
+      checkLayerMove = (data: any) => {
+	checkFromTo(data, "LayerMove");
+	checkUint(data, "LayerMove", "position");
 	return data;
       },
       checkFolderItems = (data: any) => {
