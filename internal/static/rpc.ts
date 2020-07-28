@@ -275,7 +275,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	if (typeof data !== "object") {
 		throw new Error(`expecting KeystoreDataChange object, got ${JSON.stringify(data)}`);
 	}
-	checkUint(data, "FolderItems", "id");
+	checkUint(data, "KeystoreDataChange", "id");
 	checkKeystoreData(data["data"]);
 	return data;
       },
@@ -287,15 +287,15 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	}
 	return data;
       },
-      checkMapDetails = (data: any) => {
-	checkObject(data, "MapDetails");
+      checkMapDetails = (data: any, name = "MapDetails") => {
+	checkObject(data, name);
 	for (const key in data) {
 		switch (key) {
 		case "gridSize":
 		case "gridStroke":
 		case "width":
 		case "height":
-			checkUint(data, "MapDetails", key);
+			checkUint(data, name, key);
 			break;
 		case "gridColour":
 			checkColour(data[key]);
@@ -332,7 +332,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	return data;
       },
       checkTokenFlip = (data: any) => {
-	checkTokenPos(data, "TokenFlop");
+	checkTokenPos(data, "TokenFlip");
 	checkBoolean(data, "TokenFlip", "flip");
 	return data;
       },
@@ -347,7 +347,7 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
 	return data;
       },
       checkTokenSource = (data: any) => {
-	checkTokenPos(data, "TokenMoveSource");
+	checkTokenPos(data, "TokenSource");
 	checkString(data, "TokenSource", "src");
 	return data;
       },
@@ -377,6 +377,6 @@ const dataOrKey = (data: any, key?: string) => key === undefined ? data : data[k
       },
       checkTokenAdd = (data: any) => {
 	checkTokenPos(data, "TokenAdd");
-	checkToken(data, "Token");
+	checkToken(data, "TokenAdd");
 	return data;
       };
