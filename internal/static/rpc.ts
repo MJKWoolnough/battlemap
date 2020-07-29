@@ -173,38 +173,39 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 
 const returnVoid = () => {},
+      throwError = (err: string) => {throw new TypeError(err)},
       checkInt = (data: any, name = "Int", key = "") => {
 	if (typeof data !== "number" || data % 1 !== 0) {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}` : `expecting Int type, got ${JSON.stringify(data)}`);
+		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}` : `expecting Int type, got ${JSON.stringify(data)}`);
 	}
       },
       checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER) => {
 	if (typeof data !== "number" || data % 1 !== 0) {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}` : `expecting Uint type, got ${JSON.stringify(data)}`);
+		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}` : `expecting Uint type, got ${JSON.stringify(data)}`);
 	}
 	return data;
       },
       checkByte = (data: any, name = "Byte", key = "") => checkUint(data, name, key, 255),
       checkObject = (data: any, name: string, key = "") => {
 	if (typeof data !== "object") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}` : `expecting ${name} object, got ${JSON.stringify(data)}`);
+		throwError(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}` : `expecting ${name} object, got ${JSON.stringify(data)}`);
 	}
       },
       checkString = (data: any, name = "String", key = "") => {
 	if (typeof data !== "string") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
+		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
 	return data;
       },
       checkBoolean = (data: any, name = "Boolean", key = "") => {
 	if (typeof data !== "boolean") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
+		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
 	return data;
       },
       checkArray = (data: any, name: string, key = "") => {
 	if (!(data instanceof Array)) {
-		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(data)}`);
+		throwError(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(data)}`);
 	}
       },
       checker = (data: any, name: string, checkers: checkers) => {
@@ -240,7 +241,7 @@ const returnVoid = () => {},
 	for (const key in data) {
 		checker(data[key], name, checksKeystoreData);
 		if (data[key]["data"] === undefined) {
-			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
+			throwError(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
 	return data;
@@ -252,7 +253,7 @@ const returnVoid = () => {},
 	checker(data, "KeystoreDataRemove", checksKeystoreDataRemove);
 	for (const key of data["keys"]) {
 		if (typeof key !== "string") {
-			throw new Error(`invalid KeystoreDataRemove object, 'keys' contains an invalid key: ${JSON.stringify(key)}`);
+			throwError(`invalid KeystoreDataRemove object, 'keys' contains an invalid key: ${JSON.stringify(key)}`);
 		}
 	}
 	return data;
@@ -302,7 +303,7 @@ const returnVoid = () => {},
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
-		throw new Error("invalid Broadcast object, missing 'type' key");
+		throwError("invalid Broadcast object, missing 'type' key");
 	}
 	return data;
       };
