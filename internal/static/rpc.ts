@@ -359,7 +359,6 @@ const returnVoid = () => {},
 	checkUint(data, name, "tokenData");
 	checkUint(data, name, "tokenType");
 	checkBoolean(data, name, "snap");
-	return data;
       },
       checkTokenAdd = (data: any) => {
 	checkTokenPos(data, "TokenAdd");
