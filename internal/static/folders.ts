@@ -1,4 +1,4 @@
-import {Int, FolderRPC, FolderItems} from './types.js';
+import {Uint, FolderRPC, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
@@ -7,7 +7,7 @@ import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 
 interface ItemConstructor {
-	new (parent: Folder, id: Int, name: string): Item;
+	new (parent: Folder, id: Uint, name: string): Item;
 }
 
 interface FolderConstructor {
@@ -26,11 +26,11 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
 let folderID = 0;
 
 export class Item {
-	id: Int;
+	id: Uint;
 	name: string;
 	parent: Folder;
 	node: HTMLElement;
-	constructor(parent: Folder, id: Int, name: string) {
+	constructor(parent: Folder, id: Uint, name: string) {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
@@ -124,7 +124,7 @@ export class Item {
 
 export class DraggableItem extends Item {
 	icon: HTMLDivElement = div(img({"class": "imageIcon"}));
-	constructor(parent: Folder, id: Int, name: string) {
+	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		createHTML(this.node.firstChild!, {
 			"draggable": "true",
@@ -296,7 +296,7 @@ export class Folder {
 			}})
 		]);
 	}
-	addItem(id: Int, name: string) {
+	addItem(id: Uint, name: string) {
 		const item = this.getItem(name);
 		if (item) {
 			return item;
@@ -383,7 +383,7 @@ export class Root {
 		breadcrumbs.every(f => f == "" ? true : folder = folder!.getFolder(f));
 		return [folder, sub || ""];
 	}
-	addItem(id: Int, path: string) {
+	addItem(id: Uint, path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder) {
 			return folder.addItem(id, name);

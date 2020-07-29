@@ -1,4 +1,4 @@
-import {Int, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
+import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
@@ -58,7 +58,7 @@ const dragFn = (e: MouseEvent) => {
 	}
 	const currPos = dragging!.parent!.children.indexOf(dragging!),
 	      oldPath = dragging!.getPath();
-	let pos: Int,
+	let pos: Uint,
 	    newPath: string;
 	if (dragging!.id >= 0 && beforeAfter && isFolder(l) && l.open.open) {
 		pos = 0;
@@ -103,7 +103,7 @@ const dragFn = (e: MouseEvent) => {
 class ItemLayer extends Item {
 	hidden: boolean;
 	nameElem: HTMLSpanElement;
-	constructor(parent: Folder, id: Int, name: string, hidden = false) {
+	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
 		super(parent, id, name);
 		this.hidden = hidden;
 		this.nameElem = this.node.firstChild as HTMLSpanElement;
@@ -212,7 +212,7 @@ class ItemLayer extends Item {
 }
 
 class FolderLayer extends Folder {
-	id: Int;
+	id: Uint;
 	hidden: boolean;
 	nameElem: HTMLSpanElement;
 	open: HTMLDetailsElement;

@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createSVG, rect} from './lib/svg.js';
@@ -9,10 +9,11 @@ import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLa
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
+import {} from './tools.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
-      ratio = (mDx: Int, mDy: Int, width: Int, height: Int, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
+      ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
 	mDx *= dX;
 	mDy *= dY;
 	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
@@ -52,7 +53,7 @@ export const getToken = () => {
 };
 let selectedToken: SVGToken | SVGShape | null = null;
 
-export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Int) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Uint) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
 	let canceller = () => {};
 	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
@@ -741,7 +742,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, position: Int, oldPos: Int) => {
+			"moveLayer": (from: string, to: string, position: Uint, oldPos: Uint) => {
 				const undoIt = () => {
 					unselectToken();
 					moveLayer(to, from, oldPos);

@@ -1,4 +1,4 @@
-import {Int, RPC} from './types.js';
+import {Uint, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {handleError, enterKey, hex2Colour} from './misc.js';
@@ -19,11 +19,11 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 		}
 	}
       };
-let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Int) => void;
+let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Uint) => void;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
-	constructor(parent: Folder, id: Int, name: string) {
+	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
 		this.nameSpan = this.node.firstChild as HTMLSpanElement;
@@ -114,7 +114,7 @@ class MapRoot extends Root {
 	}
 }
 
-export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentMap: (id: Int) => void) {
+export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentMap: (id: Uint) => void) {
 	rpc = arpc;
 	shell = ashell;
 	sendCurrentMap = setCurrentMap;
@@ -124,7 +124,7 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 		rpc.getUserMap()
 	]).then(([folderList, userMap]) => {
 		const root = new MapRoot(folderList, "Maps", rpcFuncs, shell, MapItem, MapFolder),
-		      findMap = (folder: Folder, id: Int): MapItem | undefined => {
+		      findMap = (folder: Folder, id: Uint): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
 				return m as MapItem;
@@ -137,7 +137,7 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentM
 			}
 			return undefined;
 		      },
-		      setUserMap = (id: Int, setCurrent: boolean = false) => {
+		      setUserMap = (id: Uint, setCurrent: boolean = false) => {
 			const m = findMap(root.folder, id);
 			if (m) {
 				m.setUserMap();

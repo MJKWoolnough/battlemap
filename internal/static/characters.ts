@@ -1,4 +1,4 @@
-import {Int, KeystoreData, RPC} from './types.js';
+import {Uint, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1,  img, input, label} from './lib/html.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
@@ -19,9 +19,9 @@ const allowedKey = (key: string, character: boolean) => {
 	return true;
 };
 
-export const characterData = new Map<Int, Record<string, KeystoreData>>(),
-tokenData = new Map<Int, Record<string, KeystoreData>>(),
-edit = function (shell: ShellElement, rpc: RPC, id: Int, name: string, d: Record<string, KeystoreData>, character: boolean) {
+export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
+tokenData = new Map<Uint, Record<string, KeystoreData>>(),
+edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0, tokenClone = 0;
 	const changes: Record<string, KeystoreData> = {},

@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Int, LayerFolder, LayerTokens, Token, RPC, MapData} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, RPC, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
@@ -45,11 +45,11 @@ class Defs {
 class SVGTransform {
 	x: Int = 0;
 	y: Int = 0;
-	rotation: Int = 0;
+	rotation: Byte = 0;
 	flip: boolean = false;
 	flop: boolean = false;
-	width: Int;
-	height: Int;
+	width: Uint;
+	height: Uint;
 	constructor(token: Token) {
 		this.width = token.width;
 		this.height = token.height;
@@ -76,20 +76,20 @@ class SVGTransform {
 
 export class SVGToken extends SVGTransform {
 	node: SVGImageElement | SVGRectElement;
-	src: Int;
+	src: Uint;
 	stroke: Colour;
-	strokeWidth: Int;
+	strokeWidth: Uint;
 	x: Int;
 	y: Int;
-	width: Int;
-	height: Int;
-	patternWidth: Int;
-	patternHeight: Int;
-	rotation: Int;
+	width: Uint;
+	height: Uint;
+	patternWidth: Uint;
+	patternHeight: Uint;
+	rotation: Byte;
 	flip: boolean;
 	flop: boolean;
-	tokenData: Int;
-	tokenType: Int;
+	tokenData: Uint;
+	tokenType: Uint;
 	snap: boolean;
 	constructor(token: Token) {
 		throw new Error("use from");
@@ -142,18 +142,18 @@ export class SVGToken extends SVGTransform {
 
 export class SVGShape extends SVGTransform {
 	node: SVGRectElement | SVGCircleElement;
-	src: Int;
+	src: Uint;
 	stroke: Colour;
-	strokeWidth: Int;
+	strokeWidth: Uint;
 	x: Int;
 	y: Int;
-	width: Int;
-	height: Int;
-	rotation: Int;
+	width: Uint;
+	height: Uint;
+	rotation: Byte;
 	flip: boolean;
 	flop: boolean;
-	tokenData: Int;
-	tokenType: Int;
+	tokenData: Uint;
+	tokenType: Uint;
 	snap: boolean;
 	constructor(token: Token) {
 		super(token);
@@ -217,7 +217,7 @@ const splitAfterLastSlash = (path: string) => {
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
       },
-      setTokenType = (path: string, pos: Int, imagePattern: boolean) => {
+      setTokenType = (path: string, pos: Uint, imagePattern: boolean) => {
 	const [layer, token] = getParentToken(path, pos);
 	if (!token || !(token instanceof SVGToken)) {
 		return;
@@ -234,7 +234,7 @@ const splitAfterLastSlash = (path: string) => {
       },
       isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      getParentToken = (path: string, pos: Int): [SVGLayer | null, SVGToken | SVGShape | null] => {
+      getParentToken = (path: string, pos: Uint): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(globals.layerList, path);
 	if (!parent || !isSVGLayer(parent)) {
 		return [null, null];
@@ -270,7 +270,7 @@ removeLayer = (path: string) => {
 	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 },
 addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": []})), name),
-moveLayer = (from: string, to: string, pos: Int) => {
+moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(globals.layerList, parentStr)!,
 	      toParent = getLayer(globals.layerList, to) as SVGFolder;
@@ -482,7 +482,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	] as [
 		HTMLDivElement,
 		() => void,
-		{ x: Int; y: Int; zoom: Int},
+		{ x: Int; y: Int; zoom: Uint},
 		SVGGElement,
 	];
 };

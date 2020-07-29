@@ -2,6 +2,8 @@ import {Subscription} from './lib/inter.js';
 
 // export type Int = number & { __int__: void };
 export type Int = number;
+export type Uint = number;
+export type Byte = number;
 
 export type FolderRPC = {
 	waitAdded:         () => Subscription<IDName[]>;
@@ -18,7 +20,7 @@ export type FolderRPC = {
 	moveFolder:   (from: string, to: string) => Promise<string>;
 	remove:       (path: string)             => Promise<void>;
 	removeFolder: (path: string)             => Promise<void>;
-	link:         (id: Int, name: string)    => Promise<string>;
+	link:         (id: Uint, name: string)   => Promise<string>;
 }
 
 export type LayerRPC = FolderRPC & {
@@ -27,21 +29,21 @@ export type LayerRPC = FolderRPC & {
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
 
-	newLayer:       (path: string)                                    => Promise<string>;
-	setVisibility:  (path: string, visible: boolean)                  => Promise<void>;
-	setLayer:       (path: string)                                    => void;
-	setLayerMask:   (path: string)                                    => void;
-	moveLayer:      (from: string, to: string, pos: Int, oldPos: Int) => Promise<void>;
-	renameLayer:    (path: string, name: string)                      => Promise<string>;
-	getMapDetails:  ()                                                => MapDetails;
-	setMapDetails:  (details: MapDetails)                             => Promise<void>;
-	getLightColour: ()                                                => Colour;
-	setLightColour: (c: Colour)                                       => Promise<void>;
+	newLayer:       (path: string)                                      => Promise<string>;
+	setVisibility:  (path: string, visible: boolean)                    => Promise<void>;
+	setLayer:       (path: string)                                      => void;
+	setLayerMask:   (path: string)                                      => void;
+	moveLayer:      (from: string, to: string, pos: Uint, oldPos: Uint) => Promise<void>;
+	renameLayer:    (path: string, name: string)                        => Promise<string>;
+	getMapDetails:  ()                                                  => MapDetails;
+	setMapDetails:  (details: MapDetails)                               => Promise<void>;
+	getLightColour: ()                                                  => Colour;
+	setLightColour: (c: Colour)                                         => Promise<void>;
 }
 
 export type RPC = {
-	waitLogin:                   () => Promise<Int>;
-	waitCurrentUserMap:          () => Subscription<Int>;
+	waitLogin:                   () => Promise<Uint>;
+	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
 	waitCharacterDataChange:     () => Subscription<KeystoreDataChange>;
 	waitCharacterDataRemove:     () => Subscription<KeystoreDataRemove>;
@@ -56,14 +58,14 @@ export type RPC = {
 	waitMapLightChange:          () => Subscription<Colour>;
 	waitLayerShow:               () => Subscription<string>;
 	waitLayerHide:               () => Subscription<string>;
-	waitLayerMaskAdd:            () => Subscription<Int>;        //check type
-	waitLayerMaskChange:         () => Subscription<Int>;        //check type
-	waitLayerMaskRemove:         () => Subscription<Int>;        //check type
+	waitLayerMaskAdd:            () => Subscription<Uint>;        //check type
+	waitLayerMaskChange:         () => Subscription<Uint>;        //check type
+	waitLayerMaskRemove:         () => Subscription<Uint>;        //check type
 	waitTokenAdd:                () => Subscription<TokenAdd>;
 	waitTokenRemove:             () => Subscription<TokenPos>;
 	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
 	waitTokenMovePos:            () => Subscription<TokenMovePos>;
-	waitTokenSetToken:           () => Subscription<Int>;        //check type
+	waitTokenSetToken:           () => Subscription<Uint>;        //check type
 	waitTokenSetImage:           () => Subscription<TokenPos>;
 	waitTokenSetPattern:         () => Subscription<TokenPos>;
 	waitTokenChange:             () => Subscription<TokenChange>;
@@ -80,49 +82,49 @@ export type RPC = {
 	characters: FolderRPC,
 	maps:       FolderRPC,
 
-	connID: () => Promise<Int>;
+	connID: () => Promise<Uint>;
 
-	setCurrentMap: (id: Int) => Promise<void>;
-	getUserMap:    ()        => Promise<Int>;
-	setUserMap:    (id: Int) => Promise<void>;
-	getMapData:    (id: Int) => Promise<MapData>;
+	setCurrentMap: (id: Uint) => Promise<void>;
+	getUserMap:    ()         => Promise<Uint>;
+	setUserMap:    (id: Uint) => Promise<void>;
+	getMapData:    (id: Uint) => Promise<MapData>;
 
 	newMap:         (map: NewMap)      => Promise<IDName>;
 	setMapDetails:  (map: GridDetails) => Promise<void>;
 	setLightColour: (c: Colour)        => Promise<void>;
 
-	addLayer:        (name: string)                                                                   => Promise<string>;
-	addLayerFolder:  (path: string)                                                                   => Promise<string>;
-	renameLayer:     (path: string, name: string)                                                     => Promise<LayerRename>;
-	moveLayer:       (from: string, to: string, position: Int)                                        => Promise<void>;
-	showLayer:       (path: string)                                                                   => Promise<void>;
-	hideLayer:       (path: string)                                                                   => Promise<void>;
-	addMask:         (path: string, mask: Int)                                                        => Promise<void>;
-	removeMask:      (path: string)                                                                   => Promise<void>;
-	removeLayer:     (path: string)                                                                   => Promise<void>;
-	addToken:        (path: string, token: Token)                                                     => Promise<Int>;
-	removeToken:     (path: string, pos: Int)                                                         => Promise<void>;
-	setToken:        (path: string, pos: Int, x: Int, y: Int, width: Int, height: Int, rotation: Int) => Promise<void>;
-	flipToken:       (path: string, pos: Int, flip: boolean)                                          => Promise<void>;
-	flopToken:       (path: string, pos: Int, flop: boolean)                                          => Promise<void>;
-	setTokenSnap:    (path: string, pos: Int, snap: boolean)                                          => Promise<void>;
-	setTokenPattern: (path: string, pos: Int)                                                         => Promise<void>;
-	setTokenImage:   (path: string, pos: Int)                                                         => Promise<void>;
-	setTokenSource:  (path: string, pos: Int, source: string)                                         => Promise<void>;
-	setTokenLayer:   (from: string, pos: Int, to: string)                                             => Promise<void>;
-	setTokenPos:     (path: string, pos: Int, newPos: Int)                                            => Promise<void>;
+	addLayer:        (name: string)                                                                       => Promise<string>;
+	addLayerFolder:  (path: string)                                                                       => Promise<string>;
+	renameLayer:     (path: string, name: string)                                                         => Promise<LayerRename>;
+	moveLayer:       (from: string, to: string, position: Uint)                                           => Promise<void>;
+	showLayer:       (path: string)                                                                       => Promise<void>;
+	hideLayer:       (path: string)                                                                       => Promise<void>;
+	addMask:         (path: string, mask: Uint)                                                           => Promise<void>;
+	removeMask:      (path: string)                                                                       => Promise<void>;
+	removeLayer:     (path: string)                                                                       => Promise<void>;
+	addToken:        (path: string, token: Token)                                                         => Promise<Uint>;
+	removeToken:     (path: string, pos: Uint)                                                            => Promise<void>;
+	setToken:        (path: string, pos: Uint, x: Int, y: Int, width: Uint, height: Uint, rotation: Uint) => Promise<void>;
+	flipToken:       (path: string, pos: Uint, flip: boolean)                                             => Promise<void>;
+	flopToken:       (path: string, pos: Uint, flop: boolean)                                             => Promise<void>;
+	setTokenSnap:    (path: string, pos: Uint, snap: boolean)                                             => Promise<void>;
+	setTokenPattern: (path: string, pos: Uint)                                                            => Promise<void>;
+	setTokenImage:   (path: string, pos: Uint)                                                            => Promise<void>;
+	setTokenSource:  (path: string, pos: Uint, source: string)                                            => Promise<void>;
+	setTokenLayer:   (from: string, pos: Uint, to: string)                                                => Promise<void>;
+	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
 
-	characterCreate:     (name: string)                                => Promise<IDName>;
-	characterSet:        (id: Int, data: Record<string, KeystoreData>) => Promise<void>;
-	characterGet:        (id: Int)                                     => Promise<Record<string, KeystoreData>>;
-	characterRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
+	characterCreate:     (name: string)                                 => Promise<IDName>;
+	characterSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;
+	characterGet:        (id: Uint)                                     => Promise<Record<string, KeystoreData>>;
+	characterRemoveKeys: (id: Uint, keys: string[])                     => Promise<void>;
 
-	tokenCreate:     (path: string, pos: Int)                      => Promise<Int>;
-	tokenSet:        (id: Int, data: Record<string, KeystoreData>) => Promise<void>;
-	tokenGet:        (id: Int)                                     => Promise<Record<string, KeystoreData>>;
-	tokenRemoveKeys: (id: Int, keys: string[])                     => Promise<void>;
-	tokenDelete:     (path: string, pos: Int)                      => Promise<void>;
-	tokenClone:      (id: Int)                                     => Promise<Int>;
+	tokenCreate:     (path: string, pos: Uint)                      => Promise<Uint>;
+	tokenSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;
+	tokenGet:        (id: Uint)                                     => Promise<Record<string, KeystoreData>>;
+	tokenRemoveKeys: (id: Uint, keys: string[])                     => Promise<void>;
+	tokenDelete:     (path: string, pos: Uint)                      => Promise<void>;
+	tokenClone:      (id: Uint)                                     => Promise<Uint>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
@@ -140,7 +142,7 @@ export type MapData = LayerFolder & MapDetails & {
 };
 
 export type IDName = {
-	id:   Int;
+	id:   Uint;
 	name: string;
 }
 
@@ -151,19 +153,19 @@ export type FromTo = {
 
 export type FolderItems = {
 	folders: Record<string, FolderItems>;
-	items:  Record<string, Int>;
+	items:  Record<string, Uint>;
 }
 
 export type Colour = {
-	r: Int;
-	g: Int;
-	b: Int;
-	a: Int;
+	r: Byte;
+	g: Byte;
+	b: Byte;
+	a: Byte;
 };
 
 export type MapDetails = GridDetails & {
-	width: Int;
-	height: Int;
+	width: Uint;
+	height: Uint;
 }
 
 type NewMap = MapDetails & {
@@ -171,50 +173,50 @@ type NewMap = MapDetails & {
 }
 
 export type GridDetails = {
-	gridSize:  Int;
-	gridStroke: Int;
+	gridSize:  Uint;
+	gridStroke: Uint;
 	gridColour: Colour;
 }
 
 export type Token = {
-	src:           Int;
+	src:           Uint;
 	stroke:        Colour;
-	strokeWidth:   Int;
+	strokeWidth:   Uint;
 	x:             Int;
 	y:             Int;
-	width:         Int;
-	height:        Int;
-	patternWidth:  Int;
-	patternHeight: Int;
-	rotation:      Int;
+	width:         Uint;
+	height:        Uint;
+	patternWidth:  Uint;
+	patternHeight: Uint;
+	rotation:      Byte;
 	flip:          boolean;
 	flop:          boolean;
-	tokenData:     Int;
-	tokenType:     Int;
+	tokenData:     Uint;
+	tokenType:     Uint;
 	snap:          boolean;
 };
 
 export type LayerTokens = {
-	id: Int;
+	id: Uint;
 	name: string;
 	hidden: boolean;
-	mask: Int;
+	mask: Uint;
 	tokens: Token[];
 }
 
 export type LayerFolder = FolderItems & {
-	id: Int;
+	id: Uint;
 	name: string;
 	hidden: boolean;
 	children: (LayerTokens | LayerFolder)[];
 }
 
 export type LayerMove = FromTo & {
-	position: Int;
+	position: Uint;
 }
 
 export type Broadcast = {
-	type: Int;
+	type: any;
 	data: any;
 };
 
@@ -225,7 +227,7 @@ type LayerRename = {
 
 type TokenPos = {
 	path: string;
-	pos: Int;
+	pos: Uint;
 }
 
 type TokenAdd = TokenPos & Token;
@@ -233,17 +235,17 @@ type TokenAdd = TokenPos & Token;
 type TokenChange = TokenPos & {
 	x: Int;
 	y: Int;
-	width: Int;
-	height: Int;
-	rotation: Int;
+	width: Uint;
+	height: Uint;
+	rotation: Byte;
 }
 
 type TokenMovePos = TokenPos & {
-	newPos: Int;
+	newPos: Uint;
 }
 
 type TokenMoveLayer = FromTo & {
-	pos: Int;
+	pos: Uint;
 }
 
 type TokenFlip = TokenPos & {
@@ -263,7 +265,7 @@ type TokenSource = TokenPos & {
 }
 
 type TokenID = TokenPos & {
-	id: Int;
+	id: Uint;
 }
 
 export type KeystoreData = {
@@ -272,11 +274,11 @@ export type KeystoreData = {
 };
 
 type KeystoreDataChange = {
-	id: Int;
+	id: Uint;
 	data: Record<string, KeystoreData>;
 }
 
 type KeystoreDataRemove = {
-	id: Int;
+	id: Uint;
 	keys: string[];
 }

@@ -1,4 +1,4 @@
-import {IDName, Int, RPC} from './types.js';
+import {IDName, Uint, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -7,7 +7,7 @@ import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 
 class ImageAsset extends DraggableItem {
-	constructor(parent: Folder, id: Int, name: string) {
+	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${this.id}`);
 	}

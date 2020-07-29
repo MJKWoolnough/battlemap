@@ -1,4 +1,4 @@
-import {Int, KeystoreData, RPC} from './types.js';
+import {Uint, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
@@ -9,7 +9,7 @@ import {edit as characterEdit, characterData, tokenData} from './characters.js';
 let rpc: RPC;
 
 class Character extends DraggableItem {
-	constructor(parent: Folder, id: Int, name: string) {
+	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		rpc.characterGet(id).then(d => {
 			characterData.set(id, d);
@@ -26,7 +26,7 @@ class Character extends DraggableItem {
 		}).catch(handleError);
 		characters.set(id, this);
 	}
-	setIcon(id: Int) {
+	setIcon(id: Uint) {
 		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
 	}
 	dragName() {
@@ -47,7 +47,7 @@ class CharacterRoot extends Root {
 	}
 }
 
-const characters = new Map<Int, Character>();
+const characters = new Map<Uint, Character>();
 
 export default function (arpc: RPC, shell: ShellElement, base: Node) {
 	const rpcFuncs = arpc["characters"];

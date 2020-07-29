@@ -1,5 +1,5 @@
 import RPC from './rpc.js';
-import {Int, LayerRPC} from './types.js';
+import {Int, Uint, LayerRPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, span, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
@@ -18,8 +18,8 @@ type savedWindow = {
 	out: boolean;
 	x: Int;
 	y: Int;
-	width: Int;
-	height: Int;
+	width: Uint;
+	height: Uint;
 }
 
 declare const pageLoad: Promise<void>;
@@ -146,7 +146,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	});
 	return o;
       }()),
-      mapLoadPipe = new Pipe<Int>(),
+      mapLoadPipe = new Pipe<Uint>(),
       mapLayers = new Pipe<LayerRPC>(),
       spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
       base = desktop(),
