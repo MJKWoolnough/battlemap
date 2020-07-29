@@ -173,56 +173,48 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 
 const returnVoid = () => {},
-      dataOrKey = (data: any, key: string) => key ? data[key] : data,
       checkInt = (data: any, name = "Int", key = "") => {
-	const d = dataOrKey(data, key);
-	if (typeof d !== "number" || d % 1 !== 0) {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(d)}` : `expecting Int type, got ${JSON.stringify(d)}`);
+	if (typeof data !== "number" || data % 1 !== 0) {
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}` : `expecting Int type, got ${JSON.stringify(data)}`);
 	}
-	return d;
       },
       checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER) => {
-	const d = dataOrKey(data, key);
-	if (typeof d !== "number" || d % 1 !== 0) {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(d)}` : `expecting Uint type, got ${JSON.stringify(d)}`);
+	if (typeof data !== "number" || data % 1 !== 0) {
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}` : `expecting Uint type, got ${JSON.stringify(data)}`);
 	}
-	return d;
+	return data;
       },
       checkByte = (data: any, name = "Byte", key = "") => checkUint(data, name, key, 255),
       checkObject = (data: any, name: string, key = "") => {
-	const d = dataOrKey(data, key);
-	if (typeof d !== "object") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(d)}` : `expecting ${name} object, got ${JSON.stringify(d)}`);
+	if (typeof data !== "object") {
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}` : `expecting ${name} object, got ${JSON.stringify(data)}`);
 	}
       },
       checkString = (data: any, name = "String", key = "") => {
-	const d = dataOrKey(data, key);
-	if (typeof d !== "string") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(d)}` : `expecting ${name} type, got ${JSON.stringify(d)}`);
+	if (typeof data !== "string") {
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
 	return data;
       },
       checkBoolean = (data: any, name = "Boolean", key = "") => {
-	const d = dataOrKey(data, key);
-	if (typeof d !== "boolean") {
-		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}` : `expecting ${name} type, got ${JSON.stringify(d)}`);
+	if (typeof data !== "boolean") {
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
-	return d;
+	return data;
       },
       checkArray = (data: any, name: string, key = "") => {
-	const d = data[key];
-	if (!(d instanceof Array)) {
-		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(d)}`);
+	if (!(data instanceof Array)) {
+		throw new Error(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(data)}`);
 	}
       },
       checker = (data: any, name: string, checkers: checkers) => {
 	for (const [fn, key] of checkers) {
-		fn(data, name, key);
+		fn(key ? data[key] : data, name, key);
 	}
 	return data;
       },
       checksColour: checkers = [[checkObject, ""], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"]],
-      checkColour = (data: any, name = "Colour", key = "") => checker(dataOrKey(data, key), key === "" ? "Colour" : name, checksColour),
+      checkColour = (data: any, name = "Colour") => checker(data, name, checksColour),
       checksIDName: checkers = [[checkObject, ""], [checkUint, "id"], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
@@ -242,17 +234,16 @@ const returnVoid = () => {},
 	}
 	return data;
       },
+      checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
       checkKeystoreData = (data: any, name = "KeystoreData", key = "") => {
-	const d = dataOrKey(data, key);
-	checkObject(d, name);
-	for (const key in d) {
-		checkObject(d, name, key);
-		checkBoolean(d[key], name, "user");
-		if (d[key]["data"] === undefined) {
+	checkObject(data, name);
+	for (const key in data) {
+		checker(data[key], name, checksKeystoreData);
+		if (data[key]["data"] === undefined) {
 			throw new Error(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
-	return d;
+	return data;
       },
       checksKeystoreDataChange: checkers = [[checkObject, ""], [checkInt, "id"], [checkKeystoreData, "data"]],
       checkKeystoreDataChange = (data: any) => checker(data, "KeystoreDataChange", checksKeystoreDataChange),
