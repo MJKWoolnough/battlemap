@@ -157,7 +157,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}).then(returnVoid),
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkInt),
 
-			"loggedIn":          ()                         => rpc.request("auth.loggedIn"),
+			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
 			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
 			"login":              data                      => rpc.request("auth.login", data).then(checkString),
 			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}).then(checkString),
@@ -198,11 +198,12 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checkBoolean = (data: any, name: string, key: string) => {
-	const d = data[key];
+      checkBoolean = (data: any, name = "Boolean", key?: string) => {
+	const d = dataOrKey(data, key);
 	if (typeof d !== "boolean") {
-		throw new Error(`invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}`);
+		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}`);
 	}
+	return d;
       },
       checkArray = (data: any, name: string, key: string) => {
 	const d = data[key];
