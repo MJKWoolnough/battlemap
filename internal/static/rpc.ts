@@ -186,7 +186,7 @@ const returnVoid = () => {},
 	}
 	return d;
       },
-      checkByte = (data: any, name = "Uint", key?: string) => checkUint(data, name, key, 255),
+      checkByte = (data: any, name = "Byte", key?: string) => checkUint(data, name, key, 255),
       checkObject = (data: any, name: string, key?: string) => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "object") {
