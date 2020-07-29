@@ -163,7 +163,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}).then(checkString),
 			"logout":            ()                         => rpc.request("auth.logout").then(returnVoid),
 
-			"broadcast":          data                      => rpc.request("broadcast", data),
+			"broadcast":          data                      => rpc.request("broadcast", data).then(checkBroadcast),
 
 			"close": rpc.close
 		} as RPCType);
