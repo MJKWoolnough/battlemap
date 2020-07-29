@@ -186,6 +186,7 @@ const returnVoid = () => {},
 	}
 	return d;
       },
+      checkByte = (data: any, name = "Uint", key?: string) => checkUint(data, name, key, 255),
       checkObject = (data: any, name: string, key?: string) => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "object") {
@@ -214,10 +215,10 @@ const returnVoid = () => {},
       },
       checkColour = (data: any) => {
 	checkObject(data, "Colour");
-	checkUint(data, "Colour", "r", 255);
-	checkUint(data, "Colour", "g", 255);
-	checkUint(data, "Colour", "b", 255);
-	checkUint(data, "Colour", "a", 255);
+	checkByte(data, "Colour", "r");
+	checkByte(data, "Colour", "g");
+	checkByte(data, "Colour", "b");
+	checkByte(data, "Colour", "a");
 	return data;
       },
       checkIDName = (data: any) => {
@@ -304,7 +305,7 @@ const returnVoid = () => {},
 	checkInt(data, "TokenChange", "y");
 	checkUint(data, "TokenChange", "width");
 	checkUint(data, "TokenChange", "height");
-	checkUint(data, "TokenChange", "rotation", 255);
+	checkByte(data, "TokenChange", "rotation");
 	return data;
       },
       checkTokenMovePos = (data: any) => {
