@@ -170,42 +170,42 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 	})
 }
 
-type checkers = [(data: any, name: string, key?: string) => void, string | undefined][];
+type checkers = [(data: any, name: string, key?: string) => void, string][];
 
 const returnVoid = () => {},
-      dataOrKey = (data: any, key?: string) => key === undefined ? data : data[key],
-      checkInt = (data: any, name = "Int", key?: string) => {
+      dataOrKey = (data: any, key: string) => key ? data[key] : data,
+      checkInt = (data: any, name = "Int", key = "") => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "number" || d % 1 !== 0) {
-		throw new Error(key === undefined ? `expecting Int type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(d)}`);
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(d)}` : `expecting Int type, got ${JSON.stringify(d)}`);
 	}
 	return d;
       },
-      checkUint = (data: any, name = "Uint", key?: string, max = Number.MAX_SAFE_INTEGER) => {
+      checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER) => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "number" || d % 1 !== 0) {
-		throw new Error(key === undefined ? `expecting Uint type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(d)}`);
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(d)}` : `expecting Uint type, got ${JSON.stringify(d)}`);
 	}
 	return d;
       },
-      checkByte = (data: any, name = "Byte", key?: string) => checkUint(data, name, key, 255),
-      checkObject = (data: any, name: string, key?: string) => {
+      checkByte = (data: any, name = "Byte", key = "") => checkUint(data, name, key, 255),
+      checkObject = (data: any, name: string, key = "") => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "object") {
-		throw new Error(key === undefined ? `expecting ${name} object, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(d)}`);
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(d)}` : `expecting ${name} object, got ${JSON.stringify(d)}`);
 	}
       },
-      checkString = (data: any, name = "String", key?: string) => {
+      checkString = (data: any, name = "String", key = "") => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "string") {
-		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(d)}`);
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(d)}` : `expecting ${name} type, got ${JSON.stringify(d)}`);
 	}
 	return data;
       },
-      checkBoolean = (data: any, name = "Boolean", key?: string) => {
+      checkBoolean = (data: any, name = "Boolean", key = "") => {
 	const d = dataOrKey(data, key);
 	if (typeof d !== "boolean") {
-		throw new Error(key === undefined ? `expecting ${name} type, got ${JSON.stringify(d)}` : `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}`);
+		throw new Error(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(d)}` : `expecting ${name} type, got ${JSON.stringify(d)}`);
 	}
 	return d;
       },
@@ -221,17 +221,17 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksColour: checkers = [[checkObject, undefined], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"]],
-      checkColour = (data: any, name = "Colour", key?: string) => checker(dataOrKey(data, key), key === undefined ? "Colour" : name, checksColour),
-      checksIDName: checkers = [[checkObject, undefined], [checkUint, "id"], [checkString, "name"]],
+      checksColour: checkers = [[checkObject, ""], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"]],
+      checkColour = (data: any, name = "Colour", key = "") => checker(dataOrKey(data, key), key === "" ? "Colour" : name, checksColour),
+      checksIDName: checkers = [[checkObject, ""], [checkUint, "id"], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
-      checksFromTo: checkers = [[checkObject, undefined], [checkString, "from"], [checkString, "to"]],
+      checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
       checkFromTo = (data: any, name = "FromTo") => checker(data, name, checksFromTo),
-      checksLayerMove: checkers = [[checkFromTo, undefined], [checkUint, "position"]],
+      checksLayerMove: checkers = [[checkFromTo, ""], [checkUint, "position"]],
       checkLayerMove = (data: any) => checker(data, "LayerMove", checksLayerMove),
-      checksLayerRename: checkers = [[checkObject, undefined], [checkString, "path"], [checkString, "name"]],
+      checksLayerRename: checkers = [[checkObject, ""], [checkString, "path"], [checkString, "name"]],
       checkLayerRename = (data: any) => checker(data, "LayerRename", checksLayerRename),
-      checksFolderLayers: checkers = [[checkObject, undefined], [checkObject, "folders"], [checkObject, "items"]],
+      checksFolderLayers: checkers = [[checkObject, ""], [checkObject, "folders"], [checkObject, "items"]],
       checkFolderItems = (data: any) => {
 	checker(data, "FolderItems", checksFolderLayers);
 	for (const key in data["folders"]) {
@@ -242,7 +242,7 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checkKeystoreData = (data: any, name = "KeystoreData", key?: string) => {
+      checkKeystoreData = (data: any, name = "KeystoreData", key = "") => {
 	const d = dataOrKey(data, key);
 	checkObject(d, name);
 	for (const key in d) {
@@ -254,9 +254,9 @@ const returnVoid = () => {},
 	}
 	return d;
       },
-      checksKeystoreDataChange: checkers = [[checkObject, undefined], [checkInt, "id"], [checkKeystoreData, "data"]],
+      checksKeystoreDataChange: checkers = [[checkObject, ""], [checkInt, "id"], [checkKeystoreData, "data"]],
       checkKeystoreDataChange = (data: any) => checker(data, "KeystoreDataChange", checksKeystoreDataChange),
-      checksKeystoreDataRemove: checkers = [[checkObject, undefined], [checkUint, "id"], [checkArray, "keys"]],
+      checksKeystoreDataRemove: checkers = [[checkObject, ""], [checkUint, "id"], [checkArray, "keys"]],
       checkKeystoreDataRemove = (data: any) => {
 	checker(data, "KeystoreDataRemove", checksKeystoreDataRemove);
 	for (const key of data["keys"]) {
@@ -266,29 +266,29 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksMapDetails: checkers = [[checkObject, undefined], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridWidth"], [checkUint, "gridHeight"], [checkColour, "gridColour"]],
+      checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridWidth"], [checkUint, "gridHeight"], [checkColour, "gridColour"]],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
-      checksTokenPos: checkers = [[checkObject, undefined], [checkString, "path"], [checkUint, "pos"]],
+      checksTokenPos: checkers = [[checkObject, ""], [checkString, "path"], [checkUint, "pos"]],
       checkTokenPos = (data: any, name = "TokenPos") => checker(data, name, checksTokenPos),
-      checksTokenChange: checkers = [[checkTokenPos, undefined], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"]],
+      checksTokenChange: checkers = [[checkTokenPos, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"]],
       checkTokenChange = (data: any) => checker(data, "TokenChange", checksTokenChange),
-      checksTokenMovePos: checkers = [[checkTokenPos, undefined], [checkUint, "newPos"]],
+      checksTokenMovePos: checkers = [[checkTokenPos, ""], [checkUint, "newPos"]],
       checkTokenMovePos = (data: any) => checker(data, "TokenMovePos", checksTokenMovePos),
-      checksTokenMoveLayer: checkers = [[checkTokenPos, undefined], [checkUint, "pos"]],
+      checksTokenMoveLayer: checkers = [[checkTokenPos, ""], [checkUint, "pos"]],
       checkTokenMoveLayer = (data: any) => checker(data, "TokenMoveLayer", checksTokenMoveLayer),
-      checksTokenFlip: checkers = [[checkTokenPos, undefined], [checkBoolean, "flip"]],
+      checksTokenFlip: checkers = [[checkTokenPos, ""], [checkBoolean, "flip"]],
       checkTokenFlip = (data: any) =>  checker(data, "TokenFlip", checksTokenFlip),
-      checksTokenFlop: checkers = [[checkTokenPos, undefined], [checkBoolean, "flop"]],
+      checksTokenFlop: checkers = [[checkTokenPos, ""], [checkBoolean, "flop"]],
       checkTokenFlop = (data: any) =>  checker(data, "TokenFlip", checksTokenFlop),
-      checksTokenSnap: checkers = [[checkTokenPos, undefined], [checkBoolean, "snap"]],
+      checksTokenSnap: checkers = [[checkTokenPos, ""], [checkBoolean, "snap"]],
       checkTokenSnap = (data: any) =>  checker(data, "TokenFlip", checksTokenSnap),
-      checksTokenSource: checkers = [[checkTokenPos, undefined], [checkString, "source"]],
+      checksTokenSource: checkers = [[checkTokenPos, ""], [checkString, "source"]],
       checkTokenSource = (data: any) =>  checker(data, "TokenFlip", checksTokenSource),
-      checksTokenID: checkers = [[checkTokenPos, undefined], [checkUint, "id"]],
+      checksTokenID: checkers = [[checkTokenPos, ""], [checkUint, "id"]],
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
-      checksToken: checkers = [[checkObject, undefined], [checkUint, "src"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkByte, "rotation"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"], [checkUint, "tokenType"], [checkBoolean, "snap"]],
+      checksToken: checkers = [[checkObject, ""], [checkUint, "src"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkByte, "rotation"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"], [checkUint, "tokenType"], [checkBoolean, "snap"]],
       checkToken = (data: any, name = "Token") => checker(data, name, checksToken),
-      checksTokenAdd: checkers = [[checkTokenPos, undefined], [checkToken, undefined]],
+      checksTokenAdd: checkers = [[checkTokenPos, ""], [checkToken, ""]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkUint, "id"], [checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkUint, "id"], [checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"]],
@@ -306,7 +306,7 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, undefined], [checkColour, "lightColour"], [checkLayerFolder, undefined]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkLayerFolder, ""]],
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
