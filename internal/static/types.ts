@@ -133,8 +133,6 @@ export type RPC = {
 	logout:            ()                                         => Promise<void>;
 
 	broadcast:         (data: Broadcast) => Promise<void>;
-
-	close: () => void;
 };
 
 export type MapData = LayerFolder & MapDetails & {
