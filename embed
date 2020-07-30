@@ -17,3 +17,4 @@ jslibJS="$(realpath "$bm/../jslib/lib.js/")";
 	echo -n "</style>";
 	tail -n5 index.html | tr -d '\n	';
 ) | httpdir -p "battlemap" -g -z -f -s -i - -d "$(stat -c %Y "$(ls -t "$data"/*.js "$data"/*.html | head -n1)")" -o "$bm/index.go" -w "index.html";
+httpdir -p "battlemap" -g -z -f -s -d "$(stat -c %Y "$data"/favicon.ico)" -i "$data"/favicon.ico -o "$bm/favicon.go" -w "favicon.ico";
