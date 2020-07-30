@@ -229,7 +229,7 @@ const returnVoid = () => {},
 		checkFolderItems(data["folders"][key]);
 	}
 	for (const key in data["items"]) {
-		checkUint(data["items"], "FolderItems", key);
+		checkUint(data["items"][key], "FolderItems", key);
 	}
 	return data;
       },
