@@ -178,7 +178,7 @@ const returnVoid = () => {},
 	}
       },
       checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER) => {
-	if (typeof data !== "number" || data % 1 !== 0) {
+	if (typeof data !== "number" || data % 1 !== 0 || data < 0 || data > max) {
 		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}` : `expecting Uint type, got ${JSON.stringify(data)}`);
 	}
 	return data;
