@@ -208,7 +208,9 @@ const returnVoid = () => {},
       },
       checker = (data: any, name: string, checkers: checkers) => {
 	for (const [fn, key] of checkers) {
-		fn(key ? data[key] : data, name, key);
+		if (!(key.charAt(0) === "?" && data[key] === undefined)) {
+			fn(key ? data[key] : data, name, key);
+		}
 	}
 	return data;
       },
@@ -276,7 +278,7 @@ const returnVoid = () => {},
       checkTokenSource = (data: any) =>  checker(data, "TokenFlip", checksTokenSource),
       checksTokenID: checkers = [[checkTokenPos, ""], [checkUint, "id"]],
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
-      checksToken: checkers = [[checkObject, ""], [checkUint, "src"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkByte, "rotation"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"], [checkUint, "tokenType"], [checkBoolean, "snap"]],
+      checksToken: checkers = [[checkObject, ""], [checkUint, "src"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkByte, "rotation"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"], [checkUint, "?tokenType"], [checkBoolean, "snap"]],
       checkToken = (data: any, name = "Token") => checker(data, name, checksToken),
       checksTokenAdd: checkers = [[checkTokenPos, ""], [checkToken, ""]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
