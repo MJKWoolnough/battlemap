@@ -256,7 +256,7 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridWidth"], [checkUint, "gridHeight"], [checkColour, "gridColour"]],
+      checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridSize"], [checkColour, "gridColour"]],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
       checksTokenPos: checkers = [[checkObject, ""], [checkString, "path"], [checkUint, "pos"]],
       checkTokenPos = (data: any, name = "TokenPos") => checker(data, name, checksTokenPos),
