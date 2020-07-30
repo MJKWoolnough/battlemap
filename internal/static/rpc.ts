@@ -283,7 +283,9 @@ const returnVoid = () => {},
       checksLayerFolder: checkers = [[checkUint, "id"], [checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkUint, "id"], [checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"]],
       checkLayerFolder = (data: any, name = "LayerFolder") => {
-	checker(data, name, checksLayerFolder);
+	if (name !== "MapData") {
+		checker(data, name, checksLayerFolder);
+	}
 	for (const c of data["children"]) {
 		checkObject(c, "LayerFolder");
 		if (c.mask === undefined) {
@@ -296,7 +298,7 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkLayerFolder, ""]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkArray, "children"], [checkLayerFolder, ""]],
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
