@@ -2,19 +2,21 @@ import {RPC} from './types.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 
-type MouseFn = (e: MouseEvent) => void;
-type WheelFn = (e: WheelEvent) => void;
+type TokenMouseFn = (this: SVGElement, e: MouseEvent, token: SVGToken) => void;
+type TokenWheelFn = (this: SVGElement, e: WheelEvent, token: SVGToken) => void;
+type MapMouseFn = (e: MouseEvent) => void;
+type MapWheelFn = (e: WheelEvent) => void;
 
 type Tool = {
 	name: string;
-	tokenMouseDown?: MouseFn;
-	mapMouseDown?: MouseFn;
-	tokenMouseContext?: MouseFn;
-	mapMouseContext?: MouseFn;
-	tokenMouseWheel?: WheelFn;
-	mapMouseWheel?: WheelFn;
-	tokenMouseOver?: MouseFn;
-	mapMouseOver?: MouseFn;
+	tokenMouseDown?: TokenMouseFn;
+	mapMouseDown?: MapMouseFn;
+	tokenMouseContext?: TokenMouseFn;
+	mapMouseContext?: MapMouseFn;
+	tokenMouseWheel?: TokenWheelFn;
+	mapMouseWheel?: MapWheelFn;
+	tokenMouseOver?: TokenMouseFn;
+	mapMouseOver?: MapMouseFn;
 };
 
 const tools: Tool[] = [
@@ -37,10 +39,10 @@ const tools: Tool[] = [
 
 let selectedTool = 0;
 
-export const toolTokenMouseDown = function(this: SVGToken, e: MouseEvent) {
+export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = tools[selectedTool].tokenMouseDown;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, token);
 	}
 },
 toolMapMouseDown = function(e: MouseEvent) {
@@ -49,10 +51,10 @@ toolMapMouseDown = function(e: MouseEvent) {
 		fn(e);
 	}
 },
-toolTokenContext = function(this: SVGToken, e: MouseEvent) {
+toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = tools[selectedTool].tokenMouseContext;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, token);
 	}
 },
 toolMapContext = function(e: MouseEvent) {
@@ -61,10 +63,10 @@ toolMapContext = function(e: MouseEvent) {
 		fn(e);
 	}
 },
-toolTokenWheel = function(this: SVGToken, e: WheelEvent) {
+toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
 	const fn = tools[selectedTool].tokenMouseWheel;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, token);
 	}
 },
 toolMapWheel = function(e: WheelEvent) {
@@ -73,10 +75,10 @@ toolMapWheel = function(e: WheelEvent) {
 		fn(e);
 	}
 },
-toolTokenMouseOver = function(this: SVGToken, e: MouseEvent) {
+toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = tools[selectedTool].tokenMouseOver;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, token);
 	}
 },
 toolMapMouseOver = function(e: MouseEvent) {
