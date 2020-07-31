@@ -6,7 +6,7 @@ import {colour2RGBA, handleError} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
-import {toolMapMouseDown, toolMapContext, toolMapWheel} from './tools.js';
+import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -350,7 +350,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		}
 		root.style.setProperty("left", panZoom.x + "px");
 		root.style.setProperty("top", panZoom.y + "px");
-	      }, "oncontextmenu": toolMapContext}, root),
+	      }, "oncontextmenu": toolMapContext, "onmouseover": toolMapMouseOver}, root),
 	      panZoom = {x: 0, y: 0, zoom: 1},
 	      viewPos = {mouseX: 0, mouseY: 0},
 	      viewDrag = (e: MouseEvent) => {
