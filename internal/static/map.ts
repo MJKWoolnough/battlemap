@@ -6,6 +6,7 @@ import {colour2RGBA, handleError} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
+import {toolMapMouseDown, toolMapContext, toolMapWheel} from './tools.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -313,11 +314,19 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	      outline = g(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
 	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
+		toolMapMouseDown(e);
+		if (e.defaultPrevented) {
+			return;
+		}
 		viewPos.mouseX = e.clientX;
 		viewPos.mouseY = e.clientY;
 		base.addEventListener("mousemove", viewDrag);
 		base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
 	      }, "onwheel": (e: WheelEvent) => {
+		toolMapWheel(e);
+		if (e.defaultPrevented) {
+			return;
+		}
 		e.preventDefault();
 		if (e.ctrlKey) {
 			const width = parseInt(root.getAttribute("width") || "0") / 2,
@@ -341,7 +350,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		}
 		root.style.setProperty("left", panZoom.x + "px");
 		root.style.setProperty("top", panZoom.y + "px");
-	      }}, root),
+	      }, "oncontextmenu": toolMapContext}, root),
 	      panZoom = {x: 0, y: 0, zoom: 1},
 	      viewPos = {mouseX: 0, mouseY: 0},
 	      viewDrag = (e: MouseEvent) => {
