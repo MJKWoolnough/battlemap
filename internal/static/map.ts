@@ -313,8 +313,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	      definitions = new Defs(),
 	      outline = g(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
-	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => {
-		toolMapMouseDown(e);
+	      base = div({"style": "height: 100%", "onmousedown": function(this: HTMLDivElement, e: MouseEvent) {
+		toolMapMouseDown.call(this, e);
 		if (e.defaultPrevented) {
 			return;
 		}
@@ -322,8 +322,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		viewPos.mouseY = e.clientY;
 		base.addEventListener("mousemove", viewDrag);
 		base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-	      }, "onwheel": (e: WheelEvent) => {
-		toolMapWheel(e);
+	      }, "onwheel": function (this: HTMLDivElement, e: WheelEvent) {
+		toolMapWheel.call(this, e);
 		if (e.defaultPrevented) {
 			return;
 		}
