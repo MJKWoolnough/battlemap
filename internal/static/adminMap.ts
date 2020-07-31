@@ -9,7 +9,7 @@ import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLa
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
-import {toolTokenMouseDown, toolTokenContext, toolTokenWheel} from './tools.js';
+import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {noColour, handleError} from './misc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
@@ -690,7 +690,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseDown.call(selectedToken!, e);
 			if (e.defaultPrevented || e.button !== 0 || e.ctrlKey) {
 				return;
