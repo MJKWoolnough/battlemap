@@ -45,10 +45,10 @@ export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, toke
 		fn.call(this, e, token);
 	}
 },
-toolMapMouseDown = function(e: MouseEvent) {
+toolMapMouseDown = function(this: HTMLDivElement, e: MouseEvent) {
 	const fn = tools[selectedTool].mapMouseDown;
 	if (fn) {
-		fn(e);
+		fn.call(this, e);
 	}
 },
 toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
@@ -57,10 +57,10 @@ toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 		fn.call(this, e, token);
 	}
 },
-toolMapContext = function(e: MouseEvent) {
+toolMapContext = function(this: HTMLDivElement, e: MouseEvent) {
 	const fn = tools[selectedTool].mapMouseContext;
 	if (fn) {
-		fn(e);
+		fn.call(this, e);
 	}
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
@@ -69,10 +69,10 @@ toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
 		fn.call(this, e, token);
 	}
 },
-toolMapWheel = function(e: WheelEvent) {
+toolMapWheel = function(this: HTMLDivElement, e: WheelEvent) {
 	const fn = tools[selectedTool].mapMouseWheel;
 	if (fn) {
-		fn(e);
+		fn.call(this, e);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
@@ -81,10 +81,10 @@ toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) 
 		fn.call(this, e, token);
 	}
 },
-toolMapMouseOver = function(e: MouseEvent) {
+toolMapMouseOver = function(this: HTMLDivElement, e: MouseEvent) {
 	const fn = tools[selectedTool].mapMouseOver;
 	if (fn) {
-		fn(e);
+		fn.call(this, e);
 	}
 };
 
