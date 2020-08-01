@@ -4,5 +4,9 @@
 }
 
 #toolList li.selected {
+	cursor: hand;
+}
+
+#toolList li.selected {
 	background-color: #888;
 }
