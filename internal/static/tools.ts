@@ -1,6 +1,6 @@
 import {RPC} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {ul, li} from './lib/html.js';
+import {ul, li, img, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 
@@ -11,6 +11,7 @@ type MapWheelFn = (e: WheelEvent) => void;
 
 type Tool = {
 	name: string;
+	icon: string;
 	tokenMouseDown?: TokenMouseFn;
 	mapMouseDown?: MapMouseFn;
 	tokenMouseContext?: TokenMouseFn;
@@ -24,18 +25,23 @@ type Tool = {
 const tools: Tool[] = [
 	{
 		"name": "Default",
+		"icon": "",
 	},
 	{
 		"name": "Draw",
+		"icon": "",
 	},
 	{
 		"name": "Move All",
+		"icon": "",
 	},
 	{
 		"name": "Layer Mask",
+		"icon": "",
 	},
 	{
 		"name": "Light Layer",
+		"icon": "",
 	}
 ];
 
@@ -95,5 +101,8 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement) {
 		selectedTool = t;
 		(Array.from(this.parentNode!.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
-	}}, t.name))));
+	}}, [
+		img({"src": t.icon}),
+		span(t.name)
+	]))));
 }
