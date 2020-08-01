@@ -102,7 +102,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement) {
 		(Array.from(this.parentNode!.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
 	}}, [
-		img({"src": t.icon}),
+		img({"src": `data:image/png;base64,${t.icon}`}),
 		span(t.name)
 	]))));
 }
