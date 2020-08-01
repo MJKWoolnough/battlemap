@@ -1,4 +1,6 @@
 import {RPC} from './types.js';
+import {createHTML, clearElement} from './lib/dom.js';
+import {ul, li} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 
@@ -89,5 +91,9 @@ toolMapMouseOver = function(this: HTMLDivElement, e: MouseEvent) {
 };
 
 export default function (rpc: RPC, shell: ShellElement, base: HTMLElement) {
-
+	createHTML(clearElement(base), {"id": "toolList"}, ul(tools.map((t, n) => li({"class": n === 0 ? "selected" : undefined, "onclick": function(this: HTMLLIElement) {
+		selectedTool = t;
+		(Array.from(this.parentNode!.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
+		this.classList.add("selected");
+	}}, t.name))));
 }
