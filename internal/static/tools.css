@@ -2,3 +2,7 @@
 	list-style: none;
 	padding: 0;
 }
+
+#toolList li.selected {
+	background-color: #888;
+}
