@@ -37,57 +37,57 @@ const tools: Tool[] = [
 	}
 ];
 
-let selectedTool = 0;
+let selectedTool = tools[0];
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
-	const fn = tools[selectedTool].tokenMouseDown;
+	const fn = selectedTool.tokenMouseDown;
 	if (fn) {
 		fn.call(this, e, token);
 	}
 },
 toolMapMouseDown = function(this: HTMLDivElement, e: MouseEvent) {
-	const fn = tools[selectedTool].mapMouseDown;
+	const fn = selectedTool.mapMouseDown;
 	if (fn) {
 		fn.call(this, e);
 	}
 },
 toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
-	const fn = tools[selectedTool].tokenMouseContext;
+	const fn = selectedTool.tokenMouseContext;
 	if (fn) {
 		fn.call(this, e, token);
 	}
 },
 toolMapContext = function(this: HTMLDivElement, e: MouseEvent) {
-	const fn = tools[selectedTool].mapMouseContext;
+	const fn = selectedTool.mapMouseContext;
 	if (fn) {
 		fn.call(this, e);
 	}
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
-	const fn = tools[selectedTool].tokenMouseWheel;
+	const fn = selectedTool.tokenMouseWheel;
 	if (fn) {
 		fn.call(this, e, token);
 	}
 },
 toolMapWheel = function(this: HTMLDivElement, e: WheelEvent) {
-	const fn = tools[selectedTool].mapMouseWheel;
+	const fn = selectedTool.mapMouseWheel;
 	if (fn) {
 		fn.call(this, e);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
-	const fn = tools[selectedTool].tokenMouseOver;
+	const fn = selectedTool.tokenMouseOver;
 	if (fn) {
 		fn.call(this, e, token);
 	}
 },
 toolMapMouseOver = function(this: HTMLDivElement, e: MouseEvent) {
-	const fn = tools[selectedTool].mapMouseOver;
+	const fn = selectedTool.mapMouseOver;
 	if (fn) {
 		fn.call(this, e);
 	}
 };
 
 export default function (rpc: RPC, shell: ShellElement, base: HTMLElement) {
-	
+
 }
