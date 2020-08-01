@@ -7,6 +7,7 @@
 @import url("layerList.css");
 @import url("map.css");
 @import url("settings.css");
+@import url("tools.css");
 
 html, body {
 	color: #000;
