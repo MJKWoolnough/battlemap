@@ -313,36 +313,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	      definitions = new Defs(),
 	      outline = g(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
-	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => {
-		toolMapWheel.call(root, e);
-		if (e.defaultPrevented) {
-			return;
-		}
-		e.preventDefault();
-		if (e.ctrlKey) {
-			const width = parseInt(root.getAttribute("width") || "0") / 2,
-			      height = parseInt(root.getAttribute("height") || "0") / 2,
-			      oldZoom = panZoom.zoom;
-			if (e.deltaY < 0) {
-				panZoom.zoom /= 0.95;
-			} else if (e.deltaY > 0) {
-				panZoom.zoom *= 0.95;
-			}
-			panZoom.x += e.clientX - (panZoom.zoom * ((e.clientX + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
-			panZoom.y += e.clientY - (panZoom.zoom * ((e.clientY + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-			root.setAttribute("transform", `scale(${panZoom.zoom})`);
-			outline.style.setProperty("--zoom", panZoom.zoom.toString());
-		} else {
-			const deltaY = e.shiftKey ? 0 : -e.deltaY,
-			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-			      amount = scrollAmount.value || mapData.gridSize;
-			panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
-			panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
-		}
-		root.style.setProperty("left", panZoom.x + "px");
-		root.style.setProperty("top", panZoom.y + "px");
-	      }, "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root),
-	      panZoom = {x: 0, y: 0, zoom: 1};
+	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -468,12 +439,10 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 				}
 			})
 		),
-		panZoom,
 		outline
 	] as [
 		HTMLDivElement,
 		() => void,
-		{ x: Int; y: Int; zoom: Uint},
 		SVGGElement,
 	];
 };

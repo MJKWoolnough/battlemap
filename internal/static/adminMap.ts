@@ -1,6 +1,6 @@
 import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
-import {autoFocus} from './lib/dom.js';
+import {autoFocus, clearElement} from './lib/dom.js';
 import {createSVG, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -11,6 +11,7 @@ import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {noColour, handleError} from './misc.js';
+import {panZoom} from './tools_default.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -59,7 +60,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		canceller();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, panZoom, outline] = mapView(rpc, oldBase, mapData),
+		const [base, cancel, outline] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      undo = new Undo(),
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
@@ -319,7 +320,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			autoFocus(createSVG(clearElement(outline), {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = selectedToken.x;
 			tokenMousePos.y = selectedToken.y;
 			tokenMousePos.width = selectedToken.width;
