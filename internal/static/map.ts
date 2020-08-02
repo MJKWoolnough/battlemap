@@ -313,16 +313,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	      definitions = new Defs(),
 	      outline = g(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
-	      base = div({"style": "height: 100%", "onmousedown": function(this: HTMLDivElement, e: MouseEvent) {
-		toolMapMouseDown.call(root, e);
-		if (e.defaultPrevented) {
-			return;
-		}
-		viewPos.mouseX = e.clientX;
-		viewPos.mouseY = e.clientY;
-		base.addEventListener("mousemove", viewDrag);
-		base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-	      }, "onwheel": (e: WheelEvent) => {
+	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => {
 		toolMapWheel.call(root, e);
 		if (e.defaultPrevented) {
 			return;
@@ -351,16 +342,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		root.style.setProperty("left", panZoom.x + "px");
 		root.style.setProperty("top", panZoom.y + "px");
 	      }, "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root),
-	      panZoom = {x: 0, y: 0, zoom: 1},
-	      viewPos = {mouseX: 0, mouseY: 0},
-	      viewDrag = (e: MouseEvent) => {
-		panZoom.x += e.clientX - viewPos.mouseX;
-		panZoom.y += e.clientY - viewPos.mouseY;
-		root.style.setProperty("left", panZoom.x + "px");
-		root.style.setProperty("top", panZoom.y + "px");
-		viewPos.mouseX = e.clientX;
-		viewPos.mouseY = e.clientY;
-	      };
+	      panZoom = {x: 0, y: 0, zoom: 1};
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
