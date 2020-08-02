@@ -7,8 +7,8 @@ import defaultTool from './tools_default.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, token: SVGToken) => void;
 type TokenWheelFn = (this: SVGElement, e: WheelEvent, token: SVGToken) => void;
-type MapMouseFn = (e: MouseEvent) => void;
-type MapWheelFn = (e: WheelEvent) => void;
+type MapMouseFn = (this: SVGElement, e: MouseEvent) => void;
+type MapWheelFn = (this: SVGElement, e: WheelEvent) => void;
 
 type Tool = {
 	name: string;
@@ -56,7 +56,7 @@ export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, toke
 		fn.call(this, e, token);
 	}
 },
-toolMapMouseDown = function(this: HTMLDivElement, e: MouseEvent) {
+toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseDown;
 	if (fn) {
 		fn.call(this, e);
@@ -68,7 +68,7 @@ toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 		fn.call(this, e, token);
 	}
 },
-toolMapContext = function(this: HTMLDivElement, e: MouseEvent) {
+toolMapContext = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseContext;
 	if (fn) {
 		fn.call(this, e);
@@ -80,7 +80,7 @@ toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
 		fn.call(this, e, token);
 	}
 },
-toolMapWheel = function(this: HTMLDivElement, e: WheelEvent) {
+toolMapWheel = function(this: SVGElement, e: WheelEvent) {
 	const fn = selectedTool.mapMouseWheel;
 	if (fn) {
 		fn.call(this, e);
@@ -92,7 +92,7 @@ toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) 
 		fn.call(this, e, token);
 	}
 },
-toolMapMouseOver = function(this: HTMLDivElement, e: MouseEvent) {
+toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseOver;
 	if (fn) {
 		fn.call(this, e);
