@@ -311,8 +311,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		} as SVGFolder;
 	      })(),
 	      definitions = new Defs(),
-	      outline = g(),
-	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
+	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	Object.assign(globals, {definitions, root, layerList});
 	definitions.setGrid(mapData);
@@ -438,12 +437,10 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 					token.tokenData = 0;
 				}
 			})
-		),
-		outline
+		)
 	] as [
 		HTMLDivElement,
 		() => void,
-		SVGGElement,
 	];
 };
 

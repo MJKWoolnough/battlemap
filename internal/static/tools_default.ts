@@ -1,10 +1,10 @@
 import {g} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 
-export const panZoom = {"x": 0, "y": 0, "zoom": 1};
+export const panZoom = {"x": 0, "y": 0, "zoom": 1},
+outline = g();
 
-const viewPos = {"mouseX": 0, "mouseY": 0},
-      outline = g();
+const viewPos = {"mouseX": 0, "mouseY": 0};
 
 export default Object.freeze({
 	"name": "Default",

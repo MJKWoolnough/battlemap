@@ -11,7 +11,7 @@ import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {noColour, handleError} from './misc.js';
-import {panZoom} from './tools_default.js';
+import {outline, panZoom} from './tools_default.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -60,7 +60,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		canceller();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel, outline] = mapView(rpc, oldBase, mapData),
+		const [base, cancel] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      undo = new Undo(),
 		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
@@ -219,7 +219,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			selectedToken = null;
 			outline.style.setProperty("display", "none");
 		      },
-		      removeS = (path: string) => {
+		       removeS = (path: string) => {
 			removeLayer(path).forEach(e => {
 				if (selectedLayer === e) {
 					selectedLayer = null;
@@ -235,113 +235,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				unselectToken();
 				// select new layer???
 			}
-		      };
-		createSVG(root, {"ondragover": (e: DragEvent) => {
-			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
-				e.preventDefault();
-				e.dataTransfer!.dropEffect = "link";
-			}
-		      }, "ondrop": (e: DragEvent) => {
-			if (selectedLayer === null) {
-				return;
-			}
-			let charID = 0;
-			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value},
-			      width = parseInt(root.getAttribute("width") || "0"),
-			      height = parseInt(root.getAttribute("height") || "0");
-			if (e.dataTransfer!.types.includes("character")) {
-				const tD = JSON.parse(e.dataTransfer!.getData("character")),
-				      char = characterData.get(tD.id)!;
-				if (char["token-data"]) {
-					Object.assign(token, char["token-data"].data);
-				} else {
-					charID = tD.id;
-					token.src = parseInt(char["store-image-icon"].data);
-					token.width = tD.width;
-					token.height = tD.height;
-				}
-				if (char["store-token-id"]) {
-					token.tokenData = char["store-token-id"].data;
-				}
-			} else {
-				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				token.src = tokenData.id;
-				token.width = tokenData.width;
-				token.height = tokenData.height;
-			}
-			token.x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom);
-			token.y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
-			if (token.snap && token.tokenData === 0) {
-				const sq = mapData.gridSize;
-				token.x = Math.round(token.x / sq) * sq;
-				token.y = Math.round(token.y / sq) * sq;
-				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
-				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
-			}
-			const l = selectedLayer,
-			      lp = selectedLayerPath,
-			      doIt = () => {
-				const pos = l.tokens.push(SVGToken.from(token)) - 1;
-				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
-				if (token.tokenData) {
-					p = p.then(id => {
-						tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
-						token.tokenData = id;
-					});
-				}
-				if (charID) {
-					p = p.then(() => rpc.tokenCreate(lp, pos))
-					.then(id => {
-						const data = {"store-character-id": {"user": false, "data": charID}};
-						tokenData.set(token.tokenData = id, data);
-						rpc.tokenSet(id, data)
-					})
-				}
-				p.catch(handleError);
-				return () => {
-					if (selectedToken === token) {
-						unselectToken();
-					}
-					l.tokens.pop();
-					rpc.removeToken(lp, pos).catch(handleError);
-					return doIt;
-				};
-			};
-			undo.add(doIt);
-		      }, "onmousedown": (e: MouseEvent) => {
-			if (!selectedLayer || e.button !== 0) {
-				return;
-			}
-			const newToken = (selectedLayer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
-			if (!e.ctrlKey) {
-				unselectToken();
-			}
-			if (!newToken || e.ctrlKey) {
-				return;
-			}
-			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
-			tokenMousePos.x = selectedToken.x;
-			tokenMousePos.y = selectedToken.y;
-			tokenMousePos.width = selectedToken.width;
-			tokenMousePos.height = selectedToken.height;
-			tokenMousePos.rotation = selectedToken.rotation;
-		      }, "onkeydown": (e: KeyboardEvent) => {
-			if (e.ctrlKey) {
-				switch (e.key) {
-				case 'z':
-					if (!e.shiftKey) {
-						undo.undo();
-						e.preventDefault();
-						break;
-					}
-				case 'r':
-				case 'y':
-					undo.redo();
-					e.preventDefault();
-				}
-			}
-		      }}, createSVG(clearElement(outline), {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+		      },
+		      outlineKeyUp = (e: KeyboardEvent) => {
 			if (!selectedToken) {
 				return;
 			}
@@ -409,7 +304,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				};
 			      };
 			undo.add(doIt);
-		      }, "onkeydown": (e: KeyboardEvent) => {
+		      },
+		      outlineKeyDown = (e: KeyboardEvent) => {
 			if (!selectedToken || selectedToken.snap) {
 				return;
 			}
@@ -431,7 +327,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			}
 			selectedToken.updateNode();
 			outline.setAttribute("transform", selectedToken!.transformString(false));
-		      }, "oncontextmenu": function (this: SVGGElement, e: MouseEvent) {
+		      },
+		      outlineContextMenu = function (this: SVGGElement, e: MouseEvent) {
 			toolTokenContext.call(this, e, selectedToken as SVGToken);
 			if (e.defaultPrevented) {
 				return;
@@ -691,9 +588,116 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		}, "onwheel": function(this: SVGGElement, e: WheelEvent) {
+		      },
+		      outlineWheel = function(this: SVGGElement, e: WheelEvent) {
 			toolTokenWheel.call(this, e, selectedToken as SVGToken);
-		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": function(this: SVGRectElement, e: MouseEvent) {
+		      };
+		createSVG(root, {"ondragover": (e: DragEvent) => {
+			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
+				e.preventDefault();
+				e.dataTransfer!.dropEffect = "link";
+			}
+		      }, "ondrop": (e: DragEvent) => {
+			if (selectedLayer === null) {
+				return;
+			}
+			let charID = 0;
+			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value},
+			      width = parseInt(root.getAttribute("width") || "0"),
+			      height = parseInt(root.getAttribute("height") || "0");
+			if (e.dataTransfer!.types.includes("character")) {
+				const tD = JSON.parse(e.dataTransfer!.getData("character")),
+				      char = characterData.get(tD.id)!;
+				if (char["token-data"]) {
+					Object.assign(token, char["token-data"].data);
+				} else {
+					charID = tD.id;
+					token.src = parseInt(char["store-image-icon"].data);
+					token.width = tD.width;
+					token.height = tD.height;
+				}
+				if (char["store-token-id"]) {
+					token.tokenData = char["store-token-id"].data;
+				}
+			} else {
+				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+				token.src = tokenData.id;
+				token.width = tokenData.width;
+				token.height = tokenData.height;
+			}
+			token.x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom);
+			token.y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
+			if (token.snap && token.tokenData === 0) {
+				const sq = mapData.gridSize;
+				token.x = Math.round(token.x / sq) * sq;
+				token.y = Math.round(token.y / sq) * sq;
+				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
+				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
+			}
+			const l = selectedLayer,
+			      lp = selectedLayerPath,
+			      doIt = () => {
+				const pos = l.tokens.push(SVGToken.from(token)) - 1;
+				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
+				if (token.tokenData) {
+					p = p.then(id => {
+						tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
+						token.tokenData = id;
+					});
+				}
+				if (charID) {
+					p = p.then(() => rpc.tokenCreate(lp, pos))
+					.then(id => {
+						const data = {"store-character-id": {"user": false, "data": charID}};
+						tokenData.set(token.tokenData = id, data);
+						rpc.tokenSet(id, data)
+					})
+				}
+				p.catch(handleError);
+				return () => {
+					if (selectedToken === token) {
+						unselectToken();
+					}
+					l.tokens.pop();
+					rpc.removeToken(lp, pos).catch(handleError);
+					return doIt;
+				};
+			};
+			undo.add(doIt);
+		      }, "onmousedown": (e: MouseEvent) => {
+			if (!selectedLayer || e.button !== 0) {
+				return;
+			}
+			const newToken = (selectedLayer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
+			if (!e.ctrlKey) {
+				unselectToken();
+			}
+			if (!newToken || e.ctrlKey) {
+				return;
+			}
+			selectedToken = newToken;
+			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			tokenMousePos.x = selectedToken.x;
+			tokenMousePos.y = selectedToken.y;
+			tokenMousePos.width = selectedToken.width;
+			tokenMousePos.height = selectedToken.height;
+			tokenMousePos.rotation = selectedToken.rotation;
+		      }, "onkeydown": (e: KeyboardEvent) => {
+			if (e.ctrlKey) {
+				switch (e.key) {
+				case 'z':
+					if (!e.shiftKey) {
+						undo.undo();
+						e.preventDefault();
+						break;
+					}
+				case 'r':
+				case 'y':
+					undo.redo();
+					e.preventDefault();
+				}
+			}
+		      }}, createSVG(clearElement(outline), {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": outlineKeyUp, "onkeydown": outlineKeyDown, "oncontextmenu": outlineContextMenu, "onwheel": outlineWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseOver.call(this, e, selectedToken as SVGToken);
 		}, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseDown.call(this, e, selectedToken as SVGToken);
@@ -809,6 +813,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 		oldBase = base;
 		canceller = Subscription.canceller(
 			{cancel},
+			{cancel: () => {
+				outline.removeEventListener("keyup", outlineKeyUp);
+				outline.removeEventListener("keydown", outlineKeyDown);
+				outline.removeEventListener("contextmenu", outlineContextMenu);
+				outline.removeEventListener("wheel", outlineWheel);
+			}},
 			rpc.waitTokenChange().then(st => {
 				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
 					tokenMouseUp();
