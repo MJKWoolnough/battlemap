@@ -320,7 +320,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 				return;
 			}
 			selectedToken = newToken;
-			autoFocus(createSVG(clearElement(outline), {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = selectedToken.x;
 			tokenMousePos.y = selectedToken.y;
 			tokenMousePos.width = selectedToken.width;
@@ -341,7 +341,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 					e.preventDefault();
 				}
 			}
-		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+		      }}, createSVG(clearElement(outline), {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 			if (!selectedToken) {
 				return;
 			}
