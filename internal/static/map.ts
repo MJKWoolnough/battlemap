@@ -314,7 +314,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 	      outline = g(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node, outline]),
 	      base = div({"style": "height: 100%", "onmousedown": function(this: HTMLDivElement, e: MouseEvent) {
-		toolMapMouseDown.call(this, e);
+		toolMapMouseDown.call(root, e);
 		if (e.defaultPrevented) {
 			return;
 		}
@@ -322,8 +322,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		viewPos.mouseY = e.clientY;
 		base.addEventListener("mousemove", viewDrag);
 		base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
-	      }, "onwheel": function (this: HTMLDivElement, e: WheelEvent) {
-		toolMapWheel.call(this, e);
+	      }, "onwheel": (e: WheelEvent) => {
+		toolMapWheel.call(root, e);
 		if (e.defaultPrevented) {
 			return;
 		}
@@ -350,7 +350,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 		}
 		root.style.setProperty("left", panZoom.x + "px");
 		root.style.setProperty("top", panZoom.y + "px");
-	      }, "oncontextmenu": toolMapContext, "onmouseover": toolMapMouseOver}, root),
+	      }, "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root),
 	      panZoom = {x: 0, y: 0, zoom: 1},
 	      viewPos = {mouseX: 0, mouseY: 0},
 	      viewDrag = (e: MouseEvent) => {
