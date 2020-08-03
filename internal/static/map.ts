@@ -295,7 +295,7 @@ globals = {
 	root: SVGSVGElement,
 	layerList: SVGFolder
 },
-mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
+mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
@@ -438,9 +438,6 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false) 
 				}
 			})
 		)
-	] as [
-		HTMLDivElement,
-		() => void,
 	];
 };
 
