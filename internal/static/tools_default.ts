@@ -13,14 +13,13 @@ export default Object.freeze({
 		panZoom.x = 0;
 		panZoom.y = 0;
 		panZoom.zoom = 1;
-		outline.remove();
 	},
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		if (e.currentTarget instanceof HTMLDivElement) {
+		const base = e.currentTarget;
+		if (base instanceof HTMLDivElement) {
 			let mX = e.clientX,
 			    mY = e.clientY;
-			const base: HTMLDivElement = e.currentTarget,
-			      viewDrag = (e: MouseEvent) => {
+			const viewDrag = (e: MouseEvent) => {
 				panZoom.x += e.clientX - viewPos.mouseX;
 				panZoom.y += e.clientY - viewPos.mouseY;
 				this.style.setProperty("left", panZoom.x + "px");
@@ -28,8 +27,9 @@ export default Object.freeze({
 				mX = e.clientX;
 				mY = e.clientX;
 			      };
-			e.currentTarget!.addEventListener("mousemove", viewDrag);
-			e.currentTarget!.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
+			base.addEventListener("mousemove", viewDrag);
+			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
+			e.preventDefault();
 		}
 	},
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
