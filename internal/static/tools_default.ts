@@ -1,8 +1,7 @@
 import {g} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 
-export const panZoom = {"x": 0, "y": 0, "zoom": 1},
-outline = g();
+export const panZoom = {"x": 0, "y": 0, "zoom": 1};
 
 const viewPos = {"mouseX": 0, "mouseY": 0};
 
@@ -37,7 +36,8 @@ export default Object.freeze({
 		if (e.ctrlKey) {
 			const width = parseInt(this.getAttribute("width") || "0") / 2,
 			      height = parseInt(this.getAttribute("height") || "0") / 2,
-			      oldZoom = panZoom.zoom;
+			      oldZoom = panZoom.zoom,
+			      outline = document.getElementById("outline");
 			if (e.deltaY < 0) {
 				panZoom.zoom /= 0.95;
 			} else if (e.deltaY > 0) {
@@ -46,7 +46,9 @@ export default Object.freeze({
 			panZoom.x += e.clientX - (panZoom.zoom * ((e.clientX + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 			panZoom.y += e.clientY - (panZoom.zoom * ((e.clientY + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
 			this.setAttribute("transform", `scale(${panZoom.zoom})`);
-			outline.style.setProperty("--zoom", panZoom.zoom.toString());
+			if (outline instanceof SVGGElement) {
+				outline.style.setProperty("--zoom", panZoom.zoom.toString());
+			}
 		} else {
 			const deltaY = e.shiftKey ? 0 : -e.deltaY,
 			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
