@@ -6,6 +6,7 @@ import {noSort} from './lib/ordered.js';
 import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
+import {mapLayersReceive} from './adminMap_ipc.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
 
@@ -273,12 +274,12 @@ class LayerRoot extends Root {
 	}
 }
 
-export default function(shell: ShellElement, base: HTMLElement, mapChange: (fn: (rpc: LayerRPC) => void) => void) {
+export default function(shell: ShellElement, base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
 	sh = shell;
 	let canceller = () => {};
-	mapChange(rpc => rpc.list().then(layers => {
+	mapLayersReceive(rpc => rpc.list().then(layers => {
 		canceller();
 		selectedLayer = undefined;
 		const list = new LayerRoot(layers, rpc, shell);

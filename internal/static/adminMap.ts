@@ -12,6 +12,7 @@ import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {noColour, handleError} from './misc.js';
 import {panZoom} from './tools_default.js';
+import {mapLayersSend, mapLoadReceive} from './adminMap_ipc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -54,9 +55,9 @@ export const getToken = () => {
 };
 let selectedToken: SVGToken | SVGShape | null = null;
 
-export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, mapSelect: (fn: (mapID: Uint) => void) => void, setLayers: (layerRPC: LayerRPC) => void) {
+export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 	let canceller = () => {};
-	mapSelect(mapID => rpc.getMapData(mapID).then(mapData => {
+	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
 		selectedToken = null;
 		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
@@ -709,7 +710,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement, map
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
-		setLayers({
+		mapLayersSend({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
 			"waitRemoved": () => waitRemoved[1],

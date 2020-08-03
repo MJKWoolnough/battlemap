@@ -146,8 +146,6 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	});
 	return o;
       }()),
-      mapLoadPipe = new Pipe<Uint>(),
-      mapLayers = new Pipe<LayerRPC>(),
       spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
       base = desktop(),
       s = shell({"snap": 50}, base);
@@ -158,11 +156,11 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
 		assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
 		characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
-		mapList(rpc, s, tabs.add("Maps", spinner("maps")), mapLoadPipe.send);
-		layerList(s, tabs.add("Layers", div()), mapLayers.receive);
+		mapList(rpc, s, tabs.add("Maps", spinner("maps")));
+		layerList(s, tabs.add("Layers", div()));
 		tools(rpc, s, tabs.add("Tools", div()));
 		settings(rpc, s, tabs.add("Settings", div(), false), true);
-		loadMap(rpc, s, base.appendChild(div()), mapLoadPipe.receive, mapLayers.send);
+		loadMap(rpc, s, base.appendChild(div()));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);

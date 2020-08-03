@@ -4,6 +4,7 @@ import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {handleError, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
+import {mapLoadSend} from './adminMap_ipc.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -19,7 +20,7 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 		}
 	}
       };
-let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null, sendCurrentMap: (id: Uint) => void;
+let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
 	nameSpan: HTMLSpanElement;
@@ -36,7 +37,7 @@ class MapItem extends Item {
 	show() {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
-		sendCurrentMap(this.id);
+		mapLoadSend(this.id);
 		rpc.setCurrentMap(this.id).catch(handleError);
 	}
 	rename() {
@@ -89,7 +90,7 @@ class MapRoot extends Root {
 	removeItem(from: string) {
 		if (selectedCurrent && selectedCurrent.getPath() === from) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
-			sendCurrentMap(0);
+			mapLoadSend(0);
 		}
 		return super.removeItem(from);
 	}
@@ -108,16 +109,15 @@ class MapRoot extends Root {
 		const [f] = this.resolvePath(from);
 		if (f && f.node.classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
-			sendCurrentMap(0);
+			mapLoadSend(0);
 		}
 		return super.removeFolder(from);
 	}
 }
 
-export default function(arpc: RPC, ashell: ShellElement, base: Node, setCurrentMap: (id: Uint) => void) {
+export default function(arpc: RPC, ashell: ShellElement, base: Node) {
 	rpc = arpc;
 	shell = ashell;
-	sendCurrentMap = setCurrentMap;
 	const rpcFuncs = arpc["maps"];
 	Promise.all([
 		rpcFuncs.list(),
