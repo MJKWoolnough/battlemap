@@ -80,6 +80,7 @@ const (
 	broadcastTokenSourceChange
 	broadcastTokenSetData
 	broadcastTokenUnsetData
+	broadcastLayerShift
 
 	broadcastAny
 )
