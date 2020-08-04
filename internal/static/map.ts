@@ -436,6 +436,18 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				if (token instanceof SVGToken) {
 					token.tokenData = 0;
 				}
+			}),
+			rpc.waitLayerShift().then(ls => {
+				const layer = getLayer(layerList, ls.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+					t.x += ls.dx;
+					t.y += ls.dy;
+					t.updateNode();
+				});
 			})
 		)
 	];
