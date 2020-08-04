@@ -58,7 +58,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if md.Width == 0 || md.Height == 0 {
 			return nil, ErrInvalidData
 		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			if mp.Width == md.Width && mp.Height == md.Height {
 				return false
 			}
@@ -69,10 +69,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			mp.GridStroke = md.GridStroke
 			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
 			return true
-		}); err != nil {
-			return nil, err
-		}
-		return nil, nil
+		})
 	case "setLightColour":
 		var c colour
 		if err := json.Unmarshal(data, &c); err != nil {
@@ -533,7 +530,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenPos); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
 			if bytes.Equal(tk.TokenData, zeroJSON) {
 				return false
 			}
@@ -541,10 +538,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			tk.TokenData = zeroJSON
 			m.socket.broadcastMapChange(cd, broadcastTokenUnsetData, data)
 			return true
-		}); err != nil {
-			return nil, err
-		}
-		return nil, nil
+		})
 	case "shiftLayer":
 		var layerShift struct {
 			Path string `json:"path"`
