@@ -4,7 +4,7 @@ import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {handleError, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {mapLoadSend} from './adminMap_ipc.js';
+import {mapLoadSend} from './comms.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {

@@ -6,7 +6,7 @@ import {noSort} from './lib/ordered.js';
 import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {mapLayersReceive} from './adminMap_ipc.js';
+import {mapLayersReceive} from './comms.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
 
