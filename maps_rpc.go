@@ -545,6 +545,26 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, nil
+	case "shiftLayer":
+		var layerShift struct {
+			Path string `json:"path"`
+			DX   int64  `json:"dx"`
+			DY   int64  `json:"dy"`
+		}
+		if err := json.Unmarshal(data, &layerShift); err != nil {
+			return nil, err
+		}
+		if layerShift.DX == 0 && layerShift.DY == 0 {
+			return nil, nil
+		}
+		return nil, m.updateMapLayer(cd.CurrentMap, layerShift.Path, func(_ *levelMap, l *layer) bool {
+			for _, t := range l.Tokens {
+				t.X += layerShift.DX
+				t.Y += layerShift.DY
+			}
+			m.socket.broadcastMapChange(cd, broadcastLayerShift, data)
+			return true
+		})
 	case "remove":
 		var (
 			mapPath string
