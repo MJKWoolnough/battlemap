@@ -39,7 +39,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenSourceChange":   () => rpc.await(broadcastTokenSourceChange, true).then(checkTokenSource),
 			"waitTokenSetData":        () => rpc.await(broadcastTokenSetData, true).then(checkTokenID),
 			"waitTokenUnsetData":      () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
-			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true),
+			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true).then(checkLayerShift),
 			"waitBroadcast":           () => rpc.await(broadcastAny, true).then(checkBroadcast),
 
 			"images": {
@@ -307,6 +307,8 @@ const returnVoid = () => {},
       },
       checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkArray, "children"], [checkLayerFolder, ""]],
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
+      checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
+      checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
