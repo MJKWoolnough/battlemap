@@ -398,9 +398,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					token.width = st.width;
 					token.height = st.height;
 					token.rotation = st.rotation;
-					token.node.setAttribute("width", st.width + "px");
-					token.node.setAttribute("height", st.height + "px");
-					token.node.setAttribute("transform", token.transformString());
+					token.updateNode();
 				}
 			}),
 			rpc.waitTokenFlip().then(tf => {
