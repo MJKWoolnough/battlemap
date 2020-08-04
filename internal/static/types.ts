@@ -75,6 +75,7 @@ export type RPC = {
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
 	waitTokenSetData:            () => Subscription<TokenID>;
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
+	waitLayerShift:              () => Subscription<LayerShift>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
@@ -113,6 +114,7 @@ export type RPC = {
 	setTokenSource:  (path: string, pos: Uint, source: string)                                            => Promise<void>;
 	setTokenLayer:   (from: string, pos: Uint, to: string)                                                => Promise<void>;
 	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
+	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
 
 	characterCreate:     (name: string)                                 => Promise<IDName>;
 	characterSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;
@@ -266,10 +268,16 @@ type TokenID = TokenPos & {
 	id: Uint;
 }
 
+type LayerShift = {
+	path: string;
+	dx: Int;
+	dy: Int;
+}
+
 export type KeystoreData = {
 	user: boolean;
 	data: any;
-};
+}
 
 type KeystoreDataChange = {
 	id: Uint;
