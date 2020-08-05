@@ -6,10 +6,10 @@ import {ShellElement} from './windows.js';
 import defaultTool from './tools_default.js';
 import moveTool from './tools_move.js';
 
-type TokenMouseFn = (this: SVGElement, e: MouseEvent, token: SVGToken) => void;
-type TokenWheelFn = (this: SVGElement, e: WheelEvent, token: SVGToken) => void;
-type MapMouseFn = (this: SVGElement, e: MouseEvent) => void;
-type MapWheelFn = (this: SVGElement, e: WheelEvent) => void;
+type TokenMouseFn = (this: SVGElement, e: MouseEvent, token: SVGToken, rpc: RPC) => void;
+type TokenWheelFn = (this: SVGElement, e: WheelEvent, token: SVGToken, rpc: RPC) => void;
+type MapMouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;
+type MapWheelFn = (this: SVGElement, e: WheelEvent, rpc: RPC) => void;
 
 type Tool = {
 	name: string;
@@ -45,58 +45,59 @@ const tools: Tool[] = [
 	}
 ];
 
-let selectedTool: Tool;
+let selectedTool: Tool, rpc: RPC;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = selectedTool.tokenMouseDown;
 	if (fn) {
-		fn.call(this, e, token);
+		fn.call(this, e, token, rpc);
 	}
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseDown;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, rpc);
 	}
 },
 toolTokenContext = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = selectedTool.tokenMouseContext;
 	if (fn) {
-		fn.call(this, e, token);
+		fn.call(this, e, token, rpc);
 	}
 },
 toolMapContext = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseContext;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, rpc);
 	}
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
 	const fn = selectedTool.tokenMouseWheel;
 	if (fn) {
-		fn.call(this, e, token);
+		fn.call(this, e, token, rpc);
 	}
 },
 toolMapWheel = function(this: SVGElement, e: WheelEvent) {
 	const fn = selectedTool.mapMouseWheel;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, rpc);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent, token: SVGToken) {
 	const fn = selectedTool.tokenMouseOver;
 	if (fn) {
-		fn.call(this, e, token);
+		fn.call(this, e, token, rpc);
 	}
 },
 toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.mapMouseOver;
 	if (fn) {
-		fn.call(this, e);
+		fn.call(this, e, rpc);
 	}
 };
 
-export default function (rpc: RPC, shell: ShellElement, base: HTMLElement) {
+export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
+	rpc = arpc;
 	const list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		selectedTool = t;
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
