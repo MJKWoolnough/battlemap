@@ -1,4 +1,34 @@
-const mouseCursor = function(this: SVGElement, e: MouseEvent) {
+import {RPC} from './types.js';
+import {SVGToken} from './map.js';
+import {requestSelected} from './comms.js';
+import {handleError} from './misc.js';
+
+const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+	e.preventDefault();
+	const ox = e.clientX, oy = e.clientY;
+	let dx = 0, dy = 0;
+	const {layer, layerPath, token} = requestSelected(),
+	      mover = (e: MouseEvent) => {
+		dx = e.clientX - ox;
+		dy = e.clientY - oy;
+		layer!.node.setAttribute("transform", `translate(${dx}, ${dy})`);
+	      };
+	if (!layer) {
+		return;
+	}
+	this.addEventListener("mousemove", mover);
+	this.addEventListener("mouseup", () => {
+		this.removeEventListener("mousemove", mover);
+		layer.node.removeAttribute("transform");
+		(layer.tokens as SVGToken[]).forEach(t => {
+			t.x += dx;
+			t.y += dy;
+			t.updateNode();
+		});
+		rpc.shiftLayer(layerPath, dx, dy).catch(handleError);
+	}, {"once": true});
+      },
+      mouseCursor = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	this.style.setProperty("cursor", "move");
 	this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
@@ -10,4 +40,6 @@ export default Object.freeze({
 	"reset": () => {},
 	"mapMouseOver": mouseCursor,
 	"tokenMouseOver": mouseCursor,
+	"mapMouseDown": startDrag,
+	"tokenMouseDown": startDrag
 });
