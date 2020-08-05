@@ -434,7 +434,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			selectedToken.updateNode();
 			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      }, "oncontextmenu": function (this: SVGGElement, e: MouseEvent) {
-			toolTokenContext.call(this, e, selectedToken as SVGToken);
+			toolTokenContext.call(this, e);
 			if (e.defaultPrevented) {
 				return;
 			}
@@ -693,12 +693,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}, selectedLayer!.name)),
 				item("Delete", deleteToken)
 			]);
-		}, "onwheel": function(this: SVGGElement, e: WheelEvent) {
-			toolTokenWheel.call(this, e, selectedToken as SVGToken);
-		}}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": function(this: SVGRectElement, e: MouseEvent) {
-			toolTokenMouseOver.call(this, e, selectedToken as SVGToken);
-		}, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
-			toolTokenMouseDown.call(this, e, selectedToken as SVGToken);
+		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+			toolTokenMouseDown.call(this, e);
 			if (e.defaultPrevented || e.button !== 0 || e.ctrlKey) {
 				return;
 			}
