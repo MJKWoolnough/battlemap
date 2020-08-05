@@ -7,7 +7,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.preventDefault();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {layer, layerPath, token} = requestSelected(),
+	const {layer, layerPath, deselectToken} = requestSelected(),
 	      mover = (e: MouseEvent) => {
 		dx = e.clientX - ox;
 		dy = e.clientY - oy;
@@ -16,6 +16,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (!layer) {
 		return;
 	}
+	deselectToken();
 	this.addEventListener("mousemove", mover);
 	this.addEventListener("mouseup", () => {
 		this.removeEventListener("mousemove", mover);
