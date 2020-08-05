@@ -8,4 +8,5 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 	layer: SVGLayer | null;
 	layerPath: string;
 	token: SVGToken | SVGShape | null;
+	deselectToken: () => void;
 }>();

@@ -713,7 +713,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 		respondWithSelected(() => ({
 			"layer": selectedLayer,
 			"layerPath": selectedLayerPath,
-			"token": selectedToken
+			"token": selectedToken,
+			"deselectToken": unselectToken
 		}));
 		mapLayersSend({
 			"waitAdded": () => waitAdded[1],
