@@ -1,4 +1,5 @@
 import {g} from './lib/svg.js';
+import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
@@ -30,6 +31,7 @@ export default Object.freeze({
 		panZoom.y = 0;
 		panZoom.zoom = 1;
 	},
+	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		const base = e.currentTarget;
 		if (base instanceof HTMLDivElement) {
