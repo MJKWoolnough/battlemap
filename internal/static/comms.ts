@@ -1,6 +1,7 @@
 import {LayerRPC, Uint} from './types.js';
 import {SVGLayer, SVGToken, SVGShape} from './map.js';
 import {Pipe, Requester} from './lib/inter.js';
+import Undo from './undo.js';
 
 export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = new Pipe<LayerRPC>(),
@@ -9,4 +10,5 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 	layerPath: string;
 	token: SVGToken | SVGShape | null;
 	deselectToken: () => void;
-}>();
+}>(),
+{request: requestMapUndo, responder: respondWithMapUndo} = new Requester<Undo>();
