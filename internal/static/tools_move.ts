@@ -1,6 +1,6 @@
 import {RPC} from './types.js';
 import {SVGToken} from './map.js';
-import {requestSelected} from './comms.js';
+import {requestSelected, requestMapUndo} from './comms.js';
 import {handleError} from './misc.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
@@ -21,12 +21,24 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	this.addEventListener("mouseup", () => {
 		this.removeEventListener("mousemove", mover);
 		layer.node.removeAttribute("transform");
-		(layer.tokens as SVGToken[]).forEach(t => {
-			t.x += dx;
-			t.y += dy;
-			t.updateNode();
-		});
-		rpc.shiftLayer(layerPath, dx, dy).catch(handleError);
+		const doIt = () => {
+			(layer.tokens as SVGToken[]).forEach(t => {
+				t.x += dx;
+				t.y += dy;
+				t.updateNode();
+			});
+			rpc.shiftLayer(layerPath, dx, dy).catch(handleError);
+			return () => {
+				(layer.tokens as SVGToken[]).forEach(t => {
+					t.x -= dx;
+					t.y -= dy;
+					t.updateNode();
+				});
+				rpc.shiftLayer(layerPath, -dx, -dy).catch(handleError);
+				return doIt;
+			};
+		};
+		requestMapUndo().add(doIt);
 	}, {"once": true});
       },
       mouseCursor = function(this: SVGElement, e: MouseEvent) {
