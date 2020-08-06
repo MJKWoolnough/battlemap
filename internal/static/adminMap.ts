@@ -5,7 +5,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
@@ -840,6 +840,31 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}
 				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
 				undo.clear();
+			}),
+			rpc.waitLayerShift().then(ls => {
+				const layer = getLayer(layerList, ls.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				const undoIt = () => {
+					(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+						t.x -= ls.dx;
+						t.y -= ls.dy;
+						t.updateNode();
+					});
+					rpc.shiftLayer(ls.path, -ls.dx, -ls.dy);
+					return () => {
+						(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+							t.x += ls.dx;
+							t.y += ls.dy;
+							t.updateNode();
+						});
+						rpc.shiftLayer(ls.path, ls.dx, ls.dy);
+						return undoIt;
+					};
+				};
+				undo.add(() => undoIt);
 			}),
 			...([
 				rpc.waitLayerRename,
