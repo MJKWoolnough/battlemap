@@ -1,6 +1,6 @@
 import {RPC} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {div, ul, li, img, span} from './lib/html.js';
+import {div, h2, ul, li, img, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import defaultTool from './tools_default.js';
@@ -104,17 +104,24 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 
 export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	rpc = arpc;
-	const list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
+	const options = div(),
+	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		selectedTool = t;
+		clearElement(options).appendChild(t.options);
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
+		clearElement(options)
 	}}, [
 		img({"src": `data:image/png;base64,${t.icon}`}),
 		span(t.name)
 	])));
-	createHTML(clearElement(base), {"id": "toolList"}, list);
+	createHTML(clearElement(base), {"id": "toolList"}, [list, div([
+		h2("Tool Options"),
+		options
+	])]);
 	rpc.waitCurrentUserMapData().then(() => {
 		selectedTool = tools[0];
+		clearElement(options).appendChild(tools[0].options);
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		(list.firstChild as HTMLElement).classList.add("selected");
 		tools.forEach(t => t.reset());
