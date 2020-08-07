@@ -3,7 +3,33 @@ import defaultTool, {zoom} from './tools_default.js';
 
 const doZoom = function(this: SVGElement, e: MouseEvent) {
 	zoom(this, zoomMode, e.clientX, e.clientY);
-};
+},
+zoomOver = function(this: SVGElement, e: MouseEvent) {
+	document.body.classList.add("zoomOver");
+	this.addEventListener("mouseout", () => document.body.classList.remove("zoomOver"), {"once": true});
+},
+zoomIn = input({"id": "zoomIn", "type": "radio", "name": "zoomInOut", "checked": "checked", "onclick": () => {
+	zoomMode = -1;
+	document.body.classList.remove("zoomOut");
+}}),
+zoomOut = input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick": () => {
+	zoomMode = 1;
+	document.body.classList.add("zoomOut");
+}}),
+zoomShift = (e: KeyboardEvent) => {
+	console.log(e.key);
+	if (e.key === "Shift") {
+		console.log(1);
+		if (zoomMode === 1) {
+			zoomIn.click();
+		} else {
+			zoomOut.click();
+		}
+	}
+}
+
+document.body.addEventListener("keydown", zoomShift);
+document.body.addEventListener("keyup", zoomShift);
 
 let zoomMode = -1;
 
@@ -13,11 +39,12 @@ export default Object.freeze({
 	"reset": () => {},
 	"options": div([
 		label({"for": "zoomIn"}, "Zoom In: "),
-		input({"id": "zoomIn", "type": "radio", "name": "zoomInOut", "checked": "checked", "onclick": () => zoomMode = -1}),
+		zoomIn,
 		br(),
 		label({"for": "zoomOut"}, "Zoom Out: "),
-		input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick": () => zoomMode = 1})
+		zoomOut
 	]),
 	"mapMouseDown": doZoom,
+	"mapMouseOver": zoomOver,
 	"mapMouseWheel": defaultTool.mapMouseWheel
 });
