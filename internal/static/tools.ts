@@ -119,9 +119,8 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 		h2("Tool Options"),
 		options
 	])]);
+	(list.firstChild as HTMLLIElement).click();
 	rpc.waitCurrentUserMapData().then(() => {
-		selectedTool = tools[0];
-		clearElement(options).appendChild(tools[0].options);
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		(list.firstChild as HTMLElement).classList.add("selected");
 		tools.forEach(t => t.reset());
