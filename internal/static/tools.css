@@ -7,8 +7,8 @@
 	width: 2em;
 }
 
-#toolList li.selected {
-	cursor: hand;
+#toolList > ul > li {
+	cursor: pointer;
 }
 
 #toolList li.selected {
