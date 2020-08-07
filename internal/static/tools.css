@@ -3,6 +3,10 @@
 	padding: 0;
 }
 
+#toolList > ul > li img {
+	width: 2em;
+}
+
 #toolList li.selected {
 	cursor: hand;
 }
