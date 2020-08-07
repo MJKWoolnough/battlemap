@@ -14,3 +14,11 @@
 #toolList li.selected {
 	background-color: #888;
 }
+
+.zoomOver svg {
+	cursor: zoom-in;
+}
+
+.zoomOver.zoomOut svg {
+	cursor: zoom-out;
+}
