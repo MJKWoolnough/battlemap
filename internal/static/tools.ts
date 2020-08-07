@@ -3,6 +3,7 @@ import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, img, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
+import {mapLayersReceive} from './comms.js';
 import defaultTool from './tools_default.js';
 import zoomTool from './tools_zoom.js';
 import moveTool from './tools_move.js';
@@ -120,7 +121,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 		options
 	])]);
 	(list.firstChild as HTMLLIElement).click();
-	rpc.waitCurrentUserMapData().then(() => {
+	mapLayersReceive(() => {
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		(list.firstChild as HTMLElement).classList.add("selected");
 		tools.forEach(t => t.reset());
