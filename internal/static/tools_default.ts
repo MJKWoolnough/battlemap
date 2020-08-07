@@ -43,7 +43,7 @@ export default Object.freeze({
 				this.style.setProperty("left", panZoom.x + "px");
 				this.style.setProperty("top", panZoom.y + "px");
 				mX = e.clientX;
-				mY = e.clientX;
+				mY = e.clientY;
 			      };
 			base.addEventListener("mousemove", viewDrag);
 			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
