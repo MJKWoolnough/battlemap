@@ -109,7 +109,6 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		selectedTool = t;
 		clearElement(options).appendChild(t.options);
-		      console.log(options);
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
 	}}, [
