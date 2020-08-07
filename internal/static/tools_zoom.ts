@@ -1,5 +1,5 @@
 import {br, div, input, label} from './lib/html.js';
-import {zoom} from './tools_default.js';
+import defaultTool, {zoom} from './tools_default.js';
 
 const doZoom = function(this: SVGElement, e: MouseEvent) {
 	zoom(this, zoomMode, e.clientX, e.clientY);
@@ -18,5 +18,6 @@ export default Object.freeze({
 		label({"for": "zoomOut"}, "Zoom Out: "),
 		input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick": () => zoomMode = 1})
 	]),
-	"mapMouseDown": doZoom
+	"mapMouseDown": doZoom,
+	"mapMouseWheel": defaultTool.mapMouseWheel
 });
