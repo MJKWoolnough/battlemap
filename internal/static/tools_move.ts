@@ -3,6 +3,7 @@ import {div} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {requestSelected, requestMapUndo} from './comms.js';
 import {handleError} from './misc.js';
+import {panZoom} from './tools_default.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.preventDefault();
@@ -11,8 +12,8 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	let dx = 0, dy = 0;
 	const {layer, layerPath, deselectToken} = requestSelected(),
 	      mover = (e: MouseEvent) => {
-		dx = e.clientX - ox;
-		dy = e.clientY - oy;
+		dx = (e.clientX - ox) / panZoom.zoom;
+		dy = (e.clientY - oy) / panZoom.zoom;
 		layer!.node.setAttribute("transform", `translate(${dx}, ${dy})`);
 	      };
 	if (!layer) {
