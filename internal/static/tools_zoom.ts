@@ -3,6 +3,7 @@ import defaultTool, {zoom} from './tools_default.js';
 
 const doZoom = function(this: SVGElement, e: MouseEvent) {
 	zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
+	e.stopPropagation();
 },
 zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
@@ -18,7 +19,6 @@ zoomOut = input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick
 }}),
 zoomShift = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
-		console.log(1);
 		if (zoomMode === 1) {
 			zoomIn.click();
 		} else {
