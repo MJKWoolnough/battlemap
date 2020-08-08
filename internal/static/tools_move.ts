@@ -25,6 +25,8 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 		this.removeEventListener("mousemove", mover);
 		layer.node.removeAttribute("transform");
 		const doIt = () => {
+			dx = Math.round(dx);
+			dy = Math.round(dy);
 			(layer.tokens as SVGToken[]).forEach(t => {
 				t.x += dx;
 				t.y += dy;
