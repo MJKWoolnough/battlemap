@@ -322,7 +322,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return;
 			}
 			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
+			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = selectedToken.x;
 			tokenMousePos.y = selectedToken.y;
 			tokenMousePos.width = selectedToken.width;
