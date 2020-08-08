@@ -6,6 +6,7 @@ import {handleError} from './misc.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.preventDefault();
+	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
 	const {layer, layerPath, deselectToken} = requestSelected(),
