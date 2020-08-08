@@ -1,24 +1,33 @@
-import {RPC} from './types.js';
+import {RPC, LayerRPC} from './types.js';
 import {div} from './lib/html.js';
 import {SVGToken} from './map.js';
-import {requestSelected, requestMapUndo} from './comms.js';
+import {requestSelected, requestMapUndo, mapLayersReceive} from './comms.js';
 import {handleError} from './misc.js';
 import {panZoom} from './tools_default.js';
+
+let ml: LayerRPC;
+mapLayersReceive(l => ml = l);
 
 const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.preventDefault();
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {layer, layerPath, deselectToken} = requestSelected(),
-	      mover = (e: MouseEvent) => {
-		dx = (e.clientX - ox) / panZoom.zoom;
-		dy = (e.clientY - oy) / panZoom.zoom;
-		layer!.node.setAttribute("transform", `translate(${dx}, ${dy})`);
-	      };
+	const {layer, layerPath, deselectToken} = requestSelected();
 	if (!layer) {
 		return;
 	}
+	const snap = layer.tokens.some(t => t.snap),
+	      sq = snap ? ml.getMapDetails().gridSize : 1,
+	      mover = (e: MouseEvent) => {
+		dx = (e.clientX - ox) / panZoom.zoom;
+		dy = (e.clientY - oy) / panZoom.zoom;
+		if (snap) {
+			dx = Math.round(dx / sq) * sq;
+			dy = Math.round(dy / sq) * sq;
+		}
+		layer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
+	      };
 	deselectToken();
 	this.addEventListener("mousemove", mover);
 	this.addEventListener("mouseup", () => {
