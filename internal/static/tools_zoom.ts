@@ -17,7 +17,6 @@ zoomOut = input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick
 	document.body.classList.add("zoomOut");
 }}),
 zoomShift = (e: KeyboardEvent) => {
-	console.log(e.key);
 	if (e.key === "Shift") {
 		console.log(1);
 		if (zoomMode === 1) {
