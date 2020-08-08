@@ -15,10 +15,10 @@
 	background-color: #888;
 }
 
-.zoomOver svg {
-	cursor: zoom-in;
+.zoomOver svg, .zoomOver #outline rect {
+	cursor: zoom-in !important;
 }
 
-.zoomOver.zoomOut svg {
-	cursor: zoom-out;
+.zoomOver.zoomOut svg, .zoomOver.zoomOut #outline rect {
+	cursor: zoom-out !important;
 }
