@@ -33,7 +33,11 @@ export default Object.freeze({
 	},
 	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		const base = e.currentTarget;
+		const base = e.currentTarget,
+		      outline = document.getElementById("outline");
+		if (e.target && (e.target as ChildNode).parentNode === outline) {
+			return;
+		}
 		if (base instanceof HTMLDivElement) {
 			let mX = e.clientX,
 			    mY = e.clientY;
