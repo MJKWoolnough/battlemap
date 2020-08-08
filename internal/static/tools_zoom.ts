@@ -2,7 +2,7 @@ import {br, div, input, label} from './lib/html.js';
 import defaultTool, {zoom} from './tools_default.js';
 
 const doZoom = function(this: SVGElement, e: MouseEvent) {
-	zoom(this, zoomMode, e.clientX, e.clientY);
+	zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
 },
 zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");

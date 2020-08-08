@@ -9,9 +9,9 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	      oldZoom = panZoom.zoom,
 	      outline = document.getElementById("outline");
 	if (delta < 0) {
-		panZoom.zoom /= 0.95;
+		panZoom.zoom /= -delta;
 	} else if (delta > 0) {
-		panZoom.zoom *= 0.95;
+		panZoom.zoom *= delta;
 	}
 	panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 	panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
@@ -53,7 +53,7 @@ export default Object.freeze({
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
 		e.preventDefault();
 		if (e.ctrlKey) {
-			zoom(this, e.deltaY, e.clientX, e.clientY);
+			zoom(this, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 		} else {
 			const deltaY = e.shiftKey ? 0 : -e.deltaY,
 			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
