@@ -30,3 +30,7 @@
 .toGrab.grabbed {
 	cursor: grabbing;
 }
+
+.toGrab.overToken {
+	cursor: pointer;
+}
