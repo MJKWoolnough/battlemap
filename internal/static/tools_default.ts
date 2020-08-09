@@ -35,7 +35,7 @@ export default Object.freeze({
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		const base = e.currentTarget,
 		      outline = document.getElementById("outline");
-		if (e.target && (e.target as ChildNode).parentNode === outline) {
+		if (e.target && (e.target as ChildNode).parentNode === outline && !e.ctrlKey) {
 			return;
 		}
 		if (base instanceof HTMLDivElement) {

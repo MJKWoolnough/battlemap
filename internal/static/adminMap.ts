@@ -315,10 +315,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return;
 			}
 			const newToken = (selectedLayer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
-			if (!e.ctrlKey) {
-				unselectToken();
-			}
-			if (!newToken || e.ctrlKey) {
+			unselectToken();
+			if (!newToken) {
 				return;
 			}
 			selectedToken = newToken;
