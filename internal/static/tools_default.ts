@@ -70,14 +70,36 @@ export default Object.freeze({
 			const {layer} = requestSelected();
 			base.classList.add("toGrab");
 			if (layer) {
-				base.addEventListener("mousemove", (e: MouseEvent) => {
-					base.classList.remove("overToken");
-					if ((layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+				const mouse = {"x": 0, "y": 0},
+				      keyUp = (e: KeyboardEvent) => {
+					if (e.key === "Control" && (layer.tokens as SVGToken[]).some(t => t.at(mouse.x, mouse.y))) {
 						base.classList.add("overToken");
 					}
-				});
+				      }, keyDown = (e: KeyboardEvent) => {
+					if (e.key === "Control") {
+						base.classList.remove("overToken");
+						window.addEventListener("keyup", keyUp, {"once": true});
+					}
+				      },
+				      mouseMove = (e: MouseEvent) => {
+					base.classList.remove("overToken");
+					if (!e.ctrlKey && (layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+						base.classList.add("overToken");
+					}
+					mouse.x = e.clientX;
+					mouse.y = e.clientY;
+				      };
+				window.addEventListener("keydown", keyDown);
+				base.addEventListener("mousemove", mouseMove);
+				base.addEventListener("mouseout", () => {
+					window.removeEventListener("keydown", keyDown);
+					window.removeEventListener("keyup", keyUp);
+					base.removeEventListener("mousemove", mouseMove);
+					base.classList.remove("toGrab", "overToken");
+				}, {"once": true});
+			} else {
+				base.addEventListener("mouseout", () => base.classList.remove("toGrab", "overToken"), {"once": true});
 			}
-			base.addEventListener("mouseout", () => base.classList.remove("toGrab", "overToken"), {"once": true});
 		}
 	},
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
