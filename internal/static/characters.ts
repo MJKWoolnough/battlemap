@@ -31,7 +31,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 				changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 			}}),
-			input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user ? "checked" : undefined, "onchange": function(this: HTMLInputElement) {
+			input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
 				changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
 			}}),
 			label({"for": `character_${n}_${row}_user`}),
