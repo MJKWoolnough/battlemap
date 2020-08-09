@@ -48,7 +48,7 @@ export class Item {
 		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": "Move Item"}));
 		return createHTML(window, {"class": "renameItem"}, [
@@ -75,7 +75,7 @@ export class Item {
 		      shell = root.shell,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": "Link Item"}));
 		return createHTML(window, {"class": "linkItem"}, [
@@ -230,7 +230,7 @@ export class Folder {
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": "selected"} : {"value": p}))),
+		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": "Move Folder"}));
 		return createHTML(window, [
