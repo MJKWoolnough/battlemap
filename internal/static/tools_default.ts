@@ -89,6 +89,10 @@ export default Object.freeze({
 					mouse.x = e.clientX;
 					mouse.y = e.clientY;
 				      };
+				if (e.ctrlKey) {
+					window.addEventListener("keyup", keyUp, {"once": true});
+					mouseMove(e);
+				}
 				window.addEventListener("keydown", keyDown);
 				base.addEventListener("mousemove", mouseMove);
 				base.addEventListener("mouseout", () => {
