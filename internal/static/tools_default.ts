@@ -1,6 +1,8 @@
+import {SVGToken} from './map.js';
 import {g} from './lib/svg.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
+import {requestSelected} from './comms.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 zoom = (root: SVGElement, delta: number, x: number, y: number) => {
@@ -65,8 +67,17 @@ export default Object.freeze({
 			return;
 		}
 		if (base instanceof HTMLDivElement) {
+			const {layer} = requestSelected();
 			base.classList.add("toGrab");
-			base.addEventListener("mouseout", () => base.classList.remove("toGrab"), {"once": true});
+			if (layer) {
+				base.addEventListener("mousemove", (e: MouseEvent) => {
+					base.classList.remove("overToken");
+					if ((layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+						base.classList.add("overToken");
+					}
+				});
+			}
+			base.addEventListener("mouseout", () => base.classList.remove("toGrab", "overToken"), {"once": true});
 		}
 	},
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
