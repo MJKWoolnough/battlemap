@@ -39,6 +39,7 @@ export default Object.freeze({
 			return;
 		}
 		if (base instanceof HTMLDivElement) {
+			base.classList.add("grabbed");
 			let mX = e.clientX,
 			    mY = e.clientY;
 			const viewDrag = (e: MouseEvent) => {
@@ -50,8 +51,22 @@ export default Object.freeze({
 				mY = e.clientY;
 			      };
 			base.addEventListener("mousemove", viewDrag);
-			base.addEventListener("mouseup", () => base.removeEventListener("mousemove", viewDrag), {"once": true});
+			base.addEventListener("mouseup", () => {
+				base.classList.remove("grabbed");
+				base.removeEventListener("mousemove", viewDrag);
+			}, {"once": true});
 			e.preventDefault();
+		}
+	},
+	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
+		const base = e.currentTarget,
+		      outline = document.getElementById("outline");
+		if (e.target && (e.target as ChildNode).parentNode === outline) {
+			return;
+		}
+		if (base instanceof HTMLDivElement) {
+			base.classList.add("toGrab");
+			base.addEventListener("mouseout", () => base.classList.remove("toGrab"), {"once": true});
 		}
 	},
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
