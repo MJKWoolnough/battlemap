@@ -34,7 +34,7 @@ const tabs = (function() {
 		}
 	      },
 	      mouseup = () => window.removeEventListener("mousemove", mousemove),
-	      c = input({"id": "panelHider", "type": "checkbox", "checked": window.localStorage.getItem("panelShow") === "" ? "checked" : undefined, "onchange": () => {
+	      c = input({"id": "panelHider", "type": "checkbox", "checked": window.localStorage.getItem("panelShow") === "", "onchange": () => {
 		if (c.checked) {
 			window.localStorage.setItem("panelShow", "");
 		} else {
@@ -73,7 +73,7 @@ const tabs = (function() {
 	      o = Object.freeze({
 		"add": (title: string, contents: Node, popout = true) => {
 			const base = p.appendChild(div(contents)),
-			      i = h.lastChild!.insertBefore(input(Object.assign({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}, n === 0 ? {"checked": "checked"} : {}) as Record<string, string>), t),
+			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": n === 0}), t),
 			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, tl = tabs.length;
 				switch (e.key) {
