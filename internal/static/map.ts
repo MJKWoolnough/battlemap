@@ -7,6 +7,7 @@ import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
+import {respondWithSelected} from './comms.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -445,4 +446,12 @@ export default function(rpc: RPC, base: HTMLElement) {
 		base = newBase;
 		canceller = cancel;
 	});
+	const selected = {
+		"layer": null,
+		"layerPath": "",
+		"token": null,
+		"outline": g(),
+		"deselectToken": () => {}
+	};
+	respondWithSelected(() => selected);
 }
