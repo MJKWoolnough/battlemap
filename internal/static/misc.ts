@@ -16,5 +16,11 @@ colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.t
 noColour = {"r": 0, "g": 0, "b": 0, "a": 0},
 handleError = (e: Error | string) => {
 	console.log(e);
-	(document.body.getElementsByTagName("windows-shell")[0] as ShellElement).alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
+	const shell = document.body.getElementsByTagName("windows-shell")[0] as ShellElement,
+	      message = e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e;
+	if (shell) {
+		shell.alert("Error", message);
+	} else {
+		alert(message);
+	}
 };
