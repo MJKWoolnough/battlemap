@@ -19,7 +19,10 @@ const dragFn = (e: MouseEvent) => {
 	draggedName!.style.setProperty("top", e.clientY + 1 + "px");
 	draggedName!.style.setProperty("left", e.clientX + dragOffset + "px");
       },
-      dropFn = () => {
+      dropFn = (e: MouseEvent) => {
+	if (e.button !== 0) {
+		return;
+	}
 	dragging!.node.classList.remove("dragged");
 	dragging = undefined;
 	if (draggedName) {
@@ -27,6 +30,7 @@ const dragFn = (e: MouseEvent) => {
 	}
 	draggedName = undefined;
 	document.body.removeEventListener("mousemove", dragFn);
+	document.body.removeEventListener("mouseup", dropFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
       },
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
@@ -86,7 +90,7 @@ const dragFn = (e: MouseEvent) => {
 	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh).catch(handleError);
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
-	if (dragging) {
+	if (dragging || e.button !== 0) {
 		return;
 	}
 	if (l.id < 0) {
@@ -98,7 +102,7 @@ const dragFn = (e: MouseEvent) => {
 	}
 	dragging = l;
 	document.body.addEventListener("mousemove", dragFn);
-	document.body.addEventListener("mouseup", dropFn, {"once": true});
+	document.body.addEventListener("mouseup", dropFn);
       ;}
 
 class ItemLayer extends Item {
