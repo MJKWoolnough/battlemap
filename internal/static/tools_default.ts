@@ -9,7 +9,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	const width = parseInt(root.getAttribute("width") || "0") / 2,
 	      height = parseInt(root.getAttribute("height") || "0") / 2,
 	      oldZoom = panZoom.zoom,
-	      outline = document.getElementById("outline");
+	      {outline} = requestSelected();
 	if (delta < 0) {
 		panZoom.zoom /= -delta;
 	} else if (delta > 0) {
@@ -36,7 +36,7 @@ export default Object.freeze({
 	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		const base = e.currentTarget,
-		      outline = document.getElementById("outline");
+		      {outline} = requestSelected();
 		if (e.target && (e.target as ChildNode).parentNode === outline && !e.ctrlKey) {
 			return;
 		}
@@ -62,12 +62,11 @@ export default Object.freeze({
 	},
 	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 		const base = e.currentTarget,
-		      outline = document.getElementById("outline");
+		      {layer, outline} = requestSelected();
 		if (e.target && (e.target as ChildNode).parentNode === outline) {
 			return;
 		}
 		if (base instanceof HTMLDivElement) {
-			const {layer} = requestSelected();
 			base.classList.add("toGrab");
 			if (layer) {
 				const mouse = {"x": 0, "y": 0},
