@@ -33,7 +33,13 @@ const tabs = (function() {
 			h.style.setProperty("--panel-width", x + "px");
 		}
 	      },
-	      mouseup = () => window.removeEventListener("mousemove", mousemove),
+	      mouseUp = (e: MouseEvent) => {
+		if (e.button !== 0) {
+			return;
+		}
+		window.removeEventListener("mousemove", mousemove);
+		window.removeEventListener("mouseup", mouseUp);
+	      },
 	      c = input({"id": "panelHider", "type": "checkbox", "checked": window.localStorage.getItem("panelShow") === "", "onchange": () => {
 		if (c.checked) {
 			window.localStorage.setItem("panelShow", "");
@@ -44,10 +50,13 @@ const tabs = (function() {
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
-		label({"for": "panelHider", "id": "panelGrabber", "onmousedown": () => {
+		label({"for": "panelHider", "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
 			if (!c.checked) {
 				window.addEventListener("mousemove", mousemove);
-				window.addEventListener("mouseup", mouseup, {"once": true});
+				window.addEventListener("mouseup", mouseUp);
 			}
 		}}),
 		div({"id": "tabs"}, [t, p])
