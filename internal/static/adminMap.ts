@@ -710,6 +710,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			"layer": selectedLayer,
 			"layerPath": selectedLayerPath,
 			"token": selectedToken,
+			outline,
 			"deselectToken": unselectToken
 		}));
 		respondWithMapUndo(() => undo);

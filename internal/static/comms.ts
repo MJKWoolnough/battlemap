@@ -9,6 +9,7 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 	layer: SVGLayer | null;
 	layerPath: string;
 	token: SVGToken | SVGShape | null;
+	outline: SVGGElement;
 	deselectToken: () => void;
 }>(),
 {request: requestMapUndo, responder: respondWithMapUndo} = new Requester<Undo>();
