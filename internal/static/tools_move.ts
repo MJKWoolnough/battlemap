@@ -27,11 +27,13 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 			dy = Math.round(dy / sq) * sq;
 		}
 		layer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
-	      };
-	deselectToken();
-	this.addEventListener("mousemove", mover);
-	this.addEventListener("mouseup", () => {
+	      },
+	      mouseUp = (e: MouseEvent) => {
+		if (e.button !== 0) {
+			return;
+		}
 		this.removeEventListener("mousemove", mover);
+		this.removeEventListener("mouseup", mouseUp);
 		layer.node.removeAttribute("transform");
 		const doIt = () => {
 			dx = Math.round(dx);
@@ -53,7 +55,10 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 			};
 		};
 		requestMapUndo().add(doIt);
-	}, {"once": true});
+	      };
+	deselectToken();
+	this.addEventListener("mousemove", mover);
+	this.addEventListener("mouseup", mouseUp);
       },
       mouseCursor = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
