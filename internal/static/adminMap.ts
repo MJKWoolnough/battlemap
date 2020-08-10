@@ -136,11 +136,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			selectedToken!.updateNode();
 			outline.setAttribute("transform", selectedToken!.transformString(false));
 		      },
-		      tokenMouseUp = () => {
-			if (!selectedToken) {
+		      tokenMouseUp = (e: MouseEvent) => {
+			if (!selectedToken || e.button !== 0) {
 				return;
 			}
 			document.body.removeEventListener("mousemove", tokenDrag);
+			document.body.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
 			const {x, y, width, height, rotation} = tokenMousePos,
 			      newX = Math.round(selectedToken!.x),
@@ -700,7 +701,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			}
 			e.stopImmediatePropagation();
 			document.body.addEventListener("mousemove", tokenDrag);
-			document.body.addEventListener("mouseup", tokenMouseUp, {"once": true});
+			document.body.addEventListener("mouseup", tokenMouseUp);
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
 			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos.mouseX = e.clientX;
@@ -817,7 +818,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			{cancel},
 			rpc.waitTokenChange().then(st => {
 				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
-					tokenMouseUp();
+					tokenMouseUp(new MouseEvent(""));
 				}
 				undo.clear();
 			}),
