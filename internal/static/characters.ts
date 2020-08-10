@@ -26,27 +26,31 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	let changed = false, row = 0, tokenClone = 0;
 	const changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
-	      adder = (k: string) => [
+	      adder = (k: string) => {
+		const data = input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
+			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
+		      }}),
+		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
+			changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
+		      }});
+		return [
 			label({"for": `character_${n}_${row}`}, k),
-			input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
-				changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
-			}}),
-			input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
-				changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
-			}}),
+			data,
+			visibility,
 			label({"for": `character_${n}_${row}_user`}),
 			input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
-					document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.setAttribute("disabled", "disabled");
+					data.setAttribute("disabled", "disabled");
 				} else {
 					removes.delete(k);
-					document.getElementById(this.getAttribute("id")?.slice(0, -7) ?? "")?.removeAttribute("disabled");
+					data.removeAttribute("disabled");
 				}
 			}}),
 			label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
 			br()
-	      ],
+		]
+	      },
 	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
 	      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
