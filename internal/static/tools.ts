@@ -52,7 +52,7 @@ const tools: Tool[] = [
 	}
 ];
 
-let selectedTool: Tool, rpc: RPC;
+let selectedTool: Tool = tools[0], rpc: RPC;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.tokenMouseDown;
