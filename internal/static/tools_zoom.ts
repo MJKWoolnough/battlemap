@@ -2,7 +2,11 @@ import {br, div, input, label} from './lib/html.js';
 import defaultTool, {zoom} from './tools_default.js';
 
 const doZoom = function(this: SVGElement, e: MouseEvent) {
-	zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
+	if (drawZoom.checked) {
+
+	} else {
+		zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
+	}
 	e.stopPropagation();
 },
 zoomOver = function(this: SVGElement, e: MouseEvent) {
@@ -17,20 +21,23 @@ zoomOut = input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick
 	zoomMode = 1;
 	document.body.classList.add("zoomOut");
 }}),
-zoomShift = (e: KeyboardEvent) => {
+drawZoom = input({"id": "drawZoom", "type": "checkbox"}),
+zoomShiftCtrl = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		if (zoomMode === 1) {
 			zoomIn.click();
 		} else {
 			zoomOut.click();
 		}
+	} else if (e.key === "Control") {
+		drawZoom.click();
 	}
 }
 
-document.body.addEventListener("keydown", zoomShift);
-document.body.addEventListener("keyup", zoomShift);
+document.body.addEventListener("keydown", zoomShiftCtrl);
+document.body.addEventListener("keyup", zoomShiftCtrl);
 
-let zoomMode = -1;
+let zoomMode: 1 | -1 = -1;
 
 export default Object.freeze({
 	"name": "Zoom",
@@ -41,7 +48,10 @@ export default Object.freeze({
 		zoomIn,
 		br(),
 		label({"for": "zoomOut"}, "Zoom Out: "),
-		zoomOut
+		zoomOut,
+		br(),
+		label({"for": "drawZoom"}, "Draw Zoom: "),
+		drawZoom
 	]),
 	"mapMouseDown": doZoom,
 	"mapMouseOver": zoomOver,
