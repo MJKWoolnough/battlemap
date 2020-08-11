@@ -22,15 +22,3 @@
 .zoomOver.zoomOut svg, .zoomOver.zoomOut #outline rect {
 	cursor: zoom-out !important;
 }
-
-.toGrab {
-	cursor: grab;
-}
-
-.toGrab.grabbed {
-	cursor: grabbing;
-}
-
-.toGrab.overToken {
-	cursor: pointer;
-}
