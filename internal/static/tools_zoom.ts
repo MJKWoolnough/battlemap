@@ -1,15 +1,7 @@
 import {br, div, input, label} from './lib/html.js';
 import defaultTool, {zoom} from './tools_default.js';
 
-const doZoom = function(this: SVGElement, e: MouseEvent) {
-	if (drawZoom.checked) {
-
-	} else {
-		zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
-	}
-	e.stopPropagation();
-},
-zoomOver = function(this: SVGElement, e: MouseEvent) {
+const zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
 	this.addEventListener("mouseout", () => document.body.classList.remove("zoomOver"), {"once": true});
 },
@@ -53,7 +45,14 @@ export default Object.freeze({
 		label({"for": "drawZoom"}, "Draw Zoom: "),
 		drawZoom
 	]),
-	"mapMouseDown": doZoom,
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+		if (drawZoom.checked) {
+
+		} else {
+			zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
+		}
+		e.stopPropagation();
+	},
 	"mapMouseOver": zoomOver,
 	"mapMouseWheel": defaultTool.mapMouseWheel
 });
