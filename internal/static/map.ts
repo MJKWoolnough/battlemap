@@ -267,8 +267,8 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	}
 },
 setMapDetails = (details: MapDetails) => {
-	globals.root.setAttribute("width", details["width"].toString());
-	globals.root.setAttribute("height", details["height"].toString());
+	globals.root.setAttribute("width", (globals.mapData.width = details["width"]).toString());
+	globals.root.setAttribute("height", (globals.mapData.height = details["height"]).toString());
 	globals.definitions.setGrid(details);
 	return details;
 },
@@ -276,11 +276,13 @@ setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGL
 globals = {
 	"definitions": null,
 	"root": null,
-	"layerList": null
+	"layerList": null,
+	"mapData": null
 } as unknown as {
 	definitions: Defs,
 	root: SVGSVGElement,
-	layerList: SVGFolder
+	layerList: SVGFolder,
+	mapData: MapData
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
@@ -300,7 +302,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 	      definitions = new Defs(),
 	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
-	Object.assign(globals, {definitions, root, layerList});
+	Object.assign(globals, {definitions, root, layerList, mapData});
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
