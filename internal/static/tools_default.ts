@@ -35,74 +35,103 @@ export default Object.freeze({
 	},
 	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		const base = e.currentTarget,
-		      {outline} = requestSelected();
+		const {outline} = requestSelected();
 		if (e.target && (e.target as ChildNode).parentNode === outline && !e.ctrlKey) {
 			return;
 		}
-		if (base instanceof HTMLDivElement) {
-			base.classList.add("grabbed");
-			let mX = e.clientX,
-			    mY = e.clientY;
-			const viewDrag = (e: MouseEvent) => {
-				panZoom.x += e.clientX - mX;
-				panZoom.y += e.clientY - mY;
-				this.style.setProperty("left", panZoom.x + "px");
-				this.style.setProperty("top", panZoom.y + "px");
-				mX = e.clientX;
-				mY = e.clientY;
-			      };
-			base.addEventListener("mousemove", viewDrag);
-			base.addEventListener("mouseup", () => {
-				base.classList.remove("grabbed");
-				base.removeEventListener("mousemove", viewDrag);
-			}, {"once": true});
-			e.preventDefault();
-		}
+		this.style.setProperty("--outline-cursor", "grabbing");
+		let mX = e.clientX,
+		    mY = e.clientY;
+		const viewDrag = (e: MouseEvent) => {
+			panZoom.x += e.clientX - mX;
+			panZoom.y += e.clientY - mY;
+			this.style.setProperty("left", panZoom.x + "px");
+			this.style.setProperty("top", panZoom.y + "px");
+			mX = e.clientX;
+			mY = e.clientY;
+		      };
+		this.addEventListener("mousemove", viewDrag);
+		this.addEventListener("mouseup", () => {
+			this.style.removeProperty("--outline-cursor");
+			this.removeEventListener("mousemove", viewDrag);
+		}, {"once": true});
+		e.preventDefault();
 	},
 	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-		const base = e.currentTarget,
-		      {layer, outline} = requestSelected();
-		if (e.target && (e.target as ChildNode).parentNode === outline) {
-			return;
+		const {layer, outline} = requestSelected(),
+		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
+		      currentlyOverToken = overOutline || layer && (layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
+		if (e.ctrlKey) {
+			document.body.style.setProperty("--outline-cursor", "grab");
+		} else if (!overOutline) {
+			if (currentlyOverToken) {
+				document.body.style.setProperty("--outline-cursor", "pointer");
+			} else {
+				document.body.style.setProperty("--outline-cursor", "grab");
+			}
 		}
-		if (base instanceof HTMLDivElement) {
-			base.classList.add("toGrab");
+		if (!overOutline) {
 			if (layer) {
-				const mouse = {"x": 0, "y": 0},
-				      keyUp = (e: KeyboardEvent) => {
-					if (e.key === "Control" && (layer.tokens as SVGToken[]).some(t => t.at(mouse.x, mouse.y))) {
-						base.classList.add("overToken");
+				let overToken = currentlyOverToken;
+				const keyUp = (e: KeyboardEvent) => {
+					if (e.key === "Control" && overToken) {
+						document.body.style.setProperty("--outline-cursor", "pointer");
+						window.removeEventListener("keyup", keyUp);
 					}
-				      }, keyDown = (e: KeyboardEvent) => {
-					if (e.key === "Control") {
-						base.classList.remove("overToken");
-						window.addEventListener("keyup", keyUp, {"once": true});
+				      },
+				      keyDown = (e: KeyboardEvent) => {
+					if (e.key === "Control" && overToken) {
+						document.body.style.setProperty("--outline-cursor", "grab");
+						window.addEventListener("keyup", keyUp);
 					}
 				      },
 				      mouseMove = (e: MouseEvent) => {
-					base.classList.remove("overToken");
 					if (!e.ctrlKey && (layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
-						base.classList.add("overToken");
+						if (!overToken) {
+							overToken = true;
+							document.body.style.setProperty("--outline-cursor", "pointer");
+						}
+					} else if (overToken) {
+						document.body.style.setProperty("--outline-cursor", "grab");
+						overToken = false;
 					}
-					mouse.x = e.clientX;
-					mouse.y = e.clientY;
-				      };
-				if (e.ctrlKey) {
-					window.addEventListener("keyup", keyUp, {"once": true});
-					mouseMove(e);
-				}
+				};
+				this.addEventListener("mousemove", mouseMove);
 				window.addEventListener("keydown", keyDown);
-				base.addEventListener("mousemove", mouseMove);
-				base.addEventListener("mouseout", () => {
+				if (currentlyOverToken) {
+					window.addEventListener("keyup", keyUp);
+				}
+				this.addEventListener("mouseout", () => {
+					document.body.style.removeProperty("--outline-cursor");
 					window.removeEventListener("keydown", keyDown);
 					window.removeEventListener("keyup", keyUp);
-					base.removeEventListener("mousemove", mouseMove);
-					base.classList.remove("toGrab", "overToken");
-				}, {"once": true});
+					this.removeEventListener("mousemove", mouseMove);
+				}, {"once": true})
 			} else {
-				base.addEventListener("mouseout", () => base.classList.remove("toGrab", "overToken"), {"once": true});
+				this.addEventListener("mouseout", () => document.body.style.removeProperty("--outline-cursor"), {"once": true})
 			}
+		} else {
+			const keyUp = (e: KeyboardEvent) => {
+				if (e.key === "Control") {
+					document.body.style.removeProperty("--outline-cursor");
+					window.removeEventListener("keyup", keyUp);
+				}
+			      },
+			      keyDown = (e: KeyboardEvent) => {
+				if (e.key === "Control") {
+					document.body.style.setProperty("--outline-cursor", "grab");
+					window.addEventListener("keyup", keyUp);
+				}
+			      };
+			window.addEventListener("keydown", keyDown);
+			if (e.ctrlKey) {
+				window.addEventListener("keyup", keyUp);
+			}
+			this.addEventListener("mouseout", () => {
+				document.body.style.removeProperty("--outline-cursor");
+				window.removeEventListener("keydown", keyDown);
+				window.removeEventListener("keyup", keyUp);
+			}, {"once": true})
 		}
 	},
 	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
