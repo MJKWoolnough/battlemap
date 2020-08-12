@@ -126,13 +126,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			selectedToken!.y = y;
 			selectedToken!.width = width;
 			selectedToken!.rotation = rotation;
-			selectedToken!.node.setAttribute("width", width.toString());
-			outline.style.setProperty("--outline-width", width + "px");
 			selectedToken!.height = height;
-			selectedToken!.node.setAttribute("height", height.toString());
-			outline.style.setProperty("--outline-height", height + "px");
+			createSVG(selectedToken!.node, {width, height});
 			selectedToken!.updateNode();
-			outline.setAttribute("transform", selectedToken!.transformString(false));
+			createSVG(outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
 			if (!selectedToken || e.button !== 0) {
@@ -157,8 +154,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					token.rotation = newRotation;
 					token.width = newWidth;
 					token.height = newHeight;
-					token.node.setAttribute("width", newWidth.toString());
-					token.node.setAttribute("height", newHeight.toString());
+					createSVG(token.node, {"width": newWidth, "height": newHeight});
 					token.updateNode();
 					if (token === selectedToken) {
 						tokenMousePos.x = newX;
@@ -166,9 +162,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						tokenMousePos.rotation = newRotation;
 						tokenMousePos.width = newWidth;
 						tokenMousePos.height = newHeight;
-						outline.style.setProperty("--outline-width", newWidth + "px");
-						outline.style.setProperty("--outline-height", newHeight + "px");
-						outline.setAttribute("transform", token.transformString(false));
+						createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 					}
 					rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
 					return () => {
@@ -177,8 +171,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						token.rotation = rotation;
 						token.width = width;
 						token.height = height;
-						token.node.setAttribute("width", width.toString());
-						token.node.setAttribute("height", height.toString());
+						createSVG(token.node, {"width": newWidth, "height": newHeight});
 						token.updateNode();
 						if (token === selectedToken) {
 							tokenMousePos.x = x;
@@ -186,9 +179,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 							tokenMousePos.rotation = rotation;
 							tokenMousePos.width = width;
 							tokenMousePos.height = height;
-							outline.style.setProperty("--outline-width", width + "px");
-							outline.style.setProperty("--outline-height", height + "px");
-							outline.setAttribute("transform", token.transformString(false));
+							createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 						}
 						rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
 						return doIt;
@@ -532,8 +523,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						      newRotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
 							const doIt = () => {
-								currToken.node.setAttribute("width", (currToken.width = newWidth).toString());
-								currToken.node.setAttribute("height", (currToken.height = newHeight).toString());
+								createSVG(currToken.node, {"width": currToken.width = newWidth, "height": currToken.height = newHeight});
 								currToken.x = newX;
 								currToken.y = newY;
 								currToken.rotation = newRotation;
@@ -541,29 +531,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 								if (currToken === selectedToken) {
 									tokenMousePos.x = newX;
 									tokenMousePos.y = newY;
-									tokenMousePos.width = newWidth;
-									tokenMousePos.height = newHeight;
 									tokenMousePos.rotation = newRotation;
-									outline.style.setProperty("--outline-width", newWidth + "px");
-									outline.style.setProperty("--outline-height", newHeight + "px");
-									outline.setAttribute("transform", currToken.transformString(false));
+									createSVG(outline, {"--outline-width": (tokenMousePos.width = newWidth) + "px", "--outline-height": (tokenMousePos.height = newHeight) + "px", "transform": currToken.transformString(false)});
 								}
 								rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
 								rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
 								return () => {
-									currToken.node.setAttribute("width", (currToken.width = width).toString());
-									currToken.node.setAttribute("height", (currToken.height = height).toString());
+									createSVG(currToken.node, {"width": currToken.width = width, "height": currToken.height = height});
 									currToken.x = x;
 									currToken.y = y;
 									currToken.rotation = rotation;
 									currToken.updateNode();
 									if (currToken === selectedToken) {
-										outline.style.setProperty("--outline-width", (tokenMousePos.width = width) + "px");
-										outline.style.setProperty("--outline-height", (tokenMousePos.height = height) + "px");
 										tokenMousePos.x = x;
 										tokenMousePos.y = y;
 										tokenMousePos.rotation = rotation;
-										outline.setAttribute("transform", currToken.transformString(false));
+										createSVG(outline, {"--outline-width": (tokenMousePos.width = width) + "px", "--outline-height": (tokenMousePos.height = height) + "px", "transform": currToken.transformString(false)});
 									}
 									rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
 									rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
