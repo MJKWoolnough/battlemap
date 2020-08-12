@@ -36,8 +36,13 @@ export default Object.freeze({
 	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		const {outline} = requestSelected();
-		if (e.target && (e.target as ChildNode).parentNode === outline && !e.ctrlKey) {
-			return;
+		if (!e.ctrlKey) {
+			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
+				document.body.style.removeProperty("--outline-cursor");
+				return;
+			} else if (e.target && (e.target as ChildNode).parentNode === outline) {
+				return;
+			}
 		}
 		this.style.setProperty("--outline-cursor", "grabbing");
 		let mX = e.clientX,
