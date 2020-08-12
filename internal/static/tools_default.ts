@@ -35,11 +35,11 @@ export default Object.freeze({
 	},
 	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		if (e.button !== 0) {
+		if (e.button !== 0 && e.button !== 1) {
 			return;
 		}
 		const {outline} = requestSelected();
-		if (!e.ctrlKey) {
+		if (!e.ctrlKey && e.button !== 1) {
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
 				document.body.style.removeProperty("--outline-cursor");
 				return;
