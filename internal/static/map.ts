@@ -129,9 +129,7 @@ export class SVGToken extends SVGTransform {
 		return this.patternWidth > 0;
 	}
 	updateNode() {
-		this.node.setAttribute("width", this.width + "");
-		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.transformString());
+		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
 }
 
@@ -168,9 +166,7 @@ export class SVGShape extends SVGTransform {
 		return false;
 	}
 	updateNode() {
-		this.node.setAttribute("width", this.width + "");
-		this.node.setAttribute("height", this.height + "");
-		this.node.setAttribute("transform", this.transformString());
+		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
 }
 
