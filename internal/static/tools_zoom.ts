@@ -1,5 +1,7 @@
 import {br, div, input, label} from './lib/html.js';
-import defaultTool, {zoom} from './tools_default.js';
+import {rect} from './lib/svg.js';
+import defaultTool, {panZoom, zoom} from './tools_default.js';
+import {requestMapData, requestSVGRoot} from './comms.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
@@ -46,8 +48,43 @@ export default Object.freeze({
 		drawZoom
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+		if (e.button !== 0) {
+			return;
+		}
 		if (drawZoom.checked) {
-
+			const {width, height} = requestMapData(),
+			      x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
+			      y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom),
+			      root = requestSVGRoot(),
+			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
+			      mouseMove = (e: MouseEvent) => {
+				const nx = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
+				      ny = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
+				if (nx < x) {
+					square.setAttribute("x", nx.toString());
+					square.setAttribute("width", (x - nx).toString());
+				} else {
+					square.setAttribute("x", x.toString());
+					square.setAttribute("width", (nx - x).toString());
+				}
+				if (ny < y) {
+					square.setAttribute("y", ny.toString());
+					square.setAttribute("height", (y - ny).toString());
+				} else {
+					square.setAttribute("y", y.toString());
+					square.setAttribute("height", (ny - y).toString());
+				}
+			      },
+			      mouseUp = (e: MouseEvent) => {
+				if (e.button !== 0) {
+					return;
+				}
+				root.removeEventListener("mousemove", mouseMove);
+				root.removeEventListener("mouseup", mouseUp);
+				square.remove();
+			      };
+			root.addEventListener("mousemove", mouseMove);
+			root.addEventListener("mouseup", mouseUp);
 		} else {
 			zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
 		}
