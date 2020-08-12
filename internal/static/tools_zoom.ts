@@ -60,20 +60,10 @@ export default Object.freeze({
 			      mouseMove = (e: MouseEvent) => {
 				const nx = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
 				      ny = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
-				if (nx < x) {
-					square.setAttribute("x", nx.toString());
-					square.setAttribute("width", (x - nx).toString());
-				} else {
-					square.setAttribute("x", x.toString());
-					square.setAttribute("width", (nx - x).toString());
-				}
-				if (ny < y) {
-					square.setAttribute("y", ny.toString());
-					square.setAttribute("height", (y - ny).toString());
-				} else {
-					square.setAttribute("y", y.toString());
-					square.setAttribute("height", (ny - y).toString());
-				}
+				square.setAttribute("x", Math.min(x, nx).toString());
+				square.setAttribute("width", Math.abs(x - nx).toString());
+				square.setAttribute("y", Math.min(y, ny).toString());
+				square.setAttribute("height", Math.abs(y - ny).toString());
 			      },
 			      mouseUp = (e: MouseEvent) => {
 				if (e.button !== 0) {
