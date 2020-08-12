@@ -1,5 +1,5 @@
 import {br, div, input, label} from './lib/html.js';
-import {rect} from './lib/svg.js';
+import {createSVG, rect} from './lib/svg.js';
 import defaultTool, {panZoom, zoom} from './tools_default.js';
 import {requestMapData, requestSVGRoot} from './comms.js';
 
@@ -57,24 +57,20 @@ export default Object.freeze({
 			      y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom),
 			      root = requestSVGRoot(),
 			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
-			      mouseMove = (e: MouseEvent) => {
+			      onmousemove = (e: MouseEvent) => {
 				const nx = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
 				      ny = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
-				square.setAttribute("x", Math.min(x, nx).toString());
-				square.setAttribute("width", Math.abs(x - nx).toString());
-				square.setAttribute("y", Math.min(y, ny).toString());
-				square.setAttribute("height", Math.abs(y - ny).toString());
+				createSVG(square, {"x": Math.min(x, nx).toString(), "width": Math.abs(x - nx).toString(), "y": Math.min(y, ny).toString(), "height": Math.abs(y - ny).toString()});
 			      },
-			      mouseUp = (e: MouseEvent) => {
+			      onmouseup = (e: MouseEvent) => {
 				if (e.button !== 0) {
 					return;
 				}
-				root.removeEventListener("mousemove", mouseMove);
-				root.removeEventListener("mouseup", mouseUp);
+				root.removeEventListener("mousemove", onmousemove);
+				root.removeEventListener("mouseup", onmouseup);
 				square.remove();
 			      };
-			root.addEventListener("mousemove", mouseMove);
-			root.addEventListener("mouseup", mouseUp);
+			createSVG(root, {onmousemove, onmouseup});
 		} else {
 			zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
 		}
