@@ -52,8 +52,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 								"response": "json",
 								"onprogress": (e: ProgressEvent) => {
 									if (e.lengthComputable) {
-										bar.setAttribute("value", e.loaded.toString());
-										bar.setAttribute("max", e.total.toString());
+										createHTML(bar, {"value": e.loaded, "max": e.total});
 										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 									}
 								}
