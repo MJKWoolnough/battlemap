@@ -1,5 +1,5 @@
 import {SVGToken} from './map.js';
-import {g} from './lib/svg.js';
+import {createSVG, g} from './lib/svg.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {requestSelected} from './comms.js';
@@ -17,12 +17,10 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	}
 	panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 	panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-	root.setAttribute("transform", `scale(${panZoom.zoom})`);
 	if (outline instanceof SVGGElement) {
-		outline.style.setProperty("--zoom", panZoom.zoom.toString());
+		createSVG(outline, {"--zoom": panZoom.zoom});
 	}
-	root.style.setProperty("left", panZoom.x + "px");
-	root.style.setProperty("top", panZoom.y + "px");
+	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 };
 
 export default Object.freeze({
@@ -53,8 +51,7 @@ export default Object.freeze({
 		const viewDrag = (e: MouseEvent) => {
 			panZoom.x += e.clientX - mX;
 			panZoom.y += e.clientY - mY;
-			this.style.setProperty("left", panZoom.x + "px");
-			this.style.setProperty("top", panZoom.y + "px");
+			createSVG(this, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 			mX = e.clientX;
 			mY = e.clientY;
 		      };
@@ -150,10 +147,7 @@ export default Object.freeze({
 			const deltaY = e.shiftKey ? 0 : -e.deltaY,
 			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
 			      amount = scrollAmount.value || 100;
-			panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount;
-			panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount;
-			this.style.setProperty("left", panZoom.x + "px");
-			this.style.setProperty("top", panZoom.y + "px");
+			createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 		}
 	}
 });
