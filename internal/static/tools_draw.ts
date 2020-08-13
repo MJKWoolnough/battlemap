@@ -1,5 +1,6 @@
 import {br, div, input, label} from './lib/html.js';
 import {requestSVGRoot} from './comms.js';
+import {autosnap} from './settings.js';
 
 const draw = (root: SVGElement, e: MouseEvent) => {
 
@@ -7,7 +8,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
       rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
       ellipse = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
       polygon = input({"id": "drawPoly", "type": "radio", "name": "drawShape"}),
-      snap = input({"id": "drawSnap", "type": "checkbox"});
+      snap = input({"id": "drawSnap", "type": "checkbox", "checked": autosnap.value});
 
 export default Object.freeze({
 	"name": "Draw",
