@@ -5,6 +5,9 @@ import {autosnap} from './settings.js';
 const draw = (root: SVGElement, e: MouseEvent) => {
 
       },
+      showMarker = (root: SVGElement) => {
+
+      },
       rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
       ellipse = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
       polygon = input({"id": "drawPoly", "type": "radio", "name": "drawShape"}),
@@ -38,5 +41,9 @@ export default Object.freeze({
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		draw(this, e);
 	},
-	"tokenMouseDown": (e: MouseEvent) => draw(requestSVGRoot(), e)
+	"mapMouseOver": function(this: SVGElement) {
+		showMarker(this);
+	},
+	"tokenMouseDown": (e: MouseEvent) => draw(requestSVGRoot(), e),
+	"tokenMouseOver": () => showMarker(requestSVGRoot())
 });
