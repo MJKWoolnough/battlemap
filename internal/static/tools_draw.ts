@@ -8,7 +8,15 @@ const draw = (root: SVGElement, e: MouseEvent) => {
       rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
       ellipse = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
       polygon = input({"id": "drawPoly", "type": "radio", "name": "drawShape"}),
-      snap = input({"id": "drawSnap", "type": "checkbox", "checked": autosnap.value});
+      snap = input({"id": "drawSnap", "type": "checkbox", "checked": autosnap.value}),
+      shiftSnap = (e: KeyboardEvent) => {
+	if (e.key === "Shift") {
+		snap.click();
+	}
+      };
+
+window.addEventListener("keydown", shiftSnap);
+window.addEventListener("keyup", shiftSnap);
 
 export default Object.freeze({
 	"name": "Draw",
