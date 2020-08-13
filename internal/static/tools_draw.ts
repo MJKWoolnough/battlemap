@@ -1,12 +1,12 @@
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, rect, circle, g, polyline, polygon} from './lib/svg.js';
-import {requestSVGRoot, requestMapData} from './comms.js';
+import {requestSVGRoot, requestMapData, requestSelected} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
-
+	e.stopPropagation();
       },
       marker = g({"id": "MARKER"}, [
 	      polygon({"points": "5,0 16,0 11,5", "fill": "#000"}),
@@ -20,7 +20,8 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	}
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
-	const onmousemove = (e: MouseEvent) => {
+	const {deselectToken} = requestSelected(),
+	      onmousemove = (e: MouseEvent) => {
 		const mapData = requestMapData();
 		let x = Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom),
 		    y = Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom);
@@ -30,6 +31,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		}
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
+	deselectToken();
 	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
 		over = false;
 		root.removeEventListener("mousemove", onmousemove);
