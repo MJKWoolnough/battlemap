@@ -4,6 +4,7 @@ import {requestSVGRoot, requestMapData} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 
+let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
 
       },
@@ -14,7 +15,11 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	      polygon({"points": "21,16 21,5 16,11", "fill": "#000"})
       ]),
       showMarker = (root: SVGElement) => {
-	root.appendChild(marker);
+	if (over) {
+		return;
+	}
+	over = true;
+	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	const onmousemove = (e: MouseEvent) => {
 		const mapData = requestMapData();
 		let x = Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom),
@@ -25,8 +30,10 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		}
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
-	createSVG(root, {onmousemove, "1onmouseout": () => {
+	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
+		over = false;
 		root.removeEventListener("mousemove", onmousemove);
+		root.style.removeProperty("cursor");
 		marker.remove();
 	}});
       },
