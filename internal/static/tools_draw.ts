@@ -1,13 +1,34 @@
 import {br, div, input, label} from './lib/html.js';
-import {createSVG, rect, circle, polyline, polygon} from './lib/svg.js';
-import {requestSVGRoot} from './comms.js';
+import {createSVG, rect, circle, g, polyline, polygon} from './lib/svg.js';
+import {requestSVGRoot, requestMapData} from './comms.js';
 import {autosnap} from './settings.js';
+import {panZoom} from './tools_default.js';
 
 const draw = (root: SVGElement, e: MouseEvent) => {
 
       },
+      marker = g({"id": "MARKER"}, [
+	      polygon({"points": "5,0 16,0 11,5", "fill": "#000"}),
+	      polygon({"points": "0,5 0,16 5,11", "fill": "#000"}),
+	      polygon({"points": "5,21 16,21 11,16", "fill": "#000"}),
+	      polygon({"points": "21,16 21,5 16,11", "fill": "#000"})
+      ]),
       showMarker = (root: SVGElement) => {
-
+	root.appendChild(marker);
+	const onmousemove = (e: MouseEvent) => {
+		const mapData = requestMapData();
+		let x = Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom),
+		    y = Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom);
+		if (snap.checked) {
+			x = Math.round(x / mapData.gridSize) * mapData.gridSize;
+			y = Math.round(y / mapData.gridSize) * mapData.gridSize;
+		}
+		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	};
+	createSVG(root, {onmousemove, "1onmouseout": () => {
+		root.removeEventListener("mousemove", onmousemove);
+		marker.remove();
+	}});
       },
       rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
       ellipse = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
