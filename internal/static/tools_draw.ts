@@ -3,6 +3,7 @@ import {createSVG, rect, circle, g, polyline, polygon} from './lib/svg.js';
 import {requestSVGRoot, requestMapData, requestSelected} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
+import {screen2Grid} from './misc.js';
 
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
@@ -22,10 +23,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	const {deselectToken} = requestSelected(),
 	      onmousemove = (e: MouseEvent) => {
-		const mapData = requestMapData(),
-		      snapDM = snap.checked ? mapData.gridSize : 1,
-		      x = snapDM * Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM),
-		      y = snapDM * Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
 	deselectToken();
