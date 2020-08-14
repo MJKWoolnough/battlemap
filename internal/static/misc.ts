@@ -1,5 +1,6 @@
-import {Colour} from './types.js';
+import {Colour, Int, MapData, Uint} from './types.js';
 import {ShellElement} from './windows.js';
+import {panZoom} from './tools_default.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
@@ -23,4 +24,8 @@ handleError = (e: Error | string) => {
 	} else {
 		alert(message);
 	}
+},
+screen2Grid = (x: Uint, y: Uint, snap: boolean, mapData: MapData): [Int, Int] => {
+	const snapDM = snap ? mapData.gridSize : 1;
+	return [snapDM * Math.round((x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM), snapDM * Math.round((y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM)];
 };
