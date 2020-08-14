@@ -22,13 +22,10 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	const {deselectToken} = requestSelected(),
 	      onmousemove = (e: MouseEvent) => {
-		const mapData = requestMapData();
-		let x = Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom),
-		    y = Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom);
-		if (snap.checked) {
-			x = Math.round(x / mapData.gridSize) * mapData.gridSize;
-			y = Math.round(y / mapData.gridSize) * mapData.gridSize;
-		}
+		const mapData = requestMapData(),
+		      snapDM = snap.checked ? mapData.gridSize : 1,
+		      x = snapDM * Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM),
+		      y = snapDM * Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
 	deselectToken();
