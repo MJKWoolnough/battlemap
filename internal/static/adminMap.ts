@@ -10,7 +10,7 @@ import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {noColour, handleError} from './misc.js';
+import {noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {mapLayersSend, mapLoadReceive, respondWithSelected, respondWithMapUndo, respondWithMapData, respondWithSVGRoot} from './comms.js';
 
@@ -259,12 +259,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				token.width = tokenData.width;
 				token.height = tokenData.height;
 			}
-			token.x = Math.round((e.clientX + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom);
-			token.y = Math.round((e.clientY + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom);
+			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap, mapData);
 			if (token.snap && token.tokenData === 0) {
 				const sq = mapData.gridSize;
-				token.x = Math.round(token.x / sq) * sq;
-				token.y = Math.round(token.y / sq) * sq;
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
