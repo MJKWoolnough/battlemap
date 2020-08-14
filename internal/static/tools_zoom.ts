@@ -2,6 +2,7 @@ import {br, div, input, label} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import defaultTool, {panZoom, zoom} from './tools_default.js';
 import {requestMapData, requestSVGRoot} from './comms.js';
+import {screen2Grid} from './misc.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
@@ -51,14 +52,11 @@ export default Object.freeze({
 			return;
 		}
 		if (drawZoom.checked) {
-			const {width, height} = requestMapData(),
-			      x = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
-			      y = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom),
+			const [x, y] = screen2Grid(e.clientX, e.clientY, false, requestMapData()),
 			      root = requestSVGRoot(),
 			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
 			      onmousemove = (e: MouseEvent) => {
-				const nx = Math.round((e.clientX + ((panZoom.zoom - 1) * width / 2) - panZoom.x) / panZoom.zoom),
-				      ny = Math.round((e.clientY + ((panZoom.zoom - 1) * height / 2) - panZoom.y) / panZoom.zoom);
+				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, requestMapData());
 				createSVG(square, {"x": Math.min(x, nx).toString(), "width": Math.abs(x - nx).toString(), "y": Math.min(y, ny).toString(), "height": Math.abs(y - ny).toString()});
 			      },
 			      onmouseup = (e: MouseEvent) => {
