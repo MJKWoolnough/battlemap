@@ -1,5 +1,5 @@
 import {SVGToken} from './map.js';
-import {createSVG, g} from './lib/svg.js';
+import {createSVG, svg, g, path} from './lib/svg.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {requestSelected} from './comms.js';
@@ -25,7 +25,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 
 export default Object.freeze({
 	"name": "Default",
-	"icon": "iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAANlBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC3dmhyAAAAEnRSTlMAKsjRjoBmD/7/3dLykuQl4WerplB3AAAAzElEQVR4Ae3YtWFEURDF0M+M/RdrVmqWvXDVwHkQzRQppXTNlVXdtB/V9T8zhvEzTT9SqvFzdT9BZhOhZhSfi9rxtWUVPx5k3PZCCQTFRRYUE1k3FBFpdxQTKVQFRFVAVAVEVUBUBURVQFQFRFVAVAVEVUBUBURVQFQFRFVAVAVEVUBUBURVQFQFRFVAVAVEVUBUBURVQFylY8IxlX5iwlGVrsOQFLpnJUqUKFGiRIkSJUqUKFGiHP1fKGchKyqCcrAQMOvPE+PCSik9ArbiKbD2Zy9fAAAAAElFTkSuQmCC",
+	"icon": svg({"viewBox": "0 0 20 20", "style": "background-color: transparent"}, path({"d": "M0,0 L20,20 M0,10 V0 H10", "fill": "none", "stroke": "#000", "stroke-width": 2})),
 	"reset": () => {
 		panZoom.x = 0;
 		panZoom.y = 0;
