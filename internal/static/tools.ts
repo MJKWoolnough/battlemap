@@ -14,7 +14,7 @@ type WheelFn = (this: SVGElement, e: WheelEvent, rpc: RPC) => void;
 
 type Tool = {
 	name: string;
-	icon: string;
+	icon: string | SVGElement;
 	reset?: Function;
 	unset?: Function;
 	options?: HTMLDivElement;
@@ -110,7 +110,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
 	}}, [
-		img({"src": `data:image/png;base64,${t.icon}`}),
+		t.icon instanceof SVGElement ? t.icon : img({"src": `data:image/png;base64,${t.icon}`}),
 		span(t.name)
 	])));
 	createHTML(clearElement(base), {"id": "toolList"}, [list, div([
