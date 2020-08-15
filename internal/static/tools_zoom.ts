@@ -1,5 +1,5 @@
 import {br, div, input, label} from './lib/html.js';
-import {createSVG, rect} from './lib/svg.js';
+import {createSVG, rect, circle, line, svg} from './lib/svg.js';
 import defaultTool, {panZoom, zoom} from './tools_default.js';
 import {requestMapData, requestSVGRoot} from './comms.js';
 import {screen2Grid} from './misc.js';
@@ -36,7 +36,10 @@ let zoomMode: 1 | -1 = -1;
 
 export default Object.freeze({
 	"name": "Zoom",
-	"icon": "iVBORw0KGgoAAAANSUhEUgAAAEoAAABLAQMAAADtQoOXAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAMBJREFUeAHN0YFGBEEcBvDfbIs9LlYC4FZCgOsJmnToMXqUkRCgR1p6kXuSFXZ9OAJQf4wfw5j/9yHD0xLOZd7UMW7cH5b9xuO5fG984dhWfjBUUAb6CXRHrkbQv1E+V1asHBpOYAf34CaHDka5213yJHyFvv0p87PfmIWy5sXyiSRBJb4vEqpE/SAFnFLL47uUVVLhtZZiWwXOZa7TysNiGm1jHMKhD/su7EpYtLjVsE7h/3t4jlsLnyN3kdvI4Af7VSj1YtdmoAAAAABJRU5ErkJggg==",
+	"icon": svg({"viewBox": "0 0 30 30", "style": "background-color: transparent"}, [
+		circle({"cx": 10, "cy": 10, "r": 10, "stroke": "#000", "stroke-width": 3, "fill": "none"}),
+		line({"x1": 16, "y1": 16, "x2": 30, "y2": 30, "stroke": "#000", "stroke-width": 4})
+	]),
 	"options": div([
 		label({"for": "zoomIn"}, "Zoom In: "),
 		zoomIn,
