@@ -3,12 +3,14 @@
 	padding: 0;
 }
 
-#toolList > ul > li img {
+#toolList > ul > li img, #toolList > ul > li svg {
 	width: 2em;
+	padding-right: 3px;
 }
 
 #toolList > ul > li {
 	cursor: pointer;
+	padding: 0.4em;
 }
 
 #toolList li.selected {
