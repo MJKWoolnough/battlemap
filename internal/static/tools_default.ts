@@ -31,7 +31,6 @@ export default Object.freeze({
 		panZoom.y = 0;
 		panZoom.zoom = 1;
 	},
-	"options": div("There are no options for this tool"),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0 && e.button !== 1) {
 			return;
