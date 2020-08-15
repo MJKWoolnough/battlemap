@@ -97,15 +97,17 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	rpc = arpc;
 	const options = div(),
+	      toolOptions = div([h2("Tool Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool.unset) {
 			selectedTool.unset();
 		}
 		selectedTool = t;
 		if (t.options) {
-			createHTML(clearElement(options), {"style": "display: block"}, t.options);
+			clearElement(options).appendChild(t.options);
+			toolOptions.style.removeProperty("display");
 		} else {
-			options.style.setProperty("display", "none");
+			toolOptions.style.setProperty("display", "none");
 		}
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
@@ -113,10 +115,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 		t.icon instanceof SVGElement ? t.icon : img({"src": `data:image/png;base64,${t.icon}`}),
 		span(t.name)
 	])));
-	createHTML(clearElement(base), {"id": "toolList"}, [list, div([
-		h2("Tool Options"),
-		options
-	])]);
+	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
 	(list.firstChild as HTMLLIElement).click();
 	mapLayersReceive(() => {
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
