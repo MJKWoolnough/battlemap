@@ -9,7 +9,7 @@ let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
       },
-      marker = g({"id": "MARKER"}, [
+      marker = g([
 	      polygon({"points": "5,0 16,0 11,5", "fill": "#000"}),
 	      polygon({"points": "0,5 0,16 5,11", "fill": "#000"}),
 	      polygon({"points": "5,21 16,21 11,16", "fill": "#000"}),
