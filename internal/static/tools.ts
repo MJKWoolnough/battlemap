@@ -1,6 +1,7 @@
 import {RPC} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, img, span} from './lib/html.js';
+import {svg, defs, mask, path, rect, use} from './lib/svg.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import {mapLayersReceive} from './comms.js';
@@ -35,7 +36,17 @@ const tools: Tool[] = [
 	moveTool,
 	{
 		"name": "Layer Mask",
-		"icon": "iVBORw0KGgoAAAANSUhEUgAAAFYAAABLCAYAAADqHnCyAAAC1ElEQVR4AezcAUQdcRzA8XcJdkOP0KIHIKhFKIKBZkVgYFtrA01jSLOlCeANCIQgAKABG00DNQSEAlAT0IqKSr3Sb1/hsdrbuXe/e3f3v9+XDwC/zsm9u///X6izYVjKDeMSiln9OIXAUqoTBxAgdx2gE6oVsQ25JU8JtlGESh6+QOzC3liCh8i9hdSQl+SWCUSqGxeQWnJ6Yc/Rhbry8BMSzOmkhjV4CN0rSAguJgHGEKoifuf8wkoQ7IV9SihD6pT1JKRymLv1GBJR1pI6HaMFgX2CKMpCEtEM/puPfYi6dCZK9uGjZi8hsUlPEoNR1OwHpCGSSWK0gn9WwjWkoeJPGuQaHbjTNCQSM407rUEiMav4q/uoQCIxFfio9hiiwgyi2meIClNGte8QFWYZ1X5BVJgd3ORD8iM4hefZeyj0pGxwfdGSOjxEYSRVg+vTSEIaQeF5agbXp5mE8AyFN6kZXB8lMuM4Cu8zOHja55tCYdbRC0uJzTcb5Y4NyO5Y/f+xdmHHoz4VqOXiU8FI0sO7+hzbk+TwLv/y8hP4I9x/V6D+dsvsxPM+1izH8wXBlOP55mUG9b/Smgp8/XUFZjWelTBmWn/tlrlGh/5qQ7MSz/pYM6q/otvsw9ffg2Bm9HfNmGO06O/zMmX9nYlmD0X9vbRmDKHzsAYxmru/ibpwDjEq5xUEnLBhJhA5D0sQc2MJnv4pRvm2jWLc527lzQE64z8pLl9O0Y9YG8IlJCcuMYSGNIQziOPO8AQNbQCHEEcdYgCJ1I1diGN20Y1Ea8U3iCO+ohWpqAkfcQXJqCt8QBNSVx82IBmzgT6kumZM4gSScieYRDMyUwkLqEBSpoIFdCCzlTCPC0jCzjGPEpypDVPYhDTYJqbQBmfz0Is5bEFisoU59MJD7mrHKBaxjiNISEdYxyJeoB23sjw8wCM8xWu8wwz+DIRzoWLBUDUSgzFFAgCMRWc0sIdMEwAAAABJRU5ErkJggg==",
+		"icon": svg({"viewBox": "0 0 60 50"}, [
+			defs(path({"id": "e", "d": "M32,20 q9,-10 18,0 q-9,-3 -18,0"})),
+			mask({"id": "m"}, [
+				rect({"width": 100, "height": 100, "fill": "#fff"}),
+				path({"d": "M10,20 q9,-10 18,0 q-9,-3 -18,0"}),
+				use({"href": "#e"}),
+				use({"x": 22, "href": "#e"}),
+				path({"d": "M20,35 q10,5 20,0 q-10,10 -20,0"}),
+			]),
+			path({"d": "M0,0 Q30,15 60,0 Q30,100 0,0", "stroke": "none", "mask": "url(#m)"})
+		])
 	},
 	{
 		"name": "Light Layer",
