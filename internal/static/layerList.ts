@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {noSort} from './lib/ordered.js';
-import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour} from './misc.js';
+import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour, colourPicker} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {mapLayersReceive} from './comms.js';
@@ -172,36 +172,10 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			const colour = rpcFuncs.getLightColour(),
-			      checkboard = div({"class": "checkboard"}),
-			      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
-			      updatePreview = () => {
-				const colour = hex2Colour(colourInput.value);
-				colour.a = parseInt(alphaInput.value);
-				preview.style.setProperty("background-color", colour2RGBA(colour));
-			      },
-			      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
-			      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
-			      window = sh.appendChild(windows({"window-title": "Change Light Colour", "class": "lightChange"}, [
-				h1("Change Light Colour"),
-				checkboard,
-				label({"for": "colourPick"}, "Colour: "),
-				colourInput,
-				br(),
-				label({"for": "alphaPick"}, "Alpha: "),
-				alphaInput,
-				br(),
-				button("Update", {"onclick": function(this: HTMLButtonElement) {
-					this.setAttribute("disabled", "disabled");
-					const colour = hex2Colour(colourInput.value);
-					colour.a = parseInt(alphaInput.value);
-					loadingWindow(rpcFuncs.setLightColour(colour), window)
-					.then(() => window.remove())
-					.catch(handleError)
-					.finally(() => this.removeAttribute("disabled"));
-				}})
-			      ]));
-			return window;
+			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => {
+				loadingWindow(rpcFuncs.setLightColour(c), sh)
+				.catch(handleError)
+			});
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
