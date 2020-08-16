@@ -8,6 +8,23 @@ import {screen2Grid} from './misc.js';
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+	if (rectangle.checked) {
+		const r = rect({"stroke": "#f00", "fill": "none"}),
+		      onmousemove = (e: MouseEvent) => {
+			const [nx, ny] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			createSVG(r, {"x": Math.min(x, nx), "y": Math.min(y, ny), "width": Math.abs(x - nx), "height": Math.abs(y - ny)});
+		      },
+		      onmouseup = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+			root.removeEventListener("mousemove", onmousemove);
+			root.removeEventListener("mouseup", onmouseup);
+			r.remove();
+		      };
+		createSVG(root, {onmousemove, onmouseup}, r);
+	}
       },
       marker = g([
 	      polygon({"points": "5,0 16,0 11,5", "fill": "#000"}),
