@@ -729,7 +729,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				undo.add(() => undoIt);
 				setLayerVisibility(path, visibility);
 				checkLayer(path);
-				return (!visibility ? rpc.showLayer : rpc.hideLayer)(path);
+				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
 				selectedLayer = getLayer(layerList, path) as SVGLayer;
