@@ -1,5 +1,6 @@
 import {Colour, Int, MapData, Uint} from './types.js';
-import {ShellElement} from './windows.js';
+import {br, button, div, h1, input, label} from './lib/html.js';
+import {ShellElement, WindowElement, windows} from './windows.js';
 import {panZoom} from './tools_default.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
@@ -16,6 +17,35 @@ hex2Colour = (hex: string): Colour => ({"r": parseInt(hex.slice(1, 3), 16), "g":
 colour2Hex = (c: Colour) => `#${c.r.toString(16).padStart(2, "0")}${c.g.toString(16).padStart(2, "0")}${c.b.toString(16).padStart(2, "0")}`,
 colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${(c.a / 255).toString()})`,
 noColour = {"r": 0, "g": 0, "b": 0, "a": 0},
+colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour) => new Promise<Colour>((resolve, reject) => {
+	const checkboard = div({"class": "checkboard"}),
+	      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
+	      updatePreview = () => {
+		const colour = hex2Colour(colourInput.value);
+		colour.a = parseInt(alphaInput.value);
+		preview.style.setProperty("background-color", colour2RGBA(colour));
+	      },
+	      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
+	      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
+	      window = windows({"window-title": title, "class": "lightChange", "onexit": reject}, [
+		h1(title),
+		checkboard,
+		label({"for": "colourPick"}, "Colour: "),
+		colourInput,
+		br(),
+		label({"for": "alphaPick"}, "Alpha: "),
+		alphaInput,
+		br(),
+		button("Update", {"onclick": function(this: HTMLButtonElement) {
+			this.setAttribute("disabled", "disabled");
+			const colour = hex2Colour(colourInput.value);
+			colour.a = parseInt(alphaInput.value);
+			window.remove();
+			resolve(colour);
+		}})
+	      ]);
+	parent.addWindow(window);
+}),
 handleError = (e: Error | string) => {
 	console.log(e);
 	const shell = document.body.getElementsByTagName("windows-shell")[0] as ShellElement,
