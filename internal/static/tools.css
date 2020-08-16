@@ -5,7 +5,9 @@
 
 #toolList > ul > li img, #toolList > ul > li svg {
 	width: 2em;
+	height: 2em;
 	padding-right: 3px;
+	background-color: transparent;
 }
 
 #toolList > ul > li {
