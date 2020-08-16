@@ -1,7 +1,7 @@
 import {RPC} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, img, span} from './lib/html.js';
-import {svg, defs, mask, path, rect, use} from './lib/svg.js';
+import {svg, defs, g, mask, path, rect, use} from './lib/svg.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import {mapLayersReceive} from './comms.js';
@@ -50,7 +50,15 @@ const tools: Tool[] = [
 	},
 	{
 		"name": "Light Layer",
-		"icon": "iVBORw0KGgoAAAANSUhEUgAAAEUAAABaCAYAAADuDZtnAAAEz0lEQVR4Ae3cA4wlSxuA4elB+P/Xtm3bXNu2bSNY27Zt27Zt42p0st99k3xJOtmec8+4UW/ypNacaVZVVDb1f3yGoqiMhmitY2UUxWf4P3zb06iM6TgFSYVTmI7KeBqe7n7UxW5IBtqNurgfnukljEQ8JAXx2IGpGIru6KjjUP32HRH8GiPxIlzb4xiAZIgdrmICyuMlxCCSYvASymMCrkLskIz+eByuyUJV/AmxCWEmfkcMMqIY/I6ZCEFs/kRVWMjWnsUyiE0yBuApZGZPpfCRuQzPIlv6CTcgNpPxArKyFzAZYnMdPyLLslAXIYi6iLzIzvLiIkSFUAcWMjULXSA2C/AA3NADWAix6QILmZKFHhCbroiBm4pBN4hNd1jI8DpDbKrDzdWA2HRGhlYJYlMZXqgKxKYiMqRvkQxRNeClakBUEr5BunoYlyGqL7xYP4i6jIfTc2CdAVHLEQsvFoflEDUDFlJdGYi6gSfg5Z7ETYgqg1R1H65BVHH4oRIQdQ33IeK6QtRsWPBDFmZDVBdE1PNIhCCEV+GnXkUIgkQ8j/9sMET1hx8bAFGDELaHEQ9BEh6HH3scSRDE4yGkWGuIGg0/NwaiWsGxaJyDqA/g5z6EqHOIxl19A1HbEIS2QdTXuKv+ENUUQagZRPVz+tS5DFEvIgi9BFGXEQ0iegui9iNIHYCoN1O6vR6MIDUkpQdnEyGqLIJUOYiaACI6ClGvIki9CgH4d9DiEIIgGbEIUva/PyNfp1cg6hiC2HGIehlROSBqMYLYEojKgajSEDUGQWwsRJVCVHWIGoggNgiiqiGqMUR1RRDrBlGNENUGojoiiHWEqNbmI8XhI8UcUxyOKebs43D2MdcpDtcp5orW4YrW6d4nztz7ON4lm7tkMs9T1ITwT97MkzfzjFa9Ge5pvnmar5n3Pg6ZN4QOmXfJzplZB06Z+SmamckUQWbOm5kdGVlmHq2ZcZ3+uflx8GJxWAFR02EhXGYVh1nvk0FVhNhUCe7KsPBrCGsEeg2hZqE7xKabS1ebOv05raxcl7zQ5euSO2fVgu06LlzBns9hBXttWMiyfjR7HTj3LJZCbJIxMIt2xRiIZIjNUjzr5v1TZiFHBu+fkgOz3Lx/ir3H0T/MTjsTUSGNO+1UwMQwO+30w2NwbS9iBOIhKUjESWzFeqzBYh3XYytOIhGSgniMwIvwTK9gEq5BMtA1TMQr8EzRWIZLGIw8+B21MQ0nIalwEtNQGzmQF0NwGYthwdXFIQnvIlz/x6coikpogNY6VkJRfIr/I1zvIoQYuLYYhPABsqIPcAcWXJ2FRbiG4ciPT/Ag0tOD+BQFMQLXMR+e6kFUQF9sxjXcwnpsxyaswxqswnQw6hmI78d2bMBtXNNv643yeACe61FUwQBsxy1cw2pssZ2KV2MlZui42vYPswVrcR23sA39UBmPeP3s8wHuRXq6Fx/6+ewTeebsE8yzz0P4BDlQGOVQA41RR8caKIfCyAH9uf44+7yG0diLv3BHXcYVnMMx7MUWzNBxL47hHK6oO+ov7MYovOKXA+19+AC/ogDKoDoaoa6O1VEafD8/Tn+uOdCaA6050DpkLvNvYgEWYTpGYwC6oq6OAzAG07EIC3HL+TLfB6XzQJtl/QsDh+2E4VRpogAAAABJRU5ErkJggg==",
+		"icon": svg({"viewBox": "0 0 44 75"}, [
+			defs(path({"id": "c", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4", "stroke-width": 1})),
+			g({"stroke": "#000", "fill": "none", "stroke-linejoin": "round"}, [
+				path({"d": "M12,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2}),
+				use({"href": "#c"}),
+				use({"href": "#c", "y": 4}),
+				use({"href": "#c", "y": 8}),
+			])
+		])
 	}
 ];
 
