@@ -117,6 +117,7 @@ export default Object.freeze({
 		br(),
 		label({"for": "drawSnap"}, "Snap to Grid: "),
 		snap,
+		br(),
 		label({"for": "strokeWidth"}, "Stroke Width: "),
 		strokeWidth,
 		br(),
