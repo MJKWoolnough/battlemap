@@ -2,6 +2,7 @@ import {Colour, Int, MapData, Uint} from './types.js';
 import {br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
 import {panZoom} from './tools_default.js';
+import {requestShell} from './comms.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
@@ -48,13 +49,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 }),
 handleError = (e: Error | string) => {
 	console.log(e);
-	const shell = document.body.getElementsByTagName("windows-shell")[0] as ShellElement,
-	      message = e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e;
-	if (shell) {
-		shell.alert("Error", message);
-	} else {
-		alert(message);
-	}
+	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
 },
 screen2Grid = (x: Uint, y: Uint, snap: boolean, mapData: MapData): [Int, Int] => {
 	const snapDM = snap ? mapData.gridSize : 1;
