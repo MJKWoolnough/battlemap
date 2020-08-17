@@ -26,3 +26,9 @@
 .zoomOver.zoomOut svg, .zoomOver.zoomOut #outline rect {
 	cursor: zoom-out !important;
 }
+
+span.colourButton {
+	display: inline-block;
+	width: auto;
+	height: auto;
+}
