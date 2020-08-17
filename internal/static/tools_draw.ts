@@ -16,30 +16,48 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 			createSVG(r, {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x), "height": Math.abs(cy - y)});
 		      },
-		      onmouseup = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
+		      clearup = () => {
 			root.removeEventListener("mousemove", onmousemove);
 			root.removeEventListener("mouseup", onmouseup);
+			window.removeEventListener("keydown", onkeydown);
 			r.remove();
+		      },
+		      onmouseup = (e: MouseEvent) => {
+			if (e.button === 0) {
+				clearup();
+			}
+		      },
+		      onkeydown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				clearup();
+			}
 		      };
 		createSVG(root, {onmousemove, onmouseup}, r);
+		window.addEventListener("keydown", onkeydown);
 	} else if (circle.checked) {
 		const el = ellipse({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 			createSVG(el, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
 		      },
-		      onmouseup = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
+		      clearup = () => {
 			root.removeEventListener("mousemove", onmousemove);
 			root.removeEventListener("mouseup", onmouseup);
+			window.removeEventListener("keydown", onkeydown);
 			el.remove();
+		      },
+		      onmouseup = (e: MouseEvent) => {
+			if (e.button === 0) {
+				clearup();
+			}
+		      },
+		      onkeydown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				clearup();
+			}
 		      };
 		createSVG(root, {onmousemove, onmouseup}, el);
+		window.addEventListener("keydown", onkeydown);
 	}
       },
       marker = g([
