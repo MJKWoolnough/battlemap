@@ -1,16 +1,17 @@
-import {br, div, input, label} from './lib/html.js';
+import {Colour} from './types.js';
+import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, circle, g, line, polyline, polygon} from './lib/svg.js';
-import {requestSVGRoot, requestMapData, requestSelected} from './comms.js';
+import {requestSVGRoot, requestMapData, requestSelected, requestShell} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
-import {screen2Grid} from './misc.js';
+import {colour2RGBA, colourPicker, noColour, screen2Grid} from './misc.js';
 
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 	if (rectangle.checked) {
-		const r = rect({"stroke": "#f00", "fill": "none"}),
+		const r = rect({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
 		      onmousemove = (e: MouseEvent) => {
 			const [nx, ny] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 			createSVG(r, {"x": Math.min(x, nx), "y": Math.min(y, ny), "width": Math.abs(x - nx), "height": Math.abs(y - ny)});
@@ -59,7 +60,25 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
 	}
-      };
+      },
+      setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
+	colourPicker(requestShell(), title, getColour()).then(c => {
+		setColour(c);
+		if (c.a === 0) {
+			this.style.setProperty("background-color", "#fff");
+			this.innerText = "None";
+		} else {
+			this.style.setProperty("background-color", colour2RGBA(c));
+			this.innerText = "";
+		}
+	});
+      },
+      stroke = span({"class": "checkboard colourButton"}, button({"id": "strokeColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c)})),
+      fill = span({"class": "checkboard colourButton"}, button({"id": "fillColour", "style": "background-color: #fff; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => fillColour, (c: Colour) => fillColour = c)}, "None")),
+      strokeWidth = input({"id": "strokeWidth", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
+
+let fillColour = noColour,
+    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
 
 window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
@@ -83,7 +102,15 @@ export default Object.freeze({
 		poly,
 		br(),
 		label({"for": "drawSnap"}, "Snap to Grid: "),
-		snap
+		snap,
+		label({"for": "strokeWidth"}, "Stroke Width: "),
+		strokeWidth,
+		br(),
+		label({"for": "strokeColour"}, "Stroke Colour: "),
+		stroke,
+		br(),
+		label({"for": "fillColour"}, "Fill Colour: "),
+		fill
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		draw(this, e);
