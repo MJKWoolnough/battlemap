@@ -9,12 +9,12 @@ import {colour2RGBA, colourPicker, noColour, screen2Grid} from './misc.js';
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
-	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+	const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 	if (rectangle.checked) {
 		const r = rect({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
 		      onmousemove = (e: MouseEvent) => {
-			const [nx, ny] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
-			createSVG(r, {"x": Math.min(x, nx), "y": Math.min(y, ny), "width": Math.abs(x - nx), "height": Math.abs(y - ny)});
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			createSVG(r, {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x), "height": Math.abs(cy - y)});
 		      },
 		      onmouseup = (e: MouseEvent) => {
 			if (e.button !== 0) {
@@ -25,6 +25,21 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			r.remove();
 		      };
 		createSVG(root, {onmousemove, onmouseup}, r);
+	} else if (circle.checked) {
+		const el = ellipse({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
+		      onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			createSVG(el, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
+		      },
+		      onmouseup = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+			root.removeEventListener("mousemove", onmousemove);
+			root.removeEventListener("mouseup", onmouseup);
+			el.remove();
+		      };
+		createSVG(root, {onmousemove, onmouseup}, el);
 	}
       },
       marker = g([
