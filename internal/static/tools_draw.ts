@@ -1,6 +1,6 @@
 import {Colour} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
-import {createSVG, svg, rect, circle, g, line, polyline, polygon} from './lib/svg.js';
+import {createSVG, svg, rect, ellipse, g, line, polyline, polygon} from './lib/svg.js';
 import {requestSVGRoot, requestMapData, requestSelected, requestShell} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
@@ -53,7 +53,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	}});
       },
       rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
-      ellipse = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
+      circle = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
       poly = input({"id": "drawPoly", "type": "radio", "name": "drawShape"}),
       snap = input({"id": "drawSnap", "type": "checkbox", "checked": autosnap.value}),
       shiftSnap = (e: KeyboardEvent) => {
@@ -75,7 +75,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
       },
       stroke = span({"class": "checkboard colourButton"}, button({"id": "strokeColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c)})),
       fill = span({"class": "checkboard colourButton"}, button({"id": "fillColour", "style": "background-color: #fff; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => fillColour, (c: Colour) => fillColour = c)}, "None")),
-      strokeWidth = input({"id": "strokeWidth", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
+      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 let fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
@@ -96,7 +96,7 @@ export default Object.freeze({
 		rectangle,
 		br(),
 		label({"for": "drawEllipse"}, "Ellipse: "),
-		ellipse,
+		circle,
 		br(),
 		label({"for": "drawPoly"}, "Polygon: "),
 		poly,
