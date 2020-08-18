@@ -127,12 +127,25 @@ type token struct {
 	Height        uint64          `json:"height"`
 	PatternWidth  uint64          `json:"patternWidth"`
 	PatternHeight uint64          `json:"patternHeight"`
+	TokenData     json.RawMessage `json:"tokenData"`
 	Rotation      uint8           `json:"rotation"`
 	Flip          bool            `json:"flip"`
 	Flop          bool            `json:"flop"`
-	TokenData     json.RawMessage `json:"tokenData"`
 	Snap          bool            `json:"snap"`
+	TokenType     tokenType       `json:"tokenType"`
+	IsEllipse     bool            `json:"isEllipse"`
+	StrokeWidth   uint8           `json:"strokeWidth"`
+	Fill          colour          `json:"fill"`
+	Stroke        colour          `json:"stroke"`
 }
+
+type tokenType uint8
+
+const (
+	tokenImage tokenType = iota
+	tokenShape
+	tokenDrawing
+)
 
 func (t *token) appendTo(p []byte) []byte {
 	p = strconv.AppendUint(append(p, "{\"src\":"...), t.Source, 10)
