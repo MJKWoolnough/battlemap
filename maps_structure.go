@@ -120,9 +120,8 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 }
 
 type token struct {
-	Source        uint64          `json:"src"`
-	X             int64           `json:"x"`
-	Y             int64           `json:"y"`
+	Source uint64 `json:"src"`
+	coords
 	Width         uint64          `json:"width"`
 	Height        uint64          `json:"height"`
 	PatternWidth  uint64          `json:"patternWidth"`
@@ -137,6 +136,12 @@ type token struct {
 	StrokeWidth   uint8           `json:"strokeWidth"`
 	Fill          colour          `json:"fill"`
 	Stroke        colour          `json:"stroke"`
+	Points        []coords        `json:"points"`
+}
+
+type coords struct {
+	X int64 `json:"x"`
+	Y int64 `json:"y"`
 }
 
 type tokenType uint8
