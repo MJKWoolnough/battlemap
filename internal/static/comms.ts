@@ -1,4 +1,4 @@
-import {LayerRPC, MapData, Uint} from './types.js';
+import {LayerRPC, MapData, RPC, Uint} from './types.js';
 import {SVGLayer, SVGToken, SVGShape} from './map.js';
 import {Pipe, Requester} from './lib/inter.js';
 import {ShellElement} from './windows.js';
@@ -16,4 +16,5 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 {request: requestMapUndo, responder: respondWithMapUndo} = new Requester<Undo>(),
 {request: requestMapData, responder: respondWithMapData} = new Requester<MapData>(),
 {request: requestSVGRoot, responder: respondWithSVGRoot} = new Requester<SVGSVGElement>(),
-{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>();
+{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>(),
+{request: requestRPC, responder: respondWithRPC} = new Requester<RPC>();
