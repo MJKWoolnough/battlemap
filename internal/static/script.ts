@@ -13,7 +13,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell} from './comms.js';
+import {respondWithRPC, respondWithShell} from './comms.js';
 
 type savedWindow = {
 	out: boolean;
@@ -161,6 +161,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       s = shell({"snap": 50}, base);
 respondWithShell(() => s);
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
+	respondWithRPC(() => rpc);
 	characterStore(rpc);
 	if (userLevel === 1) {
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
