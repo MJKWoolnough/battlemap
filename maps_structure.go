@@ -153,18 +153,41 @@ const (
 )
 
 func (t *token) appendTo(p []byte) []byte {
-	p = strconv.AppendUint(append(p, "{\"src\":"...), t.Source, 10)
+	p = appendNum(append(p, "{\"tokenType\":"...), uint8(t.TokenType))
 	p = strconv.AppendInt(append(p, ",\"x\":"...), t.X, 10)
 	p = strconv.AppendInt(append(p, ",\"y\":"...), t.Y, 10)
 	p = strconv.AppendUint(append(p, ",\"width\":"...), t.Width, 10)
 	p = strconv.AppendUint(append(p, ",\"height\":"...), t.Height, 10)
 	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
-	p = strconv.AppendBool(append(p, ",\"flip\":"...), t.Flip)
-	p = strconv.AppendBool(append(p, ",\"flop\":"...), t.Flop)
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
-	p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
-	p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
-	p = append(append(p, ",\"tokenData\":"...), t.TokenData...)
+	switch t.TokenType {
+	case tokenImage:
+		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)
+		p = strconv.AppendBool(append(p, ",\"flip\":"...), t.Flip)
+		p = strconv.AppendBool(append(p, ",\"flop\":"...), t.Flop)
+		p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
+		p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
+		p = append(append(p, ",\"tokenData\":"...), t.TokenData...)
+	case tokenDrawing:
+		p = append(p, ",\"points\":["...)
+		for n, coords := range t.Points {
+			if n > 0 {
+				p = append(p, ',')
+			}
+			p = strconv.AppendInt(append(p, "{\"x\":"...), coords.X, 10)
+			p = strconv.AppendInt(append(p, ",\"y\":"...), coords.Y, 10)
+			p = append(p, '}')
+		}
+		p = append(p, ']')
+		fallthrough
+	case tokenShape:
+		if t.IsEllipse {
+			p = append(p, ",\"isEllipse\":true"...)
+		}
+		p = t.Fill.appendTo(append(p, ",\"fill\":"...))
+		p = t.Stroke.appendTo(append(p, ",\"stroke\":"...))
+		p = appendNum(append(p, ",\"strokeWidth\":"...), t.StrokeWidth)
+	}
 	return append(p, '}')
 }
 
