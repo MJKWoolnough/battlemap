@@ -274,17 +274,22 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if newToken.Path == "/Grid" || newToken.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
+		if err := newToken.validate(); err != nil {
+			return nil, err
+		}
 		tokenID := zeroJSON
 		var e error
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			if newToken.TokenData != nil && !bytes.Equal(newToken.TokenData, zeroJSON) {
-				if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData, true); e != nil {
-					return false
+			if newToken.TokenType == tokenImage {
+				if newToken.TokenData != nil && !bytes.Equal(newToken.TokenData, zeroJSON) {
+					if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData, true); e != nil {
+						return false
+					}
+					tokenID = newToken.TokenData
+					data = json.RawMessage(newToken.appendTo(data[:0]))
 				}
-				tokenID = newToken.TokenData
-				data = json.RawMessage(newToken.appendTo(data[:0]))
+				m.images.setHiddenLink(newToken.Source)
 			}
-			m.images.setHiddenLink(newToken.Source)
 			l.Tokens = append(l.Tokens, newToken.token)
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data)
 			return true
@@ -409,7 +414,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, patternToken.Path, patternToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
-			if tk.PatternWidth > 0 {
+			if tk.PatternWidth > 0 || tk.TokenType != tokenImage {
 				return false
 			}
 			tk.PatternWidth = tk.Width
@@ -430,7 +435,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, imageToken.Path, imageToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
-			if tk.PatternWidth == 0 {
+			if tk.PatternWidth == 0 || tk.TokenType != tokenImage {
 				return false
 			}
 			tk.PatternWidth = 0
@@ -451,6 +456,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenSource.Path, tokenSource.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
+			if tk.TokenType != tokenImage {
+				return false
+			}
 			tk.Source = tokenSource.Source
 			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
 			return true
@@ -510,6 +518,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			if tk.TokenType != tokenImage {
+				return false
+			}
 			tk.TokenData = m.tokens.createFromID()
 			if cap(data) >= len(rm)+len(data)+6 {
 				data = data[:len(data)-1]
@@ -531,6 +542,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
+			if tk.TokenType != tokenImage {
+				return false
+			}
 			if bytes.Equal(tk.TokenData, zeroJSON) {
 				return false
 			}
