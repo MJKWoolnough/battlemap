@@ -451,5 +451,5 @@ export default function(rpc: RPC, base: HTMLElement) {
 		"outline": g(),
 		"deselectToken": () => {}
 	};
-	respondWithSelected(() => selected);
+	respondWithSelected(selected);
 }

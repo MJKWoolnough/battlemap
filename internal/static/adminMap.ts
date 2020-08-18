@@ -683,16 +683,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
-		respondWithSelected(() => ({
+		respondWithSelected({
 			"layer": selectedLayer,
 			"layerPath": selectedLayerPath,
 			"token": selectedToken,
 			outline,
 			"deselectToken": unselectToken
-		}));
-		respondWithMapUndo(() => undo);
-		respondWithMapData(() => mapData);
-		respondWithSVGRoot(() => root);
+		});
+		respondWithMapUndo(undo);
+		respondWithMapData(mapData);
+		respondWithSVGRoot(root);
 		mapLayersSend({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
