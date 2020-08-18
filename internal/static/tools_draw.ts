@@ -133,6 +133,10 @@ export default Object.freeze({
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 	},
-	"tokenMouseDown": (e: MouseEvent) => draw(requestSVGRoot(), e),
+	"tokenMouseDown": (e: MouseEvent) => {
+		if (e.button === 0) {
+			draw(requestSVGRoot(), e);
+		}
+	},
 	"tokenMouseOver": () => showMarker(requestSVGRoot())
 });
