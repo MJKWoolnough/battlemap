@@ -88,6 +88,11 @@ func (l *layer) validate(layers map[string]struct{}, first bool) error {
 			return err
 		}
 	}
+	for _, token := range l.Tokens {
+		if err := token.validate(); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -191,6 +196,27 @@ func (t *token) appendTo(p []byte) []byte {
 	return append(p, '}')
 }
 
+func (t *token) validate() error {
+	switch t.TokenType {
+	case tokenImage:
+		if t.Source == 0 || t.IsEllipse || !t.Fill.empty() || !t.Stroke.empty() || t.StrokeWidth > 0 || len(t.Points) > 0 || (t.PatternWidth > 0) != (t.PatternHeight > 0) {
+			return ErrInvalidToken
+		}
+	case tokenDrawing:
+		if len(t.Points) < 2 || t.IsEllipse {
+			return ErrInvalidToken
+		}
+		fallthrough
+	case tokenShape:
+		if t.Source != 0 || t.Flip || t.Flop || t.PatternWidth > 0 || t.PatternHeight > 0 || t.TokenData != nil {
+			return ErrInvalidToken
+		}
+	default:
+		return ErrInvalidToken
+	}
+	return nil
+}
+
 type colour struct {
 	R uint8 `json:"r"`
 	G uint8 `json:"g"`
@@ -204,6 +230,10 @@ func (c colour) appendTo(p []byte) []byte {
 	p = appendNum(append(p, ",\"b\":"...), c.B)
 	p = appendNum(append(p, ",\"a\":"...), c.A)
 	return append(p, '}')
+}
+
+func (c colour) empty() bool {
+	return c.R == 0 && c.G == 0 && c.B == 0 && c.A == 0
 }
 
 const hex = "0123456789abcdef"
@@ -257,4 +287,5 @@ func appendNum(p []byte, n uint8) []byte {
 var (
 	ErrDuplicateLayer = errors.New("duplicate layer name")
 	ErrInvalidLayer   = errors.New("invalid layer structure")
+	ErrInvalidToken   = errors.New("invalid token")
 )
