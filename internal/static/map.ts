@@ -1,7 +1,7 @@
 import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
-import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
+import {createSVG, defs, ellipse, g, image, path, pattern, rect, svg} from './lib/svg.js';
 import {colour2RGBA, handleError} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
@@ -138,19 +138,21 @@ export class SVGShape extends SVGTransform {
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
+	isEllipse: boolean;
 	snap: boolean;
 	constructor(token: TokenShape) {
+		throw new Error("use from");
 		super(token);
-		this.node = rect({"transform": this.transformString()});
-		this.fill = token.fill;
-		this.stroke = token.stroke;
-		this.strokeWidth = token.strokeWidth;
-		this.x = token.x;
-		this.y = token.y;
-		this.width = token.width;
-		this.height = token.height;
-		this.rotation = token.rotation;
-		this.snap = token.snap;
+	}
+	from (token: TokenShape) {
+		let node: SVGElement;
+		if (!(token as any).isEllipse) {
+			(token as any).isEllipse = false;
+			node = rect();
+		} else {
+			node = ellipse();
+		}
+		return Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
