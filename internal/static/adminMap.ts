@@ -5,7 +5,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
@@ -427,82 +427,84 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			const tokenPos = getSelectedTokenPos(),
 			      currToken = selectedToken!;
 			place(base, [e.clientX, e.clientY], [
-				selectedToken!.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokenData.get(selectedToken!.tokenData)!, false)) : [],
-				selectedToken!.tokenData === 0 ? item("Set as Token", () => {
-					if (selectedToken !== currToken && currToken.tokenData === 0) {
-						return;
-					}
-					rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
-					.then(id => tokenData.set(currToken.tokenData = id, {}))
-					.catch(handleError);
-				}) : item("Unset as Token", () => {
-					if (selectedToken !== currToken || currToken.tokenData !== 0) {
-						return;
-					}
-					tokenData.delete(selectedToken.tokenData);
-					selectedToken.tokenData = 0;
-					rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
-				}),
-				item("Flip", () => {
-					if (selectedToken !== currToken) {
-						return;
-					}
-					const lp = selectedLayerPath,
-					      tokenPos = getSelectedTokenPos(),
-					      flip = !currToken.flip,
-					      doIt = () => {
-						currToken.flip = flip;
-						currToken.updateNode();
-						rpc.flipToken(lp, tokenPos, flip).catch(handleError);
-						return () => {
-							currToken.flip = !flip;
+				isTokenImage(currToken) ? [
+					currToken.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokenData.get(selectedToken!.tokenData)!, false)) : [],
+					currToken.tokenData === 0 ? item("Set as Token", () => {
+						if (selectedToken !== currToken && currToken.tokenData === 0) {
+							return;
+						}
+						rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
+						.then(id => tokenData.set(currToken.tokenData = id, {}))
+						.catch(handleError);
+					}) : item("Unset as Token", () => {
+						if (selectedToken !== currToken || currToken.tokenData !== 0) {
+							return;
+						}
+						tokenData.delete(selectedToken.tokenData);
+						selectedToken.tokenData = 0;
+						rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
+					}),
+					item("Flip", () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
+						const lp = selectedLayerPath,
+						      tokenPos = getSelectedTokenPos(),
+						      flip = !currToken.flip,
+						      doIt = () => {
+							currToken.flip = flip;
 							currToken.updateNode();
-							rpc.flipToken(lp, tokenPos, !flip).catch(handleError);
-							return doIt;
-						};
-					      };
-					undo.add(doIt);
-					outline.focus();
-				}),
-				item("Flop", () => {
-					if (selectedToken !== currToken) {
-						return;
-					}
-					const lp = selectedLayerPath,
-					      tokenPos = getSelectedTokenPos(),
-					      flop = !currToken.flop,
-					      doIt = () => {
-						currToken.flop = flop;
-						currToken.updateNode();
-						rpc.flopToken(lp, tokenPos, flop).catch(handleError);
-						return () => {
-							currToken.flop = !flop;
+							rpc.flipToken(lp, tokenPos, flip).catch(handleError);
+							return () => {
+								currToken.flip = !flip;
+								currToken.updateNode();
+								rpc.flipToken(lp, tokenPos, !flip).catch(handleError);
+								return doIt;
+							};
+						      };
+						undo.add(doIt);
+						outline.focus();
+					}),
+					item("Flop", () => {
+						if (selectedToken !== currToken) {
+							return;
+						}
+						const lp = selectedLayerPath,
+						      tokenPos = getSelectedTokenPos(),
+						      flop = !currToken.flop,
+						      doIt = () => {
+							currToken.flop = flop;
 							currToken.updateNode();
-							rpc.flopToken(lp, tokenPos, !flop).catch(handleError);
-							return doIt;
-						};
-					      };
-					undo.add(doIt);
-					outline.focus();
-				}),
-				item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
-					if (selectedToken !== currToken || !(currToken instanceof SVGToken)) {
-						return;
-					}
-					const tokenPos = getSelectedTokenPos(),
-					      lp = selectedLayerPath,
-					      isPattern = currToken.isPattern,
-					      doIt = () => {
-						currToken.setPattern(!isPattern);
-						(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, tokenPos).catch(handleError);
-						return () => {
+							rpc.flopToken(lp, tokenPos, flop).catch(handleError);
+							return () => {
+								currToken.flop = !flop;
+								currToken.updateNode();
+								rpc.flopToken(lp, tokenPos, !flop).catch(handleError);
+								return doIt;
+							};
+						      };
+						undo.add(doIt);
+						outline.focus();
+					}),
+					item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
+						if (selectedToken !== currToken || !(currToken instanceof SVGToken)) {
+							return;
+						}
+						const tokenPos = getSelectedTokenPos(),
+						      lp = selectedLayerPath,
+						      isPattern = currToken.isPattern,
+						      doIt = () => {
 							currToken.setPattern(!isPattern);
-							(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(selectedLayerPath, tokenPos).catch(handleError);
-							return doIt;
-						};
-					      };
-					undo.add(doIt);
-				}),
+							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, tokenPos).catch(handleError);
+							return () => {
+								currToken.setPattern(!isPattern);
+								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(selectedLayerPath, tokenPos).catch(handleError);
+								return doIt;
+							};
+						      };
+						undo.add(doIt);
+					}),
+				] : [],
 				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
 					if (selectedToken !== currToken) {
 						return;
