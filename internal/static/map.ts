@@ -354,7 +354,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				} else if (isTokenDrawing(tk)) {
 
 				} else {
-
+					layer.tokens.push(new SVGShape(tk));
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
