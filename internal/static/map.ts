@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, RPC, MapData} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, g, image, path, pattern, rect, svg} from './lib/svg.js';
@@ -86,11 +86,11 @@ export class SVGToken extends SVGTransform {
 	tokenData: Uint;
 	tokenType: Uint;
 	snap: boolean;
-	constructor(token: Token) {
+	constructor(token: TokenImage) {
 		throw new Error("use from");
 		super(token);
 	}
-	static from(token: Token) {
+	static from(token: TokenImage) {
 		const node = image(),
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken.prototype);
 		createSVG(node, {"href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
@@ -135,16 +135,14 @@ export class SVGToken extends SVGTransform {
 
 export class SVGShape extends SVGTransform {
 	node: SVGRectElement | SVGCircleElement;
-	src: Uint;
+	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
-	tokenData: Uint;
-	tokenType: Uint;
 	snap: boolean;
-	constructor(token: Token) {
+	constructor(token: TokenShape) {
 		super(token);
 		this.node = rect({"transform": this.transformString()});
-		this.src = token.src;
+		this.fill = token.fill;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
 		this.x = token.x;
@@ -154,8 +152,6 @@ export class SVGShape extends SVGTransform {
 		this.rotation = token.rotation;
 		this.flip = token.flip;
 		this.flop = token.flop;
-		this.tokenData = token.tokenData;
-		this.tokenType = token.tokenType;
 		this.snap = token.snap;
 	}
 	at(x: Int, y: Int) {
@@ -192,10 +188,11 @@ const splitAfterLastSlash = (path: string) => {
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid") {
 		layer.tokens.forEach(t => {
-			if (t["src"] === 0) {
-				tokens.push(new SVGShape(t));
-			} else {
+			if (isTokenImage(t)) {
 				tokens.push(SVGToken.from(t));
+			} else if (isTokenDrawing(t)) {
+			} else {
+				tokens.push(new SVGShape(t));
 			}
 		});
 	}
@@ -280,6 +277,8 @@ globals = {
 	layerList: SVGFolder,
 	mapData: MapData
 },
+isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
+isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
 		const node = g(),
@@ -306,7 +305,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			l.tokens.forEach(t => {
-				if (t.tokenData) {
+				if (isTokenImage(t) && t.tokenData) {
 					const tID = t.tokenData;
 					rpc.tokenGet(tID).then(d => {
 						tokenData.set(tID, d);
@@ -340,16 +339,22 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 				delete tk["path"];
 				delete tk["pos"];
-				layer.tokens.push(new SVGToken(tk));
-				if (tk.tokenData) {
-					const tID = tk.tokenData;
-					rpc.tokenGet(tID).then(d => {
-						tokenData.set(tID, d);
-						if (loadChars && typeof d["store-character-id"] === "number") {
-							const cID = d["store-character-id"].data;
-							rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
-						}
-					}).catch(handleError);
+				if (isTokenImage(tk)) {
+					layer.tokens.push(new SVGToken(tk));
+					if (tk.tokenData) {
+						const tID = tk.tokenData;
+						rpc.tokenGet(tID).then(d => {
+							tokenData.set(tID, d);
+							if (loadChars && typeof d["store-character-id"] === "number") {
+								const cID = d["store-character-id"].data;
+								rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
+							}
+						}).catch(handleError);
+					}
+				} else if (isTokenDrawing(tk)) {
+
+				} else {
+
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
