@@ -134,7 +134,7 @@ export class SVGToken extends SVGTransform {
 }
 
 export class SVGShape extends SVGTransform {
-	node: SVGRectElement | SVGCircleElement;
+	node: SVGGraphicsElement;
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
@@ -144,8 +144,8 @@ export class SVGShape extends SVGTransform {
 		throw new Error("use from");
 		super(token);
 	}
-	from (token: TokenShape) {
-		let node: SVGElement;
+	static from(token: TokenShape) {
+		let node: SVGGraphicsElement;
 		if (!(token as any).isEllipse) {
 			(token as any).isEllipse = false;
 			node = rect();
