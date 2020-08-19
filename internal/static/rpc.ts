@@ -280,8 +280,30 @@ const returnVoid = () => {},
       checkTokenSource = (data: any) =>  checker(data, "TokenFlip", checksTokenSource),
       checksTokenID: checkers = [[checkTokenPos, ""], [checkUint, "id"]],
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
-      checksToken: checkers = [[checkObject, ""], [checkUint, "src"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkByte, "rotation"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"], [checkUint, "?tokenType"], [checkBoolean, "snap"]],
-      checkToken = (data: any, name = "Token") => checker(data, name, checksToken),
+      checksToken: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"]],
+      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"]],
+      checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"]],
+      checksTokenCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
+      checkToken = (data: any, name = "Token") => {
+	checker(data, name, checksToken);
+	switch (data.tokenType) {
+	case undefined:
+	case 0:
+		checker(data, name, checksTokenImage);
+		break;
+	case 2:
+		checkArray(data, name, "points")
+		for (const p of data.points) {
+			checker(p, "Token->Points", checksTokenCoords);
+		}
+	case 1:
+		checker(data, name, checksTokenShape);
+		break;
+	default:
+		throw new TypeError("invalid Token object, key 'tokenType' contains invalid data");
+	}
+	return data;
+      },
       checksTokenAdd: checkers = [[checkTokenPos, ""], [checkToken, ""]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
