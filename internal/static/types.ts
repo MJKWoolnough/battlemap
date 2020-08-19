@@ -178,23 +178,41 @@ export type GridDetails = {
 	gridColour: Colour;
 }
 
-export type Token = {
+export type Token = TokenImage | TokenShape | TokenDrawing;
+
+type TokenShared = {
+	x:           Int;
+	y:           Int;
+	width:       Uint;
+	height:      Uint;
+	rotation:    Byte;
+	tokenType?:  Uint;
+	flip:        boolean;
+	flop:        boolean;
+	snap:        boolean;
+}
+
+export type TokenImage = TokenShared & {
 	src:           Uint;
-	stroke:        Colour;
-	strokeWidth:   Uint;
-	x:             Int;
-	y:             Int;
-	width:         Uint;
-	height:        Uint;
 	patternWidth:  Uint;
 	patternHeight: Uint;
-	rotation:      Byte;
-	flip:          boolean;
-	flop:          boolean;
 	tokenData:     Uint;
-	tokenType:     Uint;
-	snap:          boolean;
-};
+}
+
+export type TokenShape = TokenShared & {
+	fill:        Colour
+	stroke:      Colour;
+	strokeWidth: Uint;
+}
+
+export type TokenDrawing = TokenShape & {
+	points: Coords[];
+}
+
+type Coords = {
+	x: Int;
+	y: Int;
+}
 
 export type LayerTokens = {
 	id: Uint;
