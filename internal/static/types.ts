@@ -187,8 +187,6 @@ type TokenShared = {
 	height:      Uint;
 	rotation:    Byte;
 	tokenType?:  Uint;
-	flip:        boolean;
-	flop:        boolean;
 	snap:        boolean;
 }
 
@@ -196,6 +194,8 @@ export type TokenImage = TokenShared & {
 	src:           Uint;
 	patternWidth:  Uint;
 	patternHeight: Uint;
+	flip:        boolean;
+	flop:        boolean;
 	tokenData:     Uint;
 }
 
