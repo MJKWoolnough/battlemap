@@ -209,7 +209,7 @@ export type TokenDrawing = TokenShape & {
 	points: Coords[];
 }
 
-type Coords = {
+export type Coords = {
 	x: Int;
 	y: Int;
 }
