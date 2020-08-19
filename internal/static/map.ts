@@ -58,8 +58,8 @@ class SVGTransform {
 		this.x = token.x;
 		this.y = token.y;
 		this.rotation = token.rotation;
-		this.flip = token.flip;
-		this.flop = token.flop;
+		this.flip = false;
+		this.flop = false;
 	}
 	transformString(scale = true) {
 		let ret = "";
@@ -150,8 +150,6 @@ export class SVGShape extends SVGTransform {
 		this.width = token.width;
 		this.height = token.height;
 		this.rotation = token.rotation;
-		this.flip = token.flip;
-		this.flop = token.flop;
 		this.snap = token.snap;
 	}
 	at(x: Int, y: Int) {
