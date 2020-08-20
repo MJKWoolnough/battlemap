@@ -225,8 +225,9 @@ const splitAfterLastSlash = (path: string) => {
 			if (isTokenImage(t)) {
 				tokens.push(SVGToken.from(t));
 			} else if (isTokenDrawing(t)) {
+				tokens.push(SVGDrawing.from(t));
 			} else {
-				tokens.push(new SVGShape(t));
+				tokens.push(SVGShape.from(t));
 			}
 		});
 	}
@@ -374,7 +375,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				delete tk["path"];
 				delete tk["pos"];
 				if (isTokenImage(tk)) {
-					layer.tokens.push(new SVGToken(tk));
+					layer.tokens.push(SVGToken.from(tk));
 					if (tk.tokenData) {
 						const tID = tk.tokenData;
 						rpc.tokenGet(tID).then(d => {
@@ -386,9 +387,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 						}).catch(handleError);
 					}
 				} else if (isTokenDrawing(tk)) {
-
+					layer.tokens.push(SVGDrawing.from(tk));
 				} else {
-					layer.tokens.push(new SVGShape(tk));
+					layer.tokens.push(SVGShape.from(tk));
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
