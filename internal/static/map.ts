@@ -146,11 +146,15 @@ export class SVGShape extends SVGTransform {
 		let node: SVGGraphicsElement;
 		if (!(token as any).isEllipse) {
 			(token as any).isEllipse = false;
-			node = rect();
+			node = rect({"width": token.width, "height": token.height});
 		} else {
-			node = ellipse();
+			const rx = token.width / 2,
+			      ry = token.height / 2;
+			node = ellipse({"cx": rx, "cy": ry, rx, ry});
 		}
-		return Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
+		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
+		createSVG(node, {"fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
+		return svgShape;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
@@ -160,7 +164,13 @@ export class SVGShape extends SVGTransform {
 		return false;
 	}
 	updateNode() {
-		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		if (this.isEllipse) {
+			const rx = this.width / 2,
+			      ry = this.height / 2;
+			createSVG(this.node, {"cx": rx, "cy": ry, rx, ry, "transform": this.transformString()});
+		} else {
+			createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		}
 	}
 }
 
