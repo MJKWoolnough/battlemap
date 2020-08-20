@@ -176,14 +176,22 @@ export class SVGShape extends SVGTransform {
 
 export class SVGDrawing extends SVGShape {
 	points: Coords[];
+	oWidth: Uint;
+	oHeight: Uint;
 	constructor(token: TokenDrawing) {
 		throw new Error("use from");
 		super(token);
 	}
-	static from(token: TokenShape) {
+	static from(token: TokenDrawing) {
 		(token as any).isEllipse = false;
-		const node = path();
-		return Object.setPrototypeOf(Object.assign(token, {node}), SVGDrawing.prototype);
+		let oWidth: Uint = 0,
+		    oHeight: Uint = 0;
+		const xr = token.width / oWidth,
+		      yr = token.height / oHeight,
+		      node = path({"d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
+		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {node, oWidth, oHeight}), SVGDrawing.prototype);
+		node.setAttribute("transform", svgDrawing.transformString());
+		return svgDrawing;
 	}
 }
 
