@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {createSVG, defs, ellipse, g, image, path, pattern, rect, svg} from './lib/svg.js';
@@ -161,6 +161,19 @@ export class SVGShape extends SVGTransform {
 	}
 	updateNode() {
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
+	}
+}
+
+export class SVGDrawing extends SVGShape {
+	points: Coords[];
+	constructor(token: TokenDrawing) {
+		throw new Error("use from");
+		super(token);
+	}
+	static from(token: TokenShape) {
+		(token as any).isEllipse = false;
+		const node = path();
+		return Object.setPrototypeOf(Object.assign(token, {node}), SVGDrawing.prototype);
 	}
 }
 
