@@ -11,14 +11,14 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
 	const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 	if (rectangle.checked || circle.checked) {
-		const isRect = rectangle.checked,
-		      s = (isRect ? rect : ellipse)({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
+		const isEllipse = circle.checked,
+		      s = (isEllipse ? ellipse : rect)({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
-			if (isRect) {
-				createSVG(s, {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x), "height": Math.abs(cy - y)});
-			} else {
+			if (isEllipse) {
 				createSVG(s, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
+			} else {
+				createSVG(s, {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x), "height": Math.abs(cy - y)});
 			}
 		      },
 		      clearup = () => {
