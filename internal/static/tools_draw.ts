@@ -1,10 +1,10 @@
 import {Colour} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, line, polyline, polygon} from './lib/svg.js';
-import {requestSVGRoot, requestMapData, requestSelected, requestShell} from './comms.js';
+import {requestSVGRoot, requestMapData, requestSelected, requestShell, requestRPC} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
-import {colour2RGBA, colourPicker, noColour, screen2Grid} from './misc.js';
+import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './misc.js';
 
 let over = false;
 const draw = (root: SVGElement, e: MouseEvent) => {
@@ -30,6 +30,9 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		      onmouseup = (e: MouseEvent) => {
 			if (e.button === 0) {
 				clearup();
+				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData()),
+				      dr = isEllipse ? 2 : 1;
+				requestRPC().addToken(requestSelected().layerPath, Object.assign({"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x) * dr, "height": Math.abs(cy - y) * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse})).catch(handleError);
 			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
