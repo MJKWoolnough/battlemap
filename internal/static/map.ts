@@ -193,6 +193,11 @@ export class SVGDrawing extends SVGShape {
 		node.setAttribute("transform", svgDrawing.transformString());
 		return svgDrawing;
 	}
+	updateNode() {
+		const xr = this.width / this.oWidth,
+		      yr = this.height / this.oHeight;
+		createSVG(this.node, {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
+	}
 }
 
 const splitAfterLastSlash = (path: string) => {
