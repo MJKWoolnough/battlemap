@@ -58,8 +58,6 @@ class SVGTransform {
 		this.x = token.x;
 		this.y = token.y;
 		this.rotation = token.rotation;
-		this.flip = false;
-		this.flop = false;
 	}
 	transformString(scale = true) {
 		let ret = "";
