@@ -440,8 +440,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						if (selectedToken !== currToken || currToken.tokenData !== 0) {
 							return;
 						}
-						tokenData.delete(selectedToken.tokenData);
-						selectedToken.tokenData = 0;
+						tokenData.delete(currToken.tokenData);
+						currToken.tokenData = 0;
 						rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
 					}),
 					item("Flip", () => {
@@ -486,7 +486,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						undo.add(doIt);
 						outline.focus();
 					}),
-					item(`Set as ${selectedToken instanceof SVGShape && selectedToken.isPattern ? "Image" : "Pattern"}`, () => {
+					item(`Set as ${currToken.isPattern ? "Image" : "Pattern"}`, () => {
 						if (selectedToken !== currToken || !(currToken instanceof SVGToken)) {
 							return;
 						}
@@ -505,7 +505,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						undo.add(doIt);
 					}),
 				] : [],
-				item(selectedToken!.snap ? "Unsnap" : "Snap", () => {
+				item(currToken.snap ? "Unsnap" : "Snap", () => {
 					if (selectedToken !== currToken) {
 						return;
 					}
