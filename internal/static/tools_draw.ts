@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, g, line, path, polyline, polygon} from '.
 import {requestSVGRoot, requestMapData, requestSelected, requestShell, requestRPC} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
-import {SVGShape} from './map.js';
+import {SVGShape, SVGDrawing} from './map.js';
 import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './misc.js';
 
 let over = false,
@@ -59,6 +59,10 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		createSVG(root, {onmousemove, onmouseup}, s);
 		window.addEventListener("keydown", onkeydown);
 	} else {
+		let minX = cx,
+		    maxX = cx,
+		    minY = cy,
+		    maxY = cy;
 		const points: Coords[] = [{"x": cx, "y": cy}],
 		      close = fillColour.a > 0,
 		      p = path({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
@@ -87,10 +91,15 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		};
 		contextOverride = (e: MouseEvent) => {
 			clearup();
-			// create token
+			const {layerPath, layer} = requestSelected(),
+			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, points};
+			if (layer) {
+				layer.tokens.push(SVGDrawing.from(token));
+				requestRPC().addToken(layerPath, token).catch(handleError);
+			} else {
+				requestShell().alert("Draw Error", "No Layer Selected");
+			}
 		};
-		let mx = cx,
-		    my = cy;
 		createSVG(root, {onmousemove}, p);
 		window.addEventListener("keydown", onkeydown);
 	}
