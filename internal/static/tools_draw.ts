@@ -9,7 +9,7 @@ import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './m
 
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
-    contextOverride: null | ((e: MouseEvent) => void) = null;
+    contextOverride: null | Function = null;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
 	if (clickOverride) {
@@ -89,7 +89,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			points.push({x, y});
 			draw();
 		};
-		contextOverride = (e: MouseEvent) => {
+		contextOverride = () => {
 			clearup();
 			const {layerPath, layer} = requestSelected(),
 			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, points};
@@ -107,7 +107,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
       oncontext = (e: MouseEvent) => {
 	e.preventDefault();
 	if (contextOverride) {
-		contextOverride(e);
+		contextOverride();
 	}
       },
       marker = g([
