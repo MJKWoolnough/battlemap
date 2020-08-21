@@ -292,7 +292,7 @@ const returnVoid = () => {},
 		checker(data, name, checksTokenImage);
 		break;
 	case 2:
-		checkArray(data, name, "points")
+		checkArray(data.points, name, "points")
 		for (const p of data.points) {
 			checker(p, "Token->Points", checksTokenCoords);
 		}
