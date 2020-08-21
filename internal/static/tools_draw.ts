@@ -1,15 +1,21 @@
-import {Colour} from './types.js';
+import {Colour, Coords, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
-import {createSVG, svg, rect, ellipse, g, line, polyline, polygon} from './lib/svg.js';
+import {createSVG, svg, rect, ellipse, g, line, path, polyline, polygon} from './lib/svg.js';
 import {requestSVGRoot, requestMapData, requestSelected, requestShell, requestRPC} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 import {SVGShape} from './map.js';
 import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './misc.js';
 
-let over = false;
+let over = false,
+    clickOverride: null | ((e: MouseEvent) => void) = null,
+    contextOverride: null | ((e: MouseEvent) => void) = null;
 const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
+	if (clickOverride) {
+		clickOverride(e);
+		return;
+	}
 	const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 	if (rectangle.checked || circle.checked) {
 		const isEllipse = circle.checked,
@@ -52,6 +58,12 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		      };
 		createSVG(root, {onmousemove, onmouseup}, s);
 		window.addEventListener("keydown", onkeydown);
+	}
+      },
+      oncontext = (e: MouseEvent) => {
+	e.preventDefault();
+	if (contextOverride) {
+		contextOverride(e);
 	}
       },
       marker = g([
@@ -146,10 +158,12 @@ export default Object.freeze({
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 	},
+	"mapMouseContext": oncontext,
 	"tokenMouseDown": (e: MouseEvent) => {
 		if (e.button === 0) {
 			draw(requestSVGRoot(), e);
 		}
 	},
-	"tokenMouseOver": () => showMarker(requestSVGRoot())
+	"tokenMouseOver": () => showMarker(requestSVGRoot()),
+	"tokenMouseContext": oncontext
 });
