@@ -685,13 +685,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
-		respondWithSelected({
+		respondWithSelected(() => ({
 			"layer": selectedLayer,
 			"layerPath": selectedLayerPath,
 			"token": selectedToken,
 			outline,
 			"deselectToken": unselectToken
-		});
+		}));
 		respondWithMapUndo(undo);
 		respondWithMapData(mapData);
 		respondWithSVGRoot(root);
