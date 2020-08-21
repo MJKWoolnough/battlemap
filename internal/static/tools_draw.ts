@@ -106,7 +106,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				c.y -= minY;
 			}
 			const {layerPath, layer} = requestSelected(),
-			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, points};
+			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points};
 			if (layer) {
 				layer.tokens.push(SVGDrawing.from(token));
 				requestRPC().addToken(layerPath, token).catch(handleError);
