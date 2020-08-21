@@ -67,7 +67,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		      close = fillColour.a > 0,
 		      p = path({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
 		      draw = (x?: Uint, y?: Uint) => {
-
+			p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
 		      },
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
