@@ -58,6 +58,41 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		      };
 		createSVG(root, {onmousemove, onmouseup}, s);
 		window.addEventListener("keydown", onkeydown);
+	} else {
+		const points: Coords[] = [{"x": cx, "y": cy}],
+		      close = fillColour.a > 0,
+		      p = path({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
+		      draw = (x?: Uint, y?: Uint) => {
+
+		      },
+		      onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			draw(x, y);
+		      },
+		      clearup = () => {
+			clickOverride = null;
+			root.removeEventListener("mousemove", onmousemove);
+			window.removeEventListener("keydown", onkeydown);
+			p.remove();
+		      },
+		      onkeydown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				clearup();
+			}
+		      };
+		clickOverride = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			// add point
+			draw();
+		};
+		contextOverride = (e: MouseEvent) => {
+			clearup();
+			// create token
+		};
+		let mx = cx,
+		    my = cy;
+		createSVG(root, {onmousemove}, p);
+		window.addEventListener("keydown", onkeydown);
 	}
       },
       oncontext = (e: MouseEvent) => {
