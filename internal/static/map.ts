@@ -186,6 +186,14 @@ export class SVGDrawing extends SVGShape {
 		(token as any).isEllipse = false;
 		let oWidth: Uint = 0,
 		    oHeight: Uint = 0;
+		for (const c of token.points) {
+			if (c.x > oWidth) {
+				oWidth = c.x;
+			}
+			if (c.y > oHeight) {
+				oHeight = c.y;
+			}
+		}
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight,
 		      node = path({"d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
