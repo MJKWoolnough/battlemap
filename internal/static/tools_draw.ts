@@ -34,7 +34,9 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData()),
 				      dr = isEllipse ? 2 : 1,
 				      {layerPath, layer} = requestSelected(),
-				      token = {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x) * dr, "height": Math.abs(cy - y) * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse};
+				      width = Math.abs(cx - x),
+				      height = Math.abs(cy - y),
+				      token = {"x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse};
 				if (layer) {
 					layer.tokens.push(SVGShape.from(token));
 					requestRPC().addToken(layerPath, token).catch(handleError);
