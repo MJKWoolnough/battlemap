@@ -55,10 +55,10 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	}
       },
       marker = g([
-	      polygon({"points": "5,0 16,0 11,5", "fill": "#000"}),
-	      polygon({"points": "0,5 0,16 5,11", "fill": "#000"}),
-	      polygon({"points": "5,21 16,21 11,16", "fill": "#000"}),
-	      polygon({"points": "21,16 21,5 16,11", "fill": "#000"})
+	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
+	      polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
+	      polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
+	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       showMarker = (root: SVGElement) => {
 	if (over) {
