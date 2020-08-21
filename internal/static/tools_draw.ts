@@ -87,10 +87,24 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		clickOverride = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
 			points.push({x, y});
+			if (x < minX) {
+				minX = x;
+			} else if (x > maxX) {
+				maxX = x;
+			}
+			if (y < minY) {
+				minY = y;
+			} else if (y > maxY) {
+				maxY = y;
+			}
 			draw();
 		};
 		contextOverride = () => {
 			clearup();
+			for (const c of points) {
+				c.x -= minX;
+				c.y -= minY;
+			}
 			const {layerPath, layer} = requestSelected(),
 			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, points};
 			if (layer) {
