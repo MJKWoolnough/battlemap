@@ -86,7 +86,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		      };
 		clickOverride = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
-			// add point
+			points.push({x, y});
 			draw();
 		};
 		contextOverride = (e: MouseEvent) => {
