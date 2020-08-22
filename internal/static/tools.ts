@@ -9,6 +9,7 @@ import defaultTool from './tools_default.js';
 import zoomTool from './tools_zoom.js';
 import drawTool from './tools_draw.js';
 import moveTool from './tools_move.js';
+import maskTool from './tool_mask.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent, rpc: RPC) => void;
@@ -34,20 +35,7 @@ const tools: Tool[] = [
 	zoomTool,
 	drawTool,
 	moveTool,
-	{
-		"name": "Layer Mask",
-		"icon": svg({"viewBox": "0 0 60 50"}, [
-			defs(path({"id": "e", "d": "M32,20 q9,-10 18,0 q-9,-3 -18,0"})),
-			mask({"id": "m"}, [
-				rect({"width": 100, "height": 100, "fill": "#fff"}),
-				path({"d": "M10,20 q9,-10 18,0 q-9,-3 -18,0"}),
-				use({"href": "#e"}),
-				use({"x": 22, "href": "#e"}),
-				path({"d": "M20,35 q10,5 20,0 q-10,10 -20,0"}),
-			]),
-			path({"d": "M0,0 Q30,15 60,0 Q30,100 0,0", "stroke": "none", "mask": "url(#m)"})
-		])
-	},
+	maskTool,
 	{
 		"name": "Light Layer",
 		"icon": svg({"viewBox": "0 0 44 75"}, [
