@@ -16,7 +16,7 @@
 }
 
 #mapList li.mapUser > span:first-child {
-	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF4AAABeBAMAAABY/L5dAAAAD1BMVEUAAAAAAAAAAAAAAAAAAABPDueNAAAABXRSTlOAoAD/cP3HI2gAAABNSURBVHgB7MqhEQAgDMXQwiQcbAD774asgIrK3k9snuVq1memIeXx52nj8Xhh7yjwyz8eX8l/K+Pj8Hg8XsLf0a1/NKp+VL0AAymABQDCyL/X6zlMUwAAAABJRU5ErkJggg==);
+	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47 47"%3E%3Cpath d="M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14" /%3E%3C/svg%3E');
 	background-size: 1em;
 	background-repeat: no-repeat;
 	background-color: #ccffcc !important;
