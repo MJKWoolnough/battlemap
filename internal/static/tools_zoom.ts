@@ -36,9 +36,9 @@ let zoomMode: 1 | -1 = -1;
 
 export default Object.freeze({
 	"name": "Zoom",
-	"icon": svg({"viewBox": "0 0 30 30"}, [
-		circle({"cx": 10, "cy": 10, "r": 10, "stroke": "#000", "stroke-width": 3, "fill": "none"}),
-		line({"x1": 16, "y1": 16, "x2": 30, "y2": 30, "stroke": "#000", "stroke-width": 4})
+	"icon": svg({"viewBox": "0 0 30 30", "stroke": "#000"}, [
+		circle({"cx": 10, "cy": 10, "r": 10, "stroke-width": 3, "fill": "none"}),
+		line({"x1": 16, "y1": 16, "x2": 30, "y2": 30, "stroke-width": 4})
 	]),
 	"options": div([
 		label({"for": "zoomIn"}, "Zoom In: "),
