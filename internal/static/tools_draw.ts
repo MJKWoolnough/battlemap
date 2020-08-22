@@ -171,7 +171,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	});
       },
       stroke = span({"class": "checkboard colourButton"}, button({"id": "strokeColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c)})),
-      fill = span({"class": "checkboard colourButton"}, button({"id": "fillColour", "style": "background-color: #fff; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => fillColour, (c: Colour) => fillColour = c)}, "None")),
+      fill = span({"class": "checkboard colourButton"}, button({"id": "fillColour", "style": "background-color: #fff; width: 50px; height: 50px", "onclick": setColour("Set Fill Colour", () => fillColour, (c: Colour) => fillColour = c)}, "None")),
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 let fillColour = noColour,
