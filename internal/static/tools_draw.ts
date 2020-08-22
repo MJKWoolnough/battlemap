@@ -182,11 +182,11 @@ window.addEventListener("keyup", shiftSnap);
 
 export default Object.freeze({
 	"name": "Draw",
-	"icon": svg({"viewBox": "0 0 70 70"}, [
-		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke": "#000", "fill": "none", "stroke-width": 2}),
-		polyline({"points": "7,52 1,68 18,63", "stroke": "#000", "fill": "none", "stroke-width": 1}),
-		line({"x1": 53, "y1": 12, "x2": 14, "y2": 51, "stroke": "#000", "stroke-width": 1}),
-		line({"x1": 57, "y1": 16, "x2": 18, "y2": 55, "stroke": "#000", "stroke-width": 1})
+	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "stroke": "#000"}, [
+		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
+		polyline({"points": "7,52 1,68 18,63"}),
+		line({"x1": 53, "y1": 12, "x2": 14, "y2": 51}),
+		line({"x1": 57, "y1": 16, "x2": 18, "y2": 55})
 	]),
 	"options": div([
 		label({"for": "drawRectangle"}, "Rectangle: "),
