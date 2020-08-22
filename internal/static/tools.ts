@@ -9,7 +9,7 @@ import defaultTool from './tools_default.js';
 import zoomTool from './tools_zoom.js';
 import drawTool from './tools_draw.js';
 import moveTool from './tools_move.js';
-import maskTool from './tool_mask.js';
+import maskTool from './tools_mask.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent, rpc: RPC) => void;
