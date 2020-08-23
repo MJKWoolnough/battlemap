@@ -125,7 +125,7 @@ class ItemLayer extends Item {
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
-		this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.node.firstChild);
+		this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.nameElem);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
@@ -200,7 +200,7 @@ class FolderLayer extends Folder {
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
 		this.open = this.node.firstChild as HTMLDetailsElement;
-		this.nameElem = this.node.firstChild!.firstChild!.firstChild as HTMLSpanElement;
+		this.nameElem = this.open.firstChild!.firstChild as HTMLSpanElement;
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
@@ -213,10 +213,10 @@ class FolderLayer extends Folder {
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.node.firstChild!.firstChild!.insertBefore(span({"class" : "layerVisibility", "onclick": (e: Event) => {
+			this.open.firstChild!.insertBefore(span({"class" : "layerVisibility", "onclick": (e: Event) => {
 				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError);
 				e.preventDefault()
-			}}), this.node.firstChild!.firstChild!.firstChild);
+			}}), this.nameElem);
 			this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
 			this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
