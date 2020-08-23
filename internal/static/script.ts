@@ -14,6 +14,7 @@ import settings from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
 import {respondWithRPC, respondWithShell} from './comms.js';
+import symbols from './symbols.js';
 
 type savedWindow = {
 	out: boolean;
@@ -157,7 +158,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	return o;
       }()),
       spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
-      base = desktop(),
+      base = desktop(symbols),
       s = shell({"snap": 50}, base);
 respondWithShell(s);
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
