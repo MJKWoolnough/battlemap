@@ -9,7 +9,7 @@ import {Root, Folder, DraggableItem, Item} from './folders.js';
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${this.id}`);
+		this.image.setAttribute("src", `/images/${id}`);
 	}
 	dragName() {
 		return "imageasset";
