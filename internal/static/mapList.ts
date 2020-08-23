@@ -23,11 +23,9 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
-	nameSpan: HTMLSpanElement;
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
-		this.nameSpan = this.node.firstChild as HTMLSpanElement;
 		this.node.insertBefore(span({"class": "setUserMap", "window-title": "Set User Map", "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id).catch(handleError);
