@@ -123,7 +123,8 @@ export class Item {
 }
 
 export class DraggableItem extends Item {
-	icon: HTMLDivElement = div(img({"class": "imageIcon"}));
+	image = img({"class": "imageIcon"});
+	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		createHTML(this.node.firstChild!, {
@@ -141,7 +142,7 @@ export class DraggableItem extends Item {
 				this.icon.style.removeProperty("transform");
 			},
 			"ondragstart": (e: DragEvent) => {
-				const img = this.icon.firstChild as HTMLImageElement;
+				const img = this.image;
 				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
 					e.preventDefault();
 				}
