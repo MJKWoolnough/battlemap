@@ -338,7 +338,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 		} as SVGFolder;
 	      })(),
 	      definitions = new Defs(),
-	      root = svg({"style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node]),
+	      root = svg({"id": "map", "style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	Object.assign(globals, {definitions, root, layerList, mapData});
 	definitions.setGrid(mapData);
