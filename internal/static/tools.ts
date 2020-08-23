@@ -118,15 +118,16 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 		}
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		this.classList.add("selected");
-	}}, [
+	      }}, [
 		t.icon,
 		span(t.name)
-	])));
+	      ]))),
+	      fc = list.firstChild as HTMLLIElement;
 	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
-	(list.firstChild as HTMLLIElement).click();
+	fc.click();
 	mapLayersReceive(() => {
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
-		(list.firstChild as HTMLElement).classList.add("selected");
+		fc.classList.add("selected");
 		tools.forEach(t => t.reset && t.reset());
 	});
 }
