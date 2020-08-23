@@ -12,18 +12,15 @@
 	display: none;
 }
 
-.userVisibility + label {
+.userVisibility + label > svg {
 	display: inline-block;
 	width: 1em;
 	height: 1em;
-	background-size: 1em;
-	background-position: 0 center;
-	background-repeat: no-repeat;
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAApBAMAAAC8Z9aBAAAAFVBMVEUAAAAAAAD/AACZAADMAABmAAAzAABZVxZxAAAAAXRSTlMAQObYZgAAAKhJREFUeAHd0TEKQjEQhOFkeQfYCPbLoL28o3gD738Ji504Uwj2pjF8/Czx7egzF08SWlM347TCrz955B9zlBjG+HAYD9RmGCu/oMTKTwxn5gdKj1IObPQ8GGvrV9zXOm+vldp1548DRaH2dIAzJ6lzTk4xn0FOrzfPzYxRYsUVEPtklDNj/lUxY+bNk3H/ODNmTvZP94RY8UiUmDE3b6xNocgUcnzhhjcYmhAvSP3n4AAAAABJRU5ErkJggg==);
 }
 
-.userVisibility:checked + label {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACwAAAApCAYAAABOScuyAAAAv0lEQVR4Ae3UAQYDMRSE4d6pd9o79U57pymKV0qN/deMkIkHwvjEk8fF6J7xQ6HZPlDe765h8+AeeoM3WJ+zAniwG8wjju2DfWwRPNgFwAZ2gxEYYAtggC2Aj9XAJ8fmwOLYHPoEqxBHP+/DKjKvL+zxe+9DefjuGh4O5Vjbpn/FcayBFiiPg2WXi8NhjwbM0RzLwRxeABtwjqVg8NoAC8AA3gfDn8THKgA24F0wQE/6YLS3ffBksFUwyAYvAH4D8Qycpav4CwsAAAAASUVORK5CYII=);
+.userVisibility:checked + label > svg {
+	--check-on: none;
+	--check-off: block;
 }
 
 .characterDataRemove:checked + .itemRemove {

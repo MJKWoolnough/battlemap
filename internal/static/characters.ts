@@ -1,9 +1,11 @@
 import {Uint, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
-import {createHTML, br, button, div, h1,  img, input, label} from './lib/html.js';
+import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
+import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {getToken} from './adminMap.js';
+import {addSymbol} from './symbols.js';
 
 let rpc: RPC, n = 0;
 
@@ -17,7 +19,14 @@ const allowedKey = (key: string, character: boolean) => {
 		return !character;
 	}
 	return true;
-};
+      },
+      userVisibile = addSymbol("userVisibility", symbol({"viewBox": "0 0 47 47"}, [
+	      path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14"}),
+	      g({"stroke-width": 6}, [
+		      path({"d": "M10,30 L20,47 L47,0", "stroke": "#0f0", "style": "display: var(--check-on, block)"}),
+		      path({"d": "M10,47 L47,0 M10,0 L47,47", "stroke": "#f00", "style": "display: var(--check-off, none)"})
+	      ])
+      ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 tokenData = new Map<Uint, Record<string, KeystoreData>>(),
@@ -37,7 +46,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			label({"for": `character_${n}_${row}`}, k),
 			data,
 			visibility,
-			label({"for": `character_${n}_${row}_user`}),
+			label({"for": `character_${n}_${row}_user`}, userVisibile()),
 			input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
