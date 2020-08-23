@@ -27,7 +27,7 @@ class Character extends DraggableItem {
 		characters.set(id, this);
 	}
 	setIcon(id: Uint) {
-		(this.icon.firstChild as HTMLImageElement).setAttribute("src", `/images/${id}`);
+		this.image.setAttribute("src", `/images/${id}`);
 	}
 	dragName() {
 		return "character";
