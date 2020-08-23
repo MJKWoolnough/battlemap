@@ -36,9 +36,9 @@ let zoomMode: 1 | -1 = -1;
 
 export default Object.freeze({
 	"name": "Zoom",
-	"icon": svg({"viewBox": "0 0 30 30", "stroke": "#000"}, [
-		circle({"cx": 10, "cy": 10, "r": 10, "stroke-width": 3, "fill": "none"}),
-		line({"x1": 16, "y1": 16, "x2": 30, "y2": 30, "stroke-width": 4})
+	"icon": svg({"viewBox": "0 0 32 32", "stroke": "#000"}, [
+		circle({"cx": 11.5, "cy": 11.5, "r": 10, "stroke-width": 3, "fill": "none"}),
+		line({"x1": 18, "y1": 18, "x2": 30, "y2": 30, "stroke-width": 4})
 	]),
 	"options": div([
 		label({"for": "zoomIn"}, "Zoom In: "),
@@ -69,6 +69,9 @@ export default Object.freeze({
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
 				square.remove();
+				// TODO: Needs rewriting, need in + out
+				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, requestMapData());
+				zoom(this, 2-Math.max(Math.abs(nx - x) / window.innerWidth, Math.abs(ny - y) / window.innerHeight), (x + nx) / 2, (y + ny) / 2);
 			      };
 			createSVG(root, {onmousemove, onmouseup});
 		} else {

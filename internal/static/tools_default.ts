@@ -25,7 +25,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 
 export default Object.freeze({
 	"name": "Default",
-	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M0,0 L20,20 M0,10 V0 H10", "fill": "none", "stroke": "#000", "stroke-width": 2})),
+	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "#000", "stroke-width": 2})),
 	"reset": () => {
 		panZoom.x = 0;
 		panZoom.y = 0;
