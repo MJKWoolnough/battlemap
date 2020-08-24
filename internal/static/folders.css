@@ -44,6 +44,3 @@ summary::-webkit-details-marker {
 	cursor: pointer;
 }
 
-.removeFolder, .itemRemove {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABOAQMAAABWuKknAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAI9JREFUeAHt0gEGAzEQQNEfQaDaC1T3CqVQIFfJEQpYoDnaHKCHyEFqp5IZ1gLoKuhHPAszzAJMuuBlVbwHsToL4RtmtRZ4qgcNK1bEGXbmOmIdvFnHV6Xsw1QvzMaTZN7Gg9x4/flTIkbZsg2GzjIuFCpwHXeLAHd6CeBM74g//iFVgBkgNPwB7Qm9yX4tPqUMuglVRi7AAAAAAElFTkSuQmCC);
-}
