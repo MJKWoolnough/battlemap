@@ -24,7 +24,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),
-      rename = addSymbol("rename", symbol()),
+      rename = addSymbol("rename", symbol({"viewBox": "0 0 30 20"}, path({"d": "M1,5 v10 h28 v-10 Z M17,1 h10 m-5,0 V19 m-5,0 h10", "stroke": "#000", "stroke-linejoin": "round", "fill": "none"}))),
       copy = addSymbol("copy", symbol()),
       remove = addSymbol("remove", symbol()),
       newFolder = addSymbol("newFolder", symbol());
