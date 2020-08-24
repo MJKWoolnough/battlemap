@@ -2,9 +2,11 @@ import {Uint, FolderRPC, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
+import {symbol, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
+import {addSymbol} from './symbols.js';
 
 interface ItemConstructor {
 	new (parent: Folder, id: Uint, name: string): Item;
@@ -21,7 +23,11 @@ type Sorter = (a: Item | Folder, b: Item | Folder) => number;
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
-      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
+      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),
+      rename = addSymbol("rename", symbol()),
+      copy = addSymbol("copy", symbol()),
+      remove = addSymbol("remove", symbol()),
+      newFolder = addSymbol("newFolder", symbol());
 
 let folderID = 0;
 
@@ -36,9 +42,9 @@ export class Item {
 		this.parent = parent;
 		this.node = li({"class": "foldersItem"}, [
 			span(name, {"class": "item", "onclick": () => this.show()}),
-			span({"class": "itemRename", "onclick": () => this.rename()}),
-			span({"class": "itemLink", "onclick": () => this.link()}),
-			span({"class": "itemRemove", "onclick": () => this.remove()}),
+			rename({"class": "itemRename", "onclick": () => this.rename()}),
+			copy({"class": "itemLink", "onclick": () => this.link()}),
+			remove({"class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
 	show() {}
@@ -170,9 +176,9 @@ export class Folder {
 			details([
 				summary([
 					span(name),
-					span({"class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
-					span({"class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
-					span({"class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
+					rename({"class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
+					newFolder({"class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
+					remove({"class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
 				this.children.node,
 			])
