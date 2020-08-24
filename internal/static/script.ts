@@ -2,6 +2,7 @@ import RPC from './rpc.js';
 import {Int, Uint, LayerRPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, span, style} from './lib/html.js';
+import {symbol, path} from './lib/svg.js';
 import {Pipe} from './lib/inter.js';
 import assets from './assets.js';
 import mapList from './mapList.js';
@@ -14,7 +15,7 @@ import settings, {hideMenu} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
 import {respondWithRPC, respondWithShell} from './comms.js';
-import symbols from './symbols.js';
+import symbols, {addSymbol} from './symbols.js';
 
 type savedWindow = {
 	out: boolean;
@@ -26,7 +27,8 @@ type savedWindow = {
 
 declare const pageLoad: Promise<void>;
 
-const tabs = (function() {
+const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "stroke": "#000"}))),
+      tabs = (function() {
 	let n = 0;
 	const mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
@@ -82,7 +84,7 @@ const tabs = (function() {
 	      obsInit = {"attributeFilter": ["style"], "attributes": true},
 	      tabs: HTMLLabelElement[] = [],
 	      o = Object.freeze({
-		"add": (title: string, contents: Node, popout = true) => {
+		"add": (title: string, contents: Node, pop = true) => {
 			const base = p.appendChild(div(contents)),
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": n === 0}), t),
 			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
@@ -106,7 +108,7 @@ const tabs = (function() {
 				tabs[a].focus();
 			      }}, [
 				title,
-				popout ? span({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
+				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
 					p.replaceChild(replaced, base);
 					if (windowData[title]) {
@@ -131,8 +133,8 @@ const tabs = (function() {
 			      ])),
 			      pos = n++;
 			tabs.push(l);
-			if (popout && windowData[title] && windowData[title]["out"]) {
-				(l.lastChild as HTMLSpanElement).click();
+			if (pop && windowData[title] && windowData[title]["out"]) {
+				(l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click"));
 			}
 			return base;
 		},

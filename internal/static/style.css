@@ -177,10 +177,7 @@ windows-window {
 	display: inline-block;
 	margin-left: 5px;
 	margin-right: -10px;
-	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15"%3E%3Cpath d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="black" /%3E%3C/svg%3E');
-	background-repeat: no-repeat;
-        background-position: center;
-        background-size: 1em 1em;
+	cursor: pointer;
 	width: 1em;
 	height: 1em;
 }
