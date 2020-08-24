@@ -10,7 +10,7 @@ import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
-import settings from './settings.js';
+import settings, {hideMenu} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
 import {respondWithRPC, respondWithShell} from './comms.js';
@@ -52,7 +52,7 @@ const tabs = (function() {
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
-		label({"for": "panelHider", "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
+		label({"for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
 			if (e.button !== 0) {
 				return;
 			}
