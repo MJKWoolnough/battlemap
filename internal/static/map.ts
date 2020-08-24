@@ -52,12 +52,17 @@ class SVGTransform {
 	flop: boolean = false;
 	width: Uint;
 	height: Uint;
+	node?: SVGGraphicsElement;
 	constructor(token: Token) {
 		this.width = token.width;
 		this.height = token.height;
 		this.x = token.x;
 		this.y = token.y;
 		this.rotation = token.rotation;
+	}
+	at(x: Int, y: Int) {
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node!.getScreenCTM()!.inverse());
+		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	transformString(scale = true) {
 		let ret = "";
@@ -102,10 +107,6 @@ export class SVGToken extends SVGTransform {
 		}
 		return svgToken;
 	}
-	at(x: Int, y: Int) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
-		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
-	}
 	setPattern(isPattern: boolean) {
 		if (isPattern) {
 			if (this.patternWidth > 0) {
@@ -132,7 +133,7 @@ export class SVGToken extends SVGTransform {
 }
 
 export class SVGShape extends SVGTransform {
-	node: SVGGraphicsElement;
+	node: SVGRectElement | SVGEllipseElement;
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
@@ -155,10 +156,6 @@ export class SVGShape extends SVGTransform {
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
 		createSVG(node, {"fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
 		return svgShape;
-	}
-	at(x: Int, y: Int) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node.getScreenCTM()!.inverse());
-		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	get isPattern() {
 		return false;
