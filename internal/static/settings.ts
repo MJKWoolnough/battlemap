@@ -37,6 +37,7 @@ class IntSetting {
 const invert = new BoolSetting("invert");
 
 export const autosnap = new BoolSetting("autosnap"),
+hideMenu = new BoolSetting("menuHide"),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100");
 
@@ -54,7 +55,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		}}, invert.value ? "Light Mode" : "Dark Mode"),
 		h1("Map Settings"),
 		loggedIn ? [
-			input({"type": "checkbox", "id": "autosnap", "checked": window.localStorage.getItem("autosnap"), "onchange": function(this: HTMLInputElement) {
+			input({"type": "checkbox", "id": "autosnap", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
 			}}),
 			label({"for": "autosnap"}, "Autosnap: "),
@@ -64,9 +65,15 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(parseInt(this.value));
 		}}),
+		br(),
 		label({"for": "undoLimit"}, "Undo Limit (-1 for infinite, 0 to disable): "),
 		input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
 			undoLimit.set(parseInt(this.value));
+		}}),
+		br(),
+		label({"for": "menuHide"}, "Hide Menu Button? (Refresh to take effect): "),
+		input({"id": "menuHide", "type": "checkbox", "value": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+			hideMenu.set(this.checked);
 		}}),
 		h1("Reset"),
 		button({"onclick": () => shell.confirm("Are you sure?", "Are you sure that you wish to clear all settings? This cannot be undone").then(v => {
