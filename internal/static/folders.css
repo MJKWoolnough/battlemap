@@ -44,10 +44,6 @@ summary::-webkit-details-marker {
 	cursor: pointer;
 }
 
-.addFolder {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAaElEQVR4Ae3YMQ6AMAxDUe5/qc49VVi8e6BIcfq/5I0MTzDxHI+IymwAQktC2GfyEP6tRSL8XRiiDaYa725Ip/6EANlaPKQ0IECOBgQIkK37L1tA+LSAAAECZDpkafEQBYT/WqkQIlIv8hhf1blm/agAAAAASUVORK5CYII=);
-}
-
 .removeFolder, .itemRemove {
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABOAQMAAABWuKknAAAABlBMVEUAAAAAAAClZ7nPAAAAAXRSTlMAQObYZgAAAI9JREFUeAHt0gEGAzEQQNEfQaDaC1T3CqVQIFfJEQpYoDnaHKCHyEFqp5IZ1gLoKuhHPAszzAJMuuBlVbwHsToL4RtmtRZ4qgcNK1bEGXbmOmIdvFnHV6Xsw1QvzMaTZN7Gg9x4/flTIkbZsg2GzjIuFCpwHXeLAHd6CeBM74g//iFVgBkgNPwB7Qm9yX4tPqUMuglVRi7AAAAAAElFTkSuQmCC);
 }
