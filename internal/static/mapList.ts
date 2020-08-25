@@ -1,10 +1,12 @@
 import {Uint, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
+import {symbol, g, path, rect} from './lib/svg.js';
 import {handleError, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {mapLoadSend} from './comms.js';
+import {addSymbol} from './symbols.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -19,14 +21,21 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 			curr.node.classList.add(containsClass);
 		}
 	}
-      };
+      },
+      userSelected = addSymbol("userMapSelected", symbol({"viewBox": "0 0 47 47"}, [
+	rect({"width": 47, height: 47, "fill": "#eee"}),
+	g({"style": "display: var(--map-selected, none)"}, [
+		rect({"width": 47, height: 47, "fill": "#cfc"}),
+		path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14"})
+	])
+      ]));
 let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
-		this.node.insertBefore(span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
+		this.node.insertBefore(userSelected({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id).catch(handleError);
 		}}), this.node.firstChild);
