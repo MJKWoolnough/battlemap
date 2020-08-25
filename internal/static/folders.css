@@ -7,24 +7,26 @@ summary::-webkit-details-marker {
 	display: none;
 }
 
-.folders summary {
-	padding-left: calc(1em + 2px);
+.folders details summary {
 	list-style: none;
-	background-size: 1em;
-	background-position: 0 center;
-	background-repeat: no-repeat;
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAUUlEQVR4Ae3RAQYAMRRDwb3/pbtHCBSJziNAi/E/XU86YUOIsCVEfDOJCFebROR/Y4gazCne25CaQEBAOiEgICAgICAgICAgICAgbXsCkpP0A0MiHfEjk/BiAAAAAElFTkSuQmCC);
 	user-select: none;
 	outline: none;
 	cursor: pointer;
+	grid-template-columns: 1em auto 1em 1em 1em;
 }
 
 .item {
 	cursor: pointer;
 }
 
-.folders details[open] > summary {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAoCAYAAAC8cqlMAAAAfElEQVR4AezViQmAQAwFUftv+ltCWPiLQ5yBcEbgee1jZvUyzALEgAEi5h084nA3fET/OiQCgOm/HmnOp3eSACF1BRLQrIFkhvB/qxVIKSHn3wj0aQjJNggfsR9yBSEk2yDHyySEEPjZMUdECOkjhMyI/RDw/BNiZu8gAAANjGenrLosDQAAAABJRU5ErkJggg==);
+.folders summary > .folderIcon {
+	width: 1em;
+	height: 1em;
+}
+
+.folders details[open] > summary > .folderIcon {
+	--folder-closed: none;
+	--folder-open: block;
 }
 
 .folders summary, .foldersItem {
