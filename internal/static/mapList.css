@@ -4,30 +4,23 @@
 	padding-left: calc(1em + 4px);
 }
 
-#mapList li > span:first-child {
+#mapList li > svg:first-child {
 	display: inline-block;
 	width: 1em;
 	height: 1em;
 	margin: 0 2px;
 }
 
-#mapList li.mapItem > span:first-child {
+#mapList li.mapItem > svg:first-child {
 	cursor: pointer;
 }
 
-#mapList li.mapUser > span:first-child {
-	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 47 47"%3E%3Cpath d="M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14" /%3E%3C/svg%3E');
-	background-size: 1em;
-	background-repeat: no-repeat;
-	background-color: #ccffcc !important;
+#mapList li.mapUser > svg:first-child {
+	--map-selected: block;
 }
 
 #mapList .foldersItem {
 	grid-template-columns: auto 1em 1em;
-}
-
-#mapList li.mapItem > span:nth-child(1) {
-	background-color: #eee;
 }
 
 .hasMapUser > span:nth-child(1) {
