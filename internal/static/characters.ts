@@ -5,7 +5,7 @@ import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {getToken} from './adminMap.js';
-import {addSymbol} from './symbols.js';
+import {addSymbol, getSymbol} from './symbols.js';
 
 let rpc: RPC, n = 0;
 
@@ -33,7 +33,8 @@ tokenData = new Map<Uint, Record<string, KeystoreData>>(),
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0, tokenClone = 0;
-	const changes: Record<string, KeystoreData> = {},
+	const removeSymbol = getSymbol("remove")!,
+	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
 		const data = input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
@@ -56,7 +57,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 					data.removeAttribute("disabled");
 				}
 			}}),
-			label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}),
+			label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}, removeSymbol()),
 			br()
 		]
 	      },
