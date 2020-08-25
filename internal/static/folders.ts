@@ -180,6 +180,7 @@ export class Folder {
 		this.node = li({"class": "foldersFolder"}, [
 			details([
 				summary([
+					folder({"class": "folderIcon"}),
 					span(name),
 					rename({"class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
 					newFolder({"class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
