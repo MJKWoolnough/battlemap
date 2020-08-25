@@ -23,8 +23,18 @@
 	--check-off: block;
 }
 
+.itemRemove svg{
+	display: inline-block;
+	width: 1em;
+	height: 1em;
+}
+
+#remove path {
+	fill: var(--remove-selected, transparent);
+}
+
 .characterDataRemove:checked + .itemRemove {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEkAAABOAgMAAAARGNP3AAAADFBMVEUAAAAAAACZmZnMzMx+9uKvAAAAAXRSTlMAQObYZgAAAKVJREFUeAHt0wEGxDAQheEX9AjpeXKEIpOlUAB6nu0RiuR+BazdjJGYRBdgt+gPwweJyEAylPNoGohrzabc7hob2eIvbaAuD1jqAx7vrsNh6e11KTu9s6W+8zeAWZPuiT/btqYYeCijOe3EQ9mS7eBx220XNcyNTV8taItio/730YEb9H7sENOLtImZWZmHFKrwEZJdq20OkgmFokeJalM1U8iD+wC4BLOAPTGS8AAAAABJRU5ErkJggg==);
+	--remove-selected: red;
 }
 
 .tokenSelector {
