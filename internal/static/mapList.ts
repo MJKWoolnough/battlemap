@@ -26,7 +26,7 @@ class MapItem extends Item {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
-		this.node.insertBefore(span({"class": "setUserMap", "window-title": "Set User Map", "onclick": () => {
+		this.node.insertBefore(span({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id).catch(handleError);
 		}}), this.node.firstChild);
