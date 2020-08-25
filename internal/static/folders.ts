@@ -2,7 +2,7 @@ import {Uint, FolderRPC, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {createHTML, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
-import {symbol, path} from './lib/svg.js';
+import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
@@ -27,7 +27,12 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       rename = addSymbol("rename", symbol({"viewBox": "0 0 30 20"}, path({"d": "M1,5 v10 h28 v-10 Z M17,1 h10 m-5,0 V19 m-5,0 h10", "stroke": "#000", "stroke-linejoin": "round", "fill": "none"}))),
       copy = addSymbol("copy", symbol({"viewBox": "0 0 34, 37"}, path({"d": "M14,6 h-13 v30 h21 v-22 z v8 h8 M12,6 v-5 h13 l8,8 v22 h-11 m11,-22 h-8 v-8 M6,20 h11 m-11,5 h11 m-11,5 h11", "stroke": "#000", "fill": "none"}))),
       remove = addSymbol("remove", symbol({"viewBox": "0 0 34 34"}, path({"d": "M11,5 v-3 q0,-1 1,-1 h10 q1,0 1,1 v3 m9,0 h-30 q-1,0 -1,1 v2 q0,1 1,1 h30 q1,0 1,-1 v-2 q0,-1 -1,-1 m-2,4 v22 q0,2 -2,2 h-20 q-2,0 -2,-2 v-22 m2,3 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1 m7,0 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1 m7,0 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1", "stroke": "#000", "fill": "none", "stroke-linejoin": "round"}))),
-      newFolder = addSymbol("newFolder", symbol({"viewBox": "0 0 24 20"}, path({"d": "M1,4 h22 v15 h-22 Z m2,0 l3,-3 h5 l3,3 m3,2 v12 m-6,-6 h12", "stroke": "#000", "fill": "none", "stroke-linejoin": "round"})));
+      newFolder = addSymbol("newFolder", symbol({"viewBox": "0 0 24 20"}, path({"d": "M1,4 h22 v15 h-22 Z m2,0 l3,-3 h5 l3,3 m3,2 v12 m-6,-6 h12", "stroke": "#000", "fill": "none", "stroke-linejoin": "round"}))),
+      folder = addSymbol("folder", symbol({"viewBox": "0 0 37 28"}, g({"stroke-width": 2, "stroke": "#000", "fill": "none", "stroke-linejoin": "round"}, [
+	path({"d": "M32,27 h-30 v-20 h2 l5,-5 h5 l5,5 h13 v2"}),
+	path({"d": "M31,27 h1 v-20 h-30", "style": "display: var(--folder-closed, block)"}),
+	path({"d": "M31,27 h1 l5,-16 h-30 l-5,16", "style": "display: var(--folder-open, none)"})
+      ])));
 
 let folderID = 0;
 
