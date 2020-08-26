@@ -103,7 +103,7 @@ const dragFn = (e: MouseEvent) => {
 	dragging = l;
 	document.body.addEventListener("mousemove", dragFn);
 	document.body.addEventListener("mouseup", dropFn);
-      ;}
+      };
 
 class ItemLayer extends Item {
 	hidden: boolean;
