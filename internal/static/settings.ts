@@ -1,7 +1,11 @@
 import {HTTPRequest} from './lib/conn.js';
+import {Pipe} from './lib/inter.js';
 import {createHTML, button, br, h1, input, label} from './lib/html.js';
 import {Int, RPC} from './types.js';
 import {ShellElement} from './windows.js';
+
+const boolPipes = new Map<BoolSetting, Pipe<boolean>>(),
+      intPipes = new Map<IntSetting, Pipe<Int>>();
 
 class BoolSetting {
 	name: string;
@@ -9,6 +13,7 @@ class BoolSetting {
 	constructor(name: string) {
 		this.name = name;
 		this.value = window.localStorage.getItem(name) !== null;
+		boolPipes.set(this, new Pipe<boolean>());
 	}
 	set(b: boolean) {
 		this.value = b;
@@ -17,7 +22,11 @@ class BoolSetting {
 		} else {
 			window.localStorage.removeItem(this.name);
 		}
+		boolPipes.get(this)!.send(b);
 		return b;
+	}
+	wait(fn: (value: boolean) => void) {
+		boolPipes.get(this)!.receive(fn);
 	}
 }
 
@@ -27,31 +36,33 @@ class IntSetting {
 	constructor(name: string, starting = "0") {
 		this.name = name;
 		this.value = parseInt(window.localStorage.getItem("name") || starting);
+		intPipes.set(this, new Pipe<Int>());
 	}
 	set(i: Int) {
 		this.value = i;
 		window.localStorage.setItem("name", i.toString());
+		intPipes.get(this)!.send(i);
+	}
+	wait(fn: (value: Int) => void) {
+		intPipes.get(this)!.receive(fn);
 	}
 }
 
-const invert = new BoolSetting("invert");
 
 export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
 scrollAmount = new IntSetting("scrollAmount"),
-undoLimit = new IntSetting("undoLimit", "100");
+undoLimit = new IntSetting("undoLimit", "100"),
+invert = new BoolSetting("invert");
 
 export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, loggedIn: boolean) {
-	if (invert.value) {
-		document.documentElement.classList.add("invert");
-	}
 	createHTML(base, [
 		h1("Authentication"),
 		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, "Logout") : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, "Login"),
 		br(),
 		h1("Theme"),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.innerText = invert.set(document.documentElement.classList.toggle("invert")) ? "Light Mode" : "Dark Mode"
+			this.innerText = invert.set(!invert.value) ? "Light Mode" : "Dark Mode"
 		}}, invert.value ? "Light Mode" : "Dark Mode"),
 		h1("Map Settings"),
 		loggedIn ? [
