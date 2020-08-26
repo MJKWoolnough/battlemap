@@ -1,0 +1,48 @@
+.invert, .invert body {
+	background-color: #000;
+	color: #fff;
+}
+
+.invert windows-window {
+	color: #fff;
+	background-color: #000;
+	border-color: #fff;
+}
+
+.invert windows-window::part(title) {
+	color: #000;
+}
+
+.invert #panels {
+	color: #fff;
+	background-color: #000;
+	border-color: #fff;
+}
+
+
+.invert #tabLabels > label {
+	background: linear-gradient(to bottom, #777 30%, #111 100%);
+	box-shadow: 0 3px 3px rgba(255, 255, 255, 0.4), inset 0 1px 0 #000;
+	text-shadow: 0 1px #000;
+	border-color: #fff;
+}
+
+.invert #tabLabels > label:hover, .invert #tabLabels > label:focus {
+	background : linear-gradient(to bottom, #f22 5%, #a77 40%, #111 100%);
+}
+
+.invert #tabLabels > label:before, .invert #tabs > label:after {
+	border-color: #fff;
+}
+
+.invert #tabLabels > label:before {
+	box-shadow: 2px 2px 0 #2e2e2e;
+}
+
+.invert #tabLabels > label:after {
+	box-shadow: -2px 2px 0 #2e2e2e;
+}
+
+.invert .mapCurrent, .invert .selectedLayer, .invert .hasMapCurrent > details > summary {
+	background-color: #555;
+}
