@@ -43,7 +43,7 @@ undoLimit = new IntSetting("undoLimit", "100");
 
 export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, loggedIn: boolean) {
 	if (invert.value) {
-		document.body.classList.add("invert");
+		document.documentElement.classList.add("invert");
 	}
 	createHTML(base, [
 		h1("Authentication"),
@@ -51,7 +51,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		br(),
 		h1("Theme"),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.innerText = invert.set(document.body.classList.toggle("invert")) ? "Light Mode" : "Dark Mode"
+			this.innerText = invert.set(document.documentElement.classList.toggle("invert")) ? "Light Mode" : "Dark Mode"
 		}}, invert.value ? "Light Mode" : "Dark Mode"),
 		h1("Map Settings"),
 		loggedIn ? [
