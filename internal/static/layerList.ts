@@ -2,11 +2,13 @@ import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js'
 import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
+import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {handleError, enterKey, colour2Hex, colour2RGBA, hex2Colour, colourPicker} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {mapLayersReceive} from './comms.js';
+import {addSymbol} from './symbols.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
 
@@ -103,7 +105,14 @@ const dragFn = (e: MouseEvent) => {
 	dragging = l;
 	document.body.addEventListener("mousemove", dragFn);
 	document.body.addEventListener("mouseup", dropFn);
-      };
+      },
+      visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
+	ellipse({"cx": 50, "cy": 35, "rx": 49, "ry": 34, "stroke-width": 2, "stroke": "#000", "fill": "none"}),
+	g({"style": "display: var(--invisible, block)"}, [
+		circle({"cx": 50, "cy": 35, "r": 27, "stroke": "#888", "stroke-width": 10}),
+		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
+	])
+      ]));
 
 class ItemLayer extends Item {
 	hidden: boolean;
@@ -125,7 +134,7 @@ class ItemLayer extends Item {
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
-		this.node.insertBefore(span({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.nameElem);
+		this.node.insertBefore(visibility({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.nameElem);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
@@ -213,7 +222,7 @@ class FolderLayer extends Folder {
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.open.firstChild!.insertBefore(span({"class" : "layerVisibility", "onclick": (e: Event) => {
+			this.open.firstChild!.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
 				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError);
 				e.preventDefault()
 			}}), this.nameElem);
