@@ -11,7 +11,7 @@ import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows} from './windows.js';
-import settings, {hideMenu} from './settings.js';
+import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
 import {respondWithRPC, respondWithShell} from './comms.js';
@@ -27,7 +27,7 @@ type savedWindow = {
 
 declare const pageLoad: Promise<void>;
 
-const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "stroke": "#000"}))),
+const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "style": "stroke: currentColor"}))),
       tabs = (function() {
 	let n = 0;
 	const mousemove = function(e: MouseEvent) {
@@ -162,7 +162,13 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
       base = desktop(symbols),
       s = shell({"snap": 50}, base);
+
 respondWithShell(s);
+invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
+if (invert.value) {
+	document.documentElement.classList.add("invert");
+}
+
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
 	respondWithRPC(rpc);
 	characterStore(rpc);
