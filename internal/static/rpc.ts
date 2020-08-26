@@ -315,7 +315,7 @@ const returnVoid = () => {},
 	}
 	for (const c of data["children"]) {
 		checkObject(c, "LayerFolder");
-		if (c.mask === undefined) {
+		if (c.children !== undefined) {
 			checkLayerFolder(c);
 		} else if (c.name === "Grid") {
 			checker(c, "LayerGrid", checksLayerGrid);
