@@ -8,25 +8,13 @@
 @import url("map.css");
 @import url("settings.css");
 @import url("tools.css");
+@import url("invert.css");
 
 html, body {
 	color: #000;
 	background-color: #fff;
 	margin: 0;
 	padding: 0;
-}
-
-.invert windows-desktop > div:first-child, .invert windows-window {
-	color: #fff;
-	background-color: #000;
-}
-
-.invert windows-window::part(title) {
-	color: #000;
-}
-
-.invert #panels {
-	filter: invert(1);
 }
 
 #panels {
@@ -84,19 +72,10 @@ html, body {
 	-webkit-user-select: none;
 }
 
-#tabLabels > label:hover, #tabLabels > label:focus {
+#tabLabels > label:hover, .invert #tabLabels > label:focus {
 	background : linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
 	cursor : pointer;
 	outline: none;
-}
-
-.invert #tabLabels > label:hover, .invert #tabLabels > label:focus {
-	background : linear-gradient(to bottom, #088 1%, #ffecec 50%, #d1d1d1 100%);
-}
-
-.invert button {
-	border-style: inset;
-	border-color: #bbb;
 }
 
 #tabLabels > label:before, #tabs > label:after {
@@ -146,15 +125,6 @@ html, body {
 	height: 20px;
 	transition: background 1s;
 	z-index: 9;
-}
-
-.invert #panelGrabber {
-	border-color: #0ff;
-	background: #000;
-}
-
-.invert #panelHider:checked ~ #panels > #panelGrabber {
-	background: #fff;
 }
 
 windows-shell {
