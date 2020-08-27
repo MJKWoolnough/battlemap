@@ -107,7 +107,7 @@ const dragFn = (e: MouseEvent) => {
 	document.body.addEventListener("mouseup", dropFn);
       },
       visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
-	ellipse({"cx": 50, "cy": 35, "rx": 49, "ry": 34, "stroke-width": 2, "stroke": "#000", "fill": "none"}),
+	ellipse({"cx": 50, "cy": 35, "rx": 49, "ry": 34, "stroke-width": 2, "stroke": "#000", "fill": "#fff"}),
 	g({"style": "display: var(--invisible, block)"}, [
 		circle({"cx": 50, "cy": 35, "r": 27, "stroke": "#888", "stroke-width": 10}),
 		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
