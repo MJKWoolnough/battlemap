@@ -82,7 +82,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 			undoLimit.set(parseInt(this.value));
 		}}),
 		br(),
-		label({"for": "menuHide"}, "Hide Menu Button? (Refresh to take effect): "),
+		label({"for": "menuHide"}, "Hide Menu Button?: "),
 		input({"id": "menuHide", "type": "checkbox", "value": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}),
