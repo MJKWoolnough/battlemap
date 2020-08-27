@@ -57,11 +57,6 @@
 	--invisible: none;
 }
 
-.invert .layerVisibility {
-	background-color: #fff;
-	filter: invert(1);
-}
-
 .selectedLayer {
 	background-color: #eee;
 }
