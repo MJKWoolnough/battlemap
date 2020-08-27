@@ -182,7 +182,7 @@ window.addEventListener("keyup", shiftSnap);
 
 export default Object.freeze({
 	"name": "Draw",
-	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "stroke": "#000"}, [
+	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "style": "stroke: currentColor"}, [
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
 		polyline({"points": "7,52 1,68 18,63"}),
 		line({"x1": 53, "y1": 12, "x2": 14, "y2": 51}),
