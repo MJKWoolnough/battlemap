@@ -19,6 +19,13 @@
 	border-color: #fff;
 }
 
+.invert #tabLabels:after {
+	border-color: #fff;
+}
+
+.invert #tabLabels > label {
+	--c: #000;
+}
 
 .invert #tabLabels > label {
 	background: linear-gradient(to bottom, #777 30%, #111 100%);
