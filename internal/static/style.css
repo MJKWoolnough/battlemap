@@ -41,6 +41,7 @@ html, body {
 	overflow: hidden;
 	padding: 0 0 0 20px;
 	white-space: nowrap;
+	--c: #fff;
 }
 
 #tabLabels:after {
