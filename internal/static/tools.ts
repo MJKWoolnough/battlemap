@@ -5,6 +5,7 @@ import {svg, defs, g, mask, path, rect, use} from './lib/svg.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import {mapLayersReceive} from './comms.js';
+import {stringSort} from './lib/ordered.js';
 import defaultTool from './tools_default.js';
 import zoomTool from './tools_zoom.js';
 import drawTool from './tools_draw.js';
@@ -93,6 +94,7 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 
 export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	rpc = arpc;
+	tools.sort((a, b) => a.name === "Default" ? -1 : b.name === "Default" ? 1 : stringSort(a.name, b.name));
 	const options = div(),
 	      toolOptions = div([h2("Tool Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
