@@ -1,6 +1,6 @@
 import {Colour, Coords, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
-import {createSVG, svg, rect, ellipse, g, line, path, polyline, polygon} from './lib/svg.js';
+import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
 import {requestSVGRoot, requestMapData, requestSelected, requestShell, requestRPC} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
@@ -184,9 +184,7 @@ export default Object.freeze({
 	"name": "Draw",
 	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "style": "stroke: currentColor"}, [
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
-		polyline({"points": "7,52 1,68 18,63"}),
-		line({"x1": 53, "y1": 12, "x2": 14, "y2": 51}),
-		line({"x1": 57, "y1": 16, "x2": 18, "y2": 55})
+		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),
 	"options": div([
 		label({"for": "drawRectangle"}, "Rectangle: "),
