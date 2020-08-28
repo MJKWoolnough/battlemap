@@ -127,6 +127,11 @@ export class SVGToken extends SVGTransform {
 	get isPattern() {
 		return this.patternWidth > 0;
 	}
+	cleanup() {
+		if (this.isPattern) {
+			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
+		}
+	}
 	updateNode() {
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
@@ -418,7 +423,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					// error
 					return;
 				}
-				layer.tokens.splice(tk.pos, 1);
+				const token = layer.tokens.splice(tk.pos, 1)[0];
+				token.cleanup();
 			}),
 			rpc.waitTokenChange().then(st => {
 				const [, token] = getParentToken(st.path, st.pos);
