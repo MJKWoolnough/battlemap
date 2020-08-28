@@ -16,5 +16,4 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 {request: requestMapUndo, responder: respondWithMapUndo} = new Requester<Undo>(),
 {request: requestMapData, responder: respondWithMapData} = new Requester<MapData>(),
 {request: requestSVGRoot, responder: respondWithSVGRoot} = new Requester<SVGSVGElement>(),
-{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>(),
-{request: requestRPC, responder: respondWithRPC} = new Requester<RPC>();
+{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>();

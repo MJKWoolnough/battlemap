@@ -1,7 +1,7 @@
-import {Colour, Coords, Uint} from './types.js';
+import {Colour, Coords, RPC, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
-import {requestSVGRoot, requestMapData, requestSelected, requestShell, requestRPC} from './comms.js';
+import {requestSVGRoot, requestMapData, requestSelected, requestShell} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing} from './map.js';
@@ -10,7 +10,7 @@ import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './m
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
     contextOverride: null | Function = null;
-const draw = (root: SVGElement, e: MouseEvent) => {
+const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 	e.stopPropagation();
 	if (clickOverride) {
 		clickOverride(e);
@@ -45,7 +45,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				      token = {"x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse};
 				if (layer) {
 					layer.tokens.push(SVGShape.from(token));
-					requestRPC().addToken(layerPath, token).catch(handleError);
+					rpc.addToken(layerPath, token).catch(handleError);
 				} else {
 					requestShell().alert("Draw Error", "No Layer Selected");
 				}
@@ -109,7 +109,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points};
 			if (layer) {
 				layer.tokens.push(SVGDrawing.from(token));
-				requestRPC().addToken(layerPath, token).catch(handleError);
+				rpc.addToken(layerPath, token).catch(handleError);
 			} else {
 				requestShell().alert("Draw Error", "No Layer Selected");
 			}
@@ -208,16 +208,16 @@ export default Object.freeze({
 		label({"for": "fillColour"}, "Fill Colour: "),
 		fill
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		draw(this, e);
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+		draw(this, e, rpc);
 	},
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 	},
 	"mapMouseContext": oncontext,
-	"tokenMouseDown": (e: MouseEvent) => {
+	"tokenMouseDown": (e: MouseEvent, rpc: RPC) => {
 		if (e.button === 0) {
-			draw(requestSVGRoot(), e);
+			draw(requestSVGRoot(), e, rpc);
 		}
 	},
 	"tokenMouseOver": () => showMarker(requestSVGRoot()),

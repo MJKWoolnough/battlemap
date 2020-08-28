@@ -14,7 +14,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithRPC, respondWithShell} from './comms.js';
+import {respondWithShell} from './comms.js';
 import symbols, {addSymbol} from './symbols.js';
 
 type savedWindow = {
@@ -170,7 +170,6 @@ if (invert.value) {
 }
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
-	respondWithRPC(rpc);
 	characterStore(rpc);
 	if (userLevel === 1) {
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
