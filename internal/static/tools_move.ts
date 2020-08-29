@@ -1,8 +1,8 @@
 import {RPC, LayerRPC} from './types.js';
 import {div} from './lib/html.js';
 import {svg, g, line, path} from './lib/svg.js';
-import {SVGToken} from './map.js';
-import {requestSelected, requestMapUndo, mapLayersReceive} from './comms.js';
+import {SVGToken, globals} from './map.js';
+import {mapLayersReceive} from './comms.js';
 import {handleError} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
@@ -15,11 +15,11 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {layer, layerPath, deselectToken} = requestSelected();
-	if (!layer) {
+	const {selectedLayer, selectedLayerPath, deselectToken, undo} = globals;
+	if (!selectedLayer) {
 		return;
 	}
-	const snap = layer.tokens.some(t => t.snap),
+	const snap = selectedLayer.tokens.some(t => t.snap),
 	      sq = snap ? ml.getMapDetails().gridSize : 1,
 	      mover = (e: MouseEvent) => {
 		dx = (e.clientX - ox) / panZoom.zoom;
@@ -28,7 +28,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 			dx = Math.round(dx / sq) * sq;
 			dy = Math.round(dy / sq) * sq;
 		}
-		layer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
+		selectedLayer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
 	      },
 	      mouseUp = (e: MouseEvent) => {
 		if (e.button !== 0) {
@@ -36,27 +36,27 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 		}
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
-		layer.node.removeAttribute("transform");
+		selectedLayer.node.removeAttribute("transform");
 		const doIt = () => {
 			dx = Math.round(dx);
 			dy = Math.round(dy);
-			(layer.tokens as SVGToken[]).forEach(t => {
+			(selectedLayer.tokens as SVGToken[]).forEach(t => {
 				t.x += dx;
 				t.y += dy;
 				t.updateNode();
 			});
-			rpc.shiftLayer(layerPath, dx, dy).catch(handleError);
+			rpc.shiftLayer(selectedLayerPath, dx, dy).catch(handleError);
 			return () => {
-				(layer.tokens as SVGToken[]).forEach(t => {
+				(selectedLayer.tokens as SVGToken[]).forEach(t => {
 					t.x -= dx;
 					t.y -= dy;
 					t.updateNode();
 				});
-				rpc.shiftLayer(layerPath, -dx, -dy).catch(handleError);
+				rpc.shiftLayer(selectedLayerPath, -dx, -dy).catch(handleError);
 				return doIt;
 			};
 		};
-		requestMapUndo().add(doIt);
+		undo.add(doIt);
 	      };
 	deselectToken();
 	this.addEventListener("mousemove", mover);

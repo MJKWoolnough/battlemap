@@ -2,7 +2,7 @@ import {SVGToken} from './map.js';
 import {createSVG, svg, g, path} from './lib/svg.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
-import {requestSelected} from './comms.js';
+import {globals} from './map.js';
 import {addTool} from './tools.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
@@ -10,7 +10,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	const width = parseInt(root.getAttribute("width") || "0") / 2,
 	      height = parseInt(root.getAttribute("height") || "0") / 2,
 	      oldZoom = panZoom.zoom,
-	      {outline} = requestSelected();
+	      {outline} = globals;
 	if (delta < 0) {
 		panZoom.zoom /= -delta;
 	} else if (delta > 0) {
@@ -47,7 +47,7 @@ addTool({
 		if (e.button !== 0 && e.button !== 1) {
 			return;
 		}
-		const {outline} = requestSelected();
+		const {outline} = globals;
 		if (!e.ctrlKey && e.button !== 1) {
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
 				document.body.style.removeProperty("--outline-cursor");
@@ -74,9 +74,9 @@ addTool({
 		e.preventDefault();
 	},
 	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-		const {layer, outline} = requestSelected(),
+		const {selectedLayer, outline} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
-		      currentlyOverToken = overOutline || layer && (layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
+		      currentlyOverToken = overOutline || selectedLayer && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
 		if (e.ctrlKey) {
 			document.body.style.setProperty("--outline-cursor", "grab");
 		} else if (!overOutline) {
@@ -87,7 +87,7 @@ addTool({
 			}
 		}
 		if (!overOutline) {
-			if (layer) {
+			if (selectedLayer) {
 				let overToken = currentlyOverToken;
 				const keyUp = (e: KeyboardEvent) => {
 					if (e.key === "Control" && overToken) {
@@ -102,7 +102,7 @@ addTool({
 					}
 				      },
 				      mouseMove = (e: MouseEvent) => {
-					if (!e.ctrlKey && (layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+					if (!e.ctrlKey && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
 						if (!overToken) {
 							overToken = true;
 							document.body.style.setProperty("--outline-cursor", "pointer");

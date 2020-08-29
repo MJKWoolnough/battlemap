@@ -1,7 +1,7 @@
 import {Colour, Coords, RPC, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
-import {requestSelected, requestShell} from './comms.js';
+import {requestShell} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
@@ -41,13 +41,13 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				clearup();
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData),
 				      dr = isEllipse ? 2 : 1,
-				      {layerPath, layer} = requestSelected(),
+				      {selectedLayerPath, selectedLayer} = globals,
 				      width = Math.abs(cx - x),
 				      height = Math.abs(cy - y),
 				      token = {"x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse};
-				if (layer) {
-					layer.tokens.push(SVGShape.from(token));
-					rpc.addToken(layerPath, token).catch(handleError);
+				if (selectedLayer) {
+					selectedLayer.tokens.push(SVGShape.from(token));
+					rpc.addToken(selectedLayerPath, token).catch(handleError);
 				} else {
 					requestShell().alert("Draw Error", "No Layer Selected");
 				}
@@ -107,11 +107,11 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				c.x -= minX;
 				c.y -= minY;
 			}
-			const {layerPath, layer} = requestSelected(),
+			const {selectedLayerPath, selectedLayer} = globals,
 			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points};
-			if (layer) {
-				layer.tokens.push(SVGDrawing.from(token));
-				rpc.addToken(layerPath, token).catch(handleError);
+			if (selectedLayer) {
+				selectedLayer.tokens.push(SVGDrawing.from(token));
+				rpc.addToken(selectedLayerPath, token).catch(handleError);
 			} else {
 				requestShell().alert("Draw Error", "No Layer Selected");
 			}
@@ -138,7 +138,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 	}
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
-	const {deselectToken} = requestSelected(),
+	const {deselectToken} = globals,
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, globals.mapData);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
