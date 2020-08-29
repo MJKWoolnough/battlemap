@@ -1,7 +1,7 @@
 import {Colour, Coords, RPC, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
-import {requestMapData, requestSelected, requestShell} from './comms.js';
+import {requestSelected, requestShell} from './comms.js';
 import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
@@ -17,12 +17,13 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 		clickOverride(e);
 		return;
 	}
-	const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+	const {mapData} = globals,
+	      [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
 	if (rectangle.checked || circle.checked) {
 		const isEllipse = circle.checked,
 		      s = (isEllipse ? ellipse : rect)({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
 		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
 			if (isEllipse) {
 				createSVG(s, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
 			} else {
@@ -38,7 +39,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 		      onmouseup = (e: MouseEvent) => {
 			if (e.button === 0) {
 				clearup();
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData()),
+				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData),
 				      dr = isEllipse ? 2 : 1,
 				      {layerPath, layer} = requestSelected(),
 				      width = Math.abs(cx - x),
@@ -71,7 +72,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 			p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
 		      },
 		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
 			draw(x, y);
 		      },
 		      clearup = () => {
@@ -86,7 +87,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 			}
 		      };
 		clickOverride = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
 			points.push({x, y});
 			if (x < minX) {
 				minX = x;
@@ -139,7 +140,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	const {deselectToken} = requestSelected(),
 	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, requestMapData());
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, globals.mapData);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
 	deselectToken();
