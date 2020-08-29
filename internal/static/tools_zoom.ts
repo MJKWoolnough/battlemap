@@ -1,7 +1,6 @@
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, rect, circle, line, svg} from './lib/svg.js';
 import {defaultMouseWheel, panZoom, zoom} from './tools_default.js';
-import {requestMapData} from './comms.js';
 import {screen2Grid} from './misc.js';
 import {globals} from './map.js';
 import {addTool} from './tools.js';
@@ -57,11 +56,11 @@ addTool({
 			return;
 		}
 		if (drawZoom.checked) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, false, requestMapData()),
-			      {root} = globals,
+			const {mapData, root} = globals,
+			      [x, y] = screen2Grid(e.clientX, e.clientY, false, mapData),
 			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
 			      onmousemove = (e: MouseEvent) => {
-				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, requestMapData());
+				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, mapData);
 				createSVG(square, {"x": Math.min(x, nx).toString(), "width": Math.abs(x - nx).toString(), "y": Math.min(y, ny).toString(), "height": Math.abs(y - ny).toString()});
 			      },
 			      onmouseup = (e: MouseEvent) => {
@@ -71,9 +70,6 @@ addTool({
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
 				square.remove();
-				// TODO: Needs rewriting, need in + out
-				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, requestMapData());
-				zoom(this, 2-Math.max(Math.abs(nx - x) / window.innerWidth, Math.abs(ny - y) / window.innerHeight), (x + nx) / 2, (y + ny) / 2);
 			      };
 			createSVG(root, {onmousemove, onmouseup});
 		} else {
