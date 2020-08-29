@@ -12,7 +12,7 @@ import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
-import {mapLayersSend, mapLoadReceive, respondWithSelected, respondWithMapUndo} from './comms.js';
+import {mapLayersSend, mapLoadReceive} from './comms.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -47,29 +47,30 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) =>
       invalidRPC = () => Promise.reject("invalid");
 
 export const getToken = () => {
+	const {selectedToken} = globals;
 	if (selectedToken instanceof SVGToken) {
 		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = selectedToken;
 		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
 	}
 	return undefined;
 };
-let selectedToken: SVGToken | SVGShape | null = null;
 
 export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
-		selectedToken = null;
-		let selectedLayer: SVGLayer | null = null, selectedLayerPath = "", tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		globals.selectedToken = null;
+		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      undo = new Undo(),
-		      getSelectedTokenPos = () => (selectedLayer!.tokens as SVGToken[]).findIndex(e => e === selectedToken),
+		      getSelectedTokenPos = () => (globals.selectedLayer!.tokens as SVGToken[]).findIndex(e => e === globals.selectedToken),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
 			      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
-			      sq = mapData.gridSize;
+			      sq = mapData.gridSize,
+			      {selectedToken} = globals;
 			switch (tokenDragMode) {
 			case 0:
 				x += dx;
@@ -132,22 +133,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			createSVG(outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
-			if (!selectedToken || e.button !== 0) {
+			const {selectedToken: token} = globals;
+			if (!token || e.button !== 0) {
 				return;
 			}
 			document.body.removeEventListener("mousemove", tokenDrag);
 			document.body.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
 			const {x, y, width, height, rotation} = tokenMousePos,
-			      newX = Math.round(selectedToken!.x),
-			      newY = Math.round(selectedToken!.y),
-			      newRotation = Math.round(selectedToken!.rotation),
-			      newWidth = Math.round(selectedToken!.width),
-			      newHeight = Math.round(selectedToken!.height);
+			      newX = Math.round(token.x),
+			      newY = Math.round(token.y),
+			      newRotation = Math.round(token.rotation),
+			      newWidth = Math.round(token.width),
+			      newHeight = Math.round(token.height);
 			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
-				const token = selectedToken,
-				      tokenPos = getSelectedTokenPos(),
-				      lp = selectedLayerPath,
+				const tokenPos = getSelectedTokenPos(),
+				      lp = globals.selectedLayerPath,
 				      doIt = () => {
 					token.x = newX;
 					token.y = newY;
@@ -156,7 +157,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					token.height = newHeight;
 					createSVG(token.node, {"width": newWidth, "height": newHeight});
 					token.updateNode();
-					if (token === selectedToken) {
+					if (globals.selectedToken === token) {
 						tokenMousePos.x = newX;
 						tokenMousePos.y = newY;
 						tokenMousePos.rotation = newRotation;
@@ -173,7 +174,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						token.height = height;
 						createSVG(token.node, {"width": newWidth, "height": newHeight});
 						token.updateNode();
-						if (token === selectedToken) {
+						if (globals.selectedToken === token) {
 							tokenMousePos.x = x;
 							tokenMousePos.y = y;
 							tokenMousePos.rotation = rotation;
@@ -191,9 +192,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
 			const pos = getSelectedTokenPos(),
-			      token = selectedToken as SVGToken,
-			      l = selectedLayer!,
-			      lp = selectedLayerPath,
+			      token = globals.selectedToken as SVGToken | SVGShape,
+			      l = globals.selectedLayer!,
+			      lp = globals.selectedLayerPath,
 			      doIt = () => {
 				l.tokens.splice(pos, 1);
 				unselectToken();
@@ -207,22 +208,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			undo.add(doIt);
 		      },
 		      unselectToken = () => {
-			selectedToken = null;
+			globals.selectedToken = null;
 			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
 			removeLayer(path).forEach(e => {
-				if (selectedLayer === e) {
-					selectedLayer = null;
-				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, selectedLayer))) {
-				       selectedLayer  = null;
+				if (globals.selectedLayer === e) {
+					globals.selectedLayer = null;
+				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, globals.selectedLayer))) {
+				       globals.selectedLayer  = null;
 				}
 			});
 			undo.clear();
 			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
-			if (selectedLayerPath.startsWith(path)) {
+			if (globals.selectedLayerPath.startsWith(path)) {
 				unselectToken();
 				// select new layer???
 			}
@@ -234,7 +235,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				e.dataTransfer!.dropEffect = "link";
 			}
 		      }, "ondrop": (e: DragEvent) => {
-			if (selectedLayer === null) {
+			if (globals.selectedLayer === null) {
 				return;
 			}
 			let charID = 0;
@@ -265,11 +266,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
-			const l = selectedLayer,
-			      lp = selectedLayerPath,
+			const l = globals.selectedLayer,
+			      lp = globals.selectedLayerPath,
 			      doIt = () => {
 				const pos = l.tokens.push(SVGToken.from(token)) - 1;
-				let p: Promise<any> = rpc.addToken(selectedLayerPath, token);
+				let p: Promise<any> = rpc.addToken(lp, token);
 				if (token.tokenData) {
 					p = p.then(id => {
 						tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
@@ -286,7 +287,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}
 				p.catch(handleError);
 				return () => {
-					if (selectedToken === token) {
+					if (globals.selectedToken === token) {
 						unselectToken();
 					}
 					l.tokens.pop();
@@ -296,6 +297,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			};
 			undo.add(doIt);
 		      }, "onmousedown": (e: MouseEvent) => {
+			const {selectedLayer} = globals;
 			if (!selectedLayer || e.button !== 0) {
 				return;
 			}
@@ -306,13 +308,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			if (!newToken || e.ctrlKey) {
 				return;
 			}
-			selectedToken = newToken;
-			autoFocus(createSVG(outline, {"transform": selectedToken.transformString(false), "style": `--outline-width: ${selectedToken.width}px; --outline-height: ${selectedToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((selectedToken.rotation + 143) >> 5) % 4}`}));
-			tokenMousePos.x = selectedToken.x;
-			tokenMousePos.y = selectedToken.y;
-			tokenMousePos.width = selectedToken.width;
-			tokenMousePos.height = selectedToken.height;
-			tokenMousePos.rotation = selectedToken.rotation;
+			globals.selectedToken = newToken;
+			autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
+			tokenMousePos.x = newToken.x;
+			tokenMousePos.y = newToken.y;
+			tokenMousePos.width = newToken.width;
+			tokenMousePos.height = newToken.height;
+			tokenMousePos.rotation = newToken.rotation;
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
 				switch (e.key) {
@@ -329,16 +331,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}
 			}
 		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
-			if (!selectedToken) {
+			const {selectedToken: token} = globals;
+			if (!token) {
 				return;
 			}
 			if (e.key === "Delete") {
 				deleteToken();
 				return;
 			}
-			let newX = selectedToken.x,
-			    newY = selectedToken.y;
-			if (selectedToken && selectedToken!.snap) {
+			let newX = token.x,
+			    newY = token.y;
+			if (token.snap) {
 				const sq = mapData.gridSize;
 				switch (e.key) {
 				case "ArrowUp":
@@ -369,14 +372,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			}
 			const oldX = tokenMousePos.x,
 			      oldY = tokenMousePos.y,
-			      token = selectedToken,
 			      tokenPos = getSelectedTokenPos(),
-			      lp = selectedLayerPath,
+			      lp = globals.selectedLayerPath,
 			      doIt = () => {
 				token.x = newX;
 				token.y = newY;
 				token.updateNode();
-				if (selectedToken === token) {
+				if (globals.selectedToken === token) {
 					tokenMousePos.x = newX;
 					tokenMousePos.y = newY;
 					outline.setAttribute("transform", token.transformString(false));
@@ -386,7 +388,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					token.x = oldX;
 					token.y = oldY;
 					token.updateNode();
-					if (selectedToken === token) {
+					if (globals.selectedToken === token) {
 						tokenMousePos.x = oldX;
 						tokenMousePos.y = oldY;
 						outline.setAttribute("transform", token.transformString(false));
@@ -397,6 +399,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      };
 			undo.add(doIt);
 		      }, "onkeydown": (e: KeyboardEvent) => {
+			const {selectedToken} = globals;
 			if (!selectedToken || selectedToken.snap) {
 				return;
 			}
@@ -425,40 +428,41 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			}
 			e.preventDefault();
 			const tokenPos = getSelectedTokenPos(),
-			      currToken = selectedToken!;
+			      currLayerPath = globals.selectedLayerPath,
+			      currLayer = globals.selectedLayer!,
+			      currToken = globals.selectedToken!;
 			place(base, [e.clientX, e.clientY], [
 				isTokenImage(currToken) ? [
-					currToken.tokenData !== 0 ? item("Edit Token", () => selectedToken === currToken && tokenEdit(shell, rpc, selectedToken!.tokenData, "Edit Token", tokenData.get(selectedToken!.tokenData)!, false)) : [],
+					currToken.tokenData !== 0 ? item("Edit Token", () => globals.selectedToken === currToken && tokenEdit(shell, rpc, currToken.tokenData, "Edit Token", tokenData.get(currToken.tokenData)!, false)) : [],
 					currToken.tokenData === 0 ? item("Set as Token", () => {
-						if (selectedToken !== currToken && currToken.tokenData === 0) {
+						if (globals.selectedToken !== currToken && currToken.tokenData === 0) {
 							return;
 						}
-						rpc.tokenCreate(selectedLayerPath, getSelectedTokenPos())
+						rpc.tokenCreate(currLayerPath, getSelectedTokenPos())
 						.then(id => tokenData.set(currToken.tokenData = id, {}))
 						.catch(handleError);
 					}) : item("Unset as Token", () => {
-						if (selectedToken !== currToken || currToken.tokenData !== 0) {
+						if (globals.selectedToken !== currToken || currToken.tokenData !== 0) {
 							return;
 						}
 						tokenData.delete(currToken.tokenData);
 						currToken.tokenData = 0;
-						rpc.tokenDelete(selectedLayerPath, getSelectedTokenPos()).catch(handleError);
+						rpc.tokenDelete(currLayerPath, getSelectedTokenPos()).catch(handleError);
 					}),
 					item("Flip", () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
-						const lp = selectedLayerPath,
-						      tokenPos = getSelectedTokenPos(),
+						const tokenPos = getSelectedTokenPos(),
 						      flip = !currToken.flip,
 						      doIt = () => {
 							currToken.flip = flip;
 							currToken.updateNode();
-							rpc.flipToken(lp, tokenPos, flip).catch(handleError);
+							rpc.flipToken(currLayerPath, tokenPos, flip).catch(handleError);
 							return () => {
 								currToken.flip = !flip;
 								currToken.updateNode();
-								rpc.flipToken(lp, tokenPos, !flip).catch(handleError);
+								rpc.flipToken(currLayerPath, tokenPos, !flip).catch(handleError);
 								return doIt;
 							};
 						      };
@@ -466,20 +470,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						outline.focus();
 					}),
 					item("Flop", () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
-						const lp = selectedLayerPath,
-						      tokenPos = getSelectedTokenPos(),
+						const tokenPos = getSelectedTokenPos(),
 						      flop = !currToken.flop,
 						      doIt = () => {
 							currToken.flop = flop;
 							currToken.updateNode();
-							rpc.flopToken(lp, tokenPos, flop).catch(handleError);
+							rpc.flopToken(currLayerPath, tokenPos, flop).catch(handleError);
 							return () => {
 								currToken.flop = !flop;
 								currToken.updateNode();
-								rpc.flopToken(lp, tokenPos, !flop).catch(handleError);
+								rpc.flopToken(currLayerPath, tokenPos, !flop).catch(handleError);
 								return doIt;
 							};
 						      };
@@ -487,18 +490,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						outline.focus();
 					}),
 					item(`Set as ${currToken.isPattern ? "Image" : "Pattern"}`, () => {
-						if (selectedToken !== currToken || !(currToken instanceof SVGToken)) {
+						if (globals.selectedToken !== currToken || !(currToken instanceof SVGToken)) {
 							return;
 						}
 						const tokenPos = getSelectedTokenPos(),
-						      lp = selectedLayerPath,
 						      isPattern = currToken.isPattern,
 						      doIt = () => {
 							currToken.setPattern(!isPattern);
-							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(selectedLayerPath, tokenPos).catch(handleError);
+							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(currLayerPath, tokenPos).catch(handleError);
 							return () => {
 								currToken.setPattern(!isPattern);
-								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(selectedLayerPath, tokenPos).catch(handleError);
+								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(currLayerPath, tokenPos).catch(handleError);
 								return doIt;
 							};
 						      };
@@ -506,11 +508,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					}),
 				] : [],
 				item(currToken.snap ? "Unsnap" : "Snap", () => {
-					if (selectedToken !== currToken) {
+					if (globals.selectedToken !== currToken) {
 						return;
 					}
-					const lp = selectedLayerPath,
-					      tokenPos = getSelectedTokenPos(),
+					const tokenPos = getSelectedTokenPos(),
 					      snap = currToken.snap,
 					      sq = mapData.gridSize,
 					      {x, y, width, height, rotation} = currToken;
@@ -527,28 +528,28 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 								currToken.y = newY;
 								currToken.rotation = newRotation;
 								currToken.updateNode();
-								if (currToken === selectedToken) {
+								if (globals.selectedToken === currToken) {
 									tokenMousePos.x = newX;
 									tokenMousePos.y = newY;
 									tokenMousePos.rotation = newRotation;
 									createSVG(outline, {"--outline-width": (tokenMousePos.width = newWidth) + "px", "--outline-height": (tokenMousePos.height = newHeight) + "px", "transform": currToken.transformString(false)});
 								}
-								rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
-								rpc.setToken(lp, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
+								rpc.setTokenSnap(currLayerPath, tokenPos, currToken.snap = !snap).catch(handleError);
+								rpc.setToken(currLayerPath, tokenPos, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
 								return () => {
 									createSVG(currToken.node, {"width": currToken.width = width, "height": currToken.height = height});
 									currToken.x = x;
 									currToken.y = y;
 									currToken.rotation = rotation;
 									currToken.updateNode();
-									if (currToken === selectedToken) {
+									if (globals.selectedToken === currToken) {
 										tokenMousePos.x = x;
 										tokenMousePos.y = y;
 										tokenMousePos.rotation = rotation;
 										createSVG(outline, {"--outline-width": (tokenMousePos.width = width) + "px", "--outline-height": (tokenMousePos.height = height) + "px", "transform": currToken.transformString(false)});
 									}
-									rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
-									rpc.setToken(lp, tokenPos, x, y, width, height, rotation).catch(handleError);
+									rpc.setTokenSnap(currLayerPath, tokenPos, currToken.snap = snap).catch(handleError);
+									rpc.setToken(currLayerPath, tokenPos, x, y, width, height, rotation).catch(handleError);
 									return doIt;
 								};
 							};
@@ -557,48 +558,44 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 					}
 					const doIt = () => {
-						rpc.setTokenSnap(lp, tokenPos, currToken.snap = !snap).catch(handleError);
+						rpc.setTokenSnap(currLayerPath, tokenPos, currToken.snap = !snap).catch(handleError);
 						return () => {
-							rpc.setTokenSnap(lp, tokenPos, currToken.snap = snap).catch(handleError);
+							rpc.setTokenSnap(currLayerPath, tokenPos, currToken.snap = snap).catch(handleError);
 							return doIt;
 						};
 					      };
 					undo.add(doIt);
 				}),
-				tokenPos < selectedLayer!.tokens.length - 1 ? [
+				tokenPos < currLayer.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
 						const tokenPos = getSelectedTokenPos(),
-						      l = selectedLayer!,
-						      newPos = l.tokens.length - 1,
-						      lp = selectedLayerPath,
+						      newPos = currLayer.tokens.length - 1,
 						      doIt = () => {
-							l.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(lp, tokenPos, newPos).catch(handleError);
+							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
+							rpc.setTokenPos(currLayerPath, tokenPos, newPos).catch(handleError);
 							return () => {
-								l.tokens.splice(tokenPos, 0, l.tokens.pop()!);
-								rpc.setTokenPos(lp, newPos, tokenPos).catch(handleError);
+								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.pop()!);
+								rpc.setTokenPos(currLayerPath, newPos, tokenPos).catch(handleError);
 								return doIt;
 							};
 						      };
 						undo.add(doIt);
 					}),
 					item(`Move Up`, () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
 						const tokenPos = getSelectedTokenPos();
-						if (tokenPos < selectedLayer!.tokens.length - 1) {
-							const l = selectedLayer!,
-							      lp = selectedLayerPath,
-							      doIt = () => {
-								selectedLayer!.tokens.splice(tokenPos + 1, 0, selectedLayer!.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(selectedLayerPath, tokenPos, tokenPos + 1).catch(handleError);
+						if (tokenPos < currLayer.tokens.length - 1) {
+							const doIt = () => {
+								currLayer.tokens.splice(tokenPos + 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
+								rpc.setTokenPos(currLayerPath, tokenPos, tokenPos + 1).catch(handleError);
 								return () => {
-									selectedLayer!.tokens.splice(tokenPos, 0, l.tokens.splice(tokenPos + 1, 1)[0]);
-									rpc.setTokenPos(lp, tokenPos + 1, tokenPos).catch(handleError);
+									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos + 1, 1)[0]);
+									rpc.setTokenPos(currLayerPath, tokenPos + 1, tokenPos).catch(handleError);
 									return doIt;
 								};
 							      };
@@ -608,19 +605,17 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				] : [],
 				tokenPos > 0 ? [
 					item(`Move Down`, () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
 						const tokenPos = getSelectedTokenPos();
 						if (tokenPos > 0) {
-							const l = selectedLayer!,
-							      lp = selectedLayerPath,
-							      doIt = () => {
-								selectedLayer!.tokens.splice(tokenPos - 1, 0, selectedLayer!.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(selectedLayerPath, tokenPos, tokenPos - 1).catch(handleError);
+							const doIt = () => {
+								currLayer.tokens.splice(tokenPos - 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
+								rpc.setTokenPos(currLayerPath, tokenPos, tokenPos - 1).catch(handleError);
 								return () => {
-									selectedLayer!.tokens.splice(tokenPos, 0, l.tokens.splice(tokenPos - 1, 1)[0]);
-									rpc.setTokenPos(lp, tokenPos - 1, tokenPos).catch(handleError);
+									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos - 1, 1)[0]);
+									rpc.setTokenPos(currLayerPath, tokenPos - 1, tokenPos).catch(handleError);
 									return doIt;
 								};
 							      };
@@ -628,18 +623,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 					}),
 					item(`Move to Bottom`, () => {
-						if (selectedToken !== currToken) {
+						if (globals.selectedToken !== currToken) {
 							return;
 						}
 						const tokenPos = getSelectedTokenPos(),
-						      l = selectedLayer!,
-						      lp = selectedLayerPath,
 						      doIt = () => {
-							l.tokens.unshift(l.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(lp, tokenPos, 0).catch(handleError);
+							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
+							rpc.setTokenPos(currLayerPath, tokenPos, 0).catch(handleError);
 							return () => {
-								l.tokens.splice(tokenPos, 0, l.tokens.shift()!);
-								rpc.setTokenPos(lp, 0, tokenPos).catch(handleError);
+								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.shift()!);
+								rpc.setTokenPos(currLayerPath, 0, tokenPos).catch(handleError);
 								return doIt;
 							};
 						      };
@@ -647,29 +640,27 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, (sl: SVGLayer, path: string) => {
-					if (selectedToken !== currToken) {
+					if (globals.selectedToken !== currToken) {
 						return;
 					}
 					const tokenPos = getSelectedTokenPos(),
-					      l = selectedLayer!,
-					      lp = selectedLayerPath,
 					      doIt = () => {
-						if (currToken === selectedToken) {
+						if (globals.selectedToken === currToken) {
 							unselectToken();
 						}
-						sl.tokens.push(l.tokens.splice(tokenPos, 1)[0]);
-						rpc.setTokenLayer(lp, tokenPos, path).catch(handleError);
+						sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
+						rpc.setTokenLayer(currLayerPath, tokenPos, path).catch(handleError);
 						return () => {
-							if (currToken === selectedToken) {
+							if (globals.selectedToken === currToken) {
 								unselectToken();
 							}
-							l.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
-							rpc.setTokenLayer(path, sl.tokens.length, lp).then(() => rpc.setTokenPos(path, l.tokens.length - 1, tokenPos)).catch(handleError);
+							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
+							rpc.setTokenLayer(path, sl.tokens.length, currLayerPath).then(() => rpc.setTokenPos(path, currLayer.tokens.length - 1, tokenPos)).catch(handleError);
 							return doIt;
 						};
 					      };
 					undo.add(doIt);
-				}, selectedLayer!.name)),
+				}, currLayer.name)),
 				item("Delete", deleteToken)
 			]);
 		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
@@ -681,18 +672,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			document.body.addEventListener("mousemove", tokenDrag);
 			document.body.addEventListener("mouseup", tokenMouseUp);
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selectedToken!.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
-		respondWithSelected(() => ({
-			"layer": selectedLayer,
-			"layerPath": selectedLayerPath,
-			"token": selectedToken,
-			outline,
-			"deselectToken": unselectToken
-		}));
-		respondWithMapUndo(undo);
 		mapLayersSend({
 			"waitAdded": () => waitAdded[1],
 			"waitMoved": () => waitMoved[1],
@@ -732,8 +715,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
-				selectedLayer = getLayer(layerList, path) as SVGLayer;
-				selectedLayerPath = path;
+				globals.selectedLayer = getLayer(layerList, path) as SVGLayer;
+				globals.selectedLayerPath = path;
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
@@ -795,7 +778,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 		canceller = Subscription.canceller(
 			{cancel},
 			rpc.waitTokenChange().then(st => {
-				if (st.path === selectedLayerPath && getSelectedTokenPos() === st.pos) {
+				if (st.path === globals.selectedLayerPath && getSelectedTokenPos() === st.pos) {
 					tokenMouseUp(new MouseEvent(""));
 				}
 				undo.clear();
