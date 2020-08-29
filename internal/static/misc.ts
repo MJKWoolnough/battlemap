@@ -1,8 +1,8 @@
-import {Colour, Int, MapData, Uint} from './types.js';
+import {Colour, Int, MapData, Uint, LayerRPC} from './types.js';
 import {br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
 import {panZoom} from './tools_default.js';
-import {requestShell} from './comms.js';
+import {Pipe, Requester} from './lib/inter.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
@@ -54,4 +54,7 @@ handleError = (e: Error | string) => {
 screen2Grid = (x: Uint, y: Uint, snap: boolean, mapData: MapData): [Int, Int] => {
 	const snapDM = snap ? mapData.gridSize : 1;
 	return [snapDM * Math.round((x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM), snapDM * Math.round((y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM)];
-};
+},
+{send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
+{send: mapLayersSend, receive: mapLayersReceive} = new Pipe<LayerRPC>(),
+{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>();
