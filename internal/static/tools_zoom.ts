@@ -1,8 +1,9 @@
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, rect, circle, line, svg} from './lib/svg.js';
 import {defaultMouseWheel, panZoom, zoom} from './tools_default.js';
-import {requestMapData, requestSVGRoot} from './comms.js';
+import {requestMapData} from './comms.js';
 import {screen2Grid} from './misc.js';
+import {globals} from './map.js';
 import {addTool} from './tools.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
@@ -57,7 +58,7 @@ addTool({
 		}
 		if (drawZoom.checked) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, false, requestMapData()),
-			      root = requestSVGRoot(),
+			      {root} = globals,
 			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
 			      onmousemove = (e: MouseEvent) => {
 				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, requestMapData());
