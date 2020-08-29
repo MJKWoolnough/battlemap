@@ -6,12 +6,6 @@ import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import {mapLayersReceive} from './comms.js';
 import {stringSort} from './lib/ordered.js';
-import defaultTool from './tools_default.js';
-import zoomTool from './tools_zoom.js';
-import drawTool from './tools_draw.js';
-import moveTool from './tools_move.js';
-import maskTool from './tools_mask.js';
-import lightTool from './tools_light.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent, rpc: RPC) => void;
@@ -32,16 +26,11 @@ type Tool = {
 	mapMouseOver?: MouseFn;
 };
 
-const tools: Tool[] = [
-	defaultTool,
-	zoomTool,
-	drawTool,
-	moveTool,
-	maskTool,
-	lightTool
-];
+const tools: Tool[] = [];
 
-let selectedTool: Tool = tools[0], rpc: RPC;
+export const addTool = (t: Tool) => tools.push(t);
+
+let selectedTool: Tool, rpc: RPC;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.tokenMouseDown;
@@ -98,7 +87,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	const options = div(),
 	      toolOptions = div([h2("Tool Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
-		if (selectedTool.unset) {
+		if (selectedTool?.unset) {
 			selectedTool.unset();
 		}
 		selectedTool = t;

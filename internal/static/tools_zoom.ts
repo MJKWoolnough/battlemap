@@ -1,8 +1,9 @@
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, rect, circle, line, svg} from './lib/svg.js';
-import defaultTool, {panZoom, zoom} from './tools_default.js';
+import {defaultMouseWheel, panZoom, zoom} from './tools_default.js';
 import {requestMapData, requestSVGRoot} from './comms.js';
 import {screen2Grid} from './misc.js';
+import {addTool} from './tools.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
@@ -34,7 +35,7 @@ document.body.addEventListener("keyup", zoomShiftCtrl);
 
 let zoomMode: 1 | -1 = -1;
 
-export default Object.freeze({
+addTool({
 	"name": "Zoom",
 	"icon": svg({"viewBox": "0 0 32 32", "style": "stroke: currentColor"}, [
 		circle({"cx": 11.5, "cy": 11.5, "r": 10, "stroke-width": 3, "fill": "none"}),
@@ -80,5 +81,5 @@ export default Object.freeze({
 		e.stopPropagation();
 	},
 	"mapMouseOver": zoomOver,
-	"mapMouseWheel": defaultTool.mapMouseWheel
+	"mapMouseWheel": defaultMouseWheel
 });

@@ -16,6 +16,12 @@ import tools from './tools.js';
 import characterStore from './characters.js';
 import {respondWithShell} from './comms.js';
 import symbols, {addSymbol} from './symbols.js';
+import './tools_default.js';
+import './tools_draw.js';
+import './tools_light.js';
+import './tools_mask.js';
+import './tools_move.js';
+import './tools_zoom.js';
 
 type savedWindow = {
 	out: boolean;

@@ -5,6 +5,7 @@ import {SVGToken} from './map.js';
 import {requestSelected, requestMapUndo, mapLayersReceive} from './comms.js';
 import {handleError} from './misc.js';
 import {panZoom} from './tools_default.js';
+import {addTool} from './tools.js';
 
 let ml: LayerRPC;
 mapLayersReceive(l => ml = l);
@@ -67,7 +68,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
       };
 
-export default Object.freeze({
+addTool({
 	"name": "Move All",
 	"icon": svg({"viewBox": "0 0 22 22", "style": "fill: currentColor"}, [
 		g({"stroke-width": 1, "style": "stroke: currentColor", "stroke-linecap": "round"}, [

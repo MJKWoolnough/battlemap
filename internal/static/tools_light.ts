@@ -1,6 +1,7 @@
 import {svg, defs, g, path, use} from './lib/svg.js';
+import {addTool} from './tools.js';
 
-export default Object.freeze({
+addTool({
 	"name": "Light Layer",
 	"icon": svg({"viewBox": "0 0 44 75"}, [
 		defs(path({"id": "c", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4", "stroke-width": 1})),

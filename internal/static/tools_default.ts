@@ -3,6 +3,7 @@ import {createSVG, svg, g, path} from './lib/svg.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {requestSelected} from './comms.js';
+import {addTool} from './tools.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 zoom = (root: SVGElement, delta: number, x: number, y: number) => {
@@ -21,9 +22,20 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 		createSVG(outline, {"--zoom": panZoom.zoom});
 	}
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+},
+defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
+	e.preventDefault();
+	if (e.ctrlKey) {
+		zoom(this, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
+	} else {
+		const deltaY = e.shiftKey ? 0 : -e.deltaY,
+		      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
+		      amount = scrollAmount.value || 100;
+		createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
+	}
 };
 
-export default Object.freeze({
+addTool({
 	"name": "Default",
 	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})),
 	"reset": () => {
@@ -138,15 +150,5 @@ export default Object.freeze({
 			}, {"once": true})
 		}
 	},
-	"mapMouseWheel": function(this: SVGElement, e: WheelEvent) {
-		e.preventDefault();
-		if (e.ctrlKey) {
-			zoom(this, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
-		} else {
-			const deltaY = e.shiftKey ? 0 : -e.deltaY,
-			      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-			      amount = scrollAmount.value || 100;
-			createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
-		}
-	}
+	"mapMouseWheel": defaultMouseWheel
 });

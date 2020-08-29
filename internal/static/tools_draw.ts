@@ -6,6 +6,7 @@ import {autosnap} from './settings.js';
 import {panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing} from './map.js';
 import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError} from './misc.js';
+import {addTool} from './tools.js';
 
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
@@ -180,7 +181,7 @@ let fillColour = noColour,
 window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
 
-export default Object.freeze({
+addTool({
 	"name": "Draw",
 	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "style": "stroke: currentColor"}, [
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
