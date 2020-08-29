@@ -2,8 +2,7 @@ import {RPC, LayerRPC} from './types.js';
 import {div} from './lib/html.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {SVGToken, globals} from './map.js';
-import {mapLayersReceive} from './comms.js';
-import {handleError} from './misc.js';
+import {mapLayersReceive, handleError} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 

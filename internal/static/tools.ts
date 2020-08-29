@@ -4,7 +4,7 @@ import {div, h2, ul, li, img, span} from './lib/html.js';
 import {svg, defs, g, mask, path, rect, use} from './lib/svg.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
-import {mapLayersReceive} from './comms.js';
+import {mapLayersReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;

@@ -14,7 +14,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell} from './comms.js';
+import {respondWithShell} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_default.js';
 import './tools_draw.js';
