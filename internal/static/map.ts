@@ -7,7 +7,7 @@ import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
-import {respondWithSelected} from './comms.js';
+import Undo from './undo.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -315,12 +315,24 @@ globals = {
 	"definitions": null,
 	"root": null,
 	"layerList": null,
-	"mapData": null
+	"mapData": null,
+	"undo": null,
+	"selectedLayer": null,
+	"selectedLayerPath": "",
+	"selectedToken": null,
+	"outline": null,
+	deselectToken: () => {}
 } as unknown as {
-	definitions: Defs,
-	root: SVGSVGElement,
-	layerList: SVGFolder,
-	mapData: MapData
+	definitions: Defs;
+	root: SVGSVGElement;
+	layerList: SVGFolder;
+	mapData: MapData;
+	undo: Undo;
+	selectedLayer: SVGLayer | null;
+	selectedLayerPath: string;
+	selectedToken: SVGToken | SVGShape | null;
+	outline: SVGGElement;
+	deselectToken: () => void;
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
@@ -491,18 +503,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 
 export default function(rpc: RPC, base: HTMLElement) {
 	let canceller = () => {}
+	globals.outline = g();
 	rpc.waitCurrentUserMapData().then(mapData => {
 		const [newBase, cancel] = mapView(rpc, base, mapData, true);
 		canceller();
 		base = newBase;
 		canceller = cancel;
 	});
-	const selected = {
-		"layer": null,
-		"layerPath": "",
-		"token": null,
-		"outline": g(),
-		"deselectToken": () => {}
-	};
-	respondWithSelected(selected);
 }
