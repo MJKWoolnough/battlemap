@@ -14,5 +14,4 @@ export const {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 	deselectToken: () => void;
 }>(),
 {request: requestMapUndo, responder: respondWithMapUndo} = new Requester<Undo>(),
-{request: requestMapData, responder: respondWithMapData} = new Requester<MapData>(),
 {request: requestShell, responder: respondWithShell} = new Requester<ShellElement>();
