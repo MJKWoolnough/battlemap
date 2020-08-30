@@ -1,6 +1,7 @@
 import {Colour, Int, MapData, Uint, LayerRPC} from './types.js';
 import {br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
+import {globals} from './map.js';
 import {panZoom} from './tools_default.js';
 import {Pipe, Requester} from './lib/inter.js';
 
@@ -51,8 +52,9 @@ handleError = (e: Error | string) => {
 	console.log(e);
 	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
 },
-screen2Grid = (x: Uint, y: Uint, snap: boolean, mapData: MapData): [Int, Int] => {
-	const snapDM = snap ? mapData.gridSize : 1;
+screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
+	const {mapData} = globals,
+	      snapDM = snap ? mapData.gridSize : 1;
 	return [snapDM * Math.round((x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM), snapDM * Math.round((y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM)];
 },
 {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
