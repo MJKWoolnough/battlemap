@@ -1,9 +1,20 @@
+import {RPC} from './types.js';
 import {br, div, input, label} from './lib/html.js';
 import {svg, defs, g, path, use} from './lib/svg.js';
 import {addTool} from './tools.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
-      wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"});
+      wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
+      mouseOver = function(this: SVGElement, e: MouseEvent) {
+	if (sunTool.checked) {
+	} else {
+	}
+      },
+      mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+	if (sunTool.checked) {
+	} else {
+	}
+      };
 
 addTool({
 	"name": "Light Layer",
@@ -22,5 +33,7 @@ addTool({
 		br(),
 		label({"for": "wallTool"}, "Wall Tool: "),
 		wallTool
-	])
+	]),
+	"mapMouseOver": mouseOver,
+	"mapMouseDown": mouseDown
 });
