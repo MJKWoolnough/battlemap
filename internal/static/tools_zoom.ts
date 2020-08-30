@@ -56,11 +56,11 @@ addTool({
 			return;
 		}
 		if (drawZoom.checked) {
-			const {mapData, root} = globals,
-			      [x, y] = screen2Grid(e.clientX, e.clientY, false, mapData),
+			const {root} = globals,
+			      [x, y] = screen2Grid(e.clientX, e.clientY, false),
 			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
 			      onmousemove = (e: MouseEvent) => {
-				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false, mapData);
+				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false);
 				createSVG(square, {"x": Math.min(x, nx).toString(), "width": Math.abs(x - nx).toString(), "y": Math.min(y, ny).toString(), "height": Math.abs(y - ny).toString()});
 			      },
 			      onmouseup = (e: MouseEvent) => {
@@ -70,6 +70,9 @@ addTool({
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
 				square.remove();
+				// TODO: Needs rewriting, need in + out
+				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false);
+				zoom(this, 2-Math.max(Math.abs(nx - x) / window.innerWidth, Math.abs(ny - y) / window.innerHeight), (x + nx) / 2, (y + ny) / 2);
 			      };
 			createSVG(root, {onmousemove, onmouseup});
 		} else {
