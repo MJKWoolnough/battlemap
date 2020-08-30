@@ -259,7 +259,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				token.width = tokenData.width;
 				token.height = tokenData.height;
 			}
-			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap, mapData);
+			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap);
 			if (token.snap && token.tokenData === 0) {
 				const sq = mapData.gridSize;
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
