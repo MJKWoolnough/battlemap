@@ -1,6 +1,7 @@
 import {RPC} from './types.js';
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, circle, defs, g, path, radialGradient, stop, svg, use} from './lib/svg.js';
+import {screen2Grid} from './misc.js';
 import {addTool} from './tools.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
@@ -14,6 +15,15 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
 	if (sunTool.checked) {
+		const onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+			createSVG(lightMarker, {"transform": `translate(${x - 20}, ${y - 20})`});
+		};
+		createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
+			lightMarker.remove();
+			this.removeEventListener("mousemove", onmousemove);
+			this.style.removeProperty("cursor");
+		}, onmousemove}, lightMarker);
 	} else {
 	}
       },
