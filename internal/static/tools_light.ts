@@ -20,27 +20,17 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
-	if (sunTool.checked) {
-		const onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, false);
-			createSVG(lightMarker, {"transform": `translate(${x - 20}, ${y - 20})`});
-		};
-		createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
-			lightMarker.remove();
-			this.removeEventListener("mousemove", onmousemove);
-			this.style.removeProperty("cursor");
-		}, onmousemove}, lightMarker);
-	} else {
-		const onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, false);
-			createSVG(wallMarker, {"transform": `translate(${x - 10}, ${y - 10})`});
-		};
-		createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
-			wallMarker.remove();
-			this.removeEventListener("mousemove", onmousemove);
-			this.style.removeProperty("cursor");
-		}, onmousemove}, wallMarker);
-	}
+	const marker = sunTool.checked ? lightMarker : wallMarker,
+	      offset = sunTool.checked ? 20 : 10,
+	      onmousemove = (e: MouseEvent) => {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`});
+	};
+	createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
+		marker.remove();
+		this.removeEventListener("mousemove", onmousemove);
+		this.style.removeProperty("cursor");
+	}, onmousemove}, marker);
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (sunTool.checked) {
