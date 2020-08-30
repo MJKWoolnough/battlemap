@@ -1,6 +1,6 @@
 import {RPC} from './types.js';
 import {br, div, input, label} from './lib/html.js';
-import {createSVG, circle, defs, g, path, radialGradient, stop, svg, use} from './lib/svg.js';
+import {createSVG, circle, defs, g, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
 import {screen2Grid} from './misc.js';
 import {addTool} from './tools.js';
 
@@ -12,6 +12,12 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      stop({"offset": "100%", "style": "stop-color: currentColor; stop-opacity: 0"})
 	      ])),
 	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightGrad)"})
+      ]),
+      wallMarker = g([
+	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
+	      polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
+	      polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
+	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
 	if (sunTool.checked) {
