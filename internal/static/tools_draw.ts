@@ -16,13 +16,12 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 		clickOverride(e);
 		return;
 	}
-	const {mapData} = globals,
-	      [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
+	const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	if (rectangle.checked || circle.checked) {
 		const isEllipse = circle.checked,
 		      s = (isEllipse ? ellipse : rect)({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
 		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			if (isEllipse) {
 				createSVG(s, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
 			} else {
@@ -38,7 +37,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 		      onmouseup = (e: MouseEvent) => {
 			if (e.button === 0) {
 				clearup();
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData),
+				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 				      dr = isEllipse ? 2 : 1,
 				      {selectedLayerPath, selectedLayer} = globals,
 				      width = Math.abs(cx - x),
@@ -71,7 +70,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 			p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
 		      },
 		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			draw(x, y);
 		      },
 		      clearup = () => {
@@ -86,7 +85,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 			}
 		      };
 		clickOverride = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, mapData);
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			points.push({x, y});
 			if (x < minX) {
 				minX = x;
@@ -139,7 +138,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	const {deselectToken} = globals,
 	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked, globals.mapData);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
 	deselectToken();
