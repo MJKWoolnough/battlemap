@@ -1,5 +1,9 @@
+import {br, div, input, label} from './lib/html.js';
 import {svg, defs, g, path, use} from './lib/svg.js';
 import {addTool} from './tools.js';
+
+const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
+      wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"});
 
 addTool({
 	"name": "Light Layer",
@@ -11,5 +15,12 @@ addTool({
 			use({"href": "#c", "y": 4}),
 			use({"href": "#c", "y": 8}),
 		])
+	]),
+	"options": div([
+		label({"for": "sunTool"}, "Position Sun/Moon: "),
+		sunTool,
+		br(),
+		label({"for": "wallTool"}, "Wall Tool: "),
+		wallTool
 	])
 });
