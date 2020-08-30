@@ -31,6 +31,15 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			this.style.removeProperty("cursor");
 		}, onmousemove}, lightMarker);
 	} else {
+		const onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+			createSVG(wallMarker, {"transform": `translate(${x - 10}, ${y - 10})`});
+		};
+		createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
+			wallMarker.remove();
+			this.removeEventListener("mousemove", onmousemove);
+			this.style.removeProperty("cursor");
+		}, onmousemove}, wallMarker);
 	}
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
