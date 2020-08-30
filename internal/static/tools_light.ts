@@ -1,10 +1,17 @@
 import {RPC} from './types.js';
 import {br, div, input, label} from './lib/html.js';
-import {svg, defs, g, path, use} from './lib/svg.js';
+import {createSVG, circle, defs, g, path, radialGradient, stop, svg, use} from './lib/svg.js';
 import {addTool} from './tools.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
+      lightMarker = g([
+	      defs(radialGradient({"id": "lightGrad"}, [
+		      stop({"offset": "30%", "style": "stop-color: currentColor"}),
+		      stop({"offset": "100%", "style": "stop-color: currentColor; stop-opacity: 0"})
+	      ])),
+	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightGrad)"})
+      ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
 	if (sunTool.checked) {
 	} else {
