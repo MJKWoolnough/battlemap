@@ -82,6 +82,8 @@ const (
 	broadcastTokenUnsetData
 	broadcastLayerShift
 
+	broadcastLightShift
+
 	broadcastAny
 )
 
