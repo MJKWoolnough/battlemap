@@ -282,7 +282,7 @@ const returnVoid = () => {},
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
       checksToken: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"]],
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"]],
-      checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"]],
+      checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksTokenCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checkToken = (data: any, name = "Token") => {
 	checker(data, name, checksToken);
