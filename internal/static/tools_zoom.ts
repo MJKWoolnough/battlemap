@@ -17,21 +17,18 @@ zoomOut = input({"id": "zoomOut", "type": "radio", "name": "zoomInOut", "onclick
 	zoomMode = 1;
 	document.body.classList.add("zoomOut");
 }}),
-drawZoom = input({"id": "drawZoom", "type": "checkbox"}),
-zoomShiftCtrl = (e: KeyboardEvent) => {
+zoomShift = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		if (zoomMode === 1) {
 			zoomIn.click();
 		} else {
 			zoomOut.click();
 		}
-	} else if (e.key === "Control") {
-		drawZoom.click();
 	}
 }
 
-document.body.addEventListener("keydown", zoomShiftCtrl);
-document.body.addEventListener("keyup", zoomShiftCtrl);
+document.body.addEventListener("keydown", zoomShift);
+document.body.addEventListener("keyup", zoomShift);
 
 let zoomMode: 1 | -1 = -1;
 
@@ -47,37 +44,12 @@ addTool({
 		br(),
 		label({"for": "zoomOut"}, "Zoom Out: "),
 		zoomOut,
-		br(),
-		label({"for": "drawZoom"}, "Draw Zoom: "),
-		drawZoom
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0) {
 			return;
 		}
-		if (drawZoom.checked) {
-			const {root} = globals,
-			      [x, y] = screen2Grid(e.clientX, e.clientY, false),
-			      square = root.appendChild(rect({x, y, "width": 1, "height": 1, "stroke-width": 2, "stroke": "#f00", "fill": "transparent"})),
-			      onmousemove = (e: MouseEvent) => {
-				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false);
-				createSVG(square, {"x": Math.min(x, nx).toString(), "width": Math.abs(x - nx).toString(), "y": Math.min(y, ny).toString(), "height": Math.abs(y - ny).toString()});
-			      },
-			      onmouseup = (e: MouseEvent) => {
-				if (e.button !== 0) {
-					return;
-				}
-				root.removeEventListener("mousemove", onmousemove);
-				root.removeEventListener("mouseup", onmouseup);
-				square.remove();
-				// TODO: Needs rewriting, need in + out
-				const [nx, ny] = screen2Grid(e.clientX, e.clientY, false);
-				zoom(this, 2-Math.max(Math.abs(nx - x) / window.innerWidth, Math.abs(ny - y) / window.innerHeight), (x + nx) / 2, (y + ny) / 2);
-			      };
-			createSVG(root, {onmousemove, onmouseup});
-		} else {
-			zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
-		}
+		zoom(this, zoomMode * 0.5, e.clientX, e.clientY);
 		e.stopPropagation();
 	},
 	"mapMouseOver": zoomOver,
