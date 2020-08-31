@@ -17,6 +17,8 @@ type levelMap struct {
 	GridStroke uint64 `json:"gridStroke"`
 	GridColour colour `json:"gridColour"`
 	Light      colour `json:"lightColour"`
+	LightX     uint64 `json:"lightX"`
+	LightY     uint64 `json:"lightY"`
 	layers     map[string]struct{}
 	layer
 	JSON memio.Buffer `json:"-"`
@@ -54,6 +56,8 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridStroke\":"...), l.GridStroke, 10)
 	l.JSON = l.GridColour.appendTo(append(l.JSON, ",\"gridColour\":"...))
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
 	l.JSON = l.layer.appendTo(l.JSON, false)
 	l.JSON = append(l.JSON, '}')
 	n, err := w.Write(l.JSON)
