@@ -76,6 +76,7 @@ export type RPC = {
 	waitTokenSetData:            () => Subscription<TokenID>;
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
 	waitLayerShift:              () => Subscription<LayerShift>;
+	waitLightShift:              () => Subscription<Coords>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
