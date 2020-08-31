@@ -140,6 +140,8 @@ type token struct {
 	IsEllipse     bool            `json:"isEllipse"`
 	StrokeWidth   uint8           `json:"strokeWidth"`
 	Fill          colour          `json:"fill"`
+	Fills         []fill          `json:"fills"`
+	FillType      fillType        `json:"fillType"`
 	Stroke        colour          `json:"stroke"`
 	Points        []coords        `json:"points"`
 }
@@ -155,6 +157,14 @@ const (
 	tokenImage tokenType = iota
 	tokenShape
 	tokenDrawing
+)
+
+type fillType uint8
+
+const (
+	fillColour fillType = iota
+	fillRadial
+	fillGradient
 )
 
 func (t *token) appendTo(p []byte) []byte {
@@ -190,6 +200,15 @@ func (t *token) appendTo(p []byte) []byte {
 			p = append(p, ",\"isEllipse\":true"...)
 		}
 		p = t.Fill.appendTo(append(p, ",\"fill\":"...))
+		if t.FillType != fillColour {
+			p = append(p, ",\"fills\":"...)
+			q := p
+			for _, f := range t.Fills {
+				p = f.appendTo(p)
+			}
+			_ = append(q, '[')
+			p = append(p, ']')
+		}
 		p = t.Stroke.appendTo(append(p, ",\"stroke\":"...))
 		p = appendNum(append(p, ",\"strokeWidth\":"...), t.StrokeWidth)
 	}
@@ -199,7 +218,7 @@ func (t *token) appendTo(p []byte) []byte {
 func (t *token) validate() error {
 	switch t.TokenType {
 	case tokenImage:
-		if t.Source == 0 || t.IsEllipse || !t.Fill.empty() || !t.Stroke.empty() || t.StrokeWidth > 0 || len(t.Points) > 0 || (t.PatternWidth > 0) != (t.PatternHeight > 0) {
+		if t.FillType != 0 || t.Source == 0 || t.IsEllipse || !t.Fill.empty() || !t.Stroke.empty() || t.StrokeWidth > 0 || len(t.Points) > 0 || (t.PatternWidth > 0) != (t.PatternHeight > 0) {
 			return ErrInvalidToken
 		}
 	case tokenDrawing:
@@ -234,6 +253,17 @@ func (c colour) appendTo(p []byte) []byte {
 
 func (c colour) empty() bool {
 	return c.R == 0 && c.G == 0 && c.B == 0 && c.A == 0
+}
+
+type fill struct {
+	Pos    uint8  `json:"pos"`
+	Colour colour `json:"colour"`
+}
+
+func (f fill) appendTo(p []byte) []byte {
+	p = appendNum(append(p, "{\"pos\":"...), f.Pos)
+	p = f.Colour.appendTo(p)
+	return append(p, '}')
 }
 
 const hex = "0123456789abcdef"
