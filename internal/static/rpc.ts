@@ -284,6 +284,7 @@ const returnVoid = () => {},
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksTokenCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
+      checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
       checkToken = (data: any, name = "Token") => {
 	checker(data, name, checksToken);
 	switch (data.tokenType) {
@@ -298,6 +299,9 @@ const returnVoid = () => {},
 		}
 	case 1:
 		checker(data, name, checksTokenShape);
+		for (const f of data.fills) {
+			checker(f, "Token->Fills", checksFills);
+		}
 		break;
 	default:
 		throw new TypeError("invalid Token object, key 'tokenType' contains invalid data");
