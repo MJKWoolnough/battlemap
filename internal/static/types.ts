@@ -116,6 +116,7 @@ export type RPC = {
 	setTokenLayer:   (from: string, pos: Uint, to: string)                                                => Promise<void>;
 	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
 	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
+	shiftLight:      (x: Uint, y: Uint)                                                                   => Promise<void>;
 
 	characterCreate:     (name: string)                                 => Promise<IDName>;
 	characterSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;

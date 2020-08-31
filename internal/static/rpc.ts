@@ -147,6 +147,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenLayer":   (from, pos, to)                            => rpc.request("maps.setTokenLayer", {from, pos, to}).then(returnVoid),
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}).then(returnVoid),
 			"shiftLayer":      (path, dx, dy)                             => rpc.request("maps.shiftLayer", {path, dx, dy}).then(returnVoid),
+			"shiftLight":      (x, y)                                     => rpc.request("maps.shiftLight", {x, y}).then(returnVoid),
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}).then(returnVoid),
