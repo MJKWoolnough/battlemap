@@ -284,7 +284,7 @@ const returnVoid = () => {},
       checksToken: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"]],
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
-      checksTokenCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
+      checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
       checkToken = (data: any, name = "Token") => {
 	checker(data, name, checksToken);
@@ -296,7 +296,7 @@ const returnVoid = () => {},
 	case 2:
 		checkArray(data.points, name, "points")
 		for (const p of data.points) {
-			checker(p, "Token->Points", checksTokenCoords);
+			checker(p, "Token->Points", checksCoords);
 		}
 	case 1:
 		checker(data, name, checksTokenShape);
@@ -336,8 +336,7 @@ const returnVoid = () => {},
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
-      checksLightShift: checkers = [[checkObject, ""], [checkUint, "x"], [checkUint, "y"]],
-      checkLightShift = (data: any) => checker(data, "LightShift", checksLightShift),
+      checkLightShift = (data: any) => checker(data, "LightShift", checksCoords),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
