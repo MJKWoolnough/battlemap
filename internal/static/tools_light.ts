@@ -81,8 +81,12 @@ addTool({
 		label({"for": "wallTool"}, "Wall Tool: "),
 		wallTool,
 		div({"id": "sunToolOptions"}, [
+			label("Light Colour"),
+			br(),
+			label("Height")
 		]),
 		div({"id": "wallToolOptions"}, [
+			label("Opacity"),
 		])
 	]),
 	"mapMouseOver": mouseOver,
