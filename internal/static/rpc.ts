@@ -333,7 +333,7 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkArray, "children"], [checkLayerFolder, ""]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]],
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
