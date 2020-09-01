@@ -5,8 +5,6 @@ import {screen2Grid} from './misc.js';
 import {updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 
-let reset = () => {};
-
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
       lightMarker = g([
@@ -30,34 +28,22 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
 		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`});
 		if (sun) {
-			globals.mapData.lightX = x;
-			globals.mapData.lightY = y;
-			updateLight();
+			updateLight(x, y);
 		}
 	      };
-	let lightX = globals.mapData.lightX,
-	    lightY = globals.mapData.lightY;
-	reset = () => {
-		lightX = globals.mapData.lightX;
-		lightY = globals.mapData.lightY;
-	};
 	createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
 		marker.remove();
 		this.removeEventListener("mousemove", onmousemove);
 		this.style.removeProperty("cursor");
 		if (sun) {
-			globals.mapData.lightX = lightX;
-			globals.mapData.lightY = lightY;
 			updateLight();
 		}
-		reset = () => {};
 	}, onmousemove}, marker);
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (sunTool.checked) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
 		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
-		reset();
 		updateLight();
 	} else {
 	}
