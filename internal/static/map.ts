@@ -496,6 +496,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					t.y += ls.dy;
 					t.updateNode();
 				});
+			}),
+			rpc.waitLightShift().then(pos => {
+				mapData.lightX = pos.x;
+				mapData.lightY = pos.y;
+				//updateLight();
 			})
 		)
 	];
