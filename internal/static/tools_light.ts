@@ -2,6 +2,7 @@ import {RPC} from './types.js';
 import {br, div, input, label} from './lib/html.js';
 import {createSVG, circle, defs, g, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
 import {screen2Grid} from './misc.js';
+import {updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
@@ -20,16 +21,29 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
-	const marker = sunTool.checked ? lightMarker : wallMarker,
-	      offset = sunTool.checked ? 20 : 10,
+	const sun = sunTool.checked,
+	      lightX = globals.mapData.lightX,
+	      lightY = globals.mapData.lightY,
+	      marker = sun ? lightMarker : wallMarker,
+	      offset = sun ? 20 : 10,
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
 		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`});
+		if (sun) {
+			globals.mapData.lightX = x;
+			globals.mapData.lightY = y;
+			updateLight();
+		}
 	};
 	createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
 		marker.remove();
 		this.removeEventListener("mousemove", onmousemove);
 		this.style.removeProperty("cursor");
+		if (sun) {
+			globals.mapData.lightX = lightX;
+			globals.mapData.lightY = lightY;
+			updateLight();
+		}
 	}, onmousemove}, marker);
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
