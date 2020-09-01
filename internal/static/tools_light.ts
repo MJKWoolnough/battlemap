@@ -48,6 +48,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (sunTool.checked) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
+		updateLight();
 	} else {
 	}
       };
