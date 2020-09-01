@@ -141,6 +141,8 @@ export type RPC = {
 
 export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
+	lightX: Uint;
+	lightY: Uint;
 };
 
 export type IDName = {
