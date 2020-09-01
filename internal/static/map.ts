@@ -336,6 +336,9 @@ globals = {
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
+updateLight = () => {
+
+},
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
 		const node = g(),
@@ -500,7 +503,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 			rpc.waitLightShift().then(pos => {
 				mapData.lightX = pos.x;
 				mapData.lightY = pos.y;
-				//updateLight();
+				updateLight();
 			})
 		)
 	];
