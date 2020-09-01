@@ -5,6 +5,8 @@ import {screen2Grid} from './misc.js';
 import {updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 
+let reset = () => {};
+
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
       lightMarker = g([
@@ -22,8 +24,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       ]),
       mouseOver = function(this: SVGElement, e: MouseEvent) {
 	const sun = sunTool.checked,
-	      lightX = globals.mapData.lightX,
-	      lightY = globals.mapData.lightY,
 	      marker = sun ? lightMarker : wallMarker,
 	      offset = sun ? 20 : 10,
 	      onmousemove = (e: MouseEvent) => {
@@ -34,6 +34,12 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			globals.mapData.lightY = y;
 			updateLight();
 		}
+	      };
+	let lightX = globals.mapData.lightX,
+	    lightY = globals.mapData.lightY;
+	reset = () => {
+		lightX = globals.mapData.lightX;
+		lightY = globals.mapData.lightY;
 	};
 	createSVG(this, {"style": "cursor: none", "1onmouseleave": () => {
 		marker.remove();
@@ -44,12 +50,14 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			globals.mapData.lightY = lightY;
 			updateLight();
 		}
+		reset = () => {};
 	}, onmousemove}, marker);
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (sunTool.checked) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
 		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
+		reset();
 		updateLight();
 	} else {
 	}
@@ -71,7 +79,11 @@ addTool({
 		sunTool,
 		br(),
 		label({"for": "wallTool"}, "Wall Tool: "),
-		wallTool
+		wallTool,
+		div({"id": "sunToolOptions"}, [
+		]),
+		div({"id": "wallToolOptions"}, [
+		])
 	]),
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown
