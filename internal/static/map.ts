@@ -336,7 +336,7 @@ globals = {
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
-updateLight = () => {
+updateLight = (x = globals.mapData.lightX, y = globals.mapData.lightY) => {
 
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
