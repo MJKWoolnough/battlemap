@@ -315,6 +315,6 @@ type KeystoreDataRemove = {
 	keys: string[];
 }
 
-export type Wall = Coords & {
+type Wall = Coords & {
 	colour: Colour;
 }
