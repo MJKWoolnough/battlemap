@@ -19,6 +19,7 @@ type levelMap struct {
 	Light      colour `json:"lightColour"`
 	LightX     uint64 `json:"lightX"`
 	LightY     uint64 `json:"lightY"`
+	Walls      []wall `json:"walls"`
 	layers     map[string]struct{}
 	layer
 	JSON memio.Buffer `json:"-"`
@@ -238,6 +239,19 @@ func (t *token) validate() error {
 		return ErrInvalidToken
 	}
 	return nil
+}
+
+type wall struct {
+	X      uint64 `json:"x"`
+	Y      uint64 `json:"y"`
+	Colour colour `json:"colour"`
+}
+
+func (w wall) appendTo(p []byte) []byte {
+	p = strconv.AppendUint(append(p, "{\"x\":"...), w.X, 10)
+	p = strconv.AppendUint(append(p, ",\"y\":"...), w.Y, 10)
+	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
+	return append(p, '}')
 }
 
 type colour struct {
