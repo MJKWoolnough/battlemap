@@ -342,8 +342,8 @@ const returnVoid = () => {},
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
       checkLightShift = (data: any) => checker(data, "LightShift", checksCoords),
-      checksWall: checkers = [[checkObject, ""], [checkUint, "x"], [checkUint, "y"], [checkColour, "colour"]],
-      checkWall = (data: any) => checker(data, "Wall", checksWall),
+      checksWall: checkers = [[checkObject, ""], [checkUint, "x1"], [checkUint, "y1"], [checkUint, "x2"], [checkUint, "y2"], [checkColour, "colour"]],
+      checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
