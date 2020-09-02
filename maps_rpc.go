@@ -101,6 +101,19 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, nil
+	case "addWall":
+		var wall wall
+		if err := json.Unmarshal(data, &wall); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Walls = append(mp.Walls, wall)
+			m.socket.broadcastMapChange(cd, broadcastWallAdd, data)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "addLayer":
 		var name string
 		if err := json.Unmarshal(data, &name); err != nil {
