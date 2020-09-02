@@ -150,7 +150,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}).then(returnVoid),
 			"shiftLayer":      (path, dx, dy)                             => rpc.request("maps.shiftLayer", {path, dx, dy}).then(returnVoid),
 			"shiftLight":      (x, y)                                     => rpc.request("maps.shiftLight", {x, y}).then(returnVoid),
-			"addWall":         (x, y, colour)                             => rpc.request("maps.addWall", {x, y, colour}).then(returnVoid),
+			"addWall":         (x1, y1, x2, y2, colour)                   => rpc.request("maps.addWall", {x1, y1, x2, y2, colour}).then(returnVoid),
 			"removeWall":       pos                                       => rpc.request("maps.removeWall", pos).then(returnVoid),
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
@@ -337,7 +337,8 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]]
+,
       checkMapData = (data: any) => checker(data, "MapData", checksMapData),
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),

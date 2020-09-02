@@ -119,7 +119,7 @@ export type RPC = {
 	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
 	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
 	shiftLight:      (x: Uint, y: Uint)                                                                   => Promise<void>;
-	addWall:         (x: Uint, y: Uint, colour: Colour)                                                   => Promise<void>;
+	addWall:         (x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)                             => Promise<void>;
 	removeWall:      (pos: Uint)                                                                          => Promise<void>;
 
 	characterCreate:     (name: string)                                 => Promise<IDName>;
