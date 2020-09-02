@@ -315,6 +315,10 @@ type KeystoreDataRemove = {
 	keys: string[];
 }
 
-type Wall = Coords & {
+type Wall = {
+	x1: Uint;
+	y1: Uint;
+	x2: Uint;
+	y2: Uint;
 	colour: Colour;
 }
