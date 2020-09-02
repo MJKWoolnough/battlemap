@@ -41,6 +41,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenUnsetData":      () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
 			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true).then(checkLayerShift),
 			"waitLightShift":          () => rpc.await(broadcastLightShift, true).then(checkLightShift),
+			"waitWallAdded":           () => rpc.await(broadcastWallAdd, true).then(checkWall),
+			"waitWallRemoved":         () => rpc.await(broadcastWallRemove, true).then(checkUint),
 			"waitBroadcast":           () => rpc.await(broadcastAny, true).then(checkBroadcast),
 
 			"images": {
@@ -338,6 +340,8 @@ const returnVoid = () => {},
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
       checkLightShift = (data: any) => checker(data, "LightShift", checksCoords),
+      checksWall: checkers = [[checkObject, ""], [checkUint, "x"], [checkUint, "y"], [checkColour, "colour"]],
+      checkWall = (data: any) => checker(data, "Wall", checksWall),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
