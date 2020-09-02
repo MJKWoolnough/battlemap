@@ -59,6 +59,13 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
+	l.JSON = append(l.JSON, ",\"walls\":"...)
+	q := l.JSON
+	for _, w := range l.Walls {
+		l.JSON = w.appendTo(append(l.JSON, ','))
+	}
+	_ = append(q, '[')
+	l.JSON = append(l.JSON, ']')
 	l.JSON = l.layer.appendTo(l.JSON, false)
 	l.JSON = append(l.JSON, '}')
 	n, err := w.Write(l.JSON)
@@ -242,14 +249,18 @@ func (t *token) validate() error {
 }
 
 type wall struct {
-	X      uint64 `json:"x"`
-	Y      uint64 `json:"y"`
+	X1     uint64 `json:"x1"`
+	Y1     uint64 `json:"y1"`
+	X2     uint64 `json:"x2"`
+	Y2     uint64 `json:"y2"`
 	Colour colour `json:"colour"`
 }
 
 func (w wall) appendTo(p []byte) []byte {
-	p = strconv.AppendUint(append(p, "{\"x\":"...), w.X, 10)
-	p = strconv.AppendUint(append(p, ",\"y\":"...), w.Y, 10)
+	p = strconv.AppendUint(append(p, "{\"x1\":"...), w.X, 10)
+	p = strconv.AppendUint(append(p, ",\"y1\":"...), w.Y, 10)
+	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.Y, 10)
+	p = strconv.AppendUint(append(p, ",\"y2\":"...), w.Y, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
 	return append(p, '}')
 }
