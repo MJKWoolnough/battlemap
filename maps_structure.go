@@ -209,7 +209,7 @@ func (t *token) appendTo(p []byte) []byte {
 			p = append(p, ",\"fills\":"...)
 			q := p
 			for _, f := range t.Fills {
-				p = f.appendTo(p)
+				p = f.appendTo(append(p, ','))
 			}
 			_ = append(q, '[')
 			p = append(p, ']')
