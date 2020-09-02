@@ -77,6 +77,8 @@ export type RPC = {
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
 	waitLayerShift:              () => Subscription<LayerShift>;
 	waitLightShift:              () => Subscription<Coords>;
+	waitWallAdded:               () => Subscription<Wall>;
+	waitWallRemoved:             () => Subscription<Uint>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
@@ -309,4 +311,8 @@ type KeystoreDataChange = {
 type KeystoreDataRemove = {
 	id: Uint;
 	keys: string[];
+}
+
+export type Wall = Coords & {
+	colour: Colour;
 }
