@@ -44,8 +44,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		updateLight();
 	} else {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, false),
-		      colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(colour), "stroke-width": 5}),
+		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
 		      onmousemove = (e: MouseEvent) => {
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
 			createSVG(l, {x2, y2});
@@ -62,8 +61,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			reset();
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
-			rpc.addWall(x1, y1, x2, y2, colour).catch(handleError);
-			globals.mapData.walls.push({x1, y1, x2, y2, colour});
+			rpc.addWall(x1, y1, x2, y2, wallColour).catch(handleError);
+			globals.mapData.walls.push({x1, y1, x2, y2, "colour": wallColour});
 			updateLight();
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
