@@ -27,17 +27,11 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
 		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": "color: #f00"});
-		if (sun) {
-			updateLight(x, y);
-		}
 	      };
 	createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
-		marker.remove();
 		this.removeEventListener("mousemove", onmousemove);
 		this.style.removeProperty("cursor");
-		if (sun) {
-			updateLight();
-		}
+		marker.remove();
 	}, onmousemove}, marker);
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
