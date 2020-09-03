@@ -337,9 +337,14 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]]
-,
-      checkMapData = (data: any) => checker(data, "MapData", checksMapData),
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "walls"], [checkArray, "children"], [checkLayerFolder, ""]],
+      checkMapData = (data: any) => {
+	checker(data, "MapData", checksMapData);
+	for (const w of data["walls"]) {
+		checkWall(w, "MapData->Wall");
+	}
+	return data;
+      },
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
       checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
       checkLightShift = (data: any) => checker(data, "LightShift", checksCoords),
