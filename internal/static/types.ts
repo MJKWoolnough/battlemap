@@ -147,6 +147,7 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
+	walls: Wall[];
 };
 
 export type IDName = {
