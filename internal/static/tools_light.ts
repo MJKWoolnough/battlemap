@@ -1,7 +1,7 @@
-import {RPC} from './types.js';
-import {br, div, input, label} from './lib/html.js';
+import {Colour, RPC} from './types.js';
+import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
-import {handleError, screen2Grid, colour2RGBA} from './misc.js';
+import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell} from './misc.js';
 import {updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 
@@ -74,7 +74,22 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		createSVG(this, {onmousemove, onmouseup}, l)
 		window.addEventListener("keydown", onkeydown);
 	}
+      },
+      setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
+        colourPicker(requestShell(), title, getColour()).then(c => {
+                setColour(c);
+                if (c.a === 0) {
+                        this.style.setProperty("background-color", "#fff");
+                        this.innerText = "None";
+                } else {
+                        this.style.setProperty("background-color", colour2RGBA(c));
+                        this.innerText = "";
+                }
+	});
       };
+
+
+let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
 
 addTool({
 	"name": "Light Layer",
@@ -99,7 +114,8 @@ addTool({
 			label("Height")
 		]),
 		div({"id": "wallToolOptions"}, [
-			label("Opacity"),
+			label("Wall Colour: "),
+			span({"class": "checkboard colourButton"}, button({"id": "wallColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => wallColour, (c: Colour) => wallColour = c)})),
 		])
 	]),
 	"mapMouseOver": mouseOver,
