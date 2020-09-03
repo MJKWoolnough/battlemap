@@ -14,7 +14,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      ])),
 	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightMGrad)"})
       ]),
-      wallMarker = g([
+      wallMarker = g({"stroke": "#000"}, [
 	      polygon({"points": "5,0 16,0 10.5,5"}),
 	      polygon({"points": "0,5 0,16 5,10.5"}),
 	      polygon({"points": "5,21 16,21 10.5,16"}),
@@ -26,7 +26,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      offset = sun ? 20 : 10,
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
-		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": "color: #f00"});
+		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
 	      };
 	createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
 		this.removeEventListener("mousemove", onmousemove);
