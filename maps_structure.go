@@ -59,12 +59,13 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
-	l.JSON = append(l.JSON, ",\"walls\":"...)
-	q := l.JSON
-	for _, w := range l.Walls {
-		l.JSON = w.appendTo(append(l.JSON, ','))
+	l.JSON = append(l.JSON, ",\"walls\":["...)
+	for n, w := range l.Walls {
+		if n > 0 {
+			l.JSON = append(l.JSON, ',')
+		}
+		l.JSON = w.appendTo(l.JSON)
 	}
-	_ = append(q, '[')
 	l.JSON = append(l.JSON, ']')
 	l.JSON = l.layer.appendTo(l.JSON, false)
 	l.JSON = append(l.JSON, '}')
@@ -213,12 +214,13 @@ func (t *token) appendTo(p []byte) []byte {
 		}
 		p = t.Fill.appendTo(append(p, ",\"fill\":"...))
 		if t.FillType != fillColour {
-			p = append(p, ",\"fills\":"...)
-			q := p
-			for _, f := range t.Fills {
-				p = f.appendTo(append(p, ','))
+			p = append(p, ",\"fills\":["...)
+			for n, f := range t.Fills {
+				if n > 0 {
+					p = append(p, ',')
+				}
+				p = f.appendTo(p)
 			}
-			_ = append(q, '[')
 			p = append(p, ']')
 		}
 		p = t.Stroke.appendTo(append(p, ",\"stroke\":"...))
@@ -257,10 +259,10 @@ type wall struct {
 }
 
 func (w wall) appendTo(p []byte) []byte {
-	p = strconv.AppendUint(append(p, "{\"x1\":"...), w.X, 10)
-	p = strconv.AppendUint(append(p, ",\"y1\":"...), w.Y, 10)
-	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.Y, 10)
-	p = strconv.AppendUint(append(p, ",\"y2\":"...), w.Y, 10)
+	p = strconv.AppendUint(append(p, "{\"x1\":"...), w.X1, 10)
+	p = strconv.AppendUint(append(p, ",\"y1\":"...), w.Y1, 10)
+	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.Y2, 10)
+	p = strconv.AppendUint(append(p, ",\"y2\":"...), w.Y2, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
 	return append(p, '}')
 }
