@@ -46,6 +46,36 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
 		updateLight();
 	} else {
+		const [x1, y1] = screen2Grid(e.clientX, e.clientY, false),
+		      colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(colour), "stroke-width": 5}),
+		      onmousemove = (e: MouseEvent) => {
+			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
+			createSVG(l, {x2, y2});
+		      },
+		      reset = () => {
+			this.removeEventListener("mousemove", onmousemove);
+			this.removeEventListener("mouseup", onmouseup);
+			window.removeEventListener("keydown", onkeydown);
+			l.remove();
+		      },
+		      onmouseup = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+			reset();
+			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
+			rpc.addWall(x1, y1, x2, y2, colour).catch(handleError);
+			globals.mapData.walls.push({x1, y1, x2, y2, colour});
+			updateLight();
+		      },
+		      onkeydown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				reset();
+			}
+		      };
+		createSVG(this, {onmousemove, onmouseup}, l)
+		window.addEventListener("keydown", onkeydown);
 	}
       };
 
