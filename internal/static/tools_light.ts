@@ -1,4 +1,5 @@
 import {Colour, RPC} from './types.js';
+import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
 import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell} from './misc.js';
@@ -86,7 +87,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
                         this.innerText = "";
                 }
 	});
-      };
+      },
+      wallLayer = g({"stroke-width": 2});
 
 
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
@@ -120,5 +122,7 @@ addTool({
 	]),
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
-	"mapMouseWheel": defaultMouseWheel
+	"mapMouseWheel": defaultMouseWheel,
+	"set": () => globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})))),
+	"unset": () => wallLayer.remove(),
 });
