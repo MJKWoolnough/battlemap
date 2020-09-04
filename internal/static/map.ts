@@ -352,8 +352,14 @@ updateLight = () => {
 
 			let d: Int;
 			if (w.x1 === w.x2) {
+				if (x === w.x1) {
+					return [];
+				}
 				d = Math.hypot(x - w.x1, Math.min(Math.abs(y - w.y1), Math.abs(y - w.y2)));
 			} else if (w.y1 === w.y2) {
+				if (y === w.y1) {
+					return [];
+				}
 				d = Math.hypot(Math.min(Math.abs(x - w.x1), Math.abs(x - w.x2)), y - w.y1);
 			} else {
 				if (w.x1 > w.x2) {
