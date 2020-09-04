@@ -377,7 +377,7 @@ updateLight = () => {
 				}
 				d = Math.hypot(x - px, y - m * px - c);
 			}
-			if (d >= distance) {
+			if (d >= distance || d === 0) {
 				return [];
 			}
 			const dm = distance;
