@@ -88,7 +88,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	const options = div(),
 	      toolOptions = div([h2("Tool Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
-		if (selectedTool.unset) {
+		if (selectedTool?.unset) {
 			selectedTool.unset();
 		}
 		if (t.set) {
