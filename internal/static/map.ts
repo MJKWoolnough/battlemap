@@ -1,7 +1,8 @@
 import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
-import {createSVG, defs, ellipse, g, image, path, pattern, rect, svg} from './lib/svg.js';
+import {clearElement} from './lib/dom.js';
+import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon, radialGradient, rect, stop, svg} from './lib/svg.js';
 import {colour2RGBA, handleError} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
@@ -336,8 +337,50 @@ globals = {
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
-updateLight = (x = globals.mapData.lightX, y = globals.mapData.lightY) => {
+updateLight = () => {
+	document.getElementById("lightGrad") ||	globals.definitions.node.appendChild(radialGradient({"id": "lightGrad"}, [
+		stop({"offset": "0%", "stop-color": "#fff"}),
+		stop({"offset": "100%", "stop-color": "#fff", "stop-opacity": 0}),
+	]));
+	const l = (document.getElementById("overhead") || mask()) as SVGMaskElement,
+	      distance = Math.hypot(globals.mapData.width, globals.mapData.height),
+	      x = globals.mapData.lightX,
+	      y = globals.mapData.lightY;
+	createSVG(clearElement(l), {"id": "overhead"}, [
+		rect({"width": "100%", "height": "100%", "fill": "#fff"}),
+		globals.mapData.walls.map(w => {
 
+			let d: Int;
+			if (w.x1 === w.x2) {
+				d = Math.hypot(x - w.x1, Math.min(Math.abs(y - w.y1), Math.abs(y - w.y2)));
+			} else if (w.y1 === w.y2) {
+				d = Math.hypot(Math.min(Math.abs(x - w.x1), Math.abs(x - w.x2)), y - w.y1);
+			} else {
+				if (w.x1 > w.x2) {
+					[w.x1, w.x2, w.y1, w.y2] = [w.x2, w.x1, w.y2, w.y1];
+				}
+				const m = (w.x2 - w.x1) / (w.y2 - w.y1),
+				      n = (w.y1 - w.y2) / (w.x2 - w.x1),
+				      c = w.y1 - m * w.x1,
+				      e = x - w.x1 * m;
+				let px = (e - c) / (m - n);
+				if (px < w.x1) {
+					px = w.x1;
+				} else if (px > w.x2) {
+					px = w.x2;
+				}
+				d = Math.hypot(x - px, y - m * px - c);
+			}
+			if (d >= distance) {
+				return [];
+			}
+			const dm = distance;
+			return polygon({"fill": colour2RGBA(w.colour), "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`});
+		})
+	]);
+	globals.definitions.node.appendChild(l);
+	const r = (document.getElementById("overheadLight") || globals.root.appendChild(rect())) as SVGRectElement;
+	createSVG(r, {"id": "overheadLight", "width": "100%", "height": "100%", "fill": "#ffa", "mask": "url(#overhead)"});
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
