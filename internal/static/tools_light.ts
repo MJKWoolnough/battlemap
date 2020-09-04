@@ -26,7 +26,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      marker = sun ? lightMarker : wallMarker,
 	      offset = sun ? 20 : 10,
 	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
 	      };
 	createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
@@ -40,14 +40,14 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		return;
 	}
 	if (sunTool.checked) {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, false);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
 		updateLight();
 	} else {
-		const [x1, y1] = screen2Grid(e.clientX, e.clientY, false),
+		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
 		      onmousemove = (e: MouseEvent) => {
-			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
+			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 			createSVG(l, {x2, y2});
 		      },
 		      reset = () => {
@@ -61,7 +61,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return;
 			}
 			reset();
-			const [x2, y2] = screen2Grid(e.clientX, e.clientY, false);
+			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 			rpc.addWall(x1, y1, x2, y2, wallColour).catch(handleError);
 			globals.mapData.walls.push({x1, y1, x2, y2, "colour": wallColour});
 			updateLight();
