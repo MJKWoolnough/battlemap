@@ -3,7 +3,7 @@ import {div} from './lib/html.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {SVGToken, globals} from './map.js';
 import {mapLayersReceive, handleError} from './misc.js';
-import {panZoom} from './tools_default.js';
+import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 
 let ml: LayerRPC;
@@ -79,5 +79,6 @@ addTool({
 	"mapMouseOver": mouseCursor,
 	"tokenMouseOver": mouseCursor,
 	"mapMouseDown": startDrag,
-	"tokenMouseDown": startDrag
+	"tokenMouseDown": startDrag,
+	"mapMouseWheel": defaultMouseWheel
 });

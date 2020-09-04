@@ -2,7 +2,7 @@ import {Colour, Coords, RPC, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
 import {autosnap} from './settings.js';
-import {panZoom} from './tools_default.js';
+import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
 import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError, requestShell} from './misc.js';
 import {addTool} from './tools.js';
@@ -219,5 +219,6 @@ addTool({
 		}
 	},
 	"tokenMouseOver": () => showMarker(globals.root),
-	"tokenMouseContext": oncontext
+	"tokenMouseContext": oncontext,
+	"mapMouseWheel": defaultMouseWheel
 });
