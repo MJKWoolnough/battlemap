@@ -4,6 +4,7 @@ import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, s
 import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell} from './misc.js';
 import {updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
+import {defaultMouseWheel} from './tools_default.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
@@ -118,5 +119,6 @@ addTool({
 		])
 	]),
 	"mapMouseOver": mouseOver,
-	"mapMouseDown": mouseDown
+	"mapMouseDown": mouseDown,
+	"mapMouseWheel": defaultMouseWheel
 });
