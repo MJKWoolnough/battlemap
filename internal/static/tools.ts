@@ -14,6 +14,7 @@ type Tool = {
 	name: string;
 	icon: SVGElement;
 	reset?: Function;
+	set?: Function;
 	unset?: Function;
 	options?: HTMLDivElement;
 	tokenMouseDown?: MouseFn;
@@ -89,6 +90,9 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool.unset) {
 			selectedTool.unset();
+		}
+		if (t.set) {
+			t.set();
 		}
 		selectedTool = t;
 		if (t.options) {
