@@ -27,7 +27,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      marker = sun ? lightMarker : wallMarker,
 	      offset = sun ? 20 : 10,
 	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, (sun || wallTool.checked) && e.shiftKey);
 		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
 	      };
 	createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
@@ -44,7 +44,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
 		updateLight();
-	} else {
+	} else if (wallTool.checked) {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
 		      onmousemove = (e: MouseEvent) => {
@@ -74,6 +74,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      };
 		createSVG(this, {onmousemove, onmouseup}, l)
 		window.addEventListener("keydown", onkeydown);
+	} else {
+		// delete Wall Tool
 	}
       },
       setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
@@ -110,6 +112,9 @@ addTool({
 		br(),
 		label({"for": "wallTool"}, "Wall Tool: "),
 		wallTool,
+		br(),
+		label({"for": "deleteWallTool"}, "Remove Wall: "),
+		input({"id": "deleteWallTool", "name": "lightTool", "type": "radio"}),
 		div({"id": "sunToolOptions"}, [
 			label("Light Colour"),
 			br(),
