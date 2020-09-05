@@ -343,9 +343,9 @@ updateLight = () => {
 		stop({"offset": "100%", "stop-color": "#fff", "stop-opacity": 0}),
 	]));
 	const l = (document.getElementById("overhead") || mask()) as SVGMaskElement,
-	      distance = Math.hypot(globals.mapData.width, globals.mapData.height),
 	      x = globals.mapData.lightX,
-	      y = globals.mapData.lightY;
+	      y = globals.mapData.lightY,
+	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y));
 	createSVG(clearElement(l), {"id": "overhead"}, [
 		rect({"width": "100%", "height": "100%", "fill": "#fff"}),
 		globals.mapData.walls.map(w => {
