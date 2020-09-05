@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon, radialGradient, rect, stop, svg} from './lib/svg.js';
-import {colour2RGBA, handleError} from './misc.js';
+import {colour2RGBA, handleError, point2Line} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData, tokenData} from './characters.js';
@@ -355,31 +355,10 @@ updateLight = () => {
 	createSVG(clearElement(l), {"id": "overhead"}, [
 		rect({"width": "100%", "height": "100%", "fill": "#fff"}),
 		globals.mapData.walls.map(w => {
-
-			let d: Int;
-			if (w.x1 === w.x2) {
-				if (x === w.x1) {
-					return [];
-				}
-				d = Math.hypot(x - w.x1, Math.min(Math.abs(y - w.y1), Math.abs(y - w.y2)));
-			} else if (w.y1 === w.y2) {
-				if (y === w.y1) {
-					return [];
-				}
-				d = Math.hypot(Math.min(Math.abs(x - w.x1), Math.abs(x - w.x2)), y - w.y1);
-			} else {
-				const m = (w.x2 - w.x1) / (w.y2 - w.y1),
-				      n = (w.y1 - w.y2) / (w.x2 - w.x1),
-				      c = w.y1 - m * w.x1,
-				      e = x - w.x1 * m;
-				let px = (e - c) / (m - n);
-				if (px < w.x1) {
-					px = w.x1;
-				} else if (px > w.x2) {
-					px = w.x2;
-				}
-				d = Math.hypot(x - px, y - m * px - c);
+			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
+				return [];
 			}
+			const d = point2Line(x, y, w.x1, w.y1, w.x2, w.y2);
 			if (d >= distance || d === 0) {
 				return [];
 			}

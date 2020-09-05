@@ -59,4 +59,23 @@ screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
 },
 {send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = new Pipe<LayerRPC>(),
-{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>();
+{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>(),
+point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
+	if (x1 === x2) {
+		return Math.hypot(px - x1, Math.min(Math.abs(py - y1), Math.abs(py - y2)));
+	} else if (y1 === y2) {
+		return Math.hypot(Math.min(Math.abs(px - x1), Math.abs(px - x2)), py - y1);
+	} else {
+		const m = (x2 - x1) / (y2 - y1),
+		      n = (y1 - y2) / (x2 - x1),
+		      c = y1 - m * x1,
+		      e = px - x1 * m;
+		let cx = (e - c) / (m - n);
+		if (cx < x1) {
+			cx = x1;
+		} else if (px > x2) {
+			cx = x2;
+		}
+		return Math.hypot(px - cx, py - m * cx - c);
+	}
+};
