@@ -1,4 +1,5 @@
 import {Colour, Int, RPC, Wall} from './types.js';
+import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
@@ -130,7 +131,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 
 
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    lastWall: {wall: Wall; element: SVGGElement} | null = null;
+    lastWall: {wall: Wall; element: SVGGElement} | null = null,
+    wallWaiter: Subscription<any> | null;
 
 addTool({
 	"name": "Light Layer",
@@ -165,6 +167,13 @@ addTool({
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
-	"set": () => globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})))),
-	"unset": () => wallLayer.remove(),
+	"set": (rpc: RPC) => {
+		globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}))));
+		wallWaiter = rpc.waitWallAdded().then(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}));
+	},
+	"unset": () => {
+		wallWaiter!.cancel();
+		wallWaiter = null;
+		wallLayer.remove();
+	},
 });
