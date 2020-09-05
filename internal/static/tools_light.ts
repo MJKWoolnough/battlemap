@@ -3,7 +3,7 @@ import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
 import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell} from './misc.js';
-import {updateLight, globals} from './map.js';
+import {normaliseWall, updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 
@@ -62,12 +62,13 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return;
 			}
 			reset();
-			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
+			      w = normaliseWall({x1, y1, x2, y2, "colour": wallColour});
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
-			rpc.addWall(x1, y1, x2, y2, wallColour).catch(handleError);
-			globals.mapData.walls.push({x1, y1, x2, y2, "colour": wallColour});
+			rpc.addWall(w.x1, w.y1, w.x2, w.y2, w.colour).catch(handleError);
+			globals.mapData.walls.push(w);
 			updateLight();
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
