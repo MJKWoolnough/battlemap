@@ -558,6 +558,10 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				mapData.lightX = pos.x;
 				mapData.lightY = pos.y;
 				updateLight();
+			}),
+			rpc.waitWallAdded().then(w => {
+				mapData.walls.push(normaliseWall(w));
+				updateLight();
 			})
 		)
 	];
