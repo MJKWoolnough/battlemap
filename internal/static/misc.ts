@@ -72,11 +72,11 @@ point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 		}
 		return Math.hypot(Math.min(Math.abs(px - x1), Math.abs(px - x2)), py - y1);
 	}
-	const m = (x2 - x1) / (y2 - y1),
-	      n = (y1 - y2) / (x2 - x1),
+	const m = (y2 - y1) / (x2 - x1),
+	      n = (x1 - x2) / (y2 - y1),
 	      c = y1 - m * x1,
-	      e = px - x1 * m;
-	let cx = (e - c) / (m - n);
+	      d = py - px * n;
+	let cx = (d - c) / (m - n);
 	if (cx < x1) {
 		cx = x1;
 	} else if (cx > x2) {
