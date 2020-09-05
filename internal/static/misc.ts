@@ -79,7 +79,7 @@ point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	let cx = (e - c) / (m - n);
 	if (cx < x1) {
 		cx = x1;
-	} else if (px > x2) {
+	} else if (cx > x2) {
 		cx = x2;
 	}
 	return Math.hypot(px - cx, py - m * cx - c);
