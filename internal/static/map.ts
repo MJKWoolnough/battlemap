@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
@@ -337,6 +337,12 @@ globals = {
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
+normaliseWall = (w: Wall) => {
+	if (w.x1 > w.x2 || w.x1 === w.x2 && w.y1 > w.y2) {
+		[w.x1, w.x2, w.y1, w.y2] = [w.x2, w.x1, w.y2, w.y1];
+	}
+	return w;
+},
 updateLight = () => {
 	document.getElementById("lightGrad") ||	globals.definitions.node.appendChild(radialGradient({"id": "lightGrad"}, [
 		stop({"offset": "0%", "stop-color": "#fff"}),
@@ -362,9 +368,6 @@ updateLight = () => {
 				}
 				d = Math.hypot(Math.min(Math.abs(x - w.x1), Math.abs(x - w.x2)), y - w.y1);
 			} else {
-				if (w.x1 > w.x2) {
-					[w.x1, w.x2, w.y1, w.y2] = [w.x2, w.x1, w.y2, w.y1];
-				}
 				const m = (w.x2 - w.x1) / (w.y2 - w.y1),
 				      n = (w.y1 - w.y2) / (w.x2 - w.x1),
 				      c = w.y1 - m * w.x1,
@@ -393,6 +396,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
 		mapData.children.forEach(c => children.push(processLayers(c)));
+		mapData.walls.forEach(w => normaliseWall(w));
 		return {
 			id: 0,
 			name: "",

@@ -316,7 +316,7 @@ type KeystoreDataRemove = {
 	keys: string[];
 }
 
-type Wall = {
+export type Wall = {
 	x1: Uint;
 	y1: Uint;
 	x2: Uint;
