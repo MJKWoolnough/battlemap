@@ -428,6 +428,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 		}
 		return false;
 	});
+	updateLight();
 	return [
 		base,
 		Subscription.canceller(
