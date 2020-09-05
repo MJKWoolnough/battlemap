@@ -98,8 +98,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
-			rpc.addWall(w.x1, w.y1, w.x2, w.y2, w.colour).catch(handleError);
+			rpc.addWall(w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
 			globals.mapData.walls.push(w);
+			wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}));
 			updateLight();
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
