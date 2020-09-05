@@ -63,6 +63,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			reset();
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			if (x2 === x1 && y2 === y1) {
+				return;
+			}
 			rpc.addWall(x1, y1, x2, y2, wallColour).catch(handleError);
 			globals.mapData.walls.push({x1, y1, x2, y2, "colour": wallColour});
 			updateLight();
