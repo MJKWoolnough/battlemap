@@ -1,8 +1,8 @@
-import {Colour, RPC} from './types.js';
+import {Colour, Int, RPC, Wall} from './types.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
-import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell} from './misc.js';
+import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
@@ -22,19 +22,50 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	      polygon({"points": "5,21 16,21 10.5,16"}),
 	      polygon({"points": "21,16 21,5 16,10.5"})
       ]),
+      over = (x: Int, y: Int, w: Wall) => point2Line(x, y, w.x1, w.y1, w.x2, w.y2) < 5,
       mouseOver = function(this: SVGElement, e: MouseEvent) {
-	const sun = sunTool.checked,
-	      marker = sun ? lightMarker : wallMarker,
-	      offset = sun ? 20 : 10,
-	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, (sun || wallTool.checked) && e.shiftKey);
-		createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
-	      };
-	createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
-		this.removeEventListener("mousemove", onmousemove);
-		this.style.removeProperty("cursor");
-		marker.remove();
-	}, onmousemove}, marker);
+	if (sunTool.checked || wallTool.checked) {
+		const sun = sunTool.checked,
+		      marker = sun ? lightMarker : wallMarker,
+		      offset = sun ? 20 : 10,
+		      onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
+		      };
+		createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
+			this.removeEventListener("mousemove", onmousemove);
+			this.style.removeProperty("cursor");
+			marker.remove();
+		}, onmousemove}, marker);
+	} else {
+		const onmousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			if (lastWall !== null) {
+				if (over(x, y, lastWall.wall)) {
+					return;
+				}
+				lastWall.element.setAttribute("stroke-width", "1");
+				lastWall = null;
+			}
+			let i = 0;
+			for (const w of globals.mapData.walls) {
+				if (over(x, y, w)) {
+					const element = (wallLayer.childNodes[i] as SVGGElement);
+					element.setAttribute("stroke-width", "5");
+					lastWall = {"wall": w, element};
+					break;
+				}
+				i++;
+			}
+		      };
+		createSVG(this, {onmousemove, "1onmouseout": () => {
+			if (lastWall !== null) {
+				lastWall.element.setAttribute("stroke-width", "1");
+				lastWall = null;
+			}
+			this.removeEventListener("mousemove", onmousemove);
+		}});
+	}
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	if (e.button !== 0) {
@@ -97,7 +128,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       wallLayer = g({"stroke-width": 2});
 
 
-let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
+let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+    lastWall: {wall: Wall; element: SVGGElement} | null = null;
 
 addTool({
 	"name": "Light Layer",
