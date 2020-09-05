@@ -14,8 +14,8 @@ type Tool = {
 	name: string;
 	icon: SVGElement;
 	reset?: Function;
-	set?: Function;
-	unset?: Function;
+	set?: (rpc: RPC) => void;
+	unset?: (rpc: RPC) => void;
 	options?: HTMLDivElement;
 	tokenMouseDown?: MouseFn;
 	mapMouseDown?: MouseFn;
@@ -89,10 +89,10 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	      toolOptions = div([h2("Tool Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool?.unset) {
-			selectedTool.unset();
+			selectedTool.unset(arpc);
 		}
 		if (t.set) {
-			t.set();
+			t.set(arpc);
 		}
 		selectedTool = t;
 		if (t.options) {
