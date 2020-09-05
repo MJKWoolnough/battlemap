@@ -261,7 +261,7 @@ type wall struct {
 func (w wall) appendTo(p []byte) []byte {
 	p = strconv.AppendUint(append(p, "{\"x1\":"...), w.X1, 10)
 	p = strconv.AppendUint(append(p, ",\"y1\":"...), w.Y1, 10)
-	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.Y2, 10)
+	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.X2, 10)
 	p = strconv.AppendUint(append(p, ",\"y2\":"...), w.Y2, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
 	return append(p, '}')
