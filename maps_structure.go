@@ -251,18 +251,18 @@ func (t *token) validate() error {
 }
 
 type wall struct {
-	X1     uint64 `json:"x1"`
-	Y1     uint64 `json:"y1"`
-	X2     uint64 `json:"x2"`
-	Y2     uint64 `json:"y2"`
+	X1     int64  `json:"x1"`
+	Y1     int64  `json:"y1"`
+	X2     int64  `json:"x2"`
+	Y2     int64  `json:"y2"`
 	Colour colour `json:"colour"`
 }
 
 func (w wall) appendTo(p []byte) []byte {
-	p = strconv.AppendUint(append(p, "{\"x1\":"...), w.X1, 10)
-	p = strconv.AppendUint(append(p, ",\"y1\":"...), w.Y1, 10)
-	p = strconv.AppendUint(append(p, ",\"x2\":"...), w.X2, 10)
-	p = strconv.AppendUint(append(p, ",\"y2\":"...), w.Y2, 10)
+	p = strconv.AppendInt(append(p, "{\"x1\":"...), w.X1, 10)
+	p = strconv.AppendInt(append(p, ",\"y1\":"...), w.Y1, 10)
+	p = strconv.AppendInt(append(p, ",\"x2\":"...), w.X2, 10)
+	p = strconv.AppendInt(append(p, ",\"y2\":"...), w.Y2, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
 	return append(p, '}')
 }
