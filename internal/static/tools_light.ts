@@ -131,7 +131,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 
 
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    lastWall: {wall: Wall; element: SVGGElement; pos: Uint} | null = null;
+    lastWall: {wall: Wall; element: SVGGElement; pos: Uint} | null = null,
+    wallWaiter = () => {};
 
 addTool({
 	"name": "Light Layer",
@@ -166,6 +167,24 @@ addTool({
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
-	"set": (rpc: RPC) => globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})))),
-	"unset": () => wallLayer.remove(),
+	"set": (rpc: RPC) => {
+		globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}))));
+		wallWaiter = Subscription.canceller(
+			rpc.waitWallAdded().then(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})),
+			rpc.waitWallRemoved().then(p => {
+				wallLayer.childNodes[p].remove();
+				if (lastWall) {
+					if (lastWall.pos === p) {
+						lastWall = null;
+					} else if (lastWall.pos > p) {
+						lastWall.pos--;
+					}
+				}
+			})
+		)
+	},
+	"unset": () => {
+		wallWaiter();
+		wallLayer.remove();
+	},
 });
