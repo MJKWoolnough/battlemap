@@ -107,13 +107,15 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
 		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
 		p = append(p, ",\"walls\":["...)
-		for n, w := range l.Walls {
-			if n > 0 {
-				p = append(p, ',')
+		if l.Layers == nil && l.Name != "Grid" && l.Name != "Light" {
+			for n, w := range l.Walls {
+				if n > 0 {
+					p = append(p, ',')
+				}
+				p = w.appendTo(p)
 			}
-			p = w.appendTo(p)
+			p = append(p, ']')
 		}
-		p = append(p, ']')
 	}
 	if l.Layers != nil {
 		p = append(p, ",\"children\":["...)
@@ -123,7 +125,7 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 			}
 			p = append(l.appendTo(append(p, '{'), true), '}')
 		}
-	} else if l.Name != "Grid" {
+	} else if l.Name != "Grid" && l.Name != "Light" {
 		p = append(p, ",\"tokens\":["...)
 		for n, t := range l.Tokens {
 			if n > 0 {
