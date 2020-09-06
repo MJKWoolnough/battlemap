@@ -33,6 +33,6 @@ span.colourButton {
 	height: auto;
 }
 
-#sunTool:checked ~ #wallToolOptions, #wallTool:checked ~ #sunToolOptions {
+#wallTool:not(:checked) ~ #wallToolOptions {
 	display: none;
 }
