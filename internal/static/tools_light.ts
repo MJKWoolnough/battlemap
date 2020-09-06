@@ -111,8 +111,12 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      };
 		createSVG(this, {onmousemove, onmouseup}, l)
 		window.addEventListener("keydown", onkeydown);
-	} else {
-		// delete Wall Tool
+	} else if (lastWall !== null) {
+		lastWall.element.remove();
+		globals.mapData.walls.splice(lastWall.pos, 1);
+		rpc.removeWall(lastWall.pos);
+		lastWall = null;
+		updateLight();
 	}
       },
       setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
