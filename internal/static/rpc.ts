@@ -317,7 +317,7 @@ const returnVoid = () => {},
       checksTokenAdd: checkers = [[checkTokenPos, ""], [checkToken, ""]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
-      checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"]],
+      checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"], [checkArray, "walls"]],
       checksLayerGrid: checkers = [[checkBoolean, "hidden"], [checkUint, "mask"]],
       checkLayerFolder = (data: any, name = "LayerFolder") => {
 	if (name !== "MapData") {
@@ -327,22 +327,22 @@ const returnVoid = () => {},
 		checkObject(c, "LayerFolder");
 		if (c.children !== undefined) {
 			checkLayerFolder(c);
-		} else if (c.name === "Grid") {
+		} else if (c.name === "Grid" || c.Name === "Light") {
 			checker(c, "LayerGrid", checksLayerGrid);
 		} else {
 			checker(c, "LayerTokens", checksLayerTokens);
 			for (const t of c["tokens"]) {
 				checkToken(t);
 			}
+			for (const w of c["walls"]) {
+				checkWall(w, "Layer->Wall");
+			}
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "walls"], [checkArray, "children"], [checkLayerFolder, ""]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
-	for (const w of data["walls"]) {
-		checkWall(w, "MapData->Wall");
-	}
 	return data;
       },
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],

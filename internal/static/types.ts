@@ -147,7 +147,6 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
-	walls: Wall[];
 };
 
 export type IDName = {
@@ -236,6 +235,7 @@ export type LayerFolder = FolderItems & {
 	name: string;
 	hidden: boolean;
 	children: (LayerTokens | LayerFolder)[];
+	walls: Wall[];
 }
 
 export type LayerMove = FromTo & {
@@ -317,9 +317,9 @@ type KeystoreDataRemove = {
 }
 
 export type Wall = {
-	x1: Uint;
-	y1: Uint;
-	x2: Uint;
-	y2: Uint;
+	x1: Int;
+	y1: Int;
+	x2: Int;
+	y2: Int;
 	colour: Colour;
 }
