@@ -623,6 +623,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				t.X += layerShift.DX
 				t.Y += layerShift.DY
 			}
+			for _, w := range l.Walls {
+				w.X1 += layerShift.DX
+				w.Y1 += layerShift.DY
+				w.X2 += layerShift.DX
+				w.Y2 += layerShift.DY
+			}
 			m.socket.broadcastMapChange(cd, broadcastLayerShift, data)
 			return true
 		})
