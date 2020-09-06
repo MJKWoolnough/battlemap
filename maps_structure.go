@@ -19,7 +19,6 @@ type levelMap struct {
 	Light      colour `json:"lightColour"`
 	LightX     uint64 `json:"lightX"`
 	LightY     uint64 `json:"lightY"`
-	Walls      []wall `json:"walls"`
 	layers     map[string]struct{}
 	layer
 	JSON memio.Buffer `json:"-"`
@@ -59,14 +58,6 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
-	l.JSON = append(l.JSON, ",\"walls\":["...)
-	for n, w := range l.Walls {
-		if n > 0 {
-			l.JSON = append(l.JSON, ',')
-		}
-		l.JSON = w.appendTo(l.JSON)
-	}
-	l.JSON = append(l.JSON, ']')
 	l.JSON = l.layer.appendTo(l.JSON, false)
 	l.JSON = append(l.JSON, '}')
 	n, err := w.Write(l.JSON)
@@ -79,6 +70,7 @@ type layer struct {
 	Hidden bool     `json:"hidden"`
 	Tokens []*token `json:"tokens"`
 	Layers []*layer `json:"children"`
+	Walls  []wall   `json:"walls"`
 }
 
 func (l *layer) validate(layers map[string]struct{}, first bool) error {
@@ -114,6 +106,14 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 		p = appendString(append(p, "\"name\":"...), l.Name)
 		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
 		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
+		p = append(p, ",\"walls\":["...)
+		for n, w := range l.Walls {
+			if n > 0 {
+				p = append(p, ',')
+			}
+			p = w.appendTo(p)
+		}
+		p = append(p, ']')
 	}
 	if l.Layers != nil {
 		p = append(p, ",\"children\":["...)

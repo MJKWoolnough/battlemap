@@ -102,12 +102,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		return nil, nil
 	case "addWall":
-		var wall wall
-		if err := json.Unmarshal(data, &wall); err != nil {
+		var wallAdd struct {
+			Path string `json:"path"`
+			wall
+		}
+		if err := json.Unmarshal(data, &wallAdd); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.Walls = append(mp.Walls, wall)
+		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(_ *levelMap, l *layer) bool {
+			l.Walls = append(l.Walls, wallAdd.wall)
 			m.socket.broadcastMapChange(cd, broadcastWallAdd, data)
 			return true
 		}); err != nil {
@@ -115,15 +118,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		return nil, nil
 	case "removeWall":
-		var pos uint64
-		if err := json.Unmarshal(data, &pos); err != nil {
+		var wallRemove struct {
+			Path string `json:"path"`
+			Pos  uint   `json:"pos"`
+		}
+		if err := json.Unmarshal(data, &wallRemove); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			if pos > uint64(len(mp.Walls)) {
+		if err := m.updateMapLayer(cd.CurrentMap, wallRemove.Path, func(_ *levelMap, l *layer) bool {
+			if wallRemove.Pos > uint(len(l.Walls)) {
 				return false
 			}
-			mp.Walls = append(mp.Walls[:pos], mp.Walls[pos+1:]...)
+			l.Walls = append(l.Walls[:wallRemove.Pos], l.Walls[wallRemove.Pos+1:]...)
 			m.socket.broadcastMapChange(cd, broadcastWallRemove, data)
 			return true
 		}); err != nil {
