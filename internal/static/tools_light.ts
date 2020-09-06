@@ -158,11 +158,6 @@ addTool({
 		br(),
 		label({"for": "deleteWallTool"}, "Remove Wall: "),
 		input({"id": "deleteWallTool", "name": "lightTool", "type": "radio"}),
-		div({"id": "sunToolOptions"}, [
-			label("Light Colour"),
-			br(),
-			label("Height")
-		]),
 		div({"id": "wallToolOptions"}, [
 			label("Wall Colour: "),
 			span({"class": "checkboard colourButton"}, button({"id": "wallColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => wallColour, (c: Colour) => wallColour = c)})),
