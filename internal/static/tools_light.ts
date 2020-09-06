@@ -1,4 +1,4 @@
-import {Colour, Int, RPC, Wall} from './types.js';
+import {Colour, Int, Uint, RPC, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
@@ -48,15 +48,15 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				lastWall.element.setAttribute("stroke-width", "1");
 				lastWall = null;
 			}
-			let i = 0;
+			let pos = 0;
 			for (const w of globals.mapData.walls) {
 				if (over(x, y, w)) {
-					const element = (wallLayer.childNodes[i] as SVGGElement);
+					const element = (wallLayer.childNodes[pos] as SVGGElement);
 					element.setAttribute("stroke-width", "5");
-					lastWall = {"wall": w, element};
+					lastWall = {"wall": w, element, pos};
 					break;
 				}
-				i++;
+				pos++;
 			}
 		      };
 		createSVG(this, {onmousemove, "1onmouseout": () => {
@@ -131,8 +131,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 
 
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    lastWall: {wall: Wall; element: SVGGElement} | null = null,
-    wallWaiter: Subscription<any> | null;
+    lastWall: {wall: Wall; element: SVGGElement; pos: Uint} | null = null;
 
 addTool({
 	"name": "Light Layer",
@@ -167,13 +166,6 @@ addTool({
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
-	"set": (rpc: RPC) => {
-		globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}))));
-		wallWaiter = rpc.waitWallAdded().then(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}));
-	},
-	"unset": () => {
-		wallWaiter!.cancel();
-		wallWaiter = null;
-		wallLayer.remove();
-	},
+	"set": (rpc: RPC) => globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})))),
+	"unset": () => wallLayer.remove(),
 });
