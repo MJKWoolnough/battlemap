@@ -4,7 +4,7 @@ import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
 import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell, point2Line} from './misc.js';
-import {normaliseWall, updateLight, globals} from './map.js';
+import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 
@@ -49,11 +49,11 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				lastWall = null;
 			}
 			let pos = 0;
-			for (const w of globals.mapData.walls) {
-				if (over(x, y, w)) {
+			for (const w of walls) {
+				if (over(x, y, w.wall)) {
 					const element = (wallLayer.childNodes[pos] as SVGGElement);
 					element.setAttribute("stroke-width", "5");
-					lastWall = {"wall": w, element, pos};
+					lastWall = w;
 					break;
 				}
 				pos++;
@@ -99,10 +99,12 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
-			rpc.addWall(w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
-			globals.mapData.walls.push(w);
-			wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}));
-			updateLight();
+			if (globals.selectedLayer) {
+				rpc.addWall(globals.selectedLayerPath, w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
+				globals.selectedLayer.walls.push(w);
+				wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}));
+				updateLight();
+			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
@@ -113,8 +115,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		window.addEventListener("keydown", onkeydown);
 	} else if (lastWall !== null) {
 		lastWall.element.remove();
-		globals.mapData.walls.splice(lastWall.pos, 1);
-		rpc.removeWall(lastWall.pos);
+		lastWall.layer.walls.splice(lastWall.pos, 1);
+		rpc.removeWall(lastWall.layerName, lastWall.pos);
 		lastWall = null;
 		updateLight();
 	}
@@ -131,12 +133,36 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
                 }
 	});
       },
-      wallLayer = g({"stroke-width": 2});
+      wallLayer = g({"stroke-width": 2}),
+      walls: WallData[] = [],
+      genWalls = () => {
+	lastWall = null;
+	clearElement(wallLayer);
+	walls.splice(0, walls.length)
+	walkVisibleLayers(globals.layerList, (layer: SVGLayer, layerName: string) => {
+		layer.walls.forEach((wall, pos) => walls.push({
+		      wall,
+		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "colour": colour2RGBA(wall.colour)})),
+		      layer,
+		      layerName,
+		      pos
+		}));
+		return [];
+	});
+      }
 
+type WallData = {
+	wall: Wall;
+	element: SVGElement;
+	layer: SVGLayer;
+	layerName: string;
+	pos: Uint;
+}
 
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    lastWall: {wall: Wall; element: SVGGElement; pos: Uint} | null = null,
-    wallWaiter = () => {};
+    lastWall: WallData | null = null,
+    wallWaiter = () => {},
+    on = false;
 
 addTool({
 	"name": "Light Layer",
@@ -167,23 +193,17 @@ addTool({
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
 	"set": (rpc: RPC) => {
-		globals.root.appendChild(createSVG(clearElement(wallLayer), globals.mapData.walls.map(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)}))));
+		genWalls();
 		wallWaiter = Subscription.canceller(
-			rpc.waitWallAdded().then(({x1, y1, x2, y2, colour}) => line({x1, y1, x2, y2, "stroke": colour2RGBA(colour)})),
-			rpc.waitWallRemoved().then(p => {
-				wallLayer.childNodes[p].remove();
-				if (lastWall) {
-					if (lastWall.pos === p) {
-						lastWall = null;
-					} else if (lastWall.pos > p) {
-						lastWall.pos--;
-					}
-				}
-			})
-		)
+			rpc.waitWallAdded().then(genWalls),
+			rpc.waitWallRemoved().then(genWalls)
+		);
+		on = true;
 	},
 	"unset": () => {
 		wallWaiter();
 		wallLayer.remove();
+		walls.splice(0, walls.length);
+		on = false;
 	},
 });
