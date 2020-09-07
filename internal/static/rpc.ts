@@ -327,7 +327,7 @@ const returnVoid = () => {},
 		checkObject(c, "LayerFolder");
 		if (c.children !== undefined) {
 			checkLayerFolder(c);
-		} else if (c.name === "Grid" || c.Name === "Light") {
+		} else if (c.name === "Grid" || c.name === "Light") {
 			checker(c, "LayerGrid", checksLayerGrid);
 		} else {
 			checker(c, "LayerTokens", checksLayerTokens);
