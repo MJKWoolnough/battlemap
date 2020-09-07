@@ -231,7 +231,7 @@ const splitAfterLastSlash = (path: string) => {
 		return Object.assign(layer, {node, children});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
-	if (layer.name !== "Grid") {
+	if (layer.name !== "Grid" && layer.name !== "Light") {
 		layer.tokens.forEach(t => {
 			if (isTokenImage(t)) {
 				tokens.push(SVGToken.from(t));
@@ -276,7 +276,7 @@ walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string)
 		(folder.children as SortNode<SVGFolder | SVGLayer>).forEach(e => {
 			if (isSVGFolder(e)) {
 				rets.push(...walkVisibleLayers(e, fn, path));
-			} else if (!e.hidden) {
+			} else if (!e.hidden && e.walls !== undefined) {
 				rets.push(...fn(e, path));
 			}
 		});
