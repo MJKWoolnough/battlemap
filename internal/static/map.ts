@@ -277,7 +277,7 @@ walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string)
 			if (isSVGFolder(e)) {
 				rets.push(...walkVisibleLayers(e, fn, path));
 			} else if (!e.hidden && e.walls !== undefined) {
-				rets.push(...fn(e, path));
+				rets.push(...fn(e, path + e.name));
 			}
 		});
 	}
