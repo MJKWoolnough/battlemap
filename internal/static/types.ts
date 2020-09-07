@@ -77,8 +77,8 @@ export type RPC = {
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
 	waitLayerShift:              () => Subscription<LayerShift>;
 	waitLightShift:              () => Subscription<Coords>;
-	waitWallAdded:               () => Subscription<Wall>;
-	waitWallRemoved:             () => Subscription<Uint>;
+	waitWallAdded:               () => Subscription<WallPath>;
+	waitWallRemoved:             () => Subscription<TokenPos>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
@@ -119,8 +119,8 @@ export type RPC = {
 	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
 	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
 	shiftLight:      (x: Uint, y: Uint)                                                                   => Promise<void>;
-	addWall:         (x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)                             => Promise<void>;
-	removeWall:      (pos: Uint)                                                                          => Promise<void>;
+	addWall:         (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)               => Promise<void>;
+	removeWall:      (path: string, pos: Uint)                                                            => Promise<void>;
 
 	characterCreate:     (name: string)                                 => Promise<IDName>;
 	characterSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;
@@ -228,6 +228,7 @@ export type LayerTokens = {
 	hidden: boolean;
 	mask: Uint;
 	tokens: Token[];
+	walls: Wall[];
 }
 
 export type LayerFolder = FolderItems & {
@@ -235,7 +236,6 @@ export type LayerFolder = FolderItems & {
 	name: string;
 	hidden: boolean;
 	children: (LayerTokens | LayerFolder)[];
-	walls: Wall[];
 }
 
 export type LayerMove = FromTo & {
@@ -322,4 +322,8 @@ export type Wall = {
 	x2: Int;
 	y2: Int;
 	colour: Colour;
+}
+
+type WallPath = Wall & {
+	path: string;
 }
