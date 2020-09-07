@@ -41,8 +41,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenUnsetData":      () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
 			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true).then(checkLayerShift),
 			"waitLightShift":          () => rpc.await(broadcastLightShift, true).then(checkLightShift),
-			"waitWallAdded":           () => rpc.await(broadcastWallAdd, true).then(checkWall),
-			"waitWallRemoved":         () => rpc.await(broadcastWallRemove, true).then(checkUint),
+			"waitWallAdded":           () => rpc.await(broadcastWallAdd, true).then(checkWallPath),
+			"waitWallRemoved":         () => rpc.await(broadcastWallRemove, true).then(checkTokenPos),
 			"waitBroadcast":           () => rpc.await(broadcastAny, true).then(checkBroadcast),
 
 			"images": {
@@ -150,8 +150,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"setTokenPos":     (path, pos, newPos)                        => rpc.request("maps.setTokenPos", {path, pos, newPos}).then(returnVoid),
 			"shiftLayer":      (path, dx, dy)                             => rpc.request("maps.shiftLayer", {path, dx, dy}).then(returnVoid),
 			"shiftLight":      (x, y)                                     => rpc.request("maps.shiftLight", {x, y}).then(returnVoid),
-			"addWall":         (x1, y1, x2, y2, colour)                   => rpc.request("maps.addWall", {x1, y1, x2, y2, colour}).then(returnVoid),
-			"removeWall":       pos                                       => rpc.request("maps.removeWall", pos).then(returnVoid),
+			"addWall":         (path, x1, y1, x2, y2, colour)             => rpc.request("maps.addWall", {path, x1, y1, x2, y2, colour}).then(returnVoid),
+			"removeWall":      (path, pos)                                => rpc.request("maps.removeWall", {path, pos}).then(returnVoid),
 
 			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
 			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}).then(returnVoid),
@@ -350,6 +350,8 @@ const returnVoid = () => {},
       checkLightShift = (data: any) => checker(data, "LightShift", checksCoords),
       checksWall: checkers = [[checkObject, ""], [checkUint, "x1"], [checkUint, "y1"], [checkUint, "x2"], [checkUint, "y2"], [checkColour, "colour"]],
       checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
+      checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
+      checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
