@@ -560,6 +560,15 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				delete w.path;
 				layer.walls.push(normaliseWall(w));
 				updateLight();
+			}),
+			rpc.waitWallRemoved().then(wp => {
+				const layer = getLayer(layerList, wp.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				layer.walls.splice(wp.pos, 1);
+				updateLight();
 			})
 		)
 	];
