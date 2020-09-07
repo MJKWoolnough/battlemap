@@ -106,8 +106,8 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 		p = appendString(append(p, "\"name\":"...), l.Name)
 		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
 		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
-		p = append(p, ",\"walls\":["...)
 		if l.Layers == nil && l.Name != "Grid" && l.Name != "Light" {
+			p = append(p, ",\"walls\":["...)
 			for n, w := range l.Walls {
 				if n > 0 {
 					p = append(p, ',')
