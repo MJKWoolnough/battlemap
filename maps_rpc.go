@@ -109,7 +109,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &wallAdd); err != nil {
 			return nil, err
 		}
-		if rename.Path == "/Grid" || rename.Path == "/Light" {
+		if wallAdd.Path == "/Grid" || wallAdd.Path == "/Light" {
 			return nil, ErrInvalidLayerPath
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(_ *levelMap, l *layer) bool {
