@@ -269,6 +269,20 @@ const splitAfterLastSlash = (path: string) => {
       };
 
 export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string) => T[], path = "/") => {
+	const rets: T[] = [];
+	path += folder.name + "/";
+	if (!folder.hidden) {
+		(folder.children as SortNode<SVGFolder | SVGLayer>).forEach(e => {
+			if (isSVGFolder(e)) {
+				rets.push(...walkVisibleLayers(e, fn, path));
+			} else if (!e.hidden) {
+				rets.push(...fn(e, path));
+			}
+		});
+	}
+	return rets;
+},
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
 getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
@@ -296,7 +310,7 @@ removeLayer = (path: string) => {
 	const [fromParent, layer] = getParentLayer(path);
 	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 },
-addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": []})), name),
+addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(globals.layerList, parentStr)!,
@@ -354,7 +368,7 @@ updateLight = () => {
 	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y));
 	createSVG(clearElement(l), {"id": "overhead"}, [
 		rect({"width": "100%", "height": "100%", "fill": "#fff"}),
-		globals.mapData.walls.map(w => {
+		walkVisibleLayers<SVGElement | []>(globals.layerList, (l: SVGLayer) => l.walls.map(w => {
 			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
 				return [];
 			}
@@ -364,7 +378,7 @@ updateLight = () => {
 			}
 			const dm = distance;
 			return polygon({"fill": colour2RGBA(w.colour), "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`});
-		})
+		})),
 	]);
 	globals.definitions.node.appendChild(l);
 	const r = (document.getElementById("overheadLight") || globals.root.appendChild(rect())) as SVGRectElement;
@@ -375,7 +389,6 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
 		mapData.children.forEach(c => children.push(processLayers(c)));
-		mapData.walls.forEach(w => normaliseWall(w));
 		return {
 			id: 0,
 			name: "",
@@ -383,7 +396,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 			node,
 			children,
 			folders: {},
-			items: {},
+			items: {}
 		} as SVGFolder;
 	      })(),
 	      definitions = new Defs(),
@@ -539,7 +552,13 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				updateLight();
 			}),
 			rpc.waitWallAdded().then(w => {
-				mapData.walls.push(normaliseWall(w));
+				const layer = getLayer(layerList, w.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				delete w.path;
+				layer.walls.push(normaliseWall(w));
 				updateLight();
 			})
 		)
