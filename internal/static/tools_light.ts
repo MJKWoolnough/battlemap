@@ -142,7 +142,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	walkVisibleLayers(globals.layerList, (layer: SVGLayer, layerName: string) => {
 		layer.walls.forEach((wall, pos) => walls.push({
 		      wall,
-		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "colour": colour2RGBA(wall.colour)})),
+		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)})),
 		      layer,
 		      layerName,
 		      pos
