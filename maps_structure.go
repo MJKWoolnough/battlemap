@@ -151,6 +151,8 @@ type token struct {
 	Flip          bool            `json:"flip"`
 	Flop          bool            `json:"flop"`
 	Snap          bool            `json:"snap"`
+	LightColour   colour          `json:"lightColour"`
+	LightIntesity uint64          `jons:"lightIntensity"`
 	TokenType     tokenType       `json:"tokenType"`
 	IsEllipse     bool            `json:"isEllipse"`
 	StrokeWidth   uint8           `json:"strokeWidth"`
@@ -190,6 +192,8 @@ func (t *token) appendTo(p []byte) []byte {
 	p = strconv.AppendUint(append(p, ",\"height\":"...), t.Height, 10)
 	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
+	p = t.LightColour.appendTo(append(p, ",\"lightColour\":"...))
+	p = strconv.AppendUint(append(p, ",\"lightIntensity\":"...), t.LightIntesity, 10)
 	switch t.TokenType {
 	case tokenImage:
 		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)
