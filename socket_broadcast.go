@@ -83,6 +83,7 @@ const (
 	broadcastLayerShift
 
 	broadcastLightShift
+	broadcastTokenLightChange
 	broadcastWallAdd
 	broadcastWallRemove
 
