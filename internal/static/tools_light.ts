@@ -101,8 +101,14 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			if (globals.selectedLayer) {
 				rpc.addWall(globals.selectedLayerPath, w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
+				walls.push({
+					"wall": w,
+					"element": wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayerPath))),
+					"layer": globals.selectedLayer,
+					"layerName": globals.selectedLayerPath,
+					"pos": globals.selectedLayer.walls.length
+				});
 				globals.selectedLayer.walls.push(w);
-				wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}));
 				updateLight();
 			}
 		      },
