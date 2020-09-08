@@ -458,6 +458,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastTokenSnap, data)
 			return true
 		})
+	case "setTokenLight":
+		var lightToken struct {
+			Path           string `json:"path"`
+			Pos            uint   `json:"pos"`
+			LightColour    colour `json:"lightcolour"`
+			LightIntensity uint64 `json:"lightIntensity"`
+		}
+		if err := json.Unmarshal(data, &lightToken); err != nil {
+			return nil, err
+		}
+		if lightToken.Path == "/Grid" || lightToken.Path == "/Light" {
+			return nil, ErrInvalidLayerPath
+		}
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, lightToken.Path, lightToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
+			if tk.LightIntesity == lightToken.LightIntensity && tk.LightColour.R == lightToken.LightColour.R && tk.LightColour.G == lightToken.LightColour.G && tk.LightColour.B == lightToken.LightColour.B && tk.LightColour.A == lightToken.LightColour.A {
+				return false
+			}
+			tk.LightIntesity = lightToken.LightIntensity
+			tk.LightColour = lightToken.LightColour
+			m.socket.broadcastMapChange(cd, broadcastTokenLightChange, data)
+			return true
+		})
 	case "setTokenPattern":
 		var patternToken struct {
 			Path string `json:"path"`
