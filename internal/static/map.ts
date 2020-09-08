@@ -269,7 +269,7 @@ const splitAfterLastSlash = (path: string) => {
       };
 
 export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string) => T[], path = "/") => {
+walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string) => T[], path = "") => {
 	const rets: T[] = [];
 	path += folder.name + "/";
 	if (!folder.hidden) {
