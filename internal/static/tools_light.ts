@@ -199,6 +199,7 @@ addTool({
 			rpc.waitWallRemoved().then(genWalls)
 		);
 		on = true;
+		globals.root.appendChild(wallLayer);
 	},
 	"unset": () => {
 		wallWaiter();
