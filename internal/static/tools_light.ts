@@ -2,7 +2,7 @@ import {Colour, Int, Uint, RPC, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
-import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, use} from './lib/svg.js';
+import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
 import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
@@ -142,7 +142,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	walkVisibleLayers(globals.layerList, (layer: SVGLayer, layerName: string) => {
 		layer.walls.forEach((wall, pos) => walls.push({
 		      wall,
-		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)})),
+		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layerName))),
 		      layer,
 		      layerName,
 		      pos
