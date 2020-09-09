@@ -73,9 +73,17 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		return;
 	}
 	if (sunTool.checked) {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-		rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
-		updateLight();
+		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
+		      {lightX, lightY} = globals.mapData,
+		      doIt = () => {
+			rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
+			updateLight();
+			return () => {
+				rpc.shiftLight(globals.mapData.lightX = lightX, globals.mapData.lightY = lightY);
+				return doIt;
+			};
+		      };
+		globals.undo.add(doIt);
 	} else if (wallTool.checked) {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
