@@ -62,7 +62,8 @@
 }
 
 .checkboard {
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAIAAAAC64paAAAAIElEQVR4AWNowAsO4AWENY9qHtWMXxq/0QQ1j2oe1QwAiXnuH8TTV0gAAAAASUVORK5CYII=);
+	background-color: #ccc;
+	background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20"%3E%3Cpath d="M0,0H10V10H0ZM10,10h10v10H10Z" fill="gray" /%3E%3C/svg%3E');
 	width: 200px;
 	height: 200px;
 }
