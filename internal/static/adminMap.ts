@@ -238,7 +238,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return;
 			}
 			let charID = 0;
-			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value};
+			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 			if (e.dataTransfer!.types.includes("character")) {
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tD.id)!;

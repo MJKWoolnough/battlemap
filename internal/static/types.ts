@@ -77,6 +77,7 @@ export type RPC = {
 	waitTokenUnsetData:          () => Subscription<TokenPos>;
 	waitLayerShift:              () => Subscription<LayerShift>;
 	waitLightShift:              () => Subscription<Coords>;
+	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<TokenPos>;
 	waitBroadcast:               () => Subscription<Broadcast>;
@@ -119,6 +120,7 @@ export type RPC = {
 	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
 	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
 	shiftLight:      (x: Uint, y: Uint)                                                                   => Promise<void>;
+	setTokenLight:   (path: string, pos: Uint, lightColour: Colour, lightIntensity: Uint)                 => Promise<void>;
 	addWall:         (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)               => Promise<void>;
 	removeWall:      (path: string, pos: Uint)                                                            => Promise<void>;
 
@@ -188,7 +190,7 @@ export type GridDetails = {
 
 export type Token = TokenImage | TokenShape | TokenDrawing;
 
-type TokenShared = {
+type TokenShared = TokenLight & {
 	x:           Int;
 	y:           Int;
 	width:       Uint;
@@ -327,3 +329,10 @@ export type Wall = {
 type WallPath = Wall & {
 	path: string;
 }
+
+type TokenLight = {
+	lightColour: Colour;
+	lightIntensity: Uint;
+}
+
+type LightChange = TokenPos & TokenLight;

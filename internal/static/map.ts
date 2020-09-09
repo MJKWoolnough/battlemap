@@ -53,6 +53,8 @@ class SVGTransform {
 	flop: boolean = false;
 	width: Uint;
 	height: Uint;
+	lightColour: Colour;
+	lightIntensity: Uint;
 	node?: SVGGraphicsElement;
 	constructor(token: Token) {
 		this.width = token.width;
@@ -60,6 +62,8 @@ class SVGTransform {
 		this.x = token.x;
 		this.y = token.y;
 		this.rotation = token.rotation;
+		this.lightColour = token.lightColour;
+		this.lightIntensity = token.lightIntensity;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node!.getScreenCTM()!.inverse());
