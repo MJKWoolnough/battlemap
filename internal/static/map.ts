@@ -573,6 +573,14 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 				layer.walls.splice(wp.pos, 1);
 				updateLight();
+			}),
+			rpc.waitTokenLightChange().then(lc => {
+				const [, token] = getParentToken(lc.path, lc.pos);
+				if (token instanceof SVGToken) {
+					token.lightColour = lc.lightColour;
+					token.lightIntensity = lc.lightIntensity;
+					updateLight();
+				}
 			})
 		)
 	];
