@@ -109,7 +109,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &wallAdd); err != nil {
 			return nil, err
 		}
-		if wallAdd.Path == "/Grid" || wallAdd.Path == "/Light" {
+		if !validTokenLayer(wallAdd.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(_ *levelMap, l *layer) bool {
@@ -185,7 +185,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
-		if rename.Path == "/Grid" || rename.Path == "/Light" {
+		if !validTokenLayer(rename.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		err := m.updateMapLayer(cd.CurrentMap, rename.Path, func(lm *levelMap, l *layer) bool {
@@ -212,7 +212,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if (moveLayer.From == "/Grid" || moveLayer.From == "/Light") && moveLayer.To != "/" {
+		if !validTokenLayer(moveLayer.From) && moveLayer.To != "/" {
 			return nil, ErrInvalidLayerPath
 		}
 		if e := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
@@ -307,8 +307,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if path == "/Grid" || path == "/Light" {
-			return nil, ErrUnknownLayer
+		if !validTokenLayer(path) {
+			return nil, ErrInvalidLayerPath
 		}
 		parent, name := splitAfterLastSlash(path)
 		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
@@ -327,7 +327,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &newToken); err != nil {
 			return nil, err
 		}
-		if newToken.Path == "/Grid" || newToken.Path == "/Light" {
+		if !validTokenLayer(newToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		if err := newToken.validate(); err != nil {
@@ -361,7 +361,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenPos); err != nil {
 			return nil, err
 		}
-		if tokenPos.Path == "/Grid" || tokenPos.Path == "/Light" {
+		if !validTokenLayer(tokenPos.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(mp *levelMap, l *layer, tk *token) bool {
@@ -383,7 +383,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &setToken); err != nil {
 			return nil, err
 		}
-		if setToken.Path == "/Grid" || setToken.Path == "/Light" {
+		if !validTokenLayer(setToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, setToken.Path, setToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
@@ -407,7 +407,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &flipToken); err != nil {
 			return nil, err
 		}
-		if flipToken.Path == "/Grid" || flipToken.Path == "/Light" {
+		if !validTokenLayer(flipToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, flipToken.Path, flipToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
@@ -427,7 +427,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &flopToken); err != nil {
 			return nil, err
 		}
-		if flopToken.Path == "/Grid" || flopToken.Path == "/Light" {
+		if !validTokenLayer(flopToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, flopToken.Path, flopToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
@@ -447,7 +447,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &snapToken); err != nil {
 			return nil, err
 		}
-		if snapToken.Path == "/Grid" || snapToken.Path == "/Light" {
+		if !validTokenLayer(snapToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, snapToken.Path, snapToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
@@ -468,7 +468,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &lightToken); err != nil {
 			return nil, err
 		}
-		if lightToken.Path == "/Grid" || lightToken.Path == "/Light" {
+		if !validTokenLayer(lightToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, lightToken.Path, lightToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
@@ -488,7 +488,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &patternToken); err != nil {
 			return nil, err
 		}
-		if patternToken.Path == "/Grid" || patternToken.Path == "/Light" {
+		if !validTokenLayer(patternToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, patternToken.Path, patternToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
@@ -509,7 +509,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &imageToken); err != nil {
 			return nil, err
 		}
-		if imageToken.Path == "/Grid" || imageToken.Path == "/Light" {
+		if !validTokenLayer(imageToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, imageToken.Path, imageToken.Pos, func(mp *levelMap, _ *layer, tk *token) bool {
@@ -530,7 +530,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenSource); err != nil {
 			return nil, err
 		}
-		if tokenSource.Path == "/Grid" || tokenSource.Path == "/Light" {
+		if !validTokenLayer(tokenSource.Path) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenSource.Path, tokenSource.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
@@ -550,7 +550,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenLayer); err != nil {
 			return nil, err
 		}
-		if len(tokenLayer.From) == 0 || len(tokenLayer.To) == 0 || tokenLayer.From == "/Grid" || tokenLayer.From == "/Light" || tokenLayer.To == "/Grid" || tokenLayer.To == "/Light" {
+		if len(tokenLayer.From) == 0 || len(tokenLayer.To) == 0 || !validTokenLayer(tokenLayer.From) || !validTokenLayer(tokenLayer.To) {
 			return nil, ErrInvalidLayerPath
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.From, tokenLayer.Pos, func(mp *levelMap, l *layer, tk *token) bool {
@@ -731,6 +731,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		return nil, ErrUnknownMethod
 	}
 	return m.folders.RPCData(cd, method, data)
+}
+
+func validTokenLayer(path string) bool {
+	return path != "/Grid" && path != "Light"
 }
 
 // Errors
