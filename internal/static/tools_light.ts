@@ -108,16 +108,29 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return;
 			}
 			if (globals.selectedLayer) {
-				rpc.addWall(globals.selectedLayerPath, w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
-				walls.push({
+				const wall = {
 					"wall": w,
-					"element": wallLayer.appendChild(line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayerPath))),
+					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayerPath)),
 					"layer": globals.selectedLayer,
 					"layerName": globals.selectedLayerPath,
 					"pos": globals.selectedLayer.walls.length
-				});
-				globals.selectedLayer.walls.push(w);
-				updateLight();
+				      },
+				      doIt = () => {
+					walls.push(wall);
+					wallLayer.appendChild(wall.element);
+					wall.layer.walls.push(w);
+					rpc.addWall(wall.layerName, w.x1, w.y1, w.x2, w.y2, wallColour).catch(handleError);
+					updateLight();
+					return () => {
+						walls.pop();
+						wall.element.remove();
+						wall.layer.walls.pop();
+						rpc.removeWall(wall.layerName, wall.pos).catch(handleError);
+						updateLight();
+						return doIt;
+					};
+				      };
+				globals.undo.add(doIt);
 			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
