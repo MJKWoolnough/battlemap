@@ -141,11 +141,25 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		createSVG(this, {onmousemove, onmouseup}, l)
 		window.addEventListener("keydown", onkeydown);
 	} else if (lastWall !== null) {
-		lastWall.element.remove();
-		lastWall.layer.walls.splice(lastWall.pos, 1);
-		rpc.removeWall(lastWall.layerName, lastWall.pos);
-		lastWall = null;
-		updateLight();
+		const wall = lastWall,
+		      doIt = () => {
+			wall.element.remove();
+			wall.layer.walls.splice(wall.pos, 1);
+			rpc.removeWall(wall.layerName, wall.pos);
+			if (lastWall === wall) {
+				lastWall = null;
+			}
+			updateLight();
+			return () => {
+				walls.push(wall);
+				wallLayer.appendChild(wall.element);
+				wall.layer.walls.push(wall.wall);
+				rpc.addWall(wall.layerName, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour).catch(handleError);
+				updateLight();
+				return doIt;
+			};
+		      };
+		globals.undo.add(doIt);
 	}
       },
       setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
