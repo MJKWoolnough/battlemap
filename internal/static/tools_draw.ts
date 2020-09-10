@@ -44,8 +44,8 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				      height = Math.abs(cy - y),
 				      token = {"x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
 				if (selectedLayer) {
-					const pos = selectedLayer.tokens.length,
-					      doIt = () => {
+					const doIt = () => {
+						const pos = selectedLayer.tokens.length;
 						selectedLayer.tokens.push(SVGShape.from(token));
 						rpc.addToken(selectedLayerPath, token).catch(handleError);
 						return () => {
@@ -117,8 +117,17 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 			const {selectedLayerPath, selectedLayer} = globals,
 			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
 			if (selectedLayer) {
-				selectedLayer.tokens.push(SVGDrawing.from(token));
-				rpc.addToken(selectedLayerPath, token).catch(handleError);
+				const doIt = () => {
+					const pos = selectedLayer.tokens.length;
+					selectedLayer.tokens.push(SVGDrawing.from(token));
+					rpc.addToken(selectedLayerPath, token).catch(handleError);
+					return () => {
+						selectedLayer.tokens.pop();
+						rpc.removeToken(selectedLayerPath, pos);
+						return doIt;
+					};
+				      };
+				globals.undo.add(doIt);
 			} else {
 				requestShell().alert("Draw Error", "No Layer Selected");
 			}
