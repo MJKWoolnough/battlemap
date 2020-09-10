@@ -166,12 +166,12 @@ export type FolderItems = {
 	items:  Record<string, Uint>;
 }
 
-export type Colour = {
+export type Colour = Readonly<{
 	r: Byte;
 	g: Byte;
 	b: Byte;
 	a: Byte;
-};
+}>;
 
 export type MapDetails = GridDetails & {
 	width: Uint;
