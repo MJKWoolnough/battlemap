@@ -1,16 +1,17 @@
 import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus, clearElement} from './lib/dom.js';
+import {createHTML, br, button, input, h1, label} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
-import {ShellElement} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing} from './map.js';
+import {ShellElement, windows} from './windows.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight} from './map.js';
 import {edit as tokenEdit, characterData, tokenData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {mapLayersSend, mapLoadReceive, noColour, handleError, screen2Grid} from './misc.js';
+import {makeColourPicker, mapLayersSend, mapLoadReceive, noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
@@ -564,6 +565,46 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						};
 					      };
 					undo.add(doIt);
+				}),
+				item("Set Lighting", () => {
+					if (globals.selectedToken !== currToken) {
+						return;
+					}
+					let c = currToken.lightColour;
+					const t = Date.now(),
+					      w = windows({"window-title": "Set Token Lighting"}),
+					      i = input();
+					shell.append(w.appendChild(createHTML(null, [
+						h1("Set Token Lighting"),
+						label({"for": `tokenLighting_${t}`}, "Light Colour: "),
+						makeColourPicker(w, "Pick Token Lighting Colour", () => c, d => c = d, `tokenLighting_${t}`),
+						br(),
+						label({"for": `tokenIntensity_${t}`}, "Light Intensity (distance): "),
+						i,
+						br(),
+						button({"onclick": () => {
+							if (globals.selectedToken === currToken) {
+								const cc = c,
+								      ci = parseInt(i.value);
+								if (ci >= 0) {
+									const lp = globals.selectedLayerPath,
+									      pos = getSelectedTokenPos(),
+								 	      {lightColour, lightIntensity} = currToken;
+									const doIt = () => {
+										rpc.setTokenLight(lp, pos, currToken.lightColour = cc, currToken.lightIntensity = ci).catch(handleError);
+										updateLight();
+										return () => {
+											rpc.setTokenLight(lp, pos, currToken.lightColour = lightColour, currToken.lightIntensity = lightIntensity).catch(handleError);
+											updateLight();
+											return doIt;
+										};
+									};
+									undo.add(doIt);
+								}
+							}
+							w.close();
+						}}, "Save")
+					])));
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
