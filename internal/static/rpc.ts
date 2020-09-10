@@ -224,8 +224,8 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksColour: checkers = [[checkObject, ""], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"]],
-      checkColour = (data: any, name = "Colour") => checker(data, name, checksColour),
+      checksColour: checkers = [[checkObject, ""], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"], [Object.freeze, ""]],
+      checkColour = (data: any, name = "Colour") => checker(Object.freeze(data), name, checksColour),
       checksIDName: checkers = [[checkObject, ""], [checkUint, "id"], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
