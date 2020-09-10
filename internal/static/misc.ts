@@ -22,10 +22,7 @@ noColour = Object.freeze({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour) => new Promise<Colour>((resolve, reject) => {
 	const checkboard = div({"class": "checkboard"}),
 	      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
-	      updatePreview = () => {
-		const colour = hex2Colour(colourInput.value, parseInt(alphaInput.value));
-		preview.style.setProperty("background-color", colour2RGBA(colour));
-	      },
+	      updatePreview = () => preview.style.setProperty("background-color", colour2RGBA(hex2Colour(colourInput.value, parseInt(alphaInput.value)))),
 	      colourInput = input({"id": "colourPick", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
 	      alphaInput = input({"id": "alphaPick", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
 	      window = windows({"window-title": title, "class": "lightChange", "onexit": reject}, [
