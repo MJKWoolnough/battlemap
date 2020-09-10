@@ -1,5 +1,5 @@
 import {Colour, Int, MapData, Uint, LayerRPC} from './types.js';
-import {br, button, div, h1, input, label} from './lib/html.js';
+import {createHTML, br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
 import {globals} from './map.js';
 import {panZoom} from './tools_default.js';
@@ -46,6 +46,23 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      ]);
 	parent.addWindow(window);
 }),
+makeColourPicker = (() => {
+	const sc = (b: HTMLButtonElement, c: Colour) => {
+		if (c.a === 0) {
+			b.style.setProperty("background-color", "#fff");
+			b.innerText = "None";
+		} else {
+			b.style.setProperty("background-color", colour2RGBA(c));
+			b.innerText = "";
+		}
+		return c;
+	};
+	return (title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "") => {
+		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(requestShell(), title, getColour()).then(c => setColour(sc(b, c)))});	
+		sc(b, getColour());
+		return b;
+	};
+})(),
 handleError = (e: Error | string) => {
 	console.log(e);
 	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
