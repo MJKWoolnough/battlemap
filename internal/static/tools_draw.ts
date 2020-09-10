@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/s
 import {autosnap} from './settings.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
-import {colour2RGBA, colourPicker, noColour, screen2Grid, handleError, requestShell} from './misc.js';
+import {colour2RGBA, makeColourPicker, noColour, screen2Grid, handleError, requestShell} from './misc.js';
 import {addTool} from './tools.js';
 
 let over = false,
@@ -176,18 +176,6 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 		snap.click();
 	}
       },
-      setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
-	colourPicker(requestShell(), title, getColour()).then(c => {
-		setColour(c);
-		if (c.a === 0) {
-			this.style.setProperty("background-color", "#fff");
-			this.innerText = "None";
-		} else {
-			this.style.setProperty("background-color", colour2RGBA(c));
-			this.innerText = "";
-		}
-	});
-      },
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 let fillColour = noColour,
@@ -219,10 +207,10 @@ addTool({
 		strokeWidth,
 		br(),
 		label({"for": "strokeColour"}, "Stroke Colour: "),
-		span({"class": "checkboard colourButton"}, button({"id": "strokeColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c)})),
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
 		br(),
 		label({"for": "fillColour"}, "Fill Colour: "),
-		span({"class": "checkboard colourButton"}, button({"id": "fillColour", "style": "background-color: #fff; width: 50px; height: 50px", "onclick": setColour("Set Fill Colour", () => fillColour, (c: Colour) => fillColour = c)}, "None"))
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Fill Colour", () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 		draw(this, e, rpc);
