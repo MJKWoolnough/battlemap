@@ -57,8 +57,8 @@ makeColourPicker = (() => {
 		}
 		return c;
 	};
-	return (title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "") => {
-		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(requestShell(), title, getColour()).then(c => setColour(sc(b, c)))});	
+	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "") => {
+		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(w ?? requestShell(), title, getColour()).then(c => setColour(sc(b, c)))});
 		sc(b, getColour());
 		return b;
 	};
