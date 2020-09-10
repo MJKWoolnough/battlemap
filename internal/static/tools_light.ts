@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
-import {handleError, screen2Grid, colour2RGBA, colourPicker, requestShell, point2Line} from './misc.js';
+import {handleError, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
@@ -162,18 +162,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		globals.undo.add(doIt);
 	}
       },
-      setColour = (title: string, getColour: () => Colour, setColour: (c: Colour) => void) => function(this: HTMLButtonElement) {
-        colourPicker(requestShell(), title, getColour()).then(c => {
-                setColour(c);
-                if (c.a === 0) {
-                        this.style.setProperty("background-color", "#fff");
-                        this.innerText = "None";
-                } else {
-                        this.style.setProperty("background-color", colour2RGBA(c));
-                        this.innerText = "";
-                }
-	});
-      },
       wallLayer = g({"stroke-width": 2}),
       walls: WallData[] = [],
       genWalls = () => {
@@ -227,7 +215,7 @@ addTool({
 		input({"id": "deleteWallTool", "name": "lightTool", "type": "radio"}),
 		div({"id": "wallToolOptions"}, [
 			label("Wall Colour: "),
-			span({"class": "checkboard colourButton"}, button({"id": "wallColour", "style": "background-color: #000; width: 50px; height: 50px", "onclick": setColour("Set Stroke Colour", () => wallColour, (c: Colour) => wallColour = c)})),
+			span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Stroke Colour", () => wallColour, (c: Colour) => wallColour = c, "wallColour")),
 		])
 	]),
 	"mapMouseOver": mouseOver,
