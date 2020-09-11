@@ -473,6 +473,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					const newParent = getLayer(layerList, tm.to);
 					if (newParent && isSVGLayer(newParent)) {
 						newParent.tokens.push(parent.tokens.splice(tm.pos, 1)[0]);
+						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+							updateLight();
+						}
 					}
 				}
 			}),
@@ -491,6 +494,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				const token = layer.tokens.splice(tk.pos, 1)[0];
 				if (token instanceof SVGToken) {
 					token.cleanup();
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
 				}
 			}),
 			rpc.waitTokenChange().then(st => {
@@ -502,6 +508,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					token.height = st.height;
 					token.rotation = st.rotation;
 					token.updateNode();
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
 				}
 			}),
 			rpc.waitTokenFlip().then(tf => {
@@ -524,6 +533,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				const [layer, token] = getParentToken(to.path, to.pos);
 				if (layer && token) {
 					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
 				}
 			}),
 			rpc.waitTokenSetData().then(td => {
@@ -549,6 +561,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					t.y += ls.dy;
 					t.updateNode();
 				});
+				updateLight();
 			}),
 			rpc.waitLightShift().then(pos => {
 				mapData.lightX = pos.x;
