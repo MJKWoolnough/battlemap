@@ -1,4 +1,4 @@
-import {Colour, Int, Uint, RPC, Wall} from './types.js';
+import {Colour, Int, Uint, RPC, LayerRPC, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
@@ -165,6 +165,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       wallLayer = g({"stroke-width": 2}),
       walls: WallData[] = [],
       genWalls = () => {
+	if (!on) {
+		return;
+	}
 	lastWall = null;
 	clearElement(wallLayer);
 	walls.splice(0, walls.length)
@@ -192,6 +195,19 @@ let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
     lastWall: WallData | null = null,
     wallWaiter = () => {},
     on = false;
+
+mapLayersReceive(l => {
+	([
+		l.waitMoved,
+		l.waitFolderMoved,
+		l.waitRemoved,
+		l.waitFolderRemoved,
+		l.waitLayerSetVisible,
+		l.waitLayerSetInvisible,
+		l.waitLayerPositionChange
+	] as (() => Subscription<any>)[]).map(fn => fn().then(genWalls));
+	genWalls();
+});
 
 addTool({
 	"name": "Light Layer",
