@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
-import {handleError, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
+import {mapLayersReceive, handleError, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
@@ -223,10 +223,15 @@ addTool({
 	"mapMouseWheel": defaultMouseWheel,
 	"set": (rpc: RPC) => {
 		genWalls();
-		wallWaiter = Subscription.canceller(
-			rpc.waitWallAdded().then(genWalls),
-			rpc.waitWallRemoved().then(genWalls)
-		);
+		wallWaiter = Subscription.canceller(...([
+			rpc.waitWallAdded,
+			rpc.waitWallRemoved,
+			rpc.waitLayerMove,
+			rpc.waitLayerRemove,
+			rpc.waitLayerShow,
+			rpc.waitLayerHide,
+			rpc.waitLayerShift
+		] as (() => Subscription<any>)[]).map(fn => fn().then(genWalls)));
 		on = true;
 		globals.root.appendChild(wallLayer);
 	},
