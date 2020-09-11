@@ -391,7 +391,7 @@ updateLight = () => {
 	]);
 	globals.definitions.node.appendChild(l);
 	const r = (document.getElementById("overheadLight") || globals.root.appendChild(rect())) as SVGRectElement;
-	createSVG(r, {"id": "overheadLight", "width": "100%", "height": "100%", "fill": "#ffa", "mask": "url(#overhead)"});
+	createSVG(r, {"id": "overheadLight", "width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour), "mask": "url(#overhead)"});
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
