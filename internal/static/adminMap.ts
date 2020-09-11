@@ -573,7 +573,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					let c = currToken.lightColour;
 					const t = Date.now(),
 					      w = windows({"window-title": "Set Token Lighting"}),
-					      i = input();
+					      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 					shell.append(w.appendChild(createHTML(null, [
 						h1("Set Token Lighting"),
 						label({"for": `tokenLighting_${t}`}, "Light Colour: "),
