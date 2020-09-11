@@ -238,7 +238,6 @@ addTool({
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
 	"set": (rpc: RPC) => {
-		genWalls();
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,
 			rpc.waitWallRemoved,
@@ -249,6 +248,7 @@ addTool({
 			rpc.waitLayerShift
 		] as (() => Subscription<any>)[]).map(fn => fn().then(genWalls)));
 		on = true;
+		genWalls();
 		globals.root.appendChild(wallLayer);
 	},
 	"unset": () => {
