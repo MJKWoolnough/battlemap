@@ -307,12 +307,15 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	} else {
 		layer.node.setAttribute("visibility", "hidden");
 	}
+	updateLight();
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => getLayer(globals.layerList, path)!.name = name,
 removeLayer = (path: string) => {
-	const [fromParent, layer] = getParentLayer(path);
-	return (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+	const [fromParent, layer] = getParentLayer(path),
+	      ret = (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+	updateLight();
+	return ret;
 },
 addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
@@ -322,14 +325,19 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	if (isSVGFolder(fromParent)) {
 		toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
 	}
+	updateLight();
 },
 setMapDetails = (details: MapDetails) => {
 	globals.root.setAttribute("width", (globals.mapData.width = details["width"]).toString());
 	globals.root.setAttribute("height", (globals.mapData.height = details["height"]).toString());
 	globals.definitions.setGrid(details);
+	updateLight();
 	return details;
 },
-setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(c)), c),
+setLightColour = (c: Colour) => {
+	(((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(c)), c);
+	updateLight();
+},
 globals = {
 	"definitions": null,
 	"root": null,
