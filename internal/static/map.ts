@@ -50,6 +50,11 @@ class Defs {
 		}
 		return this.lighting[id] = filter({id});
 	}
+	clearLighting() {
+		for (const key in this.lighting) {
+			delete this.lighting[key];
+		}
+	}
 }
 
 class SVGTransform {
