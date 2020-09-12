@@ -334,7 +334,7 @@ setMapDetails = (details: MapDetails) => {
 	updateLight();
 	return details;
 },
-setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(c)), updateLight(), c),
+setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c)), updateLight(), c),
 globals = {
 	"definitions": null,
 	"root": null,
