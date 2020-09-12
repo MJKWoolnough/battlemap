@@ -25,6 +25,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       ]),
       over = (x: Int, y: Int, w: Wall) => point2Line(x, y, w.x1, w.y1, w.x2, w.y2) < 5,
       mouseOver = function(this: SVGElement, e: MouseEvent) {
+	e.preventDefault();
 	if (sunTool.checked || wallTool.checked) {
 		const sun = sunTool.checked,
 		      marker = sun ? lightMarker : wallMarker,
@@ -69,6 +70,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	}
       },
       mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+	e.preventDefault();
 	if (e.button !== 0) {
 		return;
 	}
@@ -250,6 +252,7 @@ addTool({
 		on = true;
 		genWalls();
 		globals.root.appendChild(wallLayer);
+		globals.deselectToken();
 	},
 	"unset": () => {
 		wallWaiter();
