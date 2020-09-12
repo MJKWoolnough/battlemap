@@ -367,16 +367,12 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
-	document.getElementById("lightGrad") ||	globals.definitions.node.appendChild(radialGradient({"id": "lightGrad"}, [
-		stop({"offset": "0%", "stop-color": "#fff"}),
-		stop({"offset": "100%", "stop-color": "#fff", "stop-opacity": 0}),
-	]));
-	const l = (document.getElementById("overhead") || mask()) as SVGMaskElement,
-	      x = globals.mapData.lightX,
+	const x = globals.mapData.lightX,
 	      y = globals.mapData.lightY,
-	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y));
-	createSVG(clearElement(l), {"id": "overhead"}, [
-		rect({"width": "100%", "height": "100%", "fill": "#fff"}),
+	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y)),
+	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`;
+	createSVG(clearElement(getLayer(globals.layerList, "/Light")!.node), [
+		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
 		walkVisibleLayers<SVGElement | []>(globals.layerList, (l: SVGLayer) => l.walls.map(w => {
 			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
 				return [];
@@ -386,12 +382,9 @@ updateLight = () => {
 				return [];
 			}
 			const dm = distance;
-			return polygon({"fill": colour2RGBA(w.colour), "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`});
+			return polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`});
 		})),
 	]);
-	globals.definitions.node.appendChild(l);
-	const r = (document.getElementById("overheadLight") || globals.root.appendChild(rect())) as SVGRectElement;
-	createSVG(r, {"id": "overheadLight", "width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour), "mask": "url(#overhead)"});
 },
 mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
