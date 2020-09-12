@@ -39,35 +39,33 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 		const root = new Root(folderList, fileType, rpcFuncs, shell, fileType === "Images" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
 			button(`Upload ${fileType}`, {"onclick": () => {
-				const window = shell.appendChild(windows({"window-title": `Upload ${fileType}`, "class": "assetAdd"}, [
-					h1(`Upload ${fileType}`),
-					form({"enctype": "multipart/form-data", "method": "post"}, [
-						label({"for": "addAssets"}, "Add Asset(s)"),
-						autoFocus(input({"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
-							this.setAttribute("disabled", "disabled");
-							const bar = progress({"style": "width: 100%"}) as HTMLElement;
-							loadingWindow(HTTPRequest(`/${fileType.toLowerCase()}/`, {
-								"data": new FormData(this.parentNode as HTMLFormElement),
-								"method": "POST",
-								"response": "json",
-								"onprogress": (e: ProgressEvent) => {
-									if (e.lengthComputable) {
-										createHTML(bar, {"value": e.loaded, "max": e.total});
-										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-									}
+				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
+					label({"for": "addAssets"}, "Add Asset(s)"),
+					autoFocus(input({"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+						this.setAttribute("disabled", "disabled");
+						const bar = progress({"style": "width: 100%"}) as HTMLElement;
+						loadingWindow(HTTPRequest(`/${fileType.toLowerCase()}/`, {
+							"data": new FormData(f),
+							"method": "POST",
+							"response": "json",
+							"onprogress": (e: ProgressEvent) => {
+								if (e.lengthComputable) {
+									createHTML(bar, {"value": e.loaded, "max": e.total});
+									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 								}
-							}), window, "Uploading", div({"class": "loadBar"}, [
-								div("Uploading file(s)"),
-								bar
-							])).then((assets: IDName[]) => {
-								assets.forEach(({id, name}) => root.addItem(id, name));
-								window.remove();
-							})
-							.catch(handleError)
-							.finally(() => this.removeAttribute("disabled"));
-						}}))
-					])
-				]));
+							}
+						}), window, "Uploading", div({"class": "loadBar"}, [
+							div("Uploading file(s)"),
+							bar
+						])).then((assets: IDName[]) => {
+							assets.forEach(({id, name}) => root.addItem(id, name));
+							window.remove();
+						})
+						.catch(handleError)
+						.finally(() => this.removeAttribute("disabled"));
+					}}))
+				      ]),
+				      window = shell.appendChild(windows({"window-title": `Upload ${fileType}`, "class": "assetAdd"}, [h1(`Upload ${fileType}`), f]));
 			}}),
 			root.node
 		]);
