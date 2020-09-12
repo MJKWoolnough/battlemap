@@ -48,10 +48,11 @@ class Defs {
 		if (this.lighting[id]) {
 			return this.lighting[id];
 		}
-		return this.lighting[id] = filter({id});
+		return this.lighting[id] = this.node.appendChild(filter({id}));
 	}
 	clearLighting() {
 		for (const key in this.lighting) {
+			this.lighting[key].remove();
 			delete this.lighting[key];
 		}
 	}
