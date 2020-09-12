@@ -229,6 +229,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			}
 		      },
 		      outline = g();
+		globals.undo = undo;
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 				e.preventDefault();
