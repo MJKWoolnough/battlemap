@@ -208,8 +208,6 @@ func (k *keystoreDir) IsLinkKey(key string) *folders {
 		return &k.images.folders
 	} else if strings.HasPrefix(key, "store-audio") {
 		return &k.sounds.folders
-	} else if strings.HasPrefix(key, "store-token") {
-		return &k.tokens.folders
 	} else if strings.HasPrefix(key, "store-character") {
 		return &k.chars.folders
 	}
