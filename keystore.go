@@ -58,8 +58,7 @@ func (k keystoreMap) WriteTo(w io.Writer) (int64, error) {
 
 type keystoreDir struct {
 	folders
-	Name    string
-	DirType uint8
+	Name string
 
 	fileStore *keystore.FileStore
 
@@ -143,7 +142,7 @@ func (k *keystoreDir) createFromName(cd ConnData, data json.RawMessage) (json.Ra
 	k.mu.Unlock()
 	k.fileStore.Set(strID, m)
 	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), name), '}', ']')
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterItemAdd), buf, cd.ID)
+	k.socket.broadcastAdminChange(broadcastCharacterItemAdd, buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
 }
 
@@ -178,7 +177,7 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if !ok {
 		return keystore.ErrUnknownKey
 	}
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataChange), data, cd.ID)
+	k.socket.broadcastAdminChange(broadcastCharacterDataChange, data, cd.ID)
 	buf := append(data[:0], "{\"data\":"...)
 	for key, val := range m.Data {
 		if val.User {
@@ -198,10 +197,8 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '{'
 		buf = append(append(append(buf, "},\"id\":"...), m.ID...), '}')
-		if k.DirType == keystoreCharacter {
-			cd.CurrentMap = 0
-		}
-		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataChange), buf)
+		cd.CurrentMap = 0
+		k.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
 	}
 	return k.fileStore.Set(string(m.ID), ms)
 }
@@ -259,7 +256,7 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 		k.mu.Unlock()
 		return keystore.ErrUnknownKey
 	}
-	k.socket.broadcastAdminChange(k.getBroadcastID(broadcastCharacterDataRemove), data, cd.ID)
+	k.socket.broadcastAdminChange(broadcastCharacterDataRemove, data, cd.ID)
 	buf := append(data[:0], "{\"keys\":"...)
 	for _, key := range m.Keys {
 		val, ok := ms[key]
@@ -280,77 +277,10 @@ func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
 	if len(buf) > 8 {
 		buf[8] = '['
 		buf = append(append(append(buf, "],\"id\":"...), m.ID...), '}')
-		if k.DirType == keystoreCharacter {
-			cd.CurrentMap = 0
-		}
-		k.socket.broadcastMapChange(cd, k.getBroadcastID(broadcastCharacterDataRemove), buf)
+		cd.CurrentMap = 0
+		k.socket.broadcastMapChange(cd, broadcastCharacterDataRemove, buf)
 	}
 	return k.fileStore.Set(string(m.ID), &ms)
-}
-
-type tokensDir struct {
-	keystoreDir
-}
-
-func (t *tokensDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
-	switch method {
-	case "create", "list", "createFolder", "move", "moveFolder", "remove", "removeFolder", "link":
-		return nil, ErrUnknownMethod
-	case "clone":
-		return t.cloneData(data, false)
-	default:
-		return t.keystoreDir.RPCData(cd, method, data)
-	}
-}
-
-func (t *tokensDir) cloneData(data json.RawMessage, setLink bool) (json.RawMessage, error) {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	d, ok := t.data[string(data)]
-	if !ok {
-		return nil, ErrItemNotFound
-	}
-	id, _ := strconv.ParseUint(string(data), 10, 64)
-	if l := t.links[id]; l == 0 {
-		if setLink {
-			t.links[id] = 1
-		}
-		return data, nil
-	}
-	m := make(keystoreMap)
-	for k, v := range d {
-		m[k] = v
-		if f := t.IsLinkKey(k); f != nil {
-			var id uint64
-			json.Unmarshal(v.Data, &id)
-			f.setHiddenLink(id)
-		}
-	}
-	t.lastID++
-	kid := t.lastID
-	name := strconv.FormatUint(kid, 10)
-	if setLink {
-		t.links[kid] = 1
-	} else {
-		t.links[kid] = 0
-	}
-	t.saveFolders()
-	t.data[name] = m
-	t.fileStore.Set(name, m)
-	return json.RawMessage(name), nil
-}
-
-const (
-	keystoreCharacter uint8 = iota
-	keystoreToken
-)
-
-func (k *keystoreDir) getBroadcastID(base int) int {
-	switch k.DirType {
-	case keystoreToken:
-		return base - 1
-	}
-	return base
 }
 
 // Errors
