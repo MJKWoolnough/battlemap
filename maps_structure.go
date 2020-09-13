@@ -21,12 +21,12 @@ type levelMap struct {
 	LightY     uint64 `json:"lightY"`
 	layers     map[string]struct{}
 	layer
-	JSON memio.Buffer `json:"-"`
+	TokenData      map[uint64]map[string]keystoreData `json:"tokenData"`
+	JSON, UserJSON memio.Buffer                       `json:"-"`
 }
 
 func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
-	l.JSON = l.JSON[:0]
-	sr := rwcount.Reader{Reader: io.TeeReader(r, &l.JSON)}
+	sr := rwcount.Reader{Reader: r}
 	err := json.NewDecoder(&sr).Decode(l)
 	if sr.Err != nil {
 		return sr.Count, sr.Err
@@ -46,10 +46,13 @@ func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
 		l.Layers = append(l.Layers, &layer{Name: "Light", Tokens: []*token{}})
 		l.layers["Light"] = struct{}{}
 	}
+	l.writeJSON()
 	return sr.Count, nil
 }
 
-func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
+func (l *levelMap) writeJSON() {
+	l.JSON = l.JSON[:0]
+	l.UserJSON = l.UserJSON[:0]
 	l.JSON = strconv.AppendUint(append(l.JSON[:0], "{\"width\":"...), l.Width, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"height\":"...), l.Height, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridSize, 10)
@@ -59,7 +62,28 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
 	l.JSON = l.layer.appendTo(l.JSON, false)
+	l.JSON = append(l.JSON, ",\"tokenData\":"...)
+	for id, td := range l.TokenData {
+		p := len(l.JSON)
+		l.JSON = append(strconv.AppendUint(append(l.JSON, '"'), id, 10), '"', ':', '{')
+		l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
+		for key, kd := range td {
+			p = len(l.JSON)
+			l.JSON = append(appendString(l.JSON, key), ':')
+			l.JSON = strconv.AppendBool(append(l.JSON, "{\"user\":"...), kd.User)
+			l.JSON = append(append(l.JSON, ",\"data\":"...), kd.Data...)
+			l.JSON = append(l.JSON, '}')
+			if kd.User {
+				l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
+			}
+		}
+	}
 	l.JSON = append(l.JSON, '}')
+	l.UserJSON = append(l.UserJSON, '}')
+}
+
+func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
+	l.writeJSON()
 	n, err := w.Write(l.JSON)
 	return int64(n), err
 }
