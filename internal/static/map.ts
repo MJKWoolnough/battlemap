@@ -6,7 +6,7 @@ import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon
 import {colour2RGBA, handleError, point2Line} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
-import {characterData, tokenData} from './characters.js';
+import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import Undo from './undo.js';
 
@@ -604,6 +604,18 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					token.lightColour = lc.lightColour;
 					token.lightIntensity = lc.lightIntensity;
 					updateLight();
+				}
+			}),
+			rpc.waitTokenDataChange().then(d => {
+				const tk = mapData.tokenData[""+d.id];
+				if (tk) {
+					Object.assign(tk, d.data);
+				}
+			}),
+			rpc.waitTokenDataRemove().then(d => {
+				const tk = mapData.tokenData[""+d.id];
+				if (tk) {
+					d.keys.forEach(k => delete tk[k]);
 				}
 			})
 		)
