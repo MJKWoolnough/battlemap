@@ -29,7 +29,6 @@ const allowedKey = (key: string, character: boolean) => {
       ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
-tokenData = new Map<Uint, Record<string, KeystoreData>>(),
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0, tokenClone = 0;
@@ -176,18 +175,6 @@ export default function (arpc: RPC) {
 		const char = characterData.get(d.id);
 		if (char) {
 			d.keys.forEach(k => delete char[k]);
-		}
-	});
-	rpc.waitTokenDataChange().then(d => {
-		const tk = tokenData.get(d.id);
-		if (tk) {
-			Object.assign(tk, d.data);
-		}
-	});
-	rpc.waitTokenDataRemove().then(d => {
-		const tk = tokenData.get(d.id);
-		if (tk) {
-			d.keys.forEach(k => delete tk[k]);
 		}
 	});
 };
