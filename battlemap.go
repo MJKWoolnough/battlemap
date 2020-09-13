@@ -21,7 +21,6 @@ type Battlemap struct {
 	images  assetsDir
 	sounds  assetsDir
 	chars   keystoreDir
-	tokens  tokensDir
 	maps    mapsDir
 	masks   masksDir
 	files   filesDir
@@ -50,8 +49,6 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	}
 	b.chars.Name = "Chars"
 	b.tokens.Name = "Tokens"
-	b.chars.DirType = keystoreCharacter
-	b.tokens.DirType = keystoreToken
 	b.images.fileType = fileTypeImage
 	b.sounds.fileType = fileTypeAudio
 	if a == nil {
@@ -70,7 +67,6 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		"Socket":  &b.socket,
 		"Images":  &b.images,
 		"Sounds":  &b.sounds,
-		"Tokens":  &b.tokens,
 		"Chars":   &b.chars,
 		"Maps":    &b.maps,
 		"Masks":   &b.masks,
