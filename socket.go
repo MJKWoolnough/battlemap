@@ -155,10 +155,6 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			if cd.IsAdmin() || submethod == "get" {
 				return c.chars.RPCData(cd, submethod, data)
 			}
-		case "tokens":
-			if cd.IsAdmin() || submethod == "get" {
-				return c.tokens.RPCData(cd, submethod, data)
-			}
 		}
 	}
 	return nil, ErrUnknownMethod
