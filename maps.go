@@ -1,7 +1,6 @@
 package battlemap
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -54,6 +53,23 @@ func (m *mapsDir) Cleanup() {
 			delete(m.maps, id)
 			m.cleanupLayerWalk(mp, &mp.layer)
 		}
+		var s *folders
+		for _, td := range mp.TokenData {
+			for key, data := range td {
+				if strings.HasPrefix(key, "store-image") {
+					s = &m.images.folders
+				} else if strings.HasPrefix(key, "store-audio") {
+					s = &m.sounds.folders
+				} else if strings.HasPrefix(key, "store-character") {
+					s = &m.chars.folders
+				} else {
+					continue
+				}
+				var id uint64
+				json.Unmarshal(data.Data, &id)
+				s.removeHiddenLink(id)
+			}
+		}
 	})
 }
 
@@ -69,9 +85,6 @@ func (m *mapsDir) cleanupLayerWalk(mp *levelMap, layer *layer) {
 func (m *mapsDir) cleanupTokenRemove(mp *levelMap, layer *layer, tk *token) {
 	if tk.Source > 0 {
 		m.images.removeHiddenLink(tk.Source)
-	}
-	if !bytes.Equal(tk.TokenData, zeroJSON) {
-		m.tokens.itemDeleteString(string(tk.TokenData))
 	}
 }
 
