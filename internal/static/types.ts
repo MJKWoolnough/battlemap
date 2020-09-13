@@ -149,6 +149,7 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
+	tokenData: Record<Uint, Record<string, KeystoreData>>;
 };
 
 export type IDName = {
