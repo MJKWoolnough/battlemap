@@ -306,7 +306,8 @@ export type KeystoreData = {
 
 type KeystoreDataChange = {
 	id: Uint;
-	data: Record<string, KeystoreData>;
+	setting: Record<string, KeystoreData>;
+	removing: string[];
 }
 
 type KeystoreDataRemove = {
