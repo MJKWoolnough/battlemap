@@ -21,8 +21,7 @@ type levelMap struct {
 	LightY     uint64 `json:"lightY"`
 	layers     map[string]struct{}
 	layer
-	TokenData      map[uint64]map[string]keystoreData `json:"tokenData"`
-	JSON, UserJSON memio.Buffer                       `json:"-"`
+	JSON, UserJSON memio.Buffer `json:"-"`
 }
 
 func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
@@ -61,25 +60,27 @@ func (l *levelMap) writeJSON() {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
-	l.JSON = l.layer.appendTo(l.JSON, false)
-	l.JSON = append(l.JSON, ",\"tokenData\":"...)
-	for id, td := range l.TokenData {
-		p := len(l.JSON)
-		l.JSON = append(strconv.AppendUint(append(l.JSON, '"'), id, 10), '"', ':', '{')
-		l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
-		for key, kd := range td {
-			p = len(l.JSON)
-			l.JSON = append(appendString(l.JSON, key), ':')
-			l.JSON = strconv.AppendBool(append(l.JSON, "{\"user\":"...), kd.User)
-			l.JSON = append(append(l.JSON, ",\"data\":"...), kd.Data...)
-			l.JSON = append(l.JSON, '}')
-			if kd.User {
-				l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
+	l.UserJSON = append(l.UserJSON[:0], l.JSON...)
+	l.JSON = l.layer.appendTo(l.JSON, false, false)
+	l.JSON = l.layer.appendTo(l.UserJSON, false, true)
+	/*
+		l.JSON = append(l.JSON, ",\"tokenData\":"...)
+		for id, td := range l.TokenData {
+			p := len(l.JSON)
+			l.JSON = append(strconv.AppendUint(append(l.JSON, '"'), id, 10), '"', ':', '{')
+			l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
+			for key, kd := range td {
+				p = len(l.JSON)
+				l.JSON = append(appendString(l.JSON, key), ':')
+				l.JSON = strconv.AppendBool(append(l.JSON, "{\"user\":"...), kd.User)
+				l.JSON = append(append(l.JSON, ",\"data\":"...), kd.Data...)
+				l.JSON = append(l.JSON, '}')
+				if kd.User {
+					l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
+				}
 			}
 		}
-	}
-	l.JSON = append(l.JSON, '}')
-	l.UserJSON = append(l.UserJSON, '}')
+	*/
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
@@ -125,7 +126,7 @@ func (l *layer) validate(layers map[string]struct{}, first bool) error {
 	return nil
 }
 
-func (l *layer) appendTo(p []byte, full bool) []byte {
+func (l *layer) appendTo(p []byte, full, user bool) []byte {
 	if full {
 		p = appendString(append(p, "\"name\":"...), l.Name)
 		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
@@ -147,7 +148,7 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 			if n > 0 {
 				p = append(p, ',')
 			}
-			p = append(l.appendTo(append(p, '{'), true), '}')
+			p = append(l.appendTo(append(p, '{'), true, user), '}')
 		}
 	} else if l.Name != "Grid" && l.Name != "Light" {
 		p = append(p, ",\"tokens\":["...)
@@ -155,7 +156,7 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 			if n > 0 {
 				p = append(p, ',')
 			}
-			p = t.appendTo(p)
+			p = t.appendTo(p, user)
 		}
 	} else {
 		return p
@@ -166,25 +167,25 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 type token struct {
 	Source uint64 `json:"src"`
 	coords
-	Width         uint64          `json:"width"`
-	Height        uint64          `json:"height"`
-	PatternWidth  uint64          `json:"patternWidth"`
-	PatternHeight uint64          `json:"patternHeight"`
-	TokenData     json.RawMessage `json:"tokenData"`
-	Rotation      uint8           `json:"rotation"`
-	Flip          bool            `json:"flip"`
-	Flop          bool            `json:"flop"`
-	Snap          bool            `json:"snap"`
-	LightColour   colour          `json:"lightColour"`
-	LightIntesity uint64          `jons:"lightIntensity"`
-	TokenType     tokenType       `json:"tokenType"`
-	IsEllipse     bool            `json:"isEllipse"`
-	StrokeWidth   uint8           `json:"strokeWidth"`
-	Fill          colour          `json:"fill"`
-	Fills         []fill          `json:"fills"`
-	FillType      fillType        `json:"fillType"`
-	Stroke        colour          `json:"stroke"`
-	Points        []coords        `json:"points"`
+	Width         uint64                  `json:"width"`
+	Height        uint64                  `json:"height"`
+	PatternWidth  uint64                  `json:"patternWidth"`
+	PatternHeight uint64                  `json:"patternHeight"`
+	TokenData     map[string]keystoreData `json:"tokenData"`
+	Rotation      uint8                   `json:"rotation"`
+	Flip          bool                    `json:"flip"`
+	Flop          bool                    `json:"flop"`
+	Snap          bool                    `json:"snap"`
+	LightColour   colour                  `json:"lightColour"`
+	LightIntesity uint64                  `jons:"lightIntensity"`
+	TokenType     tokenType               `json:"tokenType"`
+	IsEllipse     bool                    `json:"isEllipse"`
+	StrokeWidth   uint8                   `json:"strokeWidth"`
+	Fill          colour                  `json:"fill"`
+	Fills         []fill                  `json:"fills"`
+	FillType      fillType                `json:"fillType"`
+	Stroke        colour                  `json:"stroke"`
+	Points        []coords                `json:"points"`
 }
 
 type coords struct {
@@ -208,7 +209,7 @@ const (
 	fillGradient
 )
 
-func (t *token) appendTo(p []byte) []byte {
+func (t *token) appendTo(p []byte, user bool) []byte {
 	p = appendNum(append(p, "{\"tokenType\":"...), uint8(t.TokenType))
 	p = strconv.AppendInt(append(p, ",\"x\":"...), t.X, 10)
 	p = strconv.AppendInt(append(p, ",\"y\":"...), t.Y, 10)
@@ -225,7 +226,18 @@ func (t *token) appendTo(p []byte) []byte {
 		p = strconv.AppendBool(append(p, ",\"flop\":"...), t.Flop)
 		p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
 		p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
-		p = append(append(p, ",\"tokenData\":"...), t.TokenData...)
+		p = append(p, ",\"tokenData\":{"...)
+		for key, data := range t.TokenData {
+			if user && !data.User {
+				continue
+			}
+			p = append(appendString(p, key), ':')
+			p = strconv.AppendBool(append(p, "{\"user\":"...), data.User)
+			p = append(append(p, ",\"data\":"...), data.Data...)
+			p = append(p, '}', ',')
+
+		}
+		p[len(p)-1] = '}'
 	case tokenDrawing:
 		p = append(p, ",\"points\":["...)
 		for n, coords := range t.Points {
