@@ -140,22 +140,13 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 						return false;
 					}
 					return true;
-				      }),
-				      ps: Promise<void>[] = [];
-				if (keys.length > 0) {
-					ps.push((character ? rpc.characterSet : rpc.tokenSet)(id, changes).then(() => {
-						Object.assign(d, changes);
-						keys.forEach(k => delete changes[k]);
-					}));
-				}
-				if (removes.size > 0) {
-					ps.push((character ? rpc.characterRemoveKeys : rpc.tokenRemoveKeys)(id, rms).then(() => {
-						removes.forEach(k => delete d[k]);
-						removes.clear();
-					}));
-				}
-				return loadingWindow(Promise.all(ps), w)
-				.then(() => changed = false);
+				      });
+				return loadingWindow((character ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
+					Object.assign(d, changes);
+					keys.forEach(k => delete changes[k]);
+					removes.forEach(k => delete d[k]);
+					removes.clear();
+				}), w).then(() => changed = false);
 			})
 			.catch(handleError)
 			.finally(() => this.removeAttribute("disabled"));
@@ -168,13 +159,10 @@ export default function (arpc: RPC) {
 	rpc.waitCharacterDataChange().then(d => {
 		const char = characterData.get(d.id);
 		if (char) {
-			Object.assign(char, d.data);
-		}
-	});
-	rpc.waitCharacterDataRemove().then(d => {
-		const char = characterData.get(d.id);
-		if (char) {
-			d.keys.forEach(k => delete char[k]);
+			Object.assign(char, d.setting);
+			for (const r of d.removing) {
+				delete char[r];
+			}
 		}
 	});
 };
