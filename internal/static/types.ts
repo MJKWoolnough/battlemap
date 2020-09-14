@@ -46,9 +46,7 @@ export type RPC = {
 	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
 	waitCharacterDataChange:     () => Subscription<KeystoreDataChange>;
-	waitCharacterDataRemove:     () => Subscription<KeystoreDataRemove>;
 	waitTokenDataChange:         () => Subscription<KeystoreDataChange>;
-	waitTokenDataRemove:         () => Subscription<KeystoreDataRemove>;
 	waitMapChange:               () => Subscription<MapDetails>;
 	waitLayerAdd:                () => Subscription<string>;
 	waitLayerFolderAdd:          () => Subscription<string>;
@@ -124,10 +122,9 @@ export type RPC = {
 	addWall:         (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)               => Promise<void>;
 	removeWall:      (path: string, pos: Uint)                                                            => Promise<void>;
 
-	characterCreate:     (name: string)                                 => Promise<IDName>;
-	characterSet:        (id: Uint, data: Record<string, KeystoreData>) => Promise<void>;
-	characterGet:        (id: Uint)                                     => Promise<Record<string, KeystoreData>>;
-	characterRemoveKeys: (id: Uint, keys: string[])                     => Promise<void>;
+	characterCreate:     (name: string)                                                        => Promise<IDName>;
+	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
+	characterGet:        (id: Uint)                                                            => Promise<Record<string, KeystoreData>>;
 
 	tokenCreate:     (path: string, pos: Uint)                                          => Promise<Uint>;
 	tokenModify:     (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
