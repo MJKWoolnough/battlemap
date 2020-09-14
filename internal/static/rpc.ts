@@ -10,9 +10,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitCurrentUserMap":      () => rpc.await(broadcastCurrentUserMap, true).then(checkUint),
 			"waitCurrentUserMapData":  () => rpc.await(broadcastCurrentUserMapData, true).then(checkMapData),
 			"waitCharacterDataChange": () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreDataChange),
-			"waitCharacterDataRemove": () => rpc.await(broadcastCharacterDataRemove, true).then(checkKeystoreDataRemove),
 			"waitTokenDataChange":     () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
-			"waitTokenDataRemove":     () => rpc.await(broadcastTokenDataRemove, true).then(checkKeystoreDataRemove),
 			"waitMapChange":           () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
 			"waitLayerAdd":            () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":      () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
@@ -155,10 +153,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"addWall":         (path, x1, y1, x2, y2, colour)             => rpc.request("maps.addWall", {path, x1, y1, x2, y2, colour}).then(returnVoid),
 			"removeWall":      (path, pos)                                => rpc.request("maps.removeWall", {path, pos}).then(returnVoid),
 
-			"characterCreate":      name      => rpc.request("characters.create", name).then(checkIDName),
-			"characterSet":        (id, data) => rpc.request("characters.set", {id, data}).then(returnVoid),
-			"characterGet":         id        => rpc.request("characters.get", id).then(checkKeystoreData),
-			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}).then(returnVoid),
+			"characterCreate":      name                   => rpc.request("characters.create", name).then(checkIDName),
+			"characterModify":     (id, setting, removing) => rpc.request("characters.set", {id, setting, removing}).then(returnVoid),
+			"characterGet":         id                     => rpc.request("characters.get", id).then(checkKeystoreData),
 
 			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkUint),
 			"tokenModify":     (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
@@ -254,15 +251,11 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksKeystoreDataChange: checkers = [[checkObject, ""], [checkInt, "id"], [checkKeystoreData, "data"]],
-      checkKeystoreDataChange = (data: any) => checker(data, "KeystoreDataChange", checksKeystoreDataChange),
-      checksKeystoreDataRemove: checkers = [[checkObject, ""], [checkUint, "id"], [checkArray, "keys"]],
-      checkKeystoreDataRemove = (data: any) => {
-	checker(data, "KeystoreDataRemove", checksKeystoreDataRemove);
-	for (const key of data["keys"]) {
-		if (typeof key !== "string") {
-			throwError(`invalid KeystoreDataRemove object, 'keys' contains an invalid key: ${JSON.stringify(key)}`);
-		}
+      checksKeystoreDataChange: checkers = [[checkObject, ""], [checkInt, "id"], [checkKeystoreData, "setting"], [checkArray, "removing"]],
+      checkKeystoreDataChange = (data: any) => {
+	checker(data, "KeystoreDataChange", checksKeystoreDataChange)
+	for (const r of data.removing) {
+		checkString(r, "KeystoreDataChange", "removing");
 	}
 	return data;
       },
