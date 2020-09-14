@@ -114,12 +114,10 @@ func (k *keystoreDir) RPCData(cd ConnData, method string, data json.RawMessage) 
 	switch method {
 	case "create":
 		return k.createFromName(cd, data)
-	case "set":
-		return nil, k.set(cd, data)
+	case "modify":
+		return nil, k.modify(cd, data)
 	case "get":
 		return k.get(cd, data)
-	case "removeKeys":
-		return nil, k.removeKeys(cd, data)
 	default:
 		return k.folders.RPCData(cd, method, data)
 	}
@@ -160,15 +158,16 @@ func (k *keystoreDir) createFromID() json.RawMessage {
 	return json.RawMessage(name)
 }
 
-func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
+func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 	var m struct {
-		ID   json.RawMessage         `json:"id"`
-		Data map[string]keystoreData `json:"data"`
+		ID       json.RawMessage         `json:"id"`
+		Setting  map[string]keystoreData `json:"setting"`
+		Removing []string                `json:"removing"`
 	}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return err
 	}
-	if len(m.Data) == 0 {
+	if len(m.Setting) == 0 && len(m.Removing) == 0 {
 		return nil
 	}
 	k.mu.Lock()
@@ -178,8 +177,24 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		return keystore.ErrUnknownKey
 	}
 	k.socket.broadcastAdminChange(broadcastCharacterDataChange, data, cd.ID)
-	buf := append(data[:0], "{\"data\":"...)
-	for key, val := range m.Data {
+	buf := append(append(append(data[:0], "{\"ID\":"...), m.ID...), ",\"removing\":["...)
+	for _, key := range m.Removing {
+		val, ok := ms[key]
+		if !ok {
+			continue
+		}
+		if val.User {
+			buf = appendString(append(buf, ','), key)
+		}
+		if f := k.IsLinkKey(key); f != nil {
+			var id uint64
+			json.Unmarshal(val.Data, &id)
+			f.removeHiddenLink(id)
+		}
+		delete(ms, key)
+	}
+	buf = append(buf, "],\"setting\":{"...)
+	for key, val := range m.Setting {
 		if val.User {
 			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
 		}
@@ -194,12 +209,9 @@ func (k *keystoreDir) set(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
-	if len(buf) > 8 {
-		buf[8] = '{'
-		buf = append(append(append(buf, "},\"id\":"...), m.ID...), '}')
-		cd.CurrentMap = 0
-		k.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
-	}
+	buf = append(buf, '}', '}')
+	cd.CurrentMap = 0
+	k.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
 	return k.fileStore.Set(string(m.ID), ms)
 }
 
@@ -235,50 +247,6 @@ func (k *keystoreDir) get(cd ConnData, id json.RawMessage) (json.RawMessage, err
 		buf = append(buf, '}')
 	}
 	return buf, nil
-}
-
-func (k *keystoreDir) removeKeys(cd ConnData, data json.RawMessage) error {
-	var m struct {
-		ID   json.RawMessage `json:"id"`
-		Keys []string        `json:"keys"`
-	}
-	if err := json.Unmarshal(data, &m); err != nil {
-		return err
-	}
-	if len(m.Keys) == 0 {
-		return nil
-	}
-	k.mu.Lock()
-	ms, ok := k.data[string(m.ID)]
-	if !ok {
-		k.mu.Unlock()
-		return keystore.ErrUnknownKey
-	}
-	k.socket.broadcastAdminChange(broadcastCharacterDataRemove, data, cd.ID)
-	buf := append(data[:0], "{\"keys\":"...)
-	for _, key := range m.Keys {
-		val, ok := ms[key]
-		if !ok {
-			continue
-		}
-		if val.User {
-			buf = appendString(append(buf, ','), key)
-		}
-		if f := k.IsLinkKey(key); f != nil {
-			var id uint64
-			json.Unmarshal(val.Data, &id)
-			f.removeHiddenLink(id)
-		}
-		delete(ms, key)
-	}
-	k.mu.Unlock()
-	if len(buf) > 8 {
-		buf[8] = '['
-		buf = append(append(append(buf, "],\"id\":"...), m.ID...), '}')
-		cd.CurrentMap = 0
-		k.socket.broadcastMapChange(cd, broadcastCharacterDataRemove, buf)
-	}
-	return k.fileStore.Set(string(m.ID), &ms)
 }
 
 // Errors
