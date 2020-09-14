@@ -161,9 +161,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterRemoveKeys": (id, keys) => rpc.request("characters.removeKeys", {id, keys}).then(returnVoid),
 
 			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkUint),
-			"tokenSet":        (id, data)  => rpc.request("tokens.set", {id, data}).then(returnVoid),
-			"tokenGet":         id         => rpc.request("tokens.get", id).then(checkKeystoreData),
-			"tokenRemoveKeys": (id, keys)  => rpc.request("tokens.removeKeys", {id, keys}).then(returnVoid),
+			"tokenModify":     (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
 			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}).then(returnVoid),
 			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkUint),
 
