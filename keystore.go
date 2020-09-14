@@ -177,22 +177,7 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 		return keystore.ErrUnknownKey
 	}
 	k.socket.broadcastAdminChange(broadcastCharacterDataChange, data, cd.ID)
-	buf := append(append(append(data[:0], "{\"ID\":"...), m.ID...), ",\"removing\":["...)
-	for _, key := range m.Removing {
-		val, ok := ms[key]
-		if !ok {
-			continue
-		}
-		if val.User {
-			buf = appendString(append(buf, ','), key)
-		}
-		if f := k.IsLinkKey(key); f != nil {
-			var id uint64
-			json.Unmarshal(val.Data, &id)
-			f.removeHiddenLink(id)
-		}
-		delete(ms, key)
-	}
+	buf := append(append(data[:0], "{\"ID\":"...), m.ID...)
 	buf = append(buf, "],\"setting\":{"...)
 	for key, val := range m.Setting {
 		if val.User {
@@ -209,7 +194,23 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 		}
 		ms[key] = val
 	}
-	buf = append(buf, '}', '}')
+	buf = append(buf, "},\"removing\":["...)
+	for _, key := range m.Removing {
+		val, ok := ms[key]
+		if !ok {
+			continue
+		}
+		if val.User {
+			buf = appendString(append(buf, ','), key)
+		}
+		if f := k.IsLinkKey(key); f != nil {
+			var id uint64
+			json.Unmarshal(val.Data, &id)
+			f.removeHiddenLink(id)
+		}
+		delete(ms, key)
+	}
+	buf = append(buf, ']', '}')
 	cd.CurrentMap = 0
 	k.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
 	return k.fileStore.Set(string(m.ID), ms)
