@@ -1,7 +1,6 @@
 package battlemap
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 
@@ -337,12 +336,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		var e error
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
 			if newToken.TokenType == tokenImage {
-				if newToken.TokenData != nil && !bytes.Equal(newToken.TokenData, zeroJSON) {
-					if newToken.TokenData, e = m.tokens.cloneData(newToken.TokenData, true); e != nil {
-						return false
+				var id uint64
+				for key, data := range newToken.TokenData {
+					if f := m.isLinkKey(key); f != nil {
+						json.Unmarshal(data.Data, &id)
+						f.setHiddenLink(id)
 					}
-					tokenID = newToken.TokenData
-					data = json.RawMessage(newToken.appendTo(data[:0]))
 				}
 				m.images.setHiddenLink(newToken.Source)
 			}
@@ -586,51 +585,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, e
 		}
 		return nil, err
-	case "setAsToken":
-		var tokenPos struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
-		}
-		var rm json.RawMessage
-		if err := json.Unmarshal(data, &tokenPos); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			if tk.TokenType != tokenImage {
-				return false
-			}
-			tk.TokenData = m.tokens.createFromID()
-			if cap(data) >= len(rm)+len(data)+6 {
-				data = data[:len(data)-1]
-			} else {
-				data = append(make(json.RawMessage, 0, len(rm)+len(data)+6), data...)
-			}
-			m.socket.broadcastMapChange(cd, broadcastTokenSetData, append(append(append(data[:len(data)-1], ',', '"', 'i', 'd', '"', ':'), rm...), '}'))
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		return rm, nil
-	case "unsetAsToken":
-		var tokenPos struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
-		}
-		if err := json.Unmarshal(data, &tokenPos); err != nil {
-			return nil, err
-		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenPos.Path, tokenPos.Pos, func(_ *levelMap, l *layer, tk *token) bool {
-			if tk.TokenType != tokenImage {
-				return false
-			}
-			if bytes.Equal(tk.TokenData, zeroJSON) {
-				return false
-			}
-			m.tokens.itemDeleteString(string(tk.TokenData))
-			tk.TokenData = zeroJSON
-			m.socket.broadcastMapChange(cd, broadcastTokenUnsetData, data)
-			return true
-		})
 	case "shiftLayer":
 		var layerShift struct {
 			Path string `json:"path"`
