@@ -227,17 +227,23 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 		p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
 		p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
 		p = append(p, ",\"tokenData\":{"...)
+		first := true
 		for key, data := range t.TokenData {
 			if user && !data.User {
 				continue
 			}
+			if !first {
+				p = append(p, ',')
+			} else {
+				first = false
+			}
 			p = append(appendString(p, key), ':')
 			p = strconv.AppendBool(append(p, "{\"user\":"...), data.User)
 			p = append(append(p, ",\"data\":"...), data.Data...)
-			p = append(p, '}', ',')
+			p = append(p, '}')
 
 		}
-		p[len(p)-1] = '}'
+		p = append(p, '}')
 	case tokenDrawing:
 		p = append(p, ",\"points\":["...)
 		for n, coords := range t.Points {
