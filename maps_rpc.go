@@ -1,8 +1,10 @@
 package battlemap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"strconv"
 
 	"vimagination.zapto.org/keystore"
 )
@@ -352,6 +354,78 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return tokenID, e
+	case "modifyTokenData":
+		var modifyToken struct {
+			Path     string                  `json:"path"`
+			Pos      uint                    `json:"pos"`
+			Setting  map[string]keystoreData `json:"setting"`
+			Removing []string                `json:"removing"`
+		}
+		if err := json.Unmarshal(data, &modifyToken); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, modifyToken.Path, modifyToken.Pos, func(_ *levelMap, _ *layer, tk *token) bool {
+			m.socket.broadcastAdminChange(broadcastTokenDataChange, data, cd.ID)
+			data := appendString(append(data[:0], "{\"path\":"...), modifyToken.Path)
+			data = strconv.AppendUint(append(data, ",\"pos\":"...), uint64(modifyToken.Pos), 10)
+			data = append(data, ",\"setting\":{"...)
+			changed := false
+			first := true
+			var id uint64
+			for key, kd := range modifyToken.Setting {
+				if f := m.isLinkKey(key); f != nil {
+					if d, ok := tk.TokenData[key]; ok {
+						if !bytes.Equal(kd.Data, d.Data) {
+							json.Unmarshal(d.Data, &id)
+							f.removeHiddenLink(id)
+							json.Unmarshal(kd.Data, &id)
+							f.setHiddenLink(id)
+						}
+					} else {
+						json.Unmarshal(kd.Data, &id)
+						f.setHiddenLink(id)
+					}
+				}
+				if kd.User {
+					if !first {
+						data = append(data, ',')
+					} else {
+						first = false
+					}
+					data = append(append(append(data, "{\"user\":true,\"data\":"...), kd.Data...), '}')
+				}
+				tk.TokenData[key] = kd
+				changed = true
+			}
+			data = append(data, "},\"removing\":["...)
+			first = true
+			for _, r := range modifyToken.Removing {
+				d, ok := tk.TokenData[r]
+				if !ok {
+					continue
+				}
+				if f := m.isLinkKey(r); f != nil {
+					var id uint64
+					json.Unmarshal(d.Data, &id)
+					f.removeHiddenLink(id)
+				}
+				if tk.TokenData[r].User {
+					if !first {
+						data = append(data, ',')
+					} else {
+						first = false
+					}
+					data = appendString(data, r)
+				}
+				delete(tk.TokenData, r)
+				changed = true
+			}
+			if changed {
+				data = append(data, ']')
+				m.socket.broadcastMapChange(cd, broadcastTokenDataChange, data)
+			}
+			return changed
+		})
 	case "removeToken":
 		var tokenPos struct {
 			Path string `json:"path"`
