@@ -70,19 +70,11 @@ func (m *mapsDir) cleanupTokenRemove(mp *levelMap, layer *layer, tk *token) {
 		m.images.removeHiddenLink(tk.Source)
 	}
 	for key, data := range tk.TokenData {
-		var s *folders
-		if strings.HasPrefix(key, "store-image") {
-			s = &m.images.folders
-		} else if strings.HasPrefix(key, "store-audio") {
-			s = &m.sounds.folders
-		} else if strings.HasPrefix(key, "store-character") {
-			s = &m.chars.folders
-		} else {
-			continue
+		if f := m.isLinkKey(key); f != nil {
+			var id uint64
+			json.Unmarshal(data.Data, &id)
+			f.removeHiddenLink(id)
 		}
-		var id uint64
-		json.Unmarshal(data.Data, &id)
-		s.removeHiddenLink(id)
 	}
 }
 
