@@ -9,8 +9,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":               () => rpc.await(broadcastIsAdmin).then(checkUint),
 			"waitCurrentUserMap":      () => rpc.await(broadcastCurrentUserMap, true).then(checkUint),
 			"waitCurrentUserMapData":  () => rpc.await(broadcastCurrentUserMapData, true).then(checkMapData),
-			"waitCharacterDataChange": () => rpc.await(broadcastCharacterDataChange, true).then(checkKeystoreDataChange),
-			"waitTokenDataChange":     () => rpc.await(broadcastTokenDataChange, true).then(checkKeystoreDataChange),
+			"waitCharacterDataChange": () => rpc.await(broadcastCharacterDataChange, true).then(checkCharacterDataChange),
+			"waitTokenDataChange":     () => rpc.await(broadcastTokenDataChange, true).then(checkTokenDataChange),
 			"waitMapChange":           () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
 			"waitLayerAdd":            () => rpc.await(broadcastLayerAdd, true).then(checkString),
 			"waitLayerFolderAdd":      () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
@@ -35,8 +35,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenFlop":           () => rpc.await(broadcastTokenFlop, true).then(checkTokenFlop),
 			"waitTokenSnap":           () => rpc.await(broadcastTokenSnap, true).then(checkTokenSnap),
 			"waitTokenSourceChange":   () => rpc.await(broadcastTokenSourceChange, true).then(checkTokenSource),
-			"waitTokenSetData":        () => rpc.await(broadcastTokenSetData, true).then(checkTokenID),
-			"waitTokenUnsetData":      () => rpc.await(broadcastTokenUnsetData, true).then(checkTokenPos),
 			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true).then(checkLayerShift),
 			"waitLightShift":          () => rpc.await(broadcastLightShift, true).then(checkLightShift),
 			"waitTokenLightChange":    () => rpc.await(broadcastTokenLightChange, true).then(checkLightChange),
@@ -157,10 +155,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterModify":     (id, setting, removing) => rpc.request("characters.set", {id, setting, removing}).then(returnVoid),
 			"characterGet":         id                     => rpc.request("characters.get", id).then(checkKeystoreData),
 
-			"tokenCreate":     (path, pos) => rpc.request("maps.setAsToken", {path, pos}).then(checkUint),
 			"tokenModify":     (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
-			"tokenDelete":     (path, pos) => rpc.request("maps.unsetAsToken", {path, pos}).then(returnVoid),
-			"tokenClone":       id         => rpc.request("tokens.clone", id).then(checkUint),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
 			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
@@ -251,14 +246,18 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksKeystoreDataChange: checkers = [[checkObject, ""], [checkInt, "id"], [checkKeystoreData, "setting"], [checkArray, "removing"]],
-      checkKeystoreDataChange = (data: any) => {
-	checker(data, "KeystoreDataChange", checksKeystoreDataChange)
+      checksKeystoreDataChange: checkers = [[checkObject, ""], [checkKeystoreData, "setting"], [checkArray, "removing"]],
+      checkKeystoreDataChange = (data: any, name: string) => {
+	checker(data, name, checksKeystoreDataChange)
 	for (const r of data.removing) {
-		checkString(r, "KeystoreDataChange", "removing");
+		checkString(r, name, "removing");
 	}
 	return data;
       },
+      checksCharacterDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
+      checkCharacterDataChange = (data: any) => checker(data, "CharacterDataChange", checksCharacterDataChange),
+      checksTokenDataChange: checkers = [[checkKeystoreDataChange, ""], [checkString, "path"], [checkUint, "pos"]],
+      checkTokenDataChange = (data: any) => checker(data, "TokenDataChange", checksTokenDataChange),
       checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridSize"], [checkColour, "gridColour"]],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
       checksTokenPos: checkers = [[checkObject, ""], [checkString, "path"], [checkUint, "pos"]],
