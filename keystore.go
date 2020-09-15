@@ -73,7 +73,7 @@ func (k *keystoreDir) Cleanup() {
 			return
 		}
 		for key, data := range ms {
-			if f := k.IsLinkKey(key); f != nil {
+			if f := k.isLinkKey(key); f != nil {
 				var id uint64
 				json.Unmarshal(data.Data, &id)
 				f.removeHiddenLink(id)
@@ -183,7 +183,7 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 		if val.User {
 			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
 		}
-		if f := k.IsLinkKey(key); f != nil {
+		if f := k.isLinkKey(key); f != nil {
 			var id uint64
 			if oldVal, ok := ms[key]; ok {
 				json.Unmarshal(oldVal.Data, &id)
@@ -203,7 +203,7 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 		if val.User {
 			buf = appendString(append(buf, ','), key)
 		}
-		if f := k.IsLinkKey(key); f != nil {
+		if f := k.isLinkKey(key); f != nil {
 			var id uint64
 			json.Unmarshal(val.Data, &id)
 			f.removeHiddenLink(id)
@@ -216,13 +216,13 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 	return k.fileStore.Set(string(m.ID), ms)
 }
 
-func (k *keystoreDir) IsLinkKey(key string) *folders {
+func (b *Battlemap) isLinkKey(key string) *folders {
 	if strings.HasPrefix(key, "store-image") {
-		return &k.images.folders
+		return &b.images.folders
 	} else if strings.HasPrefix(key, "store-audio") {
-		return &k.sounds.folders
+		return &b.sounds.folders
 	} else if strings.HasPrefix(key, "store-character") {
-		return &k.chars.folders
+		return &b.chars.folders
 	}
 	return nil
 }
