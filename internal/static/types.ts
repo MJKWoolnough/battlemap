@@ -45,8 +45,8 @@ export type RPC = {
 	waitLogin:                   () => Promise<Uint>;
 	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
-	waitCharacterDataChange:     () => Subscription<KeystoreDataChange>;
-	waitTokenDataChange:         () => Subscription<KeystoreDataChange>;
+	waitCharacterDataChange:     () => Subscription<CharacterDataChange>;
+	waitTokenDataChange:         () => Subscription<TokenDataChange>;
 	waitMapChange:               () => Subscription<MapDetails>;
 	waitLayerAdd:                () => Subscription<string>;
 	waitLayerFolderAdd:          () => Subscription<string>;
@@ -71,8 +71,6 @@ export type RPC = {
 	waitTokenFlop:               () => Subscription<TokenFlop>;
 	waitTokenSnap:               () => Subscription<TokenSnap>;
 	waitTokenSourceChange:       () => Subscription<TokenSource>;
-	waitTokenSetData:            () => Subscription<TokenID>;
-	waitTokenUnsetData:          () => Subscription<TokenPos>;
 	waitLayerShift:              () => Subscription<LayerShift>;
 	waitLightShift:              () => Subscription<Coords>;
 	waitTokenLightChange:        () => Subscription<LightChange>;
@@ -126,10 +124,7 @@ export type RPC = {
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 	characterGet:        (id: Uint)                                                            => Promise<Record<string, KeystoreData>>;
 
-	tokenCreate:     (path: string, pos: Uint)                                          => Promise<Uint>;
-	tokenModify:     (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
-	tokenDelete:     (path: string, pos: Uint)                                          => Promise<void>;
-	tokenClone:      (id: Uint)                                                         => Promise<Uint>;
+	tokenModify:     (path: string, pos: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
@@ -144,7 +139,6 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
-	tokenData: Record<Uint, Record<string, KeystoreData>>;
 };
 
 export type IDName = {
@@ -202,7 +196,7 @@ export type TokenImage = TokenShared & {
 	patternHeight: Uint;
 	flip:        boolean;
 	flop:        boolean;
-	tokenData:     Uint;
+	tokenData:   Record<string, KeystoreData>;
 }
 
 export type TokenShape = TokenShared & {
@@ -304,8 +298,15 @@ export type KeystoreData = {
 	data: any;
 }
 
-type KeystoreDataChange = {
+type CharacterDataChange = {
 	id: Uint;
+	setting: Record<string, KeystoreData>;
+	removing: string[];
+}
+
+type TokenDataChange = {
+	path: string;
+	pos: Uint;
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
