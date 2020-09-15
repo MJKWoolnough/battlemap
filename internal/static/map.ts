@@ -104,7 +104,7 @@ export class SVGToken extends SVGTransform {
 	strokeWidth: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
-	tokenData: Uint;
+	tokenData: Record<string, KeystoreData>;
 	tokenType: Uint;
 	snap: boolean;
 	constructor(token: TokenImage) {
@@ -426,14 +426,10 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 		if (!isLayerFolder(l)) {
 			l.tokens.forEach(t => {
 				if (isTokenImage(t) && t.tokenData) {
-					const tID = t.tokenData;
-					rpc.tokenGet(tID).then(d => {
-						tokenData.set(tID, d);
-						if (loadChars && typeof d["store-character-id"] === "number") {
-							const cID = d["store-character-id"].data;
-							rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
-						}
-					}).catch(handleError);
+					const cID = t.tokenData["store-character-id"];
+					if (loadChars && cID && typeof t.tokenData.data === "number") {
+						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d)).catch(handleError);
+					}
 				}
 			})
 		}
@@ -462,15 +458,9 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				delete tk["pos"];
 				if (isTokenImage(tk)) {
 					layer.tokens.push(SVGToken.from(tk));
-					if (tk.tokenData) {
-						const tID = tk.tokenData;
-						rpc.tokenGet(tID).then(d => {
-							tokenData.set(tID, d);
-							if (loadChars && typeof d["store-character-id"] === "number") {
-								const cID = d["store-character-id"].data;
-								rpc.characterGet(cID).then(d => characterData.set(cID, d)).catch(handleError);
-							}
-						}).catch(handleError);
+					const cID = tk.tokenData["store-character-id"];
+					if (tk.tokenData && loadChars && cID && typeof cID.data === "number") {
+						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d)).catch(handleError);
 					}
 				} else if (isTokenDrawing(tk)) {
 					layer.tokens.push(SVGDrawing.from(tk));
@@ -549,18 +539,6 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					}
 				}
 			}),
-			rpc.waitTokenSetData().then(td => {
-				const [, token] = getParentToken(td.path, td.pos);
-				if (token instanceof SVGToken) {
-					token.tokenData = td.id;
-				}
-			}),
-			rpc.waitTokenUnsetData().then(tu => {
-				const [, token] = getParentToken(tu.path, tu.pos);
-				if (token instanceof SVGToken) {
-					token.tokenData = 0;
-				}
-			}),
 			rpc.waitLayerShift().then(ls => {
 				const layer = getLayer(layerList, ls.path);
 				if (!layer || !isSVGLayer(layer)) {
@@ -607,15 +585,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenDataChange().then(d => {
-				const tk = mapData.tokenData[""+d.id];
-				if (tk) {
-					Object.assign(tk, d.data);
-				}
-			}),
-			rpc.waitTokenDataRemove().then(d => {
-				const tk = mapData.tokenData[""+d.id];
-				if (tk) {
-					d.keys.forEach(k => delete tk[k]);
+				const [, token] = getParentToken(d.path, d.pos);
+				if (token instanceof SVGToken) {
+					Object.assign(token.tokenData, d.setting);
+					for (const r of d.removing) {
+						delete token.tokenData[r];
+					}
 				}
 			})
 		)

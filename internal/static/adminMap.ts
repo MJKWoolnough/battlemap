@@ -7,7 +7,7 @@ import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {ShellElement, windows} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight} from './map.js';
-import {edit as tokenEdit, characterData, tokenData} from './characters.js';
+import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
@@ -241,7 +241,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return;
 			}
 			let charID = 0;
-			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": 0, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+			const token = {"src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 			if (e.dataTransfer!.types.includes("character")) {
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tD.id)!;
@@ -272,22 +272,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      lp = globals.selectedLayerPath,
 			      doIt = () => {
 				const pos = l.tokens.push(SVGToken.from(token)) - 1;
-				let p: Promise<any> = rpc.addToken(lp, token);
-				if (token.tokenData) {
-					p = p.then(id => {
-						tokenData.set(id, JSON.parse(JSON.stringify(tokenData.get(token.tokenData)!)));
-						token.tokenData = id;
-					});
-				}
-				if (charID) {
-					p = p.then(() => rpc.tokenCreate(lp, pos))
-					.then(id => {
-						const data = {"store-character-id": {"user": false, "data": charID}};
-						tokenData.set(token.tokenData = id, data);
-						rpc.tokenSet(id, data)
-					})
-				}
-				p.catch(handleError);
+				rpc.addToken(lp, token).catch(handleError);
 				return () => {
 					if (globals.selectedToken === token) {
 						unselectToken();
@@ -435,22 +420,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      currToken = globals.selectedToken!;
 			place(base, [e.clientX, e.clientY], [
 				isTokenImage(currToken) ? [
-					currToken.tokenData !== 0 ? item("Edit Token", () => globals.selectedToken === currToken && tokenEdit(shell, rpc, currToken.tokenData, "Edit Token", tokenData.get(currToken.tokenData)!, false)) : [],
-					currToken.tokenData === 0 ? item("Set as Token", () => {
-						if (globals.selectedToken !== currToken && currToken.tokenData === 0) {
-							return;
-						}
-						rpc.tokenCreate(currLayerPath, getSelectedTokenPos())
-						.then(id => tokenData.set(currToken.tokenData = id, {}))
-						.catch(handleError);
-					}) : item("Unset as Token", () => {
-						if (globals.selectedToken !== currToken || currToken.tokenData !== 0) {
-							return;
-						}
-						tokenData.delete(currToken.tokenData);
-						currToken.tokenData = 0;
-						rpc.tokenDelete(currLayerPath, getSelectedTokenPos()).catch(handleError);
-					}),
+					item("Edit Token Data", () => globals.selectedToken === currToken && tokenEdit(shell, rpc, tokenPos, "Edit Token", currToken.tokenData, currLayerPath)),
 					item("Flip", () => {
 						if (globals.selectedToken !== currToken) {
 							return;
@@ -886,8 +856,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				rpc.waitTokenFlop,
 				rpc.waitTokenSnap,
 				rpc.waitTokenSourceChange,
-				rpc.waitTokenSetData,
-				rpc.waitTokenUnsetData
 			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
 		);
 	}));
