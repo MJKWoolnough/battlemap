@@ -4,7 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {edit as characterEdit, characterData, tokenData} from './characters.js';
+import {edit as characterEdit, characterData} from './characters.js';
 
 let rpc: RPC;
 
@@ -16,13 +16,6 @@ class Character extends DraggableItem {
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
 			}
-			if (d["store-token-id"]) {
-				const id = d["store-token-id"].data;
-				if (!tokenData.has(id)) {
-					tokenData.set(id, {});
-					rpc.tokenGet(id).then(d => tokenData.set(id, d));
-				}
-			}
 		}).catch(handleError);
 		characters.set(id, this);
 	}
@@ -33,7 +26,7 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
-		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!, true);
+		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!);
 	}
 }
 
@@ -85,7 +78,7 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 							return;
 						}
 						this.setAttribute("disabled", "disabled");
-						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => rpc.characterSet(id, {"store-image-icon": {"user": false, "data": icon}}).then(() => root.addItem(id, name))), w)
+						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => rpc.characterModify(id, {"store-image-icon": {"user": false, "data": icon}}, []).then(() => root.addItem(id, name))), w)
 						.then(() => w.remove())
 						.catch(handleError)
 						.finally(() => this.removeAttribute("disabled"));
@@ -95,7 +88,7 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 			root.node
 		]);
 		rpc.waitCharacterDataChange().then(d => {
-			const icon = d.data["store-image-icon"];
+			const icon = d.setting["store-image-icon"];
 			if (icon) {
 				const char = characters.get(d.id);
 				if (char) {
