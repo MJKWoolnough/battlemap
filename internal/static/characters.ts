@@ -29,12 +29,13 @@ const allowedKey = (key: string, character: boolean) => {
       ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
-edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
+edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, path?: string) {
 	n++;
-	let changed = false, row = 0, tokenClone = 0;
+	let changed = false, row = 0;
 	const removeSymbol = getSymbol("remove")!,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
+	      character = path === undefined,
 	      adder = (k: string) => {
 		const data = input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
@@ -86,9 +87,9 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			} else {
 				changes["store-character-id"] = {"user": false, "data": tokenData.id};
 				const charData = characterData.get(tokenData.id)!;
-				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, true)}));
+				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, path)}));
 			}
-		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, true)}) : []),
+		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, path)}) : []),
 		br(),
 		character ? [
 			label("Token: "),
@@ -102,10 +103,8 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 					if (this.nextSibling) {
 						this.nextSibling.remove();
 					}
-					tokenClone = data["tokenData"];
-					delete data["tokenData"];
 					changes["token-data"] = {"user": false, data};
-					this.parentNode!.appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
+					clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
 				}}, "Use currently selected token"),
 				d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 			]),
@@ -128,27 +127,25 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		})}),
 		button("Save", {"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
-			(tokenClone ? rpc.tokenClone(tokenClone).then(data => changes["store-token-id"] = {"user": false, data}) as Promise<void> : Promise.resolve()).then(() => {
-				const rms = Array.from(removes.values()).filter(k => {
+			const rms = Array.from(removes.values()).filter(k => {
+				delete changes[k];
+				return d[k] !== undefined;
+			      }),
+			      keys = Object.keys(changes).filter(k => {
+				const old = d[k];
+				if (old && old.user === changes[k].user && old.data === changes[k].data) {
 					delete changes[k];
-					return d[k] !== undefined;
-				      }),
-				      keys = Object.keys(changes).filter(k => {
-					const old = d[k];
-					if (old && old.user === changes[k].user && old.data === changes[k].data) {
-						delete changes[k];
-						return false;
-					}
-					return true;
-				      });
-				return loadingWindow((character ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
-					Object.assign(d, changes);
-					keys.forEach(k => delete changes[k]);
-					removes.forEach(k => delete d[k]);
-					removes.clear();
-				}), w).then(() => changed = false);
-			})
-			.catch(handleError)
+					return false;
+				}
+				return true;
+			      });
+			return loadingWindow((path === undefined ? rpc.characterModify(id, changes, rms) : rpc.tokenModify(path, id, changes, rms)).then(() => {
+				Object.assign(d, changes);
+				keys.forEach(k => delete changes[k]);
+				removes.forEach(k => delete d[k]);
+				removes.clear();
+			}), w)
+			.then(() => changed = false)
 			.finally(() => this.removeAttribute("disabled"));
 		}})
 	      ]))));
