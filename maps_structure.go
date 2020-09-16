@@ -21,9 +21,10 @@ type levelMap struct {
 	LightY     uint64 `json:"lightY"`
 	layers     map[string]struct{}
 	Tokens     map[uint64]*layerToken `json:"tokens"`
+	Walls      map[uint64]*layerWall  `json:"walls"`
 	layer
-	lastTokenID    uint64
-	JSON, UserJSON memio.Buffer `json:"-"`
+	lastTokenID, lastWallID uint64
+	JSON, UserJSON          memio.Buffer `json:"-"`
 }
 
 func (l *levelMap) ReadFrom(r io.Reader) (int64, error) {
@@ -61,9 +62,20 @@ func (l *levelMap) writeJSON() {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
 	l.JSON = l.layer.appendTo(l.JSON, false)
+	l.JSON = append(l.JSON, ",\"walls\":{"...)
 	l.JSON = append(l.JSON, ",\"tokens\":{"...)
-	l.UserJSON = append(l.UserJSON[:0], l.JSON...)
 	first := true
+	for id, w := range l.Walls {
+		if first {
+			first = false
+		} else {
+			l.JSON = append(l.JSON, ',')
+		}
+		l.JSON = w.appendTo(append(strconv.AppendUint(append(l.JSON, '"'), id, 10), '"', ':'))
+	}
+	l.JSON = append(l.JSON, '}')
+	l.UserJSON = append(l.UserJSON[:0], l.JSON...)
+	first = true
 	for id, t := range l.Tokens {
 		if first {
 			first = false
@@ -85,7 +97,7 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (l *levelMap) validate() error {
-	if err := l.layer.validate(l.layers, l.Tokens, true); err != nil {
+	if err := l.layer.validate(l.layers, l.Tokens, l.Walls, true); err != nil {
 		return err
 	}
 	for id, token := range l.Tokens {
@@ -99,6 +111,14 @@ func (l *levelMap) validate() error {
 			return err
 		}
 	}
+	for id, wall := range l.Walls {
+		if id > l.lastWallID {
+			l.lastWallID = id
+		}
+		if wall.layer == nil {
+			return ErrInvalidWall
+		}
+	}
 	return nil
 }
 
@@ -107,11 +127,11 @@ type layer struct {
 	Mask   uint64   `json:"mask"`
 	Hidden bool     `json:"hidden"`
 	Tokens []uint64 `json:"tokens"`
+	Walls  []uint64 `json:"walls"`
 	Layers []*layer `json:"children"`
-	Walls  []wall   `json:"walls"`
 }
 
-func (l *layer) validate(layers map[string]struct{}, tokens map[uint64]*layerToken, first bool) error {
+func (l *layer) validate(layers map[string]struct{}, tokens map[uint64]*layerToken, walls map[uint64]*layerWall, first bool) error {
 	if _, ok := layers[l.Name]; ok {
 		return ErrDuplicateLayer
 	}
@@ -127,7 +147,7 @@ func (l *layer) validate(layers map[string]struct{}, tokens map[uint64]*layerTok
 		if !first && (l.Name == "Grid" || l.Name == "Light") {
 			return ErrInvalidLayer
 		}
-		if err := layer.validate(layers, tokens, false); err != nil {
+		if err := layer.validate(layers, tokens, walls, false); err != nil {
 			return err
 		}
 	}
@@ -136,6 +156,13 @@ func (l *layer) validate(layers map[string]struct{}, tokens map[uint64]*layerTok
 			tk.layer = l
 		} else {
 			return ErrInvalidToken
+		}
+	}
+	for _, wall := range l.Walls {
+		if w, ok := walls[wall]; ok {
+			w.layer = l
+		} else {
+			return ErrInvalidWall
 		}
 	}
 	return nil
@@ -152,7 +179,7 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 				if n > 0 {
 					p = append(p, ',')
 				}
-				p = w.appendTo(p)
+				p = strconv.AppendUint(p, w, 10)
 			}
 			p = append(p, ']')
 		}
@@ -181,7 +208,7 @@ func (l *layer) appendTo(p []byte, full bool) []byte {
 
 type layerToken struct {
 	token
-	layer *layer `json:"-"`
+	layer *layer
 }
 
 type token struct {
@@ -318,6 +345,11 @@ func (t *token) validate() error {
 	return nil
 }
 
+type layerWall struct {
+	wall
+	layer *layer
+}
+
 type wall struct {
 	X1     int64  `json:"x1"`
 	Y1     int64  `json:"y1"`
@@ -417,4 +449,5 @@ var (
 	ErrDuplicateLayer = errors.New("duplicate layer name")
 	ErrInvalidLayer   = errors.New("invalid layer structure")
 	ErrInvalidToken   = errors.New("invalid token")
+	ErrInvalidWall    = errors.New("invalid wall")
 )
