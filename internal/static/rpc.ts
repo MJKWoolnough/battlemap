@@ -279,7 +279,7 @@ const returnVoid = () => {},
       checksTokenID: checkers = [[checkTokenPos, ""], [checkUint, "id"]],
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
       checksToken: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkColour, "lightColour"], [checkUint, "lightIntensity"]],
-      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkUint, "tokenData"]],
+      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkObject, "tokenData"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
@@ -289,6 +289,9 @@ const returnVoid = () => {},
 	case undefined:
 	case 0:
 		checker(data, name, checksTokenImage);
+		for (const k in data.tokenData) {
+			checkKeystoreData(data.tokenData[k], "Token->TokenData", k);
+		}
 		break;
 	case 2:
 		checkArray(data.points, name, "points")
