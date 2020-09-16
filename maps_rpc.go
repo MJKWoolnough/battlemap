@@ -105,16 +105,19 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 	case "addWall":
 		var wallAdd struct {
 			Path string `json:"path"`
-			wall
+			*layerWall
 		}
+		wallAdd.layerWall = new(layerWall)
 		if err := json.Unmarshal(data, &wallAdd); err != nil {
 			return nil, err
 		}
 		if !validTokenLayer(wallAdd.Path) {
 			return nil, ErrInvalidLayerPath
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(_ *levelMap, l *layer) bool {
-			l.Walls = append(l.Walls, wallAdd.wall)
+		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(mp *levelMap, l *layer) bool {
+			mp.lastWallID++
+			l.Walls = append(l.Walls, mp.lastWallID)
+			mp.Walls[mp.lastWallID] = wallAdd.layerWall
 			m.socket.broadcastMapChange(cd, broadcastWallAdd, data)
 			return true
 		}); err != nil {
@@ -636,10 +639,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				}
 			}
 			for _, w := range l.Walls {
-				w.X1 += layerShift.DX
-				w.Y1 += layerShift.DY
-				w.X2 += layerShift.DX
-				w.Y2 += layerShift.DY
+				if wall, ok := mp.Walls[w]; ok {
+					wall.X1 += layerShift.DX
+					wall.Y1 += layerShift.DY
+					wall.X2 += layerShift.DX
+					wall.Y2 += layerShift.DY
+				}
 			}
 			m.socket.broadcastMapChange(cd, broadcastLayerShift, data)
 			return true
