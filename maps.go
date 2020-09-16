@@ -52,20 +52,20 @@ func (m *mapsDir) Cleanup() {
 		if mp != nil {
 			delete(m.maps, id)
 			m.cleanupLayerWalk(mp, &mp.layer)
+			for _, tk := range mp.Tokens {
+				m.cleanupTokenRemove(mp, tk)
+			}
 		}
 	})
 }
 
 func (m *mapsDir) cleanupLayerWalk(mp *levelMap, layer *layer) {
-	for _, tk := range layer.Tokens {
-		m.cleanupTokenRemove(mp, layer, tk)
-	}
 	for _, l := range layer.Layers {
 		m.cleanupLayerWalk(mp, l)
 	}
 }
 
-func (m *mapsDir) cleanupTokenRemove(mp *levelMap, layer *layer, tk *token) {
+func (m *mapsDir) cleanupTokenRemove(mp *levelMap, tk *layerToken) {
 	if tk.Source > 0 {
 		m.images.removeHiddenLink(tk.Source)
 	}
@@ -130,6 +130,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 				},
 			},
 		},
+		Tokens: make(map[uint64]*layerToken),
 	}
 	name := addItemTo(m.folders.root.Items, nm.Name, mid)
 	m.maps[mid] = mp
@@ -170,12 +171,11 @@ func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *la
 	return err
 }
 
-func (m *mapsDir) updateMapsLayerToken(mid uint64, path string, pos uint, fn func(*levelMap, *layer, *token) bool) error {
+func (m *mapsDir) updateMapsToken(mid uint64, id uint64, fn func(*levelMap, *layerToken) bool) error {
 	var err error
 	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
-		l, t := getParentToken(&mp.layer, path, pos)
-		if t != nil {
-			return fn(mp, l, t)
+		if tk, ok := mp.Tokens[id]; ok {
+			return fn(mp, tk)
 		}
 		err = ErrUnknownToken
 		return false
@@ -249,17 +249,6 @@ func getParentLayer(l *layer, p string) (*layer, *layer) {
 	return parent, getLayer(parent, name)
 }
 
-func getParentToken(l *layer, p string, pos uint) (*layer, *token) {
-	parent := getLayer(l, p)
-	if parent == nil || parent.Layers != nil {
-		return nil, nil
-	}
-	if uint(len(parent.Tokens)) <= pos {
-		return parent, nil
-	}
-	return parent, parent.Tokens[pos]
-}
-
 func (l *layer) removeLayer(name string) {
 	pos := -1
 	for n, m := range l.Layers {
@@ -287,21 +276,30 @@ func (l *layer) addLayer(nl *layer, pos uint) {
 	l.Layers[pos] = nl
 }
 
-func (l *layer) removeToken(pos uint) {
-	if pos < uint(len(l.Tokens))-1 {
-		copy(l.Tokens[pos:], l.Tokens[pos+1:])
+func (l *layer) removeToken(id uint64) {
+	pos := -1
+	for p, tk := range l.Tokens {
+		if tk == id {
+			pos = p
+			break
+		}
 	}
-	l.Tokens[len(l.Tokens)-1] = nil
+	if pos == -1 {
+		return
+	}
+	copy(l.Tokens[pos:], l.Tokens[pos+1:])
+	l.Tokens[len(l.Tokens)-1] = 0
 	l.Tokens = l.Tokens[:len(l.Tokens)-1]
 }
 
-func (l *layer) addToken(nt *token, pos uint) {
+func (l *layer) addToken(tk *layerToken, id uint64, pos uint) {
 	if pos >= uint(len(l.Tokens)) {
 		pos = uint(len(l.Tokens))
 	}
-	l.Tokens = append(l.Tokens, nil)
+	l.Tokens = append(l.Tokens, 0)
 	copy(l.Tokens[pos+1:], l.Tokens[pos:])
-	l.Tokens[pos] = nt
+	l.Tokens[pos] = id
+	tk.layer = l
 }
 
 // Errors
