@@ -63,24 +63,6 @@ func (l *levelMap) writeJSON() {
 	l.UserJSON = append(l.UserJSON[:0], l.JSON...)
 	l.JSON = l.layer.appendTo(l.JSON, false, false)
 	l.JSON = l.layer.appendTo(l.UserJSON, false, true)
-	/*
-		l.JSON = append(l.JSON, ",\"tokenData\":"...)
-		for id, td := range l.TokenData {
-			p := len(l.JSON)
-			l.JSON = append(strconv.AppendUint(append(l.JSON, '"'), id, 10), '"', ':', '{')
-			l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
-			for key, kd := range td {
-				p = len(l.JSON)
-				l.JSON = append(appendString(l.JSON, key), ':')
-				l.JSON = strconv.AppendBool(append(l.JSON, "{\"user\":"...), kd.User)
-				l.JSON = append(append(l.JSON, ",\"data\":"...), kd.Data...)
-				l.JSON = append(l.JSON, '}')
-				if kd.User {
-					l.UserJSON = append(l.UserJSON, l.JSON[p:]...)
-				}
-			}
-		}
-	*/
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
