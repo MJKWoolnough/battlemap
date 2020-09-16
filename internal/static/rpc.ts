@@ -155,7 +155,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"characterModify":     (id, setting, removing) => rpc.request("characters.set", {id, setting, removing}).then(returnVoid),
 			"characterGet":         id                     => rpc.request("characters.get", id).then(checkKeystoreData),
 
-			"tokenModify":     (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
+			"tokenModify":     (path, pos, setting, removing) => rpc.request("maps.modifyTokenData", {path, pos, setting, removing}).then(returnVoid),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
 			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
@@ -279,7 +279,7 @@ const returnVoid = () => {},
       checksTokenID: checkers = [[checkTokenPos, ""], [checkUint, "id"]],
       checkTokenID = (data: any) =>  checker(data, "TokenFlip", checksTokenID),
       checksToken: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkColour, "lightColour"], [checkUint, "lightIntensity"]],
-      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkObject, "tokenData"]],
+      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkKeystoreData, "tokenData"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
@@ -289,9 +289,6 @@ const returnVoid = () => {},
 	case undefined:
 	case 0:
 		checker(data, name, checksTokenImage);
-		for (const k in data.tokenData) {
-			checkKeystoreData(data.tokenData[k], "Token->TokenData", k);
-		}
 		break;
 	case 2:
 		checkArray(data.points, name, "points")
