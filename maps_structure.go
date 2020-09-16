@@ -61,8 +61,8 @@ func (l *levelMap) writeJSON() {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
 	l.UserJSON = append(l.UserJSON[:0], l.JSON...)
-	l.JSON = l.layer.appendTo(l.JSON, false, false)
-	l.UserJSON = l.layer.appendTo(l.UserJSON, false, true)
+	l.JSON = append(l.layer.appendTo(l.JSON, false, false), '}')
+	l.UserJSON = append(l.layer.appendTo(l.UserJSON, false, true), '}')
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
