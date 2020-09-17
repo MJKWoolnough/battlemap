@@ -262,6 +262,8 @@ const splitAfterLastSlash = (path: string) => {
 				tokens.push(SVGShape.from(t));
 			}
 		});
+	} else {
+		layer.walls = [];
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
       },
