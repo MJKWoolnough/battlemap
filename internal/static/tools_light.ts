@@ -105,7 +105,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			reset();
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-			      w = normaliseWall({x1, y1, x2, y2, "colour": wallColour});
+			      w = normaliseWall({"id": 0, x1, y1, x2, y2, "colour": wallColour});
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
@@ -127,7 +127,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 						walls.pop();
 						wall.element.remove();
 						wall.layer.walls.pop();
-						rpc.removeWall(wall.layerName, wall.pos).catch(handleError);
+						rpc.removeWall(wall.wall.id).catch(handleError);
 						updateLight();
 						return doIt;
 					};
@@ -147,7 +147,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      doIt = () => {
 			wall.element.remove();
 			wall.layer.walls.splice(wall.pos, 1);
-			rpc.removeWall(wall.layerName, wall.pos);
+			rpc.removeWall(wall.wall.id);
 			if (lastWall === wall) {
 				lastWall = null;
 			}
