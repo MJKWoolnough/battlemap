@@ -12,6 +12,7 @@ import Undo from './undo.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
+	path: string;
 	tokens: SortNode<SVGToken | SVGShape>;
 };
 
@@ -239,14 +240,15 @@ const splitAfterLastSlash = (path: string) => {
 	"Grid": -1,
 	"Light": -2,
       },
-      processLayers = (layer: LayerTokens | LayerFolder): SVGFolder | SVGLayer => {
+      processLayers = (layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
+	path += "/" + layer.name
 	const node = g();
 	if (layer.hidden) {
 		node.setAttribute("visibility", "hidden");
 	}
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
-		layer.children.forEach(c => children.push(processLayers(c)));
+		layer.children.forEach(c => children.push(processLayers(c, path)));
 		return Object.assign(layer, {node, children});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
@@ -261,7 +263,7 @@ const splitAfterLastSlash = (path: string) => {
 			}
 		});
 	}
-	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
+	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
       },
       setTokenType = (id: Uint, imagePattern: boolean) => {
 	const {layer, token} = globals.tokens[id];
@@ -338,7 +340,10 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	      fromParent = getLayer(globals.layerList, parentStr)!,
 	      toParent = getLayer(globals.layerList, to) as SVGFolder;
 	if (isSVGFolder(fromParent)) {
-		toParent.children.splice(pos, 0, (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop());
+		const l = (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop();
+		l.name = to;
+		toParent.children.splice(pos, 0, l);
+
 	}
 	updateLight();
 },
