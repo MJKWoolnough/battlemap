@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords, Wall} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords, Wall, WallData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
@@ -59,6 +59,7 @@ class Defs {
 }
 
 class SVGTransform {
+	id: Uint;
 	x: Int = 0;
 	y: Int = 0;
 	rotation: Byte = 0;
@@ -70,6 +71,7 @@ class SVGTransform {
 	lightIntensity: Uint;
 	node?: SVGGraphicsElement;
 	constructor(token: Token) {
+		this.id = token.id;
 		this.width = token.width;
 		this.height = token.height;
 		this.x = token.x;
@@ -261,9 +263,9 @@ const splitAfterLastSlash = (path: string) => {
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, tokens});
       },
-      setTokenType = (path: string, pos: Uint, imagePattern: boolean) => {
-	const [layer, token] = getParentToken(path, pos);
-	if (!token || !(token instanceof SVGToken)) {
+      setTokenType = (id: Uint, imagePattern: boolean) => {
+	const {layer, token} = globals.tokens[id];
+	if (!(token instanceof SVGToken)) {
 		return;
 	}
 	token.setPattern(!imagePattern);
@@ -353,6 +355,8 @@ globals = {
 	"root": null,
 	"layerList": null,
 	"mapData": null,
+	"tokens": null,
+	"walls": null,
 	"undo": null,
 	"selectedLayer": null,
 	"selectedLayerPath": "",
@@ -364,6 +368,8 @@ globals = {
 	root: SVGSVGElement;
 	layerList: SVGFolder;
 	mapData: MapData;
+	tokens: {layer: SVGLayer, token: SVGToken | SVGShape}[];
+	walls: {layer: SVGLayer, wall: Wall}[];
 	undo: Undo;
 	selectedLayer: SVGLayer | null;
 	selectedLayerPath: string;
@@ -418,13 +424,19 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 	      root = svg({"id": "map", "style": "position: absolute", "width": mapData.width, "height": mapData.height}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	Object.assign(globals, {definitions, root, layerList, mapData});
+	globals.tokens = [];
+	globals.walls = [];
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 	oldBase.replaceWith(base);
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
-			l.tokens.forEach(t => {
+			(l.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+				globals.tokens[t.id] = {
+					layer: l,
+					token: t
+				};
 				if (isTokenImage(t) && t.tokenData) {
 					const cID = t.tokenData["store-character-id"];
 					if (loadChars && cID && typeof t.tokenData.data === "number") {
@@ -432,6 +444,10 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					}
 				}
 			})
+			l.walls.forEach(w => globals.walls[w.id] = {
+				layer: l,
+				wall: w
+			});
 		}
 		return false;
 	});
@@ -455,7 +471,6 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					return;
 				}
 				delete tk["path"];
-				delete tk["pos"];
 				if (isTokenImage(tk)) {
 					layer.tokens.push(SVGToken.from(tk));
 					const cID = tk.tokenData["store-character-id"];
@@ -469,11 +484,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
-				const [parent, token] = getParentToken(tm.from, tm.pos);
-				if (token instanceof SVGToken && parent) {
+				const {layer, token} = globals.tokens[tm.id];
+				if (token instanceof SVGToken) {
 					const newParent = getLayer(layerList, tm.to);
 					if (newParent && isSVGLayer(newParent)) {
-						newParent.tokens.push(parent.tokens.splice(tm.pos, 1)[0]);
+						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 							updateLight();
 						}
@@ -481,18 +496,14 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenSnap().then(ts => {
-				const [, token] = getParentToken(ts.path, ts.pos);
+				const {token} = globals.tokens[ts.id];
 				if (token instanceof SVGToken) {
 					token.snap = true;
 				}
 			}),
 			rpc.waitTokenRemove().then(tk => {
-				const layer = getLayer(layerList, tk.path);
-				if (!layer || !isSVGLayer(layer)) {
-					// error
-					return;
-				}
-				const token = layer.tokens.splice(tk.pos, 1)[0];
+				const {layer, token} = globals.tokens[tk];
+				layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 				if (token instanceof SVGToken) {
 					token.cleanup();
 					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
@@ -501,7 +512,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenChange().then(st => {
-				const [, token] = getParentToken(st.path, st.pos);
+				const {token} = globals.tokens[st.id];
 				if (token instanceof SVGToken) {
 					token.x = st.x;
 					token.y = st.y;
@@ -515,25 +526,25 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenFlip().then(tf => {
-				const [, token] = getParentToken(tf.path, tf.pos);
+				const {token} = globals.tokens[tf.id];
 				if (token instanceof SVGToken) {
 					token.flip = tf.flip;
 					token.node.setAttribute("transform", token.transformString());
 				}
 			}),
 			rpc.waitTokenFlop().then(tf => {
-				const [, token] = getParentToken(tf.path, tf.pos);
+				const {token} = globals.tokens[tf.id];
 				if (token instanceof SVGToken) {
 					token.flop = tf.flop;
 					token.node.setAttribute("transform", token.transformString());
 				}
 			}),
-			rpc.waitTokenSetImage().then(ti => setTokenType(ti.path, ti.pos, true)),
-			rpc.waitTokenSetPattern().then(ti => setTokenType(ti.path, ti.pos, false)),
+			rpc.waitTokenSetImage().then(ti => setTokenType(ti, true)),
+			rpc.waitTokenSetPattern().then(ti => setTokenType(ti, false)),
 			rpc.waitTokenMovePos().then(to => {
-				const [layer, token] = getParentToken(to.path, to.pos);
+				const {layer, token} = globals.tokens[to.id];
 				if (layer && token) {
-					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(to.pos, 1)[0])
+					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0])
 					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 						updateLight();
 					}
@@ -568,16 +579,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				updateLight();
 			}),
 			rpc.waitWallRemoved().then(wp => {
-				const layer = getLayer(layerList, wp.path);
-				if (!layer || !isSVGLayer(layer)) {
-					// error
-					return;
-				}
-				layer.walls.splice(wp.pos, 1);
+				const {layer, wall} = globals.walls[wp];
+				layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 				updateLight();
 			}),
 			rpc.waitTokenLightChange().then(lc => {
-				const [, token] = getParentToken(lc.path, lc.pos);
+				const {token} = globals.tokens[lc.id];
 				if (token instanceof SVGToken) {
 					token.lightColour = lc.lightColour;
 					token.lightIntensity = lc.lightIntensity;
