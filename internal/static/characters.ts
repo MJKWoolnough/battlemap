@@ -29,13 +29,12 @@ const allowedKey = (key: string, character: boolean) => {
       ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
-edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, path?: string) {
+edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0;
 	const removeSymbol = getSymbol("remove")!,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
-	      character = path === undefined,
 	      adder = (k: string) => {
 		const data = input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
@@ -87,9 +86,9 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			} else {
 				changes["store-character-id"] = {"user": false, "data": tokenData.id};
 				const charData = characterData.get(tokenData.id)!;
-				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, path)}));
+				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, character)}));
 			}
-		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, path)}) : []),
+		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, character)}) : []),
 		br(),
 		character ? [
 			label("Token: "),
@@ -103,7 +102,8 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 					if (this.nextSibling) {
 						this.nextSibling.remove();
 					}
-					changes["token-data"] = {"user": false, data};
+					changes["token-data"] = {"user": false, data: JSON.parse(JSON.stringify(data))};
+					delete changes["token-data"]["data"]["id"];
 					clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
 				}}, "Use currently selected token"),
 				d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
@@ -139,7 +139,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 				}
 				return true;
 			      });
-			return loadingWindow((path === undefined ? rpc.characterModify(id, changes, rms) : rpc.tokenModify(path, id, changes, rms)).then(() => {
+			return loadingWindow((typeof id === "number" ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
 				Object.assign(d, changes);
 				keys.forEach(k => delete changes[k]);
 				removes.forEach(k => delete d[k]);
