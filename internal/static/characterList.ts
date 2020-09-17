@@ -26,7 +26,7 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
-		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!);
+		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!, true);
 	}
 }
 
