@@ -75,7 +75,7 @@ export type RPC = {
 	waitLightShift:              () => Subscription<Coords>;
 	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
-	waitWallRemoved:             () => Subscription<WallPath>;
+	waitWallRemoved:             () => Subscription<Uint>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
