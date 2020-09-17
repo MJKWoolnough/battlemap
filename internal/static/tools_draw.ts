@@ -42,15 +42,15 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				      {selectedLayerPath, selectedLayer} = globals,
 				      width = Math.abs(cx - x),
 				      height = Math.abs(cy - y),
-				      token = {"x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
+				      token = {"id": 0, "x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
 				if (selectedLayer) {
 					const doIt = () => {
 						const pos = selectedLayer.tokens.length;
 						selectedLayer.tokens.push(SVGShape.from(token));
-						rpc.addToken(selectedLayerPath, token).catch(handleError);
+						rpc.addToken(selectedLayerPath, token).then(id => token.id = id).catch(handleError);
 						return () => {
 							selectedLayer.tokens.pop();
-							rpc.removeToken(selectedLayerPath, pos).catch(handleError);
+							rpc.removeToken(token.id).catch(handleError);
 							return doIt;
 						};
 					      };
@@ -115,15 +115,15 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				c.y -= minY;
 			}
 			const {selectedLayerPath, selectedLayer} = globals,
-			      token = {"x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
+			      token = {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
 			if (selectedLayer) {
 				const doIt = () => {
 					const pos = selectedLayer.tokens.length;
 					selectedLayer.tokens.push(SVGDrawing.from(token));
-					rpc.addToken(selectedLayerPath, token).catch(handleError);
+					rpc.addToken(selectedLayerPath, token).then(id => token.id = id).catch(handleError);
 					return () => {
 						selectedLayer.tokens.pop();
-						rpc.removeToken(selectedLayerPath, pos);
+						rpc.removeToken(token.id);
 						return doIt;
 					};
 				      };
