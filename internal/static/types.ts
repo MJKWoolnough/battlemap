@@ -60,12 +60,12 @@ export type RPC = {
 	waitLayerMaskChange:         () => Subscription<Uint>;        //check type
 	waitLayerMaskRemove:         () => Subscription<Uint>;        //check type
 	waitTokenAdd:                () => Subscription<TokenAdd>;
-	waitTokenRemove:             () => Subscription<TokenPos>;
+	waitTokenRemove:             () => Subscription<Uint>;
 	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
 	waitTokenMovePos:            () => Subscription<TokenMovePos>;
 	waitTokenSetToken:           () => Subscription<Uint>;        //check type
-	waitTokenSetImage:           () => Subscription<TokenPos>;
-	waitTokenSetPattern:         () => Subscription<TokenPos>;
+	waitTokenSetImage:           () => Subscription<Uint>;
+	waitTokenSetPattern:         () => Subscription<Uint>;
 	waitTokenChange:             () => Subscription<TokenChange>;
 	waitTokenFlip:               () => Subscription<TokenFlip>;
 	waitTokenFlop:               () => Subscription<TokenFlop>;
@@ -75,7 +75,7 @@ export type RPC = {
 	waitLightShift:              () => Subscription<Coords>;
 	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
-	waitWallRemoved:             () => Subscription<TokenPos>;
+	waitWallRemoved:             () => Subscription<WallPath>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 
 	images:     FolderRPC,
@@ -94,37 +94,37 @@ export type RPC = {
 	setMapDetails:  (map: GridDetails) => Promise<void>;
 	setLightColour: (c: Colour)        => Promise<void>;
 
-	addLayer:        (name: string)                                                                       => Promise<string>;
-	addLayerFolder:  (path: string)                                                                       => Promise<string>;
-	renameLayer:     (path: string, name: string)                                                         => Promise<LayerRename>;
-	moveLayer:       (from: string, to: string, position: Uint)                                           => Promise<void>;
-	showLayer:       (path: string)                                                                       => Promise<void>;
-	hideLayer:       (path: string)                                                                       => Promise<void>;
-	addMask:         (path: string, mask: Uint)                                                           => Promise<void>;
-	removeMask:      (path: string)                                                                       => Promise<void>;
-	removeLayer:     (path: string)                                                                       => Promise<void>;
-	addToken:        (path: string, token: Token)                                                         => Promise<Uint>;
-	removeToken:     (path: string, pos: Uint)                                                            => Promise<void>;
-	setToken:        (path: string, pos: Uint, x: Int, y: Int, width: Uint, height: Uint, rotation: Uint) => Promise<void>;
-	flipToken:       (path: string, pos: Uint, flip: boolean)                                             => Promise<void>;
-	flopToken:       (path: string, pos: Uint, flop: boolean)                                             => Promise<void>;
-	setTokenSnap:    (path: string, pos: Uint, snap: boolean)                                             => Promise<void>;
-	setTokenPattern: (path: string, pos: Uint)                                                            => Promise<void>;
-	setTokenImage:   (path: string, pos: Uint)                                                            => Promise<void>;
-	setTokenSource:  (path: string, pos: Uint, source: string)                                            => Promise<void>;
-	setTokenLayer:   (from: string, pos: Uint, to: string)                                                => Promise<void>;
-	setTokenPos:     (path: string, pos: Uint, newPos: Uint)                                              => Promise<void>;
-	shiftLayer:      (path: string, dx: Int, dy: Int)                                                     => Promise<void>;
-	shiftLight:      (x: Uint, y: Uint)                                                                   => Promise<void>;
-	setTokenLight:   (path: string, pos: Uint, lightColour: Colour, lightIntensity: Uint)                 => Promise<void>;
-	addWall:         (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour)               => Promise<void>;
-	removeWall:      (path: string, pos: Uint)                                                            => Promise<void>;
+	addLayer:        (name: string)                                                         => Promise<string>;
+	addLayerFolder:  (path: string)                                                         => Promise<string>;
+	renameLayer:     (path: string, name: string)                                           => Promise<LayerRename>;
+	moveLayer:       (from: string, to: string, position: Uint)                             => Promise<void>;
+	showLayer:       (path: string)                                                         => Promise<void>;
+	hideLayer:       (path: string)                                                         => Promise<void>;
+	addMask:         (path: string, mask: Uint)                                             => Promise<void>;
+	removeMask:      (path: string)                                                         => Promise<void>;
+	removeLayer:     (path: string)                                                         => Promise<void>;
+	addToken:        (path: string, token: Token)                                           => Promise<Uint>;
+	removeToken:     (id: Uint)                                                             => Promise<void>;
+	setToken:        (id: Uint, x: Int, y: Int, width: Uint, height: Uint, rotation: Uint)  => Promise<void>;
+	flipToken:       (id: Uint, flip: boolean)                                              => Promise<void>;
+	flopToken:       (id: Uint, flop: boolean)                                              => Promise<void>;
+	setTokenSnap:    (id: Uint, snap: boolean)                                              => Promise<void>;
+	setTokenPattern: (id: Uint)                                                             => Promise<void>;
+	setTokenImage:   (id: Uint)                                                             => Promise<void>;
+	setTokenSource:  (id: Uint, source: string)                                             => Promise<void>;
+	setTokenLayer:   (id: Uint, to: string)                                                 => Promise<void>;
+	setTokenPos:     (id: Uint, newPos: Uint)                                               => Promise<void>;
+	shiftLayer:      (path: string, dx: Int, dy: Int)                                       => Promise<void>;
+	shiftLight:      (x: Uint, y: Uint)                                                     => Promise<void>;
+	setTokenLight:   (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
+	addWall:         (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<void>;
+	removeWall:      (id: Uint)                                                             => Promise<void>;
 
 	characterCreate:     (name: string)                                                        => Promise<IDName>;
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 	characterGet:        (id: Uint)                                                            => Promise<Record<string, KeystoreData>>;
 
-	tokenModify:     (path: string, pos: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
+	tokenModify: (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
@@ -181,13 +181,14 @@ export type GridDetails = {
 export type Token = TokenImage | TokenShape | TokenDrawing;
 
 type TokenShared = TokenLight & {
-	x:           Int;
-	y:           Int;
-	width:       Uint;
-	height:      Uint;
-	rotation:    Byte;
-	tokenType?:  Uint;
-	snap:        boolean;
+	id:         Uint;
+	x:          Int;
+	y:          Int;
+	width:      Uint;
+	height:     Uint;
+	rotation:   Byte;
+	tokenType?: Uint;
+	snap:       boolean;
 }
 
 export type TokenImage = TokenShared & {
@@ -244,14 +245,15 @@ type LayerRename = {
 	name: string;
 }
 
-type TokenPos = {
-	path: string;
-	pos: Uint;
+type ID = {
+	id: Uint;
 }
 
-type TokenAdd = TokenPos & Token;
+type TokenAdd = Token & {
+	path: string;
+};
 
-type TokenChange = TokenPos & {
+type TokenChange = ID & {
 	x: Int;
 	y: Int;
 	width: Uint;
@@ -259,32 +261,28 @@ type TokenChange = TokenPos & {
 	rotation: Byte;
 }
 
-type TokenMovePos = TokenPos & {
+type TokenMovePos = ID & {
 	newPos: Uint;
 }
 
-type TokenMoveLayer = FromTo & {
-	pos: Uint;
+type TokenMoveLayer = ID & {
+	to: string;
 }
 
-type TokenFlip = TokenPos & {
+type TokenFlip = ID & {
 	flip: boolean;
 }
 
-type TokenFlop = TokenPos & {
+type TokenFlop = ID & {
 	flop: boolean;
 }
 
-type TokenSnap = TokenPos & {
+type TokenSnap = ID & {
 	snap: boolean;
 }
 
-type TokenSource = TokenPos & {
+type TokenSource = ID & {
 	src: string;
-}
-
-type TokenID = TokenPos & {
-	id: Uint;
 }
 
 type LayerShift = {
@@ -316,12 +314,16 @@ type KeystoreDataRemove = {
 	keys: string[];
 }
 
-export type Wall = {
+export type WallData = {
 	x1: Int;
 	y1: Int;
 	x2: Int;
 	y2: Int;
 	colour: Colour;
+}
+
+export type Wall = WallData & {
+	id: Uint;
 }
 
 type WallPath = Wall & {
@@ -333,4 +335,4 @@ type TokenLight = {
 	lightIntensity: Uint;
 }
 
-type LightChange = TokenPos & TokenLight;
+type LightChange = ID & TokenLight;
