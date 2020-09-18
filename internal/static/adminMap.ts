@@ -302,7 +302,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			if (!newToken || e.ctrlKey) {
 				return;
 			}
-			globals.selected.token = globals.tokens[newToken.id].token;
+			globals.selected.token = newToken;
 			autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = newToken.x;
 			tokenMousePos.y = newToken.y;
