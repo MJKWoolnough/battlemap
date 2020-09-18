@@ -149,8 +149,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      newWidth = Math.round(token.width),
 			      newHeight = Math.round(token.height);
 			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
-				const tokenPos = layer.tokens.findIndex(t => t === token),
-				      lp = globals.selected.layer.path,
+				const lp = globals.selected.layer.path,
 				      doIt = () => {
 					token.x = newX;
 					token.y = newY;
@@ -193,19 +192,19 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
-			if (!globals.selected.layer || !globals.selected.token) {
+			const {layer, token} = globals.selected;
+			if (!layer || !token) {
 				return;
 			}
-			const pos = globals.selected.layer.tokens.findIndex(t => t == globals.selected.token),
-			      token = globals.selected.token as SVGToken | SVGShape,
+			const pos = layer.tokens.findIndex(t => t == token),
 			      l = globals.selected.layer,
 			      doIt = () => {
-				l.tokens.splice(pos, 1);
+				layer.tokens.splice(pos, 1);
 				unselectToken();
 				rpc.removeToken(token.id).catch(handleError);
 				return () => {
-					l.tokens.splice(pos, 0, token);
-					rpc.addToken(l.path, token).then(id => token.id = id).catch(handleError);
+					layer.tokens.splice(pos, 0, token);
+					rpc.addToken(layer.path, token).then(id => token.id = id).catch(handleError);
 					return doIt;
 				};
 			      };
