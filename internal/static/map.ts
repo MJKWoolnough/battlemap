@@ -492,6 +492,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					const newParent = getLayer(layerList, tm.to);
 					if (newParent && isSVGLayer(newParent)) {
 						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+						globals.tokens[tm.id].layer = newParent;
 						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 							updateLight();
 						}
