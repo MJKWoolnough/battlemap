@@ -112,9 +112,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			if (globals.selectedLayer) {
 				const wall = {
 					"wall": w,
-					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayerPath)),
+					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayer.path)),
 					"layer": globals.selectedLayer,
-					"layerName": globals.selectedLayerPath,
+					"layerName": globals.selectedLayer.path,
 					"pos": globals.selectedLayer.walls.length
 				      },
 				      doIt = () => {
