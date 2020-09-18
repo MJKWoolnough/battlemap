@@ -14,7 +14,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {selectedLayer, selectedLayerPath, deselectToken, undo} = globals;
+	const {selectedLayer, deselectToken, undo} = globals;
 	if (!selectedLayer) {
 		return;
 	}
@@ -44,14 +44,14 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 				t.y += dy;
 				t.updateNode();
 			});
-			rpc.shiftLayer(selectedLayerPath, dx, dy).catch(handleError);
+			rpc.shiftLayer(selectedLayer.path, dx, dy).catch(handleError);
 			return () => {
 				(selectedLayer.tokens as SVGToken[]).forEach(t => {
 					t.x -= dx;
 					t.y -= dy;
 					t.updateNode();
 				});
-				rpc.shiftLayer(selectedLayerPath, -dx, -dy).catch(handleError);
+				rpc.shiftLayer(selectedLayer.path, -dx, -dy).catch(handleError);
 				return doIt;
 			};
 		};
