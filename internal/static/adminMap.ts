@@ -663,12 +663,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 						sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
 						rpc.setTokenLayer(currToken.id, path).catch(handleError);
+						globals.tokens[currToken.id].layer = sl;
 						return () => {
 							if (globals.selected.token === currToken) {
 								unselectToken();
 							}
 							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
 							rpc.setTokenLayer(currToken.id, currLayer.path).then(() => rpc.setTokenPos(currToken.id, tokenPos)).catch(handleError);
+							globals.tokens[currToken.id].layer = currLayer;
 							return doIt;
 						};
 					      };
