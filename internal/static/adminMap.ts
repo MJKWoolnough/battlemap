@@ -577,7 +577,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
-						const newPos = currLayer.tokens.length - 1,
+						if (!globals.tokens[currToken.id]) {
+							return;
+						}
+						const currLayer = globals.tokens[currToken.id].layer,
+						      newPos = currLayer.tokens.length - 1,
 						      doIt = () => {
 							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
 							rpc.setTokenPos(currToken.id, newPos).catch(handleError);
@@ -590,7 +594,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						undo.add(doIt);
 					}),
 					item(`Move Up`, () => {
-						const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+						if (!globals.tokens[currToken.id]) {
+							return;
+						}
+						const currLayer = globals.tokens[currToken.id].layer,
+						      tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 						if (tokenPos < currLayer.tokens.length - 1) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos + 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
@@ -607,7 +615,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				] : [],
 				tokenPos > 0 ? [
 					item(`Move Down`, () => {
-						const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+						if (!globals.tokens[currToken.id]) {
+							return;
+						}
+						const currLayer = globals.tokens[currToken.id].layer,
+						      tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 						if (tokenPos > 0) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos - 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
@@ -622,7 +634,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 					}),
 					item(`Move to Bottom`, () => {
-						const tokenPos = currLayer.tokens.findIndex(t => t === currToken),
+						if (!globals.tokens[currToken.id]) {
+							return;
+						}
+						const currLayer = globals.tokens[currToken.id].layer,
+						      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 						      doIt = () => {
 							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
 							rpc.setTokenPos(currToken.id, 0).catch(handleError);
@@ -636,7 +652,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, (sl: SVGLayer, path: string) => {
-					const tokenPos = currLayer.tokens.findIndex(t => t === currToken),
+					if (!globals.tokens[currToken.id]) {
+						return;
+					}
+					const currLayer = globals.tokens[currToken.id].layer,
+					      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 					      doIt = () => {
 						if (globals.selected.token === currToken) {
 							unselectToken();
