@@ -47,9 +47,9 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) =>
       invalidRPC = () => Promise.reject("invalid");
 
 export const getToken = () => {
-	const {selectedToken} = globals;
-	if (selectedToken instanceof SVGToken) {
-		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = selectedToken;
+	const {token} = globals.selected;
+	if (token instanceof SVGToken) {
+		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = token;
 		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
 	}
 	return undefined;
@@ -59,7 +59,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
-		globals.selectedToken = null;
+		Object.assign(globals.selected, {"layer": null, "token": null});
 		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const [base, cancel] = mapView(rpc, oldBase, mapData),
 		      {root, definitions, layerList} = globals,
@@ -69,7 +69,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
 			      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
 			      sq = mapData.gridSize,
-			      {token: selectedToken} = globals.selectedToken!;
+			      {token: selectedToken} = globals.selected;
+			if (!selectedToken) {
+				return;
+			}
 			switch (tokenDragMode) {
 			case 0:
 				x += dx;
@@ -132,13 +135,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			createSVG(outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 		      },
 		      tokenMouseUp = (e: MouseEvent) => {
-			if (!globals.selectedToken || e.button !== 0 || !globals.selectedLayer) {
+			if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
 				return;
 			}
 			document.body.removeEventListener("mousemove", tokenDrag);
 			document.body.removeEventListener("mouseup", tokenMouseUp);
 			root.style.removeProperty("--outline-cursor");
-			const {layer, token} = globals.selectedToken,
+			const {layer, token} = globals.selected,
 			      {x, y, width, height, rotation} = tokenMousePos,
 			      newX = Math.round(token.x),
 			      newY = Math.round(token.y),
@@ -147,7 +150,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      newHeight = Math.round(token.height);
 			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
 				const tokenPos = layer.tokens.findIndex(t => t === token),
-				      lp = globals.selectedLayer.path,
+				      lp = globals.selected.layer.path,
 				      doIt = () => {
 					token.x = newX;
 					token.y = newY;
@@ -156,7 +159,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					token.height = newHeight;
 					createSVG(token.node, {"width": newWidth, "height": newHeight});
 					token.updateNode();
-					if (globals.selectedToken?.token === token) {
+					if (globals.selected.token === token) {
 						tokenMousePos.x = newX;
 						tokenMousePos.y = newY;
 						tokenMousePos.rotation = newRotation;
@@ -173,7 +176,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						token.height = height;
 						createSVG(token.node, {"width": newWidth, "height": newHeight});
 						token.updateNode();
-						if (globals.selectedToken?.token === token) {
+						if (globals.selected.token === token) {
 							tokenMousePos.x = x;
 							tokenMousePos.y = y;
 							tokenMousePos.rotation = rotation;
@@ -190,12 +193,12 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      deleteToken = () => {
-			if (!globals.selectedToken) {
+			if (!globals.selected.layer || !globals.selected.token) {
 				return;
 			}
-			const pos = globals.selectedToken.layer.tokens.findIndex(t => t == globals.selectedToken!.token),
-			      token = globals.selectedToken.token as SVGToken | SVGShape,
-			      l = globals.selectedLayer!,
+			const pos = globals.selected.layer.tokens.findIndex(t => t == globals.selected.token),
+			      token = globals.selected.token as SVGToken | SVGShape,
+			      l = globals.selected.layer,
 			      doIt = () => {
 				l.tokens.splice(pos, 1);
 				unselectToken();
@@ -209,22 +212,22 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			undo.add(doIt);
 		      },
 		      unselectToken = () => {
-			globals.selectedToken = null;
+			globals.selected.token = null;
 			outline.style.setProperty("display", "none");
 		      },
 		      removeS = (path: string) => {
 			removeLayer(path).forEach(e => {
-				if (globals.selectedLayer === e) {
-					globals.selectedLayer = null;
-				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, globals.selectedLayer))) {
-				       globals.selectedLayer  = null;
+				if (globals.selected.layer === e) {
+					globals.selected.layer = null;
+				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, globals.selected.layer))) {
+				       globals.selected.layer  = null;
 				}
 			});
 			undo.clear();
 			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
-			if (globals.selectedLayer?.path.startsWith(path)) {
+			if (globals.selected.layer?.path.startsWith(path)) {
 				unselectToken();
 				// select new layer???
 			}
@@ -238,7 +241,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				e.dataTransfer!.dropEffect = "link";
 			}
 		      }, "ondrop": (e: DragEvent) => {
-			if (globals.selectedLayer === null) {
+			if (globals.selected.layer === null) {
 				return;
 			}
 			let charID = 0;
@@ -269,8 +272,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
-			const l = globals.selectedLayer,
-			      lp = globals.selectedLayer.path,
+			const l = globals.selected.layer,
+			      lp = l.path,
 			      doIt = () => {
 				const sToken = SVGToken.from(token),
 				      pos = l.tokens.push(sToken) - 1;
@@ -279,7 +282,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					globals.tokens[id] = {layer: l, token: sToken};
 				}).catch(handleError);
 				return () => {
-					if (globals.selectedToken?.token === token) {
+					if (globals.selected.token === token) {
 						unselectToken();
 					}
 					l.tokens.pop();
@@ -289,18 +292,18 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			};
 			undo.add(doIt);
 		      }, "onmousedown": (e: MouseEvent) => {
-			const {selectedLayer} = globals;
-			if (!selectedLayer || e.button !== 0) {
+			const {layer} = globals.selected;
+			if (!layer || e.button !== 0) {
 				return;
 			}
-			const newToken = (selectedLayer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
+			const newToken = (layer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
 			if (!e.ctrlKey) {
 				unselectToken();
 			}
 			if (!newToken || e.ctrlKey) {
 				return;
 			}
-			globals.selectedToken = globals.tokens[newToken.id];
+			globals.selected.token = globals.tokens[newToken.id].token;
 			autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
 			tokenMousePos.x = newToken.x;
 			tokenMousePos.y = newToken.y;
@@ -323,10 +326,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}
 			}
 		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
-			if (!globals.selectedToken) {
-				return;
-			}
-			const {token} = globals.selectedToken;
+			const {token} = globals.selected;
 			if (!token) {
 				return;
 			}
@@ -371,7 +371,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				token.x = newX;
 				token.y = newY;
 				token.updateNode();
-				if (globals.selectedToken?.token === token) {
+				if (globals.selected.token === token) {
 					tokenMousePos.x = newX;
 					tokenMousePos.y = newY;
 					outline.setAttribute("transform", token.transformString(false));
@@ -381,7 +381,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					token.x = oldX;
 					token.y = oldY;
 					token.updateNode();
-					if (globals.selectedToken?.token === token) {
+					if (globals.selected.token === token) {
 						tokenMousePos.x = oldX;
 						tokenMousePos.y = oldY;
 						outline.setAttribute("transform", token.transformString(false));
@@ -392,10 +392,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      };
 			undo.add(doIt);
 		      }, "onkeydown": (e: KeyboardEvent) => {
-			if (!globals.selectedToken) {
+			const {token} = globals.selected;
+			if (!token) {
 				return;
 			}
-			const {token} = globals.selectedToken;
 			if (token.snap) {
 				return;
 			}
@@ -423,14 +423,16 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return;
 			}
 			e.preventDefault();
-			const currLayer = globals.selectedLayer!,
-			      currToken = globals.selectedToken!.token,
-			      tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+			const {layer: currLayer, token: currToken} = globals.selected;
+			if (!currLayer || !currToken) {
+				return;
+			}
+			const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 			place(base, [e.clientX, e.clientY], [
 				isTokenImage(currToken) ? [
-					item("Edit Token Data", () => globals.selectedToken?.token === currToken && tokenEdit(shell, rpc, currToken.id, "Edit Token", currToken.tokenData, false)),
+					item("Edit Token Data", () => currToken instanceof SVGToken && tokenEdit(shell, rpc, currToken.id, "Edit Token", currToken.tokenData, false)),
 					item("Flip", () => {
-						if (globals.selectedToken?.token !== currToken) {
+						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
 						const flip = !currToken.flip,
@@ -449,7 +451,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						outline.focus();
 					}),
 					item("Flop", () => {
-						if (globals.selectedToken?.token !== currToken) {
+						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
 						const flop = !currToken.flop,
@@ -468,7 +470,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						outline.focus();
 					}),
 					item(`Set as ${currToken.isPattern ? "Image" : "Pattern"}`, () => {
-						if (globals.selectedToken?.token !== currToken || !(currToken instanceof SVGToken)) {
+						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
 						const isPattern = currToken.isPattern,
@@ -485,9 +487,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					}),
 				] : [],
 				item(currToken.snap ? "Unsnap" : "Snap", () => {
-					if (globals.selectedToken?.token !== currToken) {
-						return;
-					}
 					const snap = currToken.snap,
 					      sq = mapData.gridSize,
 					      {x, y, width, height, rotation} = currToken;
@@ -504,7 +503,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 								currToken.y = newY;
 								currToken.rotation = newRotation;
 								currToken.updateNode();
-								if (globals.selectedToken?.token === currToken) {
+								if (globals.selected.token === currToken) {
 									tokenMousePos.x = newX;
 									tokenMousePos.y = newY;
 									tokenMousePos.rotation = newRotation;
@@ -518,7 +517,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 									currToken.y = y;
 									currToken.rotation = rotation;
 									currToken.updateNode();
-									if (globals.selectedToken?.token === currToken) {
+									if (globals.selected.token === currToken) {
 										tokenMousePos.x = x;
 										tokenMousePos.y = y;
 										tokenMousePos.rotation = rotation;
@@ -543,9 +542,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					undo.add(doIt);
 				}),
 				item("Set Lighting", () => {
-					if (globals.selectedToken?.token !== currToken) {
-						return;
-					}
 					let c = currToken.lightColour;
 					const t = Date.now(),
 					      w = shell.appendChild(windows({"window-title": "Set Token Lighting"})),
@@ -559,7 +555,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						i,
 						br(),
 						button({"onclick": () => {
-							if (globals.selectedToken?.token === currToken) {
+							if (globals.selected.token === currToken) {
 								const cc = c,
 								      ci = parseInt(i.value);
 								if (ci >= 0) {
@@ -582,9 +578,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(`Move to Top`, () => {
-						if (globals.selectedToken?.token !== currToken) {
-							return;
-						}
 						const newPos = currLayer.tokens.length - 1,
 						      doIt = () => {
 							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
@@ -598,9 +591,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						undo.add(doIt);
 					}),
 					item(`Move Up`, () => {
-						if (globals.selectedToken?.token !== currToken) {
-							return;
-						}
 						const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 						if (tokenPos < currLayer.tokens.length - 1) {
 							const doIt = () => {
@@ -618,9 +608,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				] : [],
 				tokenPos > 0 ? [
 					item(`Move Down`, () => {
-						if (globals.selectedToken?.token !== currToken) {
-							return;
-						}
 						const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 						if (tokenPos > 0) {
 							const doIt = () => {
@@ -636,9 +623,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 					}),
 					item(`Move to Bottom`, () => {
-						if (globals.selectedToken?.token !== currToken) {
-							return;
-						}
 						const tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 						      doIt = () => {
 							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
@@ -653,18 +637,15 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					})
 				] : [],
 				menu("Move To Layer", makeLayerContext(layerList, (sl: SVGLayer, path: string) => {
-					if (globals.selectedToken?.token !== currToken) {
-						return;
-					}
 					const tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 					      doIt = () => {
-						if (globals.selectedToken?.token === currToken) {
+						if (globals.selected.token === currToken) {
 							unselectToken();
 						}
 						sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
 						rpc.setTokenLayer(currToken.id, path).catch(handleError);
 						return () => {
-							if (globals.selectedToken?.token === currToken) {
+							if (globals.selected.token === currToken) {
 								unselectToken();
 							}
 							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
@@ -678,14 +659,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			]);
 		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseDown.call(this, e);
-			if (e.defaultPrevented || e.button !== 0 || e.ctrlKey) {
+			if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || ! globals.selected.token) {
 				return;
 			}
 			e.stopImmediatePropagation();
 			document.body.addEventListener("mousemove", tokenDrag);
 			document.body.addEventListener("mouseup", tokenMouseUp);
 			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selectedToken!.token.rotation + 143) >> 5)) % 4 + 2]);
+			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
@@ -728,7 +709,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
-				globals.selectedLayer = getLayer(layerList, path) as SVGLayer;
+				globals.selected.layer = getLayer(layerList, path) as SVGLayer;
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},

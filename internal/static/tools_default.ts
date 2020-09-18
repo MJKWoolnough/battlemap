@@ -74,7 +74,7 @@ addTool({
 		e.preventDefault();
 	},
 	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-		const {selectedLayer, outline} = globals,
+		const {selected: {layer: selectedLayer}, outline} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
 		      currentlyOverToken = overOutline || selectedLayer && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
 		if (e.ctrlKey) {

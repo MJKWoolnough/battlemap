@@ -105,17 +105,18 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			reset();
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-			      w = normaliseWall({"id": 0, x1, y1, x2, y2, "colour": wallColour});
+			      w = normaliseWall({"id": 0, x1, y1, x2, y2, "colour": wallColour}),
+			      {layer: selectedLayer} = globals.selected;
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
-			if (globals.selectedLayer) {
+			if (selectedLayer) {
 				const wall = {
 					"wall": w,
-					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(globals.selectedLayer.path)),
-					"layer": globals.selectedLayer,
-					"layerName": globals.selectedLayer.path,
-					"pos": globals.selectedLayer.walls.length
+					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(selectedLayer.path)),
+					"layer": selectedLayer,
+					"layerName": selectedLayer.path,
+					"pos": selectedLayer.walls.length
 				      },
 				      doIt = () => {
 					walls.push(wall);

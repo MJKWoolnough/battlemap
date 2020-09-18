@@ -14,7 +14,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {selectedLayer, deselectToken, undo} = globals;
+	const {selected: {layer: selectedLayer}, deselectToken, undo} = globals;
 	if (!selectedLayer) {
 		return;
 	}
