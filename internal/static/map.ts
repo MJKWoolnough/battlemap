@@ -366,7 +366,6 @@ globals = {
 	"walls": null,
 	"undo": null,
 	"selectedLayer": null,
-	"selectedLayerPath": "",
 	"selectedToken": null,
 	"outline": null,
 	deselectToken: () => {}
@@ -379,8 +378,7 @@ globals = {
 	walls: {layer: SVGLayer, wall: Wall}[];
 	undo: Undo;
 	selectedLayer: SVGLayer | null;
-	selectedLayerPath: string;
-	selectedToken: SVGToken | SVGShape | null;
+	selectedToken: {layer: SVGLayer, token: SVGToken | SVGShape} | null;
 	outline: SVGGElement;
 	deselectToken: () => void;
 },
