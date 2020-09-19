@@ -344,7 +344,7 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	      toParent = getLayer(globals.layerList, to) as SVGFolder;
 	if (isSVGFolder(fromParent)) {
 		const l = (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop();
-		l.name = to;
+		l.path = to + "/" + l.name;
 		toParent.children.splice(pos, 0, l);
 
 	}
