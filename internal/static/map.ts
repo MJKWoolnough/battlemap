@@ -597,7 +597,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				}
 			}),
 			rpc.waitTokenDataChange().then(d => {
-				const [, token] = getParentToken(d.path, d.pos);
+				const {token} = globals.tokens[d.id];
 				if (token instanceof SVGToken) {
 					Object.assign(token.tokenData, d.setting);
 					for (const r of d.removing) {
