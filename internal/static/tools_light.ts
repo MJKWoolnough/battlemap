@@ -173,10 +173,10 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	lastWall = null;
 	clearElement(wallLayer);
 	walls.splice(0, walls.length)
-	walkVisibleLayers(globals.layerList, (layer: SVGLayer, layerName: string) => {
+	walkVisibleLayers(globals.layerList, (layer: SVGLayer) => {
 		layer.walls.forEach((wall, pos) => walls.push({
 		      wall,
-		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layerName))),
+		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layer.path))),
 		      layer,
 		      pos
 		}));
