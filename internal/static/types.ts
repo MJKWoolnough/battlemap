@@ -303,8 +303,7 @@ type CharacterDataChange = {
 }
 
 type TokenDataChange = {
-	path: string;
-	pos: Uint;
+	id: Uint;
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
