@@ -18,6 +18,7 @@ export type SVGLayer = LayerTokens & {
 
 export type SVGFolder = LayerFolder & {
 	node: SVGElement;
+	path: string;
 	children: SortNode<SVGFolder | SVGLayer>;
 };
 
@@ -249,7 +250,7 @@ const splitAfterLastSlash = (path: string) => {
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
 		layer.children.forEach(c => children.push(processLayers(c, path)));
-		return Object.assign(layer, {node, children});
+		return Object.assign(layer, {node, children, path});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
@@ -420,7 +421,8 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 			node,
 			children,
 			folders: {},
-			items: {}
+			items: {},
+			path: "/"
 		} as SVGFolder;
 	      })(),
 	      definitions = new Defs(),
