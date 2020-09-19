@@ -322,9 +322,7 @@ export type WallData = {
 	colour: Colour;
 }
 
-export type Wall = WallData & {
-	id: Uint;
-}
+export type Wall = WallData & ID;
 
 type WallPath = Wall & {
 	path: string;
