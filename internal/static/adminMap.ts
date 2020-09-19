@@ -14,7 +14,7 @@ import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver
 import {makeColourPicker, mapLayersSend, mapLoadReceive, noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
 
-const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = "", path = "/"): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled, path + e.name + "/")) : item(e.name, () => fn(e, path + e.name), {"disabled": e.name === disabled})),
+const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer, path: string) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e, e.path), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
 	mDx *= dX;
 	mDy *= dY;
