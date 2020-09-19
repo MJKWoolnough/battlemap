@@ -221,12 +221,15 @@ class FolderLayer extends Folder {
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
-			this.open.firstChild!.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
+			const fc = this.open.firstChild as HTMLElement;
+			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
 				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError);
 				e.preventDefault()
 			}}), this.nameElem);
-			this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
-			this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
+			createHTML(fc, [
+				div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
+				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
+			]);
 			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
 				if (this.open.open) {
 					return;
