@@ -293,15 +293,14 @@ const splitAfterLastSlash = (path: string) => {
       };
 
 export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer, path: string) => T[], path = "") => {
+walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer) => T[]) => {
 	const rets: T[] = [];
-	path += folder.name + "/";
 	if (!folder.hidden) {
 		(folder.children as SortNode<SVGFolder | SVGLayer>).forEach(e => {
 			if (isSVGFolder(e)) {
-				rets.push(...walkVisibleLayers(e, fn, path));
+				rets.push(...walkVisibleLayers(e, fn));
 			} else if (!e.hidden && e.walls !== undefined) {
-				rets.push(...fn(e, path + e.name));
+				rets.push(...fn(e));
 			}
 		});
 	}
