@@ -115,14 +115,13 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 					"wall": w,
 					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(selectedLayer.path)),
 					"layer": selectedLayer,
-					"layerName": selectedLayer.path,
 					"pos": selectedLayer.walls.length
 				      },
 				      doIt = () => {
 					walls.push(wall);
 					wallLayer.appendChild(wall.element);
 					wall.layer.walls.push(w);
-					rpc.addWall(wall.layerName, w.x1, w.y1, w.x2, w.y2, w.colour).catch(handleError);
+					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour).catch(handleError);
 					updateLight();
 					return () => {
 						walls.pop();
@@ -157,7 +156,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				walls.push(wall);
 				wallLayer.appendChild(wall.element);
 				wall.layer.walls.push(wall.wall);
-				rpc.addWall(wall.layerName, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour).catch(handleError);
+				rpc.addWall(wall.layer.path, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour).catch(handleError);
 				updateLight();
 				return doIt;
 			};
@@ -179,7 +178,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      wall,
 		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layerName))),
 		      layer,
-		      layerName,
 		      pos
 		}));
 		return [];
@@ -190,7 +188,6 @@ type WallData = {
 	wall: Wall;
 	element: SVGElement;
 	layer: SVGLayer;
-	layerName: string;
 	pos: Uint;
 }
 
