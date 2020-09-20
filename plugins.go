@@ -29,7 +29,8 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		p.Handler = http.NotFoundHandler()
 		return nil
 	}
-	d, err := os.Open(filepath.Join(b.config.BaseDir, string(pd)))
+	base := filepath.Join(b.config.BaseDir, string(pd))
+	d, err := os.Open(base)
 	if os.IsNotExist(err) {
 		p.Handler = http.NotFoundHandler()
 		return nil
@@ -51,7 +52,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		if !strings.HasSuffix(file, ".js") {
 			continue
 		}
-		f, err := os.Open(file)
+		f, err := os.Open(filepath.Join(base, file))
 		if err != nil {
 			return fmt.Errorf("error opening plugin file: %w", err)
 		}
