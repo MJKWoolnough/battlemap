@@ -61,7 +61,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 			f.Close()
 			return fmt.Errorf("error stat'ing plugin file: %w", err)
 		}
-		buf := make([]byte, 0, fi.Size())
+		buf := make([]byte, fi.Size())
 		_, err = io.ReadFull(f, buf)
 		f.Close()
 		if err != nil {
