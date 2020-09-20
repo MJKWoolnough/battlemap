@@ -3,6 +3,7 @@ import {Pipe} from './lib/inter.js';
 import {createHTML, button, br, h1, input, label} from './lib/html.js';
 import {Int, RPC} from './types.js';
 import {ShellElement} from './windows.js';
+import {settings as pluginSettings} from './plugins.js';
 
 const boolPipes = new Map<BoolSetting, Pipe<boolean>>(),
       intPipes = new Map<IntSetting, Pipe<Int>>();
@@ -86,6 +87,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		input({"id": "menuHide", "type": "checkbox", "value": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}),
+		pluginSettings(),
 		h1("Reset"),
 		button({"onclick": () => shell.confirm("Are you sure?", "Are you sure that you wish to clear all settings? This cannot be undone").then(v => {
 			if (!v) {
