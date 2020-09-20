@@ -22,6 +22,7 @@ import './tools_light.js';
 import './tools_mask.js';
 import './tools_move.js';
 import './tools_zoom.js';
+import './plugins.js';
 
 type savedWindow = {
 	out: boolean;
