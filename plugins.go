@@ -24,7 +24,7 @@ type pluginsDir struct {
 
 func (p *pluginsDir) Init(b *Battlemap) error {
 	var pd keystore.String
-	b.config.Get("pluginsDir", &pd)
+	b.config.Get("PluginsDir", &pd)
 	if pd == "" {
 		p.Handler = http.NotFoundHandler()
 		return nil
