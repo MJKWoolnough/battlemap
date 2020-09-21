@@ -6,7 +6,8 @@ import {ShellElement} from './windows.js';
 import {settings as pluginSettings} from './plugins.js';
 
 const boolPipes = new Map<BoolSetting, Pipe<boolean>>(),
-      intPipes = new Map<IntSetting, Pipe<Int>>();
+      intPipes = new Map<IntSetting, Pipe<Int>>(),
+      stringPipes = new Map<StringSetting, Pipe<string>>()
 
 export class BoolSetting {
 	name: string;
@@ -46,6 +47,24 @@ export class IntSetting {
 	}
 	wait(fn: (value: Int) => void) {
 		intPipes.get(this)!.receive(fn);
+	}
+}
+
+export class StringSetting {
+	name: string;
+	value: string;
+	constructor(name: string, starting = "") {
+		this.name = name;
+		this.value = window.localStorage.getItem("name") ?? starting;
+		stringPipes.set(this, new Pipe<string>());
+	}
+	set(s: string) {
+		this.value = s;
+		window.localStorage.setItem("name", s);
+		stringPipes.get(this)!.send(s);
+	}
+	wait(fn: (value: string) => void) {
+		stringPipes.get(this)!.receive(fn);
 	}
 }
 
