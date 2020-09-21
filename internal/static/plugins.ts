@@ -1,6 +1,7 @@
 import {Uint, KeystoreData} from './types.js';
 import {h1} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
+import {handleError} from './misc.js';
 
 type owp<T extends Function = () => void> = {
 	priority: Uint;
@@ -25,10 +26,14 @@ export const settings = () => filterSortPlugins("settings").map(([name, plugin])
 		}
 	}
 	return null;
-       };
+       },
+       addPlugin = (name: string, p: plugin) => {
+	       plugins.set(name, p);
+	       return userLevel;
+       }
 
-export default function (name: string, p: plugin) {
-	plugins.set(name, p);
+let userLevel: Uint;
+
+export default function(u: Uint) {
+	return (HTTPRequest("/plugins/", {"response": "json"}) as Promise<string[]>).then(plugins => Promise.all(plugins.map(plugin => import("/plugins/" + plugin)))).catch(handleError).then(() => u);
 }
-
-(HTTPRequest("/plugins/", {"response": "json"}) as Promise<string[]>).then(plugins => plugins.forEach(plugin => import("/plugins/" + plugin)));
