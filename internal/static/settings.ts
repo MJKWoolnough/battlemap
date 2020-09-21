@@ -8,7 +8,7 @@ import {settings as pluginSettings} from './plugins.js';
 const boolPipes = new Map<BoolSetting, Pipe<boolean>>(),
       intPipes = new Map<IntSetting, Pipe<Int>>();
 
-class BoolSetting {
+export class BoolSetting {
 	name: string;
 	value: boolean;
 	constructor(name: string) {
@@ -31,7 +31,7 @@ class BoolSetting {
 	}
 }
 
-class IntSetting {
+export class IntSetting {
 	name: string;
 	value: Int;
 	constructor(name: string, starting = "0") {
