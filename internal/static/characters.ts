@@ -6,6 +6,7 @@ import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
+import {characterEdit} from './plugins.js';
 
 let rpc: RPC, n = 0;
 
@@ -61,7 +62,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		]
 	      },
 	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
-	      save = () => {
+	      save = (): Promise<void> => {
 		const rms = Array.from(removes.values()).filter(k => {
 			delete changes[k];
 			return d[k] !== undefined;
@@ -90,7 +91,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 				}
 			});
 		}
-	      }}, [
+	      }}, characterEdit(id, d, character, changes, removes, save) || [
 		h1(name),
 		label(`Character${character ? " Image" : ""}: `),
 		div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
