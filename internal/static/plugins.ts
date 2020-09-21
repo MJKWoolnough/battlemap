@@ -13,9 +13,9 @@ type plugin = {
 
 
 const plugins = new Map<string, plugin>(),
-      owpSort = (key: keyof plugin) => (a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority;
+      filterSortPlugins = (key: keyof plugin) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority);
 
-export const settings = () => Array.from(plugins.entries()).filter(p => p[1].settings).sort(owpSort("settings")).map(([name, plugin]) => [h1(name), plugin["settings"]!["fn"]()]);
+export const settings = () => filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"]!["fn"]()]);
 
 export default function (name: string, p: plugin) {
 	plugins.set(name, p);
