@@ -61,6 +61,26 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		]
 	      },
 	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
+	      save = () => {
+		const rms = Array.from(removes.values()).filter(k => {
+			delete changes[k];
+			return d[k] !== undefined;
+		      }),
+		      keys = Object.keys(changes).filter(k => {
+			const old = d[k];
+			if (old && old.user === changes[k].user && old.data === changes[k].data) {
+				delete changes[k];
+				return false;
+			}
+			return true;
+		      });
+		return loadingWindow((typeof id === "number" ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
+			Object.assign(d, changes);
+			keys.forEach(k => delete changes[k]);
+			removes.forEach(k => delete d[k]);
+			removes.clear();
+		}), w)
+	      },
 	      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
@@ -126,24 +146,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		})}),
 		button("Save", {"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
-			const rms = Array.from(removes.values()).filter(k => {
-				delete changes[k];
-				return d[k] !== undefined;
-			      }),
-			      keys = Object.keys(changes).filter(k => {
-				const old = d[k];
-				if (old && old.user === changes[k].user && old.data === changes[k].data) {
-					delete changes[k];
-					return false;
-				}
-				return true;
-			      });
-			return loadingWindow((typeof id === "number" ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
-				Object.assign(d, changes);
-				keys.forEach(k => delete changes[k]);
-				removes.forEach(k => delete d[k]);
-				removes.clear();
-			}), w)
+			save()
 			.then(() => changed = false)
 			.finally(() => this.removeAttribute("disabled"));
 		}})
