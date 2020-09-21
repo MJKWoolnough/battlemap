@@ -22,7 +22,7 @@ import './tools_light.js';
 import './tools_mask.js';
 import './tools_move.js';
 import './tools_zoom.js';
-import './plugins.js';
+import pluginInit from './plugins.js';
 
 type savedWindow = {
 	out: boolean;
@@ -176,7 +176,7 @@ if (invert.value) {
 	document.documentElement.classList.add("invert");
 }
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(pluginInit).then(userLevel => {
 	characterStore(rpc);
 	if (userLevel === 1) {
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
