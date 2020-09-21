@@ -13,9 +13,9 @@ type plugin = {
 
 
 const plugins = new Map<string, plugin>(),
-      filterSortPlugins = (key: keyof plugin) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority);
+      filterSortPlugins = <K extends keyof plugin>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<plugin, K>> & Omit<plugin, K>][];
 
-export const settings = () => filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"]!["fn"]()]);
+export const settings = () => filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()]);
 
 export default function (name: string, p: plugin) {
 	plugins.set(name, p);
