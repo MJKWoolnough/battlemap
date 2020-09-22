@@ -96,6 +96,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			if mp.LightX == pos.X && mp.LightY == pos.Y {
 				return false
 			}
+			mp.LightX = pos.X
+			mp.LightY = pos.Y
 			m.socket.broadcastMapChange(cd, broadcastLightShift, data)
 			return true
 		}); err != nil {
