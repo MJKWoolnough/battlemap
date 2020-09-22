@@ -350,8 +350,9 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	updateLight();
 },
 setMapDetails = (details: MapDetails) => {
-	globals.root.setAttribute("width", (globals.mapData.width = details["width"]).toString());
-	globals.root.setAttribute("height", (globals.mapData.height = details["height"]).toString());
+	Object.assign(globals.mapData, details);
+	globals.root.setAttribute("width", details["width"].toString());
+	globals.root.setAttribute("height", details["height"].toString());
 	globals.definitions.setGrid(details);
 	updateLight();
 	return details;
