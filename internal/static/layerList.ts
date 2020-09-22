@@ -48,7 +48,7 @@ const dragFn = (e: MouseEvent) => {
 		br(),
 		button("Rename", {"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
-			loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), name!), window).then(name => {
+			loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), newName.value), window).then(name => {
 				self.name = name;
 				self.nameElem.innerText = name;
 				window.remove();
