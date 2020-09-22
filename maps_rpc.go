@@ -60,7 +60,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidData
 		}
 		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			if mp.Width == md.Width && mp.Height == md.Height {
+			if mp.Width == md.Width && mp.Height == md.Height && mp.GridSize == md.GridSize && mp.GridColour == md.GridColour && mp.GridStroke == md.GridStroke {
 				return false
 			}
 			mp.Width = md.Width
