@@ -231,7 +231,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				// select new layer???
 			}
 		      },
-		      outline = g();
+		      outline = globals.outline = g();
 		globals.undo = undo;
 		globals.deselectToken = unselectToken;
 		createSVG(root, {"ondragover": (e: DragEvent) => {
