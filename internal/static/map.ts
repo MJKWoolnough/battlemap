@@ -566,6 +566,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					t.y += ls.dy;
 					t.updateNode();
 				});
+				layer.walls.forEach(w => {
+					w.x1 += ls.dx;
+					w.y1 += ls.dy;
+					w.x2 += ls.dx;
+					w.y2 += ls.dy;
+				});
 				updateLight();
 			}),
 			rpc.waitLightShift().then(pos => {
