@@ -15,7 +15,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		      stop({"offset": "30%", "style": "stop-color: currentColor"}),
 		      stop({"offset": "100%", "style": "stop-color: currentColor; stop-opacity: 0"})
 	      ])),
-	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightMGrad)", "stroke": "#888"})
+	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightMGrad)", "stroke": "#888", "stroke-width": 3})
       ]),
       wallMarker = g({"stroke": "#000"}, [
 	      polygon({"points": "5,0 16,0 10.5,5"}),
