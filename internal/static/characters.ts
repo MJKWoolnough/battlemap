@@ -8,7 +8,7 @@ import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 
-let rpc: RPC, n = 0;
+let  n = 0;
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
@@ -154,8 +154,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      ]))));
 }
 
-export default function (arpc: RPC) {
-	rpc = arpc;
+export default function (rpc: RPC) {
 	rpc.waitCharacterDataChange().then(d => {
 		const char = characterData.get(d.id);
 		if (char) {
