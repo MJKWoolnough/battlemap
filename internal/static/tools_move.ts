@@ -1,7 +1,7 @@
 import {RPC, LayerRPC} from './types.js';
 import {div} from './lib/html.js';
 import {svg, g, line, path} from './lib/svg.js';
-import {SVGToken, globals} from './map.js';
+import {SVGToken, globals, updateLight} from './map.js';
 import {mapLayersReceive, handleError} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
@@ -44,14 +44,28 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 				t.y += dy;
 				t.updateNode();
 			});
+			selectedLayer.walls.forEach(w => {
+				w.x1 += dx;
+				w.y1 += dy;
+				w.x2 += dx;
+				w.y2 += dy;
+			});
 			rpc.shiftLayer(selectedLayer.path, dx, dy).catch(handleError);
+			updateLight();
 			return () => {
 				(selectedLayer.tokens as SVGToken[]).forEach(t => {
 					t.x -= dx;
 					t.y -= dy;
 					t.updateNode();
 				});
+				selectedLayer.walls.forEach(w => {
+					w.x1 -= dx;
+					w.y1 -= dy;
+					w.x2 -= dx;
+					w.y2 -= dy;
+				});
 				rpc.shiftLayer(selectedLayer.path, -dx, -dy).catch(handleError);
+				updateLight();
 				return doIt;
 			};
 		};
