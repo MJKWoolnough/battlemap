@@ -5,34 +5,29 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"vimagination.zapto.org/httpdir"
-	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 )
 
 type pluginsDir struct {
-	http.Handler
-	json memio.Buffer
+	json json.RawMessage
 }
 
 func (p *pluginsDir) Init(b *Battlemap) error {
 	var pd keystore.String
 	b.config.Get("PluginsDir", &pd)
 	if pd == "" {
-		p.Handler = http.NotFoundHandler()
 		return nil
 	}
 	base := filepath.Join(b.config.BaseDir, string(pd))
 	d, err := os.Open(base)
 	if os.IsNotExist(err) {
-		p.Handler = http.NotFoundHandler()
 		return nil
 	}
 	di, err := d.Stat()
@@ -47,7 +42,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	hd := httpdir.New(latest)
 	g, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
 	sort.Strings(fs)
-	list := make([]string, 0, len(fs))
+	p.json = append(p.json[:0], '[')
 	for _, file := range fs {
 		if !strings.HasSuffix(file, ".js") {
 			continue
@@ -77,19 +72,21 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		if ft.After(latest) {
 			latest = ft
 		}
-		list = append(list, file)
+		if len(p.json) > 1 {
+			p.json = append(p.json, ',')
+		}
+		p.json = append(appendString(append(p.json, '['), file), ",true]"...)
 	}
-	p.Handler = httpgzip.FileServer(hd)
-	return json.NewEncoder(&p.json).Encode(list)
+	p.json = append(p.json, ']')
+	return nil
 }
 
 func (*pluginsDir) Cleanup() {}
 
-func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "" {
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(p.json)
-	} else {
-		p.Handler.ServeHTTP(w, r)
+func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (json.RawMessage, error) {
+	switch method {
+	case "list":
+		return p.json, nil
 	}
+	return nil, ErrUnknownMethod
 }
