@@ -27,6 +27,7 @@ func (c *config) Init(baseDir string) error {
 		"MapsDir":        keystore.String("maps"),
 		"FilesDir":       keystore.String("files"),
 		"PluginsDir":     keystore.String("plugins"),
+		"PluginsInfo":    keystore.String("{}"),
 		"TokensDir":      keystore.String("tokens"),
 	})
 	var err error
