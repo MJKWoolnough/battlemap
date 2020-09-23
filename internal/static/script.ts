@@ -176,7 +176,7 @@ if (invert.value) {
 	document.documentElement.classList.add("invert");
 }
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(pluginInit).then(userLevel => {
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit(rpc)]).then(([userLevel]) => {
 	characterStore(rpc);
 	if (userLevel === 1) {
 		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
