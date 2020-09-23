@@ -5,17 +5,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
 	"vimagination.zapto.org/httpdir"
+	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
 )
 
 type pluginsDir struct {
+	http.Handler
 	json json.RawMessage
 }
 
@@ -78,6 +81,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		p.json = append(appendString(append(p.json, '['), file), ",true]"...)
 	}
 	p.json = append(p.json, ']')
+	p.Handler = httpgzip.FileServer(hd)
 	return nil
 }
 
