@@ -157,6 +157,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"tokenModify": (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
 
+			"listPlugins": () => rpc.request("plugins.list").then(checkPlugins),
+
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
 			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
 			"login":              data                      => rpc.request("auth.login", data).then(checkString),
@@ -346,6 +348,18 @@ const returnVoid = () => {},
       checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
       checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
+      checkPlugins = (data: any) => {
+	checkArray(data, "plugins");
+	for (const p of data) {
+		checkArray(p, "plugins->plugin");
+		if (p.length !== 2) {
+			throwError("invalid plugin data");
+		}
+		checkString(p[0], "plugins->filename");
+		checkBoolean(p[1], "plugins->enabled");
+	}
+	return data;
+      },
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
