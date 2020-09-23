@@ -1,4 +1,4 @@
-import {Uint, KeystoreData} from './types.js';
+import {Uint, KeystoreData, RPC} from './types.js';
 import {h1} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {handleError} from './misc.js';
@@ -15,6 +15,7 @@ type plugin = {
 
 
 const plugins = new Map<string, plugin>(),
+      pluginList = new Map<string, boolean>(),
       filterSortPlugins = <K extends keyof plugin>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<plugin, K>> & Omit<plugin, K>][];
 
 export const settings = () => filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()]),
@@ -29,8 +30,18 @@ export const settings = () => filterSortPlugins("settings").map(([name, plugin])
        },
        addPlugin = (name: string, p: plugin) => plugins.set(name, p);
 
-export let userLevel: Uint;
+export let userLevel: Uint,
+       rpc: RPC;
 
-export default function(u: Uint) {
-	return (HTTPRequest("/plugins/", {"response": "json"}) as Promise<string[]>).then(plugins => Promise.all(plugins.map(plugin => import("/plugins/" + plugin)))).catch(handleError).then(() => u);
+export default function(rpc: RPC) {
+	return rpc.waitLogin().then(u => {
+		userLevel = u;
+		return rpc.listPlugins().then(plugins => Promise.all(plugins.map(([name, enabled]) => {
+			pluginList.set(name, enabled);
+			if (!enabled) {
+				return Promise.resolve();
+			}
+			return import(`/plugins/${name}`);
+		})));
+	});
 }
