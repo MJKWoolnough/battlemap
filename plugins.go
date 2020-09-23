@@ -10,15 +10,40 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
+	"vimagination.zapto.org/rwcount"
 )
 
+type plugin struct {
+	Enabled bool                       `json:"enabled"`
+	Data    map[string]json.RawMessage `json:"data"`
+}
+
+type pluginData map[string]*plugin
+
+func (p pluginData) ReadFrom(r io.Reader) (int64, error) {
+	var rc = rwcount.Reader{Reader: r}
+	err := json.NewDecoder(&rc).Decode(&p)
+	return rc.Count, err
+}
+
+func (p pluginData) WriteTo(w io.Writer) (int64, error) {
+	var wc = rwcount.Writer{Writer: w}
+	err := json.NewEncoder(&wc).Encode(p)
+	return wc.Count, err
+}
+
 type pluginsDir struct {
+	*Battlemap
 	http.Handler
+	plugins pluginData
+
+	mu   sync.RWMutex
 	json json.RawMessage
 }
 
@@ -27,6 +52,10 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	b.config.Get("PluginsDir", &pd)
 	if pd == "" {
 		return nil
+	}
+	p.plugins = make(pluginData)
+	if err := b.config.Get("PluginsInfo", p.plugins); err != nil {
+		return err
 	}
 	base := filepath.Join(b.config.BaseDir, string(pd))
 	d, err := os.Open(base)
@@ -46,6 +75,10 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	g, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
 	sort.Strings(fs)
 	p.json = append(p.json[:0], '[')
+	currPlugins := make(map[string]struct{}, len(p.plugins))
+	for p := range p.plugins {
+		currPlugins[p] = struct{}{}
+	}
 	for _, file := range fs {
 		if !strings.HasSuffix(file, ".js") {
 			continue
@@ -75,22 +108,42 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 		if ft.After(latest) {
 			latest = ft
 		}
-		if len(p.json) > 1 {
-			p.json = append(p.json, ',')
+		if _, ok := currPlugins[file]; ok {
+			delete(currPlugins, file)
+		} else {
+			p.plugins[file] = &plugin{Data: make(map[string]json.RawMessage)}
 		}
-		p.json = append(appendString(append(p.json, '['), file), ",true]"...)
 	}
-	p.json = append(p.json, ']')
+	for pn := range currPlugins {
+		delete(p.plugins, pn)
+	}
+	p.Battlemap = b
 	p.Handler = httpgzip.FileServer(hd)
+	p.updateJSON()
 	return nil
 }
 
 func (*pluginsDir) Cleanup() {}
 
+func (p *pluginsDir) savePlugins() error {
+	return p.config.Set("PluginsInfo", p.plugins)
+}
+
+func (p *pluginsDir) updateJSON() {
+	var w memio.Buffer
+	json.NewEncoder(&w).Encode(p.plugins)
+	p.mu.Lock()
+	p.json = json.RawMessage(w)
+	p.mu.Unlock()
+}
+
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (json.RawMessage, error) {
 	switch method {
 	case "list":
-		return p.json, nil
+		p.mu.RLock()
+		j := p.json
+		p.mu.RUnlock()
+		return j, nil
 	}
 	return nil, ErrUnknownMethod
 }
