@@ -126,7 +126,7 @@ export type RPC = {
 
 	tokenModify: (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
 
-	listPlugins: () => Promise<[string, boolean][]>;
+	listPlugins: () => Promise<Record<string, Plugin>>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
@@ -335,3 +335,8 @@ type TokenLight = {
 }
 
 type LightChange = ID & TokenLight;
+
+type Plugin = {
+	enabled: boolean;
+	data: Record<string, any>;
+}
