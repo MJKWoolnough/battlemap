@@ -350,13 +350,10 @@ const returnVoid = () => {},
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
       checkPlugins = (data: any) => {
 	checkArray(data, "plugins");
-	for (const p of data) {
-		checkArray(p, "plugins->plugin");
-		if (p.length !== 2) {
-			throwError("invalid plugin data");
-		}
-		checkString(p[0], "plugins->filename");
-		checkBoolean(p[1], "plugins->enabled");
+	for (const p in data) {
+		checkObject(data, "plugins->plugin", p);
+		checkBoolean(data, "plugins->enabled", "enabled");
+		checkObject(data[p], "plugins->data", "data");
 	}
 	return data;
       },
