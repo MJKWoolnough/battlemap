@@ -37,12 +37,12 @@ export class IntSetting {
 	value: Int;
 	constructor(name: string, starting = "0") {
 		this.name = name;
-		this.value = parseInt(window.localStorage.getItem("name") || starting);
+		this.value = parseInt(window.localStorage.getItem(name) || starting);
 		intPipes.set(this, new Pipe<Int>());
 	}
 	set(i: Int) {
 		this.value = i;
-		window.localStorage.setItem("name", i.toString());
+		window.localStorage.setItem(this.name, i.toString());
 		intPipes.get(this)!.send(i);
 	}
 	wait(fn: (value: Int) => void) {
@@ -55,12 +55,12 @@ export class StringSetting {
 	value: string;
 	constructor(name: string, starting = "") {
 		this.name = name;
-		this.value = window.localStorage.getItem("name") ?? starting;
+		this.value = window.localStorage.getItem(name) ?? starting;
 		stringPipes.set(this, new Pipe<string>());
 	}
 	set(s: string) {
 		this.value = s;
-		window.localStorage.setItem("name", s);
+		window.localStorage.setItem(this.name, s);
 		stringPipes.get(this)!.send(s);
 	}
 	wait(fn: (value: string) => void) {
