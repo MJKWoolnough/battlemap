@@ -27,6 +27,9 @@ export class BoolSetting {
 		boolPipes.get(this)!.send(b);
 		return b;
 	}
+	remove() {
+		window.localStorage.removeItem(this.name);
+	}
 	wait(fn: (value: boolean) => void) {
 		boolPipes.get(this)!.receive(fn);
 	}
@@ -45,6 +48,9 @@ export class IntSetting {
 		window.localStorage.setItem(this.name, i.toString());
 		intPipes.get(this)!.send(i);
 	}
+	remove() {
+		window.localStorage.removeItem(this.name);
+	}
 	wait(fn: (value: Int) => void) {
 		intPipes.get(this)!.receive(fn);
 	}
@@ -62,6 +68,9 @@ export class StringSetting {
 		this.value = s;
 		window.localStorage.setItem(this.name, s);
 		stringPipes.get(this)!.send(s);
+	}
+	remove() {
+		window.localStorage.removeItem(this.name);
 	}
 	wait(fn: (value: string) => void) {
 		stringPipes.get(this)!.receive(fn);
