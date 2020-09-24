@@ -166,6 +166,20 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		}
 		plugin.Data[toSet.Key] = toSet.Value
 		return nil, nil
+	case "enable", "disable":
+		var filename string
+		if err := json.Unmarshal(data, &filename); err != nil {
+			return nil, err
+		}
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		plugin, ok := p.plugins[filename]
+		if !ok {
+			return nil, ErrUnknownPlugin
+		}
+		plugin.Enabled = method == "enable"
+		p.updateJSON()
+		return nil, nil
 	}
 	return nil, ErrUnknownMethod
 }
