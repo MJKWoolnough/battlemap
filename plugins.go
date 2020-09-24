@@ -3,6 +3,7 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -148,6 +149,28 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		j := p.json
 		p.mu.RUnlock()
 		return j, nil
+	case "set":
+		var toSet struct {
+			Filename string          `json:"file"`
+			Key      string          `json:"key"`
+			Value    json.RawMessage `json:"value"`
+		}
+		if err := json.Unmarshal(data, &toSet); err != nil {
+			return nil, err
+		}
+		p.mu.Lock()
+		defer p.mu.Unlock()
+		plugin, ok := p.plugins[toSet.Filename]
+		if !ok {
+			return nil, ErrUnknownPlugin
+		}
+		plugin.Data[toSet.Key] = toSet.Value
+		return nil, nil
 	}
 	return nil, ErrUnknownMethod
 }
+
+// Errors
+var (
+	ErrUnknownPlugin = errors.New("unknown plugin")
+)
