@@ -349,11 +349,11 @@ const returnVoid = () => {},
       checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
       checkPlugins = (data: any) => {
-	checkArray(data, "plugins");
+	checkObject(data, "plugins");
 	for (const p in data) {
 		checkObject(data, "plugins->plugin", p);
-		checkBoolean(data, "plugins->enabled", "enabled");
-		checkObject(data[p], "plugins->data", "data");
+		checkBoolean(data[p]["enabled"], "plugin->enabled", "enabled");
+		checkObject(data[p]["data"], "plugin->data", "data");
 	}
 	return data;
       },
