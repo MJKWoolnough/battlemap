@@ -156,7 +156,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 				return c.chars.RPCData(cd, submethod, data)
 			}
 		case "plugins":
-			if cd.IsAdmin() || submethod == "list" || submethod == "get" {
+			if cd.IsAdmin() || submethod == "list" {
 				return c.plugins.RPCData(cd, submethod, data)
 			}
 		}
