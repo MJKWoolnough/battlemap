@@ -137,6 +137,10 @@ func (p *pluginsDir) updateJSON() {
 	p.mu.Unlock()
 }
 
+func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	p.Handler.ServeHTTP(w, r)
+}
+
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (json.RawMessage, error) {
 	switch method {
 	case "list":
