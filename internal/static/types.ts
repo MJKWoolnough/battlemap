@@ -336,7 +336,7 @@ type TokenLight = {
 
 type LightChange = ID & TokenLight;
 
-type Plugin = {
+export type Plugin = {
 	enabled: boolean;
 	data: Record<string, any>;
 }
