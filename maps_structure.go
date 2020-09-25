@@ -11,14 +11,15 @@ import (
 )
 
 type levelMap struct {
-	Width      uint64 `json:"width"`
-	Height     uint64 `json:"height"`
-	GridSize   uint64 `json:"gridSize"`
-	GridStroke uint64 `json:"gridStroke"`
-	GridColour colour `json:"gridColour"`
-	Light      colour `json:"lightColour"`
-	LightX     uint64 `json:"lightX"`
-	LightY     uint64 `json:"lightY"`
+	Width      uint64                     `json:"width"`
+	Height     uint64                     `json:"height"`
+	GridSize   uint64                     `json:"gridSize"`
+	GridStroke uint64                     `json:"gridStroke"`
+	GridColour colour                     `json:"gridColour"`
+	Light      colour                     `json:"lightColour"`
+	LightX     uint64                     `json:"lightX"`
+	LightY     uint64                     `json:"lightY"`
+	Data       map[string]json.RawMessage `json:"data"`
 	layer
 	layers                  map[string]struct{}
 	tokens                  map[uint64]layerToken
@@ -63,9 +64,19 @@ func (l *levelMap) writeJSON() {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
-	l.UserJSON = append(l.layer.appendTo(append(l.UserJSON[:0], l.JSON...), false, true), '}')
-	l.JSON = l.layer.appendTo(l.JSON, false, false)
+	l.JSON = append(l.JSON, ",\"data\":{"...)
+	first := true
+	for k, v := range l.Data {
+		if !first {
+			l.JSON = append(l.JSON, ',')
+		} else {
+			first = false
+		}
+		l.JSON = append(appendString(l.JSON, k), v...)
+	}
 	l.JSON = append(l.JSON, '}')
+	l.UserJSON = append(l.layer.appendTo(append(l.UserJSON[:0], l.JSON...), false, true), '}')
+	l.JSON = append(l.layer.appendTo(l.JSON, false, false), '}')
 }
 
 func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
