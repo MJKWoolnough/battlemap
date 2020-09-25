@@ -71,6 +71,29 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
 			return true
 		})
+	case "setData":
+		var sd struct {
+			Key  string          `json:"key"`
+			Data json.RawMessage `json:"data"`
+		}
+		if err := json.Unmarshal(data, &sd); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Data[sd.Key] = sd.Data
+			m.socket.broadcastMapChange(cd, broadcastMapDataSet, data)
+			return true
+		})
+	case "removeData":
+		var rd string
+		if err := json.Unmarshal(data, &rd); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			delete(mp.Data, rd)
+			m.socket.broadcastMapChange(cd, broadcastMapDataRemove, data)
+			return true
+		})
 	case "setLightColour":
 		var c colour
 		if err := json.Unmarshal(data, &c); err != nil {
