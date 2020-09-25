@@ -10,6 +10,9 @@ const (
 	broadcastCurrentUserMap
 	broadcastCurrentUserMapData
 
+	broadcastMapDataSet
+	broadcastMapDataRemove
+
 	broadcastImageItemAdd
 	broadcastAudioItemAdd
 	broadcastCharacterItemAdd
