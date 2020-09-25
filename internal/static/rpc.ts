@@ -9,6 +9,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitLogin":               () => rpc.await(broadcastIsAdmin).then(checkUint),
 			"waitCurrentUserMap":      () => rpc.await(broadcastCurrentUserMap, true).then(checkUint),
 			"waitCurrentUserMapData":  () => rpc.await(broadcastCurrentUserMapData, true).then(checkMapData),
+			"waitMapDataSet":          () => rpc.await(broadcastMapDataSet, true).then(checkKeyData),
+			"waitMapDataRemove":       () => rpc.await(broadcastMapDataRemove, true).then(checkString),
 			"waitCharacterDataChange": () => rpc.await(broadcastCharacterDataChange, true).then(checkCharacterDataChange),
 			"waitTokenDataChange":     () => rpc.await(broadcastTokenDataChange, true).then(checkTokenDataChange),
 			"waitMapChange":           () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
@@ -239,6 +241,8 @@ const returnVoid = () => {},
 	}
 	return data;
       },
+      checksKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
+      checkKeyData = (data: any) => checker(data, "KeyData", checksKeyData),
       checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
       checkKeystoreData = (data: any, name = "KeystoreData", key = "") => {
 	checkObject(data, name);

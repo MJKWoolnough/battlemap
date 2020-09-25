@@ -45,6 +45,8 @@ export type RPC = {
 	waitLogin:                   () => Promise<Uint>;
 	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
+	waitMapDataSet:              () => Subscription<KeyData>;
+	waitMapDataRemove:           () => Subscription<string>;
 	waitCharacterDataChange:     () => Subscription<CharacterDataChange>;
 	waitTokenDataChange:         () => Subscription<TokenDataChange>;
 	waitMapChange:               () => Subscription<MapDetails>;
@@ -339,4 +341,9 @@ type LightChange = ID & TokenLight;
 export type Plugin = {
 	enabled: boolean;
 	data: Record<string, any>;
+}
+
+type KeyData = {
+	key: string;
+	data: any;
 }
