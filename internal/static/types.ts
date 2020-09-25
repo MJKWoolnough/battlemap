@@ -128,7 +128,9 @@ export type RPC = {
 
 	tokenModify: (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
 
-	listPlugins: () => Promise<Record<string, Plugin>>;
+	listPlugins:   () => Promise<Record<string, Plugin>>;
+	enablePlugin:  (plugin: string) => Promise<void>;
+	disablePlugin: (plugin: string) => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;

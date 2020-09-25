@@ -159,7 +159,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 			"tokenModify": (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
 
-			"listPlugins": () => rpc.request("plugins.list").then(checkPlugins),
+			"listPlugins":   () => rpc.request("plugins.list").then(checkPlugins),
+			"enablePlugin":  (plugin: string) => rpc.request("plugins.enable", plugin).then(returnVoid),
+			"disablePlugin": (plugin: string) => rpc.request("plugins.disable", plugin).then(returnVoid),
 
 			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
 			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
