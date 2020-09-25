@@ -611,6 +611,12 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 						delete token.tokenData[r];
 					}
 				}
+			}),
+			rpc.waitMapDataSet().then(kd => {
+				mapData.data[kd.key] = kd.data;
+			}),
+			rpc.waitMapDataRemove().then(key => {
+				delete mapData.data[key];
 			})
 		)
 	];
