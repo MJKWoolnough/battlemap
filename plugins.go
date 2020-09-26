@@ -163,7 +163,6 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Data[toSet.Key] = toSet.Value
-		return nil, nil
 	case "enable", "disable":
 		var filename string
 		if err := json.Unmarshal(data, &filename); err != nil {
@@ -177,9 +176,12 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		}
 		plugin.Enabled = method == "enable"
 		p.updateJSON()
-		return nil, nil
+		cd.CurrentMap = 0
+	default:
+		return nil, ErrUnknownMethod
 	}
-	return nil, ErrUnknownMethod
+	p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
+	return nil, nil
 }
 
 // Errors
