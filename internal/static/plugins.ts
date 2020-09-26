@@ -19,6 +19,9 @@ const plugins = new Map<string, plugin>(),
       filterSortPlugins = <K extends keyof plugin>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<plugin, K>> & Omit<plugin, K>][];
 
 export const settings = () => {
+	if (pluginList.size === 0) {
+		return [];
+	}
 	let selected = "";
 	const check = input({"type": "checkbox", "disabled": true}),
 	      save = button({"disabled": true, "onclick": () => {
