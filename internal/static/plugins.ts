@@ -34,7 +34,8 @@ export const settings = () => filterSortPlugins("settings").map(([name, plugin])
 export let userLevel: Uint,
        rpc: RPC;
 
-export default function(rpc: RPC) {
+export default function(arpc: RPC) {
+	rpc = arpc;
 	return rpc.waitLogin().then(u => {
 		userLevel = u;
 		return rpc.listPlugins().then(plugins => {
