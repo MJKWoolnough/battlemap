@@ -41,8 +41,8 @@ export default function(rpc: RPC) {
 			const ls: Promise<void>[] = [];
 			for (const p in plugins) {
 				const plugin = plugins[p];
+				pluginList.set(p, plugin);
 				if (plugin.enabled) {
-					pluginList.set(p, plugin);
 					ls.push(import(`/plugins/${p}`));
 				}
 			}
