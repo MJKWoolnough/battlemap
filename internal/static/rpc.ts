@@ -42,6 +42,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"waitTokenLightChange":    () => rpc.await(broadcastTokenLightChange, true).then(checkLightChange),
 			"waitWallAdded":           () => rpc.await(broadcastWallAdd, true).then(checkWallPath),
 			"waitWallRemoved":         () => rpc.await(broadcastWallRemove, true).then(checkUint),
+			"waitPluginChange":        () => rpc.await(broadcastPluginChange, true).then(returnVoid),
 			"waitBroadcast":           () => rpc.await(broadcastAny, true).then(checkBroadcast),
 
 			"images": {
