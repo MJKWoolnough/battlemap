@@ -133,9 +133,7 @@ func (p *pluginsDir) savePlugins() error {
 func (p *pluginsDir) updateJSON() {
 	var w memio.Buffer
 	json.NewEncoder(&w).Encode(p.plugins)
-	p.mu.Lock()
 	p.json = json.RawMessage(w)
-	p.mu.Unlock()
 }
 
 func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
