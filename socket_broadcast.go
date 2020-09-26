@@ -90,6 +90,8 @@ const (
 	broadcastWallAdd
 	broadcastWallRemove
 
+	broadcastPluginChange
+
 	broadcastAny
 )
 
