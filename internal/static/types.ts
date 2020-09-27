@@ -65,7 +65,6 @@ export type RPC = {
 	waitTokenRemove:             () => Subscription<Uint>;
 	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
 	waitTokenMovePos:            () => Subscription<TokenMovePos>;
-	waitTokenSetToken:           () => Subscription<Uint>;        //check type
 	waitTokenSetImage:           () => Subscription<Uint>;
 	waitTokenSetPattern:         () => Subscription<Uint>;
 	waitTokenChange:             () => Subscription<TokenChange>;
