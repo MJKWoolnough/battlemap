@@ -72,7 +72,6 @@ export const settings = () => {
        addPlugin = (name: string, p: plugin) => plugins.set(name, p),
        getSettings = (name: string) => pluginList.get(name)?.data,
        askReload = () => {
-	       console.log(userLevel);
 	if (userLevel === 0) {
 		window.location.reload();
 		return;
