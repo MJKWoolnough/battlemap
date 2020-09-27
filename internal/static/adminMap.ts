@@ -853,7 +853,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				rpc.waitTokenRemove,
 				rpc.waitTokenMoveLayer,
 				rpc.waitTokenMovePos,
-				rpc.waitTokenSetToken,
 				rpc.waitTokenSetImage,
 				rpc.waitTokenSetPattern,
 				rpc.waitTokenFlip,
