@@ -85,6 +85,7 @@ export let userLevel: Uint,
 
 export default function(arpc: RPC) {
 	rpc = arpc;
+	rpc.waitPluginChange().then(askReload);
 	return rpc.waitLogin().then(u => {
 		userLevel = u;
 		return rpc.listPlugins().then(plugins => {
