@@ -127,6 +127,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 func (*pluginsDir) Cleanup() {}
 
 func (p *pluginsDir) savePlugins() error {
+	p.updateJSON()
 	return p.config.Set("PluginsInfo", p.plugins)
 }
 
@@ -175,11 +176,11 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Enabled = method == "enable"
-		p.updateJSON()
 		cd.CurrentMap = 0
 	default:
 		return nil, ErrUnknownMethod
 	}
+	p.savePlugins()
 	p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
 	return nil, nil
 }
