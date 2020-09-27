@@ -158,9 +158,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, err
 		}
 		p.mu.Lock()
-		defer p.mu.Unlock()
 		plugin, ok := p.plugins[toSet.Filename]
 		if !ok {
+			p.mu.Unlock()
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Data[toSet.Key] = toSet.Value
@@ -170,9 +170,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, err
 		}
 		p.mu.Lock()
-		defer p.mu.Unlock()
 		plugin, ok := p.plugins[filename]
 		if !ok {
+			p.mu.Unlock()
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Enabled = method == "enable"
@@ -182,6 +182,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 	}
 	p.savePlugins()
 	p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
+	p.mu.Unlock()
 	return nil, nil
 }
 
