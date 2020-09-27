@@ -140,7 +140,7 @@ func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.Handler.ServeHTTP(w, r)
 }
 
-func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (json.RawMessage, error) {
+func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
 		p.mu.RLock()
