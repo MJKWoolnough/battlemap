@@ -60,8 +60,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      }}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
-	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
-		label({"for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
+	      m = label({"for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
 			if (e.button !== 0) {
 				return;
 			}
@@ -69,7 +68,9 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				window.addEventListener("mousemove", mousemove);
 				window.addEventListener("mouseup", mouseUp);
 			}
-		}}),
+	      }}),
+	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
+		m,
 		div({"id": "tabs"}, [t, p])
 	      ]),
 	      windowData: Record<string, savedWindow> = JSON.parse(window.localStorage.getItem("windowData") || "{}"),
@@ -164,6 +165,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			});
 		}
 	});
+	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	return o;
       }()),
       spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
