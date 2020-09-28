@@ -112,7 +112,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		}}),
 		br(),
 		label({"for": "menuHide"}, "Hide Menu Button?: "),
-		input({"id": "menuHide", "type": "checkbox", "value": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+		input({"id": "menuHide", "type": "checkbox", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}),
 		pluginSettings(),
