@@ -77,7 +77,6 @@ export class StringSetting {
 	}
 }
 
-
 export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
 scrollAmount = new IntSetting("scrollAmount"),
