@@ -1,10 +1,11 @@
 import {HTTPRequest} from './lib/conn.js';
 import {Pipe} from './lib/inter.js';
-import {createHTML, button, br, h1, input, label} from './lib/html.js';
+import {createHTML, button, br, h1, input, label, select, option} from './lib/html.js';
 import {Int, RPC} from './types.js';
 import {ShellElement} from './windows.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
+import {language, languages} from './language.js';
 
 export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
@@ -17,6 +18,11 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		h1("Authentication"),
 		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, "Logout") : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, "Login"),
 		br(),
+		h1("Language"),
+		label({"for": "language_select"}, "Select Language: "),
+		select({"id": "language_select", "onchange": function(this: HTMLSelectElement) {
+			language.set(this.value);
+		}}, languages.map(l => option({"selected": l === language.value}, l))),
 		h1("Theme"),
 		button({"onclick": function(this: HTMLButtonElement) {
 			this.innerText = invert.set(!invert.value) ? "Light Mode" : "Dark Mode"
