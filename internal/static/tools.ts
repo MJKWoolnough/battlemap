@@ -86,7 +86,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	rpc = arpc;
 	tools.sort((a, b) => a.name === "Default" ? -1 : b.name === "Default" ? 1 : stringSort(a.name, b.name));
 	const options = div(),
-	      toolOptions = div([h2("Tool Options"), options]),
+	      toolOptions = div([h2("Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool?.unset) {
 			selectedTool.unset(arpc);
