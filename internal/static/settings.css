@@ -1,13 +1,13 @@
-#autosnap {
+.settings_ticker {
 	display: none;
 }
 
-#autosnap + label:after {
+.settings_ticker + label:after {
 	content: "✘";
 	color: #f00;
 }
 
-#autosnap:checked + label:after {
+.settings_ticker:checked + label:after {
 	content: "✓";
 	color: #0f0;
 }
