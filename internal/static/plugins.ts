@@ -2,6 +2,7 @@ import {Uint, KeystoreData, RPC, Plugin} from './types.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {handleError, requestShell} from './misc.js';
+import lang from './language.js';
 
 type owp<T extends Function = () => void> = {
 	priority: Uint;
@@ -34,10 +35,10 @@ export const settings = () => {
 		}
 		plugin.enabled = check.checked;
 		(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
-	      }}, "Save");
+	      }}, lang["SAVE"]);
 	return [
-		h1("Plugins"),
-		label({"for": "pluginList"}, "Plugins: "),
+		h1(lang["PLUGINS"]),
+		label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
 		select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
 			if (this.value === "") {
 				check.toggleAttribute("disabled", true);
@@ -77,7 +78,7 @@ export const settings = () => {
 		window.location.reload();
 		return;
 	}
-	requestShell().confirm("Refresh Page?", "Plugin settings have change and a page refresh is required to load changes. Refresh the page now?").then(r => r && window.location.reload());
+	requestShell().confirm(lang["PLUGIN_REFRESH"], lang["PLUGIN_REFRESH_REQUEST"]).then(r => r && window.location.reload());
        };
 
 export let userLevel: Uint,
