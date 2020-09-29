@@ -37,7 +37,7 @@ export const settings = () => {
 	      }}, "Save");
 	return [
 		h1("Plugins"),
-		label({"for": "pluginList"}, "Plugins"),
+		label({"for": "pluginList"}, "Plugins: "),
 		select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
 			if (this.value === "") {
 				check.toggleAttribute("disabled", true);
