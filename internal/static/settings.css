@@ -2,6 +2,10 @@
 	display: none;
 }
 
+.settings_ticker[disabled] + label:after {
+	display: none;
+}
+
 .settings_ticker + label:after {
 	content: "✘";
 	color: #f00;
