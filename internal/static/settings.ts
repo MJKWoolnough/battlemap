@@ -29,7 +29,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		}}, invert.value ? "Light Mode" : "Dark Mode"),
 		h1("Map Settings"),
 		loggedIn ? [
-			input({"type": "checkbox", "id": "autosnap", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
+			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
 			}}),
 			label({"for": "autosnap"}, "Autosnap: "),
@@ -45,10 +45,10 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 			undoLimit.set(parseInt(this.value));
 		}}),
 		br(),
-		label({"for": "menuHide"}, "Hide Menu Button?: "),
-		input({"id": "menuHide", "type": "checkbox", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+		input({"type": "checkbox", "id": "menuHide", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}),
+		label({"for": "menuHide"}, "Hide Menu Button?: "),
 		pluginSettings(),
 		h1("Reset"),
 		button({"onclick": () => shell.confirm("Are you sure?", "Are you sure that you wish to clear all settings? This cannot be undone").then(v => {
