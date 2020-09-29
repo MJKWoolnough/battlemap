@@ -18,4 +18,4 @@ const defaultLanguage: Record<string, string> = {
 export const languages: string[] = Object.keys(languagePacks),
 language = new StringSetting("language", navigator.language);
 
-export default languagePacks[language.value] ?? defaultLanguage;
+export default Object.freeze(languagePacks[language.value] ?? defaultLanguage);
