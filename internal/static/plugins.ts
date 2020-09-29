@@ -23,7 +23,7 @@ export const settings = () => {
 		return [];
 	}
 	let selected = "";
-	const check = input({"type": "checkbox", "disabled": true}),
+	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
 	      save = button({"disabled": true, "onclick": () => {
 		if (selected === "") {
 			return;
@@ -55,6 +55,7 @@ export const settings = () => {
 			}
 		}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
 		check,
+		label(),
 		br(),
 		save,
 		filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()])
