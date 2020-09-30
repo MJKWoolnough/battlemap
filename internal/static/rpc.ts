@@ -22,7 +22,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		      waiters: Record<string, [string, number, (data: any) => any][]> ={
 			"": [
 				["waitCurrentUserMap",      broadcastCurrentUserMap,      checkUint],
-				["waitCurrentUserMap",      broadcastCurrentUserMap,      checkUint],
 				["waitCurrentUserMapData",  broadcastCurrentUserMapData,  checkMapData],
 				["waitMapDataSet",          broadcastMapDataSet,          checkKeyData],
 				["waitMapDataRemove",       broadcastMapDataRemove,       checkString],
