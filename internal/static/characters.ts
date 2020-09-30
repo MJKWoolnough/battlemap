@@ -7,6 +7,7 @@ import {handleError} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
+import lang from './language.js';
 
 let  n = 0;
 
@@ -85,7 +86,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
-			w.confirm("Are you sure?", "There are unsaved changes, are you sure you wish to close?").then(t => {
+			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
 				if (t) {
 					w.remove();
 				}
@@ -93,7 +94,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		}
 	      }}, characterEdit(id, d, character, changes, removes, save) || [
 		h1(name),
-		label(`Character${character ? " Image" : ""}: `),
+		label(lang[character ? "CHARACTER_IMAGE" : "CHARACTER"]),
 		div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (character ? e.dataTransfer.getData("imageAsset") : e.dataTransfer.getData("character"))) {
 				e.preventDefault();
@@ -107,9 +108,9 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			} else {
 				changes["store-character-id"] = {"user": false, "data": tokenData.id};
 				const charData = characterData.get(tokenData.id)!;
-				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, "Edit Character", charData, character)}));
+				clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, lang["CHARACTED_EDIT"], charData, character)}));
 			}
-		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, "Edit Character", characterData.get(d["store-character-id"].data)!, character)}) : []),
+		}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, character)}) : []),
 		br(),
 		character ? [
 			label("Token: "),
@@ -117,7 +118,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 				button({"onclick": function(this: HTMLDivElement) {
 					const data = getToken();
 					if (!data) {
-						w.alert("Select token", "No token selected");
+						w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
 						return;
 					}
 					if (this.nextSibling) {
@@ -125,27 +126,27 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 					}
 					changes["token-data"] = {"user": false, data};
 					clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
-				}}, "Use currently selected token"),
+				}}, lang["TOKEN_USE_SELECTED"]),
 				d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 			]),
 			br(),
 		] : [],
 		inputs,
-		button("Add Row", {"onclick": () => w.prompt("New Row", "Please enter a new row name").then(key => {
+		button(lang["ROW_ADD"], {"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
 			if (key) {
 				if (!allowedKey(key, character)) {
-					w.alert("Reserved key", "Key entered is reserved and cannot be used for user data");
+					w.alert(lang["ROW_NAME_RESERVED"], lang["ROW_NAME_RESERVED_LONG"]);
 					return;
 				}
 				if (d[key] !== undefined || changes[key] !== undefined) {
-					w.alert("Existing key", "Key entered already exists");
+					w.alert(lang["ROW_NAME_EXISTS"], lang["ROW_NAME_EXISTS_LONG"]);
 					return;
 				}
 				changes[key] = {"user": false, "data": ""};
 				createHTML(inputs, adder(key));
 			}
 		})}),
-		button("Save", {"onclick": function(this: HTMLButtonElement) {
+		button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
 			save()
 			.then(() => changed = false)
