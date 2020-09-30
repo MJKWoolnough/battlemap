@@ -1,177 +1,212 @@
+import {RPC as RPCType, InternalWaits} from './types.js';
+import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
-import {RPC as RPCType} from './types.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastImageItemAdd = -6, broadcastAudioItemAdd = -7, broadcastCharacterItemAdd = -8, broadcastMapItemAdd = -9, broadcastImageItemMove = -10, broadcastAudioItemMove = -11, broadcastCharacterItemMove = -12, broadcastMapItemMove = -13, broadcastImageItemRemove = -14, broadcastAudioItemRemove = -15, broadcastCharacterItemRemove = -16, broadcastMapItemRemove = -17, broadcastImageItemLink = -18, broadcastAudioItemLink = -19, broadcastCharacterItemLink = -20, broadcastMapItemLink = -21, broadcastImageFolderAdd = -22, broadcastAudioFolderAdd = -23, broadcastCharacterFolderAdd = -24, broadcastMapFolderAdd = -25, broadcastImageFolderMove = -26, broadcastAudioFolderMove = -27, broadcastCharacterFolderMove = -28, broadcastMapFolderMove = -29, broadcastImageFolderRemove = -30, broadcastAudioFolderRemove = -31, broadcastCharacterFolderRemove = -32, broadcastMapFolderRemove = -33, broadcastMapItemChange = -34, broadcastCharacterDataChange = -35, broadcastTokenDataChange = -36, broadcastCharacterDataRemove = -37, broadcastTokenDataRemove = -38, broadcastLayerAdd = -39, broadcastLayerFolderAdd = -40, broadcastLayerMove = -41, broadcastLayerRename = -42, broadcastLayerRemove = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerMaskAdd = -47, broadcastLayerMaskChange = -48, broadcastLayerMaskRemove = -49, broadcastTokenAdd = -50, broadcastTokenRemove = -51, broadcastTokenMoveLayer = -52, broadcastTokenMovePos = -53, broadcastTokenSetImage = -54, broadcastTokenSetPattern = -55, broadcastTokenChange = -56, broadcastTokenFlip = -57, broadcastTokenFlop = -58, broadcastTokenSnap = -59, broadcastTokenSourceChange = -60, broadcastTokenSetData = -61, broadcastTokenUnsetData = -62, broadcastLayerShift = -63, broadcastLightShift = -64, broadcastTokenLightChange = -65, broadcastWallAdd = -66, broadcastWallRemove = -67, broadcastPluginChange = -68, broadcastAny = -69;
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
-		return Object.freeze({
-			"waitLogin":               () => rpc.await(broadcastIsAdmin).then(checkUint),
-			"waitCurrentUserMap":      () => rpc.await(broadcastCurrentUserMap, true).then(checkUint),
-			"waitCurrentUserMapData":  () => rpc.await(broadcastCurrentUserMapData, true).then(checkMapData),
-			"waitMapDataSet":          () => rpc.await(broadcastMapDataSet, true).then(checkKeyData),
-			"waitMapDataRemove":       () => rpc.await(broadcastMapDataRemove, true).then(checkString),
-			"waitCharacterDataChange": () => rpc.await(broadcastCharacterDataChange, true).then(checkCharacterDataChange),
-			"waitTokenDataChange":     () => rpc.await(broadcastTokenDataChange, true).then(checkTokenDataChange),
-			"waitMapChange":           () => rpc.await(broadcastMapItemChange, true).then(checkMapDetails),
-			"waitLayerAdd":            () => rpc.await(broadcastLayerAdd, true).then(checkString),
-			"waitLayerFolderAdd":      () => rpc.await(broadcastLayerFolderAdd, true).then(checkString),
-			"waitLayerMove":           () => rpc.await(broadcastLayerMove, true).then(checkLayerMove),
-			"waitLayerRename":         () => rpc.await(broadcastLayerRename, true).then(checkLayerRename),
-			"waitLayerRemove":         () => rpc.await(broadcastLayerRemove, true).then(checkString),
-			"waitMapLightChange":      () => rpc.await(broadcastMapLightChange, true).then(checkColour),
-			"waitLayerShow":           () => rpc.await(broadcastLayerShow, true).then(checkString),
-			"waitLayerHide":           () => rpc.await(broadcastLayerHide, true).then(checkString),
-			"waitLayerMaskAdd":        () => rpc.await(broadcastLayerMaskAdd, true),
-			"waitLayerMaskChange":     () => rpc.await(broadcastLayerMaskChange, true),
-			"waitLayerMaskRemove":     () => rpc.await(broadcastLayerMaskRemove, true),
-			"waitTokenAdd":            () => rpc.await(broadcastTokenAdd, true).then(checkTokenAdd),
-			"waitTokenRemove":         () => rpc.await(broadcastTokenRemove, true).then(checkUint),
-			"waitTokenMoveLayer":      () => rpc.await(broadcastTokenMoveLayer, true).then(checkTokenMoveLayer),
-			"waitTokenMovePos":        () => rpc.await(broadcastTokenMovePos, true).then(checkTokenMovePos),
-			"waitTokenSetImage":       () => rpc.await(broadcastTokenSetImage, true).then(checkUint),
-			"waitTokenSetPattern":     () => rpc.await(broadcastTokenSetPattern, true).then(checkUint),
-			"waitTokenChange":         () => rpc.await(broadcastTokenChange, true).then(checkTokenChange),
-			"waitTokenFlip":           () => rpc.await(broadcastTokenFlip, true).then(checkTokenFlip),
-			"waitTokenFlop":           () => rpc.await(broadcastTokenFlop, true).then(checkTokenFlop),
-			"waitTokenSnap":           () => rpc.await(broadcastTokenSnap, true).then(checkTokenSnap),
-			"waitTokenSourceChange":   () => rpc.await(broadcastTokenSourceChange, true).then(checkTokenSource),
-			"waitLayerShift":          () => rpc.await(broadcastLayerShift, true).then(checkLayerShift),
-			"waitLightShift":          () => rpc.await(broadcastLightShift, true).then(checkLightShift),
-			"waitTokenLightChange":    () => rpc.await(broadcastTokenLightChange, true).then(checkLightChange),
-			"waitWallAdded":           () => rpc.await(broadcastWallAdd, true).then(checkWallPath),
-			"waitWallRemoved":         () => rpc.await(broadcastWallRemove, true).then(checkUint),
-			"waitPluginChange":        () => rpc.await(broadcastPluginChange, true).then(returnVoid),
-			"waitBroadcast":           () => rpc.await(broadcastAny, true).then(checkBroadcast),
+		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
+			"": () => {},
+			"!": (args: IArguments) => args[0],
+			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]])),
+			"a": (args: IArguments) => Object.assign(args[1], {"path": args[0]})
+		      },
+		      r: Record<string, Function | Record<string, Function>> = {
+			"waitLogin":  () => rpc.await(broadcastIsAdmin).then(checkUint),
+			"images":     {},
+			"audio":      {},
+			"characters": {},
+			"maps":       {},
+		      },
+		      waiters: Record<string, [string, number, (data: any) => any][]> ={
+			"": [
+				["waitCurrentUserMap",      broadcastCurrentUserMap,      checkUint],
+				["waitCurrentUserMap",      broadcastCurrentUserMap,      checkUint],
+				["waitCurrentUserMapData",  broadcastCurrentUserMapData,  checkMapData],
+				["waitMapDataSet",          broadcastMapDataSet,          checkKeyData],
+				["waitMapDataRemove",       broadcastMapDataRemove,       checkString],
+				["waitCharacterDataChange", broadcastCharacterDataChange, checkCharacterDataChange],
+				["waitTokenDataChange",     broadcastTokenDataChange,     checkTokenDataChange],
+				["waitMapChange",           broadcastMapItemChange,       checkMapDetails],
+				["waitLayerAdd",            broadcastLayerAdd,            checkString],
+				["waitLayerFolderAdd",      broadcastLayerFolderAdd,      checkString],
+				["waitLayerMove",           broadcastLayerMove,           checkLayerMove],
+				["waitLayerRename",         broadcastLayerRename,         checkLayerRename],
+				["waitLayerRemove",         broadcastLayerRemove,         checkString],
+				["waitMapLightChange",      broadcastMapLightChange,      checkColour],
+				["waitLayerShow",           broadcastLayerShow,           checkString],
+				["waitLayerHide",           broadcastLayerHide,           checkString],
+				["waitLayerMaskAdd",        broadcastLayerMaskAdd,        checkUint],
+				["waitLayerMaskChange",     broadcastLayerMaskChange,     checkUint],
+				["waitLayerMaskRemove",     broadcastLayerMaskRemove,     checkUint],
+				["waitTokenAdd",            broadcastTokenAdd,            checkTokenAdd],
+				["waitTokenRemove",         broadcastTokenRemove,         checkUint],
+				["waitTokenMoveLayer",      broadcastTokenMoveLayer,      checkTokenMoveLayer],
+				["waitTokenMovePos",        broadcastTokenMovePos,        checkTokenMovePos],
+				["waitTokenSetImage",       broadcastTokenSetImage,       checkUint],
+				["waitTokenSetPattern",     broadcastTokenSetPattern,     checkUint],
+				["waitTokenChange",         broadcastTokenChange,         checkTokenChange],
+				["waitTokenFlip",           broadcastTokenFlip,           checkTokenFlip],
+				["waitTokenFlop",           broadcastTokenFlop,           checkTokenFlop],
+				["waitTokenSnap",           broadcastTokenSnap,           checkTokenSnap],
+				["waitTokenSourceChange",   broadcastTokenSourceChange,   checkTokenSource],
+				["waitLayerShift",          broadcastLayerShift,          checkLayerShift],
+				["waitLightShift",          broadcastLightShift,          checkLightShift],
+				["waitTokenLightChange",    broadcastTokenLightChange,    checkLightChange],
+				["waitWallAdded",           broadcastWallAdd,             checkWallPath],
+				["waitWallRemoved",         broadcastWallRemove,          checkUint],
+				["waitPluginChange",        broadcastPluginChange,        returnVoid],
+				["waitBroadcast",           broadcastAny,                 checkBroadcast]
+			],
+			"images": [
+				["waitAdded",         broadcastImageItemAdd,      checkIDName],
+				["waitMoved",         broadcastImageItemMove,     checkFromTo],
+				["waitRemoved",       broadcastImageItemRemove,   checkString],
+				["waitLinked",        broadcastImageItemLink,     checkIDName],
+				["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
+				["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
+				["waitFolderRemoved", broadcastImageFolderRemove, checkString]
+			],
+			"audio": [
+				["waitAdded",         broadcastAudioItemAdd,      checkIDName],
+				["waitMoved",         broadcastAudioItemMove,     checkFromTo],
+				["waitRemoved",       broadcastAudioItemRemove,   checkString],
+				["waitLinked",        broadcastAudioItemLink,     checkIDName],
+				["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
+				["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
+				["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
+			],
+			"characters": [
+				["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
+				["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
+				["waitRemoved",       broadcastCharacterItemRemove,   checkString],
+				["waitLinked",        broadcastCharacterItemLink,     checkIDName],
+				["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
+				["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
+				["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
+			],
+			"maps": [
+				["waitAdded",         broadcastMapItemAdd,      checkIDName],
+				["waitMoved",         broadcastMapItemMove,     checkFromTo],
+				["waitRemoved",       broadcastMapItemRemove,   checkString],
+				["waitLinked",        broadcastMapItemLink,     checkIDName],
+				["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
+				["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
+				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
+			]
+		      },
+		      endpoints: Record<string, [string, string, string | string[], (data: any) => any][]> ={
+			"": [
+				["connID", "conn.connID", "", checkUint],
 
-			"images": {
-				"waitAdded":         () => rpc.await(broadcastImageItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastImageItemMove, true).then(checkFromTo),
-				"waitRemoved":       () => rpc.await(broadcastImageItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastImageItemLink, true).then(checkIDName),
-				"waitFolderAdded":   () => rpc.await(broadcastImageFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastImageFolderMove, true).then(checkFromTo),
-				"waitFolderRemoved": () => rpc.await(broadcastImageFolderRemove, true).then(checkString),
+				["setCurrentMap", "maps.setCurrentMap", "!", returnVoid],
+				["getUserMap",    "maps.getUserMap",    "",  checkUint],
+				["setUserMap",    "maps.setUserMap",    "!", returnVoid],
+				["getMapData",    "maps.getMapData",    "!", checkMapData],
 
-				"list":         ()         => rpc.request("imageAssets.list").then(checkFolderItems),
-				"createFolder":  path      => rpc.request("imageAssets.createFolder", path).then(checkString),
-				"move":         (from, to) => rpc.request("imageAssets.move", {from, to}).then(checkString),
-				"moveFolder":   (from, to) => rpc.request("imageAssets.moveFolder", {from, to}).then(checkString),
-				"remove":        path      => rpc.request("imageAssets.remove", path).then(returnVoid),
-				"removeFolder":  path      => rpc.request("imageAssets.removeFolder", path).then(returnVoid),
-				"link":         (id, name) => rpc.request("imageAssets.link", {id, name}).then(checkString),
-			},
+				["newMap",         "maps.new",            "!", checkIDName],
+				["setMapDetails",  "maps.setMapDetails",  "!", returnVoid],
+				["setLightColour", "maps.setLightColour", "!", returnVoid],
 
-			"audio": {
-				"waitAdded":         () => rpc.await(broadcastAudioItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastAudioItemMove, true).then(checkFromTo),
-				"waitRemoved":       () => rpc.await(broadcastAudioItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastAudioItemLink, true).then(checkIDName),
-				"waitFolderAdded":   () => rpc.await(broadcastAudioFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastAudioFolderMove, true).then(checkFromTo),
-				"waitFolderRemoved": () => rpc.await(broadcastAudioFolderRemove, true).then(checkString),
+				["addLayer",       "maps.addLayer",        "!",                                            checkString],
+				["addLayerFolder", "maps.addLayerFolder",  "!",                                            checkString],
+				["renameLayer",    "maps.renameLayer",    ["path", "name"],                                checkLayerRename],
+				["moveLayer",      "maps.moveLayer",      ["from", "to", "position"],                      returnVoid],
+				["showLayer",      "maps.showLayer",       "!",                                            returnVoid],
+				["hideLayer",      "maps.hideLayer",       "!",                                            returnVoid],
+				["addMask",        "maps.addMask",        ["path", "mask"],                                returnVoid],
+				["removeMask",     "maps.removeMask",      "!",                                            returnVoid],
+				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid],
+				["addToken",       "maps.addToken",        "a",                                            checkUint],
+				["removeToken",    "maps.removeToken",     "!",                                            returnVoid],
+				["setToken",       "maps.setToken",       ["id", "x", "y", "width", "height", "rotation"], returnVoid],
+				["flipToken",      "maps.flipToken",      ["id", "flip"],                                  returnVoid],
+				["flopToken",      "maps.flopToken",      ["id", "flop"],                                  returnVoid],
+				["setTokenSnap",   "maps.setTokenSnap",   ["id", "snap"],                                  returnVoid],
+				["setTokenPattern","maps.setTokenPattern", "!",                                            returnVoid],
+				["setTokenImage",  "maps.setTokenImage",   "!",                                            returnVoid],
+				["setTokenSource", "maps.setTokenSource", ["id", "src"],                                   returnVoid],
+				["setTokenLayer",  "maps.setTokenLayer",  ["id", "to"],                                    returnVoid],
+				["setTokenPos",    "maps.setTokenPos",    ["id", "newPos"],                                returnVoid],
+				["shiftLayer",     "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid],
+				["shiftLight",     "maps.shiftLight",     ["x", "y"],                                      returnVoid],
+				["setTokenLight",  "maps.setTokenLight",  ["id", "lightColour", "lightIntensity"],         returnVoid],
+				["addWall",        "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      returnVoid],
+				["removeWall",     "maps.removeWall",      "!",                                            returnVoid],
 
-				"list":         ()         => rpc.request("audioAssets.list").then(checkFolderItems),
-				"createFolder":  path      => rpc.request("audioAssets.createFolder", path).then(checkString),
-				"move":         (from, to) => rpc.request("audioAssets.move", {from, to}).then(checkString),
-				"moveFolder":   (from, to) => rpc.request("audioAssets.moveFolder", {from, to}).then(checkString),
-				"remove":        path      => rpc.request("audioAssets.remove", path).then(returnVoid),
-				"removeFolder":  path      => rpc.request("audioAssets.removeFolder", path).then(returnVoid),
-				"link":         (id, name) => rpc.request("audioAssets.link", {id, name}).then(checkString),
-			},
+				["characterCreate", "characters.create", "!",                          checkIDName],
+				["characterModify", "characters.set",   ["id", "setting", "removing"], returnVoid],
+				["characterGet",    "characters.get",    "!",                          checkKeystoreData],
 
-			"characters": {
-				"waitAdded":         () => rpc.await(broadcastCharacterItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastCharacterItemMove, true).then(checkFromTo),
-				"waitRemoved":       () => rpc.await(broadcastCharacterItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastCharacterItemLink, true).then(checkIDName),
-				"waitFolderAdded":   () => rpc.await(broadcastCharacterFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastCharacterFolderMove, true).then(checkFromTo),
-				"waitFolderRemoved": () => rpc.await(broadcastCharacterFolderRemove, true).then(checkString),
+				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid],
 
-				"list":         ()         => rpc.request("characters.list").then(checkFolderItems),
-				"createFolder":  path      => rpc.request("characters.createFolder", path).then(checkString),
-				"move":         (from, to) => rpc.request("characters.move", {from, to}).then(checkString),
-				"moveFolder":   (from, to) => rpc.request("characters.moveFolder", {from, to}).then(checkString),
-				"remove":        path      => rpc.request("characters.remove", path).then(returnVoid),
-				"removeFolder":  path      => rpc.request("characters.removeFolder", path).then(returnVoid),
-				"link":         (id, name) => rpc.request("characters.link", {id, name}).then(checkString),
-			},
+				["listPlugins",   "plugins.list",    "",  checkPlugins],
+				["enablePlugin",  "plugins.enable",  "!", returnVoid],
+				["disablePlugin", "plugins.disable", "!", returnVoid],
 
-			"maps": {
-				"waitAdded":         () => rpc.await(broadcastMapItemAdd, true).then(checkIDName),
-				"waitMoved":         () => rpc.await(broadcastMapItemMove, true).then(checkFromTo),
-				"waitRemoved":       () => rpc.await(broadcastMapItemRemove, true).then(checkString),
-				"waitLinked":        () => rpc.await(broadcastMapItemLink, true).then(checkIDName),
-				"waitFolderAdded":   () => rpc.await(broadcastMapFolderAdd, true).then(checkString),
-				"waitFolderMoved":   () => rpc.await(broadcastMapFolderMove, true).then(checkFromTo),
-				"waitFolderRemoved": () => rpc.await(broadcastMapFolderRemove, true).then(checkString),
+				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean],
+				["loginRequirements", "auth.requirements",    "",                            checkString],
+				["login",             "auth.login",           "!",                           checkString],
+				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString],
+				["logout",            "auth.logout",          "",                            returnVoid],
 
-				"list":         ()         => rpc.request("maps.list").then(checkFolderItems),
-				"createFolder":  path      => rpc.request("maps.createFolder", path).then(checkString),
-				"move":         (from, to) => rpc.request("maps.move", {from, to}).then(checkString),
-				"moveFolder":   (from, to) => rpc.request("maps.moveFolder", {from, to}).then(checkString),
-				"remove":        path      => rpc.request("maps.remove", path).then(returnVoid),
-				"removeFolder":  path      => rpc.request("maps.removeFolder", path).then(returnVoid),
-				"link":         (id, name) => rpc.request("maps.link", {id, name}).then(checkString),
-			},
+				["broadcast", "broadcast", "1", checkBroadcast],
+			],
+			"images": [
+				["list",         "imageAssets.list",         "",             checkFolderItems],
+				["createFolder", "imageAssets.createFolder", ["path"],       checkString],
+				["move",         "imageAssets.move",         ["from", "to"], checkString],
+				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString],
+				["remove",       "imageAssets.remove",       ["path"],       returnVoid],
+				["removeFolder", "imageAssets.removeFolder", ["path"],       returnVoid],
+				["link",         "imageAssets.link",         ["id", "name"], checkString]
+			],
+			"audio": [
+				["list",         "audioAssets.list",         "",             checkFolderItems],
+				["createFolder", "audioAssets.createFolder", ["path"],       checkString],
+				["move",         "audioAssets.move",         ["from", "to"], checkString],
+				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString],
+				["remove",       "audioAssets.remove",       ["path"],       returnVoid],
+				["removeFolder", "audioAssets.removeFolder", ["path"],       returnVoid],
+				["link",         "audioAssets.link",         ["id", "name"], checkString]
+			],
+			"characters": [
+				["list",         "characters.list",         [],             checkFolderItems],
+				["createFolder", "characters.createFolder", ["path"],       checkString],
+				["move",         "characters.move",         ["from", "to"], checkString],
+				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString],
+				["remove",       "characters.remove",       ["path"],       returnVoid],
+				["removeFolder", "characters.removeFolder", ["path"],       returnVoid],
+				["link",         "characters.link",         ["id", "name"], checkString]
+			],
+			"maps": [
+				["list",         "maps.list",         [],             checkFolderItems],
+				["createFolder", "maps.createFolder", ["path"],       checkString],
+				["move",         "maps.move",         ["from", "to"], checkString],
+				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString],
+				["remove",       "maps.remove",       ["path"],       returnVoid],
+				["removeFolder", "maps.removeFolder", ["path"],       returnVoid],
+				["link",         "maps.link",         ["id", "name"], checkString]
+			]
+		      };
 
-			"connID": () => rpc.request("conn.connID"),
-
-			"setCurrentMap":  id => rpc.request("maps.setCurrentMap", id).then(returnVoid),
-			"getUserMap":    ()  => rpc.request("maps.getUserMap").then(checkUint),
-			"setUserMap":     id => rpc.request("maps.setUserMap", id).then(returnVoid),
-			"getMapData":     id => rpc.request("maps.getMapData", id).then(checkMapData),
-
-			"newMap":         map    => rpc.request("maps.new", map).then(checkIDName),
-			"setMapDetails":  map    => rpc.request("maps.setMapDetails", map).then(returnVoid),
-			"setLightColour": colour => rpc.request("maps.setLightColour", colour).then(returnVoid),
-
-			"addLayer":         name                               => rpc.request("maps.addLayer", name).then(checkString),
-			"addLayerFolder":   path                               => rpc.request("maps.addLayerFolder", path).then(checkString),
-			"renameLayer":     (path, name)                        => rpc.request("maps.renameLayer", {path, name}).then(checkLayerRename),
-			"moveLayer":       (from, to, position)                => rpc.request("maps.moveLayer", {from, to, position}).then(returnVoid),
-			"showLayer":        path                               => rpc.request("maps.showLayer", path).then(returnVoid),
-			"hideLayer":        path                               => rpc.request("maps.hideLayer", path).then(returnVoid),
-			"addMask":         (path, mask)                        => rpc.request("maps.addMask", {path, mask}).then(returnVoid),
-			"removeMask":       path                               => rpc.request("maps.removeMask", path).then(returnVoid),
-			"removeLayer":      path                               => rpc.request("maps.removeLayer", path).then(returnVoid),
-			"addToken":        (path, token)                       => rpc.request("maps.addToken", Object.assign(token, {"path": path})).then(checkUint),
-			"removeToken":      id                                 => rpc.request("maps.removeToken", id).then(returnVoid),
-			"setToken":        (id, x, y, width, height, rotation) => rpc.request("maps.setToken", {id, x, y, width, height, rotation}).then(returnVoid),
-			"flipToken":       (id, flip)                          => rpc.request("maps.flipToken", {id, flip}).then(returnVoid),
-			"flopToken":       (id, flop)                          => rpc.request("maps.flopToken", {id, flop}).then(returnVoid),
-			"setTokenSnap":    (id, snap)                          => rpc.request("maps.setTokenSnap", {id, snap}).then(returnVoid),
-			"setTokenPattern":  id                                 => rpc.request("maps.setTokenPattern", id).then(returnVoid),
-			"setTokenImage":    id                                 => rpc.request("maps.setTokenImage", id).then(returnVoid),
-			"setTokenSource":  (id, src)                           => rpc.request("maps.setTokenSource", {id, src}).then(returnVoid),
-			"setTokenLayer":   (id, to)                            => rpc.request("maps.setTokenLayer", {id, to}).then(returnVoid),
-			"setTokenPos":     (id, newPos)                        => rpc.request("maps.setTokenPos", {id, newPos}).then(returnVoid),
-			"shiftLayer":      (path, dx, dy)                      => rpc.request("maps.shiftLayer", {path, dx, dy}).then(returnVoid),
-			"shiftLight":      (x, y)                              => rpc.request("maps.shiftLight", {x, y}).then(returnVoid),
-			"setTokenLight":   (id, lightColour, lightIntensity)   => rpc.request("maps.setTokenLight", {id, lightColour, lightIntensity}).then(returnVoid),
-			"addWall":         (path, x1, y1, x2, y2, colour)      => rpc.request("maps.addWall", {path, x1, y1, x2, y2, colour}).then(returnVoid),
-			"removeWall":       id                                 => rpc.request("maps.removeWall", id).then(returnVoid),
-
-			"characterCreate":      name                   => rpc.request("characters.create", name).then(checkIDName),
-			"characterModify":     (id, setting, removing) => rpc.request("characters.set", {id, setting, removing}).then(returnVoid),
-			"characterGet":         id                     => rpc.request("characters.get", id).then(checkKeystoreData),
-
-			"tokenModify": (id, setting, removing) => rpc.request("maps.modifyTokenData", {id, setting, removing}).then(returnVoid),
-
-			"listPlugins":   () => rpc.request("plugins.list").then(checkPlugins),
-			"enablePlugin":  (plugin: string) => rpc.request("plugins.enable", plugin).then(returnVoid),
-			"disablePlugin": (plugin: string) => rpc.request("plugins.disable", plugin).then(returnVoid),
-
-			"loggedIn":          ()                         => rpc.request("auth.loggedIn").then(checkBoolean),
-			"loginRequirements": ()                         => rpc.request("auth.requirements").then(checkString),
-			"login":              data                      => rpc.request("auth.login", data).then(checkString),
-			"changePassword":    (oldPassword, newPassword) => rpc.request("auth.changePassword", {oldPassword, newPassword}).then(checkString),
-			"logout":            ()                         => rpc.request("auth.logout").then(returnVoid),
-
-			"broadcast": data => rpc.request("broadcast", data).then(checkBroadcast),
-		});
-	})
+		for (const k in waiters) {
+			const rk = k === "" ? r : r[k] as Record<string, Function>;
+			for (const [name, broadcastID, checker] of waiters[k]) {
+				rk[name] = () => rpc.await(broadcastID, true).then(checker);
+			}
+		}
+		for (const e in endpoints) {
+			const rk = e === "" ? r : r[e] as Record<string, Function>;
+			for (const [name, endpoint, args, checker] of endpoints[e]) {
+				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
+				rk[name] = function() {return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
+				console.log(name, rk);
+			}
+		}
+		return Object.freeze(r as any as RPCType);
+	});
 }
 
 type checkers = [(data: any, name: string, key?: string) => void, string][];
