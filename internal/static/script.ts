@@ -23,6 +23,7 @@ import './tools_mask.js';
 import './tools_move.js';
 import './tools_zoom.js';
 import pluginInit from './plugins.js';
+import lang from './language.js';
 
 type savedWindow = {
 	out: boolean;
@@ -168,7 +169,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	return o;
       }()),
-      spinner = (id: string) => h2({"id": id}, ["Loading…", div({"class": "loadSpinner"})]),
+      spinner = (id: string) => h2({"id": id}, [lang["LOADING"], div({"class": "loadSpinner"})]),
       base = desktop(symbols),
       s = shell({"snap": 50}, base);
 
@@ -181,20 +182,20 @@ if (invert.value) {
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit(rpc)]).then(([userLevel]) => {
 	characterStore(rpc);
 	if (userLevel === 1) {
-		assets(rpc, s, tabs.add("Images", spinner("imagesLoading")), "Images");
-		assets(rpc, s, tabs.add("Audio", spinner("audioLoading")), "Audio");
-		characters(rpc, s, tabs.add("Characters", spinner("charactersLoading")));
-		mapList(rpc, s, tabs.add("Maps", spinner("maps")));
-		layerList(s, tabs.add("Layers", div()));
-		tools(rpc, s, tabs.add("Tools", div()));
-		settings(rpc, s, tabs.add("Settings", div(), false), true);
+		assets(rpc, s, tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "Images");
+		assets(rpc, s, tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "Audio");
+		characters(rpc, s, tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
+		mapList(rpc, s, tabs.add(lang["TAB_MAPS"], spinner("maps")));
+		layerList(s, tabs.add(lang["TAB_LAYERS"], div()));
+		tools(rpc, s, tabs.add(lang["TAB_TOOLS"], div()));
+		settings(rpc, s, tabs.add(lang["TAB_SETTINGS"], div(), false), true);
 		loadMap(rpc, s, base.appendChild(div()));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
 		tabs.selectFirst();
 	} else {
-		settings(rpc, s, tabs.add("Settings", div()), false);
+		settings(rpc, s, tabs.add(lang["TAB_SETTINGS"], div()), false);
 		loadUserMap(rpc, base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
