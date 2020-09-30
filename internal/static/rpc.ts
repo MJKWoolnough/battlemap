@@ -194,7 +194,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		for (const k in waiters) {
 			const rk = k === "" ? r : r[k] as Record<string, Function>;
 			for (const [name, broadcastID, checker] of waiters[k]) {
-				rk[name] = () => rpc.await(broadcastID, true).then(checker);
+				const t = rpc.await(broadcastID, true).then(checker);
+				rk[name] = Subscription.splitCancel(t);
 			}
 		}
 		for (const e in endpoints) {
