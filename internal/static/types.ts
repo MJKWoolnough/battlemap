@@ -5,7 +5,7 @@ export type Int = number;
 export type Uint = number;
 export type Byte = number;
 
-export type FolderRPC = {
+type FolderWaits = {
 	waitAdded:         () => Subscription<IDName[]>;
 	waitMoved:         () => Subscription<FromTo>;
 	waitRemoved:       () => Subscription<string>;
@@ -13,6 +13,9 @@ export type FolderRPC = {
 	waitFolderAdded:   () => Subscription<string>;
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
+}
+
+export type FolderRPC = FolderWaits & {
 
 	list:         ()                         => Promise<FolderItems>;
 	createFolder: (path: string)             => Promise<string>;
@@ -41,8 +44,7 @@ export type LayerRPC = FolderRPC & {
 	setLightColour: (c: Colour)                                         => Promise<void>;
 }
 
-export type RPC = {
-	waitLogin:                   () => Promise<Uint>;
+type RPCWaits = {
 	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
 	waitMapDataSet:              () => Subscription<KeyData>;
@@ -79,6 +81,17 @@ export type RPC = {
 	waitWallRemoved:             () => Subscription<Uint>;
 	waitPluginChange:            () => Subscription<void>;
 	waitBroadcast:               () => Subscription<Broadcast>;
+}
+
+export type InternalWaits = RPCWaits & {
+	images:     FolderWaits,
+	audio:      FolderWaits,
+	characters: FolderWaits,
+	maps:       FolderWaits,
+}
+
+export type RPC = RPCWaits & {
+	waitLogin: () => Promise<Uint>;
 
 	images:     FolderRPC,
 	audio:      FolderRPC,
