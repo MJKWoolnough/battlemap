@@ -140,7 +140,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["shiftLayer",     "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid,       "", ""],
 				["shiftLight",     "maps.shiftLight",     ["x", "y"],                                      returnVoid,       "", ""],
 				["setTokenLight",  "maps.setTokenLight",  ["id", "lightColour", "lightIntensity"],         returnVoid,       "", ""],
-				["addWall",        "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      returnVoid,       "", ""],
+				["addWall",        "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,        "", ""],
 				["removeWall",     "maps.removeWall",      "!",                                            returnVoid,       "", ""],
 
 				["characterCreate", "characters.create", "!",                          checkIDName,       "", ""],
