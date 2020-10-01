@@ -202,7 +202,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			for (const [name, endpoint, args, checker] of endpoints[e]) {
 				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
 				rk[name] = function() {return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
-				console.log(name, rk);
 			}
 		}
 		return Object.freeze(r as any as RPCType);
