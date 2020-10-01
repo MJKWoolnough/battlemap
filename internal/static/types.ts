@@ -105,9 +105,11 @@ export type RPC = RPCWaits & {
 	setUserMap:    (id: Uint) => Promise<void>;
 	getMapData:    (id: Uint) => Promise<MapData>;
 
-	newMap:         (map: NewMap)      => Promise<IDName>;
-	setMapDetails:  (map: GridDetails) => Promise<void>;
-	setLightColour: (c: Colour)        => Promise<void>;
+	newMap:            (map: NewMap)             => Promise<IDName>;
+	setMapDetails:     (map: GridDetails)        => Promise<void>;
+	setLightColour:    (c: Colour)               => Promise<void>;
+	setMapKeyData:     (key: string, value: any) => Promise<void>;
+	removeMapKeyData:  (key: string)             => Promise<void>;
 
 	addLayer:        (name: string)                                                         => Promise<string>;
 	addLayerFolder:  (path: string)                                                         => Promise<string>;
