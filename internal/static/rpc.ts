@@ -4,6 +4,13 @@ import RPC from './lib/rpc_ws.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastImageItemAdd = -6, broadcastAudioItemAdd = -7, broadcastCharacterItemAdd = -8, broadcastMapItemAdd = -9, broadcastImageItemMove = -10, broadcastAudioItemMove = -11, broadcastCharacterItemMove = -12, broadcastMapItemMove = -13, broadcastImageItemRemove = -14, broadcastAudioItemRemove = -15, broadcastCharacterItemRemove = -16, broadcastMapItemRemove = -17, broadcastImageItemLink = -18, broadcastAudioItemLink = -19, broadcastCharacterItemLink = -20, broadcastMapItemLink = -21, broadcastImageFolderAdd = -22, broadcastAudioFolderAdd = -23, broadcastCharacterFolderAdd = -24, broadcastMapFolderAdd = -25, broadcastImageFolderMove = -26, broadcastAudioFolderMove = -27, broadcastCharacterFolderMove = -28, broadcastMapFolderMove = -29, broadcastImageFolderRemove = -30, broadcastAudioFolderRemove = -31, broadcastCharacterFolderRemove = -32, broadcastMapFolderRemove = -33, broadcastMapItemChange = -34, broadcastCharacterDataChange = -35, broadcastTokenDataChange = -36, broadcastCharacterDataRemove = -37, broadcastTokenDataRemove = -38, broadcastLayerAdd = -39, broadcastLayerFolderAdd = -40, broadcastLayerMove = -41, broadcastLayerRename = -42, broadcastLayerRemove = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerMaskAdd = -47, broadcastLayerMaskChange = -48, broadcastLayerMaskRemove = -49, broadcastTokenAdd = -50, broadcastTokenRemove = -51, broadcastTokenMoveLayer = -52, broadcastTokenMovePos = -53, broadcastTokenSetImage = -54, broadcastTokenSetPattern = -55, broadcastTokenChange = -56, broadcastTokenFlip = -57, broadcastTokenFlop = -58, broadcastTokenSnap = -59, broadcastTokenSourceChange = -60, broadcastTokenSetData = -61, broadcastTokenUnsetData = -62, broadcastLayerShift = -63, broadcastLightShift = -64, broadcastTokenLightChange = -65, broadcastWallAdd = -66, broadcastWallRemove = -67, broadcastPluginChange = -68, broadcastAny = -69;
 
+export const internal = {
+	"images":     {},
+	"audio":      {},
+	"characters": {},
+	"maps":       {},
+} as InternalWaits;
+
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(rpc => {
 		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
@@ -95,98 +102,98 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
 			]
 		      },
-		      endpoints: Record<string, [string, string, string | string[], (data: any) => any][]> ={
+		      endpoints: Record<string, [string, string, string | string[], (data: any) => any, string, string][]> ={
 			"": [
-				["connID", "conn.connID", "", checkUint],
+				["connID", "conn.connID", "", checkUint, "", ""],
 
-				["setCurrentMap", "maps.setCurrentMap", "!", returnVoid],
-				["getUserMap",    "maps.getUserMap",    "",  checkUint],
-				["setUserMap",    "maps.setUserMap",    "!", returnVoid],
-				["getMapData",    "maps.getMapData",    "!", checkMapData],
+				["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
+				["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],
+				["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "", ""],
+				["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
 
-				["newMap",         "maps.new",            "!", checkIDName],
-				["setMapDetails",  "maps.setMapDetails",  "!", returnVoid],
-				["setLightColour", "maps.setLightColour", "!", returnVoid],
+				["newMap",         "maps.new",            "!", checkIDName, "", ""],
+				["setMapDetails",  "maps.setMapDetails",  "!", returnVoid,  "", ""],
+				["setLightColour", "maps.setLightColour", "!", returnVoid,  "", ""],
 
-				["addLayer",       "maps.addLayer",        "!",                                            checkString],
-				["addLayerFolder", "maps.addLayerFolder",  "!",                                            checkString],
-				["renameLayer",    "maps.renameLayer",    ["path", "name"],                                checkLayerRename],
-				["moveLayer",      "maps.moveLayer",      ["from", "to", "position"],                      returnVoid],
-				["showLayer",      "maps.showLayer",       "!",                                            returnVoid],
-				["hideLayer",      "maps.hideLayer",       "!",                                            returnVoid],
-				["addMask",        "maps.addMask",        ["path", "mask"],                                returnVoid],
-				["removeMask",     "maps.removeMask",      "!",                                            returnVoid],
-				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid],
-				["addToken",       "maps.addToken",        "a",                                            checkUint],
-				["removeToken",    "maps.removeToken",     "!",                                            returnVoid],
-				["setToken",       "maps.setToken",       ["id", "x", "y", "width", "height", "rotation"], returnVoid],
-				["flipToken",      "maps.flipToken",      ["id", "flip"],                                  returnVoid],
-				["flopToken",      "maps.flopToken",      ["id", "flop"],                                  returnVoid],
-				["setTokenSnap",   "maps.setTokenSnap",   ["id", "snap"],                                  returnVoid],
-				["setTokenPattern","maps.setTokenPattern", "!",                                            returnVoid],
-				["setTokenImage",  "maps.setTokenImage",   "!",                                            returnVoid],
-				["setTokenSource", "maps.setTokenSource", ["id", "src"],                                   returnVoid],
-				["setTokenLayer",  "maps.setTokenLayer",  ["id", "to"],                                    returnVoid],
-				["setTokenPos",    "maps.setTokenPos",    ["id", "newPos"],                                returnVoid],
-				["shiftLayer",     "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid],
-				["shiftLight",     "maps.shiftLight",     ["x", "y"],                                      returnVoid],
-				["setTokenLight",  "maps.setTokenLight",  ["id", "lightColour", "lightIntensity"],         returnVoid],
-				["addWall",        "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      returnVoid],
-				["removeWall",     "maps.removeWall",      "!",                                            returnVoid],
+				["addLayer",       "maps.addLayer",        "!",                                            checkString,      "", ""],
+				["addLayerFolder", "maps.addLayerFolder",  "!",                                            checkString,      "", ""],
+				["renameLayer",    "maps.renameLayer",    ["path", "name"],                                checkLayerRename, "", ""],
+				["moveLayer",      "maps.moveLayer",      ["from", "to", "position"],                      returnVoid,       "", ""],
+				["showLayer",      "maps.showLayer",       "!",                                            returnVoid,       "", ""],
+				["hideLayer",      "maps.hideLayer",       "!",                                            returnVoid,       "", ""],
+				["addMask",        "maps.addMask",        ["path", "mask"],                                returnVoid,       "", ""],
+				["removeMask",     "maps.removeMask",      "!",                                            returnVoid,       "", ""],
+				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid,       "", ""],
+				["addToken",       "maps.addToken",        "a",                                            checkUint,        "", ""],
+				["removeToken",    "maps.removeToken",     "!",                                            returnVoid,       "", ""],
+				["setToken",       "maps.setToken",       ["id", "x", "y", "width", "height", "rotation"], returnVoid,       "", ""],
+				["flipToken",      "maps.flipToken",      ["id", "flip"],                                  returnVoid,       "", ""],
+				["flopToken",      "maps.flopToken",      ["id", "flop"],                                  returnVoid,       "", ""],
+				["setTokenSnap",   "maps.setTokenSnap",   ["id", "snap"],                                  returnVoid,       "", ""],
+				["setTokenPattern","maps.setTokenPattern", "!",                                            returnVoid,       "", ""],
+				["setTokenImage",  "maps.setTokenImage",   "!",                                            returnVoid,       "", ""],
+				["setTokenSource", "maps.setTokenSource", ["id", "src"],                                   returnVoid,       "", ""],
+				["setTokenLayer",  "maps.setTokenLayer",  ["id", "to"],                                    returnVoid,       "", ""],
+				["setTokenPos",    "maps.setTokenPos",    ["id", "newPos"],                                returnVoid,       "", ""],
+				["shiftLayer",     "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid,       "", ""],
+				["shiftLight",     "maps.shiftLight",     ["x", "y"],                                      returnVoid,       "", ""],
+				["setTokenLight",  "maps.setTokenLight",  ["id", "lightColour", "lightIntensity"],         returnVoid,       "", ""],
+				["addWall",        "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      returnVoid,       "", ""],
+				["removeWall",     "maps.removeWall",      "!",                                            returnVoid,       "", ""],
 
-				["characterCreate", "characters.create", "!",                          checkIDName],
-				["characterModify", "characters.set",   ["id", "setting", "removing"], returnVoid],
-				["characterGet",    "characters.get",    "!",                          checkKeystoreData],
+				["characterCreate", "characters.create", "!",                          checkIDName,       "", ""],
+				["characterModify", "characters.set",   ["id", "setting", "removing"], returnVoid,        "", ""],
+				["characterGet",    "characters.get",    "!",                          checkKeystoreData, "", ""],
 
-				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid],
+				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "", ""],
 
-				["listPlugins",   "plugins.list",    "",  checkPlugins],
-				["enablePlugin",  "plugins.enable",  "!", returnVoid],
-				["disablePlugin", "plugins.disable", "!", returnVoid],
+				["listPlugins",   "plugins.list",    "",  checkPlugins, "", ""],
+				["enablePlugin",  "plugins.enable",  "!", returnVoid,   "", ""],
+				["disablePlugin", "plugins.disable", "!", returnVoid,   "", ""],
 
-				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean],
-				["loginRequirements", "auth.requirements",    "",                            checkString],
-				["login",             "auth.login",           "!",                           checkString],
-				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString],
-				["logout",            "auth.logout",          "",                            returnVoid],
+				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean, "", ""],
+				["loginRequirements", "auth.requirements",    "",                            checkString,  "", ""],
+				["login",             "auth.login",           "!",                           checkString,  "", ""],
+				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString,  "", ""],
+				["logout",            "auth.logout",          "",                            returnVoid,   "", ""],
 
-				["broadcast", "broadcast", "!", checkBroadcast],
+				["broadcast", "broadcast", "!", checkBroadcast, "", ""],
 			],
 			"images": [
-				["list",         "imageAssets.list",         "",             checkFolderItems],
-				["createFolder", "imageAssets.createFolder", "!",            checkString],
-				["move",         "imageAssets.move",         ["from", "to"], checkString],
-				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString],
-				["remove",       "imageAssets.remove",       "!",            returnVoid],
-				["removeFolder", "imageAssets.removeFolder", "!",           returnVoid],
-				["link",         "imageAssets.link",         ["id", "name"], checkString]
+				["list",         "imageAssets.list",         "",             checkFolderItems, "", ""],
+				["createFolder", "imageAssets.createFolder", "!",            checkString,      "", ""],
+				["move",         "imageAssets.move",         ["from", "to"], checkString,      "", ""],
+				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "", ""],
+				["remove",       "imageAssets.remove",       "!",            returnVoid,       "", ""],
+				["removeFolder", "imageAssets.removeFolder", "!",           returnVoid,        "", ""],
+				["link",         "imageAssets.link",         ["id", "name"], checkString,      "", ""]
 			],
 			"audio": [
-				["list",         "audioAssets.list",         "",             checkFolderItems],
-				["createFolder", "audioAssets.createFolder", "!",            checkString],
-				["move",         "audioAssets.move",         ["from", "to"], checkString],
-				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString],
-				["remove",       "audioAssets.remove",       "!",            returnVoid],
-				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid],
-				["link",         "audioAssets.link",         ["id", "name"], checkString]
+				["list",         "audioAssets.list",         "",             checkFolderItems, "", ""],
+				["createFolder", "audioAssets.createFolder", "!",            checkString,      "", ""],
+				["move",         "audioAssets.move",         ["from", "to"], checkString,      "", ""],
+				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "", ""],
+				["remove",       "audioAssets.remove",       "!",            returnVoid,       "", ""],
+				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid,       "", ""],
+				["link",         "audioAssets.link",         ["id", "name"], checkString,      "", ""]
 			],
 			"characters": [
-				["list",         "characters.list",         "",             checkFolderItems],
-				["createFolder", "characters.createFolder", "!",            checkString],
-				["move",         "characters.move",         ["from", "to"], checkString],
-				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString],
-				["remove",       "characters.remove",       "!",            returnVoid],
-				["removeFolder", "characters.removeFolder", "!",            returnVoid],
-				["link",         "characters.link",         ["id", "name"], checkString]
+				["list",         "characters.list",         "",             checkFolderItems, "", ""],
+				["createFolder", "characters.createFolder", "!",            checkString,      "", ""],
+				["move",         "characters.move",         ["from", "to"], checkString,      "", ""],
+				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "", ""],
+				["remove",       "characters.remove",       "!",            returnVoid,       "", ""],
+				["removeFolder", "characters.removeFolder", "!",            returnVoid,       "", ""],
+				["link",         "characters.link",         ["id", "name"], checkString,      "", ""]
 			],
 			"maps": [
-				["list",         "maps.list",         "",             checkFolderItems],
-				["createFolder", "maps.createFolder", "!",            checkString],
-				["move",         "maps.move",         ["from", "to"], checkString],
-				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString],
-				["remove",       "maps.remove",       "!",            returnVoid],
-				["removeFolder", "maps.removeFolder", "!",            returnVoid],
-				["link",         "maps.link",         ["id", "name"], checkString]
+				["list",         "maps.list",         "",             checkFolderItems, "", ""],
+				["createFolder", "maps.createFolder", "!",            checkString,      "", ""],
+				["move",         "maps.move",         ["from", "to"], checkString,      "", ""],
+				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "", ""],
+				["remove",       "maps.remove",       "!",            returnVoid,       "", ""],
+				["removeFolder", "maps.removeFolder", "!",            returnVoid,       "", ""],
+				["link",         "maps.link",         ["id", "name"], checkString,      "", ""]
 			]
 		      };
 
@@ -198,10 +205,31 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			}
 		}
 		for (const e in endpoints) {
-			const rk = e === "" ? r : r[e] as Record<string, Function>;
-			for (const [name, endpoint, args, checker] of endpoints[e]) {
+			const rk = e === "" ? r : r[e] as Record<string, Function>,
+			      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
+			for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
 				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
-				rk[name] = function() {return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
+				if (internalWaiter === "") {
+					rk[name] = function() {return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
+				} else {
+					let fn: Function;
+					ik[name] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
+					if (postKey === "") {
+						rk[name] = function() {
+							const a = processArgs(arguments, args as string[]);
+							fn(a);
+							return rpc.request(endpoint, a).then(checker)
+						}
+					} else {
+						rk[name] = function() {
+							const a = processArgs(arguments, args as string[]);
+							return rpc.request(endpoint, a).then(checker).then(data => {
+								fn(Object.assign(a, {[postKey]: data}));
+								return data;
+							});
+						}
+					}
+				}
 			}
 		}
 		return Object.freeze(r as any as RPCType);
