@@ -150,42 +150,42 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString],
 				["logout",            "auth.logout",          "",                            returnVoid],
 
-				["broadcast", "broadcast", "1", checkBroadcast],
+				["broadcast", "broadcast", "!", checkBroadcast],
 			],
 			"images": [
 				["list",         "imageAssets.list",         "",             checkFolderItems],
-				["createFolder", "imageAssets.createFolder", ["path"],       checkString],
+				["createFolder", "imageAssets.createFolder", "!",            checkString],
 				["move",         "imageAssets.move",         ["from", "to"], checkString],
 				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString],
-				["remove",       "imageAssets.remove",       ["path"],       returnVoid],
-				["removeFolder", "imageAssets.removeFolder", ["path"],       returnVoid],
+				["remove",       "imageAssets.remove",       "!",            returnVoid],
+				["removeFolder", "imageAssets.removeFolder", "!",           returnVoid],
 				["link",         "imageAssets.link",         ["id", "name"], checkString]
 			],
 			"audio": [
 				["list",         "audioAssets.list",         "",             checkFolderItems],
-				["createFolder", "audioAssets.createFolder", ["path"],       checkString],
+				["createFolder", "audioAssets.createFolder", "!",            checkString],
 				["move",         "audioAssets.move",         ["from", "to"], checkString],
 				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString],
-				["remove",       "audioAssets.remove",       ["path"],       returnVoid],
-				["removeFolder", "audioAssets.removeFolder", ["path"],       returnVoid],
+				["remove",       "audioAssets.remove",       "!",            returnVoid],
+				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid],
 				["link",         "audioAssets.link",         ["id", "name"], checkString]
 			],
 			"characters": [
-				["list",         "characters.list",         [],             checkFolderItems],
-				["createFolder", "characters.createFolder", ["path"],       checkString],
+				["list",         "characters.list",         "",             checkFolderItems],
+				["createFolder", "characters.createFolder", "!",            checkString],
 				["move",         "characters.move",         ["from", "to"], checkString],
 				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString],
-				["remove",       "characters.remove",       ["path"],       returnVoid],
-				["removeFolder", "characters.removeFolder", ["path"],       returnVoid],
+				["remove",       "characters.remove",       "!",            returnVoid],
+				["removeFolder", "characters.removeFolder", "!",            returnVoid],
 				["link",         "characters.link",         ["id", "name"], checkString]
 			],
 			"maps": [
-				["list",         "maps.list",         [],             checkFolderItems],
-				["createFolder", "maps.createFolder", ["path"],       checkString],
+				["list",         "maps.list",         "",             checkFolderItems],
+				["createFolder", "maps.createFolder", "!",            checkString],
 				["move",         "maps.move",         ["from", "to"], checkString],
 				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString],
-				["remove",       "maps.remove",       ["path"],       returnVoid],
-				["removeFolder", "maps.removeFolder", ["path"],       returnVoid],
+				["remove",       "maps.remove",       "!",            returnVoid],
+				["removeFolder", "maps.removeFolder", "!",            returnVoid],
 				["link",         "maps.link",         ["id", "name"], checkString]
 			]
 		      };
