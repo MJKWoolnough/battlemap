@@ -9,22 +9,21 @@ export const internal = {
 	"audio":      {},
 	"characters": {},
 	"maps":       {},
-} as InternalWaits;
+} as InternalWaits,
+rpc = {
+	"images":     {},
+	"audio":      {},
+	"characters": {},
+	"maps":       {},
+} as RPCType;
 
 export default function (url: string): Promise<Readonly<RPCType>>{
-	return RPC(url, 1.1).then(rpc => {
+	return RPC(url, 1.1).then(arpc => {
 		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 			"": () => {},
 			"!": (args: IArguments) => args[0],
 			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]])),
 			"a": (args: IArguments) => Object.assign(args[1], {"path": args[0]})
-		      },
-		      r: Record<string, Function | Record<string, Function>> = {
-			"waitLogin":  () => rpc.await(broadcastIsAdmin).then(checkUint),
-			"images":     {},
-			"audio":      {},
-			"characters": {},
-			"maps":       {},
 		      },
 		      waiters: Record<string, [string, number, (data: any) => any][]> ={
 			"": [
@@ -200,19 +199,19 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		      };
 
 		for (const k in waiters) {
-			const rk = k === "" ? r : r[k] as Record<string, Function>;
+			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>;
 			for (const [name, broadcastID, checker] of waiters[k]) {
-				const t = rpc.await(broadcastID, true).then(checker);
+				const t = arpc.await(broadcastID, true).then(checker);
 				rk[name] = Subscription.splitCancel(t);
 			}
 		}
 		for (const e in endpoints) {
-			const rk = e === "" ? r : r[e] as Record<string, Function>,
+			const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
 			      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
 			for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
 				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
 				if (internalWaiter === "") {
-					rk[name] = function() {return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
+					rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
 				} else {
 					let fn: Function;
 					ik[name] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
@@ -220,11 +219,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
 							fn(a);
-							return rpc.request(endpoint, a).then(checker)
+							return arpc.request(endpoint, a).then(checker)
 						}
 					} else if (postKey === "*") {
 						rk[name] = function() {
-							return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).then(data => {
+							return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).then(data => {
 								fn(data);
 								return data;
 							});
@@ -232,7 +231,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 					} else {
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
-							return rpc.request(endpoint, a).then(checker).then(data => {
+							return arpc.request(endpoint, a).then(checker).then(data => {
 								fn(Object.assign(a, {[postKey]: data}));
 								return data;
 							});
@@ -241,7 +240,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				}
 			}
 		}
-		return Object.freeze(r as any as RPCType);
+		rpc.waitLogin = () => arpc.await(broadcastIsAdmin).then(checkUint);
+		return Object.freeze(rpc);
 	});
 }
 
