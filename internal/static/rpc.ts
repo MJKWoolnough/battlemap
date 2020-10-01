@@ -111,9 +111,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "", ""],
 				["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
 
-				["newMap",         "maps.new",            "!", checkIDName, "", ""],
-				["setMapDetails",  "maps.setMapDetails",  "!", returnVoid,  "", ""],
-				["setLightColour", "maps.setLightColour", "!", returnVoid,  "", ""],
+				["newMap",           "maps.new",            "!",            checkIDName, "", ""],
+				["setMapDetails",    "maps.setMapDetails",  "!",            returnVoid,  "", ""],
+				["setLightColour",   "maps.setLightColour", "!",            returnVoid,  "", ""],
+				["setMapKeyData",    "maps.setData",       ["key", "data"], returnVoid,  "", ""],
+				["removeMapKeyData", "maps.removeData",     "!",            returnVoid,  "", ""],
 
 				["addLayer",       "maps.addLayer",        "!",                                            checkString,      "", ""],
 				["addLayerFolder", "maps.addLayerFolder",  "!",                                            checkString,      "", ""],
