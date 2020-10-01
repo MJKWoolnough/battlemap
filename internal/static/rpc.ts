@@ -222,6 +222,13 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 							fn(a);
 							return rpc.request(endpoint, a).then(checker)
 						}
+					} else if (postKey === "*") {
+						rk[name] = function() {
+							return rpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).then(data => {
+								fn(data);
+								return data;
+							});
+						}
 					} else {
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
