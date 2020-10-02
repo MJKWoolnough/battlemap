@@ -196,13 +196,16 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["removeFolder", "maps.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
 				["link",         "maps.link",         ["id", "name"], checkString,      "waitLinked", "name"]
 			]
-		      };
+		      },
+		      pseudoWait = () => new Subscription<any>(() => {});
 
 		for (const k in waiters) {
-			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>;
+			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
+			      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>;
 			for (const [name, broadcastID, checker] of waiters[k]) {
 				const t = arpc.await(broadcastID, true).then(checker);
 				rk[name] = Subscription.splitCancel(t);
+				ik[name] = pseudoWait;
 			}
 		}
 		for (const e in endpoints) {
