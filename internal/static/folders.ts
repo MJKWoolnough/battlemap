@@ -7,6 +7,7 @@ import {ShellElement, loadingWindow, windows} from './windows.js';
 import {enterKey, handleError} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
+import lang from './language.js';
 
 interface ItemConstructor {
 	new (parent: Folder, id: Uint, name: string): Item;
@@ -61,15 +62,15 @@ export class Item {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": "Move Item"}));
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]}));
 		return createHTML(window, {"class": "renameItem"}, [
-			h1("Move Item"),
-			div(`Old Location: ${parentPath}${this.name}`),
-			label({"for": "folderName"}, "New Location: "),
+			h1(lang["ITEM_MOVE"]),
+			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
+			label({"for": "folderName"}, `${lang["NEW_LOCATION"]}: `),
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": function(this: HTMLButtonElement) {
+			button(lang["ITEM_MOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value), window).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
@@ -90,13 +91,13 @@ export class Item {
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": "Link Item"}));
 		return createHTML(window, {"class": "linkItem"}, [
-			h1("Add Link"),
-			div(`Current Location: ${parentPath}${this.name}`),
-			label({"for": "folderName"}, "New Link: "),
+			h1(lang["ITEM_LINK_ADD"]),
+			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
+			label({"for": "folderName"}, `${lang["ITEM_LINK_NEW"]}: `),
 			parents,
 			newName,
 			br(),
-			button("Link", {"onclick": function(this: HTMLButtonElement) {
+			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.link(self.id, parents.value + newName.value), window).then(newPath => {
 					root.addItem(self.id, newPath);
@@ -112,12 +113,12 @@ export class Item {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-title": "Remove Item"}));
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_REMOVE"]}));
 		return createHTML(window, {"class": "removeItem"}, [
-			h1("Remove Item"),
-			div("Remove the following item?"),
+			h1(lang["ITEM_REMOVE"]),
+			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+			autoFocus(button(lang["ITEM_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
 					root.removeItem(path);
@@ -244,15 +245,15 @@ export class Folder {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": "Move Folder"}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]}));
 		return createHTML(window, [
-			h1("Move Folder"),
-			div(`Old Location: ${oldPath.slice(0, -1)}`),
-			label({"for": "folderName"}, "New Location: "),
+			h1(lang["FOLDER_MOVE"]),
+			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
+			label({"for": "folderName"}, `${lang["NEW_LOCATION"]}: `),
 			parents,
 			newName,
 			br(),
-			button("Move", {"onclick": function(this: HTMLButtonElement) {
+			button(lang["FOLDER_MOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
@@ -269,12 +270,12 @@ export class Folder {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-title": "Remove Folder"}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_REMOVE"]}));
 		return createHTML(window, {"class": "folderRemove"}, [
-			h1("Remove Folder"),
-			div("Remove the following folder? NB: This will remove all folders and items it contains."),
+			h1(lang["FOLDER_REMOVE"]),
+			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
-			autoFocus(button("Yes, Remove!", {"onclick": function(this: HTMLButtonElement) {
+			autoFocus(button(lang["FOLDER_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
 					root.removeFolder(path);
@@ -291,13 +292,13 @@ export class Folder {
 		      shell = root.shell,
 		      path = this.getPath(),
 		      folderName = autoFocus(input({"id": "folderName", "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": "Add Folder"}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]}));
 		return createHTML(window, {"class": "folderAdd"}, [
-			h1("Add Folder"),
-			label({"for": "folderName"}, `Folder Name: ${path + "/"}`),
+			h1(lang["FOLDER_ADD"]),
+			label({"for": "folderName"}, `${lang["FOLDER_NAME"]}: ${path + "/"}`),
 			folderName,
 			br(),
-			button("Add Folder", {"onclick": function(this: HTMLButtonElement) {
+			button(lang["FOLDER_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.setAttribute("disabled", "disabled");
 				loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
 					root.addFolder(folder);
