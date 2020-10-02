@@ -10,6 +10,12 @@ export const internal = {
 	"characters": {},
 	"maps":       {},
 } as InternalWaits,
+combined = {
+	"images":     {},
+	"audio":      {},
+	"characters": {},
+	"maps":       {},
+} as InternalWaits,
 rpc = {
 	"images":     {},
 	"audio":      {},
@@ -199,15 +205,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		      },
 		      pseudoWait = () => new Subscription<any>(() => {});
 
-		for (const k in waiters) {
-			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
-			      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>;
-			for (const [name, broadcastID, checker] of waiters[k]) {
-				const t = arpc.await(broadcastID, true).then(checker);
-				rk[name] = Subscription.splitCancel(t);
-				ik[name] = pseudoWait;
-			}
-		}
 		for (const e in endpoints) {
 			const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
 			      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
@@ -240,6 +237,21 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 							});
 						}
 					}
+				}
+			}
+		}
+		for (const k in waiters) {
+			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
+			      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>,
+			      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
+			for (const [name, broadcastID, checker] of waiters[k]) {
+				const t = arpc.await(broadcastID, true).then(checker);
+				rk[name] = Subscription.splitCancel(t);
+				if (ik[name]) {
+					ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
+				} else {
+					ik[name] = pseudoWait;
+					ck[name] = rk[name];
 				}
 			}
 		}
