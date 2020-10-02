@@ -182,8 +182,8 @@ if (invert.value) {
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit(rpc)]).then(([userLevel]) => {
 	characterStore(rpc);
 	if (userLevel === 1) {
-		assets(rpc, s, tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "Images");
-		assets(rpc, s, tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "Audio");
+		assets(rpc, s, tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
+		assets(rpc, s, tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
 		characters(rpc, s, tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
 		mapList(rpc, s, tabs.add(lang["TAB_MAPS"], spinner("maps")));
 		layerList(s, tabs.add(lang["TAB_LAYERS"], div()));

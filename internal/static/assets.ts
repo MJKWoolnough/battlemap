@@ -5,6 +5,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
+import lang from './language.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -33,15 +34,15 @@ class AudioAsset extends Item {
 	}
 }
 
-export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "Images" | "Audio") {
-	const rpcFuncs = fileType == "Audio" ? rpc["audio"] : rpc["images"];
+export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "IMAGES" | "AUDIO") {
+	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, fileType, rpcFuncs, shell, fileType === "Images" ? ImageAsset : AudioAsset);
+		const root = new Root(folderList, fileType, rpcFuncs, shell, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
-			button(`Upload ${fileType}`, {"onclick": () => {
+			button(lang[`UPLOAD_${fileType}`], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
-					label({"for": "addAssets"}, "Add Asset(s)"),
-					autoFocus(input({"accept": fileType === "Images" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+					label({"for": "addAssets"}, lang[`UPLOAD_${fileType}`]),
+					autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 						const bar = progress({"style": "width: 100%"}) as HTMLElement;
 						loadingWindow(HTTPRequest(`/${fileType.toLowerCase()}/`, {
 							"data": new FormData(f),
@@ -53,8 +54,8 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 								}
 							}
-						}), window, "Uploading", div({"class": "loadBar"}, [
-							div("Uploading file(s)"),
+						}), window, lang["UPLOADING"], div({"class": "loadBar"}, [
+							div(lang["UPLOADING"]),
 							bar
 						])).then((assets: IDName[]) => {
 							assets.forEach(({id, name}) => root.addItem(id, name));
@@ -65,7 +66,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 						this.setAttribute("disabled", "disabled");
 					}}))
 				      ]),
-				      window = shell.appendChild(windows({"window-title": `Upload ${fileType}`, "class": "assetAdd"}, [h1(`Upload ${fileType}`), f]));
+				      window = shell.appendChild(windows({"window-title": lang[`UPLOAD_${fileType}`], "class": "assetAdd"}, [h1(lang[`UPLOAD_${fileType}`]), f]));
 			}}),
 			root.node
 		]);
