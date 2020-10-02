@@ -58,6 +58,9 @@ const defaultLanguage: Record<string, string> = {
 	"TOKEN_USE_SELECTED": "Use currently selected token",
 	"UNDO_LIMIT": "Undo Limit (-1 for infinite, 0 to disable)",
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
+	"UPLOAD_AUDIO": "Upload Sound",
+	"UPLOAD_IMAGES": "Upload Image",
+	"UPLOADING": "Uploading Files...",
       },
       overDefault = (pack: Record<string, string>) => {
 	for (const s in defaultLanguage) {
