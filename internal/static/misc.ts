@@ -4,6 +4,7 @@ import {ShellElement, WindowElement, windows} from './windows.js';
 import {globals} from './map.js';
 import {panZoom} from './tools_default.js';
 import {Pipe, Requester} from './lib/inter.js';
+import lang from './language.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
@@ -28,13 +29,13 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      window = windows({"window-title": title, "class": "lightChange", "onexit": reject}, [
 		h1(title),
 		checkboard,
-		label({"for": "colourPick"}, "Colour: "),
+		label({"for": "colourPick"}, `${lang["COLOUR"]}: `),
 		colourInput,
 		br(),
-		label({"for": "alphaPick"}, "Alpha: "),
+		label({"for": "alphaPick"}, `${lang["COLOUR_ALPHA"]}: `),
 		alphaInput,
 		br(),
-		button("Update", {"onclick": function(this: HTMLButtonElement) {
+		button(lang["COLOUR_UPDATE"], {"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
 			const colour = hex2Colour(colourInput.value, parseInt(alphaInput.value));
 			window.remove();
