@@ -6,6 +6,7 @@ import {mapLoadSend, handleError, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
+import {IntSetting} from './settings_types.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -27,7 +28,8 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 		rect({"width": 47, height: 47, "fill": "#cfc"}),
 		path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14"})
 	])
-      ]));
+      ])),
+      selectedMap = new IntSetting("selectedMap")
 let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
@@ -45,6 +47,7 @@ class MapItem extends Item {
 		selectedCurrent = this;
 		mapLoadSend(this.id);
 		rpc.setCurrentMap(this.id).catch(handleError);
+		selectedMap.set(this.id);
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
@@ -153,8 +156,16 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node) {
 			}
 		      }
 		rpc.waitCurrentUserMap().then(setUserMap);
+		let s = true;
+		if (selectedMap.value > 0) {
+			const m = findMap(root.folder, selectedMap.value);
+			if (m) {
+				m.show();
+				s = false;
+			}
+		}
 		if (userMap > 0) {
-			setUserMap(userMap, true);
+			setUserMap(userMap, s);
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button("New Map", {"onclick": () => {
