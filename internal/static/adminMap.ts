@@ -1,6 +1,6 @@
-import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerRPC, LayerMove, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerMove} from './types.js';
 import {Subscription} from './lib/inter.js';
-import {autoFocus, clearElement} from './lib/dom.js';
+import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
