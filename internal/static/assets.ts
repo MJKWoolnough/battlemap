@@ -37,8 +37,8 @@ class AudioAsset extends Item {
 export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, fileType, rpcFuncs, shell, fileType === "IMAGES" ? ImageAsset : AudioAsset);
-		createHTML(clearElement(base), {"id": fileType + "Items", "class": "folders"}, [
+		const root = new Root(folderList, lang[`TAB_${fileType}`], rpcFuncs, shell, fileType === "IMAGES" ? ImageAsset : AudioAsset);
+		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[`UPLOAD_${fileType}`], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
 					label({"for": "addAssets"}, lang[`UPLOAD_${fileType}`]),
