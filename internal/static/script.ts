@@ -24,6 +24,7 @@ import './tools_move.js';
 import './tools_zoom.js';
 import pluginInit from './plugins.js';
 import lang from './language.js';
+import {BoolSetting, IntSetting, StringSetting} from './settings_types.js';
 
 type savedWindow = {
 	out: boolean;
@@ -38,11 +39,14 @@ declare const pageLoad: Promise<void>;
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "style": "stroke: currentColor"}))),
       tabs = (function() {
 	let n = 0;
-	const mousemove = function(e: MouseEvent) {
+	const panelShow = new BoolSetting("panelShow"),
+	      panelWidth = new IntSetting("panelWidth", "300"),
+	      windowSettings = new StringSetting("windowData"),
+	      mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
-			window.localStorage.setItem("panelWidth", x.toString());
-			h.style.setProperty("--panel-width", x + "px");
+			panelWidth.set(x);
+			h.style.setProperty("--panel-width", `${x}px`);
 		}
 	      },
 	      mouseUp = (e: MouseEvent) => {
@@ -52,13 +56,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		window.removeEventListener("mousemove", mousemove);
 		window.removeEventListener("mouseup", mouseUp);
 	      },
-	      c = input({"id": "panelHider", "type": "checkbox", "checked": window.localStorage.getItem("panelShow") === "", "onchange": () => {
-		if (c.checked) {
-			window.localStorage.setItem("panelShow", "");
-		} else {
-			window.localStorage.removeItem("panelShow");
-		}
-	      }}),
+	      c = input({"id": "panelHider", "type": "checkbox", "checked": panelShow.value, "onchange": () => panelShow.set(c.checked)}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      m = label({"for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
@@ -70,12 +68,12 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				window.addEventListener("mouseup", mouseUp);
 			}
 	      }}),
-	      h = div({"id": "panels", "--panel-width": `${parseInt(window.localStorage.getItem("panelWidth")!) || 300}px`}, [
+	      h = div({"id": "panels", "--panel-width": `${panelWidth.value}px`}, [
 		m,
 		div({"id": "tabs"}, [t, p])
 	      ]),
-	      windowData: Record<string, savedWindow> = JSON.parse(window.localStorage.getItem("windowData") || "{}"),
-	      updateWindowData = () => window.localStorage.setItem("windowData", JSON.stringify(windowData)),
+	      windowData: Record<string, savedWindow> = JSON.parse(windowSettings.value || "{}"),
+	      updateWindowData = () => windowSettings.set(JSON.stringify(windowData)),
 	      mo = new MutationObserver(list => {
 		      list.forEach(m => {
 			      if (m.target instanceof HTMLElement) {
