@@ -6,6 +6,9 @@ import {panZoom} from './tools_default.js';
 import {Pipe, Requester} from './lib/inter.js';
 import lang from './language.js';
 
+const pipeBind = <T>(p: Pipe<T>) => ({"send": p.send.bind(p), "receive": p.receive.bind(p)}),
+      requesterBind = <T>(r: Requester<T>) => ({"request": r.request.bind(r), "responder": r.responder.bind(r)});
+
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.keyCode === 13) {
 		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
@@ -70,9 +73,9 @@ screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
 	      snapDM = snap ? mapData.gridSize : 1;
 	return [snapDM * Math.round((x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM), snapDM * Math.round((y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM)];
 },
-{send: mapLoadSend, receive: mapLoadReceive} = new Pipe<Uint>(),
-{send: mapLayersSend, receive: mapLayersReceive} = new Pipe<LayerRPC>(),
-{request: requestShell, responder: respondWithShell} = new Requester<ShellElement>(),
+{send: mapLoadSend, receive: mapLoadReceive} = pipeBind(new Pipe<Uint>()),
+{send: mapLayersSend, receive: mapLayersReceive} = pipeBind(new Pipe<LayerRPC>()),
+{request: requestShell, responder: respondWithShell} = requesterBind(new Requester<ShellElement>()),
 point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		if (py >= y1 && py <= y2) {
