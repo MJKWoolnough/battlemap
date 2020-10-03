@@ -1,10 +1,10 @@
-#ImagesItems ul, #AudioItems ul {
+#imagesItems ul, #audioItems ul {
 	margin: 0;
 	padding-left: calc(1em + 4px);
 	list-style: none;
 }
 
-#ImagesItems > div > ul, #AudioItems > div > ul {
+#imagesItems > div > ul, #audioItems > div > ul {
 	padding-left: 0;
 }
 
