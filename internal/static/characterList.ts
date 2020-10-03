@@ -1,7 +1,7 @@
-import {Uint, KeystoreData, RPC} from './types.js';
+import {Uint, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
+import {ShellElement, loadingWindow, windows} from './windows.js';
 import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterData} from './characters.js';
