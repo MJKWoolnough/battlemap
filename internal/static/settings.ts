@@ -1,7 +1,6 @@
 import {HTTPRequest} from './lib/conn.js';
-import {Pipe} from './lib/inter.js';
 import {createHTML, button, br, h1, input, label, select, option} from './lib/html.js';
-import {Int, RPC} from './types.js';
+import {RPC} from './types.js';
 import {ShellElement} from './windows.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
