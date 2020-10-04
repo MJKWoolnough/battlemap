@@ -1,7 +1,6 @@
 import {RPC} from './types.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {div, h2, ul, li, img, span} from './lib/html.js';
-import {svg, defs, g, mask, path, rect, use} from './lib/svg.js';
+import {div, h2, ul, li, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
 import {mapLayersReceive} from './misc.js';
