@@ -1,4 +1,4 @@
-import {Colour, Int, MapData, Uint, LayerRPC} from './types.js';
+import {Colour, Int, Uint, LayerRPC} from './types.js';
 import {createHTML, br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
 import {globals} from './map.js';
