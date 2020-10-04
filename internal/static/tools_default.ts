@@ -1,6 +1,5 @@
 import {SVGToken} from './map.js';
 import {createSVG, svg, g, path} from './lib/svg.js';
-import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {globals} from './map.js';
 import {addTool} from './tools.js';
