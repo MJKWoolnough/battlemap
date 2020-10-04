@@ -1,5 +1,4 @@
 import {RPC, LayerRPC} from './types.js';
-import {div} from './lib/html.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {SVGToken, globals, updateLight} from './map.js';
 import {mapLayersReceive, handleError} from './misc.js';
