@@ -1,8 +1,7 @@
 import {br, div, input, label} from './lib/html.js';
-import {createSVG, rect, circle, line, svg} from './lib/svg.js';
-import {defaultMouseWheel, panZoom, zoom} from './tools_default.js';
+import {createSVG, circle, line, svg} from './lib/svg.js';
+import {defaultMouseWheel, zoom} from './tools_default.js';
 import {screen2Grid} from './misc.js';
-import {globals} from './map.js';
 import {addTool} from './tools.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
