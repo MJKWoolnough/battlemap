@@ -1,5 +1,5 @@
 import {Props} from './lib/dom.js';
-import {svg, symbol, use} from './lib/svg.js';
+import {svg, use} from './lib/svg.js';
 
 const symbols = svg({"style": "display: none"}),
       symbolMap = new Map<string, (props?: Props) => SVGSVGElement>();
