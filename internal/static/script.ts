@@ -41,6 +41,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	const panelShow = new BoolSetting("panelShow"),
 	      panelWidth = new IntSetting("panelWidth", "300"),
 	      windowSettings = new StringSetting("windowData"),
+	      lastTab = new IntSetting("lastTab"),
 	      mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
@@ -92,7 +93,8 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      o = Object.freeze({
 		"add": (title: string, contents: Node, pop = true) => {
 			const base = p.appendChild(div(contents)),
-			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": n === 0}), t),
+			      pos = n++,
+			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": pos === lastTab.value}), t),
 			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, tl = tabs.length;
 				switch (e.key) {
@@ -112,7 +114,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					return;
 				}
 				tabs[a].focus();
-			      }}, [
+			      }, "onclick": () => lastTab.set(pos)}, [
 				title,
 				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
@@ -136,8 +138,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 						o.selectFirst()
 					}
 				}}) : []
-			      ])),
-			      pos = n++;
+			      ]));
 			tabs.push(l);
 			if (pop && windowData[title] && windowData[title]["out"]) {
 				(l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click"));
@@ -190,7 +191,6 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
-		tabs.selectFirst();
 	} else {
 		settings(rpc, s, tabs.add(lang["TAB_SETTINGS"], div()), false);
 		loadUserMap(rpc, base.appendChild(div({"style": "height: 100%"})));
