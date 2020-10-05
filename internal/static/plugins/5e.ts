@@ -27,7 +27,7 @@ addPlugin("5e", {
 			if (!token || !(token instanceof SVGToken)) {
 				return [];
 			}
-			if (token.tokenData["initiative-id"]) {
+			if (token.tokenData["5e-initiative-id"]) {
 				return [
 					item(lang["INITIATIVE_CHANGE"], () => {}),
 					item(lang["INITIATIVE_REMOVE"], () => {})
