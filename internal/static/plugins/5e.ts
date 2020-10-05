@@ -4,7 +4,7 @@ import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
 import {mapLayersReceive, requestShell} from '../misc.js';
 import {language} from '../language.js';
-import {windows} from '../windows.js';
+import {windows, WindowElement} from '../windows.js';
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -41,10 +41,15 @@ addPlugin("5e", {
 	}
 });
 
+let iWindow: WindowElement | null = null;
+
 mapLayersReceive(() => {
+	if (iWindow) {
+		iWindow.remove();
+	}
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals;
 	if (!initiative && !initiative["window-open"]) {
 		return;
 	}
-	requestShell().addWindow(windows({"window-title": lang["INITIATIVE"]}));
+	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"]}));
 });
