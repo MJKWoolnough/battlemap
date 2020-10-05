@@ -26,7 +26,7 @@ export const settings = () => {
 		return [];
 	}
 	let selected = "";
-	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
+	const check = input({"type": "checkbox", "id": "plugins_ticker", "class": "settings_ticker", "disabled": true}),
 	      save = button({"disabled": true, "onclick": () => {
 		if (selected === "") {
 			return;
@@ -58,7 +58,7 @@ export const settings = () => {
 			}
 		}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
 		check,
-		label(),
+		label({"for": "plugins_ticker"}),
 		br(),
 		save,
 		filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()])
