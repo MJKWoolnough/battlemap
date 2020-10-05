@@ -13,6 +13,7 @@ import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {makeColourPicker, mapLayersSend, mapLoadReceive, noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
+import {tokenContext} from './plugins.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -428,6 +429,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			}
 			const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 			place(base, [e.clientX, e.clientY], [
+				tokenContext(),
 				isTokenImage(currToken) ? [
 					item("Edit Token Data", () => currToken instanceof SVGToken && tokenEdit(shell, rpc, currToken.id, "Edit Token", currToken.tokenData, false)),
 					item("Flip", () => {
