@@ -1,6 +1,16 @@
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
+import {language} from '../language.js';
+
+const langs: Record<string, Record<string, string>> = {
+	"en-GB": {
+		"INITIATIVE_ADD": "Add Initiative",
+		"INITIATIVE_CHANGE": "Change Initiative",
+		"INITIATIVE_REMOVE": "Remove Initiative"
+	}
+      },
+      lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"];
 
 addPlugin("5e", {
 	"tokenContext": {
@@ -12,11 +22,11 @@ addPlugin("5e", {
 			}
 			if (token.tokenData["initiative-id"]) {
 				return [
-					item("Change Initiative", () => {}),
-					item("Remove Initiative", () => {})
+					item(lang["INITIATIVE_CHANGE"], () => {}),
+					item(lang["INITIATIVE_REMOVE"], () => {})
 				];
 			}
-			return [item("Add Initiative", () => {})];
+			return [item(lang["INITIATIVE_ADD"], () => {})];
 		}
 	}
 });
