@@ -1,3 +1,4 @@
+import {KeystoreData, Uint} from '../types.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
@@ -13,6 +14,12 @@ const langs: Record<string, Record<string, string>> = {
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"];
 
 addPlugin("5e", {
+	"characterEdit": {
+		"priority": 0,
+		"fn": (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+			return null;
+		}
+	},
 	"tokenContext": {
 		"priority": 0,
 		"fn": () => {
