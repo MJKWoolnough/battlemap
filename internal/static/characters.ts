@@ -3,13 +3,16 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {handleError} from './misc.js';
+import {handleError, mapLoadedReceive} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';
 
-let  n = 0;
+let n = 0,
+    lastMapChanged = 0;
+
+mapLoadedReceive(() => lastMapChanged = Date.now());
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
@@ -34,7 +37,8 @@ export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0;
-	const removeSymbol = getSymbol("remove")!,
+	const mapChanged = lastMapChanged,
+	      removeSymbol = getSymbol("remove")!,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
@@ -64,6 +68,11 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      },
 	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
 	      save = (): Promise<void> => {
+		if (lastMapChanged !== mapChanged && !character) {
+			w.remove();
+			shell.alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
+			throw new Error("map changed");
+		}
 		const rms = Array.from(removes.values()).filter(k => {
 			delete changes[k];
 			return d[k] !== undefined;
