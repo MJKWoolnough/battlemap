@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon, radialGradient, rect, stop, svg} from './lib/svg.js';
-import {colour2RGBA, handleError, point2Line} from './misc.js';
+import {colour2RGBA, handleError, point2Line, mapLoadedSend} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData} from './characters.js';
@@ -630,5 +630,6 @@ export default function(rpc: RPC, base: HTMLElement) {
 		canceller();
 		base = newBase;
 		canceller = cancel;
+		mapLoadedSend(false);
 	});
 }
