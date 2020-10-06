@@ -29,7 +29,8 @@ addPlugin("5e", {
 	"tokenContext": {
 		"priority": 0,
 		"fn": () => {
-			const {selected: {token}} = globals;
+			const {selected: {token}} = globals,
+			      mapChange = lastMapChange;
 			if (!token || !(token instanceof SVGToken)) {
 				return [];
 			}
@@ -45,6 +46,9 @@ addPlugin("5e", {
 				}
 				return parseInt(initiative);
 			})).then(initiative => {
+				if (lastMapChange !== mapChange) {
+					throw new Error("map changed");
+				}
 				const change = {"5e-initiative": {"user": true, "data": initiative}};
 				Object.assign(token.tokenData, change);
 				rpc.tokenModify(token.id, change, []).catch(handleError);
@@ -53,9 +57,11 @@ addPlugin("5e", {
 	}
 });
 
-let iWindow: WindowElement | null = null;
+let iWindow: WindowElement | null = null,
+    lastMapChange = 0;
 
 mapLoadedReceive(isAdmin => {
+	lastMapChange = Date.now();
 	if (iWindow) {
 		iWindow.remove();
 	}
