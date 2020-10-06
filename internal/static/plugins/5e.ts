@@ -3,7 +3,7 @@ import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
-import {language} from '../language.js';
+import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
 
@@ -47,6 +47,7 @@ addPlugin("5e", {
 				return parseInt(initiative);
 			})).then(initiative => {
 				if (lastMapChange !== mapChange) {
+					requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 					throw new Error("map changed");
 				}
 				const change = {"5e-initiative": {"user": true, "data": initiative}};
