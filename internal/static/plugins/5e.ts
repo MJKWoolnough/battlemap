@@ -11,6 +11,8 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE": "Initiative",
 		"INITIATIVE_ADD": "Add Initiative",
 		"INITIATIVE_CHANGE": "Change Initiative",
+		"INITIATIVE_ENTER": "Enter initiative",
+		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
 		"INITIATIVE_REMOVE": "Remove Initiative"
 	}
       },
@@ -36,7 +38,14 @@ addPlugin("5e", {
 					item(lang["INITIATIVE_REMOVE"], () => {})
 				];
 			}
-			return [item(lang["INITIATIVE_ADD"], () => {})];
+			return [item(lang["INITIATIVE_ADD"], () => (token.tokenData["5e-initiative-mod"] ? Promise.resolve(Math.ceil(Math.random() * 20) + token.tokenData["5e-initiative-mod"]["data"] as number) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+				if (!initiative) {
+					throw new Error("invalid initiative");
+				}
+				return parseInt(initiative);
+			})).then(initiative => {
+
+			}).catch(() => {}))];
 		}
 	}
 });
