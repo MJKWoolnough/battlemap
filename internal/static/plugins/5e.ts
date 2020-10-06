@@ -2,7 +2,7 @@ import {KeystoreData, Uint} from '../types.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
-import {mapLayersReceive, requestShell} from '../misc.js';
+import {mapLoadedReceive, requestShell} from '../misc.js';
 import {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 
@@ -43,12 +43,12 @@ addPlugin("5e", {
 
 let iWindow: WindowElement | null = null;
 
-mapLayersReceive(() => {
+mapLoadedReceive(isAdmin => {
 	if (iWindow) {
 		iWindow.remove();
 	}
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals;
-	if (!initiative && !initiative["window-open"]) {
+	if (!initiative || (!initiative["window-open"] && !isAdmin)) {
 		return;
 	}
 	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"]}));
