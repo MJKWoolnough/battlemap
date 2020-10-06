@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {ShellElement} from './windows.js';
-import {mapLayersReceive} from './misc.js';
+import {mapLoadedReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent, rpc: RPC) => void;
@@ -109,7 +109,7 @@ export default function (arpc: RPC, shell: ShellElement, base: HTMLElement) {
 	      fc = list.firstChild as HTMLLIElement;
 	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
 	fc.click();
-	mapLayersReceive(() => {
+	mapLoadedReceive(() => {
 		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
 		fc.classList.add("selected");
 		tools.forEach(t => t.reset && t.reset());
