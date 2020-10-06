@@ -63,5 +63,5 @@ mapLoadedReceive(isAdmin => {
 	if (!initiative || (!initiative["window-open"] && !isAdmin)) {
 		return;
 	}
-	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"]}));
+	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true}));
 });
