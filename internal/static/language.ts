@@ -29,6 +29,8 @@ const defaultLanguage: Record<string, string> = {
 	"LOADING": "Loading…",
 	"LOGIN": "Login",
 	"LOGOUT": "Logout",
+	"MAP_CHANGED": "Map Changed",
+	"MAP_CHANGED_LONG": "An error occurred because the map was changed",
 	"MAP_SETTINGS": "Map Settings",
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
