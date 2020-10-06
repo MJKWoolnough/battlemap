@@ -25,7 +25,7 @@ const allowedKey = (key: string, character: boolean) => {
 	}
 	return true;
       },
-      userVisibile = addSymbol("userVisibility", symbol({"viewBox": "0 0 47 47"}, [
+      userVisible = addSymbol("userVisibility", symbol({"viewBox": "0 0 47 47"}, [
 	      path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14", "style": "fill: currentColor"}),
 	      g({"stroke-width": 6}, [
 		      path({"d": "M10,30 L20,47 L47,0", "stroke": "#0f0", "fill": "none", "style": "display: var(--check-on, block)"}),
@@ -52,7 +52,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			label({"for": `character_${n}_${row}`}, k),
 			data,
 			visibility,
-			label({"for": `character_${n}_${row}_user`}, userVisibile()),
+			label({"for": `character_${n}_${row}_user`}, userVisible()),
 			input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
