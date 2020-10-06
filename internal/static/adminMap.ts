@@ -11,7 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {makeColourPicker, mapLayersSend, mapLoadReceive, noColour, handleError, screen2Grid} from './misc.js';
+import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, noColour, handleError, screen2Grid} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext} from './plugins.js';
 
@@ -863,5 +863,6 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				rpc.waitTokenSourceChange,
 			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
 		);
+		mapLoadedSend(true);
 	}));
 }
