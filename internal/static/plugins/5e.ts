@@ -2,9 +2,10 @@ import {KeystoreData, Uint} from '../types.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
-import {mapLoadedReceive, requestShell} from '../misc.js';
+import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
+import {rpc} from '../rpc.js';
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -44,7 +45,9 @@ addPlugin("5e", {
 				}
 				return parseInt(initiative);
 			})).then(initiative => {
-
+				const change = {"5e-initiative": {"user": true, "data": initiative}};
+				Object.assign(token.tokenData, change);
+				rpc.tokenModify(token.id, change, []).catch(handleError);
 			}).catch(() => {}))];
 		}
 	}
