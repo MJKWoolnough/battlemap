@@ -157,6 +157,17 @@ export class SVGToken extends SVGTransform {
 	updateNode() {
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
+	getData(key: string) {
+		if (this.tokenData[key]) {
+			return this.tokenData[key]["data"];
+		} else if (this.tokenData["store-character-id"]) {
+			const char = characterData.get(this.tokenData["store-character-id"]["data"]);
+			if (char && char[key]) {
+				return char[key]["data"];
+			}
+		}
+		return null;
+	}
 }
 
 export class SVGShape extends SVGTransform {
