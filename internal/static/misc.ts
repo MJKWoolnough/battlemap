@@ -75,7 +75,7 @@ screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
 },
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind(new Pipe<Uint>()),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind(new Pipe<LayerRPC>()),
-{send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind(new Pipe<[Uint, boolean]>()),
+{send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind(new Pipe<boolean>()),
 {request: requestShell, responder: respondWithShell} = requesterBind(new Requester<ShellElement>()),
 point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
