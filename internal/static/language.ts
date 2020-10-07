@@ -58,6 +58,7 @@ const defaultLanguage: Record<string, string> = {
 	"TAB_SETTINGS": "Settings",
 	"TAB_TOOLS": "Tools",
 	"THEME": "Theme",
+	"TOKEN": "Token",
 	"TOKEN_SELECT": "Select Token",
 	"TOKEN_NONE_SELECTED": "No token selected",
 	"TOKEN_USE_SELECTED": "Use currently selected token",
