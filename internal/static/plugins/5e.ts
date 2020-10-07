@@ -73,3 +73,10 @@ mapLoadedReceive(isAdmin => {
 	}
 	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true}));
 });
+
+rpc.waitTokenDataChange().then(changed => {
+	const initiative = changed["setting"]["5e-initiative"];
+	if (initiative) {
+		// update initiative list
+	}
+});
