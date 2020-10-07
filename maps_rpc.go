@@ -401,7 +401,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			var (
 				changed     bool
 				id          uint64
-				userRemoves json.RawMessage
+				userRemoves []string
 			)
 			for key, kd := range modifyToken.Setting {
 				if f := m.isLinkKey(key); f != nil {
@@ -424,8 +424,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 						first = false
 					}
 					data = append(append(append(data, "{\"user\":true,\"data\":"...), kd.Data...), '}')
-				} else if td, ok := tk.TokenData[key]; ok && !td.User {
-					userRemoves = appendString(userRemoves, key)
+				} else if td, ok := tk.TokenData[key]; ok && td.User {
+					userRemoves = append(userRemoves, key)
 				}
 				tk.TokenData[key] = kd
 				changed = true
@@ -454,10 +454,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				changed = true
 			}
 			if changed {
-				if !first {
-					data = append(data, ',')
+				for _, key := range userRemoves {
+					if !first {
+						data = append(data, ',')
+					} else {
+						first = false
+					}
+					data = appendString(data, key)
 				}
-				data = append(data, userRemoves...)
 				data = append(data, ']')
 				m.socket.broadcastMapChange(cd, broadcastTokenDataChange, data)
 			}
