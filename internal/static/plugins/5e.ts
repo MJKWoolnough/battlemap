@@ -40,7 +40,8 @@ addPlugin("5e", {
 					item(lang["INITIATIVE_REMOVE"], () => {})
 				];
 			}
-			return [item(lang["INITIATIVE_ADD"], () => (token.tokenData["5e-initiative-mod"] ? Promise.resolve(Math.ceil(Math.random() * 20) + token.tokenData["5e-initiative-mod"]["data"] as number) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+			const initMod: number | null = token.getData("5e-initiative-mod");
+			return [item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.ceil(Math.random() * 20) + initMod) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
 				if (!initiative) {
 					throw new Error("invalid initiative");
 				}
