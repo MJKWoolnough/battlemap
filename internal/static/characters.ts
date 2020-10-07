@@ -2,7 +2,7 @@ import {Uint, KeystoreData, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
 import {handleError, mapLoadedReceive} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
@@ -34,6 +34,24 @@ const allowedKey = (key: string, character: boolean) => {
       ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
+tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => [
+	div({"class": "tokenSelector"}, [
+		button({"onclick": function(this: HTMLDivElement) {
+			const data = getToken();
+			if (!data) {
+				w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+				return;
+			}
+			if (this.nextSibling) {
+				this.nextSibling.remove();
+			}
+			changes["token-data"] = {"user": false, data};
+			clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
+		}}, lang["TOKEN_USE_SELECTED"]),
+		d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
+	]),
+	br(),
+],
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let changed = false, row = 0;
@@ -92,7 +110,8 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			removes.clear();
 		}), w)
 	      },
-	      w = createHTML(autoFocus(shell.appendChild(windows({"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	      w = windows();
+	shell.appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
@@ -123,23 +142,8 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		br(),
 		character ? [
 			label("Token: "),
-			div({"class": "tokenSelector"}, [
-				button({"onclick": function(this: HTMLDivElement) {
-					const data = getToken();
-					if (!data) {
-						w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
-						return;
-					}
-					if (this.nextSibling) {
-						this.nextSibling.remove();
-					}
-					changes["token-data"] = {"user": false, data};
-					clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
-				}}, lang["TOKEN_USE_SELECTED"]),
-				d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
-			]),
-			br(),
-		] : [],
+			tokenSelector(w, d, changes, removes)
+		]: [],
 		inputs,
 		button(lang["ROW_ADD"], {"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
 			if (key) {
@@ -161,7 +165,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			.then(() => changed = false)
 			.finally(() => this.removeAttribute("disabled"));
 		}})
-	      ]))));
+	      ])));
 }
 
 export default function (rpc: RPC) {
