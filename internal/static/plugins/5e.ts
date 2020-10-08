@@ -6,6 +6,7 @@ import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
+import {characterData} from '../characters.js';
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -23,6 +24,10 @@ addPlugin("5e", {
 	"characterEdit": {
 		"priority": 0,
 		"fn": (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
+				const cd = characterData.get(data["store-character-id"]["data"])!;
+				return (key: string) => data[key] ?? cd[key];
+			})() : (key: string) => data[key] ;
 			return null;
 		}
 	},
