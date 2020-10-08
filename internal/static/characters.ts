@@ -144,7 +144,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			br()
 		]: [],
 		inputs,
-		button(lang["ROW_ADD"], {"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
+		button({"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
 			if (key) {
 				if (!allowedKey(key, character)) {
 					w.alert(lang["ROW_NAME_RESERVED"], lang["ROW_NAME_RESERVED_LONG"]);
@@ -157,13 +157,13 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 				changes[key] = {"user": false, "data": ""};
 				createHTML(inputs, adder(key));
 			}
-		})}),
-		button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
+		})}, lang["ROW_ADD"]),
+		button({"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
 			save()
 			.then(() => changed = false)
 			.finally(() => this.removeAttribute("disabled"));
-		}})
+		}}, lang["SAVE"])
 	      ])));
 }
 
