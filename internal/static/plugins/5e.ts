@@ -26,8 +26,8 @@ addPlugin("5e", {
 		"fn": (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
-				return (key: string) => data[key] ?? cd[key];
-			})() : (key: string) => data[key] ;
+				return (key: string) => data[key] ?? cd[key] ?? {};
+			})() : (key: string) => data[key] ?? {};
 			return null;
 		}
 	},
