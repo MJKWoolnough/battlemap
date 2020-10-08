@@ -52,7 +52,7 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	var pd keystore.String
 	b.config.Get("PluginsDir", &pd)
 	if pd == "" {
-		return nil
+		return ErrInvalidPlugins
 	}
 	p.plugins = make(pluginData)
 	if err := b.config.Get("PluginsInfo", p.plugins); err != nil {
@@ -188,5 +188,6 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 
 // Errors
 var (
-	ErrUnknownPlugin = errors.New("unknown plugin")
+	ErrInvalidPlugins = errors.New("invalid plugin location")
+	ErrUnknownPlugin  = errors.New("unknown plugin")
 )
