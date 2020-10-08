@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 type config struct {
@@ -18,6 +19,7 @@ const configFile = "config"
 func (c *config) Init(baseDir string) error {
 	c.BaseDir = baseDir
 	c.memStore = keystore.NewMemStore()
+	pi := memio.Buffer{'{', '}'}
 	c.memStore.SetAll(map[string]io.WriterTo{
 		"ServerPort":     keystore.Uint16(8080),
 		"ImageAssetsDir": keystore.String("assets/images"),
@@ -27,7 +29,7 @@ func (c *config) Init(baseDir string) error {
 		"MapsDir":        keystore.String("maps"),
 		"FilesDir":       keystore.String("files"),
 		"PluginsDir":     keystore.String("plugins"),
-		"PluginsInfo":    keystore.String("{}"),
+		"PluginsInfo":    &pi,
 		"TokensDir":      keystore.String("tokens"),
 	})
 	var err error
