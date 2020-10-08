@@ -179,9 +179,12 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 	k.socket.broadcastAdminChange(broadcastCharacterDataChange, data, cd.ID)
 	buf := append(append(data[:0], "{\"ID\":"...), m.ID...)
 	buf = append(buf, "],\"setting\":{"...)
+	var userRemoves []string
 	for key, val := range m.Setting {
 		if val.User {
 			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
+		} else if mv, ok := ms[key]; ok && mv.User {
+			userRemoves = append(userRemoves, key)
 		}
 		if f := k.isLinkKey(key); f != nil {
 			var id uint64
@@ -195,13 +198,19 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 		ms[key] = val
 	}
 	buf = append(buf, "},\"removing\":["...)
+	first := true
 	for _, key := range m.Removing {
 		val, ok := ms[key]
 		if !ok {
 			continue
 		}
 		if val.User {
-			buf = appendString(append(buf, ','), key)
+			if !first {
+				buf = append(buf, ',')
+			} else {
+				first = false
+			}
+			buf = appendString(buf, key)
 		}
 		if f := k.isLinkKey(key); f != nil {
 			var id uint64
@@ -209,6 +218,14 @@ func (k *keystoreDir) modify(cd ConnData, data json.RawMessage) error {
 			f.removeHiddenLink(id)
 		}
 		delete(ms, key)
+	}
+	for _, key := range userRemoves {
+		if !first {
+			buf = append(buf, ',')
+		} else {
+			first = false
+		}
+		buf = appendString(buf, key)
 	}
 	buf = append(buf, ']', '}')
 	cd.CurrentMap = 0
