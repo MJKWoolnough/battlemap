@@ -35,15 +35,19 @@ addPlugin("5e", {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
 				return (key: string) => data[key] ?? cd[key] ?? {};
 			})() : (key: string) => data[key] ?? {},
-			      name = getData("name");
+			      name = getData("name"),
+			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
+			      nameInput = input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"], "onchange": nameUpdate}),
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate});
 			return [
 				label({"for": `edit_5e_name_${n}`}, lang["NAME"]),
-				input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"]}),
-				input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false}),
+				nameInput,
+				nameVisibility,
 				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
 				br(),
-				button({"onclick": function() {
-
+				button({"onclick": function(this: HTMLButtonElement) {
+					this.toggleAttribute("disabled", true);
+					save().finally(() => this.removeAttribute("disabled"));
 				}}, mainLang["SAVE"])
 			];
 		}
