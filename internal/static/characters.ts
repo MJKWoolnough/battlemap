@@ -87,7 +87,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
-					data.setAttribute("disabled", "disabled");
+					data.toggleAttribute("disabled", true);
 				} else {
 					removes.delete(k);
 					data.removeAttribute("disabled");
@@ -159,7 +159,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			}
 		})}, lang["ROW_ADD"]),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.setAttribute("disabled", "disabled");
+			this.toggleAttribute("disabled", true);
 			save().finally(() => this.removeAttribute("disabled"));
 		}}, lang["SAVE"])
 	      ])));
