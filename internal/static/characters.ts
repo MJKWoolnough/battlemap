@@ -67,7 +67,7 @@ iconSelector = (shell: ShellElement, rpc: RPC, d: Record<string, KeystoreData>, 
 	}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, character)}) : []),
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
-	let changed = false, row = 0;
+	let row = 0;
 	const mapChanged = lastMapChanged,
 	      removeSymbol = getSymbol("remove")!,
 	      changes: Record<string, KeystoreData> = {},
@@ -121,7 +121,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			keys.forEach(k => delete changes[k]);
 			removes.forEach(k => delete d[k]);
 			removes.clear();
-		}), w)
+		}), w);
 	      },
 	      w = windows();
 	shell.appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
@@ -160,9 +160,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		})}, lang["ROW_ADD"]),
 		button({"onclick": function(this: HTMLButtonElement) {
 			this.setAttribute("disabled", "disabled");
-			save()
-			.then(() => changed = false)
-			.finally(() => this.removeAttribute("disabled"));
+			save().finally(() => this.removeAttribute("disabled"));
 		}}, lang["SAVE"])
 	      ])));
 }
