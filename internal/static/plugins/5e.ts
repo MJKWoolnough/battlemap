@@ -1,4 +1,5 @@
 import {KeystoreData, Uint} from '../types.js';
+import {br, button, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken} from '../map.js';
@@ -7,6 +8,9 @@ import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
 import {characterData} from '../characters.js';
+import {getSymbol} from '../symbols.js';
+
+let n = 0;
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -15,20 +19,33 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_CHANGE": "Change Initiative",
 		"INITIATIVE_ENTER": "Enter initiative",
 		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
-		"INITIATIVE_REMOVE": "Remove Initiative"
+		"INITIATIVE_REMOVE": "Remove Initiative",
+		"NAME": "Name",
 	}
       },
-      lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"];
+      lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
+      userVisibility = getSymbol("userVisibility")!;
 
 addPlugin("5e", {
 	"characterEdit": {
 		"priority": 0,
 		"fn": (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+			n++;
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
 				return (key: string) => data[key] ?? cd[key] ?? {};
-			})() : (key: string) => data[key] ?? {};
-			return null;
+			})() : (key: string) => data[key] ?? {},
+			      name = getData("name");
+			return [
+				label({"for": `edit_5e_name_${n}`}, lang["NAME"]),
+				input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"]}),
+				input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false}),
+				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
+				br(),
+				button({"onclick": function() {
+
+				}}, mainLang["SAVE"])
+			];
 		}
 	},
 	"tokenContext": {
