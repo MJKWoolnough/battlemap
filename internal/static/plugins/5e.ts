@@ -7,7 +7,7 @@ import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
-import {characterData} from '../characters.js';
+import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
 
 let n = 0;
@@ -29,7 +29,7 @@ const langs: Record<string, Record<string, string>> = {
 addPlugin("5e", {
 	"characterEdit": {
 		"priority": 0,
-		"fn": (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
 			n++;
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
@@ -44,6 +44,17 @@ addPlugin("5e", {
 				nameInput,
 				nameVisibility,
 				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
+				br(),
+				isCharacter ? [
+					label(lang["CHARACTER_IMAGE"]),
+					iconSelector(data, changes),
+					br(),
+					label(`${lang["TOKEN"]}: `),
+					tokenSelector(windows(), data, changes, removes)
+				] : [
+					label(lang["CHARACTER"]),
+					characterSelector(requestShell(), rpc, data, changes)
+				],
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
