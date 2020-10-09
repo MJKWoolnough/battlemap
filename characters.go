@@ -113,7 +113,7 @@ func (c *charactersDir) Init(b *Battlemap) error {
 func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "create":
-		return c.createFromName(cd, data)
+		return c.create(cd, data)
 	case "modify":
 		return nil, c.modify(cd, data)
 	case "get":
@@ -123,7 +123,7 @@ func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage
 	}
 }
 
-func (c *charactersDir) createFromName(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
+func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var name string
 	if err := json.Unmarshal(data, &name); err != nil {
 		return nil, err
@@ -142,20 +142,6 @@ func (c *charactersDir) createFromName(cd ConnData, data json.RawMessage) (json.
 	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), name), '}', ']')
 	c.socket.broadcastAdminChange(broadcastCharacterItemAdd, buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
-}
-
-func (c *charactersDir) createFromID() json.RawMessage {
-	m := make(characterMap)
-	c.mu.Lock()
-	c.lastID++
-	kid := c.lastID
-	name := strconv.FormatUint(kid, 10)
-	c.links[kid] = 1
-	c.saveFolders()
-	c.data[name] = m
-	c.mu.Unlock()
-	c.fileStore.Set(name, m)
-	return json.RawMessage(name)
 }
 
 func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
