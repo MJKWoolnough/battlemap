@@ -63,7 +63,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 						})
 						.catch(handleError)
 						.finally(() => this.removeAttribute("disabled"));
-						this.setAttribute("disabled", "disabled");
+						this.toggleAttribute("disabled", true);
 					}}))
 				      ]),
 				      window = shell.appendChild(windows({"window-title": lang[`UPLOAD_${fileType}`], "class": "assetAdd"}, [h1(lang[`UPLOAD_${fileType}`]), f]));

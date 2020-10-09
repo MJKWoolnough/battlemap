@@ -47,7 +47,7 @@ const dragFn = (e: MouseEvent) => {
 		newName,
 		br(),
 		button("Rename", {"onclick": function(this: HTMLButtonElement) {
-			this.setAttribute("disabled", "disabled");
+			this.toggleAttribute("disabled", true);
 			loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), newName.value), window).then(name => {
 				self.name = name;
 				self.nameElem.innerText = name;
@@ -165,7 +165,7 @@ class ItemLayer extends Item {
 				sqLineWidth,
 				br(),
 				button("Apply", {"onclick": function(this: HTMLButtonElement) {
-					this.setAttribute("disabled", "disabled");
+					this.toggleAttribute("disabled", true);
 					const sq = parseInt(sqWidth.value);
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value) * sq,
@@ -311,7 +311,7 @@ export default function(shell: ShellElement, base: HTMLElement) {
 					name,
 					br(),
 					button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
-						this.setAttribute("disabled", "disabled");
+						this.toggleAttribute("disabled", true);
 						loadingWindow(rpc.newLayer(name.value), window).then(name => {
 							list.addItem(1, name);
 							window.remove();

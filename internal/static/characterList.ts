@@ -77,7 +77,7 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 							w.alert("Error", "A character needs an icon");
 							return;
 						}
-						this.setAttribute("disabled", "disabled");
+						this.toggleAttribute("disabled", true);
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => rpc.characterModify(id, {"store-image-icon": {"user": false, "data": icon}}, []).then(() => root.addItem(id, name))), w)
 						.then(() => w.remove())
 						.catch(handleError)

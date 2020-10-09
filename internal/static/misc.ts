@@ -39,7 +39,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 		alphaInput,
 		br(),
 		button(lang["COLOUR_UPDATE"], {"onclick": function(this: HTMLButtonElement) {
-			this.setAttribute("disabled", "disabled");
+			this.toggleAttribute("disabled", true);
 			const colour = hex2Colour(colourInput.value, parseInt(alphaInput.value));
 			window.remove();
 			resolve(colour);

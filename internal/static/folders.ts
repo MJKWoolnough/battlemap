@@ -71,7 +71,7 @@ export class Item {
 			newName,
 			br(),
 			button(lang["ITEM_MOVE"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value), window).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
@@ -98,7 +98,7 @@ export class Item {
 			newName,
 			br(),
 			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.link(self.id, parents.value + newName.value), window).then(newPath => {
 					root.addItem(self.id, newPath);
 					window.remove();
@@ -119,7 +119,7 @@ export class Item {
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
 			autoFocus(button(lang["ITEM_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
 					root.removeItem(path);
 					window.remove();
@@ -254,7 +254,7 @@ export class Folder {
 			newName,
 			br(),
 			button(lang["FOLDER_MOVE"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
@@ -276,7 +276,7 @@ export class Folder {
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
 			autoFocus(button(lang["FOLDER_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
 					root.removeFolder(path);
 					window.remove();
@@ -299,7 +299,7 @@ export class Folder {
 			folderName,
 			br(),
 			button(lang["FOLDER_ADD"], {"onclick": function(this: HTMLButtonElement) {
-				this.setAttribute("disabled", "disabled");
+				this.toggleAttribute("disabled", true);
 				loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
 					root.addFolder(folder);
 					window.remove();
