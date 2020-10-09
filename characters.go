@@ -129,6 +129,9 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 		return nil, err
 	}
 	m := make(characterMap)
+	m["name"] = keystoreData{
+		Data: data,
+	}
 	c.mu.Lock()
 	c.lastID++
 	kid := c.lastID
