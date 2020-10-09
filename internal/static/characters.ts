@@ -49,22 +49,28 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 	}}, lang["TOKEN_USE_SELECTED"]),
 	d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 ]),
-iconSelector = (shell: ShellElement, rpc: RPC, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, character: boolean) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-		if (e.dataTransfer && (character ? e.dataTransfer.getData("imageAsset") : e.dataTransfer.getData("character"))) {
+characterSelector = (shell: ShellElement, rpc: RPC, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+		if (e.dataTransfer && e.dataTransfer.getData("character")) {
 			e.preventDefault();
 			e.dataTransfer.dropEffect = "link";
 		}
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-		const tokenData = JSON.parse(e.dataTransfer!.getData(character ? "imageAsset" : "character"));
-		if (character) {
-			changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
-			clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
-		} else {
-			changes["store-character-id"] = {"user": false, "data": tokenData.id};
-			const charData = characterData.get(tokenData.id)!;
-			clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, lang["CHARACTED_EDIT"], charData, character)}));
+		const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
+		      charData = characterData.get(tokenData.id)!;
+		changes["store-character-id"] = {"user": false, "data": tokenData.id};
+		clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, lang["CHARACTED_EDIT"], charData, true)}));
 		}
-	}}, character ? img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"}) : d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, character)}) : []),
+	}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
+iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+		if (e.dataTransfer && e.dataTransfer.getData("imageAsset")){
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "link";
+		}
+	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+		const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+		changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
+		clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let row = 0;
@@ -136,7 +142,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      }}, characterEdit(id, d, character, changes, removes, save) || [
 		h1(name),
 		label(lang[character ? "CHARACTER_IMAGE" : "CHARACTER"]),
-		iconSelector(shell, rpc, d, changes, character),
+		character ? iconSelector(d, changes) : characterSelector(shell, rpc, d, changes),
 		br(),
 		character ? [
 			label(`${lang["TOKEN"]}: `),
