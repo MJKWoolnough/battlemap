@@ -19,9 +19,9 @@ type keystoreData struct {
 	Data json.RawMessage `json:"data"`
 }
 
-type characterMap map[string]keystoreData
+type characterData map[string]keystoreData
 
-func (c characterMap) ReadFrom(r io.Reader) (int64, error) {
+func (c characterData) ReadFrom(r io.Reader) (int64, error) {
 	g, err := gzip.NewReader(r)
 	if err != nil {
 		return 0, err
@@ -40,7 +40,7 @@ func (c characterMap) ReadFrom(r io.Reader) (int64, error) {
 	return br.Count, br.Err
 }
 
-func (c characterMap) WriteTo(w io.Writer) (int64, error) {
+func (c characterData) WriteTo(w io.Writer) (int64, error) {
 	g, err := gzip.NewWriterLevel(w, gzip.BestCompression)
 	if err != nil {
 		return 0, err
@@ -62,7 +62,7 @@ type charactersDir struct {
 
 	fileStore *keystore.FileStore
 
-	data map[string]characterMap
+	data map[string]characterData
 }
 
 func (c *charactersDir) Cleanup() {
@@ -98,10 +98,10 @@ func (c *charactersDir) Init(b *Battlemap) error {
 	if err := c.folders.Init(b, c.fileStore); err != nil {
 		return fmt.Errorf("error parsing characters keystore folders: %w", err)
 	}
-	c.data = make(map[string]characterMap)
+	c.data = make(map[string]characterData)
 	for id := range c.links {
 		idStr := strconv.FormatUint(id, 10)
-		km := make(characterMap)
+		km := make(characterData)
 		if err := c.fileStore.Get(idStr, km); err != nil {
 			return err
 		}
@@ -128,7 +128,7 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(data, &name); err != nil {
 		return nil, err
 	}
-	m := make(characterMap)
+	m := make(characterData)
 	m["name"] = keystoreData{
 		Data: data,
 	}
