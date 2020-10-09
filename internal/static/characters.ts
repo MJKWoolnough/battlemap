@@ -141,14 +141,17 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		}
 	      }}, characterEdit(id, d, character, changes, removes, save) || [
 		h1(name),
-		label(lang[character ? "CHARACTER_IMAGE" : "CHARACTER"]),
-		character ? iconSelector(d, changes) : characterSelector(shell, rpc, d, changes),
-		br(),
 		character ? [
+			label(lang["CHARACTER_IMAGE"]),
+			iconSelector(d, changes),
+			br(),
 			label(`${lang["TOKEN"]}: `),
-			tokenSelector(w, d, changes, removes),
-			br()
-		]: [],
+			tokenSelector(w, d, changes, removes)
+		] : [
+			label(lang["CHARACTER"]),
+			characterSelector(shell, rpc, d, changes)
+		],
+		br(),
 		inputs,
 		button({"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
 			if (key) {
