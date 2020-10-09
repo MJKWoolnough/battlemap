@@ -5,6 +5,7 @@ import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {handleError, requestShell} from './misc.js';
 import lang from './language.js';
+import {WindowElement} from './windows.js';
 
 type owp<T extends Function = () => void> = {
 	priority: Uint;
@@ -13,7 +14,7 @@ type owp<T extends Function = () => void> = {
 
 type plugin = {
 	settings?: owp<() => HTMLElement>;
-	characterEdit?: owp<(id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
+	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
 }
 
@@ -65,9 +66,9 @@ export const settings = () => {
 		filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()])
 	];
 },
-       characterEdit = (id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+       characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
 	for (const p of filterSortPlugins("characterEdit")) {
-		const h = p[1]["characterEdit"].fn(id, data, isCharacter, changes, removes, save);
+		const h = p[1]["characterEdit"].fn(w, id, data, isCharacter, changes, removes, save);
 		if (h) {
 			return h;
 		}
