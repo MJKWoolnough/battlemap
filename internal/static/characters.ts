@@ -139,7 +139,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 				}
 			});
 		}
-	      }}, characterEdit(id, d, character, changes, removes, save) || [
+	      }}, characterEdit(w, id, d, character, changes, removes, save) || [
 		h1(name),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
