@@ -486,7 +486,7 @@ func (f *folders) getBroadcastID(base int) int {
 	switch f.fileType {
 	case fileTypeAudio:
 		return base - 1
-	case fileTypeKeystore:
+	case fileTypeCharacter:
 		return base - 2
 	case fileTypeMap:
 		return base - 3

@@ -20,7 +20,7 @@ type Battlemap struct {
 	auth    Auth
 	images  assetsDir
 	sounds  assetsDir
-	chars   keystoreDir
+	chars   charactersDir
 	maps    mapsDir
 	masks   masksDir
 	files   filesDir
@@ -47,7 +47,6 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	if err := b.config.Init(path); err != nil {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
-	b.chars.Name = "Chars"
 	b.images.fileType = fileTypeImage
 	b.sounds.fileType = fileTypeAudio
 	if a == nil {

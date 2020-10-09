@@ -11,7 +11,7 @@ const (
 	fileTypeUnknown fileType = iota
 	fileTypeImage
 	fileTypeAudio
-	fileTypeKeystore
+	fileTypeCharacter
 	fileTypeMap
 )
 
@@ -31,7 +31,7 @@ func (g *getFileType) ReadFrom(r io.Reader) (int64, error) {
 	case "application/ogg", "audio/mpeg":
 		g.Type = fileTypeAudio
 	case "application/x-gzip":
-		g.Type = fileTypeKeystore
+		g.Type = fileTypeCharacter
 	case "text/plain; charset=utf-8":
 		g.Type = fileTypeMap
 	default:
