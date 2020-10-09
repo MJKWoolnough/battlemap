@@ -1,4 +1,5 @@
 import {Uint, KeystoreData, RPC, Plugin} from './types.js';
+import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -12,7 +13,7 @@ type owp<T extends Function = () => void> = {
 
 type plugin = {
 	settings?: owp<() => HTMLElement>;
-	characterEdit?: owp<(id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => HTMLElement[] | null>;
+	characterEdit?: owp<(id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
 }
 
