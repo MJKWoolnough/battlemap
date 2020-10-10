@@ -42,7 +42,7 @@ addPlugin("5e", {
 			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate}),
 			      initiative = getData("5e-initiative-mod");
 			return [
-				label({"for": `edit_5e_name_${n}`}, lang["NAME"]),
+				label({"for": `edit_5e_name_${n}`}, `${lang["NAME"]}: `),
 				nameInput,
 				nameVisibility,
 				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
