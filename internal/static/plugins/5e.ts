@@ -14,6 +14,7 @@ let n = 0;
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
+		"ARMOUR_CLASS": "Armour Class",
 		"INITIATIVE": "Initiative",
 		"INITIATIVE_ADD": "Add Initiative",
 		"INITIATIVE_CHANGE": "Change Initiative",
@@ -60,6 +61,11 @@ addPlugin("5e", {
 				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
 				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
 					changes["5e-initiative-mod"] = {"user": false, "data": parseInt(this.value)};
+				}}),
+				br(),
+				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
+				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-ac"] = {"user": false, "data": parseInt(this.value)};
 				}}),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
