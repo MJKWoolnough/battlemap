@@ -19,6 +19,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_CHANGE": "Change Initiative",
 		"INITIATIVE_ENTER": "Enter initiative",
 		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
+		"INITIATIVE_MOD": "Initiative Mod",
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Name",
 	}
@@ -38,7 +39,8 @@ addPlugin("5e", {
 			      name = getData("name"),
 			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
 			      nameInput = input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate});
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate}),
+			      initiative = getData("5e-initiative-mod");
 			return [
 				label({"for": `edit_5e_name_${n}`}, lang["NAME"]),
 				nameInput,
@@ -55,6 +57,11 @@ addPlugin("5e", {
 					label(lang["CHARACTER"]),
 					characterSelector(requestShell(), rpc, data, changes)
 				],
+				br(),
+				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
+				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": initiative["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
+					changes["5e-initiative-mod"] = {"user": false, "data": parseInt(this.value)};
+				}}),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
