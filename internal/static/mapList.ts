@@ -7,6 +7,7 @@ import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
 import {IntSetting} from './settings_types.js';
+import lang from './language.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -36,7 +37,7 @@ class MapItem extends Item {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.node.classList.add("mapItem");
-		this.node.insertBefore(userSelected({"class": "setUserMap", "title": "Set User Map", "onclick": () => {
+		this.node.insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id).catch(handleError);
 		}}), this.node.firstChild);
@@ -51,14 +52,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot rename active map"))));
+			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot remove active map"))));
+			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
 		} else {
 			return super.remove();
 		}
@@ -72,14 +73,14 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot rename while containing active map")));
+			return shell.appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2("Cannot remove while containing active map")));
+			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
 		} else {
 			return super.remove(e);
 		}
@@ -175,28 +176,28 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node) {
 				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
-				      window = shell.appendChild(windows({"window-title": "New Map"}));
+				      window = shell.appendChild(windows({"window-title": lang["MAP_NEW"]}));
 				return createHTML(window, {"class": "mapAdd"}, [
-					h1("New Map"),
-					label({"for": "mapName"}, "Name: "),
+					h1(lang["MAP_NEW"]),
+					label({"for": "mapName"},  `${lang["MAP_NAME"]}: `),
 					name,
 					br(),
-					label({"for": "mapWidth"}, "Width in Squares: "),
+					label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
 					width,
 					br(),
-					label({"for": "mapHeight"}, "Height in Squares: "),
+					label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
 					height,
 					br(),
-					label({"for": "mapSquareWidth"}, "Square Size: "),
+					label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
 					sqWidth,
 					br(),
-					label({"for": "mapSquareColour"}, "Square Line Colour: "),
+					label({"for": "mapSquareColour"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
 					sqColour,
 					br(),
-					label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
+					label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
 					sqLineWidth,
 					br(),
-					button("Add", {"onclick": function(this: HTMLButtonElement) {
+					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
 						this.setAttribute("disabled", "disabled");
 						const sq = parseInt(sqWidth.value);
 						loadingWindow(rpc.newMap({
