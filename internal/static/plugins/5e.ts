@@ -24,7 +24,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
 		"INITIATIVE_MOD": "Initiative Mod",
 		"INITIATIVE_REMOVE": "Remove Initiative",
-		"NAME": "Name",
+		"NAME": "Character Name",
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
