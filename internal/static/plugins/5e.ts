@@ -15,6 +15,8 @@ let n = 0;
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
 		"ARMOUR_CLASS": "Armour Class",
+		"HP_CURRENT": "Current Hit Points",
+		"HP_MAX": "Maximum Hit Points",
 		"INITIATIVE": "Initiative",
 		"INITIATIVE_ADD": "Add Initiative",
 		"INITIATIVE_CHANGE": "Change Initiative",
@@ -66,6 +68,16 @@ addPlugin("5e", {
 				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-ac"] = {"user": false, "data": parseInt(this.value)};
+				}}),
+				br(),
+				label({"for": `edit_5e_current_${n}`}, `${lang["HIT_POINTS_CURRENT"]}: `),
+				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-hp-current"] = {"user": false, "data": parseInt(this.value)};
+				}}),
+				br(),
+				label({"for": `edit_5e_hp_${n}`}, `${lang["HIT_POINTS_MAX"]}: `),
+				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-hp-max"] = {"user": false, "data": parseInt(this.value)};
 				}}),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
