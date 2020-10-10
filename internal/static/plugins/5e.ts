@@ -39,8 +39,7 @@ addPlugin("5e", {
 			      name = getData("name"),
 			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
 			      nameInput = input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate}),
-			      initiative = getData("5e-initiative-mod");
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "value": name["user"] !== false, "onchange": nameUpdate});
 			return [
 				label({"for": `edit_5e_name_${n}`}, `${lang["NAME"]}: `),
 				nameInput,
@@ -59,7 +58,7 @@ addPlugin("5e", {
 				],
 				br(),
 				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
-				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": initiative["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
+				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
 					changes["5e-initiative-mod"] = {"user": false, "data": parseInt(this.value)};
 				}}),
 				br(),
