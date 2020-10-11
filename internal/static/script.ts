@@ -13,7 +13,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell} from './misc.js';
+import {respondWithShell, handleError} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_default.js';
 import './tools_draw.js';
@@ -200,7 +200,4 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	}
 	s.realignWindows();
 	window.addEventListener("resize", () => s.realignWindows(), {"passive": true});
-}))).catch((e: Error) => {
-	console.log(e);
-	alert(e);
-});
+}))).catch(handleError);
