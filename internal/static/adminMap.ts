@@ -167,7 +167,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						tokenMousePos.height = newHeight;
 						createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 					}
-					rpc.setToken(token.id, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
+					rpc.setToken(token.id, newX, newY, newWidth, newHeight, newRotation);
 					return () => {
 						token.x = x;
 						token.y = y;
@@ -184,7 +184,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 							tokenMousePos.height = height;
 							createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 						}
-						rpc.setToken(token.id, x, y, width, height, rotation).catch(handleError);
+						rpc.setToken(token.id, x, y, width, height, rotation);
 						return doIt;
 					};
 				      };
@@ -202,10 +202,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			      doIt = () => {
 				layer.tokens.splice(pos, 1);
 				unselectToken();
-				rpc.removeToken(token.id).catch(handleError);
+				rpc.removeToken(token.id);
 				return () => {
 					layer.tokens.splice(pos, 0, token);
-					rpc.addToken(layer.path, token).then(id => token.id = id).catch(handleError);
+					rpc.addToken(layer.path, token).then(id => token.id = id);
 					return doIt;
 				};
 			      };
@@ -280,13 +280,13 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				rpc.addToken(lp, token).then(id => {
 					token.id = id;
 					globals.tokens[id] = {layer: l, token: sToken};
-				}).catch(handleError);
+				});
 				return () => {
 					if (globals.selected.token === token) {
 						unselectToken();
 					}
 					l.tokens.pop();
-					rpc.removeToken(token.id).catch(handleError);
+					rpc.removeToken(token.id);
 					return doIt;
 				};
 			};
@@ -376,7 +376,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 					tokenMousePos.y = newY;
 					outline.setAttribute("transform", token.transformString(false));
 				}
-				rpc.setToken(token.id, newX, newY, token.width, token.height, token.rotation).catch(handleError);
+				rpc.setToken(token.id, newX, newY, token.width, token.height, token.rotation);
 				return () => {
 					token.x = oldX;
 					token.y = oldY;
@@ -386,7 +386,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						tokenMousePos.y = oldY;
 						outline.setAttribute("transform", token.transformString(false));
 					}
-					rpc.setToken(token.id, oldX, oldY, token.width, token.height, token.rotation).catch(handleError);
+					rpc.setToken(token.id, oldX, oldY, token.width, token.height, token.rotation);
 					return doIt;
 				};
 			      };
@@ -440,11 +440,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						      doIt = () => {
 							currToken.flip = flip;
 							currToken.updateNode();
-							rpc.flipToken(currToken.id, flip).catch(handleError);
+							rpc.flipToken(currToken.id, flip);
 							return () => {
 								currToken.flip = !flip;
 								currToken.updateNode();
-								rpc.flipToken(currToken.id, !flip).catch(handleError);
+								rpc.flipToken(currToken.id, !flip);
 								return doIt;
 							};
 						      };
@@ -459,11 +459,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						      doIt = () => {
 							currToken.flop = flop;
 							currToken.updateNode();
-							rpc.flopToken(currToken.id, flop).catch(handleError);
+							rpc.flopToken(currToken.id, flop);
 							return () => {
 								currToken.flop = !flop;
 								currToken.updateNode();
-								rpc.flopToken(currToken.id, !flop).catch(handleError);
+								rpc.flopToken(currToken.id, !flop);
 								return doIt;
 							};
 						      };
@@ -477,10 +477,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						const isPattern = currToken.isPattern,
 						      doIt = () => {
 							currToken.setPattern(!isPattern);
-							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(currToken.id).catch(handleError);
+							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(currToken.id);
 							return () => {
 								currToken.setPattern(!isPattern);
-								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(currToken.id).catch(handleError);
+								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(currToken.id);
 								return doIt;
 							};
 						      };
@@ -510,8 +510,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 									tokenMousePos.rotation = newRotation;
 									createSVG(outline, {"--outline-width": (tokenMousePos.width = newWidth) + "px", "--outline-height": (tokenMousePos.height = newHeight) + "px", "transform": currToken.transformString(false)});
 								}
-								rpc.setTokenSnap(currToken.id, currToken.snap = !snap).catch(handleError);
-								rpc.setToken(currToken.id, newX, newY, newWidth, newHeight, newRotation).catch(handleError);
+								rpc.setTokenSnap(currToken.id, currToken.snap = !snap);
+								rpc.setToken(currToken.id, newX, newY, newWidth, newHeight, newRotation);
 								return () => {
 									createSVG(currToken.node, {"width": currToken.width = width, "height": currToken.height = height});
 									currToken.x = x;
@@ -524,8 +524,8 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 										tokenMousePos.rotation = rotation;
 										createSVG(outline, {"--outline-width": (tokenMousePos.width = width) + "px", "--outline-height": (tokenMousePos.height = height) + "px", "transform": currToken.transformString(false)});
 									}
-									rpc.setTokenSnap(currToken.id, currToken.snap = snap).catch(handleError);
-									rpc.setToken(currToken.id, x, y, width, height, rotation).catch(handleError);
+									rpc.setTokenSnap(currToken.id, currToken.snap = snap);
+									rpc.setToken(currToken.id, x, y, width, height, rotation);
 									return doIt;
 								};
 							};
@@ -534,9 +534,9 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						}
 					}
 					const doIt = () => {
-						rpc.setTokenSnap(currToken.id, currToken.snap = !snap).catch(handleError);
+						rpc.setTokenSnap(currToken.id, currToken.snap = !snap);
 						return () => {
-							rpc.setTokenSnap(currToken.id, currToken.snap = snap).catch(handleError);
+							rpc.setTokenSnap(currToken.id, currToken.snap = snap);
 							return doIt;
 						};
 					      };
@@ -562,10 +562,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 								if (ci >= 0) {
 									const {lightColour, lightIntensity} = currToken,
 									      doIt = () => {
-										rpc.setTokenLight(currToken.id, currToken.lightColour = cc, currToken.lightIntensity = ci).catch(handleError);
+										rpc.setTokenLight(currToken.id, currToken.lightColour = cc, currToken.lightIntensity = ci);
 										updateLight();
 										return () => {
-											rpc.setTokenLight(currToken.id, currToken.lightColour = lightColour, currToken.lightIntensity = lightIntensity).catch(handleError);
+											rpc.setTokenLight(currToken.id, currToken.lightColour = lightColour, currToken.lightIntensity = lightIntensity);
 											updateLight();
 											return doIt;
 										};
@@ -586,10 +586,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						      newPos = currLayer.tokens.length - 1,
 						      doIt = () => {
 							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(currToken.id, newPos).catch(handleError);
+							rpc.setTokenPos(currToken.id, newPos);
 							return () => {
 								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.pop()!);
-								rpc.setTokenPos(currToken.id, tokenPos).catch(handleError);
+								rpc.setTokenPos(currToken.id, tokenPos);
 								return doIt;
 							};
 						      };
@@ -604,10 +604,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						if (tokenPos < currLayer.tokens.length - 1) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos + 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(currToken.id, tokenPos + 1).catch(handleError);
+								rpc.setTokenPos(currToken.id, tokenPos + 1);
 								return () => {
 									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos + 1, 1)[0]);
-									rpc.setTokenPos(currToken.id, tokenPos).catch(handleError);
+									rpc.setTokenPos(currToken.id, tokenPos);
 									return doIt;
 								};
 							      };
@@ -625,10 +625,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						if (tokenPos > 0) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos - 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(currToken.id, tokenPos - 1).catch(handleError);
+								rpc.setTokenPos(currToken.id, tokenPos - 1);
 								return () => {
 									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos - 1, 1)[0]);
-									rpc.setTokenPos(currToken.id, tokenPos).catch(handleError);
+									rpc.setTokenPos(currToken.id, tokenPos);
 									return doIt;
 								};
 							      };
@@ -643,10 +643,10 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 						      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 						      doIt = () => {
 							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(currToken.id, 0).catch(handleError);
+							rpc.setTokenPos(currToken.id, 0);
 							return () => {
 								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.shift()!);
-								rpc.setTokenPos(currToken.id, tokenPos).catch(handleError);
+								rpc.setTokenPos(currToken.id, tokenPos);
 								return doIt;
 							};
 						      };
@@ -664,14 +664,14 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 							unselectToken();
 						}
 						sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
-						rpc.setTokenLayer(currToken.id, sl.path).catch(handleError);
+						rpc.setTokenLayer(currToken.id, sl.path);
 						globals.tokens[currToken.id].layer = sl;
 						return () => {
 							if (globals.selected.token === currToken) {
 								unselectToken();
 							}
 							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
-							rpc.setTokenLayer(currToken.id, currLayer.path).then(() => rpc.setTokenPos(currToken.id, tokenPos)).catch(handleError);
+							rpc.setTokenLayer(currToken.id, currLayer.path).then(() => rpc.setTokenPos(currToken.id, tokenPos));
 							globals.tokens[currToken.id].layer = currLayer;
 							return doIt;
 						};
@@ -718,11 +718,11 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				const undoIt = () => {
 					checkLayer(path);
 					setLayerVisibility(path, !visibility);
-					(!visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
+					(!visibility ? rpc.showLayer : rpc.hideLayer)(path);
 					return () => {
 						checkLayer(path);
 						setLayerVisibility(path, visibility);
-						(visibility ? rpc.showLayer : rpc.hideLayer)(path).catch(handleError);
+						(visibility ? rpc.showLayer : rpc.hideLayer)(path);
 						return undoIt;
 					};
 				      };

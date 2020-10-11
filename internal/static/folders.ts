@@ -4,7 +4,7 @@ import {createHTML, autoFocus} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {enterKey, handleError} from './misc.js';
+import {enterKey} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
@@ -76,7 +76,6 @@ export class Item {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
 		]);
@@ -103,7 +102,6 @@ export class Item {
 					root.addItem(self.id, newPath);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}}),
 		]);
@@ -124,7 +122,6 @@ export class Item {
 					root.removeItem(path);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}}))
 		]);
@@ -259,7 +256,6 @@ export class Folder {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
 		])
@@ -281,7 +277,6 @@ export class Folder {
 					root.removeFolder(path);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}}))
 		]);
@@ -304,7 +299,6 @@ export class Folder {
 					root.addFolder(folder);
 					window.remove();
 				})
-				.catch(handleError)
 				.finally(() => this.removeAttribute("disabled"));
 			}})
 		]);

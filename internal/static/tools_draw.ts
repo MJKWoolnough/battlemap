@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/s
 import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
-import {colour2RGBA, makeColourPicker, noColour, screen2Grid, handleError, requestShell} from './misc.js';
+import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
 
 let over = false,
@@ -47,10 +47,10 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 					const doIt = () => {
 						const pos = selectedLayer.tokens.length;
 						selectedLayer.tokens.push(SVGShape.from(token));
-						rpc.addToken(selectedLayer.path, token).then(id => token.id = id).catch(handleError);
+						rpc.addToken(selectedLayer.path, token).then(id => token.id = id);
 						return () => {
 							selectedLayer.tokens.pop();
-							rpc.removeToken(token.id).catch(handleError);
+							rpc.removeToken(token.id);
 							return doIt;
 						};
 					      };
@@ -120,7 +120,7 @@ const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
 				const doIt = () => {
 					const pos = selectedLayer.tokens.length;
 					selectedLayer.tokens.push(SVGDrawing.from(token));
-					rpc.addToken(selectedLayer.path, token).then(id => token.id = id).catch(handleError);
+					rpc.addToken(selectedLayer.path, token).then(id => token.id = id);
 					return () => {
 						selectedLayer.tokens.pop();
 						rpc.removeToken(token.id);

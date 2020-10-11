@@ -2,7 +2,6 @@ import {Uint, RPC} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
-import {handleError} from './misc.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterData} from './characters.js';
 import lang from './language.js';
@@ -17,7 +16,7 @@ class Character extends DraggableItem {
 			if (d["store-image-icon"]) {
 				this.setIcon(parseInt(d["store-image-icon"].data));
 			}
-		}).catch(handleError);
+		});
 		characters.set(id, this);
 	}
 	setIcon(id: Uint) {
@@ -81,7 +80,6 @@ export default function (arpc: RPC, shell: ShellElement, base: Node) {
 						this.toggleAttribute("disabled", true);
 						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => rpc.characterModify(id, {"store-image-icon": {"user": false, "data": icon}}, []).then(() => root.addItem(id, name))), w)
 						.then(() => w.remove())
-						.catch(handleError)
 						.finally(() => this.removeAttribute("disabled"));
 					}})
 				      ]));

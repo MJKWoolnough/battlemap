@@ -2,7 +2,7 @@ import {Uint, RPC} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
-import {mapLoadSend, handleError, enterKey, hex2Colour} from './misc.js';
+import {mapLoadSend, enterKey, hex2Colour} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
@@ -39,7 +39,7 @@ class MapItem extends Item {
 		this.node.classList.add("mapItem");
 		this.node.insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
-			rpc.setUserMap(id).catch(handleError);
+			rpc.setUserMap(id);
 		}}), this.node.firstChild);
 		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
@@ -47,7 +47,7 @@ class MapItem extends Item {
 		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
 		selectedCurrent = this;
 		mapLoadSend(this.id);
-		rpc.setCurrentMap(this.id).catch(handleError);
+		rpc.setCurrentMap(this.id);
 		selectedMap.set(this.id);
 	}
 	rename() {
@@ -211,13 +211,11 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node) {
 							root.addItem(id, name);
 							window.remove();
 						})
-						.catch(handleError)
 						.finally(() => this.removeAttribute("disabled"));
 					}})
 				])
 			}}),
 			root.node
 		]);
-	})
-	.catch(handleError);
+	});
 }

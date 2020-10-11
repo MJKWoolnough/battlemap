@@ -4,7 +4,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
-import {mapLayersReceive, handleError, enterKey, colour2Hex, hex2Colour, colourPicker} from './misc.js';
+import {mapLayersReceive, enterKey, colour2Hex, hex2Colour, colourPicker} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {ShellElement, loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
@@ -53,7 +53,6 @@ const dragFn = (e: MouseEvent) => {
 				self.nameElem.innerText = name;
 				window.remove();
 			})
-			.catch(handleError)
 			.finally(() => this.removeAttribute("disabled"));
 		}})
 	]);
@@ -88,7 +87,7 @@ const dragFn = (e: MouseEvent) => {
 		}
 		newPath = (l.parent as FolderLayer).getPath();
 	}
-	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh).catch(handleError);
+	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh);
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging || e.button !== 0) {
@@ -133,7 +132,7 @@ class ItemLayer extends Item {
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
-		this.node.insertBefore(visibility({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError)}), this.nameElem);
+		this.node.insertBefore(visibility({"class" : "layerVisibility", "onclick": () => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"))}), this.nameElem);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
@@ -174,13 +173,12 @@ class ItemLayer extends Item {
 						"gridColour": hex2Colour(sqColour.value),
 						"gridStroke": parseInt(sqLineWidth.value)
 					}), window).then(() => window.remove())
-					.catch(handleError)
 					.finally(() => this.removeAttribute("disabled"));
 				}})
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), sh).catch(handleError));
+			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), sh));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
@@ -220,7 +218,7 @@ class FolderLayer extends Folder {
 			this.node.classList.add("layerFolder");
 			const fc = this.open.firstChild as HTMLElement;
 			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
-				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")).catch(handleError);
+				(root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden"));
 				e.preventDefault()
 			}}), this.nameElem);
 			createHTML(fc, [
@@ -313,7 +311,6 @@ export default function(shell: ShellElement, base: HTMLElement) {
 							list.addItem(1, name);
 							window.remove();
 						})
-						.catch(handleError)
 						.finally(() => this.removeAttribute("disabled"));
 					}})
 				]);

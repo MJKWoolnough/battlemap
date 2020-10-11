@@ -1,7 +1,7 @@
 import {RPC, LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {SVGToken, globals, updateLight} from './map.js';
-import {mapLayersReceive, handleError} from './misc.js';
+import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 
@@ -49,7 +49,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 				w.x2 += dx;
 				w.y2 += dy;
 			});
-			rpc.shiftLayer(selectedLayer.path, dx, dy).catch(handleError);
+			rpc.shiftLayer(selectedLayer.path, dx, dy);
 			updateLight();
 			return () => {
 				(selectedLayer.tokens as SVGToken[]).forEach(t => {
@@ -63,7 +63,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
 					w.x2 -= dx;
 					w.y2 -= dy;
 				});
-				rpc.shiftLayer(selectedLayer.path, -dx, -dy).catch(handleError);
+				rpc.shiftLayer(selectedLayer.path, -dx, -dy);
 				updateLight();
 				return doIt;
 			};

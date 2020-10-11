@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon, radialGradient, rect, stop, svg} from './lib/svg.js';
-import {colour2RGBA, handleError, point2Line, mapLoadedSend} from './misc.js';
+import {colour2RGBA, point2Line, mapLoadedSend} from './misc.js';
 import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData} from './characters.js';
@@ -456,7 +456,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 				if (isTokenImage(t) && t.tokenData) {
 					const cID = t.tokenData["store-character-id"];
 					if (loadChars && cID && typeof t.tokenData.data === "number" && !characterData.has(cID.data)) {
-						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d)).catch(handleError);
+						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
 				}
 			})
@@ -491,7 +491,7 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 					layer.tokens.push(SVGToken.from(tk));
 					const cID = tk.tokenData["store-character-id"];
 					if (tk.tokenData && loadChars && cID && typeof cID.data === "number") {
-						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d)).catch(handleError);
+						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
 				} else if (isTokenDrawing(tk)) {
 					layer.tokens.push(SVGDrawing.from(tk));

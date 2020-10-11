@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
-import {mapLayersReceive, handleError, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
+import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
@@ -121,13 +121,13 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 					walls.push(wall);
 					wallLayer.appendChild(wall.element);
 					wall.layer.walls.push(w);
-					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour).catch(handleError);
+					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour);
 					updateLight();
 					return () => {
 						walls.pop();
 						wall.element.remove();
 						wall.layer.walls.pop();
-						rpc.removeWall(wall.wall.id).catch(handleError);
+						rpc.removeWall(wall.wall.id);
 						updateLight();
 						return doIt;
 					};
@@ -156,7 +156,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				walls.push(wall);
 				wallLayer.appendChild(wall.element);
 				wall.layer.walls.push(wall.wall);
-				rpc.addWall(wall.layer.path, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour).catch(handleError);
+				rpc.addWall(wall.layer.path, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour);
 				updateLight();
 				return doIt;
 			};
