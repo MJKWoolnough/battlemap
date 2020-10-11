@@ -10,7 +10,9 @@ import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
 
-let n = 0;
+let iWindow: WindowElement | null = null,
+    lastMapChange = 0,
+    n = 0;
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -123,9 +125,6 @@ addPlugin("5e", {
 		}
 	}
 });
-
-let iWindow: WindowElement | null = null,
-    lastMapChange = 0;
 
 mapLoadedReceive(isAdmin => {
 	lastMapChange = Date.now();
