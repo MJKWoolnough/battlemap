@@ -61,7 +61,7 @@ addPlugin("5e", {
 					tokenSelector(windows(), data, changes, removes)
 				] : [
 					label(lang["CHARACTER"]),
-					characterSelector(requestShell(), rpc, data, changes)
+					characterSelector(data, changes)
 				],
 				br(),
 				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
