@@ -177,23 +177,23 @@ if (invert.value) {
 	document.documentElement.classList.add("invert");
 }
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit(rpc)]).then(([userLevel]) => {
-	characterStore(rpc);
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit()]).then(([userLevel]) => {
+	characterStore();
 	if (userLevel === 1) {
-		assets(rpc, s, tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
-		assets(rpc, s, tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
-		characters(rpc, s, tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
-		mapList(rpc, s, tabs.add(lang["TAB_MAPS"], spinner("maps")));
-		layerList(s, tabs.add(lang["TAB_LAYERS"], div()));
-		tools(rpc, s, tabs.add(lang["TAB_TOOLS"], div()));
-		settings(rpc, s, tabs.add(lang["TAB_SETTINGS"], div(), false), true);
-		loadMap(rpc, s, base.appendChild(div()));
+		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
+		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
+		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
+		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps")));
+		layerList(tabs.add(lang["TAB_LAYERS"], div()));
+		tools(tabs.add(lang["TAB_TOOLS"], div()));
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), true);
+		loadMap(base.appendChild(div()));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
 	} else {
-		settings(rpc, s, tabs.add(lang["TAB_SETTINGS"], div()), false);
-		loadUserMap(rpc, base.appendChild(div({"style": "height: 100%"})));
+		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
+		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);

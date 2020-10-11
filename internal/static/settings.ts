@@ -1,10 +1,9 @@
 import {HTTPRequest} from './lib/conn.js';
 import {createHTML, button, br, h1, input, label, select, option} from './lib/html.js';
-import {RPC} from './types.js';
-import {ShellElement} from './windows.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
+import {requestShell} from './misc.js';
 
 export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
@@ -12,7 +11,7 @@ scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
 invert = new BoolSetting("invert");
 
-export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, loggedIn: boolean) {
+export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
 		h1(lang["AUTH"]),
 		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, lang["LOGOUT"]) : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, lang["Login"]),
@@ -50,7 +49,7 @@ export default function (rpc: RPC, shell: ShellElement, base: HTMLElement, logge
 		label({"for": "menuHide"}, `${lang["HIDE_MENU"]}: `),
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),
-		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
+		button({"onclick": () => requestShell().confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
 			if (!v) {
 				return;
 			}

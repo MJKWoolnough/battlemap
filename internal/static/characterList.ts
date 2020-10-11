@@ -1,12 +1,12 @@
-import {Uint, RPC} from './types.js';
+import {Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterData} from './characters.js';
 import lang from './language.js';
-
-let rpc: RPC;
+import {requestShell} from './misc.js';
+import {rpc} from './rpc.js';
 
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -26,7 +26,7 @@ class Character extends DraggableItem {
 		return "character";
 	}
 	show() {
-		characterEdit(this.parent.root.shell, rpc, this.id, this.name, characterData.get(this.id)!, true);
+		characterEdit(this.id, this.name, characterData.get(this.id)!, true);
 	}
 }
 
@@ -42,16 +42,15 @@ class CharacterRoot extends Root {
 
 const characters = new Map<Uint, Character>();
 
-export default function (arpc: RPC, shell: ShellElement, base: Node) {
-	const rpcFuncs = arpc["characters"];
-	rpc = arpc;
+export default function (base: Node) {
+	const rpcFuncs = rpc["characters"];
 	rpcFuncs.list().then(folderList => {
-		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, shell, Character);
+		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character);
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
 				const name = autoFocus(input({"id": "characterName"})),
-				      w = shell.appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
+				      w = requestShell().appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 					h1(lang["CHARACTER_NEW"]),
 					label({"for": "characterName"}, `${lang["CHARACTER_NAME"]}: `),
 					name,

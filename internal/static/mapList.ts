@@ -1,13 +1,14 @@
-import {Uint, RPC} from './types.js';
+import {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, span} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
-import {mapLoadSend, enterKey, hex2Colour} from './misc.js';
+import {mapLoadSend, enterKey, hex2Colour, requestShell} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
 import {IntSetting} from './settings_types.js';
 import lang from './language.js';
+import {rpc} from './rpc.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -31,7 +32,7 @@ const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass
 	])
       ])),
       selectedMap = new IntSetting("selectedMap")
-let rpc: RPC, shell: ShellElement, selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
+let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends Item {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -52,14 +53,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
+			return autoFocus(requestShell().appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
+			return autoFocus(requestShell().appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
 		} else {
 			return super.remove();
 		}
@@ -73,14 +74,14 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
+			return requestShell().appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
+			return requestShell().appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
 		} else {
 			return super.remove(e);
 		}
@@ -125,15 +126,13 @@ class MapRoot extends Root {
 	}
 }
 
-export default function(arpc: RPC, ashell: ShellElement, base: Node) {
-	rpc = arpc;
-	shell = ashell;
-	const rpcFuncs = arpc["maps"];
+export default function(base: Node) {
+	const rpcFuncs = rpc["maps"];
 	Promise.all([
 		rpcFuncs.list(),
 		rpc.getUserMap()
 	]).then(([folderList, userMap]) => {
-		const root = new MapRoot(folderList, "Maps", rpcFuncs, shell, MapItem, MapFolder),
+		const root = new MapRoot(folderList, "Maps", rpcFuncs, MapItem, MapFolder),
 		      findMap = (folder: Folder, id: Uint): MapItem | undefined => {
 			const m = folder.items.find(i => i.id === id);
 			if (m) {
@@ -176,7 +175,7 @@ export default function(arpc: RPC, ashell: ShellElement, base: Node) {
 				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
-				      window = shell.appendChild(windows({"window-title": lang["MAP_NEW"]}));
+				      window = requestShell().appendChild(windows({"window-title": lang["MAP_NEW"]}));
 				return createHTML(window, {"class": "mapAdd"}, [
 					h1(lang["MAP_NEW"]),
 					label({"for": "mapName"},  `${lang["MAP_NAME"]}: `),

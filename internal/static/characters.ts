@@ -1,13 +1,14 @@
-import {Uint, KeystoreData, RPC} from './types.js';
+import {Uint, KeystoreData} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
-import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
-import {mapLoadedReceive} from './misc.js';
+import {WindowElement, loadingWindow, windows} from './windows.js';
+import {mapLoadedReceive, requestShell} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';
+import {rpc} from './rpc.js';
 
 let n = 0,
     lastMapChanged = 0;
@@ -49,7 +50,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 	}}, lang["TOKEN_USE_SELECTED"]),
 	d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 ]),
-characterSelector = (shell: ShellElement, rpc: RPC, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer && e.dataTransfer.getData("character")) {
 			e.preventDefault();
 			e.dataTransfer.dropEffect = "link";
@@ -58,9 +59,9 @@ characterSelector = (shell: ShellElement, rpc: RPC, d: Record<string, KeystoreDa
 		const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
 		      charData = characterData.get(tokenData.id)!;
 		changes["store-character-id"] = {"user": false, "data": tokenData.id};
-		clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, tokenData.id, lang["CHARACTED_EDIT"], charData, true)}));
+		clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTED_EDIT"], charData, true)}));
 		}
-	}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(shell, rpc, d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
+	}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer && e.dataTransfer.getData("imageAsset")){
 			e.preventDefault();
@@ -71,7 +72,7 @@ iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, Keystor
 		changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
 		clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
-edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
+edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
 	n++;
 	let row = 0;
 	const mapChanged = lastMapChanged,
@@ -107,7 +108,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      save = (): Promise<void> => {
 		if (lastMapChanged !== mapChanged && !character) {
 			w.remove();
-			shell.alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
+			requestShell().alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
 			throw new Error("map changed");
 		}
 		const rms = Array.from(removes.values()).filter(k => {
@@ -130,7 +131,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 		}), w);
 	      },
 	      w = windows();
-	shell.appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	requestShell().appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
@@ -149,7 +150,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 			tokenSelector(w, d, changes, removes)
 		] : [
 			label(lang["CHARACTER"]),
-			characterSelector(shell, rpc, d, changes)
+			characterSelector(d, changes)
 		],
 		br(),
 		inputs,
@@ -174,7 +175,7 @@ edit = function (shell: ShellElement, rpc: RPC, id: Uint, name: string, d: Recor
 	      ])));
 }
 
-export default function (rpc: RPC) {
+export default function () {
 	rpc.waitCharacterDataChange().then(d => {
 		const char = characterData.get(d.id);
 		if (char) {

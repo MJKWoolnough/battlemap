@@ -1,14 +1,15 @@
-import {RPC, LayerRPC} from './types.js';
+import {LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {SVGToken, globals, updateLight} from './map.js';
 import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
+import {rpc} from './rpc.js';
 
 let ml: LayerRPC;
 mapLayersReceive(l => ml = l);
 
-const startDrag = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+const startDrag = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;

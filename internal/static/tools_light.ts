@@ -1,4 +1,4 @@
-import {Colour, Int, Uint, RPC, LayerRPC, Wall} from './types.js';
+import {Colour, Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
@@ -7,6 +7,7 @@ import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, requestShe
 import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
+import {rpc} from './rpc.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
@@ -69,7 +70,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		}});
 	}
       },
-      mouseDown = function(this: SVGElement, e: MouseEvent, rpc: RPC) {
+      mouseDown = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	if (e.button !== 0) {
 		return;
@@ -237,7 +238,7 @@ addTool({
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
 	"mapMouseWheel": defaultMouseWheel,
-	"set": (rpc: RPC) => {
+	"set": () => {
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,
 			rpc.waitWallRemoved,

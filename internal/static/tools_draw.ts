@@ -1,4 +1,4 @@
-import {Colour, Coords, RPC, Uint} from './types.js';
+import {Colour, Coords, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
 import {autosnap} from './settings.js';
@@ -6,11 +6,12 @@ import {defaultMouseWheel} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
 import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
+import {rpc} from './rpc.js';
 
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
     contextOverride: null | Function = null;
-const draw = (root: SVGElement, e: MouseEvent, rpc: RPC) => {
+const draw = (root: SVGElement, e: MouseEvent) => {
 	e.stopPropagation();
 	if (clickOverride) {
 		clickOverride(e);
@@ -212,16 +213,16 @@ addTool({
 		label({"for": "fillColour"}, "Fill Colour: "),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Fill Colour", () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent, rpc: RPC) {
-		draw(this, e, rpc);
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+		draw(this, e);
 	},
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 	},
 	"mapMouseContext": oncontext,
-	"tokenMouseDown": (e: MouseEvent, rpc: RPC) => {
+	"tokenMouseDown": (e: MouseEvent) => {
 		if (e.button === 0) {
-			draw(globals.root, e, rpc);
+			draw(globals.root, e);
 		}
 	},
 	"tokenMouseOver": () => showMarker(globals.root),

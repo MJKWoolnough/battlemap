@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, RPC, MapData, Coords, Wall} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
@@ -9,6 +9,7 @@ import {scrollAmount} from './settings.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import Undo from './undo.js';
+import {rpc} from './rpc.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -420,7 +421,7 @@ updateLight = () => {
 		})),
 	]);
 },
-mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
+mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
 	const layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
@@ -633,11 +634,11 @@ mapView = (rpc: RPC, oldBase: HTMLElement, mapData: MapData, loadChars = false):
 	];
 };
 
-export default function(rpc: RPC, base: HTMLElement) {
+export default function(base: HTMLElement) {
 	let canceller = () => {}
 	globals.outline = g();
 	rpc.waitCurrentUserMapData().then(mapData => {
-		const [newBase, cancel] = mapView(rpc, base, mapData, true);
+		const [newBase, cancel] = mapView(base, mapData, true);
 		canceller();
 		base = newBase;
 		canceller = cancel;

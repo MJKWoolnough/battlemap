@@ -4,12 +4,12 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
-import {mapLayersReceive, enterKey, colour2Hex, hex2Colour, colourPicker} from './misc.js';
+import {mapLayersReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
 
-let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement, sh: ShellElement;
+let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
@@ -38,9 +38,8 @@ const dragFn = (e: MouseEvent) => {
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
-	      shell = root.shell,
 	      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": self.name, "onkeypress": enterKey})),
-	      window = shell.appendChild(windows({"window-title": "Move Item"}));
+	      window = requestShell().appendChild(windows({"window-title": "Move Item"}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1("Rename Layer"),
 		label({"for": "renameLayer"}, "Name: "),
@@ -87,7 +86,7 @@ const dragFn = (e: MouseEvent) => {
 		}
 		newPath = (l.parent as FolderLayer).getPath();
 	}
-	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), sh);
+	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), requestShell());
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging || e.button !== 0) {
@@ -146,7 +145,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
-			      window = sh.appendChild(windows({"window-title": "Edit Map", "class": "mapAdd"}, [
+			      window = requestShell().appendChild(windows({"window-title": "Edit Map", "class": "mapAdd"}, [
 				h1("Edit Map"),
 				label({"for": "mapWidth"}, "Width in Squares: "),
 				width,
@@ -178,7 +177,7 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), sh));
+			colourPicker(requestShell(), "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), requestShell()));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
@@ -243,8 +242,8 @@ class FolderLayer extends Folder {
 }
 
 class LayerRoot extends Root {
-	constructor(layers: FolderItems, rpc: LayerRPC, shell: ShellElement) {
-		super(layers, "Layer", rpc, shell, ItemLayer, FolderLayer);
+	constructor(layers: FolderItems, rpc: LayerRPC) {
+		super(layers, "Layer", rpc, ItemLayer, FolderLayer);
 	}
 	getLayer(path: string) {
 		const [folder, sub] = this.resolvePath(path);
@@ -258,15 +257,14 @@ class LayerRoot extends Root {
 	}
 }
 
-export default function(shell: ShellElement, base: HTMLElement) {
+export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
-	sh = shell;
 	let canceller = () => {};
 	mapLayersReceive(rpc => rpc.list().then(layers => {
 		canceller();
 		selectedLayer = undefined;
-		const list = new LayerRoot(layers, rpc, shell);
+		const list = new LayerRoot(layers, rpc);
 		canceller = Subscription.canceller(
 			list,
 			rpc.waitLayerSetVisible().then(path => {
@@ -299,7 +297,7 @@ export default function(shell: ShellElement, base: HTMLElement) {
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
 				const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
-				      window = shell.appendChild(windows({"window-title": "Add Layer"}));
+				      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1("Add Layer"),
 					label({"for": "layerName"}, "Layer Name"),

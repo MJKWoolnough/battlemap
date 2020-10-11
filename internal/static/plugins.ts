@@ -1,4 +1,4 @@
-import {Uint, KeystoreData, RPC, Plugin} from './types.js';
+import {Uint, KeystoreData, Plugin} from './types.js';
 import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
@@ -6,6 +6,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {handleError, requestShell} from './misc.js';
 import lang from './language.js';
 import {WindowElement} from './windows.js';
+import {rpc} from './rpc.js';
 
 type owp<T extends Function = () => void> = {
 	priority: Uint;
@@ -95,11 +96,9 @@ export const settings = () => {
 	return ret;
        };
 
-export let userLevel: Uint,
-       rpc: RPC;
+export let userLevel: Uint;
 
-export default function(arpc: RPC) {
-	rpc = arpc;
+export default function() {
 	rpc.waitPluginChange().then(askReload);
 	return rpc.waitLogin().then(u => {
 		userLevel = u;

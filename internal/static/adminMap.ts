@@ -1,19 +1,20 @@
-import {Colour, FromTo, IDName, Int, Uint, RPC, MapDetails, LayerFolder, LayerMove} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
-import {ShellElement, windows} from './windows.js';
+import {windows} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, noColour, handleError, screen2Grid} from './misc.js';
+import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, noColour, handleError, screen2Grid, requestShell} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext} from './plugins.js';
+import {rpc} from './rpc.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -56,13 +57,13 @@ export const getToken = () => {
 	return undefined;
 };
 
-export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
+export default function(oldBase: HTMLElement) {
 	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel] = mapView(rpc, oldBase, mapData),
+		const [base, cancel] = mapView(oldBase, mapData),
 		      {root, definitions, layerList} = globals,
 		      undo = new Undo(),
 		      tokenDrag = (e: MouseEvent) => {
@@ -431,7 +432,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 			place(base, [e.clientX, e.clientY], [
 				tokenContext(),
 				isTokenImage(currToken) ? [
-					item("Edit Token Data", () => currToken instanceof SVGToken && tokenEdit(shell, rpc, currToken.id, "Edit Token", currToken.tokenData, false)),
+					item("Edit Token Data", () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
 					item("Flip", () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
@@ -545,7 +546,7 @@ export default function(rpc: RPC, shell: ShellElement, oldBase: HTMLElement) {
 				item("Set Lighting", () => {
 					let c = currToken.lightColour;
 					const t = Date.now(),
-					      w = shell.appendChild(windows({"window-title": "Set Token Lighting"})),
+					      w = requestShell().appendChild(windows({"window-title": "Set Token Lighting"})),
 					      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 					w.appendChild(createHTML(null, [
 						h1("Set Token Lighting"),

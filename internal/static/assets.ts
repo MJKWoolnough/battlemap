@@ -1,10 +1,12 @@
-import {IDName, Uint, RPC} from './types.js';
+import {IDName, Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
-import {ShellElement, loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
+import {requestShell} from './misc.js';
+import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -16,7 +18,7 @@ class ImageAsset extends DraggableItem {
 	}
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			img({"src": `/images/${this.id}`})
 		]))));
@@ -26,17 +28,17 @@ class ImageAsset extends DraggableItem {
 class AudioAsset extends Item {
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(root.shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			audio({"src": `/audio/${this.id}`, "controls": "controls"})
 		]))));
 	}
 }
 
-export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "IMAGES" | "AUDIO") {
+export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, lang[`TAB_${fileType}`], rpcFuncs, shell, fileType === "IMAGES" ? ImageAsset : AudioAsset);
+		const root = new Root(folderList, lang[`TAB_${fileType}`], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[`UPLOAD_${fileType}`], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
@@ -64,7 +66,7 @@ export default function (rpc: RPC, shell: ShellElement, base: Node, fileType: "I
 						this.toggleAttribute("disabled", true);
 					}}))
 				      ]),
-				      window = shell.appendChild(windows({"window-title": lang[`UPLOAD_${fileType}`], "class": "assetAdd"}, [h1(lang[`UPLOAD_${fileType}`]), f]));
+				      window = requestShell().appendChild(windows({"window-title": lang[`UPLOAD_${fileType}`], "class": "assetAdd"}, [h1(lang[`UPLOAD_${fileType}`]), f]));
 			}}),
 			root.node
 		]);
