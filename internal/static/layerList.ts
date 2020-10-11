@@ -180,10 +180,7 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => {
-				loadingWindow(rpcFuncs.setLightColour(c), sh)
-				.catch(handleError)
-			});
+			colourPicker(sh, "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), sh).catch(handleError));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
