@@ -1,6 +1,7 @@
 import {RPC as RPCType, InternalWaits} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
+import {handleError} from './misc.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastImageItemAdd = -6, broadcastAudioItemAdd = -7, broadcastCharacterItemAdd = -8, broadcastMapItemAdd = -9, broadcastImageItemMove = -10, broadcastAudioItemMove = -11, broadcastCharacterItemMove = -12, broadcastMapItemMove = -13, broadcastImageItemRemove = -14, broadcastAudioItemRemove = -15, broadcastCharacterItemRemove = -16, broadcastMapItemRemove = -17, broadcastImageItemLink = -18, broadcastAudioItemLink = -19, broadcastCharacterItemLink = -20, broadcastMapItemLink = -21, broadcastImageFolderAdd = -22, broadcastAudioFolderAdd = -23, broadcastCharacterFolderAdd = -24, broadcastMapFolderAdd = -25, broadcastImageFolderMove = -26, broadcastAudioFolderMove = -27, broadcastCharacterFolderMove = -28, broadcastMapFolderMove = -29, broadcastImageFolderRemove = -30, broadcastAudioFolderRemove = -31, broadcastCharacterFolderRemove = -32, broadcastMapFolderRemove = -33, broadcastMapItemChange = -34, broadcastCharacterDataChange = -35, broadcastTokenDataChange = -36, broadcastCharacterDataRemove = -37, broadcastTokenDataRemove = -38, broadcastLayerAdd = -39, broadcastLayerFolderAdd = -40, broadcastLayerMove = -41, broadcastLayerRename = -42, broadcastLayerRemove = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerMaskAdd = -47, broadcastLayerMaskChange = -48, broadcastLayerMaskRemove = -49, broadcastTokenAdd = -50, broadcastTokenRemove = -51, broadcastTokenMoveLayer = -52, broadcastTokenMovePos = -53, broadcastTokenSetImage = -54, broadcastTokenSetPattern = -55, broadcastTokenChange = -56, broadcastTokenFlip = -57, broadcastTokenFlop = -58, broadcastTokenSnap = -59, broadcastTokenSourceChange = -60, broadcastTokenSetData = -61, broadcastTokenUnsetData = -62, broadcastLayerShift = -63, broadcastLightShift = -64, broadcastTokenLightChange = -65, broadcastWallAdd = -66, broadcastWallRemove = -67, broadcastPluginChange = -68, broadcastAny = -69;
 
@@ -211,7 +212,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
 				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
 				if (internalWaiter === "") {
-					rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker)}
+					rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
 				} else {
 					let fn: Function;
 					ik[name] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
@@ -219,11 +220,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
 							fn(a);
-							return arpc.request(endpoint, a).then(checker)
+							return arpc.request(endpoint, a).then(checker).catch(handleError);
 						}
 					} else if (postKey === "*") {
 						rk[name] = function() {
-							return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).then(data => {
+							return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError).then(data => {
 								fn(data);
 								return data;
 							});
@@ -231,7 +232,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 					} else {
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
-							return arpc.request(endpoint, a).then(checker).then(data => {
+							return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
 								fn(Object.assign(a, {[postKey]: data}));
 								return data;
 							});
