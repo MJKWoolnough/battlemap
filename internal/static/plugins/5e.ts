@@ -1,4 +1,4 @@
-import {KeystoreData, Uint} from '../types.js';
+import {KeystoreData, Uint, Int} from '../types.js';
 import {br, button, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -28,7 +28,11 @@ const langs: Record<string, Record<string, string>> = {
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
-      userVisibility = getSymbol("userVisibility")!;
+      userVisibility = getSymbol("userVisibility")!,
+      checkInt = (s: string, min: Int, max: Int, def: Int) => {
+	const n = parseInt(s);
+	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
+      };
 
 addPlugin("5e", {
 	"characterEdit": {
@@ -62,22 +66,22 @@ addPlugin("5e", {
 				br(),
 				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
 				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
-					changes["5e-initiative-mod"] = {"user": false, "data": parseInt(this.value)};
+					changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
 				}}),
 				br(),
 				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-ac"] = {"user": false, "data": parseInt(this.value)};
+					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 10)};
 				}}),
 				br(),
 				label({"for": `edit_5e_current_${n}`}, `${lang["HIT_POINTS_CURRENT"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-current"] = {"user": false, "data": parseInt(this.value)};
+					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
 				}}),
 				br(),
 				label({"for": `edit_5e_hp_${n}`}, `${lang["HIT_POINTS_MAX"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-max"] = {"user": false, "data": parseInt(this.value)};
+					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
 				}}),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
