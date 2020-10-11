@@ -3,7 +3,7 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {ShellElement, WindowElement, loadingWindow, windows} from './windows.js';
-import {handleError, mapLoadedReceive} from './misc.js';
+import {mapLoadedReceive} from './misc.js';
 import {getToken} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
