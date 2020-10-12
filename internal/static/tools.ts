@@ -3,6 +3,7 @@ import {div, h2, ul, li, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
+import defaultTool from './tools_default.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent) => void;
@@ -24,7 +25,7 @@ type Tool = {
 	mapMouseOver?: MouseFn;
 };
 
-const tools: Tool[] = [];
+const tools: Tool[] = [defaultTool];
 
 export const addTool = (t: Tool) => tools.push(t);
 
@@ -80,7 +81,7 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 };
 
 export default function (base: HTMLElement) {
-	tools.sort((a, b) => a.name === "Default" ? -1 : b.name === "Default" ? 1 : stringSort(a.name, b.name));
+	tools.sort((a, b) => Object.is(a, defaultTool) ? -1 : Object.is(b, defaultTool) ? 1 : stringSort(a.name, b.name));
 	const options = div(),
 	      toolOptions = div([h2("Options"), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
