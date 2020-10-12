@@ -15,6 +15,7 @@ import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, noColour
 import {panZoom} from './tools_default.js';
 import {tokenContext} from './plugins.js';
 import {rpc} from './rpc.js';
+import lang from './language.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
@@ -432,8 +433,8 @@ export default function(oldBase: HTMLElement) {
 			place(base, [e.clientX, e.clientY], [
 				tokenContext(),
 				isTokenImage(currToken) ? [
-					item("Edit Token Data", () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
-					item("Flip", () => {
+					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
+					item(lang["CONTEXT_FLIP"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
@@ -452,7 +453,7 @@ export default function(oldBase: HTMLElement) {
 						undo.add(doIt);
 						outline.focus();
 					}),
-					item("Flop", () => {
+					item(lang["CONTEXT_FLOP"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
@@ -471,7 +472,7 @@ export default function(oldBase: HTMLElement) {
 						undo.add(doIt);
 						outline.focus();
 					}),
-					item(`Set as ${currToken.isPattern ? "Image" : "Pattern"}`, () => {
+					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
@@ -488,7 +489,7 @@ export default function(oldBase: HTMLElement) {
 						undo.add(doIt);
 					}),
 				] : [],
-				item(currToken.snap ? "Unsnap" : "Snap", () => {
+				item(currToken.snap ? lang["CONTEXT_LANG_UNSNAP"] : lang["CONTEXT_LANG_SNAP"], () => {
 					const snap = currToken.snap,
 					      sq = mapData.gridSize,
 					      {x, y, width, height, rotation} = currToken;
@@ -543,17 +544,17 @@ export default function(oldBase: HTMLElement) {
 					      };
 					undo.add(doIt);
 				}),
-				item("Set Lighting", () => {
+				item(lang["CONTEXT_SET_LIGHTING"], () => {
 					let c = currToken.lightColour;
 					const t = Date.now(),
-					      w = requestShell().appendChild(windows({"window-title": "Set Token Lighting"})),
+					      w = requestShell().appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
 					      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 					w.appendChild(createHTML(null, [
-						h1("Set Token Lighting"),
-						label({"for": `tokenLighting_${t}`}, "Light Colour: "),
+						h1(lang["CONTEXT_SET_LIGHTING"]),
+						label({"for": `tokenLighting_${t}`}, `${lang["LIGHTING_COLOUR"]}: `),
 						makeColourPicker(w, "Pick Token Lighting Colour", () => c, d => c = d, `tokenLighting_${t}`),
 						br(),
-						label({"for": `tokenIntensity_${t}`}, "Light Intensity (distance): "),
+						label({"for": `tokenIntensity_${t}`}, `${lang["LIGHTING_INTENSITY"]}: `),
 						i,
 						br(),
 						button({"onclick": () => {
@@ -575,11 +576,11 @@ export default function(oldBase: HTMLElement) {
 								}
 							}
 							w.close();
-						}}, "Save")
+						}}, lang["SAVE"])
 					]));
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
-					item(`Move to Top`, () => {
+					item(lang["CONTEXT_MOVE_TOP"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
@@ -596,7 +597,7 @@ export default function(oldBase: HTMLElement) {
 						      };
 						undo.add(doIt);
 					}),
-					item(`Move Up`, () => {
+					item(lang["CONTEXT_MOVE_UP"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
@@ -617,7 +618,7 @@ export default function(oldBase: HTMLElement) {
 					})
 				] : [],
 				tokenPos > 0 ? [
-					item(`Move Down`, () => {
+					item(lang["CONTEXT_MOVE_DOWN"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
@@ -636,7 +637,7 @@ export default function(oldBase: HTMLElement) {
 							undo.add(doIt);
 						}
 					}),
-					item(`Move to Bottom`, () => {
+					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
@@ -654,7 +655,7 @@ export default function(oldBase: HTMLElement) {
 						undo.add(doIt);
 					})
 				] : [],
-				menu("Move To Layer", makeLayerContext(layerList, (sl: SVGLayer) => {
+				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
 					if (!globals.tokens[currToken.id]) {
 						return;
 					}
@@ -679,7 +680,7 @@ export default function(oldBase: HTMLElement) {
 					      };
 					undo.add(doIt);
 				}, currLayer.name)),
-				item("Delete", deleteToken)
+				item(lang["CONTEXT_DELETE"], deleteToken)
 			]);
 		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseDown.call(this, e);
