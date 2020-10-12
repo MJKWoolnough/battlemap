@@ -56,13 +56,13 @@ addPlugin("5e", {
 				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
 				br(),
 				isCharacter ? [
-					label(lang["CHARACTER_IMAGE"]),
+					label(mainLang["CHARACTER_IMAGE"]),
 					iconSelector(data, changes),
 					br(),
-					label(`${lang["TOKEN"]}: `),
+					label(`${mainLang["TOKEN"]}: `),
 					tokenSelector(windows(), data, changes, removes)
 				] : [
-					label(lang["CHARACTER"]),
+					label(mainLang["CHARACTER"]),
 					characterSelector(data, changes)
 				],
 				br(),
