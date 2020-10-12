@@ -8,6 +8,7 @@ import {mapLayersReceive, enterKey, colour2Hex, hex2Colour, colourPicker, reques
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
+import lang from './language.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
@@ -39,13 +40,13 @@ const dragFn = (e: MouseEvent) => {
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
 	      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": self.name, "onkeypress": enterKey})),
-	      window = requestShell().appendChild(windows({"window-title": "Move Item"}));
+	      window = requestShell().appendChild(windows({"window-title": lang["LAYER_RENAME"]}));
 	return createHTML(window, {"class": "renameItem"}, [
-		h1("Rename Layer"),
-		label({"for": "renameLayer"}, "Name: "),
+		h1(lang["LAYER_RENAME"]),
+		label({"for": "renameLayer"}, `${lang["LAYER_NAME"]}: `),
 		newName,
 		br(),
-		button("Rename", {"onclick": function(this: HTMLButtonElement) {
+		button(lang["LAYER_RENAME"], {"onclick": function(this: HTMLButtonElement) {
 			this.toggleAttribute("disabled", true);
 			loadingWindow((root.rpcFuncs as LayerRPC).renameLayer(self.getPath(), newName.value), window).then(name => {
 				self.name = name;
@@ -145,24 +146,24 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
-			      window = requestShell().appendChild(windows({"window-title": "Edit Map", "class": "mapAdd"}, [
-				h1("Edit Map"),
-				label({"for": "mapWidth"}, "Width in Squares: "),
+			      window = requestShell().appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+				h1(lang["MAP_EDIT"]),
+				label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
 				width,
 				br(),
-				label({"for": "mapHeight"}, "Height in Squares: "),
+				label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
 				height,
 				br(),
-				label({"for": "mapSquareWidth"}, "Square Size: "),
+				label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
 				sqWidth,
 				br(),
-				label({"for": "mapSquareColour"}, "Square Line Colour: "),
+				label({"for": "mapSquareColour"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
 				sqColour,
 				br(),
-				label({"for": "mapSquareLineWidth"}, "Square Line Width: "),
+				label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_LINE"]}: `),
 				sqLineWidth,
 				br(),
-				button("Apply", {"onclick": function(this: HTMLButtonElement) {
+				button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
 					const sq = parseInt(sqWidth.value);
 					loadingWindow(rpcFuncs.setMapDetails({
@@ -177,7 +178,7 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(requestShell(), "Change Light Colour", rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), requestShell()));
+			colourPicker(requestShell(), lang["LAYER_LIGHT_COLOUR"], rpcFuncs.getLightColour()).then(c => loadingWindow(rpcFuncs.setLightColour(c), requestShell()));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
