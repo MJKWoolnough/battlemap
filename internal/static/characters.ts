@@ -13,8 +13,6 @@ import {rpc} from './rpc.js';
 let n = 0,
     lastMapChanged = 0;
 
-mapLoadedReceive(() => lastMapChanged = Date.now());
-
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
 	case "store-character-id":
@@ -185,4 +183,6 @@ export default function () {
 			}
 		}
 	});
+	mapLoadedReceive(() => lastMapChanged = Date.now());
+
 };
