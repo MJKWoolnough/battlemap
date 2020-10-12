@@ -76,12 +76,12 @@ addPlugin("5e", {
 					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 10)};
 				}}),
 				br(),
-				label({"for": `edit_5e_current_${n}`}, `${lang["HIT_POINTS_CURRENT"]}: `),
+				label({"for": `edit_5e_current_${n}`}, `${lang["HP_CURRENT"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
 				}}),
 				br(),
-				label({"for": `edit_5e_hp_${n}`}, `${lang["HIT_POINTS_MAX"]}: `),
+				label({"for": `edit_5e_hp_${n}`}, `${lang["HP_MAX"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
 				}}),
