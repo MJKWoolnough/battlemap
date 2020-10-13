@@ -3,7 +3,7 @@ import {br, button, input, label, li, ul} from '../lib/html.js';
 import {SortNode} from '../lib/ordered.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
-import {globals, SVGToken, walkFolders, isSVGLayer} from '../map.js';
+import {globals, SVGToken, walkFolders, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
@@ -12,7 +12,8 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {getSymbol} from '../symbols.js';
 
 type Initiative = {
-	token: SVGToken;
+	token: SVGToken | null;
+	hidden: boolean;
 	node: HTMLLIElement;
 }
 
@@ -51,24 +52,30 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => {
 	return true;
       },
+      walkLayers = (fn: (e: SVGLayer, isHidden: boolean) => void, folder: SVGFolder = globals.layerList, isHidden = false) => {
+	for (const l of (folder.children as (SVGFolder | SVGLayer)[])) {
+		if (isSVGLayer(l)) {
+			fn(l, isHidden || l.hidden);
+		} else {
+			walkLayers(fn, l, isHidden || l.hidden);
+		}
+	}
+      },
       createWindow = (isAdmin: boolean) => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
-	      tokens = new Map<Uint, SVGToken>();
+	      tokens = new Map<Uint, [boolean, SVGToken]>();
 	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["windowOpen"] && !isAdmin)) {
 		return;
 	}
-	walkFolders(globals.layerList, e => {
-		if (isSVGLayer(e)) {
-			for (const t of e.tokens) {
-				if (t instanceof SVGToken) {
-					const {tokenData: {"5e-initiative-id": initID}} = t;
-					if (initID && typeof initID["data"] === "number") {
-						tokens.set(initID["data"], t);
-					}
+	walkLayers((e, isHidden) => {
+		for (const t of e.tokens) {
+			if (t instanceof SVGToken) {
+				const {tokenData: {"5e-initiative-id": initID}} = t;
+				if (initID && typeof initID["data"] === "number") {
+					tokens.set(initID["data"], [isHidden, t]);
 				}
 			}
 		}
-		return false;
 	});
 	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul());
 	for (const i in initiative["data"]["list"]) {
