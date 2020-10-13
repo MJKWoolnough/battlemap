@@ -72,7 +72,7 @@ const langs: Record<string, Record<string, string>> = {
 	for (const i in initiative["data"]["list"]) {
 		
 	}
-	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true}, [
+	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
 		initiativeList.node
 	]);
       };
