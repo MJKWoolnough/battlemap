@@ -173,7 +173,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	}
 	lastWall = null;
 	clearElement(wallLayer);
-	walls.splice(0, walls.length)
+	walls.splice(0, walls.length);
 	walkLayers((layer: SVGLayer, hidden: boolean) => {
 		if (hidden) {
 			return;
