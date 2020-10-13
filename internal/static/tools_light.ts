@@ -4,7 +4,7 @@ import {clearElement} from './lib/dom.js';
 import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
 import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
-import {normaliseWall, updateLight, globals, SVGLayer, walkVisibleLayers} from './map.js';
+import {normaliseWall, updateLight, globals, SVGLayer, walkLayers} from './map.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {rpc} from './rpc.js';
@@ -174,14 +174,16 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 	lastWall = null;
 	clearElement(wallLayer);
 	walls.splice(0, walls.length)
-	walkVisibleLayers(globals.layerList, (layer: SVGLayer) => {
+	walkLayers((layer: SVGLayer, hidden: boolean) => {
+		if (hidden) {
+			return;
+		}
 		layer.walls.forEach((wall, pos) => walls.push({
 		      wall,
 		      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layer.path))),
 		      layer,
 		      pos
 		}));
-		return [];
 	});
       }
 
