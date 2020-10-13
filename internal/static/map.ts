@@ -305,18 +305,14 @@ const splitAfterLastSlash = (path: string) => {
       };
 
 export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-walkVisibleLayers = <T = any>(folder: SVGFolder, fn: (e: SVGLayer) => T[]) => {
-	const rets: T[] = [];
-	if (!folder.hidden) {
-		(folder.children as SortNode<SVGFolder | SVGLayer>).forEach(e => {
-			if (isSVGFolder(e)) {
-				rets.push(...walkVisibleLayers(e, fn));
-			} else if (!e.hidden && e.walls !== undefined) {
-				rets.push(...fn(e));
-			}
-		});
+walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = globals.layerList, hidden = false) => {
+	for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
+		if (isSVGLayer(e)) {
+			fn(e, hidden || e.hidden);
+		} else {
+			walkLayers(fn, e, hidden || e.hidden);
+		}
 	}
-	return rets;
 },
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
@@ -405,10 +401,10 @@ updateLight = () => {
 	const x = globals.mapData.lightX,
 	      y = globals.mapData.lightY,
 	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y)),
-	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`;
-	createSVG(clearElement(getLayer(globals.layerList, "/Light")!.node), [
-		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
-		walkVisibleLayers<SVGElement | []>(globals.layerList, (l: SVGLayer) => l.walls.map(w => {
+	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`,
+	      wallPolygons: SVGPolygonElement[] = [];
+	walkLayers((l: SVGLayer, hidden: boolean) => {
+		l.walls.forEach(w => {
 			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
 				return [];
 			}
@@ -417,8 +413,12 @@ updateLight = () => {
 				return [];
 			}
 			const dm = distance;
-			return polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`});
-		})),
+			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));
+		});
+	});
+	createSVG(clearElement(getLayer(globals.layerList, "/Light")!.node), [
+		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
+		wallPolygons
 	]);
 },
 mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
