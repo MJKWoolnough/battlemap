@@ -489,7 +489,7 @@ export default function(oldBase: HTMLElement) {
 						undo.add(doIt);
 					}),
 				] : [],
-				item(currToken.snap ? lang["CONTEXT_LANG_UNSNAP"] : lang["CONTEXT_LANG_SNAP"], () => {
+				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
 					const snap = currToken.snap,
 					      sq = mapData.gridSize,
 					      {x, y, width, height, rotation} = currToken;
