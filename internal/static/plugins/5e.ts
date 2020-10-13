@@ -1,8 +1,9 @@
 import {KeystoreData, Uint, Int} from '../types.js';
-import {br, button, input, label} from '../lib/html.js';
+import {br, button, input, label, li, ul} from '../lib/html.js';
+import {SortNode} from '../lib/ordered.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
-import {globals, SVGToken} from '../map.js';
+import {globals, SVGToken, walkFolders, isSVGLayer} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
@@ -10,7 +11,19 @@ import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
 
-let iWindow: WindowElement | null = null,
+type Initiative = {
+	token: SVGToken;
+	node: HTMLLIElement;
+}
+
+type InitiativeData = {
+	windowOpen: boolean;
+	pos: Uint;
+	list: [Uint, Uint][];
+};
+
+let initiativeWindow: WindowElement | null = null,
+    initiativeList: SortNode<Initiative, HTMLUListElement> | null = null,
     lastMapChange = 0,
     n = 0;
 
@@ -34,6 +47,36 @@ const langs: Record<string, Record<string, string>> = {
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
+      },
+      isInitiativeData = (data: any): data is InitiativeData => {
+	return true;
+      },
+      createWindow = (isAdmin: boolean) => {
+	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
+	      tokens = new Map<Uint, SVGToken>();
+	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["windowOpen"] && !isAdmin)) {
+		return;
+	}
+	walkFolders(globals.layerList, e => {
+		if (isSVGLayer(e)) {
+			for (const t of e.tokens) {
+				if (t instanceof SVGToken) {
+					const {tokenData: {"5e-initiative-id": initID}} = t;
+					if (initID && typeof initID["data"] === "number") {
+						tokens.set(initID["data"], t);
+					}
+				}
+			}
+		}
+		return false;
+	});
+	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul());
+	for (const i in initiative["data"]["list"]) {
+		
+	}
+	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true}, [
+		initiativeList.node
+	]);
       };
 
 addPlugin("5e", {
@@ -128,14 +171,10 @@ addPlugin("5e", {
 
 mapLoadedReceive(isAdmin => {
 	lastMapChange = Date.now();
-	if (iWindow) {
-		iWindow.remove();
+	if (initiativeWindow) {
+		initiativeWindow.remove();
 	}
-	const {mapData: {data: {"5e-initiative": initiative}}} = globals;
-	if (!initiative || (!initiative["window-open"] && !isAdmin)) {
-		return;
-	}
-	requestShell().addWindow(iWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true}));
+	createWindow(isAdmin);
 });
 
 rpc.waitTokenDataChange().then(changed => {
