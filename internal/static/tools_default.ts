@@ -63,12 +63,16 @@ export default Object.freeze({
 			createSVG(this, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 			mX = e.clientX;
 			mY = e.clientY;
-		      };
-		this.addEventListener("mousemove", viewDrag);
-		this.addEventListener("mouseup", () => {
+		      },
+		      stop = () => {
 			this.style.removeProperty("--outline-cursor");
 			this.removeEventListener("mousemove", viewDrag);
-		}, {"once": true});
+			this.removeEventListener("mouseup", stop);
+			this,removeEventListener("mouseleave", stop);
+		      };
+		this.addEventListener("mousemove", viewDrag);
+		this.addEventListener("mouseup", stop);
+		this.addEventListener("mouseleave", stop)
 		e.preventDefault();
 	},
 	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
