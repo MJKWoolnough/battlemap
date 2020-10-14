@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int} from '../types.js';
 import {br, button, img, input, label, li, ul} from '../lib/html.js';
-import {polygon, symbol} from '../lib/svg.js';
+import {polygon, svg} from '../lib/svg.js';
 import {SortNode} from '../lib/ordered.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -10,7 +10,7 @@ import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
-import {addSymbol, getSymbol} from '../symbols.js';
+import {getSymbol} from '../symbols.js';
 
 type Initiative = {
 	token: SVGToken | null;
@@ -48,8 +48,8 @@ const langs: Record<string, Record<string, string>> = {
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
       userVisibility = getSymbol("userVisibility")!,
-      initAsc = addSymbol("5e-asc", symbol({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"}))),
-      initDesc = addSymbol("5e-desc", symbol({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"}))),
+      initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
+      initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
@@ -89,8 +89,8 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
 	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
-		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc()),
-		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc()),
+		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
+		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
 		initiativeList.node
 	]);
       };
