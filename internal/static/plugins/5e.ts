@@ -36,7 +36,9 @@ const langs: Record<string, Record<string, string>> = {
 		"HP_MAX": "Maximum Hit Points",
 		"INITIATIVE": "Initiative",
 		"INITIATIVE_ADD": "Add Initiative",
+		"INITIATIVE_ASC": "Sort Initiative Ascending",
 		"INITIATIVE_CHANGE": "Change Initiative",
+		"INITIATIVE_DESC": "Sort Initiative Descending",
 		"INITIATIVE_ENTER": "Enter initiative",
 		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
 		"INITIATIVE_MOD": "Initiative Mod",
@@ -87,6 +89,8 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
 	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
+		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc()),
+		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc()),
 		initiativeList.node
 	]);
       };
