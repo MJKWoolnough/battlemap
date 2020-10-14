@@ -2,6 +2,7 @@ import {SVGToken} from './map.js';
 import {createSVG, svg, g, path} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 import {globals} from './map.js';
+import lang from './language.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 zoom = (root: SVGElement, delta: number, x: number, y: number) => {
@@ -34,7 +35,7 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 };
 
 export default Object.freeze({
-	"name": "Default",
+	"name": lang["TOOL_DEFAULT"],
 	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})),
 	"reset": () => {
 		panZoom.x = 0;
