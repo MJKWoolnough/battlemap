@@ -55,7 +55,7 @@ const langs: Record<string, Record<string, string>> = {
       createWindow = (isAdmin: boolean) => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, SVGToken]>();
-	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["windowOpen"] && !isAdmin)) {
+	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["data"]["windowOpen"] && !isAdmin)) {
 		return;
 	}
 	walkLayers((e, isHidden) => {
