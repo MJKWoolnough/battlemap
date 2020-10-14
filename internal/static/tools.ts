@@ -3,6 +3,7 @@ import {div, h2, ul, li, span} from './lib/html.js';
 import {SVGToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
+import lang from './language.js';
 import defaultTool from './tools_default.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent) => void;
@@ -83,7 +84,7 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 export default function (base: HTMLElement) {
 	tools.sort((a, b) => Object.is(a, defaultTool) ? -1 : Object.is(b, defaultTool) ? 1 : stringSort(a.name, b.name));
 	const options = div(),
-	      toolOptions = div([h2("Options"), options]),
+	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool?.unset) {
 			selectedTool.unset();
