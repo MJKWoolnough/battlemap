@@ -1,5 +1,5 @@
 import {KeystoreData, Uint, Int} from '../types.js';
-import {br, button, img, input, label, li, ul} from '../lib/html.js';
+import {br, button, img, input, label, li, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
 import {SortNode} from '../lib/ordered.js';
 import {addPlugin} from '../plugins.js';
@@ -11,6 +11,13 @@ import {windows, WindowElement} from '../windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
+
+document.head.appendChild(style({"type": "text/css"}, `
+#initiative-list-5e {
+	list-style: none;
+	padding: 0;
+}
+`));
 
 type Initiative = {
 	token: SVGToken | null;
@@ -73,7 +80,7 @@ const langs: Record<string, Record<string, string>> = {
 			}
 		}
 	});
-	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul());
+	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"}));
 	for (const i of initiative["data"]["list"]) {
 		if (tokens.has(i[0])) {
 			const [hidden, token] = tokens.get(i[0])!;
