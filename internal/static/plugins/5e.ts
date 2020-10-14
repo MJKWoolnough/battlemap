@@ -69,8 +69,8 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	});
 	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul());
-	for (const i in initiative["data"]["list"]) {
-		
+	for (const i of initiative["data"]["list"]) {
+
 	}
 	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
 		initiativeList.node
