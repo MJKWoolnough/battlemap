@@ -1,5 +1,5 @@
 import {KeystoreData, Uint, Int} from '../types.js';
-import {br, button, input, label, li, ul} from '../lib/html.js';
+import {br, button, img, input, label, li, ul} from '../lib/html.js';
 import {SortNode} from '../lib/ordered.js';
 import {addPlugin} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -70,7 +70,18 @@ const langs: Record<string, Record<string, string>> = {
 	});
 	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul());
 	for (const i of initiative["data"]["list"]) {
-
+		if (tokens.has(i[0])) {
+			const [hidden, token] = tokens.get(i[0])!;
+			initiativeList.push({
+				token,
+				hidden,
+				node: li([
+					img({"src": `/images/${token.src}`}),
+					token.getData("name"),
+					i[1].toString()
+				])
+			});
+		}
 	}
 	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
 		initiativeList.node
