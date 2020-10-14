@@ -103,6 +103,7 @@ const defaultLanguage: Record<string, string> = {
 	"TOKEN_SELECT": "Select Token",
 	"TOKEN_NONE_SELECTED": "No token selected",
 	"TOKEN_USE_SELECTED": "Use currently selected token",
+	"TOOL_DEFAULT": "Default",
 	"TOOL_OPTIONS": "Options",
 	"UNDO_LIMIT": "Undo Limit (-1 for infinite, 0 to disable)",
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
