@@ -14,7 +14,7 @@ invert = new BoolSetting("invert");
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
 		h1(lang["AUTH"]),
-		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, lang["LOGOUT"]) : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, lang["Login"]),
+		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, lang["LOGOUT"]) : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, lang["LOGIN"]),
 		br(),
 		h1(lang["LANGUAGE"]),
 		label({"for": "language_select"}, `${lang["SELECT_LANGUAGE"]}: `),
