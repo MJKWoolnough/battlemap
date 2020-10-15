@@ -257,7 +257,7 @@ const splitAfterLastSlash = (path: string) => {
 	path += "/" + layer.name
 	const node = g();
 	if (layer.hidden) {
-		node.setAttribute("visibility", "hidden");
+		node.classList.add("hiddenLayer");
 	}
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
@@ -330,9 +330,9 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(globals.layerList, path)!;
 	if (visibility) {
-		layer.node.removeAttribute("visibility");
+		layer.node.classList.remove("hiddenLayer");
 	} else {
-		layer.node.setAttribute("visibility", "hidden");
+		layer.node.classList.add("hiddenLayer");
 	}
 	updateLight();
 },

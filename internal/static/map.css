@@ -88,3 +88,11 @@ g:not(#outline) {
 .cursor_0 rect:nth-child(6), .cursor_0 rect:nth-child(7), .cursor_1 rect:nth-child(5), .cursor_1 rect:nth-child(8), .cursor_2 rect:nth-child(4), .cursor_2 rect:nth-child(9), .cursor_3 rect:nth-child(3), .cursor_3 rect:nth-child(10) {
 	cursor: var(--outline-cursor, ew-resize);
 }
+
+.isAdmin .hiddenLayer {
+	opacity: 0.5;
+}
+
+.isUser .hiddenLayer {
+	display: none;
+}
