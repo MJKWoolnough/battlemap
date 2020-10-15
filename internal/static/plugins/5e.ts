@@ -31,9 +31,7 @@ type InitiativeData = {
 	list: [Uint, Uint][];
 };
 
-let initiativeWindow: WindowElement | null = null,
-    initiativeList: SortNode<Initiative, HTMLUListElement> | null = null,
-    lastMapChange = 0,
+let lastMapChange = 0,
     n = 0;
 
 const langs: Record<string, Record<string, string>> = {
@@ -64,6 +62,12 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => {
 	return true;
       },
+      initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
+		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
+		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
+		initiativeList.node
+      ]),
       createWindow = (isAdmin: boolean) => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, SVGToken]>();
@@ -80,7 +84,6 @@ const langs: Record<string, Record<string, string>> = {
 			}
 		}
 	});
-	initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"}));
 	for (const i of initiative["data"]["list"]) {
 		if (tokens.has(i[0])) {
 			const [hidden, token] = tokens.get(i[0])!;
@@ -95,15 +98,6 @@ const langs: Record<string, Record<string, string>> = {
 			});
 		}
 	}
-	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": function(this: WindowElement) {
-		this.toggleAttribute("hide-titlebar", false);
-	}, "onmouseleave": function(this: WindowElement) {
-		this.toggleAttribute("hide-titlebar", true);
-	}}, [
-		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
-		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
-		initiativeList.node
-	]);
       };
 
 addPlugin("5e", {
