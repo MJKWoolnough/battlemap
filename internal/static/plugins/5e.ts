@@ -70,10 +70,10 @@ const langs: Record<string, Record<string, string>> = {
 		] : [],
 		initiativeList.node
       ]),
-      createWindow = (isAdmin: boolean) => {
+      updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, SVGToken]>();
-	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["data"]["windowOpen"] && !isAdmin)) {
+	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["data"]["windowOpen"] && userLevel === 0)) {
 		return;
 	}
 	walkLayers((e, isHidden) => {
@@ -197,12 +197,12 @@ addPlugin("5e", {
 	}
 });
 
-mapLoadedReceive(isAdmin => {
+mapLoadedReceive(() => {
 	lastMapChange = Date.now();
 	if (initiativeWindow) {
 		initiativeWindow.remove();
 	}
-	createWindow(isAdmin);
+	updateInitiative();
 });
 
 rpc.waitTokenDataChange().then(changed => {
