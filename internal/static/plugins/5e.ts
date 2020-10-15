@@ -2,7 +2,7 @@ import {KeystoreData, Uint, Int} from '../types.js';
 import {br, button, img, input, label, li, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
 import {SortNode} from '../lib/ordered.js';
-import {addPlugin} from '../plugins.js';
+import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
@@ -64,8 +64,10 @@ const langs: Record<string, Record<string, string>> = {
       },
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
-		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
-		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
+		userLevel === 1 ? [
+			button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
+			button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
+		] : [],
 		initiativeList.node
       ]),
       createWindow = (isAdmin: boolean) => {
