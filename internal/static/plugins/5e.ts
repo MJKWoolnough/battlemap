@@ -93,7 +93,7 @@ const langs: Record<string, Record<string, string>> = {
 			initiativeList.push({
 				token,
 				hidden,
-				node: li([
+				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined}, [
 					img({"src": `/images/${token.src}`}),
 					token.getData("name"),
 					i[1].toString()
