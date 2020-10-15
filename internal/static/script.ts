@@ -178,6 +178,7 @@ if (invert.value) {
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit()]).then(([userLevel]) => {
 	characterStore();
+	document.body.classList.add(userLevel ? "isAdmin" : "isUser");
 	if (userLevel === 1) {
 		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
 		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
