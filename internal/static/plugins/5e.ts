@@ -95,7 +95,11 @@ const langs: Record<string, Record<string, string>> = {
 			});
 		}
 	}
-	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-titlebar": !isAdmin, "hide-close": true, "hide-maximise": true}, [
+	initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": function(this: WindowElement) {
+		this.toggleAttribute("hide-titlebar", false);
+	}, "onmouseleave": function(this: WindowElement) {
+		this.toggleAttribute("hide-titlebar", true);
+	}}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
 		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
 		initiativeList.node
