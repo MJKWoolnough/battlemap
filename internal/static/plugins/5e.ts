@@ -133,8 +133,13 @@ addPlugin("5e", {
 				],
 				br(),
 				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
-				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
-					changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
+				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
+					if (this.value === "") {
+						removes.add("5e-initiative-mod");
+					} else {
+						removes.delete("5e-initiative-mod");
+						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
+					}
 				}}),
 				br(),
 				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
