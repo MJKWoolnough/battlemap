@@ -86,6 +86,7 @@ const langs: Record<string, Record<string, string>> = {
 			}
 		}
 	});
+	initiativeList.splice(0, initiativeList.length);
 	for (const i of initiative["data"]["list"]) {
 		if (tokens.has(i[0])) {
 			const [hidden, token] = tokens.get(i[0])!;
@@ -99,6 +100,9 @@ const langs: Record<string, Record<string, string>> = {
 				])
 			});
 		}
+	}
+	if (initiativeList.length && !initiativeWindow.parentNode) {
+		requestShell().appendChild(initiativeWindow);
 	}
       };
 
@@ -199,9 +203,7 @@ addPlugin("5e", {
 
 mapLoadedReceive(() => {
 	lastMapChange = Date.now();
-	if (initiativeWindow) {
-		initiativeWindow.remove();
-	}
+	initiativeWindow.remove();
 	updateInitiative();
 });
 
