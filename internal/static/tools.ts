@@ -30,7 +30,7 @@ const tools: Tool[] = [defaultTool];
 
 export const addTool = (t: Tool) => tools.push(t);
 
-let selectedTool: Tool;
+let selectedTool: Tool = defaultTool;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent) {
 	const fn = selectedTool.tokenMouseDown;
