@@ -110,7 +110,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		      },
 		      endpoints: Record<string, [string, string, string | string[], (data: any) => any, string, string][]> ={
 			"": [
-				["connID", "conn.connID", "", checkUint, "", ""],
+				["connID", "conn.connID", "", checkUint , "", ""],
+				["ready", "conn.ready"  , "", returnVoid, "", ""],
 
 				["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
 				["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],

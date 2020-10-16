@@ -99,6 +99,7 @@ export type RPC = RPCWaits & {
 	maps:       FolderRPC,
 
 	connID: () => Promise<Uint>;
+	ready:  () => Promise<void>;
 
 	setCurrentMap: (id: Uint) => Promise<void>;
 	getUserMap:    ()         => Promise<Uint>;
