@@ -23,8 +23,20 @@ document.head.appendChild(style({"type": "text/css"}, `
 }
 `));
 
+type IDInitiative = {
+	id: Uint;
+	initiative: Uint;
+}
+
+type Token5E = SVGToken & {
+	tokenData: {
+		"name"?: KeystoreData<string>;
+		"5e-initiative"?: KeystoreData<IDInitiative>;
+	}
+}
+
 type Initiative = {
-	token: SVGToken;
+	token: Token5E;
 	hidden: boolean;
 	node: HTMLLIElement;
 }
@@ -32,7 +44,7 @@ type Initiative = {
 type InitiativeData = {
 	windowOpen: boolean;
 	pos: Uint;
-	list: [Uint, Uint][];
+	list: IDInitiative[];
 };
 
 let lastMapChange = 0,
@@ -66,8 +78,8 @@ const langs: Record<string, Record<string, string>> = {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
       },
-      sortAsc = (a: Initiative, b: Initiative) => a.token.getData("5e-initiative") - b.token.getData("5e-Initiative"),
-      sortDesc = (a: Initiative, b: Initiative) => b.token.getData("5e-initiative") - a.token.getData("5e-Initiative"),
+      sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-Initiative"]!.data.initiative,
+      sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-Initiative"]!.data.initiative,
       isInitiativeData = (data: any): data is InitiativeData => {
 	return true;
       },
@@ -75,7 +87,7 @@ const langs: Record<string, Record<string, string>> = {
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = {
 	"windowOpen": globals.mapData.data["5e-initiative"]?.["windowOpen"] ?? false,
 	"pos": 0,
-	"list": initiativeList.map(i => [i.token.getData("5e-initiative-id"), i.token.getData("5e-initiative")])
+	"list": initiativeList.map(i => i.token.tokenData["5e-initiative-id"])
       }),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 	userLevel === 1 ? [
@@ -95,34 +107,32 @@ const langs: Record<string, Record<string, string>> = {
       ]),
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
-	      tokens = new Map<Uint, [boolean, SVGToken]>();
+	      tokens = new Map<Uint, [boolean, Token5E]>();
 	if (!initiative || !isInitiativeData(initiative["data"])) {
 		return;
 	}
 	walkLayers((e, isHidden) => {
 		for (const t of e.tokens) {
-			if (t instanceof SVGToken) {
-				const {tokenData: {"5e-initiative-id": initID}} = t;
-				if (initID && typeof initID["data"] === "number") {
-					tokens.set(initID["data"], [isHidden, t]);
-					if (initID["data"] > lastInitiativeID) {
-						lastInitiativeID = initID["data"];
-					}
+			if (t instanceof SVGToken && t.tokenData["5e-initiative"]) {
+				const {tokenData: {"5e-initiative": {data: idInitiative}}} = t;
+				tokens.set(idInitiative.id, [isHidden, t]);
+				if (idInitiative.id > lastInitiativeID) {
+					lastInitiativeID = idInitiative.id;
 				}
 			}
 		}
 	});
 	initiativeList.splice(0, initiativeList.length);
 	for (const i of initiative["data"]["list"]) {
-		if (tokens.has(i[0])) {
-			const [hidden, token] = tokens.get(i[0])!;
+		if (tokens.has(i.id)) {
+			const [hidden, token] = tokens.get(i.id)!;
 			initiativeList.push({
 				token,
 				hidden,
 				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => token.node.classList.add("tokenHoverHighlight"), "onmouseleave": () => token.node.classList.remove("tokenHoverHighlight")}, [
 					img({"src": `/images/${token.src}`}),
 					token.getData("name"),
-					i[1].toString()
+					i.initiative.toString()
 				])
 			});
 		}
@@ -208,8 +218,7 @@ addPlugin("5e", {
 					item(lang["INITIATIVE_REMOVE"], () => {
 						initiativeList.filterRemove(i => i.token === token);
 						delete(token.tokenData["5e-initiative"]);
-						delete(token.tokenData["5e-initiative-id"]);
-						rpc.tokenModify(token.id, {}, ["5e-initiative", "5e-initiative-id"]);
+						rpc.tokenModify(token.id, {}, ["5e-initiative"]);
 						saveInitiative();
 					})
 				];
@@ -226,8 +235,7 @@ addPlugin("5e", {
 					throw new Error("map changed");
 				}
 				const change = {
-					"5e-initiative": {"user": true, "data": initiative},
-					"5e-initiative-id": {"user": true, "data": ++lastInitiativeID},
+					"5e-initiative": {"user": true, "data": {"id": ++lastInitiativeID, initiative}},
 				};
 				Object.assign(token.tokenData, change);
 				rpc.tokenModify(token.id, change, []).catch(handleError);
