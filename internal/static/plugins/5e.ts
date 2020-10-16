@@ -36,7 +36,8 @@ type InitiativeData = {
 };
 
 let lastMapChange = 0,
-    n = 0;
+    n = 0,
+    lastInitiativeID = 0;
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -95,7 +96,7 @@ const langs: Record<string, Record<string, string>> = {
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, SVGToken]>();
-	if (!initiative || !isInitiativeData(initiative["data"]) || (!initiative["data"]["windowOpen"] && userLevel === 0)) {
+	if (!initiative || !isInitiativeData(initiative["data"])) {
 		return;
 	}
 	walkLayers((e, isHidden) => {
@@ -104,6 +105,9 @@ const langs: Record<string, Record<string, string>> = {
 				const {tokenData: {"5e-initiative-id": initID}} = t;
 				if (initID && typeof initID["data"] === "number") {
 					tokens.set(initID["data"], [isHidden, t]);
+					if (initID["data"] > lastInitiativeID) {
+						lastInitiativeID = initID["data"];
+					}
 				}
 			}
 		}
@@ -123,7 +127,7 @@ const langs: Record<string, Record<string, string>> = {
 			});
 		}
 	}
-	if (initiativeList.length && !initiativeWindow.parentNode) {
+	if (initiativeList.length && !initiativeWindow.parentNode && (initiative["data"]["windowOpen"] || userLevel === 0)) {
 		requestShell().appendChild(initiativeWindow);
 	}
       };
@@ -221,7 +225,10 @@ addPlugin("5e", {
 					requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 					throw new Error("map changed");
 				}
-				const change = {"5e-initiative": {"user": true, "data": initiative}};
+				const change = {
+					"5e-initiative": {"user": true, "data": initiative},
+					"5e-initiative-id": {"user": true, "data": ++lastInitiativeID},
+				};
 				Object.assign(token.tokenData, change);
 				rpc.tokenModify(token.id, change, []).catch(handleError);
 			}).catch(() => {}))];
@@ -232,6 +239,7 @@ addPlugin("5e", {
 mapLoadedReceive(() => {
 	lastMapChange = Date.now();
 	initiativeWindow.remove();
+	lastInitiativeID = 0;
 	updateInitiative();
 });
 
