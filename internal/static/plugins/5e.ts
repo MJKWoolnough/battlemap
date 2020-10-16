@@ -69,10 +69,19 @@ const langs: Record<string, Record<string, string>> = {
 	return true;
       },
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
+      reorderInitiative = (sorter: (a: Initiative, b: Initiative) => number) => {
+	initiativeList.sort(sorter);
+	const data = {
+		"windowOpen": globals.mapData.data["5e-initiative"]?.["windowOpen"] ?? false,
+		"pos": 0,
+		"list": initiativeList.map(i => [i.token.getData("5e-initiative-id"), i.token.getData("5e-initiative")])
+	};
+	rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = data);
+      },
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 		userLevel === 1 ? [
-			button({"title": lang["INITIATIVE_ASC"], "onclick": () => initiativeList.sort(sortAsc)}, initAsc),
-			button({"title": lang["INITIATIVE_DESC"], "onclick": () => initiativeList.sort(sortDesc)}, initDesc),
+			button({"title": lang["INITIATIVE_ASC"], "onclick": () => reorderInitiative(sortAsc)}, initAsc),
+			button({"title": lang["INITIATIVE_DESC"], "onclick": () => reorderInitiative(sortDesc)}, initDesc),
 		] : [],
 		initiativeList.node
       ]),
