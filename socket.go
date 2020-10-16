@@ -50,20 +50,6 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 			AuthConn:   a,
 		},
 	}
-	if c.IsAdmin() {
-		c.rpc.Send(jsonrpc.Response{
-			ID:     broadcastCurrentUserMap,
-			Result: uint64(cu),
-		})
-	} else {
-		s.maps.mu.RLock()
-		mapData := s.maps.maps[uint64(cu)]
-		s.maps.mu.RUnlock()
-		c.rpc.Send(jsonrpc.Response{
-			ID:     broadcastCurrentUserMapData,
-			Result: json.RawMessage(mapData.JSON),
-		})
-	}
 	c.rpc.Handle()
 	s.mu.Lock()
 	delete(s.conns, &c)
@@ -117,6 +103,22 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 	switch method {
 	case "conn.connID":
 		return cd.ID, nil
+	case "conn.ready":
+		if c.IsAdmin() {
+			c.rpc.Send(jsonrpc.Response{
+				ID:     broadcastCurrentUserMap,
+				Result: uint64(cd.CurrentMap),
+			})
+		} else {
+			c.maps.mu.RLock()
+			mapData := c.maps.maps[uint64(cd.CurrentMap)]
+			c.maps.mu.RUnlock()
+			c.rpc.Send(jsonrpc.Response{
+				ID:     broadcastCurrentUserMapData,
+				Result: json.RawMessage(mapData.JSON),
+			})
+		}
+		return nil, nil
 	case "maps.setCurrentMap":
 		if cd.IsAdmin() {
 			if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
