@@ -314,9 +314,9 @@ type LayerShift = {
 	dy: Int;
 }
 
-export type KeystoreData = {
+export type KeystoreData<T = any> = {
 	user: boolean;
-	data: any;
+	data: T;
 }
 
 type CharacterDataChange = {
