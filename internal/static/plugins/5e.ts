@@ -51,6 +51,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_ENTER": "Enter initiative",
 		"INITIATIVE_ENTER_LONG": "Please enter the initiative value for this token",
 		"INITIATIVE_MOD": "Initiative Mod",
+		"INITIATIVE_NEXT": "Next",
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
 	}
@@ -59,6 +60,7 @@ const langs: Record<string, Record<string, string>> = {
       userVisibility = getSymbol("userVisibility")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
+      initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
@@ -79,11 +81,14 @@ const langs: Record<string, Record<string, string>> = {
 	rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = data);
       },
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
-		userLevel === 1 ? [
-			button({"title": lang["INITIATIVE_ASC"], "onclick": () => reorderInitiative(sortAsc)}, initAsc),
-			button({"title": lang["INITIATIVE_DESC"], "onclick": () => reorderInitiative(sortDesc)}, initDesc),
-		] : [],
-		initiativeList.node
+	userLevel === 1 ? [
+		button({"title": lang["INITIATIVE_ASC"], "onclick": () => reorderInitiative(sortAsc)}, initAsc),
+		button({"title": lang["INITIATIVE_DESC"], "onclick": () => reorderInitiative(sortDesc)}, initDesc),
+	] : [],
+	initiativeList.node,
+	userLevel === 1 ? [
+		button({"title": lang["INITIATIVE_NEXT"], "onclick": () => initiativeList.push(initiativeList.shift()!)}, initNext)
+	] : []
       ]),
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
