@@ -26,7 +26,7 @@ type Tool = {
 	mapMouseOver?: MouseFn;
 };
 
-const tools: Tool[] = [defaultTool];
+const tools: Tool[] = [];
 
 export const addTool = (t: Tool) => tools.push(t);
 
@@ -82,7 +82,8 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 };
 
 export default function (base: HTMLElement) {
-	tools.sort((a, b) => Object.is(a, defaultTool) ? -1 : Object.is(b, defaultTool) ? 1 : stringSort(a.name, b.name));
+	tools.sort((a, b) => stringSort(a.name, b.name));
+	tools.unshift(defaultTool);
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
