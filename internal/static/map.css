@@ -96,3 +96,7 @@ g:not(#outline) {
 .isUser .hiddenLayer {
 	display: none;
 }
+
+.isUser #map image {
+	transition: transform 1s ease;
+}
