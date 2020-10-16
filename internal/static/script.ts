@@ -177,6 +177,7 @@ if (invert.value) {
 }
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit()]).then(([userLevel]) => {
+	rpc.ready();
 	characterStore();
 	document.body.classList.add(userLevel ? "isAdmin" : "isUser");
 	if (userLevel === 1) {
