@@ -17,6 +17,10 @@ document.head.appendChild(style({"type": "text/css"}, `
 	list-style: none;
 	padding: 0;
 }
+
+.tokenHoverHighlight {
+	border: 5px solid #f00;
+}
 `));
 
 type Initiative = {
@@ -95,7 +99,7 @@ const langs: Record<string, Record<string, string>> = {
 			initiativeList.push({
 				token,
 				hidden,
-				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined}, [
+				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => token.node.classList.add("tokenHoverHighlight"), "onmouseleave": () => token.node.classList.remove("tokenHoverHighlight")}, [
 					img({"src": `/images/${token.src}`}),
 					token.getData("name"),
 					i[1].toString()
