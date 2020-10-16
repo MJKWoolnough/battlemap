@@ -20,7 +20,7 @@ document.head.appendChild(style({"type": "text/css"}, `
 `));
 
 type Initiative = {
-	token: SVGToken | null;
+	token: SVGToken;
 	hidden: boolean;
 	node: HTMLLIElement;
 }
@@ -59,14 +59,16 @@ const langs: Record<string, Record<string, string>> = {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
       },
+      sortAsc = (a: Initiative, b: Initiative) => a.token.getData("5e-initiative") - b.token.getData("5e-Initiative"),
+      sortDesc = (a: Initiative, b: Initiative) => b.token.getData("5e-initiative") - a.token.getData("5e-Initiative"),
       isInitiativeData = (data: any): data is InitiativeData => {
 	return true;
       },
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 		userLevel === 1 ? [
-			button({"title": lang["INITIATIVE_ASC"], "onclick": () => {}}, initAsc),
-			button({"title": lang["INITIATIVE_DESC"], "onclick": () => {}}, initDesc),
+			button({"title": lang["INITIATIVE_ASC"], "onclick": () => initiativeList.sort(sortAsc)}, initAsc),
+			button({"title": lang["INITIATIVE_DESC"], "onclick": () => initiativeList.sort(sortDesc)}, initDesc),
 		] : [],
 		initiativeList.node
       ]),
