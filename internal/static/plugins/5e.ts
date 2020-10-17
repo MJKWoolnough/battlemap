@@ -164,7 +164,16 @@ const langs: Record<string, Record<string, string>> = {
 	if (initiativeList.length && !initiativeWindow.parentNode) {
 		requestShell().appendChild(initiativeWindow);
 	}
-      };
+      },
+      mo = new MutationObserver(list => {
+	for (const m of list) {
+		if (m.target === initiativeWindow) {
+			savedWindowSetting.set(`[${parseInt(initiativeWindow.style.getPropertyValue("--window-left"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-top"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-width"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-height"))}]`);
+		}
+	}
+      });
+
+mo.observe(initiativeWindow, {"attributeFilter": ["style"], "attributes": true});
 
 addPlugin("5e", {
 	"characterEdit": {
