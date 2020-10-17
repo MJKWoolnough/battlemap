@@ -213,7 +213,13 @@ addPlugin("5e", {
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
-					save().finally(() => this.removeAttribute("disabled"));
+					const updateName = changes["name"];
+					save().finally(() => {
+						this.removeAttribute("disabled");
+						if (updateName && data["5e-initiative"] !== undefined) {
+							updateInitiative();
+						}
+					});
 				}}, mainLang["SAVE"])
 			];
 		}
@@ -285,7 +291,7 @@ mapLoadedReceive(() => {
 });
 
 rpc.waitTokenDataChange().then(changed => {
-	if (changed["setting"]["5e-initiative"] || changed["removing"].includes("5e-initiative")) {
+	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative")) {
 		updateInitiative();
 	}
 });
