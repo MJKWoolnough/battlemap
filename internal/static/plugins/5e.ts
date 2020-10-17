@@ -300,13 +300,13 @@ mapLoadedReceive(() => {
 
 rpc.waitTokenDataChange().then(changed => {
 	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative")) {
-		updateInitiative();
+		setTimeout(updateInitiative, 0);
 	}
 });
 
 rpc.waitMapDataSet().then(changed => {
 	if (changed.key === "5e-initiative") {
-		updateInitiative();
+		setTimeout(updateInitiative, 0);
 	}
 });
 
