@@ -337,7 +337,12 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	updateLight();
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
-renameLayer = (path: string, name: string) => getLayer(globals.layerList, path)!.name = name,
+renameLayer = (path: string, name: string) => {
+	const l = getLayer(globals.layerList, path)!;
+	l.name = name
+	l.path = `${splitAfterLastSlash(path)[0]}/${name}`;
+	return name;
+},
 removeLayer = (path: string) => {
 	const [fromParent, layer] = getParentLayer(path),
 	      ret = (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
