@@ -18,7 +18,7 @@
 	height: 1em;
 }
 
-.userVisibility:checked + label > svg {
+.userVisibility:not(:checked) + label > svg {
 	--check-on: none;
 	--check-off: block;
 }
