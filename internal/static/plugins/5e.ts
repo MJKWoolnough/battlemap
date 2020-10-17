@@ -7,7 +7,7 @@ import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
 import mainLang, {language} from '../language.js';
-import {windows, WindowElement} from '../windows.js';
+import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
@@ -85,7 +85,7 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => data instanceof Array && data.every(i => typeof i === "number"),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative-id"].data.id)),
-      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 	userLevel === 1 ? [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
