@@ -235,11 +235,16 @@ addPlugin("5e", {
 					requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 					throw new Error("map changed");
 				}
-				const change = {
-					"5e-initiative": {"user": true, "data": {"id": ++lastInitiativeID, initiative}},
-				};
+				const id = ++lastInitiativeID,
+				      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
 				Object.assign(token.tokenData, change);
-				rpc.tokenModify(token.id, change, []).catch(handleError);
+				rpc.tokenModify(token.id, change, []);
+				if (globals.mapData.data["5e-initiative"]) {
+					globals.mapData.data["5e-initiative"].push(id);
+				} else {
+					globals.mapData.data["5e-initiative"] = [id];
+				}
+				saveInitiative();
 			}).catch(() => {}))];
 		}
 	}
