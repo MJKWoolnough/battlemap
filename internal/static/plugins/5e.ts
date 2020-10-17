@@ -104,7 +104,7 @@ const langs: Record<string, Record<string, string>> = {
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, Token5E]>();
-	if (!initiative || !isInitiativeData(initiative["data"])) {
+	if (!isInitiativeData(initiative)) {
 		return;
 	}
 	walkLayers((e, isHidden) => {
@@ -119,7 +119,7 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	});
 	initiativeList.splice(0, initiativeList.length);
-	for (const i of initiative["data"]) {
+	for (const i of initiative) {
 		if (tokens.has(i)) {
 			const [hidden, token] = tokens.get(i)!;
 			initiativeList.push({
@@ -252,8 +252,8 @@ addPlugin("5e", {
 				} else {
 					md.data["5e-initiative"] = [id];
 				}
-				saveInitiative();
 				updateInitiative();
+				saveInitiative();
 			}).catch(() => {}))];
 		}
 	}
