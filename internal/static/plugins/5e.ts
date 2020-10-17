@@ -1,5 +1,5 @@
 import {KeystoreData, Uint, Int, MapData} from '../types.js';
-import {br, button, div, img, input, label, li, style, ul} from '../lib/html.js';
+import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
@@ -32,8 +32,8 @@ document.head.appendChild(style({"type": "text/css"}, `
 }
 
 #initiative-list-5e img {
-	height: 1em;
-	width: 1em;
+	height: 4em;
+	width: 4em;
 }
 
 .tokenHoverHighlight {
@@ -152,8 +152,8 @@ const langs: Record<string, Record<string, string>> = {
 				hidden,
 				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => token.node.classList.add("tokenHoverHighlight"), "onmouseleave": () => token.node.classList.remove("tokenHoverHighlight")}, [
 					img({"src": `/images/${token.src}`}),
-					token.getData("name"),
-					token.tokenData["5e-initiative"]!.data.initiative.toString()
+					span(token.getData("name") ?? ""),
+					span(token.tokenData["5e-initiative"]!.data.initiative.toString())
 				])
 			});
 		}
