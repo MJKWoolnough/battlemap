@@ -240,6 +240,7 @@ addPlugin("5e", {
 								if (token.tokenData["5e-initiative"]) {
 									token.tokenData["5e-initiative"].data.initiative = initiative;
 									rpc.tokenModify(token.id, { "5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
+									updateInitiative();
 								}
 							});
 						}
