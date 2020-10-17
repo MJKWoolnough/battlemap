@@ -115,7 +115,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			c.maps.mu.RUnlock()
 			c.rpc.Send(jsonrpc.Response{
 				ID:     broadcastCurrentUserMapData,
-				Result: json.RawMessage(mapData.JSON),
+				Result: json.RawMessage(mapData.UserJSON),
 			})
 		}
 		return nil, nil
