@@ -125,6 +125,7 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 		},
 		tokens: make(map[uint64]layerToken),
 		walls:  make(map[uint64]layerWall),
+		Data:   make(map[string]json.RawMessage),
 	}
 	name := addItemTo(m.folders.root.Items, nm.Name, mid)
 	m.maps[mid] = mp
