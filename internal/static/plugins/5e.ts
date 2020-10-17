@@ -41,11 +41,7 @@ type Initiative = {
 	node: HTMLLIElement;
 }
 
-type InitiativeData = {
-	windowOpen: boolean;
-	pos: Uint;
-	list: IDInitiative[];
-};
+type InitiativeData = Uint[];
 
 let lastMapChange = 0,
     n = 0,
@@ -84,11 +80,7 @@ const langs: Record<string, Record<string, string>> = {
 	return true;
       },
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
-      saveInitiative = () => rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = {
-	"windowOpen": globals.mapData.data["5e-initiative"]?.["windowOpen"] ?? false,
-	"pos": 0,
-	"list": initiativeList.map(i => i.token.tokenData["5e-initiative-id"])
-      }),
+      saveInitiative = () => rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative-id"].data.id)),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 	userLevel === 1 ? [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
@@ -123,21 +115,21 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	});
 	initiativeList.splice(0, initiativeList.length);
-	for (const i of initiative["data"]["list"]) {
-		if (tokens.has(i.id)) {
-			const [hidden, token] = tokens.get(i.id)!;
+	for (const i of initiative["data"]) {
+		if (tokens.has(i)) {
+			const [hidden, token] = tokens.get(i)!;
 			initiativeList.push({
 				token,
 				hidden,
 				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => token.node.classList.add("tokenHoverHighlight"), "onmouseleave": () => token.node.classList.remove("tokenHoverHighlight")}, [
 					img({"src": `/images/${token.src}`}),
 					token.getData("name"),
-					i.initiative.toString()
+					token.tokenData["5e-initiative"]!.data.initiative.toString()
 				])
 			});
 		}
 	}
-	if (initiativeList.length && !initiativeWindow.parentNode && (initiative["data"]["windowOpen"] || userLevel === 0)) {
+	if (initiativeList.length && !initiativeWindow.parentNode) {
 		requestShell().appendChild(initiativeWindow);
 	}
       };
