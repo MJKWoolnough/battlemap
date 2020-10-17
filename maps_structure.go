@@ -72,7 +72,7 @@ func (l *levelMap) writeJSON() {
 		} else {
 			first = false
 		}
-		l.JSON = append(appendString(l.JSON, k), v...)
+		l.JSON = append(append(appendString(l.JSON, k), ':'), v...)
 	}
 	l.JSON = append(l.JSON, '}')
 	l.UserJSON = append(l.layer.appendTo(append(l.UserJSON[:0], l.JSON...), false, true), '}')
