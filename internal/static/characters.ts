@@ -121,7 +121,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			}
 			return true;
 		      });
-		return loadingWindow((typeof id === "number" ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
+		return loadingWindow((character ? rpc.characterModify : rpc.tokenModify)(id, changes, rms).then(() => {
 			Object.assign(d, changes);
 			keys.forEach(k => delete changes[k]);
 			removes.forEach(k => delete d[k]);
