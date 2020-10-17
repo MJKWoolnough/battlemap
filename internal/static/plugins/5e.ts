@@ -91,8 +91,8 @@ const langs: Record<string, Record<string, string>> = {
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
       userVisibility = getSymbol("userVisibility")!,
-      initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
-      initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
+      initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
+      initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
