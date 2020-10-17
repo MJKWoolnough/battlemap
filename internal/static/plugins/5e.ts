@@ -222,6 +222,9 @@ addPlugin("5e", {
 					}),
 					item(lang["INITIATIVE_REMOVE"], () => {
 						initiativeList.filterRemove(i => i.token === token);
+						if (initiativeList.length === 0) {
+							initiativeWindow.remove();
+						}
 						delete(token.tokenData["5e-initiative"]);
 						rpc.tokenModify(token.id, {}, ["5e-initiative"]);
 						saveInitiative();
@@ -250,6 +253,7 @@ addPlugin("5e", {
 					md.data["5e-initiative"] = [id];
 				}
 				saveInitiative();
+				updateInitiative();
 			}).catch(() => {}))];
 		}
 	}
@@ -263,8 +267,19 @@ mapLoadedReceive(() => {
 });
 
 rpc.waitTokenDataChange().then(changed => {
-	const initiative = changed["setting"]["5e-initiative"];
-	if (initiative) {
-		// update initiative list
+	if (changed["setting"]["5e-initiative"] || changed["removing"].includes("5e-initiative")) {
+		updateInitiative();
+	}
+});
+
+rpc.waitMapDataSet().then(changed => {
+	if (changed.key === "5e-initiative") {
+		updateInitiative();
+	}
+});
+
+rpc.waitMapDataRemove().then(removed => {
+	if (removed === "5e-initiative") {
+		initiativeWindow.remove();
 	}
 });
