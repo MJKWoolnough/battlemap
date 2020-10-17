@@ -299,7 +299,7 @@ mapLoadedReceive(() => {
 });
 
 rpc.waitTokenDataChange().then(changed => {
-	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative")) {
+	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative") || changed["removing"].includes("name")) {
 		setTimeout(updateInitiative, 0);
 	}
 });
