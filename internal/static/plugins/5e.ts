@@ -1,7 +1,7 @@
 import {KeystoreData, Uint, Int, MapData} from '../types.js';
 import {br, button, div, img, input, label, li, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
-import {SortNode} from '../lib/ordered.js';
+import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
@@ -107,16 +107,23 @@ const langs: Record<string, Record<string, string>> = {
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
+			initiativeList.sort(noSort);
 			saveInitiative();
 		}}, initAsc),
 		button({"title": lang["INITIATIVE_DESC"], "onclick": () => {
 			initiativeList.sort(sortDesc);
+			initiativeList.sort(noSort);
 			saveInitiative();
 		}}, initDesc),
 	]) : [],
 	div(initiativeList.node),
 	userLevel === 1 ? [
-		div({"id": "initiative-next-5e"}, button({"title": lang["INITIATIVE_NEXT"], "onclick": () => initiativeList.push(initiativeList.shift()!)}, initNext))
+		div({"id": "initiative-next-5e"}, button({"title": lang["INITIATIVE_NEXT"], "onclick": () => {
+			if (initiativeList.length > 1) {
+				initiativeList.push(initiativeList.shift()!);
+				saveInitiative();
+			}
+		}}, initNext))
 	] : []
       ])),
       updateInitiative = () => {
