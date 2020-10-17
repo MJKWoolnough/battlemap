@@ -1,5 +1,5 @@
 import {KeystoreData, Uint, Int, MapData} from '../types.js';
-import {br, button, img, input, label, li, style, ul} from '../lib/html.js';
+import {br, button, div, img, input, label, li, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
 import {SortNode} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
@@ -13,9 +13,27 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {getSymbol} from '../symbols.js';
 
 document.head.appendChild(style({"type": "text/css"}, `
+.isAdmin #initiative-window-5e {
+	display: grid;
+	grid-template-rows: 2em auto 2em;
+}
+
+#initiative-window-5e svg {
+	width: 1.5em;
+}
+
+#initiative-ordering-5e button, #initiative-next-5e button {
+	height: 2em;
+}
+
 #initiative-list-5e {
 	list-style: none;
 	padding: 0;
+}
+
+#initiative-list-5e img {
+	height: 1em;
+	width: 1em;
 }
 
 .tokenHoverHighlight {
@@ -85,8 +103,8 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => data instanceof Array && data.every(i => typeof i === "number"),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative-id"].data.id)),
-      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
-	userLevel === 1 ? [
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, div({"id": "initiative-window-5e"}, [
+	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
 			saveInitiative();
@@ -95,12 +113,12 @@ const langs: Record<string, Record<string, string>> = {
 			initiativeList.sort(sortDesc);
 			saveInitiative();
 		}}, initDesc),
-	] : [],
-	initiativeList.node,
+	]) : [],
+	div(initiativeList.node),
 	userLevel === 1 ? [
-		button({"title": lang["INITIATIVE_NEXT"], "onclick": () => initiativeList.push(initiativeList.shift()!)}, initNext)
+		div({"id": "initiative-next-5e"}, button({"title": lang["INITIATIVE_NEXT"], "onclick": () => initiativeList.push(initiativeList.shift()!)}, initNext))
 	] : []
-      ]),
+      ])),
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, Token5E]>();
