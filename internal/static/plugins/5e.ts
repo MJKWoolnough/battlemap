@@ -32,6 +32,16 @@ document.head.appendChild(style({"type": "text/css"}, `
 	padding: 0;
 }
 
+#initiative-list-5e li {
+	display: grid;
+	grid-template-columns: 4.5em auto 3em;
+	align-items: center;
+}
+
+#initiative-list-5e li span {
+	text-align: center;
+}
+
 #initiative-list-5e img {
 	height: 4em;
 	width: 4em;
