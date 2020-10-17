@@ -11,6 +11,7 @@ import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
+import {StringSetting} from '../settings_types.js';
 
 document.head.appendChild(style({"type": "text/css"}, `
 .isAdmin #initiative-window-5e {
@@ -103,7 +104,9 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => data instanceof Array && data.every(i => typeof i === "number"),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative"]!.data.id)),
-      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, div({"id": "initiative-window-5e"}, [
+      savedWindowSetting = new StringSetting("5e-window-data"),
+      savedWindowData = JSON.parse(savedWindowSetting.value || "[0, 0, 200, 400]") as [Int, Int, Uint, Uint],
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowData[0] + "px", "--window-top": savedWindowData[1] + "px", "--window-width": savedWindowData[2] + "px", "--window-height": savedWindowData[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), }, div({"id": "initiative-window-5e"}, [
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
