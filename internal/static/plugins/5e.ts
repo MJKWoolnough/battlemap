@@ -1,4 +1,4 @@
-import {KeystoreData, Uint, Int} from '../types.js';
+import {KeystoreData, Uint, Int, MapData} from '../types.js';
 import {br, button, img, input, label, li, style, ul} from '../lib/html.js';
 import {polygon, svg} from '../lib/svg.js';
 import {SortNode} from '../lib/ordered.js';
@@ -43,6 +43,12 @@ type Initiative = {
 
 type InitiativeData = Uint[];
 
+type MapData5E = MapData & {
+	data: {
+		"5e-initiative"?: Uint[];
+	}
+}
+
 let lastMapChange = 0,
     n = 0,
     lastInitiativeID = 0;
@@ -80,7 +86,7 @@ const langs: Record<string, Record<string, string>> = {
 	return true;
       },
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
-      saveInitiative = () => rpc.setMapKeyData("5e-initiative", globals.mapData.data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative-id"].data.id)),
+      saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative-id"].data.id)),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "hide-close": true, "hide-maximise": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, [
 	userLevel === 1 ? [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
@@ -239,10 +245,11 @@ addPlugin("5e", {
 				      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
 				Object.assign(token.tokenData, change);
 				rpc.tokenModify(token.id, change, []);
-				if (globals.mapData.data["5e-initiative"]) {
-					globals.mapData.data["5e-initiative"].push(id);
+				const md = globals.mapData as MapData5E;
+				if (md.data["5e-initiative"]) {
+					md.data["5e-initiative"].push(id);
 				} else {
-					globals.mapData.data["5e-initiative"] = [id];
+					md.data["5e-initiative"] = [id];
 				}
 				saveInitiative();
 			}).catch(() => {}))];
