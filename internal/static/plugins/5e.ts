@@ -226,7 +226,7 @@ addPlugin("5e", {
 			if (!token || !(token instanceof SVGToken)) {
 				return [];
 			}
-			if (token.tokenData["5e-initiative-id"]) {
+			if (token.tokenData["5e-initiative"]) {
 				return [
 					item(lang["INITIATIVE_CHANGE"], () => {
 						if (token.tokenData["5e-initiative"]) {
