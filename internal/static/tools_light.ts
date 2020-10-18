@@ -8,6 +8,7 @@ import {normaliseWall, updateLight, globals, SVGLayer, walkLayers} from './map.j
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {rpc} from './rpc.js';
+import lang from './language.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
@@ -213,7 +214,7 @@ mapLayersReceive(l => {
 });
 
 addTool({
-	"name": "Light Layer",
+	"name": lang["TOOL_LIGHT"],
 	"icon": svg({"viewBox": "0 0 44 75"}, [
 		defs(path({"id": "c", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4", "stroke-width": 1})),
 		g({"style": "stroke: currentColor", "fill": "none", "stroke-linejoin": "round"}, [
@@ -224,17 +225,17 @@ addTool({
 		])
 	]),
 	"options": div([
-		label({"for": "sunTool"}, "Position Sun/Moon: "),
+		label({"for": "sunTool"}, `${lang["TOOL_LIGHT_SUN"]}: `),
 		sunTool,
 		br(),
-		label({"for": "wallTool"}, "Wall Tool: "),
+		label({"for": "wallTool"}, `${lang["TOOL_LIGHT_WALL"]}: `),
 		wallTool,
 		br(),
-		label({"for": "deleteWallTool"}, "Remove Wall: "),
+		label({"for": "deleteWallTool"}, `${lang["TOOL_LIGHT_REMOVE"]}: `),
 		input({"id": "deleteWallTool", "name": "lightTool", "type": "radio"}),
 		div({"id": "wallToolOptions"}, [
-			label("Wall Colour: "),
-			span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Stroke Colour", () => wallColour, (c: Colour) => wallColour = c, "wallColour")),
+			label(`${lang["TOOL_LIGHT_COLOUR"]}: `),
+			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_LIGHT_COLOUR"], () => wallColour, (c: Colour) => wallColour = c, "wallColour")),
 		])
 	]),
 	"mapMouseOver": mouseOver,
