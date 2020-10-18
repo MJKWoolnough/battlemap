@@ -101,6 +101,22 @@ const langs: Record<string, Record<string, string>> = {
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
+      conditions: (() => SVGSVGElement)[] = [
+	// BLINDED
+	// CHARMED
+	// DEAFENED
+	// FRIGHTENED
+	// GRAPPLED
+	// INCAPACITATED
+	// INVISIBLE
+	// PARALYZED
+	// PETRIFIED
+	// POISONED
+	// PRONE
+	// RESTRAINED
+	// STUNNED
+	// UNCONSCIOUS
+      ],
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
