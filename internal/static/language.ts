@@ -120,6 +120,7 @@ const defaultLanguage: Record<string, string> = {
 	"TOOL_LIGHT_SUN": "Position Sun/Moon",
 	"TOOL_LIGHT_WALL": "Wall Tool",
 	"TOOL_MASK": "Mask Tool",
+	"TOOL_MOVE": "Move All",
 	"UNDO_LIMIT": "Undo Limit (-1 for infinite, 0 to disable)",
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
 	"UPLOAD_AUDIO": "Upload Sound",
