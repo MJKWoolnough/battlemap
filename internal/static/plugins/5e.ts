@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {polygon, svg} from '../lib/svg.js';
+import {createSVG, polygon, rect, svg} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -45,10 +45,6 @@ document.head.appendChild(style({"type": "text/css"}, `
 #initiative-list-5e img {
 	height: 4em;
 	width: 4em;
-}
-
-.tokenHoverHighlight {
-	border: 5px solid #f00;
 }
 `));
 
@@ -163,7 +159,12 @@ const langs: Record<string, Record<string, string>> = {
 			initiativeList.push({
 				token,
 				hidden,
-				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => token.node.classList.add("tokenHoverHighlight"), "onmouseleave": () => token.node.classList.remove("tokenHoverHighlight")}, [
+				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => {
+					if (token.node.parentNode) {
+						createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
+						token.node.parentNode.insertBefore(highlight, token.node);
+					}
+				}, "onmouseleave": () => highlight.remove()}, [
 					img({"src": `/images/${token.src}`}),
 					span(token.getData("name") ?? ""),
 					span(token.tokenData["5e-initiative"]!.data.initiative.toString())
@@ -175,6 +176,7 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
+      highlight = rect({"fill": "rgba(255, 255, 0, 0.5)"}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
 		if (m.target === initiativeWindow) {
