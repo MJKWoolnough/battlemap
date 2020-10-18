@@ -5,6 +5,7 @@ import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 import {rpc} from './rpc.js';
+import lang from './language.js';
 
 let ml: LayerRPC;
 mapLayersReceive(l => ml = l);
@@ -82,7 +83,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
       };
 
 addTool({
-	"name": "Move All",
+	"name": lang["TOOL_MOVE"],
 	"icon": svg({"viewBox": "0 0 22 22", "style": "fill: currentColor"}, [
 		g({"stroke-width": 1, "style": "stroke: currentColor", "stroke-linecap": "round"}, [
 			line({"x1": 11, "y1": 6, "x2": 11, "y2": 16}),
