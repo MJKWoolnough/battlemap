@@ -7,6 +7,7 @@ import {SVGShape, SVGDrawing, globals} from './map.js';
 import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
 import {rpc} from './rpc.js';
+import lang from './language.js';
 
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
@@ -57,7 +58,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 					      };
 					globals.undo.add(doIt);
 				} else {
-					requestShell().alert("Draw Error", "No Layer Selected");
+					requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 				}
 			}
 		      },
@@ -130,7 +131,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				      };
 				globals.undo.add(doIt);
 			} else {
-				requestShell().alert("Draw Error", "No Layer Selected");
+				requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 			}
 		};
 		createSVG(root, {onmousemove}, p);
@@ -186,32 +187,32 @@ window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
 
 addTool({
-	"name": "Draw",
+	"name": lang["TOOL_DRAW"],
 	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "style": "stroke: currentColor"}, [
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),
 	"options": div([
-		label({"for": "drawRectangle"}, "Rectangle: "),
+		label({"for": "drawRectangle"}, `${lang["TOOL_DRAW_RECT"]}: `),
 		rectangle,
 		br(),
-		label({"for": "drawEllipse"}, "Ellipse: "),
+		label({"for": "drawEllipse"}, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
 		circle,
 		br(),
-		label({"for": "drawPoly"}, "Polygon: "),
+		label({"for": "drawPoly"}, `${lang["TOOL_DRAW_POLYGON"]}: `),
 		poly,
 		br(),
-		label({"for": "drawSnap"}, "Snap to Grid: "),
+		label({"for": "drawSnap"}, `${lang["TOOL_DRAW_SNAP"]}: `),
 		snap,
 		br(),
-		label({"for": "strokeWidth"}, "Stroke Width: "),
+		label({"for": "strokeWidth"}, `${lang["TOOL_DRAW_STROKE_WIDTH"]}: `),
 		strokeWidth,
 		br(),
-		label({"for": "strokeColour"}, "Stroke Colour: "),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Stroke Colour", () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
+		label({"for": "strokeColour"}, `${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
 		br(),
-		label({"for": "fillColour"}, "Fill Colour: "),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, "Set Fill Colour", () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
+		label({"for": "fillColour"}, `${lang["TOOL_DRAW_STROKE_WIDTH"]}: `),
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		draw(this, e);
