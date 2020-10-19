@@ -11,7 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, noColour, handleError, screen2Grid, requestShell} from './misc.js';
+import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext} from './plugins.js';
 import {rpc} from './rpc.js';
@@ -216,6 +216,7 @@ export default function(oldBase: HTMLElement) {
 		      unselectToken = () => {
 			globals.selected.token = null;
 			outline.style.setProperty("display", "none");
+			tokenSelected();
 		      },
 		      removeS = (path: string) => {
 			removeLayer(path).forEach(e => {
@@ -312,6 +313,7 @@ export default function(oldBase: HTMLElement) {
 			tokenMousePos.width = newToken.width;
 			tokenMousePos.height = newToken.height;
 			tokenMousePos.rotation = newToken.rotation;
+			tokenSelected();
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
 				switch (e.key) {
