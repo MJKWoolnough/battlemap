@@ -1,7 +1,7 @@
 import {Colour, Int, Uint, LayerRPC} from './types.js';
 import {createHTML, br, button, div, h1, input, label} from './lib/html.js';
 import {ShellElement, WindowElement, windows} from './windows.js';
-import {globals} from './map.js';
+import {globals, SVGToken} from './map.js';
 import {panZoom} from './tools_default.js';
 import {Pipe, Requester} from './lib/inter.js';
 import lang from './language.js';
@@ -89,6 +89,7 @@ screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
+{send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
 {request: requestShell, responder: respondWithShell} = requesterBind<ShellElement>(),
 point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
