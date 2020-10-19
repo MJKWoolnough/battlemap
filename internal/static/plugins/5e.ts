@@ -5,7 +5,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
-import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour} from '../misc.js';
+import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
@@ -13,40 +13,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {getSymbol} from '../symbols.js';
 import {StringSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, `
-.isAdmin #initiative-window-5e {
-	display: grid;
-	grid-template-rows: 2em auto 2em;
-}
-
-#initiative-window-5e svg {
-	width: 1.5em;
-}
-
-#initiative-ordering-5e button, #initiative-next-5e button {
-	height: 2em;
-}
-
-#initiative-list-5e {
-	list-style: none;
-	padding: 0;
-}
-
-#initiative-list-5e li {
-	display: grid;
-	grid-template-columns: 4.5em auto 3em;
-	align-items: center;
-}
-
-#initiative-list-5e li span {
-	text-align: center;
-}
-
-#initiative-list-5e img {
-	height: 4em;
-	width: 4em;
-}
-`));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}"));
 
 type IDInitiative = {
 	id: Uint;
