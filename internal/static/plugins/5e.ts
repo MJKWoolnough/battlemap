@@ -229,7 +229,7 @@ const langs: Record<string, Record<string, string>> = {
 	}
       },
       highlightColour = new StringSetting("5e-hightlight-colour", "rgba(255, 255, 0, 0.5)"),
-      highlight = rect({"fill": highlightColour.value}),
+      highlight = rect({"fill": highlightColour.value, "stroke": highlightColour.value, "stroke-width": 20}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
 		if (m.target === initiativeWindow) {
@@ -374,6 +374,7 @@ addPlugin("5e", {
 				const rgba = colour2RGBA(c);
 				highlightColour.set(rgba);
 				highlight.setAttribute("fill", rgba);
+				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
 		])
 	}
