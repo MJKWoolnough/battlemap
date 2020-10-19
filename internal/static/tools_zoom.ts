@@ -3,6 +3,7 @@ import {createSVG, circle, line, svg} from './lib/svg.js';
 import {defaultMouseWheel, zoom} from './tools_default.js';
 import {screen2Grid} from './misc.js';
 import {addTool} from './tools.js';
+import lang from './language.js';
 
 const zoomOver = function(this: SVGElement, e: MouseEvent) {
 	document.body.classList.add("zoomOver");
@@ -32,16 +33,16 @@ document.body.addEventListener("keyup", zoomShift);
 let zoomMode: 1 | -1 = -1;
 
 addTool({
-	"name": "Zoom",
+	"name": lang["TOOL_ZOOM"],
 	"icon": svg({"viewBox": "0 0 32 32", "style": "stroke: currentColor"}, [
 		circle({"cx": 11.5, "cy": 11.5, "r": 10, "stroke-width": 3, "fill": "none"}),
 		line({"x1": 18, "y1": 18, "x2": 30, "y2": 30, "stroke-width": 4})
 	]),
 	"options": div([
-		label({"for": "zoomIn"}, "Zoom In: "),
+		label({"for": "zoomIn"}, `${lang["TOOL_ZOOM_IN"]}: `),
 		zoomIn,
 		br(),
-		label({"for": "zoomOut"}, "Zoom Out: "),
+		label({"for": "zoomOut"}, `${lang["TOOL_ZOOM_OUT"]}: `),
 		zoomOut,
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
