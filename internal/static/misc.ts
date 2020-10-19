@@ -27,6 +27,13 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 },
 hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": parseInt(hex.slice(1, 3), 16), "g": parseInt(hex.slice(3, 5), 16), "b": parseInt(hex.slice(5, 7), 16), a}),
 colour2Hex = (c: Colour) => `#${c.r.toString(16).padStart(2, "0")}${c.g.toString(16).padStart(2, "0")}${c.b.toString(16).padStart(2, "0")}`,
+rgba2Colour = (rgba: string): Colour => {
+	if (rgba === "transparent" || rgba === "") {
+		return {"r": 0, "g": 0, "b": 0, "a": 0};
+	}
+	const colours = rgba.slice(5, -1).replace(/ /g, "").split(",");
+	return {"r": parseInt(colours[0]), "g": parseInt(colours[1]), "b": parseInt(colours[2]), "a": (parseFloat(colours[3]) * 255)|0};
+},
 colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${(c.a / 255).toString()})`,
 noColour = Object.freeze({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour) => new Promise<Colour>((resolve, reject) => {
