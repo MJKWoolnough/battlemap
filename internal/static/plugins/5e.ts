@@ -1,11 +1,11 @@
-import {KeystoreData, Uint, Int, MapData} from '../types.js';
+import {KeystoreData, Uint, Int, MapData, Colour} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
 import {createSVG, polygon, rect, svg} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
-import {mapLoadedReceive, requestShell, handleError} from '../misc.js';
+import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
@@ -116,6 +116,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_SLOW": "SLOW",
 		"CONDITION_STUNNED": "Stunned",
 		"CONDITION_UNCONSCIOUS": "Unconcious",
+		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
 		"HP_CURRENT": "Current Hit Points",
 		"HP_MAX": "Maximum Hit Points",
 		"INITIATIVE": "Initiative",
@@ -227,7 +228,8 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      highlight = rect({"fill": "rgba(255, 255, 0, 0.5)"}),
+      highlightColour = new StringSetting("5e-hightlight-colour", "rgba(255, 255, 0, 0.5)"),
+      highlight = rect({"fill": highlightColour.value}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
 		if (m.target === initiativeWindow) {
@@ -363,6 +365,17 @@ addPlugin("5e", {
 				saveInitiative();
 			}).catch(() => {}))];
 		}
+	},
+	"settings": {
+		"priority": 0,
+		"fn": () => div([
+			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
+			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => rgba2Colour(highlightColour.value), (c: Colour) => {
+				const rgba = colour2RGBA(c);
+				highlightColour.set(rgba);
+				highlight.setAttribute("fill", rgba);
+			}, "highlight-colour-5e")),
+		])
 	}
 });
 
