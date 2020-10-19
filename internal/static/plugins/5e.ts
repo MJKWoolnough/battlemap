@@ -105,20 +105,41 @@ const langs: Record<string, Record<string, string>> = {
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
       conditions: [(() => SVGSVGElement), string][] = [
-	// BLINDED
-	// CHARMED
-	// DEAFENED
-	// FRIGHTENED
-	// GRAPPLED
-	// INCAPACITATED
-	// INVISIBLE
-	// PARALYZED
-	// PETRIFIED
-	// POISONED
-	// PRONE
-	// RESTRAINED
-	// STUNNED
-	// UNCONSCIOUS
+		[() => svg(), lang["CONDITION_BANE"]],
+		[() => svg(), lang["CONDITION_BLESSED"]],
+		[() => svg(), lang["CONDITION_BLINDED"]],
+		[() => svg(), lang["CONDITION_BLINK"]],
+		[() => svg(), lang["CONDITION_BLUR"]],
+		[() => svg(), lang["CONDITION_CHARMED"]],
+		[() => svg(), lang["CONDITION_CONCENTRATING"]],
+		[() => svg(), lang["CONDITION_CONFUSED"]],
+		[() => svg(), lang["CONDITION_DEAD"]],
+		[() => svg(), lang["CONDITION_DEAFENED"]],
+		[() => svg(), lang["CONDITION_DYING"]],
+		[() => svg(), lang["CONDITION_EXHAUSTED"]],
+		[() => svg(), lang["CONDITION_FRIGHTENED"]],
+		[() => svg(), lang["CONDITION_FLYING"]],
+		[() => svg(), lang["CONDITION_GRAPPLED"]],
+		[() => svg(), lang["CONDITION_GUIDANCE"]],
+		[() => svg(), lang["CONDITION_HASTE"]],
+		[() => svg(), lang["CONDITION_HEXED"]],
+		[() => svg(), lang["CONDITION_HIDEOUS_LAUGHTER"]],
+		[() => svg(), lang["CONDITION_HOLD_PERSON"]],
+		[() => svg(), lang["CONDITION_HUNTERS_MARK"]],
+		[() => svg(), lang["CONDITION_INCAPACITATED"]],
+		[() => svg(), lang["CONDITION_INVISIBLE"]],
+		[() => svg(), lang["CONDITION_LEVITATE"]],
+		[() => svg(), lang["CONDITION_MIRROR_IMAGE"]],
+		[() => svg(), lang["CONDITION_PARALYZED"]],
+		[() => svg(), lang["CONDITION_PETRIFIED"]],
+		[() => svg(), lang["CONDITION_POISONED"]],
+		[() => svg(), lang["CONDITION_PRONE"]],
+		[() => svg(), lang["CONDITION_RAGE"]],
+		[() => svg(), lang["CONDITION_RESTRAINED"]],
+		[() => svg(), lang["CONDITION_SANCTUARY"]],
+		[() => svg(), lang["CONDITION_SLOW"]],
+		[() => svg(), lang["CONDITION_STUNNED"]],
+		[() => svg(), lang["CONDITION_UNCONSCIOUS"]]
       ],
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
