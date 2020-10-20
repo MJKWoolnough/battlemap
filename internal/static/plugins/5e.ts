@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {createSVG, polygon, rect, svg} from '../lib/svg.js';
+import {createSVG, circle, path, polygon, rect, svg} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -113,7 +113,7 @@ const langs: Record<string, Record<string, string>> = {
 		[() => svg(), lang["CONDITION_CHARMED"]],
 		[() => svg(), lang["CONDITION_CONCENTRATING"]],
 		[() => svg(), lang["CONDITION_CONFUSED"]],
-		[() => svg(), lang["CONDITION_DEAD"]],
+		[() => svg({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 4.9, "fill": "#000", "stroke": "#fff", "stroke-width": 0.2}), path({"d": "M2,2 l2,2 M2,4 l2,-2 m2,0 l2,2 M6,4 l2,-2 M2,6 l1,1 l1,-1 l1,1 l1,-1 l1,1 l1,-1", "stroke": "#fff", "stroke-width": "0.1", "fill": "transparent"})]), lang["CONDITION_DEAD"]],
 		[() => svg(), lang["CONDITION_DEAFENED"]],
 		[() => svg(), lang["CONDITION_DYING"]],
 		[() => svg(), lang["CONDITION_EXHAUSTED"]],
