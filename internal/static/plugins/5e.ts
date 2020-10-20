@@ -80,7 +80,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_RAGE": "Rage",
 		"CONDITION_RESTRAINED": "Restrained",
 		"CONDITION_SANCTUARY": "Sanctuary",
-		"CONDITION_SLOW": "SLOW",
+		"CONDITION_SLOW": "Slow",
 		"CONDITION_STUNNED": "Stunned",
 		"CONDITION_UNCONSCIOUS": "Unconcious",
 		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
