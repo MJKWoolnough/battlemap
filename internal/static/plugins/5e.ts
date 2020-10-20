@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {createSVG, circle, path, polygon, rect, svg} from '../lib/svg.js';
+import {createSVG, circle, g, path, polygon, rect, svg} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -125,7 +125,7 @@ const langs: Record<string, Record<string, string>> = {
 		[() => svg(), lang["CONDITION_HEXED"]],
 		[() => svg(), lang["CONDITION_HIDEOUS_LAUGHTER"]],
 		[() => svg(), lang["CONDITION_HOLD_PERSON"]],
-		[() => svg(), lang["CONDITION_HUNTERS_MARK"]],
+		[() => svg({"viewBox": "0 0 20 20"}, g({"stroke": "#000", "stroke-width": "0.2", "transform": "translate(10, 10)"}, [circle({"r": 9.9, "fill": "#00f"}), circle({"r": 7, "fill": "#f00"}), circle({"r": 4, "fill": "#ff0"}), path({"d": "M0,0 l8,-8 l1,0 l-3,2 l2,-3 l0,1", "stroke-width": 0.4, "fill": "#000"})])), lang["CONDITION_HUNTERS_MARK"]],
 		[() => svg(), lang["CONDITION_INCAPACITATED"]],
 		[() => svg(), lang["CONDITION_INVISIBLE"]],
 		[() => svg(), lang["CONDITION_LEVITATE"]],
