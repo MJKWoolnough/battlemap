@@ -5,13 +5,13 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
-import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive} from '../misc.js';
+import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {getSymbol} from '../symbols.js';
-import {StringSetting} from '../settings_types.js';
+import {JSONSetting} from '../settings_types.js';
 
 document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}"));
 
@@ -40,6 +40,8 @@ type MapData5E = MapData & {
 		"5e-initiative"?: Uint[];
 	}
 }
+
+type WindowData = [Int, Int, Uint, Uint];
 
 class SVGToken5E extends SVGToken {
 }
@@ -153,9 +155,8 @@ const langs: Record<string, Record<string, string>> = {
       isInitiativeData = (data: any): data is InitiativeData => data instanceof Array && data.every(i => typeof i === "number"),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative"]!.data.id)),
-      savedWindowSetting = new StringSetting("5e-window-data"),
-      savedWindowData = JSON.parse(savedWindowSetting.value || "[0, 0, 200, 400]") as [Int, Int, Uint, Uint],
-      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowData[0] + "px", "--window-top": savedWindowData[1] + "px", "--window-width": savedWindowData[2] + "px", "--window-height": savedWindowData[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), }, div({"id": "initiative-window-5e"}, [
+      savedWindowSetting = new JSONSetting<WindowData>("5e-window-data", [0, 0, 200, 400], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowSetting.value[0] + "px", "--window-top": savedWindowSetting.value[1] + "px", "--window-width": savedWindowSetting.value[2] + "px", "--window-height": savedWindowSetting.value[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), }, div({"id": "initiative-window-5e"}, [
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
@@ -219,12 +220,12 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      highlightColour = new StringSetting("5e-hightlight-colour", "rgba(255, 255, 0, 0.5)"),
-      highlight = rect({"fill": highlightColour.value, "stroke": highlightColour.value, "stroke-width": 20}),
+      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 0.5}, (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && typeof v.a === "number" && v.a >= 0 && v.a <= 1),
+      highlight = rect({"fill": colour2RGBA(highlightColour.value), "stroke": colour2RGBA(highlightColour.value), "stroke-width": 20}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
 		if (m.target === initiativeWindow) {
-			savedWindowSetting.set(`[${parseInt(initiativeWindow.style.getPropertyValue("--window-left"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-top"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-width"))}, ${parseInt(initiativeWindow.style.getPropertyValue("--window-height"))}]`);
+			savedWindowSetting.set([parseInt(initiativeWindow.style.getPropertyValue("--window-left")), parseInt(initiativeWindow.style.getPropertyValue("--window-top")), parseInt(initiativeWindow.style.getPropertyValue("--window-width")), parseInt(initiativeWindow.style.getPropertyValue("--window-height"))]);
 		}
 	}
       });
@@ -361,9 +362,9 @@ addPlugin("5e", {
 		"priority": 0,
 		"fn": () => div([
 			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
-			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => rgba2Colour(highlightColour.value), (c: Colour) => {
+			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
+				highlightColour.set(c);
 				const rgba = colour2RGBA(c);
-				highlightColour.set(rgba);
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
