@@ -10,6 +10,7 @@ import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import Undo from './undo.js';
 import {rpc} from './rpc.js';
+import {tokenClass} from './plugins.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -118,7 +119,8 @@ export class SVGToken extends SVGTransform {
 	}
 	static from(token: TokenImage) {
 		const node = image(),
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), SVGToken.prototype);
+		      tc = tokenClass() ?? SVGToken.prototype,
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc);
 		createSVG(node, {"href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
@@ -127,6 +129,9 @@ export class SVGToken extends SVGTransform {
 			svgToken.setPattern(true);
 			svgToken.width = width;
 			svgToken.height = height;
+		}
+		if (svgToken.init instanceof Function) {
+			svgToken.init();
 		}
 		return svgToken;
 	}
