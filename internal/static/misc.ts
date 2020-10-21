@@ -114,4 +114,6 @@ point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 		cx = x2;
 	}
 	return Math.hypot(px - cx, py - m * cx - c);
-};
+},
+isInt = (v: any): v is number => typeof v === "number" && (v|0) === v,
+isUint = (v: any, max = Infinity) => isInt(v) && v >= 0 && v <= max;
