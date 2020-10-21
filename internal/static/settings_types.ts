@@ -60,3 +60,25 @@ export class StringSetting extends Setting<string> {
 		pipes.get(this)!.send(s);
 	}
 }
+
+export class JSONSetting<T> extends Setting<T> {
+	value: T;
+	constructor(name: string, starting: T, validator: (v: any) => v is T) {
+		super(name);
+		this.value = starting;
+		const s = window.localStorage.getItem(name);
+		if (s) {
+			try {
+				const v = JSON.parse(s);
+				if (validator(v)) {
+					this.value = v;
+				}
+			} catch {}
+		}
+	}
+	set(v: T) {
+		this.value = v;
+		window.localStorage.setItem(this.name, JSON.stringify(v));
+		pipes.get(this)!.send(v);
+	}
+}
