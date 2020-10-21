@@ -5,7 +5,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
-import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint} from '../misc.js';
+import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
@@ -220,7 +220,7 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 0.5}, (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && typeof v.a === "number" && v.a >= 0 && v.a <= 1),
+      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 0.5}, isColour),
       highlight = rect({"fill": colour2RGBA(highlightColour.value), "stroke": colour2RGBA(highlightColour.value), "stroke-width": 20}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
