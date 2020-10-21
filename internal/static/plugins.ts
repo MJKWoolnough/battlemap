@@ -1,4 +1,5 @@
 import {Uint, KeystoreData, Plugin} from './types.js';
+import {SVGToken} from './map.js';
 import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
@@ -8,7 +9,7 @@ import lang from './language.js';
 import {WindowElement} from './windows.js';
 import {rpc} from './rpc.js';
 
-type owp<T extends Function = () => void> = {
+type owp<T> = {
 	priority: Uint;
 	fn: T;
 }
@@ -17,6 +18,7 @@ type plugin = {
 	settings?: owp<() => HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
+	tokenClass?: owp<SVGToken>;
 }
 
 
@@ -94,6 +96,15 @@ export const settings = () => {
 		}
 	}
 	return ret;
+       },
+       tokenClass = (): SVGToken | null => {
+	for (const p of filterSortPlugins("tokenClass")) {
+		const tc = p[1]["tokenClass"].fn;
+		if (tc) {
+			return tc;
+		}
+	}
+	return null;
        };
 
 export let userLevel: Uint;
