@@ -133,7 +133,6 @@ export default function(oldBase: HTMLElement) {
 			selectedToken!.width = width;
 			selectedToken!.rotation = rotation;
 			selectedToken!.height = height;
-			createSVG(selectedToken!.node, {width, height});
 			selectedToken!.updateNode();
 			createSVG(outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 		      },
@@ -159,7 +158,6 @@ export default function(oldBase: HTMLElement) {
 					token.rotation = newRotation;
 					token.width = newWidth;
 					token.height = newHeight;
-					createSVG(token.node, {"width": newWidth, "height": newHeight});
 					token.updateNode();
 					if (globals.selected.token === token) {
 						tokenMousePos.x = newX;
@@ -176,7 +174,6 @@ export default function(oldBase: HTMLElement) {
 						token.rotation = rotation;
 						token.width = width;
 						token.height = height;
-						createSVG(token.node, {"width": newWidth, "height": newHeight});
 						token.updateNode();
 						if (globals.selected.token === token) {
 							tokenMousePos.x = x;
