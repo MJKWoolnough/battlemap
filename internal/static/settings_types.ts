@@ -1,17 +1,27 @@
 import {Int} from './types.js';
 import {Pipe} from './lib/inter.js';
 
-const boolPipes = new Map<BoolSetting, Pipe<boolean>>(),
-      intPipes = new Map<IntSetting, Pipe<Int>>(),
-      stringPipes = new Map<StringSetting, Pipe<string>>()
+const pipes = new Map<Setting<any>, Pipe<any>>();
 
-export class BoolSetting {
+class Setting<T> {
 	name: string;
-	value: boolean;
 	constructor(name: string) {
 		this.name = name;
+		pipes.set(this, new Pipe<T>());
+	}
+	remove() {
+		window.localStorage.removeItem(this.name);
+	}
+	wait(fn: (value: T) => void) {
+		pipes.get(this)!.receive(fn);
+	}
+}
+
+export class BoolSetting extends Setting<boolean> {
+	value: boolean;
+	constructor(name: string) {
+		super(name);
 		this.value = window.localStorage.getItem(name) !== null;
-		boolPipes.set(this, new Pipe<boolean>());
 	}
 	set(b: boolean) {
 		this.value = b;
@@ -20,55 +30,33 @@ export class BoolSetting {
 		} else {
 			window.localStorage.removeItem(this.name);
 		}
-		boolPipes.get(this)!.send(b);
+		pipes.get(this)!.send(b);
 		return b;
-	}
-	remove() {
-		window.localStorage.removeItem(this.name);
-	}
-	wait(fn: (value: boolean) => void) {
-		boolPipes.get(this)!.receive(fn);
 	}
 }
 
-export class IntSetting {
-	name: string;
+export class IntSetting extends Setting<Int> {
 	value: Int;
 	constructor(name: string, starting = "0") {
-		this.name = name;
+		super(name);
 		this.value = parseInt(window.localStorage.getItem(name) || starting);
-		intPipes.set(this, new Pipe<Int>());
 	}
 	set(i: Int) {
 		this.value = i;
 		window.localStorage.setItem(this.name, i.toString());
-		intPipes.get(this)!.send(i);
-	}
-	remove() {
-		window.localStorage.removeItem(this.name);
-	}
-	wait(fn: (value: Int) => void) {
-		intPipes.get(this)!.receive(fn);
+		pipes.get(this)!.send(i);
 	}
 }
 
-export class StringSetting {
-	name: string;
+export class StringSetting extends Setting<string> {
 	value: string;
 	constructor(name: string, starting = "") {
-		this.name = name;
+		super(name);
 		this.value = window.localStorage.getItem(name) ?? starting;
-		stringPipes.set(this, new Pipe<string>());
 	}
 	set(s: string) {
 		this.value = s;
 		window.localStorage.setItem(this.name, s);
-		stringPipes.get(this)!.send(s);
-	}
-	remove() {
-		window.localStorage.removeItem(this.name);
-	}
-	wait(fn: (value: string) => void) {
-		stringPipes.get(this)!.receive(fn);
+		pipes.get(this)!.send(s);
 	}
 }
