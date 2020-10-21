@@ -13,7 +13,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell, handleError} from './misc.js';
+import {respondWithShell, handleError, isInt, isUint} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -22,7 +22,7 @@ import './tools_move.js';
 import './tools_zoom.js';
 import pluginInit from './plugins.js';
 import lang from './language.js';
-import {BoolSetting, IntSetting, StringSetting} from './settings_types.js';
+import {BoolSetting, IntSetting, JSONSetting} from './settings_types.js';
 
 type savedWindow = {
 	out: boolean;
@@ -39,7 +39,18 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	let n = 0;
 	const panelShow = new BoolSetting("panelShow"),
 	      panelWidth = new IntSetting("panelWidth", "300"),
-	      windowSettings = new StringSetting("windowData"),
+	      windowSettings = new JSONSetting<Record<string, savedWindow>>("windowData", {}, (v: any): v is Record<string, savedWindow> => {
+		if (!(v instanceof Object)) {
+			return false;
+		}
+		for (const key in v) {
+			const kv = v[key];
+			if (typeof kv.out !== "boolean" || !isInt(kv.x) || !isInt(kv.y) || !isUint(kv.width) || !isUint(kv.height)) {
+				return false;
+			}
+		}
+		return true;
+	      }),
 	      lastTab = new IntSetting("lastTab"),
 	      mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
@@ -71,8 +82,8 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		m,
 		div({"id": "tabs"}, [t, p])
 	      ]),
-	      windowData: Record<string, savedWindow> = JSON.parse(windowSettings.value || "{}"),
-	      updateWindowData = () => windowSettings.set(JSON.stringify(windowData)),
+	      windowData: Record<string, savedWindow> =windowSettings.value,
+	      updateWindowData = () => windowSettings.set(windowData),
 	      mo = new MutationObserver(list => {
 		      list.forEach(m => {
 			      if (m.target instanceof HTMLElement) {
