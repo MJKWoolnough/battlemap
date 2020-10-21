@@ -41,6 +41,9 @@ type MapData5E = MapData & {
 	}
 }
 
+class SVGToken5E extends SVGToken {
+}
+
 let lastMapChange = 0,
     n = 0,
     lastInitiativeID = 0;
@@ -365,6 +368,10 @@ addPlugin("5e", {
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
 		])
+	},
+	"tokenClass": {
+		"priority": 0,
+		"fn": SVGToken5E.prototype
 	}
 });
 
