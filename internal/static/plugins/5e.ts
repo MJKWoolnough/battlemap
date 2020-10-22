@@ -58,11 +58,11 @@ class SVGToken5E extends SVGToken {
 			this.node,
 			this.extra = g([
 				shield(),
-				this.ac = text(),
-				this.name = text(),
+				this.ac = text(this.getData("5e-ac") ?? ""),
+				this.name = text(this.getData("name") ?? ""),
 				hpBarBack(),
 				this.hpBar = circle(),
-				this.hp = text(),
+				this.hp = text(this.getData("5e-hp-current") ?? ""),
 			])
 		]);
 	}
