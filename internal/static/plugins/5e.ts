@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {createSVG, circle, g, path, polygon, rect, svg, text} from '../lib/svg.js';
+import {createSVG, circle, g, path, polygon, rect, symbol, svg, text} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -10,7 +10,7 @@ import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
-import {getSymbol} from '../symbols.js';
+import {addSymbol, getSymbol} from '../symbols.js';
 import {JSONSetting} from '../settings_types.js';
 
 document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}"));
@@ -169,6 +169,7 @@ const langs: Record<string, Record<string, string>> = {
 		[() => svg(), lang["CONDITION_STUNNED"]],
 		[() => svg(), lang["CONDITION_UNCONSCIOUS"]]
       ],
+      shield = addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"}))),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
