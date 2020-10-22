@@ -415,7 +415,10 @@ mapLoadedReceive(() => {
 
 rpc.waitTokenDataChange().then(changed => {
 	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative") || changed["removing"].includes("name")) {
-		setTimeout(updateInitiative, 0);
+		setTimeout(() => {
+			updateInitiative();
+			(globals.tokens[changed.id].token as SVGToken5E).updateData();
+		}, 0);
 	}
 });
 
