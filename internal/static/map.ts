@@ -104,7 +104,7 @@ class SVGTransform {
 }
 
 export class SVGToken extends SVGTransform {
-	node: SVGImageElement | SVGRectElement;
+	node: SVGGraphicsElement;
 	src: Uint;
 	stroke: Colour;
 	strokeWidth: Uint;
