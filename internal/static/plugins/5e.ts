@@ -54,12 +54,17 @@ class SVGToken5E extends SVGToken {
 		super(token);
 	}
 	init() {
-		this.name = text();
-		this.ac = text();
-		this.hp = text();
-		this.hpBar = circle();
-		this.extra = g();
-		this.node = g([this.node, this.extra]);
+		this.node = g([
+			this.node,
+			this.extra = g([
+				shield(),
+				this.ac = text(),
+				this.name = text(),
+				hpBarBack(),
+				this.hpBar = circle(),
+				this.hp = text(),
+			])
+		]);
 	}
 	setPattern(isPattern: boolean) {
 		super.setPattern(isPattern);
