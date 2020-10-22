@@ -324,6 +324,7 @@ addPlugin("5e", {
 						if (updateName && data["5e-initiative"] !== undefined) {
 							updateInitiative();
 						}
+						(globals.tokens[id].token as SVGToken5E).updateData();
 					});
 				}}, mainLang["SAVE"])
 			];
