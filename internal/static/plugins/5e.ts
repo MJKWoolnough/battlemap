@@ -1,6 +1,6 @@
-import {KeystoreData, Uint, Int, MapData, Colour} from '../types.js';
+import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {createSVG, circle, g, path, polygon, rect, svg} from '../lib/svg.js';
+import {createSVG, circle, g, path, polygon, rect, svg, text} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item} from '../lib/context.js';
@@ -44,6 +44,29 @@ type MapData5E = MapData & {
 type WindowData = [Int, Int, Uint, Uint];
 
 class SVGToken5E extends SVGToken {
+	name: SVGTextElement;
+	extra: SVGGElement;
+	ac: SVGTextElement;
+	hp: SVGTextElement;
+	hpBar: SVGCircleElement;
+	constructor(token: TokenImage) {
+		throw(new Error("use from"));
+		super(token);
+	}
+	init() {
+		this.name = text();
+		this.ac = text();
+		this.hp = text();
+		this.hpBar = circle();
+		this.extra = g();
+		this.node = g([this.node, this.extra]);
+	}
+	setPattern(isPattern: boolean) {
+		super.setPattern(isPattern);
+		if (!isPattern) {
+			this.node.replaceWith(this.node = g([this.node, this.extra]));
+		}
+	}
 }
 
 let lastMapChange = 0,
