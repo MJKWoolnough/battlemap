@@ -67,6 +67,11 @@ class SVGToken5E extends SVGToken {
 			this.node.replaceWith(this.node = g([this.node, this.extra]));
 		}
 	}
+	updateData() {
+		this.name.innerHTML = this.getData("name") || "";
+		this.ac.innerHTML = this.getData("5e-ac") ?? "";
+		this.hp.innerHTML = this.getData("5e-hp") ?? "";
+	}
 }
 
 let lastMapChange = 0,
