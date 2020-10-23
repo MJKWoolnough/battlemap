@@ -49,13 +49,14 @@ class SVGToken5E extends SVGToken {
 	ac: SVGTextElement;
 	hp: SVGTextElement;
 	hpBar: SVGCircleElement;
+	tokenNode: SVGGraphicsElement;
 	constructor(token: TokenImage) {
 		throw(new Error("use from"));
 		super(token);
 	}
 	init() {
 		this.node = g([
-			this.node,
+			this.tokenNode = this.node,
 			this.extra = g([
 				shield({"width": "3em", "height": "3em"}),
 				this.ac = text(this.getData("5e-ac") ?? ""),
@@ -66,17 +67,24 @@ class SVGToken5E extends SVGToken {
 			])
 		]);
 	}
+	at(x: Int, y: Int) {
+		return super.at(x, y, this.tokenNode);
+	}
 	setPattern(isPattern: boolean) {
 		super.setPattern(isPattern);
 		if (!isPattern) {
 			this.node.replaceWith(this.node = g([this.node, this.extra]));
 		}
 	}
+	updateNode() {
+		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
+	}
 	updateData() {
 		this.name.innerHTML = this.getData("name") || "";
 		this.ac.innerHTML = this.getData("5e-ac") ?? "";
 		this.hp.innerHTML = this.getData("5e-hp") ?? "";
 	}
+
 }
 
 let lastMapChange = 0,
