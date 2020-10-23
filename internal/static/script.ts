@@ -35,6 +35,7 @@ type savedWindow = {
 declare const pageLoad: Promise<void>;
 
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "style": "stroke: currentColor"}))),
+      lastTab = new IntSetting("lastTab"),
       tabs = (function() {
 	let n = 0;
 	const panelShow = new BoolSetting("panelShow"),
@@ -51,7 +52,6 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		}
 		return true;
 	      }),
-	      lastTab = new IntSetting("lastTab"),
 	      mousemove = function(e: MouseEvent) {
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
@@ -204,6 +204,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
 	} else {
+		lastTab.set(0);
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
