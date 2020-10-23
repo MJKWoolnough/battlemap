@@ -73,7 +73,6 @@ class SVGTransform {
 	height: Uint;
 	lightColour: Colour;
 	lightIntensity: Uint;
-	node?: SVGGraphicsElement;
 	constructor(token: Token) {
 		this.id = token.id;
 		this.width = token.width;
@@ -84,8 +83,8 @@ class SVGTransform {
 		this.lightColour = token.lightColour;
 		this.lightIntensity = token.lightIntensity;
 	}
-	at(x: Int, y: Int) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this.node!.getScreenCTM()!.inverse());
+	at(x: Int, y: Int, node: SVGGraphicsElement) {
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(node!.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	transformString(scale = true) {
@@ -134,6 +133,9 @@ export class SVGToken extends SVGTransform {
 			svgToken.init();
 		}
 		return svgToken;
+	}
+	at(x: Int, y: Int, node = this.node) {
+		return super.at(x, y, node);
 	}
 	setPattern(isPattern: boolean) {
 		if (isPattern) {
@@ -200,6 +202,9 @@ export class SVGShape extends SVGTransform {
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
 		createSVG(node, {"fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
 		return svgShape;
+	}
+	at(x: Int, y: Int) {
+		return super.at(x, y, this.node);
 	}
 	get isPattern() {
 		return false;
