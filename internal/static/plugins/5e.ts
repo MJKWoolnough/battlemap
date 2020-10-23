@@ -50,6 +50,8 @@ class SVGToken5E extends SVGToken {
 	hp: SVGTextElement;
 	hpBar: SVGCircleElement;
 	tokenNode: SVGGraphicsElement;
+	shield: SVGUseElement;
+	hpBack: SVGUseElement;
 	constructor(token: TokenImage) {
 		throw(new Error("use from"));
 		super(token);
@@ -58,10 +60,10 @@ class SVGToken5E extends SVGToken {
 		this.node = g([
 			this.tokenNode = this.node,
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`}, [
-				use({"href": "#5e-shield", "width": "3em", "height": "3em"}),
+				this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 				this.ac = text(this.getData("5e-ac") ?? ""),
 				this.name = text(this.getData("name") ?? ""),
-				use({"href": "#5e-hp-back", "width": "3em", "height": "3em"}),
+				this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
 				this.hpBar = circle(),
 				this.hp = text(this.getData("5e-hp-current") ?? ""),
 			])
@@ -79,6 +81,8 @@ class SVGToken5E extends SVGToken {
 	updateNode() {
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
+		createSVG(this.shield, {"width": this.width / 4, "height": this.height / 4});
+		createSVG(this.hpBack, {"width": this.width / 4, "height": this.height / 4});
 	}
 	updateData() {
 		this.name.innerHTML = this.getData("name") || "";
