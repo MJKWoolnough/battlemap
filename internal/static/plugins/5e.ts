@@ -48,7 +48,7 @@ class SVGToken5E extends SVGToken {
 	extra: SVGGElement;
 	ac: SVGTextElement;
 	hp: SVGTextElement;
-	hpBar: SVGCircleElement;
+	hpBar: SVGUseElement;
 	tokenNode: SVGGraphicsElement;
 	shield: SVGUseElement;
 	hpBack: SVGUseElement;
@@ -64,7 +64,7 @@ class SVGToken5E extends SVGToken {
 				this.ac = text(this.getData("5e-ac") ?? ""),
 				this.name = text(this.getData("name") ?? ""),
 				this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
-				this.hpBar = circle(),
+				this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * 1} 60`}),
 				this.hp = text(this.getData("5e-hp-current") ?? ""),
 			])
 		]);
@@ -94,6 +94,7 @@ class SVGToken5E extends SVGToken {
 
 addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})));
 addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": "44.77 14.92", "transform": "translate(10, 10) rotate(135)"})));
+addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})));
 
 let lastMapChange = 0,
     n = 0,
