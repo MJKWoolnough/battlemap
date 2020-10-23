@@ -57,10 +57,10 @@ class SVGToken5E extends SVGToken {
 		this.node = g([
 			this.node,
 			this.extra = g([
-				shield(),
+				shield({"width": "3em", "height": "3em"}),
 				this.ac = text(this.getData("5e-ac") ?? ""),
 				this.name = text(this.getData("name") ?? ""),
-				hpBarBack(),
+				hpBarBack({"width": "3em", "height": "3em"}),
 				this.hpBar = circle(),
 				this.hp = text(this.getData("5e-hp-current") ?? ""),
 			])
