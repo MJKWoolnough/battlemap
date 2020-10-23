@@ -57,7 +57,7 @@ class SVGToken5E extends SVGToken {
 	init() {
 		this.node = g([
 			this.tokenNode = this.node,
-			this.extra = g([
+			this.extra = g({"transform": `translate(${this.x}, ${this.y})`}, [
 				shield({"width": "3em", "height": "3em"}),
 				this.ac = text(this.getData("5e-ac") ?? ""),
 				this.name = text(this.getData("name") ?? ""),
@@ -78,6 +78,7 @@ class SVGToken5E extends SVGToken {
 	}
 	updateNode() {
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
 	}
 	updateData() {
 		this.name.innerHTML = this.getData("name") || "";
