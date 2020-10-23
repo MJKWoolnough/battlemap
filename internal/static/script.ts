@@ -82,7 +82,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		m,
 		div({"id": "tabs"}, [t, p])
 	      ]),
-	      windowData: Record<string, savedWindow> =windowSettings.value,
+	      windowData: Record<string, savedWindow> = windowSettings.value,
 	      updateWindowData = () => windowSettings.set(windowData),
 	      mo = new MutationObserver(list => {
 		      list.forEach(m => {
@@ -204,7 +204,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
 	} else {
-		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
