@@ -189,7 +189,7 @@ const langs: Record<string, Record<string, string>> = {
 		[() => svg(), lang["CONDITION_UNCONSCIOUS"]]
       ],
       shield = addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"}))),
-      hpBarBack = addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": "44.77 14.92", "transform": "translate(10, 10) rotate(135)"}))),
+      hpBarBack = addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": "44.77 14.92", "transform": "translate(10, 10) rotate(135)"}))),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
