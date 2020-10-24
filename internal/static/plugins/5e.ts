@@ -72,7 +72,7 @@ class SVGToken5E extends SVGToken {
 				this.name = text(this.getData("name") ?? ""),
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
-					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * 1} 60`}),
+					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * (maxHP ?? 0) / (currentHP ?? 1)} 60`}),
 					this.hpValue = text(currentHP?.toString() ?? "")
 				])
 			])
@@ -115,6 +115,7 @@ class SVGToken5E extends SVGToken {
 		} else {
 			this.hp.removeAttribute("style");
 			this.hpValue.innerHTML = currentHP.toString();
+			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * maxHP / currentHP} 60`);
 		}
 		this.name.innerHTML = this.getData("name") || "";
 	}
