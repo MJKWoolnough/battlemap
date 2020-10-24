@@ -67,7 +67,7 @@ class SVGToken5E extends SVGToken {
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`}, [
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
-					this.ac = text(ac?.toString() ?? "")
+					this.acValue = text(ac?.toString() ?? "")
 				]),
 				this.name = text(this.getData("name") ?? ""),
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
@@ -101,9 +101,22 @@ class SVGToken5E extends SVGToken {
 		createSVG(this.hpBack, {"width": this.width / 4, "height": this.height / 4});
 	}
 	updateData() {
+		const maxHP: Uint | null = this.getData("5e-hp-max"),
+		      currentHP: Uint | null = this.getData("5e-hp-current"),
+		      ac: Uint | null = this.getData("5e-ac");
+		if (ac === null) {
+			this.ac.setAttribute("style", "display: none");
+		} else {
+			this.ac.removeAttribute("style");
+			this.acValue.innerHTML = ac.toString();
+		}
+		if (currentHP === null || maxHP === null) {
+			this.hp.setAttribute("style", "display: none");
+		} else {
+			this.hp.removeAttribute("style");
+			this.hpValue.innerHTML = currentHP.toString();
+		}
 		this.name.innerHTML = this.getData("name") || "";
-		this.ac.innerHTML = this.getData("5e-ac") ?? "";
-		this.hp.innerHTML = this.getData("5e-hp") ?? "";
 	}
 
 }
