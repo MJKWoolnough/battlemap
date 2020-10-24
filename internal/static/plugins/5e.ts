@@ -440,6 +440,7 @@ mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	lastInitiativeID = 0;
 	updateInitiative();
+	lastSelectedToken = null;
 });
 
 rpc.waitTokenDataChange().then(changed => {
