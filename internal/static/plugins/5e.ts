@@ -64,7 +64,7 @@ class SVGToken5E extends SVGToken {
 		      ac: Uint | null = this.getData("5e-ac");
 		this.node = g([
 			this.tokenNode = this.node,
-			this.extra = g({"transform": `translate(${this.x}, ${this.y})`}, [
+			this.extra = g({"transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 					this.acValue = text(ac?.toString() ?? "")
