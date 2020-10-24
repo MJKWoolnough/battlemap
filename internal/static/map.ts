@@ -118,8 +118,8 @@ export class SVGToken extends SVGTransform {
 	}
 	static from(token: TokenImage) {
 		const node = image(),
-		      tc = tokenClass() ?? SVGToken.prototype,
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc);
+		      tc = tokenClass() ?? SVGToken,
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc.prototype);
 		createSVG(node, {"href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;

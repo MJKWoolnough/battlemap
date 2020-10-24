@@ -1,4 +1,4 @@
-import {Uint, KeystoreData, Plugin} from './types.js';
+import {Uint, KeystoreData, Plugin, TokenImage} from './types.js';
 import {SVGToken} from './map.js';
 import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
@@ -14,13 +14,16 @@ type owp<T> = {
 	fn: T;
 }
 
+interface SVGTokenConstructor {
+	new (token: TokenImage): SVGToken;
+}
+
 type plugin = {
 	settings?: owp<() => HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
-	tokenClass?: owp<SVGToken>;
+	tokenClass?: owp<SVGTokenConstructor>;
 }
-
 
 const plugins = new Map<string, plugin>(),
       pluginList = new Map<string, Plugin>(),
@@ -97,7 +100,7 @@ export const settings = () => {
 	}
 	return ret;
        },
-       tokenClass = (): SVGToken | null => {
+       tokenClass = (): SVGTokenConstructor | null => {
 	for (const p of filterSortPlugins("tokenClass")) {
 		const tc = p[1]["tokenClass"].fn;
 		if (tc) {

@@ -431,7 +431,7 @@ addPlugin("5e", {
 	},
 	"tokenClass": {
 		"priority": 0,
-		"fn": SVGToken5E.prototype
+		"fn": SVGToken5E
 	}
 });
 
