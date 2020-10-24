@@ -78,6 +78,11 @@ class SVGToken5E extends SVGToken {
 			this.node.replaceWith(this.node = g([this.node, this.extra]));
 		}
 	}
+	unselect() {
+		if (!this.isPattern) {
+			this.node.appendChild(this.extra);
+		}
+	}
 	updateNode() {
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
@@ -98,7 +103,8 @@ addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "t
 
 let lastMapChange = 0,
     n = 0,
-    lastInitiativeID = 0;
+    lastInitiativeID = 0,
+    lastSelectedToken: SVGToken5E | null = null;
 
 const langs: Record<string, Record<string, string>> = {
 	"en-GB": {
@@ -452,5 +458,16 @@ rpc.waitMapDataSet().then(changed => {
 rpc.waitMapDataRemove().then(removed => {
 	if (removed === "5e-initiative") {
 		initiativeWindow.remove();
+	}
+});
+
+tokenSelectedReceive(() => {
+	if (lastSelectedToken) {
+		lastSelectedToken.unselect();
+		lastSelectedToken = null;
+	}
+	if (globals.selected.token instanceof SVGToken5E && !globals.selected.token.isPattern) {
+		lastSelectedToken = globals.selected.token;
+		globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
 	}
 });
