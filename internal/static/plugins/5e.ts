@@ -74,7 +74,9 @@ class SVGToken5E extends SVGToken {
 	}
 	setPattern(isPattern: boolean) {
 		super.setPattern(isPattern);
-		if (!isPattern) {
+		if (isPattern) {
+			this.extra.remove();
+		} else {
 			this.node.replaceWith(this.node = g([this.node, this.extra]));
 		}
 	}
