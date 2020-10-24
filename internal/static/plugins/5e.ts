@@ -354,17 +354,17 @@ addPlugin("5e", {
 				br(),
 				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 10)};
+					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
 				}}),
 				br(),
 				label({"for": `edit_5e_current_${n}`}, `${lang["HP_CURRENT"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
+					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}}),
 				br(),
 				label({"for": `edit_5e_hp_${n}`}, `${lang["HP_MAX"]}: `),
 				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 10)};
+					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}}),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
