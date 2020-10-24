@@ -44,14 +44,16 @@ type MapData5E = MapData & {
 type WindowData = [Int, Int, Uint, Uint];
 
 class SVGToken5E extends SVGToken {
-	name: SVGTextElement;
-	extra: SVGGElement;
-	ac: SVGTextElement;
-	hp: SVGTextElement;
-	hpBar: SVGUseElement;
 	tokenNode: SVGGraphicsElement;
-	shield: SVGUseElement;
+	extra: SVGGElement;
+	hp: SVGGElement;
+	hpValue: SVGTextElement;
+	hpBar: SVGUseElement;
 	hpBack: SVGUseElement;
+	name: SVGTextElement;
+	ac: SVGGElement;
+	acValue: SVGTextElement;
+	shield: SVGUseElement;
 	constructor(token: TokenImage) {
 		throw(new Error("use from"));
 		super(token);
@@ -60,12 +62,16 @@ class SVGToken5E extends SVGToken {
 		this.node = g([
 			this.tokenNode = this.node,
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`}, [
-				this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
-				this.ac = text(this.getData("5e-ac") ?? ""),
+				this.ac = g([
+					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
+					this.ac = text(this.getData("5e-ac") ?? "")
+				]),
 				this.name = text(this.getData("name") ?? ""),
-				this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
-				this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * 1} 60`}),
-				this.hp = text(this.getData("5e-hp-current") ?? ""),
+				this.hp = g([
+					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
+					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * 1} 60`}),
+					this.hpValue = text(this.getData("5e-hp-current") ?? "")
+				])
 			])
 		]);
 	}
