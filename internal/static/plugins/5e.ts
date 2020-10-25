@@ -359,9 +359,9 @@ addPlugin("5e", {
 	"tokenContext": {
 		"priority": 0,
 		"fn": () => {
-			const {selected: {token}} = globals,
+			const token = lastSelectedToken,
 			      mapChange = lastMapChange;
-			if (!token || !(token instanceof SVGToken)) {
+			if (!token) {
 				return [];
 			}
 			if (token.tokenData["5e-initiative"]) {
@@ -369,7 +369,7 @@ addPlugin("5e", {
 					item(lang["INITIATIVE_CHANGE"], () => {
 						if (token.tokenData["5e-initiative"]) {
 							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
-								if (token.tokenData["5e-initiative"]) {
+								if (token === lastSelectedToken && token.tokenData["5e-initiative"]) {
 									token.tokenData["5e-initiative"].data.initiative = initiative;
 									rpc.tokenModify(token.id, { "5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
 									updateInitiative();
