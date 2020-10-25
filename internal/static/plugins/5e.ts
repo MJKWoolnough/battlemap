@@ -127,6 +127,15 @@ addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1
 addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})));
 addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})));
 
+addSymbol("5e-condition-CHARMED", symbol({"viewBox": "0 0 8.2 8.23"}, path({"d": "M0.1,2.1 a2,2 0,0,1 4,0 a2,2 0,0,1 4,0 q0,3 -4,6 q-4,-3 -4,-6 Z", "fill": "#f00", "stroke": "#000", "stroke-width": 0.2})));
+addSymbol("5e-condition-DEAD", symbol({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 4.9, "fill": "#aea", "stroke": "#000", "stroke-width": 0.2}), path({"d": "M2,2 l2,2 M2,4 l2,-2 m2,0 l2,2 M6,4 l2,-2 M2,6 l1,1 l1,-1 l1,1 l1,-1 l1,1 l1,-1", "stroke": "#000", "stroke-width": "0.1", "fill": "transparent"})]));
+addSymbol("5e-condition-DEAFENED", symbol({"viewBox": "0 0 10 10"}, path({"d": "M0.1,3 h2 l2,-2 v8 l-2,-2 h-2 z M5,3 l4,4 M5,7 l4,-4", "stroke": "#000", "stroke-width": 0.1, "fill": "#fff"})));
+addSymbol("5e-condition-HEXED", symbol({"viewBox": "0 0 100 100"}, [circle({"cx": 50, "cy": 50, "r": 49.5, "fill": "#808", "stroke": "#000", "stroke-width": 1}), path({"d": "M3,35 L79,90 L50,1 L21,90 L97,35 Z", "stroke": "#000", "fill": "#fff", "stroke-linejoin": "bevel", "fill-rule": "evenodd"})]));
+addSymbol("5e-condition-HIDEOUS_LAUGHTER", symbol({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 5, "fill": "#dd0"}), path({"d": "M2.5,2.5 l1,1 l-1,1 M7.5,2.5 l-1,1 l1,1", "stroke": "#000", "stroke-width": 0.2, "fill": "transparent"}), path({"d": "M2,6 h6 a3,3 0,0,1 -6,0 z", "fill": "#000"}), path({"d": "M2.5,7.66 a3,3 0,0,1 5,0 a3,3 0,0,1 -5,0 z", "fill": "#f00"})]));
+addSymbol("5e-condition-HUNTERS_MARK", symbol({"viewBox": "0 0 20 20"}, g({"stroke": "#000", "stroke-width": "0.2", "transform": "translate(10, 10)"}, [circle({"r": 9.9, "fill": "#00f"}), circle({"r": 7, "fill": "#f00"}), circle({"r": 4, "fill": "#ff0"}), path({"d": "M0,0 l8,-8 l1,0 l-3,2 l2,-3 l0,1", "stroke-width": 0.4, "fill": "#000"})])));
+addSymbol("5e-condition-INVISIBLE", symbol({"viewBox": "0 0 82 92"}, g({"stroke": "#000", "stroke-width": 1, "fill": "rgba(255, 255, 255, 0.75)"}, [path({"d": "M81,91 v-50 a30,30 0,0,0 -80,0 v50 l10,-10 l10,10 l10,-10 l10,10 l10,-10 l10,10 l10,-10 z"}), circle({"cx": 20, "cy": 30, "r": 10}), circle({"cx": 60, "cy": 30, "r": 10})])));
+addSymbol("5e-condition-POISONED", symbol({"viewBox": "0 0 6.2 9.3"}, path({"d": "M3.1,0.2 q-6,8 0,9 q6,-1 0,-9 Z", "stroke": "#000", "stroke-width": 0.2, "fill": "#0a0"})));
+
 let lastMapChange = 0,
     n = 0,
     lastInitiativeID = 0,
@@ -192,42 +201,41 @@ const langs: Record<string, Record<string, string>> = {
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
-      conditions: [(() => SVGSVGElement), string][] = [
-		[() => svg(), lang["CONDITION_BANE"]],
-		[() => svg(), lang["CONDITION_BLESSED"]],
-		[() => svg(), lang["CONDITION_BLINDED"]],
-		[() => svg(), lang["CONDITION_BLINK"]],
-		[() => svg(), lang["CONDITION_BLUR"]],
-		[() => svg({"viewBox": "0 0 8.2 8.23"}, path({"d": "M0.1,2.1 a2,2 0,0,1 4,0 a2,2 0,0,1 4,0 q0,3 -4,6 q-4,-3 -4,-6 Z", "fill": "#f00", "stroke": "#000", "stroke-width": 0.2})), lang["CONDITION_CHARMED"]],
-		[() => svg(), lang["CONDITION_CONCENTRATING"]],
-		[() => svg(), lang["CONDITION_CONFUSED"]],
-		[() => svg({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 4.9, "fill": "#aea", "stroke": "#000", "stroke-width": 0.2}), path({"d": "M2,2 l2,2 M2,4 l2,-2 m2,0 l2,2 M6,4 l2,-2 M2,6 l1,1 l1,-1 l1,1 l1,-1 l1,1 l1,-1", "stroke": "#000", "stroke-width": "0.1", "fill": "transparent"})]), lang["CONDITION_DEAD"]],
-		[() => svg({"viewBox": "0 0 10 10"}, path({"d": "M0.1,3 h2 l2,-2 v8 l-2,-2 h-2 z M5,3 l4,4 M5,7 l4,-4", "stroke": "#000", "stroke-width": 0.1, "fill": "#fff"})), lang["CONDITION_DEAFENED"]],
-		[() => svg(), lang["CONDITION_DYING"]],
-		[() => svg(), lang["CONDITION_EXHAUSTED"]],
-		[() => svg(), lang["CONDITION_FRIGHTENED"]],
-		[() => svg(), lang["CONDITION_FLYING"]],
-		[() => svg(), lang["CONDITION_GRAPPLED"]],
-		[() => svg(), lang["CONDITION_GUIDANCE"]],
-		[() => svg(), lang["CONDITION_HASTE"]],
-		[() => svg({"viewBox": "0 0 100 100"}, [circle({"cx": 50, "cy": 50, "r": 49.5, "fill": "#808", "stroke": "#000", "stroke-width": 1}), path({"d": "M3,35 L79,90 L50,1 L21,90 L97,35 Z", "stroke": "#000", "fill": "#fff", "stroke-linejoin": "bevel", "fill-rule": "evenodd"})]), lang["CONDITION_HEXED"]],
-		[() => svg({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 5, "fill": "#dd0"}), path({"d": "M2.5,2.5 l1,1 l-1,1 M7.5,2.5 l-1,1 l1,1", "stroke": "#000", "stroke-width": 0.2, "fill": "transparent"}), path({"d": "M2,6 h6 a3,3 0,0,1 -6,0 z", "fill": "#000"}), path({"d": "M2.5,7.66 a3,3 0,0,1 5,0 a3,3 0,0,1 -5,0 z", "fill": "#f00"})]), lang["CONDITION_HIDEOUS_LAUGHTER"]],
-		[() => svg(), lang["CONDITION_HOLD_PERSON"]],
-		[() => svg({"viewBox": "0 0 20 20"}, g({"stroke": "#000", "stroke-width": "0.2", "transform": "translate(10, 10)"}, [circle({"r": 9.9, "fill": "#00f"}), circle({"r": 7, "fill": "#f00"}), circle({"r": 4, "fill": "#ff0"}), path({"d": "M0,0 l8,-8 l1,0 l-3,2 l2,-3 l0,1", "stroke-width": 0.4, "fill": "#000"})])), lang["CONDITION_HUNTERS_MARK"]],
-		[() => svg(), lang["CONDITION_INCAPACITATED"]],
-		[() => svg({"viewBox": "0 0 82 92"}, g({"stroke": "#000", "stroke-width": 1, "fill": "rgba(255, 255, 255, 0.75)"}, [path({"d": "M81,91 v-50 a30,30 0,0,0 -80,0 v50 l10,-10 l10,10 l10,-10 l10,10 l10,-10 l10,10 l10,-10 z"}), circle({"cx": 20, "cy": 30, "r": 10}), circle({"cx": 60, "cy": 30, "r": 10})])), lang["CONDITION_INVISIBLE"]],
-		[() => svg(), lang["CONDITION_LEVITATE"]],
-		[() => svg(), lang["CONDITION_MIRROR_IMAGE"]],
-		[() => svg(), lang["CONDITION_PARALYZED"]],
-		[() => svg(), lang["CONDITION_PETRIFIED"]],
-		[() => svg({"viewBox": "0 0 6.2 9.3"}, path({"d": "M3.1,0.2 q-6,8 0,9 q6,-1 0,-9 Z", "stroke": "#000", "stroke-width": 0.2, "fill": "#0a0"})), lang["CONDITION_POISONED"]],
-		[() => svg(), lang["CONDITION_PRONE"]],
-		[() => svg(), lang["CONDITION_RAGE"]],
-		[() => svg(), lang["CONDITION_RESTRAINED"]],
-		[() => svg(), lang["CONDITION_SANCTUARY"]],
-		[() => svg(), lang["CONDITION_SLOW"]],
-		[() => svg(), lang["CONDITION_STUNNED"]],
-		[() => svg(), lang["CONDITION_UNCONSCIOUS"]]
+      conditions: string[] = [
+	      "BANE",
+	      "BLESSED",
+	      "BLINDED",
+	      "BLINK",
+	      "BLUR",
+	      "CHARMED",
+	      "CONCENTRATING",
+	      "CONFUSED",
+	      "DEAD",
+	      "DEAFENED",
+	      "DYING",
+	      "EXHAUSTED",
+	      "FRIGHTENED",
+	      "FLYING",
+	      "GRAPPLED",
+	      "GUIDANCE",
+	      "HASTE",
+	      "HEXED",
+	      "HIDEOUS_LAUGHTER",
+	      "HUNTERS_MARK",
+	      "INCAPACITATED",
+	      "INVISIBLE",
+	      "LEVITATE",
+	      "MIRROR_IMAGE",
+	      "PARALYZED",
+	      "PETRIFIED",
+	      "POISONED",
+	      "PRONE",
+	      "RAGE",
+	      "RESTRAINED",
+	      "SANCTUARY",
+	      "SLOW",
+	      "STUNNED",
+	      "UNCONSCIOUS",
       ],
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
