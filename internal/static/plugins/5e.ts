@@ -84,8 +84,15 @@ class SVGToken5E extends SVGToken {
 	setPattern(isPattern: boolean) {
 		super.setPattern(isPattern);
 		if (isPattern) {
+			if (lastSelectedToken === this) {
+				lastSelectedToken = null;
+			}
 			this.extra.remove();
 		} else {
+			if (globals.selected.token === this) {
+				lastSelectedToken = this;
+				globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
+			}
 			this.node.replaceWith(this.node = g([this.node, this.extra]));
 		}
 	}
