@@ -172,6 +172,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_UNCONSCIOUS": "Unconcious",
 		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
 		"HP_CURRENT": "Current Hit Points",
+		"HP_CURRENT_ENTER": "Please enter current Hit Points",
 		"HP_MAX": "Maximum Hit Points",
 		"INITIATIVE": "Initiative",
 		"INITIATIVE_ADD": "Add Initiative",
@@ -465,6 +466,29 @@ mapLoadedReceive(() => {
 	lastInitiativeID = 0;
 	updateInitiative();
 	lastSelectedToken = null;
+	if (userLevel === 1) {
+		globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
+			e.preventDefault();
+			if (lastSelectedToken !== null && e.key === 'h') {
+				const token = lastSelectedToken,
+				      hp = token.getData("5e-hp-current");
+				if (hp !== null) {
+					requestShell().prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+						if (hp === null || token !== lastSelectedToken) {
+							return;
+						}
+						const data = parseInt(hp);
+						if (data >= 0) {
+							rpc.tokenModify(token.id, {"5e-hp-current": {"user": false, data}}, []);
+							token.tokenData["5e-hp-current"] = {"user": false, data};
+							token.updateData();
+						}
+						globals.outline.focus();
+					});
+				}
+			}
+		});
+	}
 });
 
 rpc.waitTokenDataChange().then(changed => {
