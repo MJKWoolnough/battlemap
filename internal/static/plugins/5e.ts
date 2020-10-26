@@ -67,7 +67,7 @@ class SVGToken5E extends SVGToken {
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
-					this.acValue = text(ac?.toString() ?? "")
+					this.acValue = text({"x": 7 * this.width / 8, "y": "2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 				]),
 				this.name = text({"x": this.width / 2, "y": this.height / 16, "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
@@ -117,6 +117,7 @@ class SVGToken5E extends SVGToken {
 		createSVG(this.hpBar, {"width": this.width / 4, "height": this.height / 4});
 		createSVG(this.name, {"x": this.width / 2, "style": {"font-size": undefined}});
 		createSVG(this.hpValue, {"x": this.width / 8});
+		createSVG(this.acValue, {"x": 7 * this.width / 8});
 		this.setTextWidth();
 	}
 	updateData() {
