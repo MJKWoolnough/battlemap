@@ -3,7 +3,7 @@ import {br, button, div, img, input, label, li, span, style, ul} from '../lib/ht
 import {createSVG, circle, g, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
-import {item} from '../lib/context.js';
+import {item, menu} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
@@ -198,6 +198,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_SLOW": "Slow",
 		"CONDITION_STUNNED": "Stunned",
 		"CONDITION_UNCONSCIOUS": "Unconcious",
+		"CONDITIONS": "Conditions",
 		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
 		"HP_CURRENT": "Current Hit Points",
 		"HP_CURRENT_ENTER": "Please enter current Hit Points",
@@ -405,7 +406,8 @@ addPlugin("5e", {
 						delete(token.tokenData["5e-initiative"]);
 						rpc.tokenModify(token.id, {}, ["5e-initiative"]);
 						saveInitiative();
-					})
+					}),
+					menu(lang["CONDITIONS"], conditions.map(c => item(lang[`CONDITION_${c}`], () => {})))
 				];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod");
