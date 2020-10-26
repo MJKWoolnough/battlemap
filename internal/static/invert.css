@@ -53,3 +53,11 @@
 .invert .mapCurrent, .invert .selectedLayer, .invert .hasMapCurrent > details > summary {
 	background-color: #555;
 }
+
+.invert .dragging .dragAfter:hover {
+	border-bottom-color: #fff;
+}
+
+.invert .dragging .dragBefore:hover {
+	border-top-color: #fff;
+}
