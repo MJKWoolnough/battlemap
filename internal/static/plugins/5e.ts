@@ -104,9 +104,10 @@ class SVGToken5E extends SVGToken {
 	updateNode() {
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
-		createSVG(this.shield, {"width": this.width / 4, "height": this.height / 4});
+		createSVG(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": this.height / 4});
 		createSVG(this.hpBack, {"width": this.width / 4, "height": this.height / 4});
-		createSVG(this.name, {"x": this.width / 2, "text-length": this.width / 2}));
+		createSVG(this.hpBar, {"width": this.width / 4, "height": this.height / 4});
+		createSVG(this.name, {"x": this.width / 2, "text-length": this.width / 2});
 	}
 	updateData() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
