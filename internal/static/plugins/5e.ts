@@ -69,7 +69,7 @@ class SVGToken5E extends SVGToken {
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 					this.acValue = text(ac?.toString() ?? "")
 				]),
-				this.name = text(this.getData("name") ?? ""),
+				this.name = text({"x": this.width / 2, "y": "1em", "text-length": this.width / 2, "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
 					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
@@ -106,6 +106,7 @@ class SVGToken5E extends SVGToken {
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
 		createSVG(this.shield, {"width": this.width / 4, "height": this.height / 4});
 		createSVG(this.hpBack, {"width": this.width / 4, "height": this.height / 4});
+		createSVG(this.name, {"x": this.width / 2, "text-length": this.width / 2}));
 	}
 	updateData() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
