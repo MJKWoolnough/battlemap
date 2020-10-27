@@ -382,7 +382,7 @@ addPlugin("5e", {
 		"fn": () => {
 			const token = lastSelectedToken,
 			      mapChange = lastMapChange;
-			if (!token) {
+			if (!token || !(token instanceof SVGToken5E)) {
 				return [];
 			}
 			if (token.tokenData["5e-initiative"]) {
