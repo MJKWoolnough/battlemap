@@ -178,7 +178,7 @@ type layerToken struct {
 }
 
 type token struct {
-	ID     uint64 `jons:"-"`
+	ID     uint64 `json:"-"`
 	Source uint64 `json:"src"`
 	coords
 	Width         uint64                  `json:"width"`
