@@ -392,7 +392,7 @@ addPlugin("5e", {
 							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
 								if (token === lastSelectedToken && token.tokenData["5e-initiative"]) {
 									token.tokenData["5e-initiative"].data.initiative = initiative;
-									rpc.tokenModify(token.id, { "5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
+									rpc.tokenModify(token.id, {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
 									updateInitiative();
 								}
 							});
