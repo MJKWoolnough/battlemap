@@ -396,10 +396,13 @@ addPlugin("5e", {
 					item(lang["INITIATIVE_CHANGE"], () => {
 						if (token.tokenData["5e-initiative"]) {
 							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
-								if (token === lastSelectedToken && token.tokenData["5e-initiative"]) {
-									token.tokenData["5e-initiative"].data.initiative = initiative;
-									rpc.tokenModify(token.id, {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
-									updateInitiative();
+								if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
+									const init = parseInt(initiative);
+									if (isInt(init, -20, 40)) {
+										token.tokenData["5e-initiative"].data.initiative = init;
+										rpc.tokenModify(token.id, {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
+										updateInitiative();
+									}
 								}
 							});
 						}
