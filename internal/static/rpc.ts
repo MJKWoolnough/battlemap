@@ -462,7 +462,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkKeystoreData, "data"]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {
