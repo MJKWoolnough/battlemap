@@ -410,7 +410,15 @@ addPlugin("5e", {
 						rpc.tokenModify(token.id, {}, ["5e-initiative"]);
 						saveInitiative();
 					}),
-					menu(lang["CONDITIONS"], conditions.map(c => item(lang[`CONDITION_${c}`], () => {})))
+					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[`CONDITION_${c}`], () => {
+						if (token !== lastSelectedToken) {
+							return;
+						}
+						const data = token.getData("5e-conditions") ?? [];
+						data[n] = !data[n];
+						rpc.tokenModify(token.id, {"5e-conditions": {"user": true, data}}, []);
+						token.updateData();
+					})))
 				];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod");
