@@ -1,4 +1,4 @@
-import {RPC as RPCType, InternalWaits} from './types.js';
+import {RPC as RPCType, InternalWaits, KeystoreData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
 import {handleError} from './misc.js';
@@ -22,7 +22,10 @@ rpc = {
 	"audio":      {},
 	"characters": {},
 	"maps":       {},
-} as RPCType;
+} as RPCType,
+addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
+addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
+addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn);
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(arpc => {
@@ -36,7 +39,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"": [
 				["waitCurrentUserMap",      broadcastCurrentUserMap,      checkUint],
 				["waitCurrentUserMapData",  broadcastCurrentUserMapData,  checkMapData],
-				["waitMapDataSet",          broadcastMapDataSet,          checkKeyData],
+				["waitMapDataSet",          broadcastMapDataSet,          checkMapKeyData],
 				["waitMapDataRemove",       broadcastMapDataRemove,       checkString],
 				["waitCharacterDataChange", broadcastCharacterDataChange, checkCharacterDataChange],
 				["waitTokenDataChange",     broadcastTokenDataChange,     checkTokenDataChange],
@@ -152,7 +155,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 				["characterCreate", "characters.create", "!",                          checkIDName,       "", ""],
 				["characterModify", "characters.set",   ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
-				["characterGet",    "characters.get",    "!",                          checkKeystoreData, "", ""],
+				["characterGet",    "characters.get",    "!",                          checkCharacter,    "", ""],
 
 				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
@@ -264,7 +267,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 
-const returnVoid = () => {},
+const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
+      tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
+      characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
+      returnVoid = () => {},
       throwError = (err: string) => {throw new TypeError(err)},
       checkInt = (data: any, name = "Int", key = "") => {
 	if (typeof data !== "number" || data % 1 !== 0) {
@@ -331,8 +337,14 @@ const returnVoid = () => {},
 	}
 	return data;
       },
-      checksKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
-      checkKeyData = (data: any) => checker(data, "KeyData", checksKeyData),
+      checksMapKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
+      checkMapKeyData = (data: any) => {
+	checker(data, "KeyData", checksMapKeyData)
+	for (const c of mapDataCheckers) {
+		c({[data.key]: data.value});
+	}
+	return data;
+      },
       checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
       checkKeystoreData = (data: any, name = "KeystoreData", key = "") => {
 	checkObject(data, name);
@@ -352,10 +364,29 @@ const returnVoid = () => {},
 	}
 	return data;
       },
+      checkCharacter = (data: any) => {
+	checkKeystoreData(data, "Character");
+	for (const c of characterDataCheckers) {
+		c(data);
+	}
+	return data;
+      },
       checksCharacterDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
-      checkCharacterDataChange = (data: any) => checker(data, "CharacterDataChange", checksCharacterDataChange),
+      checkCharacterDataChange = (data: any) => {
+	checker(data, "CharacterDataChange", checksCharacterDataChange)
+	for (const c of characterDataCheckers) {
+		c(data.setting);
+	}
+	return data;
+      },
       checksTokenDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
-      checkTokenDataChange = (data: any) => checker(data, "TokenDataChange", checksTokenDataChange),
+      checkTokenDataChange = (data: any) => {
+	checker(data, "TokenDataChange", checksTokenDataChange)
+	for (const c of tokenDataCheckers) {
+		c(data.setting);
+	}
+	return data;
+      },
       checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridSize"], [checkColour, "gridColour"]],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
       checksWallPos: checkers = [[checkObject, ""], [checkString, "path"], [checkUint, "pos"]],
@@ -385,6 +416,9 @@ const returnVoid = () => {},
 	case undefined:
 	case 0:
 		checker(data, name, checksTokenImage);
+		for (const c of tokenDataCheckers) {
+			c(data.tokenData);
+		}
 		break;
 	case 2:
 		checkArray(data.points, name, "points")
@@ -428,9 +462,12 @@ const returnVoid = () => {},
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkKeystoreData, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
+	for (const c of mapDataCheckers) {
+		c(data.data);
+	}
 	return data;
       },
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
