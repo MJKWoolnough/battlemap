@@ -386,6 +386,7 @@ addPlugin("5e", {
 				return [];
 			}
 			if (token.tokenData["5e-initiative"]) {
+				const tokenConditions = token.getData("5e-conditions") ?? [];
 				return [
 					item(lang["INITIATIVE_CHANGE"], () => {
 						if (token.tokenData["5e-initiative"]) {
@@ -418,7 +419,7 @@ addPlugin("5e", {
 						data[n] = !data[n];
 						rpc.tokenModify(token.id, {"5e-conditions": {"user": true, data}}, []);
 						token.updateData();
-					})))
+					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod");
