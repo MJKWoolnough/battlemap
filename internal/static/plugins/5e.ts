@@ -8,7 +8,7 @@ import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '..
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
-import {rpc} from '../rpc.js';
+import {rpc, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol} from '../symbols.js';
 import {JSONSetting} from '../settings_types.js';
@@ -534,5 +534,92 @@ tokenSelectedReceive(() => {
 	if (globals.selected.token instanceof SVGToken5E && !globals.selected.token.isPattern) {
 		lastSelectedToken = globals.selected.token;
 		globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
+	}
+});
+
+addMapDataChecker((data: Record<string, any>) => {
+	for (const key in data) {
+		if (key === "5e-initiative") {
+			const val = data[key];
+			if (!(val instanceof Array)) {
+				throw new TypeError("Map Data value of 5e-initiative needs to be an array");
+			}
+			for (const i of val) {
+				if (!isUint(i)) {
+					throw new TypeError("Map Data value of 5e-initiative needs to be an array of Uints");
+				}
+			}
+		}
+	}
+});
+
+addCharacterDataChecker((data: Record<string, KeystoreData>) => {
+	for (const key in data) {
+		const val = data[key].data;
+		switch (key) {
+		case "name":
+			if (typeof val !== "string") {
+				throw new TypeError("Character Data 'name' must be a string");
+			}
+			break;
+		case "5e-ac":
+			if (!isUint(val, 50)) {
+				throw new TypeError("Character Data '5e-ac' must be a Uint <= 50");
+			}
+			break;
+		case "5e-hp-max":
+			if (!isUint(val)) {
+				throw new TypeError("Character Data '5e-hp-max' must be a Uint");
+			}
+			break;
+		case "5e-hp-current":
+			if (!isUint(val)) {
+				throw new TypeError("Character Data '5e-hp-current' must be a Uint");
+			}
+			break;
+		case "5e-initiative-mod":
+			if (!isInt(val, -20, 20)) {
+				throw new TypeError("Character Data '5e-initiative-mod' must be an Int between -20 and 20");
+			}
+			break;
+		}
+	}
+});
+
+addTokenDataChecker((data: Record<string, KeystoreData>) => {
+	for (const key in data) {
+		const val = data[key].data;
+		switch (key) {
+		case "name":
+			if (typeof val !== "string") {
+				throw new TypeError("Token Data 'name' must be a string");
+			}
+			break;
+		case "5e-ac":
+			if (!isUint(val, 50)) {
+				throw new TypeError("Token Data '5e-ac' must be a Uint <= 50");
+			}
+			break;
+		case "5e-hp-max":
+			if (!isUint(val)) {
+				throw new TypeError("Token Data '5e-hp-max' must be a Uint");
+			}
+			break;
+		case "5e-hp-current":
+			if (!isUint(val)) {
+				throw new TypeError("Token Data '5e-hp-current' must be a Uint");
+			}
+			break;
+		case "5e-initiative-mod":
+			if (!isInt(val, -20, 20)) {
+				throw new TypeError("Token Data '5e-initiative-mod' must be an Int between -20 and 20");
+			}
+			break;
+		case "5e-initiative":
+			if (!(val instanceof Object) || !isUint(val.id) || !isInt(val.initiative, -20, 40)) {
+				throw new TypeError("Token Data '5e-initiative' must be an IDInitiative object");
+			}
+			break;
+		}
 	}
 });
