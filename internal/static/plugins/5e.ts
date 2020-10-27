@@ -399,6 +399,9 @@ addPlugin("5e", {
 						}
 					}),
 					item(lang["INITIATIVE_REMOVE"], () => {
+						if (token !== lastSelectedToken) {
+							return;
+						}
 						initiativeList.filterRemove(i => i.token === token);
 						if (initiativeList.length === 0) {
 							initiativeWindow.remove();
