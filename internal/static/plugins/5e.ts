@@ -33,8 +33,6 @@ type Initiative = {
 	node: HTMLLIElement;
 }
 
-type InitiativeData = Uint[];
-
 type MapData5E = MapData & {
 	data: {
 		"5e-initiative"?: Uint[];
@@ -63,9 +61,6 @@ class SVGToken5E extends SVGToken {
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
 		      ac: Uint | null = this.getData("5e-ac"),
 		      initiative = this.tokenData["5e-initiative"];
-		if (!initiative || !(initiative instanceof Object) || !isIDInitiative(initiative)) {
-			delete this.tokenData["5e-initiative"];
-		}
 		this.node = g([
 			this.tokenNode = this.node,
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
@@ -232,8 +227,6 @@ const langs: Record<string, Record<string, string>> = {
       },
       sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-initiative"]!.data.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-initiative"]!.data.initiative,
-      isInitiativeData = (data: any): data is InitiativeData => data instanceof Array && data.every(i => typeof i === "number"),
-      isIDInitiative = (data: any): data is IDInitiative => data instanceof Object && isUint(data.id) && isInt(data.initiative),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative"]!.data.id)),
       savedWindowSetting = new JSONSetting<WindowData>("5e-window-data", [0, 0, 200, 400], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
@@ -263,9 +256,6 @@ const langs: Record<string, Record<string, string>> = {
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, Token5E]>();
-	if (!isInitiativeData(initiative)) {
-		return;
-	}
 	walkLayers((e, isHidden) => {
 		for (const t of e.tokens) {
 			if (t instanceof SVGToken && t.tokenData["5e-initiative"]) {
