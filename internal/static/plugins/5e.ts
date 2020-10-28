@@ -508,6 +508,17 @@ rpc.waitTokenDataChange().then(changed => {
 			updateInitiative();
 			(globals.tokens[changed.id].token as SVGToken5E).updateData();
 		}, 0);
+		return;
+	}
+	for (const key in changed["setting"]) {
+		switch (key) {
+		case "5e-ac":
+		case "5e-hp-max":
+		case "5e-hp-current":
+		case "5e-conditions":
+			setTimeout(() => (globals.tokens[changed.id].token as SVGToken5E).updateData(), 0);
+			return;
+		}
 	}
 });
 
