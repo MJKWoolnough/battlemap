@@ -20,15 +20,16 @@ type IDInitiative = {
 	initiative: Uint;
 }
 
+type TokenFields = {
+	"name"?: KeystoreData<string>;
+	"5e-initiative"?: KeystoreData<IDInitiative>;
+	"5e-initiative-mod"?: KeystoreData<Int>;
+	"5e-ac"?: KeystoreData<Uint>;
+	"5e-hp-max"?: KeystoreData<Uint>;
+}
+
 type Token5E = SVGToken & {
-	tokenData: {
-		"name"?: KeystoreData<string>;
-		"5e-initiative"?: KeystoreData<IDInitiative>;
-		"5e-initiative-mod"?: KeystoreData<Int>;
-		"5e-ac"?: KeystoreData<Uint>;
-		"5e-hp-max"?: KeystoreData<Uint>;
-		"5e-hp-current"?: KeystoreData<Uint>;
-	}
+	tokenData: TokenFields;
 }
 
 type Initiative = {
@@ -56,6 +57,7 @@ class SVGToken5E extends SVGToken {
 	ac: SVGGElement;
 	acValue: SVGTextElement;
 	shield: SVGUseElement;
+	tokenData: Record<string, KeystoreData> & TokenFields;
 	constructor(token: TokenImage) {
 		throw(new Error("use from"));
 		super(token);
