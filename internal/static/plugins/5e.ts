@@ -552,7 +552,7 @@ addMapDataChecker((data: Record<string, any>) => {
 		}
 		if (err) {
 			delete data[key];
-			console.log(err);
+			console.log(new TypeError(err));
 		}
 	}
 });
@@ -590,7 +590,7 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 		}
 		if (err) {
 			delete data[key];
-			console.log(err);
+			console.log(new TypeError(err));
 		}
 	}
 });
@@ -638,7 +638,7 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		}
 		if (err) {
 			delete data[key];
-			console.log(err);
+			console.log(new TypeError(err));
 		}
 	}
 });
