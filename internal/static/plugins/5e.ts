@@ -536,16 +536,23 @@ tokenSelectedReceive(() => {
 
 addMapDataChecker((data: Record<string, any>) => {
 	for (const key in data) {
+		let err = "";
 		if (key === "5e-initiative") {
 			const val = data[key];
 			if (!(val instanceof Array)) {
-				throw new TypeError("Map Data value of 5e-initiative needs to be an array");
-			}
-			for (const i of val) {
-				if (!isUint(i)) {
-					throw new TypeError("Map Data value of 5e-initiative needs to be an array of Uints");
+				err = "Map Data value of 5e-initiative needs to be an array";
+			} else {
+				for (const i of val) {
+					if (!isUint(i)) {
+						err = "Map Data value of 5e-initiative needs to be an array of Uints";
+						break;
+					}
 				}
 			}
+		}
+		if (err) {
+			delete data[key];
+			console.log(err);
 		}
 	}
 });
@@ -553,32 +560,37 @@ addMapDataChecker((data: Record<string, any>) => {
 addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 	for (const key in data) {
 		const val = data[key].data;
+		let err = "";
 		switch (key) {
 		case "name":
 			if (typeof val !== "string") {
-				throw new TypeError("Character Data 'name' must be a string");
+				err = "Character Data 'name' must be a string";
 			}
 			break;
 		case "5e-ac":
 			if (!isUint(val, 50)) {
-				throw new TypeError("Character Data '5e-ac' must be a Uint <= 50");
+				err = "Character Data '5e-ac' must be a Uint <= 50";
 			}
 			break;
 		case "5e-hp-max":
 			if (!isUint(val)) {
-				throw new TypeError("Character Data '5e-hp-max' must be a Uint");
+				err = "Character Data '5e-hp-max' must be a Uint";
 			}
 			break;
 		case "5e-hp-current":
 			if (!isUint(val)) {
-				throw new TypeError("Character Data '5e-hp-current' must be a Uint");
+				err = "Character Data '5e-hp-current' must be a Uint";
 			}
 			break;
 		case "5e-initiative-mod":
 			if (!isInt(val, -20, 20)) {
-				throw new TypeError("Character Data '5e-initiative-mod' must be an Int between -20 and 20");
+				err = "Character Data '5e-initiative-mod' must be an Int between -20 and 20";
 			}
 			break;
+		}
+		if (err) {
+			delete data[key];
+			console.log(err);
 		}
 	}
 });
@@ -586,42 +598,47 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 addTokenDataChecker((data: Record<string, KeystoreData>) => {
 	for (const key in data) {
 		const val = data[key].data;
+		let err = "";
 		switch (key) {
 		case "name":
 			if (typeof val !== "string") {
-				throw new TypeError("Token Data 'name' must be a string");
+				err = "Token Data 'name' must be a string";
 			}
 			break;
 		case "5e-ac":
 			if (!isUint(val, 50)) {
-				throw new TypeError("Token Data '5e-ac' must be a Uint <= 50");
+				err = "Token Data '5e-ac' must be a Uint <= 50";
 			}
 			break;
 		case "5e-hp-max":
 			if (!isUint(val)) {
-				throw new TypeError("Token Data '5e-hp-max' must be a Uint");
+				err = "Token Data '5e-hp-max' must be a Uint";
 			}
 			break;
 		case "5e-hp-current":
 			if (!isUint(val)) {
-				throw new TypeError("Token Data '5e-hp-current' must be a Uint");
+				err = "Token Data '5e-hp-current' must be a Uint";
 			}
 			break;
 		case "5e-initiative-mod":
 			if (!isInt(val, -20, 20)) {
-				throw new TypeError("Token Data '5e-initiative-mod' must be an Int between -20 and 20");
+				err = "Token Data '5e-initiative-mod' must be an Int between -20 and 20";
 			}
 			break;
 		case "5e-initiative":
 			if (!(val instanceof Object) || !isUint(val.id) || !isInt(val.initiative, -20, 40)) {
-				throw new TypeError("Token Data '5e-initiative' must be an IDInitiative object");
+				err = "Token Data '5e-initiative' must be an IDInitiative object";
 			}
 			break;
 		case "5e-conditions":
 			if (!(val instanceof Array) || val.length !== conditions.length || !val.every(b => typeof b === "boolean")) {
-				throw new TypeError("Token Data '5e-conditions' must be a boolean array of correct length");
+				err = "Token Data '5e-conditions' must be a boolean array of correct length";
 			}
 			break;
+		}
+		if (err) {
+			delete data[key];
+			console.log(err);
 		}
 	}
 });
