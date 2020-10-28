@@ -419,7 +419,7 @@ addPlugin("5e", {
 						if (token !== lastSelectedToken) {
 							return;
 						}
-						const data = token.getData("5e-conditions") ?? [];
+						const data = token.getData("5e-conditions") ?? Array.from({"length": conditions.length}, _ => false);
 						data[n] = !data[n];
 						rpc.tokenModify(token.id, {"5e-conditions": {"user": true, data}}, []);
 						token.updateData();
