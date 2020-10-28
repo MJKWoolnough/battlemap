@@ -616,6 +616,11 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 				throw new TypeError("Token Data '5e-initiative' must be an IDInitiative object");
 			}
 			break;
+		case "5e-conditions":
+			if (!(val instanceof Array) || val.length !== conditions.length || !val.every(b => typeof b === "boolean")) {
+				throw new TypeError("Token Data '5e-conditions' must be a boolean array of correct length");
+			}
+			break;
 		}
 	}
 });
