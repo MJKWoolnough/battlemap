@@ -24,6 +24,10 @@ type Token5E = SVGToken & {
 	tokenData: {
 		"name"?: KeystoreData<string>;
 		"5e-initiative"?: KeystoreData<IDInitiative>;
+		"5e-initiative-mod"?: KeystoreData<Int>;
+		"5e-ac"?: KeystoreData<Uint>;
+		"5e-hp-max"?: KeystoreData<Uint>;
+		"5e-hp-current"?: KeystoreData<Uint>;
 	}
 }
 
