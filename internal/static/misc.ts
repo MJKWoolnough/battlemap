@@ -117,4 +117,4 @@ point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 },
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
-isColour = (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && typeof v.a === "number" && v.a >= 0 && v.a <= 1;
+isColour = (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255);
