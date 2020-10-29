@@ -79,7 +79,7 @@ class SVGToken5E extends SVGToken {
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
 					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
-					this.hpValue = text({"x": this.width / 8, "y": "2em", "text-anchor": "middle"}, currentHP?.toString() ?? "")
+					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle"}, currentHP?.toString() ?? "")
 				])
 			])
 		]);
@@ -91,7 +91,8 @@ class SVGToken5E extends SVGToken {
 		if (nameLength > maxNameLength) {
 			this.name.style.setProperty("font-size", (maxNameLength / nameLength) + "em");
 		}
-		this.acValue.setAttribute("style", `font-size: ${this.width / 8}px`);
+		this.acValue.style.setProperty("font-size", `${this.width / 8}px`);
+		this.hpValue.style.setProperty("font-size", `${this.width / 8}px`);
 	}
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
@@ -142,7 +143,7 @@ class SVGToken5E extends SVGToken {
 		} else {
 			this.hp.removeAttribute("style");
 			this.hpValue.innerHTML = currentHP.toString();
-			this.hpValue.setAttribute("style", `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`);
+			this.hpValue.style.setProperty("color", `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`);
 			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`);
 		}
 		this.name.innerHTML = this.getData("name") || "";
