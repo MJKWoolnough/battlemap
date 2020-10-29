@@ -300,7 +300,7 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 0.5}, isColour),
+      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2RGBA(highlightColour.value), "stroke": colour2RGBA(highlightColour.value), "stroke-width": 20}),
       mo = new MutationObserver(list => {
 	for (const m of list) {
