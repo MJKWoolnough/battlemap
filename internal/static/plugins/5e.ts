@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
-import {createSVG, circle, g, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
+import {createSVG, circle, ellipse, g, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
@@ -155,6 +155,7 @@ addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1
 addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})));
 addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})));
 
+addSymbol("5e-condition-BLESSED", symbol({"viewBox": "0 0 10 11"}, [circle({"cx": 5, "cy": 6, "r": 5, "fill": "#fc8"}), ellipse({"cx": 5, "cy": 2.5, "fill": "transparent", "stroke": "#ff0", "stroke-width": 1}), path({"d": "M1.5,6 q1,-1 2,0 m2.5,0 q1,-1 2,0 M3,9 q2,1 4,0", "fill": "transparent", "stroke": "#000", "stroke-width": 0.1, "stroke-linecap": "round"})]));
 addSymbol("5e-condition-CHARMED", symbol({"viewBox": "0 0 8.2 8.23"}, path({"d": "M0.1,2.1 a2,2 0,0,1 4,0 a2,2 0,0,1 4,0 q0,3 -4,6 q-4,-3 -4,-6 Z", "fill": "#f00", "stroke": "#000", "stroke-width": 0.2})));
 addSymbol("5e-condition-DEAD", symbol({"viewBox": "0 0 10 10"}, [circle({"cx": 5, "cy": 5, "r": 4.9, "fill": "#aea", "stroke": "#000", "stroke-width": 0.2}), path({"d": "M2,2 l2,2 M2,4 l2,-2 m2,0 l2,2 M6,4 l2,-2 M2,6 l1,1 l1,-1 l1,1 l1,-1 l1,1 l1,-1", "stroke": "#000", "stroke-width": "0.1", "fill": "transparent"})]));
 addSymbol("5e-condition-DEAFENED", symbol({"viewBox": "0 0 10 10"}, path({"d": "M0.1,3 h2 l2,-2 v8 l-2,-2 h-2 z M5,3 l4,4 M5,7 l4,-4", "stroke": "#000", "stroke-width": 0.1, "fill": "#fff"})));
