@@ -13,7 +13,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {addSymbol, getSymbol} from '../symbols.js';
 import {JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}"));
 
 type IDInitiative = {
 	id: Uint;
