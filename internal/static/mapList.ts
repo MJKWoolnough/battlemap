@@ -193,7 +193,7 @@ export default function(base: Node) {
 					label({"for": "mapSquareColour"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
 					sqColour,
 					br(),
-					label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
+					label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_LINE"]}: `),
 					sqLineWidth,
 					br(),
 					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
