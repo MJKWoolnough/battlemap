@@ -197,6 +197,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_HIDEOUS_LAUGHTER": "Hideous Laughter",
 		"CONDITION_HUNTERS_MARK": "Hunters' Mark",
 		"CONDITION_INCAPACITATED": "Incapacitated",
+		"CONDITION_INSPIRED": "Inspired",
 		"CONDITION_INVISIBLE": "Invisible",
 		"CONDITION_LEVITATE": "Levitating",
 		"CONDITION_MIRROR_IMAGE": "Mirror Image",
@@ -234,7 +235,7 @@ const langs: Record<string, Record<string, string>> = {
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
-      conditions: string[] = ["BANE", "BLESSED", "BLINDED", "BLINK", "BLUR", "CHARMED", "CONCENTRATING", "CONFUSED", "DEAD", "DEAFENED", "DYING", "EXHAUSTED", "FRIGHTENED", "FLYING", "GRAPPLED", "GUIDANCE", "HASTE", "HEXED", "HIDEOUS_LAUGHTER", "HUNTERS_MARK", "INCAPACITATED", "INVISIBLE", "LEVITATE", "MIRROR_IMAGE", "PARALYZED", "PETRIFIED", "POISONED", "PRONE", "RAGE", "RECKLESS", "RESTRAINED", "SANCTUARY", "SLOW", "STUNNED", "UNCONSCIOUS"],
+      conditions: string[] = ["BANE", "BLESSED", "BLINDED", "BLINK", "BLUR", "CHARMED", "CONCENTRATING", "CONFUSED", "DEAD", "DEAFENED", "DYING", "EXHAUSTED", "FRIGHTENED", "FLYING", "GRAPPLED", "GUIDANCE", "HASTE", "HEXED", "HIDEOUS_LAUGHTER", "HUNTERS_MARK", "INCAPACITATED", "INSPIRED", "INVISIBLE", "LEVITATE", "MIRROR_IMAGE", "PARALYZED", "PETRIFIED", "POISONED", "PRONE", "RAGE", "RECKLESS", "RESTRAINED", "SANCTUARY", "SLOW", "STUNNED", "UNCONSCIOUS"],
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
