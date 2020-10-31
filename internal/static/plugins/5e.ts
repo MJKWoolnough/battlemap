@@ -58,6 +58,7 @@ class SVGToken5E extends SVGToken {
 	ac: SVGGElement;
 	acValue: SVGTextElement;
 	shield: SVGUseElement;
+	conditions: SVGGElement;
 	tokenData: Record<string, KeystoreData> & TokenFields;
 	constructor(token: TokenImage) {
 		throw(new Error("use from"));
@@ -80,7 +81,8 @@ class SVGToken5E extends SVGToken {
 					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
 					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
-				])
+				]),
+				this.conditions = g()
 			])
 		]);
 		window.setTimeout(this.setTextWidth.bind(this), 0);
