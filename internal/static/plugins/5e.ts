@@ -161,12 +161,12 @@ class SVGToken5E extends SVGToken {
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
 			if (myConditions[i]) {
+				this.conditions.appendChild(use({"href": `#5e-condition-${conditions[i]}`, "x": col * w, "y": row * h, "width": w, "height": h}));
 				col++;
 				if (col === 8) {
 					col = 0;
 					row--;
 				}
-				this.conditions.appendChild(use({"href": `#5e-condition-${conditions[i]}`, "x": col * w, "y": row * h, "width": w, "height": h}));
 			}
 		}
 		this.conditions.setAttribute("transform", `translate(0, ${this.height})`);
