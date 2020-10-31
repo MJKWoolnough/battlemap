@@ -1,4 +1,5 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
+import {clearElement} from '../lib/dom.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
@@ -85,6 +86,7 @@ class SVGToken5E extends SVGToken {
 			])
 		]);
 		window.setTimeout(this.setTextWidth.bind(this), 0);
+		this.updateConditions();
 	}
 	setTextWidth() {
 		const maxNameLength = this.width / 2,
@@ -128,6 +130,7 @@ class SVGToken5E extends SVGToken {
 		createSVG(this.hpValue, {"x": this.width / 8});
 		createSVG(this.acValue, {"x": 7 * this.width / 8});
 		this.setTextWidth();
+		this.updateConditions();
 	}
 	updateData() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
@@ -148,6 +151,25 @@ class SVGToken5E extends SVGToken {
 			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`);
 		}
 		this.name.innerHTML = this.getData("name") || "";
+		this.updateConditions();
+	}
+	updateConditions() {
+		clearElement(this.conditions);
+		const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
+		      w = this.width / 8,
+		      h = this.height / 8;
+		let row = -1, col = 0;
+		for (let i = 0; i < myConditions.length; i++) {
+			if (myConditions[i]) {
+				col++;
+				if (col === 8) {
+					col = 0;
+					row--;
+				}
+				this.conditions.appendChild(use({"href": `5e-condition${conditions[i]}`, "x": col * w, "y": row * h, "width": w, "height": h}));
+			}
+		}
+		this.conditions.setAttribute("transform", `translate(${this.height}, 0)`);
 	}
 
 }
