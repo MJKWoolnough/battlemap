@@ -67,8 +67,7 @@ class SVGToken5E extends SVGToken {
 	init() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
-		      ac: Uint | null = this.getData("5e-ac"),
-		      initiative = this.tokenData["5e-initiative"];
+		      ac: Uint | null = this.getData("5e-ac");
 		this.node = g([
 			this.tokenNode = this.node,
 			this.extra = g({"transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
