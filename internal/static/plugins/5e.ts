@@ -169,7 +169,7 @@ class SVGToken5E extends SVGToken {
 				this.conditions.appendChild(use({"href": `#5e-condition-${conditions[i]}`, "x": col * w, "y": row * h, "width": w, "height": h}));
 			}
 		}
-		this.conditions.setAttribute("transform", `translate(${this.height}, 0)`);
+		this.conditions.setAttribute("transform", `translate(0, ${this.height})`);
 	}
 
 }
