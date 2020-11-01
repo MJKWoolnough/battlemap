@@ -120,7 +120,7 @@ export class SVGToken extends SVGTransform {
 		const node = image(),
 		      tc = tokenClass() ?? SVGToken,
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc.prototype);
-		createSVG(node, {"href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
+		createSVG(node, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
 		if (token.patternWidth > 0) {
 			const {width, height} = token;
 			svgToken.width = token.patternWidth;
@@ -142,14 +142,14 @@ export class SVGToken extends SVGTransform {
 			if (this.patternWidth > 0) {
 				return;
 			}
-			const node = rect({"width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
+			const node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
 			this.node.replaceWith(node);
 			this.node = node;
 			this.patternWidth = this.width;
 			this.patternHeight = this.height;
 		} else if (this.patternWidth > 0) {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
+			const node = image({"class": "mapToken", "href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
 			this.node.replaceWith(node);
 			this.node = node;
 		}
@@ -200,7 +200,7 @@ export class SVGShape extends SVGTransform {
 			node = ellipse({"cx": rx, "cy": ry, rx, ry});
 		}
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
-		createSVG(node, {"fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
+		createSVG(node, {"class": "mapShape", "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
 		return svgShape;
 	}
 	at(x: Int, y: Int) {
@@ -242,7 +242,7 @@ export class SVGDrawing extends SVGShape {
 		}
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight,
-		      node = path({"d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
+		      node = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
 		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {node, oWidth, oHeight}), SVGDrawing.prototype);
 		node.setAttribute("transform", svgDrawing.transformString());
 		return svgDrawing;
