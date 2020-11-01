@@ -82,7 +82,7 @@ class SVGToken5E extends SVGToken {
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 				]),
-				this.conditions = g()
+				this.conditions = g({"style": "clip-path: none"})
 			])
 		]);
 		window.setTimeout(this.setTextWidth.bind(this), 0);
