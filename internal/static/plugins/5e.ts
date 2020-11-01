@@ -71,7 +71,7 @@ class SVGToken5E extends SVGToken {
 		      ac: Uint | null = this.getData("5e-ac");
 		this.node = g([
 			this.tokenNode = this.node,
-			this.extra = g({"transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
+			this.extra = g({"class": "mapToken", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
 					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
