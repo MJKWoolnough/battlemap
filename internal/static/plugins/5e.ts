@@ -12,9 +12,9 @@ import {windows, WindowElement} from '../lib/windows.js';
 import {rpc, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol} from '../symbols.js';
-import {JSONSetting} from '../settings_types.js';
+import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e{display:none}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -77,7 +77,7 @@ class SVGToken5E extends SVGToken {
 					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 				]),
-				this.name = text({"x": this.width / 2, "y": this.height / 16, "text-anchor": "middle"}, this.getData("name") ?? ""),
+				this.name = text({"class": "token-name-5e", "x": this.width / 2, "y": this.height / 16, "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
@@ -251,6 +251,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_NEXT": "Next",
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
+		"SHOW_NAMES": "Show Token Names",
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
@@ -329,6 +330,7 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
+      showNameSetting = new BoolSetting("5e-show-token-names"),
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2RGBA(highlightColour.value), "stroke": colour2RGBA(highlightColour.value), "stroke-width": 20}),
       mo = new MutationObserver(list => {
@@ -497,6 +499,12 @@ addPlugin("5e", {
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
+			br(),
+			input({"type": "checkbox", "id": "5e-show-token-names", "class": "settings_ticker", "checked": showNameSetting.value, "onchange": function(this: HTMLInputElement) {
+				showNameSetting.set(this.checked);
+				document.body.classList.toggle("hide-names-5e", !this.checked);
+			}}),
+			label({"for": "5e-show-token-names"}, `${lang["SHOW_NAMES"]}: `)
 		])
 	},
 	"tokenClass": {
@@ -504,6 +512,10 @@ addPlugin("5e", {
 		"fn": SVGToken5E
 	}
 });
+
+if (!showNameSetting.value) {
+	document.body.classList.add("hide-names-5e");
+}
 
 mapLoadedReceive(() => {
 	lastMapChange = Date.now();
