@@ -97,6 +97,6 @@ g:not(#outline) {
 	display: none;
 }
 
-.isUser #map image {
+.isUser .mapToken, .isUser .mapShape, .isUser .mapDrawing {
 	transition: transform 1s ease;
 }
