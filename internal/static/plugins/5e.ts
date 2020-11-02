@@ -156,14 +156,14 @@ class SVGToken5E extends SVGToken {
 	updateConditions() {
 		clearElement(this.conditions);
 		const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
-		      w = this.width / 8,
-		      h = this.height / 8;
+		      size = Math.min(this.width, this.height) / 8,
+		      perRow = Math.floor(this.width / size);
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
 			if (myConditions[i]) {
-				this.conditions.appendChild(use({"href": `#5e-condition-${conditions[i]}`, "x": col * w, "y": row * h, "width": w, "height": h}));
+				this.conditions.appendChild(use({"href": `#5e-condition-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
 				col++;
-				if (col === 8) {
+				if (col === perRow) {
 					col = 0;
 					row--;
 				}
