@@ -23,6 +23,7 @@ type plugin = {
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<SVGTokenConstructor>;
+	menuItem?: owp<[string, HTMLDivElement]>;
 }
 
 const plugins = new Map<string, plugin>(),
@@ -108,7 +109,8 @@ export const settings = () => {
 		}
 	}
 	return null;
-       };
+       },
+       menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
 export let userLevel: Uint;
 
