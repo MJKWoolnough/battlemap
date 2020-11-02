@@ -20,7 +20,7 @@ import './tools_light.js';
 import './tools_mask.js';
 import './tools_move.js';
 import './tools_zoom.js';
-import pluginInit from './plugins.js';
+import pluginInit, {menuItems} from './plugins.js';
 import lang from './language.js';
 import {BoolSetting, IntSetting, JSONSetting} from './settings_types.js';
 
@@ -198,6 +198,9 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps")));
 		layerList(tabs.add(lang["TAB_LAYERS"], div()));
 		tools(tabs.add(lang["TAB_TOOLS"], div()));
+		for (const mi of menuItems()) {
+			tabs.add(mi[0], mi[1]);
+		}
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), true);
 		loadMap(base.appendChild(div()));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
@@ -205,6 +208,9 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		clearElement(document.body).appendChild(s);
 	} else {
 		lastTab.set(0);
+		for (const mi of menuItems()) {
+			tabs.add(mi[0], mi[1]);
+		}
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
