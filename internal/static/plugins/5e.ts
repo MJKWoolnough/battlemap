@@ -252,6 +252,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
 		"SHOW_NAMES": "Show Token Names",
+		"SHOW_CONDITIONS": "Show Token Conditions",
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
@@ -331,6 +332,7 @@ const langs: Record<string, Record<string, string>> = {
 	}
       },
       showNameSetting = new BoolSetting("5e-show-token-names"),
+      showConditionsSetting = new BoolSetting("5e-show-token-conditions"),
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2RGBA(highlightColour.value), "stroke": colour2RGBA(highlightColour.value), "stroke-width": 20}),
       mo = new MutationObserver(list => {
@@ -504,7 +506,13 @@ addPlugin("5e", {
 				showNameSetting.set(this.checked);
 				document.body.classList.toggle("hide-names-5e", !this.checked);
 			}}),
-			label({"for": "5e-show-token-names"}, `${lang["SHOW_NAMES"]}: `)
+			label({"for": "5e-show-token-names"}, `${lang["SHOW_NAMES"]}: `),
+			br(),
+			input({"type": "checkbox", "id": "5e-show-token-conditions", "class": "settings_ticker", "checked": showConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
+				showConditionsSetting.set(this.checked);
+				document.body.classList.toggle("hide-conditions-5e", !this.checked);
+			}}),
+			label({"for": "5e-show-token-conditions"}, `${lang["SHOW_CONDITIONS"]}: `)
 		])
 	},
 	"tokenClass": {
@@ -515,6 +523,10 @@ addPlugin("5e", {
 
 if (!showNameSetting.value) {
 	document.body.classList.add("hide-names-5e");
+}
+
+if (!showConditionsSetting.value) {
+	document.body.classList.add("hide-conditions-5e");
 }
 
 mapLoadedReceive(() => {
