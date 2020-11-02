@@ -14,7 +14,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {addSymbol, getSymbol} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e{display:none}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -82,7 +82,7 @@ class SVGToken5E extends SVGToken {
 					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 				]),
-				this.conditions = g()
+				this.conditions = g({"class": "token-conditions-5e"})
 			])
 		]);
 		window.setTimeout(this.setTextWidth.bind(this), 0);
@@ -342,7 +342,7 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
       }),
-      plugin = {
+      plugin: PluginType = {
 	"characterEdit": {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
@@ -516,7 +516,7 @@ const langs: Record<string, Record<string, string>> = {
 		"priority": 0,
 		"fn": SVGToken5E
 	}
-      } as PluginType;
+      };
 
 if (userLevel === 1) {
 	plugin["menuItem"] = {
