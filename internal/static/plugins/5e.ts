@@ -73,13 +73,13 @@ class SVGToken5E extends SVGToken {
 			this.tokenNode = this.node,
 			this.extra = g({"class": "mapToken", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.hp = g({"style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
-					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": this.width / 4}),
-					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": this.width / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
+					this.hpBack = use({"href": "#5e-hp-back", "width": this.width / 4, "height": Math.min(this.width, this.height) / 4}),
+					this.hpBar = use({"href": "#5e-hp", "width": this.width / 4, "height": Math.min(this.width, this.height) / 4, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 				]),
 				this.name = text({"class": "token-name-5e", "x": this.width / 2, "y": this.height / 16, "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
-					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": this.width / 4, "x": 3 * this.width / 4}),
+					this.shield = use({"href": "#5e-shield", "width": this.width / 4, "height": Math.min(this.width, this.height) / 4, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 				]),
 				this.conditions = g({"class": "token-conditions-5e"})
@@ -124,9 +124,9 @@ class SVGToken5E extends SVGToken {
 	updateNode() {
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
-		createSVG(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": this.height / 4});
-		createSVG(this.hpBack, {"width": this.width / 4, "height": this.height / 4});
-		createSVG(this.hpBar, {"width": this.width / 4, "height": this.height / 4});
+		createSVG(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
+		createSVG(this.hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+		createSVG(this.hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
 		createSVG(this.name, {"x": this.width / 2, "style": {"font-size": undefined}});
 		createSVG(this.hpValue, {"x": this.width / 8});
 		createSVG(this.acValue, {"x": 7 * this.width / 8});
