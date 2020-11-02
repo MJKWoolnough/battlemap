@@ -90,12 +90,13 @@ class SVGToken5E extends SVGToken {
 	}
 	setTextWidth() {
 		const maxNameLength = this.width / 2,
-		      nameLength = this.name.getComputedTextLength();
+		      nameLength = this.name.getComputedTextLength(),
+		      size = Math.min(this.width, this.height) / 8;
 		if (nameLength > maxNameLength) {
 			this.name.style.setProperty("font-size", (maxNameLength / nameLength) + "em");
 		}
-		this.acValue.style.setProperty("font-size", `${this.width / 8}px`);
-		this.hpValue.style.setProperty("font-size", `${this.width / 8}px`);
+		this.acValue.style.setProperty("font-size", `${size}px`);
+		this.hpValue.style.setProperty("font-size", `${size}px`);
 	}
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
