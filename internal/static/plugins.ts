@@ -18,7 +18,7 @@ interface SVGTokenConstructor {
 	new (token: TokenImage): SVGToken;
 }
 
-type plugin = {
+export type PluginType = {
 	settings?: owp<() => HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
@@ -26,9 +26,9 @@ type plugin = {
 	menuItem?: owp<[string, HTMLDivElement]>;
 }
 
-const plugins = new Map<string, plugin>(),
+const plugins = new Map<string, PluginType>(),
       pluginList = new Map<string, Plugin>(),
-      filterSortPlugins = <K extends keyof plugin>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, plugin], b: [string, plugin]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<plugin, K>> & Omit<plugin, K>][];
+      filterSortPlugins = <K extends keyof PluginType>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, PluginType], b: [string, PluginType]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
 
 export const settings = () => {
 	if (pluginList.size === 0) {
@@ -82,7 +82,7 @@ export const settings = () => {
 	}
 	return null;
        },
-       addPlugin = (name: string, p: plugin) => plugins.set(name, p),
+       addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
        getSettings = (name: string) => pluginList.get(name)?.data,
        askReload = () => {
 	if (userLevel === 0) {
