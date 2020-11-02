@@ -3,7 +3,7 @@ import {clearElement} from '../lib/dom.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
-import {addPlugin, userLevel} from '../plugins.js';
+import {addPlugin, userLevel, PluginType} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
@@ -341,11 +341,8 @@ const langs: Record<string, Record<string, string>> = {
 			savedWindowSetting.set([parseInt(initiativeWindow.style.getPropertyValue("--window-left")), parseInt(initiativeWindow.style.getPropertyValue("--window-top")), parseInt(initiativeWindow.style.getPropertyValue("--window-width")), parseInt(initiativeWindow.style.getPropertyValue("--window-height"))]);
 		}
 	}
-      });
-
-mo.observe(initiativeWindow, {"attributeFilter": ["style"], "attributes": true});
-
-addPlugin("5e", {
+      }),
+      plugin = {
 	"characterEdit": {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
@@ -519,7 +516,19 @@ addPlugin("5e", {
 		"priority": 0,
 		"fn": SVGToken5E
 	}
-});
+      } as PluginType;
+
+if (userLevel === 1) {
+	plugin["menuItem"] = {
+		"priority": 0,
+		"fn": ["5e", div()]
+	};
+}
+
+addPlugin("5e", plugin);
+
+mo.observe(initiativeWindow, {"attributeFilter": ["style"], "attributes": true});
+
 
 if (!showNameSetting.value) {
 	document.body.classList.add("hide-names-5e");
