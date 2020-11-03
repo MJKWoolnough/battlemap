@@ -135,7 +135,8 @@ class SVGToken5E extends SVGToken {
 	updateData() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
-		      ac: Uint | null = this.getData("5e-ac");
+		      ac: Uint | null = this.getData("5e-ac"),
+		      name = this.getData("name") || "";
 		if (ac === null) {
 			this.ac.setAttribute("style", "display: none");
 		} else {
@@ -150,8 +151,10 @@ class SVGToken5E extends SVGToken {
 			this.hpValue.setAttribute("fill", `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`);
 			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`);
 		}
-		createSVG(this.name, {"style": {"font-size": undefined}}, this.getData("name") || "");
-		this.setTextWidth();
+		if (this.name.innerHTML !== name) {
+			createSVG(this.name, {"style": {"font-size": undefined}}, name);
+			this.setTextWidth();
+		}
 		this.updateConditions();
 	}
 	updateConditions() {
