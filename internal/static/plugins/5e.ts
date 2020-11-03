@@ -78,7 +78,7 @@ class SVGToken5E extends SVGToken {
 					this.hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 				]),
-				this.name = text({"class": "token-name-5e", "x": this.width / 2, "y": this.height / 16, "text-anchor": "middle"}, this.getData("name") ?? ""),
+				this.name = text({"class": "token-name-5e", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
@@ -93,9 +93,7 @@ class SVGToken5E extends SVGToken {
 		const maxNameLength = this.width / 2,
 		      nameLength = this.name.getComputedTextLength(),
 		      size = Math.min(this.width, this.height) / 8;
-		if (nameLength > maxNameLength) {
-			this.name.style.setProperty("font-size", (maxNameLength / nameLength) + "em");
-		}
+		this.name.style.setProperty("font-size", Math.min(16 * (maxNameLength / nameLength), this.height / 8) + "px");
 		this.acValue.style.setProperty("font-size", `${size}px`);
 		this.hpValue.style.setProperty("font-size", `${size}px`);
 	}
