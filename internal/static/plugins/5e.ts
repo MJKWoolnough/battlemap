@@ -3,7 +3,7 @@ import {clearElement} from '../lib/dom.js';
 import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
-import {addPlugin, userLevel, PluginType} from '../plugins.js';
+import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
@@ -47,6 +47,10 @@ type MapData5E = MapData & {
 }
 
 type WindowData = [Int, Int, Uint, Uint];
+
+type MetaURL = {
+	url: string;
+}
 
 class SVGToken5E extends SVGToken {
 	tokenNode: SVGGraphicsElement;
@@ -262,6 +266,7 @@ const langs: Record<string, Record<string, string>> = {
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
+      settings = getSettings((import.meta as MetaURL).url.split("/").pop()!),
       userVisibility = getSymbol("userVisibility")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
