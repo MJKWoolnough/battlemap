@@ -14,7 +14,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {addSymbol, getSymbol} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}text {filter:drop-shadow(0 0 0.05em #fff);user-select:none}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -78,7 +78,7 @@ class SVGToken5E extends SVGToken {
 					this.hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 				]),
-				this.name = text({"class": "token-name-5e", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
+				this.name = text({"style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
 				this.ac = g({"style": ac === null ? "display: none" : undefined}, [
 					this.shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
 					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
@@ -92,8 +92,10 @@ class SVGToken5E extends SVGToken {
 	setTextWidth() {
 		const maxNameLength = this.width / 2,
 		      nameLength = this.name.getComputedTextLength(),
-		      size = Math.min(this.width, this.height) / 8;
-		this.name.style.setProperty("font-size", Math.min(16 * (maxNameLength / nameLength), this.height / 8) + "px");
+		      size = Math.min(this.width, this.height) / 8,
+		      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
+		this.name.style.setProperty("font-size", textSize + "px");
+		this.name.setAttribute("stroke-width", `${textSize / 100}`);
 		this.acValue.style.setProperty("font-size", `${size}px`);
 		this.hpValue.style.setProperty("font-size", `${size}px`);
 	}
