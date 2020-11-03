@@ -159,9 +159,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 
 				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
-				["listPlugins",   "plugins.list",    "",  checkPlugins, "", ""],
-				["enablePlugin",  "plugins.enable",  "!", returnVoid,   "", ""],
-				["disablePlugin", "plugins.disable", "!", returnVoid,   "", ""],
+				["listPlugins",   "plugins.list",    "",                      checkPlugins, "", ""],
+				["enablePlugin",  "plugins.enable",  "!",                     returnVoid,   "", ""],
+				["disablePlugin", "plugins.disable", "!",                     returnVoid,   "", ""],
+				["pluginSetting", "plugins.set",    ["file", "key", "value"], returnVoid,   "", ""],
 
 				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean, "", ""],
 				["loginRequirements", "auth.requirements",    "",                            checkString,  "", ""],
