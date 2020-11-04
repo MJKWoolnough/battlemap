@@ -364,11 +364,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
 			if newToken.TokenType == tokenImage {
-				var id uint64
 				for key, data := range newToken.TokenData {
 					if f := m.isLinkKey(key); f != nil {
-						json.Unmarshal(data.Data, &id)
-						f.setHiddenLink(0, id)
+						f.setHiddenLinkJSON(nil, data.Data)
 					}
 				}
 				m.images.setHiddenLink(0, newToken.Source)
@@ -398,18 +396,15 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			data = append(data, ",\"setting\":{"...)
 			first := true
 			var (
-				changed      bool
-				oldID, newID uint64
-				userRemoves  []string
+				changed     bool
+				userRemoves []string
 			)
 			for key, kd := range modifyToken.Setting {
 				if f := m.isLinkKey(key); f != nil {
-					json.Unmarshal(kd.Data, &newID)
 					if d, ok := tk.TokenData[key]; ok {
-						json.Unmarshal(d.Data, &oldID)
-						f.setHiddenLink(oldID, newID)
+						f.setHiddenLinkJSON(d.Data, kd.Data)
 					} else {
-						f.setHiddenLink(0, newID)
+						f.setHiddenLinkJSON(nil, kd.Data)
 					}
 				}
 				if kd.User {
@@ -433,9 +428,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					continue
 				}
 				if f := m.isLinkKey(r); f != nil {
-					var id uint64
-					json.Unmarshal(d.Data, &id)
-					f.setHiddenLink(id, 0)
+					f.setHiddenLinkJSON(d.Data, nil)
 				}
 				if tk.TokenData[r].User {
 					if !first {
