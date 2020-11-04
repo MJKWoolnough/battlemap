@@ -268,7 +268,8 @@ const langs: Record<string, Record<string, string>> = {
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
-      settings = getSettings((import.meta as MetaURL).url.split("/").pop()!),
+      importName = (import.meta as MetaURL).url.split("/").pop()!,
+      settings = getSettings(importName),
       userVisibility = getSymbol("userVisibility")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
