@@ -14,7 +14,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {addSymbol, getSymbol} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}.desaturate-conditions-5e .token-conditions-5e{filter:saturate(0)}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -247,6 +247,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_STUNNED": "Stunned",
 		"CONDITION_UNCONSCIOUS": "Unconcious",
 		"CONDITIONS": "Conditions",
+		"DESATURATE_CONDITIONS": "Greyscale Conditions",
 		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
 		"HP_CURRENT": "Current Hit Points",
 		"HP_CURRENT_ENTER": "Please enter current Hit Points",
@@ -345,6 +346,7 @@ const langs: Record<string, Record<string, string>> = {
       },
       showNameSetting = new BoolSetting("5e-show-token-names"),
       showConditionsSetting = new BoolSetting("5e-show-token-conditions"),
+      desaturateConditionsSetting = new BoolSetting("5e-desaturate-conditions"),
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       mo = new MutationObserver(list => {
@@ -521,7 +523,13 @@ const langs: Record<string, Record<string, string>> = {
 				showConditionsSetting.set(this.checked);
 				document.body.classList.toggle("hide-conditions-5e", !this.checked);
 			}}),
-			label({"for": "5e-show-token-conditions"}, `${lang["SHOW_CONDITIONS"]}: `)
+			label({"for": "5e-show-token-conditions"}, `${lang["SHOW_CONDITIONS"]}: `),
+			br(),
+			input({"type": "checkbox", "id": "5e-desaturate-token-conditions", "class": "settings_ticker", "checked": desaturateConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
+				desaturateConditionsSetting.set(this.checked);
+				document.body.classList.toggle("desaturate-conditions-5e", this.checked);
+			}}),
+			label({"for": "5e-desaturate-token-conditions"}, `${lang["DESATURATE_CONDITIONS"]}: `)
 		])
 	},
 	"tokenClass": {
@@ -548,6 +556,10 @@ if (!showNameSetting.value) {
 
 if (!showConditionsSetting.value) {
 	document.body.classList.add("hide-conditions-5e");
+}
+
+if (desaturateConditionsSetting.value) {
+	document.body.classList.add("desaturate-conditions-5e");
 }
 
 mapLoadedReceive(() => {
