@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"errors"
@@ -141,6 +142,8 @@ func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.Handler.ServeHTTP(w, r)
 }
 
+var null = json.RawMessage{'n', 'u', 'l', 'l'}
+
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
@@ -180,7 +183,12 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 				f.setHiddenLink(newID)
 			}
 		}
-		plugin.Data[toSet.Key] = toSet.Value
+		if bytes.Equal(toSet.Value, null) {
+			delete(plugin.Data, toSet.Key)
+		} else {
+			plugin.Data[toSet.Key] = toSet.Value
+
+		}
 	case "enable", "disable":
 		var filename string
 		if err := json.Unmarshal(data, &filename); err != nil {
