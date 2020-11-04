@@ -60,13 +60,13 @@ func (m *mapsDir) Cleanup() {
 
 func (m *mapsDir) cleanupTokenRemove(mp *levelMap, tk *token) {
 	if tk.Source > 0 {
-		m.images.removeHiddenLink(tk.Source)
+		m.images.setHiddenLink(tk.Source, 0)
 	}
 	for key, data := range tk.TokenData {
 		if f := m.isLinkKey(key); f != nil {
 			var id uint64
 			json.Unmarshal(data.Data, &id)
-			f.removeHiddenLink(id)
+			f.setHiddenLink(id, 0)
 		}
 	}
 }

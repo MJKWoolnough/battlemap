@@ -494,21 +494,19 @@ func (f *folders) getBroadcastID(base int) int {
 	return base
 }
 
-func (f *folders) setHiddenLink(id uint64) {
-	f.mu.Lock()
-	count := f.links[id]
-	if count == 0 {
-		f.mu.Unlock()
+func (f *folders) setHiddenLink(oldID, newID uint64) {
+	if oldID == newID {
 		return
 	}
-	f.links[id] = count + 1
-	f.saveFolders()
-	f.mu.Unlock()
-}
-
-func (f *folders) removeHiddenLink(id uint64) {
 	f.mu.Lock()
-	f.unlink(id)
+	if newID > 0 {
+		if c, ok := f.links[newID]; ok {
+			f.links[newID] = c + 1
+		}
+	}
+	if oldID > 0 {
+		f.unlink(oldID)
+	}
 	f.saveFolders()
 	f.mu.Unlock()
 }

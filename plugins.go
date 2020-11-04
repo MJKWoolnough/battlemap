@@ -171,16 +171,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			json.Unmarshal(toSet.Value, &newID)
 			if d, ok := plugin.Data[toSet.Key]; ok {
 				json.Unmarshal(d, &oldID)
-				if oldID != newID {
-					if oldID > 0 {
-						f.removeHiddenLink(oldID)
-					}
-					if newID > 0 {
-						f.setHiddenLink(newID)
-					}
-				}
-			} else if newID > 0 {
-				f.setHiddenLink(newID)
+				f.setHiddenLink(oldID, newID)
+			} else {
+				f.setHiddenLink(0, newID)
 			}
 		}
 		if bytes.Equal(toSet.Value, null) {

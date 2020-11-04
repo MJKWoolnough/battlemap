@@ -1,7 +1,6 @@
 package battlemap
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -369,10 +368,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				for key, data := range newToken.TokenData {
 					if f := m.isLinkKey(key); f != nil {
 						json.Unmarshal(data.Data, &id)
-						f.setHiddenLink(id)
+						f.setHiddenLink(0, id)
 					}
 				}
-				m.images.setHiddenLink(newToken.Source)
+				m.images.setHiddenLink(0, newToken.Source)
 			}
 			mp.lastTokenID++
 			newToken.token.ID = mp.lastTokenID
@@ -399,22 +398,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			data = append(data, ",\"setting\":{"...)
 			first := true
 			var (
-				changed     bool
-				id          uint64
-				userRemoves []string
+				changed      bool
+				oldID, newID uint64
+				userRemoves  []string
 			)
 			for key, kd := range modifyToken.Setting {
 				if f := m.isLinkKey(key); f != nil {
+					json.Unmarshal(kd.Data, &newID)
 					if d, ok := tk.TokenData[key]; ok {
-						if !bytes.Equal(kd.Data, d.Data) {
-							json.Unmarshal(d.Data, &id)
-							f.removeHiddenLink(id)
-							json.Unmarshal(kd.Data, &id)
-							f.setHiddenLink(id)
-						}
+						json.Unmarshal(d.Data, &oldID)
+						f.setHiddenLink(oldID, newID)
 					} else {
-						json.Unmarshal(kd.Data, &id)
-						f.setHiddenLink(id)
+						f.setHiddenLink(0, newID)
 					}
 				}
 				if kd.User {
@@ -440,7 +435,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				if f := m.isLinkKey(r); f != nil {
 					var id uint64
 					json.Unmarshal(d.Data, &id)
-					f.removeHiddenLink(id)
+					f.setHiddenLink(id, 0)
 				}
 				if tk.TokenData[r].User {
 					if !first {
