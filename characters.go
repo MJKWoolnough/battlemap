@@ -74,9 +74,7 @@ func (c *charactersDir) Cleanup() {
 		}
 		for key, data := range ms {
 			if f := c.isLinkKey(key); f != nil {
-				var id uint64
-				json.Unmarshal(data.Data, &id)
-				f.setHiddenLink(id, 0)
+				f.setHiddenLinkJSON(data.Data, nil)
 			}
 		}
 		delete(c.data, strID)
@@ -176,14 +174,10 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 			userRemoves = append(userRemoves, key)
 		}
 		if f := c.isLinkKey(key); f != nil {
-			var newID uint64
-			json.Unmarshal(val.Data, &newID)
 			if oldVal, ok := ms[key]; ok {
-				var oldID uint64
-				json.Unmarshal(oldVal.Data, &oldID)
-				f.setHiddenLink(oldID, newID)
+				f.setHiddenLinkJSON(oldVal.Data, val.Data)
 			} else {
-				f.setHiddenLink(0, newID)
+				f.setHiddenLinkJSON(nil, val.Data)
 			}
 		}
 		ms[key] = val
@@ -204,9 +198,7 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 			buf = appendString(buf, key)
 		}
 		if f := c.isLinkKey(key); f != nil {
-			var id uint64
-			json.Unmarshal(val.Data, &id)
-			f.setHiddenLink(id, 0)
+			f.setHiddenLinkJSON(val.Data, nil)
 		}
 		delete(ms, key)
 	}
