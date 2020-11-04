@@ -511,6 +511,20 @@ func (f *folders) setHiddenLink(oldID, newID uint64) {
 	f.mu.Unlock()
 }
 
+func (f *folders) setHiddenLinks(oldIDs, newIDs []uint64) {
+	f.mu.Lock()
+	for _, id := range newIDs {
+		if c, ok := f.links[id]; ok {
+			f.links[id] = c + 1
+		}
+	}
+	for _, id := range oldIDs {
+		f.unlink(id)
+	}
+	f.saveFolders()
+	f.mu.Unlock()
+}
+
 const folderMetadata = "folders"
 
 // Errors
