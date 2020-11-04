@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -500,9 +501,7 @@ func (f *folders) setHiddenLink(oldID, newID uint64) {
 	}
 	f.mu.Lock()
 	if newID > 0 {
-		if c, ok := f.links[newID]; ok {
-			f.links[newID] = c + 1
-		}
+		f.setLink(newID)
 	}
 	if oldID > 0 {
 		f.unlink(oldID)
@@ -511,18 +510,43 @@ func (f *folders) setHiddenLink(oldID, newID uint64) {
 	f.mu.Unlock()
 }
 
-func (f *folders) setHiddenLinks(oldIDs, newIDs []uint64) {
+func (f *folders) setHiddenLinkJSON(oldIDs, newIDs json.RawMessage) {
+	if bytes.Equal(oldIDs, newIDs) {
+		return
+	}
 	f.mu.Lock()
-	for _, id := range newIDs {
-		if c, ok := f.links[id]; ok {
-			f.links[id] = c + 1
+	f.processJSONLinks(newIDs, (*folders).setLink)
+	f.processJSONLinks(oldIDs, (*folders).unlink)
+	f.mu.Unlock()
+}
+
+func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64)) {
+	if len(j) > 0 {
+		switch j[0] {
+		case '[':
+			var ids []uint64
+			json.Unmarshal(j, &ids)
+			for _, id := range ids {
+				fn(f, id)
+			}
+		case '{':
+			ids := make(map[string]uint64)
+			json.Unmarshal(j, &ids)
+			for _, id := range ids {
+				fn(f, id)
+			}
+		default:
+			var id uint64
+			json.Unmarshal(j, &id)
+			fn(f, id)
 		}
 	}
-	for _, id := range oldIDs {
-		f.unlink(id)
+}
+
+func (f *folders) setLink(id uint64) {
+	if c, ok := f.links[id]; ok {
+		f.links[id] = c + 1
 	}
-	f.saveFolders()
-	f.mu.Unlock()
 }
 
 const folderMetadata = "folders"
