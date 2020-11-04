@@ -163,6 +163,23 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			p.mu.Unlock()
 			return nil, ErrUnknownPlugin
 		}
+		if f := p.isLinkKey(toSet.Key); f != nil {
+			var newID, oldID uint64
+			json.Unmarshal(toSet.Value, &newID)
+			if d, ok := plugin.Data[toSet.Key]; ok {
+				json.Unmarshal(d, &oldID)
+				if oldID != newID {
+					if oldID > 0 {
+						f.removeHiddenLink(oldID)
+					}
+					if newID > 0 {
+						f.setHiddenLink(newID)
+					}
+				}
+			} else if newID > 0 {
+				f.setHiddenLink(newID)
+			}
+		}
 		plugin.Data[toSet.Key] = toSet.Value
 	case "enable", "disable":
 		var filename string
