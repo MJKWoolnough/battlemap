@@ -167,13 +167,10 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		if f := p.isLinkKey(toSet.Key); f != nil {
-			var newID, oldID uint64
-			json.Unmarshal(toSet.Value, &newID)
 			if d, ok := plugin.Data[toSet.Key]; ok {
-				json.Unmarshal(d, &oldID)
-				f.setHiddenLink(oldID, newID)
+				f.setHiddenLinkJSON(d, toSet.Value)
 			} else {
-				f.setHiddenLink(0, newID)
+				f.setHiddenLinkJSON(nil, toSet.Value)
 			}
 		}
 		if bytes.Equal(toSet.Value, null) {
