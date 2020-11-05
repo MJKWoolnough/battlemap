@@ -557,8 +557,13 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 			}
 		default:
 			var id uint64
-			json.Unmarshal(j, &id)
-			fn(f, id)
+			if err := json.Unmarshal(j, &id); err == nil {
+				fn(f, id)
+			} else {
+				var id tokenID
+				json.Unmarshal(j, &id)
+				fn(f, id.ID)
+			}
 		}
 	}
 }
