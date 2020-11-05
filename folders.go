@@ -542,18 +542,23 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 				}
 			}
 		case '{':
-			ids := make(map[string]uint64)
-			if err := json.Unmarshal(j, &ids); err == nil {
-				for _, id := range ids {
-					fn(f, id)
-				}
+			var id tokenID
+			if err := json.Unmarshal(j, &id); err == nil {
+				fn(f, id.ID)
 			} else {
-				ids := make(map[string]struct {
-					ID uint64 `json:"id"`
-				})
+				ids := make(map[string]uint64)
 				if err := json.Unmarshal(j, &ids); err == nil {
 					for _, id := range ids {
-						fn(f, id.ID)
+						fn(f, id)
+					}
+				} else {
+					ids := make(map[string]struct {
+						ID uint64 `json:"id"`
+					})
+					if err := json.Unmarshal(j, &ids); err == nil {
+						for _, id := range ids {
+							fn(f, id.ID)
+						}
 					}
 				}
 			}
@@ -561,11 +566,6 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 			var id uint64
 			if err := json.Unmarshal(j, &id); err == nil {
 				fn(f, id)
-			} else {
-				var id tokenID
-				if err := json.Unmarshal(j, &id); err == nil {
-					fn(f, id.ID)
-				}
 			}
 		}
 	}
