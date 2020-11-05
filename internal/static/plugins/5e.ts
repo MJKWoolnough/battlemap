@@ -301,8 +301,17 @@ const langs: Record<string, Record<string, string>> = {
 	userLevel === 1 ? [
 		div({"id": "initiative-next-5e"}, button({"title": lang["INITIATIVE_NEXT"], "onclick": () => {
 			if (initiativeList.length > 1) {
-				initiativeList.push(initiativeList.shift()!);
-				saveInitiative();
+				const {undo} = globals,
+				      doIt = () => {
+					initiativeList.push(initiativeList.shift()!);
+					saveInitiative();
+					return () => {
+						initiativeList.unshift(initiativeList.pop()!);
+						saveInitiative();
+						return doIt;
+					};
+				      };
+				undo.add(doIt);
 			}
 		}}, initNext))
 	] : []
