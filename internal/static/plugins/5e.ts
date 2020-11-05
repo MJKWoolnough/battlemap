@@ -301,17 +301,8 @@ const langs: Record<string, Record<string, string>> = {
 	userLevel === 1 ? [
 		div({"id": "initiative-next-5e"}, button({"title": lang["INITIATIVE_NEXT"], "onclick": () => {
 			if (initiativeList.length > 1) {
-				const {undo} = globals,
-				      doIt = () => {
-					initiativeList.push(initiativeList.shift()!);
-					saveInitiative();
-					return () => {
-						initiativeList.unshift(initiativeList.pop()!);
-						saveInitiative();
-						return doIt;
-					};
-				      };
-				undo.add(doIt);
+				initiativeList.push(initiativeList.shift()!);
+				saveInitiative();
 			}
 		}}, initNext))
 	] : []
@@ -450,35 +441,11 @@ const langs: Record<string, Record<string, string>> = {
 						if (token.tokenData["5e-initiative"]) {
 							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
 								if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
-									const newInit = parseInt(initiative);
-									if (isInt(newInit, -20, 40)) {
-										const {undo} = globals,
-										      {id, initiative} = token.tokenData["5e-initiative"].data,
-										      doIt = () => {
-											token.tokenData["5e-initiative"] = {
-												"user": true,
-												"data": {
-													id,
-													"initiative": newInit
-												}
-											}
-											rpc.tokenModify(token.id, {"5e-initiative": token.tokenData["5e-initiative"]}, []);
-											updateInitiative();
-											return () => {
-												token.tokenData["5e-initiative"] = {
-													"user": true,
-													"data": {
-														id,
-														initiative
-													}
-												}
-												rpc.tokenModify(token.id, {"5e-initiative": token.tokenData["5e-initiative"]}, []);
-												updateInitiative();
-												return doIt;
-											};
-										};
-										undo.add(doIt);
-
+									const init = parseInt(initiative);
+									if (isInt(init, -20, 40)) {
+										token.tokenData["5e-initiative"].data.initiative = init;
+										rpc.tokenModify(token.id, {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
+										updateInitiative();
 									}
 								}
 							});
