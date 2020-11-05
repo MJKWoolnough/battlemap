@@ -550,7 +550,6 @@ addPlugin("5e", plugin);
 
 mo.observe(initiativeWindow, {"attributeFilter": ["style"], "attributes": true});
 
-
 if (!showNameSetting.value) {
 	document.body.classList.add("hide-names-5e");
 }
