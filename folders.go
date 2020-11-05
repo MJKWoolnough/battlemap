@@ -525,9 +525,18 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 		switch j[0] {
 		case '[':
 			var ids []uint64
-			json.Unmarshal(j, &ids)
-			for _, id := range ids {
-				fn(f, id)
+			if err := json.Unmarshal(j, &ids); err == nil {
+				for _, id := range ids {
+					fn(f, id)
+				}
+			} else {
+				var ids []struct {
+					ID uint64 `json:"id"`
+				}
+				json.Unmarshal(j, &ids)
+				for _, id := range ids {
+					fn(f, id.ID)
+				}
 			}
 		case '{':
 			ids := make(map[string]uint64)
