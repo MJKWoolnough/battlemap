@@ -520,6 +520,10 @@ func (f *folders) setHiddenLinkJSON(oldIDs, newIDs json.RawMessage) {
 	f.mu.Unlock()
 }
 
+type tokenID struct {
+	ID uint64 `json:"id"`
+}
+
 func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64)) {
 	if len(j) > 0 {
 		switch j[0] {
@@ -530,9 +534,7 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 					fn(f, id)
 				}
 			} else {
-				var ids []struct {
-					ID uint64 `json:"id"`
-				}
+				var ids []tokenID
 				json.Unmarshal(j, &ids)
 				for _, id := range ids {
 					fn(f, id.ID)
