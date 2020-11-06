@@ -280,10 +280,65 @@ const langs: Record<string, Record<string, string>> = {
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
       importName = (import.meta as MetaURL).url.split("/").pop()!,
-      settings = (getSettings(importName) ?? {
+      checkSettings = (data: any) => {
+	if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
+		return null;
+	}
+	if (!(data["shapechange-categories"] instanceof Array)) {
+		console.log("shapechange-categories must be an Array");
+		return null;
+	}
+	if (!(data["store-image-shapechanges"] instanceof Array)) {
+		console.log("store-image-shapechanges must be an Array");
+		return null;
+	}
+	const numTokens = data["store-image-shapechanges"].length;
+	for (const c of data["shapechange-categories"]) {
+		if (typeof c !== "object") {
+			console.log("entry of shapechange-categories is not an object");
+			return null;
+		}
+		if (typeof c["name"] !== "string") {
+			console.log("shapechange-categories.name must be a string");
+			return null;
+		}
+		if (!(c["images"] instanceof Array)) {
+			console.log("shapechange-categories.images must be an array");
+			return null;
+		}
+		if (c["images"].length > numTokens) {
+			c["images"].splice(numTokens);
+		}
+		for (const b of c["images"]) {
+			if (typeof b !== "boolean") {
+				console.log("entry of shapechange-categories.images must be boolean");
+				return null;
+			}
+		}
+		while (c["images"].length < numTokens) {
+			c["images"].push(false);
+		}
+	}
+	for (const s of data["store-image-shapechanges"]) {
+		if (typeof s !== "object") {
+			console.log("entry of store-image-shapechanges must be an object");
+			return null;
+		}
+		if (!isUint(s["id"])) {
+			console.log("store-image-shapechanges.id must be a Uint");
+			return null;
+		}
+		if (typeof s["name"] !== "string") {
+			console.log("store-image-shapechanges.name must be a string");
+			return null;
+		}
+	}
+	return data;
+      },
+      settings = (checkSettings(getSettings(importName)) ?? {
 	      "shapechange-categories": [],
 	      "store-image-shapechanges": []
-      } ) as Settings5E,
+      }) as Settings5E,
       userVisibility = getSymbol("userVisibility")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
