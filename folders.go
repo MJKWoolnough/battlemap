@@ -577,6 +577,17 @@ func (f *folders) setLink(id uint64) {
 	}
 }
 
+func (b *Battlemap) isLinkKey(key string) *folders {
+	if strings.HasPrefix(key, "store-image") {
+		return &b.images.folders
+	} else if strings.HasPrefix(key, "store-audio") {
+		return &b.sounds.folders
+	} else if strings.HasPrefix(key, "store-character") {
+		return &b.chars.folders
+	}
+	return nil
+}
+
 const folderMetadata = "folders"
 
 // Errors

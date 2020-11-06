@@ -8,7 +8,6 @@ import (
 	"io"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
@@ -214,17 +213,6 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 	cd.CurrentMap = 0
 	c.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
 	return c.fileStore.Set(string(m.ID), ms)
-}
-
-func (b *Battlemap) isLinkKey(key string) *folders {
-	if strings.HasPrefix(key, "store-image") {
-		return &b.images.folders
-	} else if strings.HasPrefix(key, "store-audio") {
-		return &b.sounds.folders
-	} else if strings.HasPrefix(key, "store-character") {
-		return &b.chars.folders
-	}
-	return nil
 }
 
 func (c *charactersDir) get(cd ConnData, id json.RawMessage) (json.RawMessage, error) {
