@@ -9,7 +9,7 @@ import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '..
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2Hex, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
-import {rpc, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
+import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
@@ -623,6 +623,10 @@ rpc.waitMapDataRemove().then(removed => {
 	if (removed === "5e-initiative") {
 		initiativeWindow.remove();
 	}
+});
+
+combinedRPC.waitTokenRemove().then(id => {
+	setTimeout(updateInitiative, 0);
 });
 
 tokenSelectedReceive(() => {
