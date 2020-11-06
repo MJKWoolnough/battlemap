@@ -275,6 +275,8 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
 		"SHAPECHANGE_TITLE": "Shapechange Settings",
+		"SHAPECHANGE_TOKEN_ADD": "Add Token",
+		"SHAPECHANGE_TOKEN_CATEGORY": "Add Category",
 		"SHOW_NAMES": "Show Token Names",
 		"SHOW_CONDITIONS": "Show Token Conditions",
 	}
@@ -618,7 +620,7 @@ if (userLevel === 1) {
 				thead(tr([
 					th(),
 					settings["shapechange-categories"].map(c => th(c.name)),
-					th(button({"onclick": () => {
+					th(button({"title": lang["SHAPECHANGE_TOKEN_CATEGORY"], "onclick": () => {
 					}}, "+"))
 				])),
 				tbody([
@@ -630,7 +632,7 @@ if (userLevel === 1) {
 							label({"for": `5e-shapechange_${n}_${m}`})
 						]))
 					])),
-					tr(td(button({"onclick": () => {
+					tr(td(button({"title": lang["SHAPECHANGE_TOKEN_ADD"], "onclick": () => {
 					}}, "+")))
 				])
 			])
