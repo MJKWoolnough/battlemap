@@ -35,16 +35,21 @@ const allowedKey = (key: string, character: boolean) => {
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => div({"class": "tokenSelector"}, [
 	button({"onclick": function(this: HTMLDivElement) {
-		const data = getToken();
-		if (!data) {
-			w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
-			return;
-		}
-		if (this.nextSibling) {
-			this.nextSibling.remove();
-		}
-		changes["token-data"] = {"user": false, data};
-		clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
+		(d["token-data"] || changes["token-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
+			if (!proceed) {
+				return;
+			}
+			const data = getToken();
+			if (!data) {
+				w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+				return;
+			}
+			if (this.nextSibling) {
+				this.nextSibling.remove();
+			}
+			changes["token-data"] = {"user": false, data};
+			clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
+		});
 	}}, lang["TOKEN_USE_SELECTED"]),
 	d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 ]),
