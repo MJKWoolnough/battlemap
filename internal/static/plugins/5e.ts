@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
-import {br, button, div, img, input, label, li, span, style, ul} from '../lib/html.js';
+import {br, button, div, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
@@ -611,7 +611,28 @@ const langs: Record<string, Record<string, string>> = {
 if (userLevel === 1) {
 	plugin["menuItem"] = {
 		"priority": 0,
-		"fn": ["5e", div()]
+		"fn": ["5e", div([
+			table([
+				thead(tr([
+					th(),
+					settings["shapechange-categories"].map(c => th(c.name)),
+					th(button({"onclick": () => {
+					}}, "+"))
+				])),
+				tbody([
+					settings["store-image-shapechanges"].map((s, n) => tr([
+						th(s.name),
+						settings["shapechange-categories"].map((c, m) => td([
+							input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
+							}}),
+							label({"for": `5e-shapechange_${n}_${m}`})
+						]))
+					])),
+					tr(td(button({"onclick": () => {
+					}}, "+")))
+				])
+			])
+		])]
 	};
 }
 
