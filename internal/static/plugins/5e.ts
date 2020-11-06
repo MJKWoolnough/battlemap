@@ -52,6 +52,17 @@ type MetaURL = {
 	url: string;
 }
 
+type Settings5E = {
+	"shapechange-categories": {
+		"name": string;
+		"images": boolean[];
+	}[];
+	"store-image-shapechanges": {
+		"id": Uint;
+		"name": string;
+	}[];
+}
+
 class SVGToken5E extends SVGToken {
 	tokenNode: SVGGraphicsElement;
 	extra: SVGGElement;
