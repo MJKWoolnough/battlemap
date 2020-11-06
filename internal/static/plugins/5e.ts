@@ -1,6 +1,6 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
-import {br, button, div, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
+import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
@@ -274,6 +274,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_NEXT": "Next",
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
+		"SHAPECHANGE_TITLE": "Shapechange Settings",
 		"SHOW_NAMES": "Show Token Names",
 		"SHOW_CONDITIONS": "Show Token Conditions",
 	}
@@ -612,6 +613,7 @@ if (userLevel === 1) {
 	plugin["menuItem"] = {
 		"priority": 0,
 		"fn": ["5e", div([
+			h1(lang["SHAPECHANGE_TITLE"]),
 			table([
 				thead(tr([
 					th(),
