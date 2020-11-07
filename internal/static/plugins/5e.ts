@@ -1,7 +1,7 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
-import {createSVG, circle, defs, ellipse, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
+import {createSVG, circle, defs, ellipse, feColorMatrix, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
@@ -11,10 +11,10 @@ import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
-import {addSymbol, getSymbol} from '../symbols.js';
+import {addSymbol, getSymbol, addFilter} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}.desaturate-conditions-5e .token-conditions-5e{filter:saturate(0)}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}.desaturate-conditions-5e .token-conditions-5e{filter:url(#saturate-5e)}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -198,6 +198,8 @@ class SVGToken5E extends SVGToken {
 addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})));
 addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})));
 addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})));
+
+addFilter(filter({"id": "saturate-5e"}, feColorMatrix({"type": "saturate", "values": 0})))
 
 addSymbol("5e-condition-BLESSED", symbol({"viewBox": "0 0 10 11"}, [circle({"cx": 5, "cy": 6, "r": 5, "fill": "#fc8"}), ellipse({"cx": 5, "cy": 2.5, "rx": 5, "ry": 2, "fill": "transparent", "stroke": "#ff0", "stroke-width": 1}), path({"d": "M1.5,6 q1,-1 2,0 m2.5,0 q1,-1 2,0 M3,9 q2,1 4,0", "fill": "transparent", "stroke": "#000", "stroke-width": 0.1, "stroke-linecap": "round"})]));
 addSymbol("5e-condition-BLINDED", symbol({"viewBox": "0 0 100 70"}, [defs(mask({"id": "5e-blind-mask"}, [rect({"width": 100, "height": 70, "fill": "#fff"}), line({"x1": 10, "y1": 67, "x2": 90, "y2": 3, "stroke": "#000", "stroke-width": 9}),])), g({"mask": "url(#5e-blind-mask)"}, use({"href": "#visibility"})), line({"x1": 10, "y1": 67, "x2": 90, "y2": 3, "stroke": "#000", "stroke-width": 5})]));
