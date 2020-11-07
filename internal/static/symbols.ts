@@ -1,7 +1,7 @@
 import {Props} from './lib/dom.js';
 import {svg, use} from './lib/svg.js';
 
-const symbols = svg({"style": "display: none"}),
+const symbols = svg({"style": "width: 0"}),
       symbolMap = new Map<string, (props?: Props) => SVGSVGElement>();
 
 export const addSymbol = (id: string, s: SVGSymbolElement) => {
