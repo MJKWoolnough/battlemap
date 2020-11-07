@@ -427,9 +427,9 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      showNameSetting = new BoolSetting("5e-show-token-names"),
-      showConditionsSetting = new BoolSetting("5e-show-token-conditions"),
-      desaturateConditionsSetting = new BoolSetting("5e-desaturate-conditions"),
+      showNameSetting = new BoolSetting5E("5e-show-token-names", b => document.body.classList.toggle("hide-names-5e", !b)),
+      showConditionsSetting = new BoolSetting5E("5e-show-token-conditions", b => document.body.classList.toggle("hide-conditions-5e", !b)),
+      desaturateConditionsSetting = new BoolSetting5E("5e-desaturate-conditions", b => document.body.classList.toggle("desaturate-conditions-5e", b)),
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       mo = new MutationObserver(list => {
@@ -598,19 +598,16 @@ const langs: Record<string, Record<string, string>> = {
 			br(),
 			input({"type": "checkbox", "id": "5e-show-token-names", "class": "settings_ticker", "checked": showNameSetting.value, "onchange": function(this: HTMLInputElement) {
 				showNameSetting.set(this.checked);
-				document.body.classList.toggle("hide-names-5e", !this.checked);
 			}}),
 			label({"for": "5e-show-token-names"}, `${lang["SHOW_NAMES"]}: `),
 			br(),
 			input({"type": "checkbox", "id": "5e-show-token-conditions", "class": "settings_ticker", "checked": showConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
 				showConditionsSetting.set(this.checked);
-				document.body.classList.toggle("hide-conditions-5e", !this.checked);
 			}}),
 			label({"for": "5e-show-token-conditions"}, `${lang["SHOW_CONDITIONS"]}: `),
 			br(),
 			input({"type": "checkbox", "id": "5e-desaturate-token-conditions", "class": "settings_ticker", "checked": desaturateConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
 				desaturateConditionsSetting.set(this.checked);
-				document.body.classList.toggle("desaturate-conditions-5e", this.checked);
 			}}),
 			label({"for": "5e-desaturate-token-conditions"}, `${lang["DESATURATE_CONDITIONS"]}: `)
 		])
@@ -653,18 +650,6 @@ if (userLevel === 1) {
 addPlugin("5e", plugin);
 
 mo.observe(initiativeWindow, {"attributeFilter": ["style"], "attributes": true});
-
-if (!showNameSetting.value) {
-	document.body.classList.add("hide-names-5e");
-}
-
-if (!showConditionsSetting.value) {
-	document.body.classList.add("hide-conditions-5e");
-}
-
-if (desaturateConditionsSetting.value) {
-	document.body.classList.add("desaturate-conditions-5e");
-}
 
 mapLoadedReceive(() => {
 	lastMapChange = Date.now();
