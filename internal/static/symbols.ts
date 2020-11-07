@@ -11,7 +11,8 @@ export const addSymbol = (id: string, s: SVGSymbolElement) => {
 	symbolMap.set(id, fn)
 	return fn;
 },
-getSymbol = (id: string) => symbolMap.get(id);
+getSymbol = (id: string) => symbolMap.get(id),
+addFilter = (f: SVGFilterElement) => symbols.appendChild(f);
 
 export default symbols;
 
