@@ -595,21 +595,13 @@ const langs: Record<string, Record<string, string>> = {
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
-			br(),
-			input({"type": "checkbox", "id": "5e-show-token-names", "class": "settings_ticker", "checked": showNameSetting.value, "onchange": function(this: HTMLInputElement) {
-				showNameSetting.set(this.checked);
-			}}),
-			label({"for": "5e-show-token-names"}, `${lang["SHOW_NAMES"]}: `),
-			br(),
-			input({"type": "checkbox", "id": "5e-show-token-conditions", "class": "settings_ticker", "checked": showConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
-				showConditionsSetting.set(this.checked);
-			}}),
-			label({"for": "5e-show-token-conditions"}, `${lang["SHOW_CONDITIONS"]}: `),
-			br(),
-			input({"type": "checkbox", "id": "5e-desaturate-token-conditions", "class": "settings_ticker", "checked": desaturateConditionsSetting.value, "onchange": function(this: HTMLInputElement) {
-				desaturateConditionsSetting.set(this.checked);
-			}}),
-			label({"for": "5e-desaturate-token-conditions"}, `${lang["DESATURATE_CONDITIONS"]}: `)
+			([["5e-show-token-names", showNameSetting, "SHOW_NAMES"], ["5e-show-token-conditions", showConditionsSetting, "SHOW_CONDITIONS"], ["5e-desaturate-token-conditions", desaturateConditionsSetting, "5e-desaturate-token-conditions"]] as [string, BoolSetting, string][]).map(([id, setting, l]) => [
+				br(),
+				input({"type": "checkbox", id, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+					setting.set(this.checked);
+				}}),
+				label({"for": id}, `${lang[l]}: `)
+			])
 		])
 	},
 	"tokenClass": {
