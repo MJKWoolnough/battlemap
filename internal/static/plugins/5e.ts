@@ -599,7 +599,7 @@ const langs: Record<string, Record<string, string>> = {
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
-			([["5e-show-token-hp", showHPSetting, "SHOW_HP"], ["5e-show-token-ac", showACSetting, "SHOW_AC"], ["5e-show-token-names", showNameSetting, "SHOW_NAMES"], ["5e-show-token-conditions", showConditionsSetting, "SHOW_CONDITIONS"], ["5e-desaturate-token-conditions", desaturateConditionsSetting, "5e-desaturate-token-conditions"]] as [string, BoolSetting, string][]).map(([id, setting, l]) => [
+			([["5e-show-token-hp", showHPSetting, "SHOW_HP"], ["5e-show-token-ac", showACSetting, "SHOW_AC"], ["5e-show-token-names", showNameSetting, "SHOW_NAMES"], ["5e-show-token-conditions", showConditionsSetting, "SHOW_CONDITIONS"], ["5e-desaturate-token-conditions", desaturateConditionsSetting, "DESATURATE_CONDITIONS"]] as [string, BoolSetting, string][]).map(([id, setting, l]) => [
 				br(),
 				input({"type": "checkbox", id, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 					setting.set(this.checked);
