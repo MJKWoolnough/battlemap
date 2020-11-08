@@ -222,6 +222,7 @@ addSymbol("5e-condition-HIDEOUS_LAUGHTER", symbol({"viewBox": "0 0 10 10"}, [cir
 addSymbol("5e-condition-HUNTERS_MARK", symbol({"viewBox": "0 0 20 20"}, g({"stroke": "#000", "stroke-width": "0.2", "transform": "translate(10, 10)"}, [circle({"r": 9.9, "fill": "#00f"}), circle({"r": 7, "fill": "#f00"}), circle({"r": 4, "fill": "#ff0"}), path({"d": "M0,0 l8,-8 l1,0 l-3,2 l2,-3 l0,1", "stroke-width": 0.4, "fill": "#000"})])));
 addSymbol("5e-condition-INVISIBLE", symbol({"viewBox": "0 0 82 92"}, g({"stroke": "#000", "stroke-width": 1, "fill": "rgba(255, 255, 255, 0.75)"}, [path({"d": "M81,91 v-50 a30,30 0,0,0 -80,0 v50 l10,-10 l10,10 l10,-10 l10,10 l10,-10 l10,10 l10,-10 z"}), circle({"cx": 20, "cy": 30, "r": 10}), circle({"cx": 60, "cy": 30, "r": 10})])));
 addSymbol("5e-condition-POISONED", symbol({"viewBox": "0 0 6.2 9.3"}, path({"d": "M3.1,0.2 q-6,8 0,9 q6,-1 0,-9 Z", "stroke": "#000", "stroke-width": 0.2, "fill": "#0a0"})));
+addSymbol("5e-condition-SANCTUARY", symbol({"viewBox": "0 0 44 70"}, [path({"d": "M22,20 l20,20 v30 h-40 v-30 z", "fill": "#efa"}), path({"d": "M22,0 v20 M12,6 h20", "stroke": "#fc4", "stroke-width": 1, "fill": "none"}), path({"d": "M2,40 l20,-20 l20,20", "stroke": "#e42", "stroke-width": 5, "fill": "none"}), path({"d": "M12,70 v-10 a10,10 0,0,1 20,0 v10 z", "fill": "#642"}), circle({"cx": 22, "cy": 40, "r": 8, "fill": "#88f", "stroke": "#000", "stroke-width": 0.5})]));
 
 let lastMapChange = 0,
     n = 0,
