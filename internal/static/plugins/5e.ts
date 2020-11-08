@@ -14,7 +14,7 @@ import {characterData, iconSelector, tokenSelector, characterSelector} from '../
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
-document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-hp-5e .token-hp-5e,.hide-ac-5e .token-ac-5e,.hide-names-5e .token-name-5e,.hide-conditions-5e .token-conditions-5e{display:none}.desaturate-conditions-5e .token-conditions-5e{filter:url(#saturate-5e)}"));
+document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-window-5e{display:grid;grid-template-rows:2em auto 2em}#initiative-window-5e svg{width:1.5em}#initiative-ordering-5e button,#initiative-next-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0;user-select:none;}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}"));
 
 type IDInitiative = {
 	id: Uint;
@@ -87,7 +87,7 @@ class SVGToken5E extends SVGToken {
 		      size = Math.min(this.width, this.height) / 4
 		this.node = g([
 			this.tokenNode = this.node,
-			this.extra = g({"class": "mapToken", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
+			this.extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
 					this.hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
@@ -291,6 +291,8 @@ const langs: Record<string, Record<string, string>> = {
 		"SHOW_HP": "Show Token Hit Points",
 		"SHOW_NAMES": "Show Token Names",
 		"SHOW_CONDITIONS": "Show Token Conditions",
+		"TOKEN_SELECTED": "Selected",
+		"TOKENS_UNSELECTED": "Unselected",
 	}
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
@@ -429,11 +431,13 @@ const langs: Record<string, Record<string, string>> = {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
-      showHPSetting = new BoolSetting5E("5e-show-token-hp", b => document.body.classList.toggle("hide-hp-5e", !b)),
-      showACSetting = new BoolSetting5E("5e-show-token-ac", b => document.body.classList.toggle("hide-ac-5e", !b)),
-      showNameSetting = new BoolSetting5E("5e-show-token-names", b => document.body.classList.toggle("hide-names-5e", !b)),
-      showConditionsSetting = new BoolSetting5E("5e-show-token-conditions", b => document.body.classList.toggle("hide-conditions-5e", !b)),
-      desaturateConditionsSetting = new BoolSetting5E("5e-desaturate-conditions", b => document.body.classList.toggle("desaturate-conditions-5e", b)),
+      displaySettings = {
+	"SHOW_HP": [new BoolSetting5E("5e-show-token-hp", b => document.body.classList.toggle("hide-token-hp-5e", !b)), new BoolSetting5E("5e-show-selected-hp", b => document.body.classList.toggle("hide-selected-hp-5e", !b))],
+	"SHOW_AC": [new BoolSetting5E("5e-show-token-ac", b => document.body.classList.toggle("hide-token-ac-5e", !b)), new BoolSetting5E("5e-show-selected-ac", b => document.body.classList.toggle("hide-selected-ac-5e", !b))],
+	"SHOW_NAMES": [new BoolSetting5E("5e-show-token-names", b => document.body.classList.toggle("hide-token-names-5e", !b)), new BoolSetting5E("5e-show-selected-names", b => document.body.classList.toggle("hide-selected-names-5e", !b))],
+	"SHOW_CONDITIONS": [new BoolSetting5E("5e-show-token-conditions", b => document.body.classList.toggle("hide-token-conditions-5e", !b)), new BoolSetting5E("5e-show-selected-conditions", b => document.body.classList.toggle("hide-selected-conditions-5e", !b))],
+	"DESATURATE_CONDITIONS": [new BoolSetting5E("5e-desaturate-token-conditions", b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting5E("5e-desaturate-selected-conditions", b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
+      } as Record<string, [BoolSetting5E, BoolSetting5E]>,
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       mo = new MutationObserver(list => {
@@ -599,13 +603,22 @@ const langs: Record<string, Record<string, string>> = {
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),
-			([["5e-show-token-hp", showHPSetting, "SHOW_HP"], ["5e-show-token-ac", showACSetting, "SHOW_AC"], ["5e-show-token-names", showNameSetting, "SHOW_NAMES"], ["5e-show-token-conditions", showConditionsSetting, "SHOW_CONDITIONS"], ["5e-desaturate-token-conditions", desaturateConditionsSetting, "DESATURATE_CONDITIONS"]] as [string, BoolSetting, string][]).map(([id, setting, l]) => [
-				br(),
-				input({"type": "checkbox", id, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
-					setting.set(this.checked);
-				}}),
-				label({"for": id}, `${lang[l]}: `)
-			])
+			table([
+				thead(tr([
+					td(),
+					th(lang["TOKENS_UNSELECTED"]),
+					th(lang["TOKEN_SELECTED"])
+				])),
+				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
+					td(`${lang[name]}: `),
+					settings.map((setting, n) => td([
+						input({"type": "checkbox", "id": `5e-${name}-${n}`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+							setting.set(this.checked);
+						}}),
+						label({"for": `5e-${name}-${n}`})
+					])),
+				])))
+			]),
 		])
 	},
 	"tokenClass": {
