@@ -357,6 +357,8 @@ const langs: Record<string, Record<string, string>> = {
 	      "store-image-shapechanges": []
       }) as Settings5E,
       userVisibility = getSymbol("userVisibility")!,
+      remove = getSymbol("remove")!,
+      rename = getSymbol("rename")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
@@ -634,8 +636,12 @@ if (userLevel === 1) {
 			h1(lang["SHAPECHANGE_TITLE"]),
 			table([
 				thead(tr([
-					th(),
-					settings["shapechange-categories"].map(c => th(c.name)),
+					td(),
+					settings["shapechange-categories"].map(c => th([
+						span(c.name),
+						rename(),
+						remove()
+					])),
 					th(button({"title": lang["SHAPECHANGE_TOKEN_CATEGORY"], "onclick": () => {
 					}}, "+"))
 				])),
