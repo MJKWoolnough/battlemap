@@ -648,6 +648,7 @@ if (userLevel === 1) {
 				tbody([
 					settings["store-image-shapechanges"].map((s, n) => tr([
 						th([
+							img(),
 							span(s.name),
 							rename(),
 							remove()
