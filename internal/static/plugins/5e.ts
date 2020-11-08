@@ -647,7 +647,11 @@ if (userLevel === 1) {
 				])),
 				tbody([
 					settings["store-image-shapechanges"].map((s, n) => tr([
-						th(s.name),
+						th([
+							span(s.name),
+							rename(),
+							remove()
+						]),
 						settings["shapechange-categories"].map((c, m) => td([
 							input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
 							}}),
