@@ -552,9 +552,7 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 						fn(f, id)
 					}
 				} else {
-					ids := make(map[string]struct {
-						ID uint64 `json:"id"`
-					})
+					ids := make(map[string]tokenID)
 					if err := json.Unmarshal(j, &ids); err == nil {
 						for _, id := range ids {
 							fn(f, id.ID)
