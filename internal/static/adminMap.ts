@@ -249,16 +249,16 @@ export default function(oldBase: HTMLElement) {
 			if (e.dataTransfer!.types.includes("character")) {
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
 				      char = characterData.get(tD.id)!;
-				if (char["token-data"]) {
-					Object.assign(token, char["token-data"].data);
+				if (char["store-token-data"]) {
+					Object.assign(token, char["store-token-data"].data);
 				} else {
 					charID = tD.id;
 					token.src = parseInt(char["store-image-icon"].data);
 					token.width = tD.width;
 					token.height = tD.height;
 				}
-				if (char["store-token-id"]) {
-					token.tokenData = char["store-token-id"].data;
+				if (char["store-image-id"]) {
+					token.tokenData = char["store-image-id"].data;
 				}
 			} else {
 				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));

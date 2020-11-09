@@ -19,7 +19,7 @@ const allowedKey = (key: string, character: boolean) => {
 		return character;
 	case "store-image-icon":
 	case "store-token-id":
-	case "token-data":
+	case "store-image-data":
 		return !character;
 	}
 	return true;
@@ -35,7 +35,7 @@ const allowedKey = (key: string, character: boolean) => {
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => div({"class": "tokenSelector"}, [
 	button({"onclick": function(this: HTMLDivElement) {
-		(d["token-data"] || changes["token-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
+		(d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
 			if (!proceed) {
 				return;
 			}
@@ -47,11 +47,11 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 			if (this.nextSibling) {
 				this.nextSibling.remove();
 			}
-			changes["token-data"] = {"user": false, data};
+			changes["store-image-data"] = {"user": false, data};
 			clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
 		});
 	}}, lang["TOKEN_USE_SELECTED"]),
-	d["token-data"] ? img({"src": `/images/${d["token-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
+	d["store-image-data"] ? img({"src": `/images/${d["store-image-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
 ]),
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer && e.dataTransfer.getData("character")) {
