@@ -53,7 +53,7 @@ export const getToken = () => {
 	const {token} = globals.selected;
 	if (token instanceof SVGToken) {
 		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = token;
-		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
+		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData: JSON.parse(JSON.stringify(tokenData)), snap};
 	}
 	return undefined;
 };
