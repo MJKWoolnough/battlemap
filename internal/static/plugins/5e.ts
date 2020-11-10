@@ -644,7 +644,7 @@ if (userLevel === 1) {
 		rename({"class": "itemRename"}),
 		remove({"class": "itemRemove"})
 	      ]),
-	      addTicker = (category: string, row: Uint, col: Uint, state = false) => td([
+	      addTicker = (row: Uint, col: Uint, state = false) => td([
 			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 			}}),
 			label({"for": `5e-shapechange_${row}_${col}`})
@@ -656,7 +656,7 @@ if (userLevel === 1) {
 			rename({"class": "itemRename"}),
 			remove({"class": "itemRemove"})
 		]),
-		shapechangeCats.map((c, col) => addTicker(c["name"], row, col, c["images"][row]))
+		shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
 	      ]),
 	      cats = tr([
 		td(),
@@ -678,7 +678,7 @@ if (userLevel === 1) {
 				      p = shapechangeCats.push(c);
 				cats.appendChild(addCat(c))
 				for (const row of Array.prototype.slice.call(ticks.childNodes, 1)) {
-					row.appendChild(addTicker(cat, row, p));
+					row.appendChild(addTicker(row, p));
 				}
 			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 			button({"onclick": () => {
