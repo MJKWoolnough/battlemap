@@ -644,8 +644,6 @@ if (userLevel === 1) {
 			rename(),
 			remove()
 		])),
-		th(button({"title": lang["SHAPECHANGE_TOKEN_CATEGORY"], "onclick": () => {
-		}}, "+"))
 	      ]),
 	      ticks = tbody([
 		settings["store-image-shapechanges"].map((s, n) => tr([
@@ -661,13 +659,15 @@ if (userLevel === 1) {
 				label({"for": `5e-shapechange_${n}_${m}`})
 			]))
 		])),
-		tr(td(button({"title": lang["SHAPECHANGE_TOKEN_ADD"], "onclick": () => {
-		}}, "+")))
 	      ]);
 	plugin["menuItem"] = {
 		"priority": 0,
 		"fn": ["5e", div([
 			h1(lang["SHAPECHANGE_TITLE"]),
+			button({"onclick": () => {
+			}}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
+			button({"onclick": () => {
+			}}, lang["SHAPECHANGE_TOKEN_ADD"]),
 			table([
 				thead(cats),
 				ticks
