@@ -667,8 +667,20 @@ if (userLevel === 1) {
 		"priority": 0,
 		"fn": ["5e", div([
 			h1(lang["SHAPECHANGE_TITLE"]),
-			button({"onclick": () => {
-			}}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
+			button({"onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
+				if (!cat) {
+					return;
+				}
+				const c = {
+					"name": cat,
+					"images": Array.from({"length": shapechangeTokens.length}, _ => false),
+				      },
+				      p = shapechangeCats.push(c);
+				cats.appendChild(addCat(c))
+				for (const row of Array.prototype.slice.call(ticks.childNodes, 1)) {
+					row.appendChild(addTicker(cat, row, p));
+				}
+			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 			button({"onclick": () => {
 			}}, lang["SHAPECHANGE_TOKEN_ADD"]),
 			table([
