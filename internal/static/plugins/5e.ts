@@ -644,25 +644,25 @@ if (userLevel === 1) {
 		rename(),
 		remove()
 	      ]),
+	      addTicker = (category: string, row: Uint, col: Uint, state = false) => td([
+			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
+			}}),
+			label({"for": `5e-shapechange_${row}_${col}`})
+	      ]),
+	      addToken = (t: IDName, row: Uint) => tr([
+		th([
+			img(),
+			span(t.name),
+			rename(),
+			remove()
+		]),
+		shapechangeCats.map((c, col) => addTicker(c["name"], row, col, c["images"][row]))
+	      ]),
 	      cats = tr([
 		td(),
 		shapechangeCats.map(addCat),
 	      ]),
-	      ticks = tbody([
-		shapechangeTokens.map((s, n) => tr([
-			th([
-				img(),
-				span(s.name),
-				rename(),
-				remove()
-			]),
-			shapechangeCats.map((c, m) => td([
-				input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
-				}}),
-				label({"for": `5e-shapechange_${n}_${m}`})
-			]))
-		])),
-	      ]);
+	      ticks = tbody(shapechangeTokens.map(addToken));
 	plugin["menuItem"] = {
 		"priority": 0,
 		"fn": ["5e", div([
