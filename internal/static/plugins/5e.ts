@@ -6,6 +6,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
+import {getToken} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2Hex, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
@@ -294,6 +295,8 @@ const langs: Record<string, Record<string, string>> = {
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
 		"SHAPECHANGE_TOKEN_CATEGORY": "Add Category",
 		"SHAPECHANGE_TOKEN_CATEGORY_LONG": "Please enter a name for this cateogory of Shapechanges.",
+		"SHAPECHANGE_TOKEN_NAME": "Enter Name",
+		"SHAPECHANGE_TOKEN_NAME_LONG": "Please enter a name for the selected token.",
 		"SHOW_AC": "Show Token Armour Class",
 		"SHOW_HP": "Show Token Hit Points",
 		"SHOW_NAMES": "Show Token Names",
@@ -682,6 +685,24 @@ if (userLevel === 1) {
 				}
 			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 			button({"onclick": () => {
+				const token = getToken();
+				if (!token) {
+					requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+				}
+				requestShell().prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
+					if (!name) { 
+						return;
+					}
+					const t = {
+						"id": token!.src,
+						name
+					}
+					ticks.appendChild(addToken(t, shapechangeTokens.length));
+					shapechangeTokens.push(t);
+					for (const cat of shapechangeCats) {
+						cat["images"].push(false);
+					}
+				});
 			}}, lang["SHAPECHANGE_TOKEN_ADD"]),
 			table([
 				thead(cats),
