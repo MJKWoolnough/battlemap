@@ -1,4 +1,4 @@
-import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
+import {KeystoreData, Uint, Int, IDName, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, feColorMatrix, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
@@ -52,15 +52,14 @@ type MetaURL = {
 	url: string;
 }
 
+type ShapechangeCat = {
+	"name": string;
+	"images": boolean[];
+}
+
 type Settings5E = {
-	"shapechange-categories": {
-		"name": string;
-		"images": boolean[];
-	}[];
-	"store-image-shapechanges": {
-		"id": Uint;
-		"name": string;
-	}[];
+	"shapechange-categories": ShapechangeCat[];
+	"store-image-shapechanges": IDName[];
 }
 
 class SVGToken5E extends SVGToken {
@@ -294,6 +293,7 @@ const langs: Record<string, Record<string, string>> = {
 		"SHAPECHANGE_TITLE": "Shapechange Settings",
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
 		"SHAPECHANGE_TOKEN_CATEGORY": "Add Category",
+		"SHAPECHANGE_TOKEN_CATEGORY_LONG": "Please enter a name for this cateogory of Shapechanges.",
 		"SHOW_AC": "Show Token Armour Class",
 		"SHOW_HP": "Show Token Hit Points",
 		"SHOW_NAMES": "Show Token Names",
@@ -637,23 +637,26 @@ const langs: Record<string, Record<string, string>> = {
       };
 
 if (userLevel === 1) {
-	const cats = tr([
+	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
+	      shapechangeTokens = settings["store-image-shapechanges"].map(s => ({"id": s["id"], "name": s["name"]})),
+	      addCat = (c: ShapechangeCat) => th([
+		span(c.name),
+		rename(),
+		remove()
+	      ]),
+	      cats = tr([
 		td(),
-		settings["shapechange-categories"].map(c => th([
-			span(c.name),
-			rename(),
-			remove()
-		])),
+		shapechangeCats.map(addCat),
 	      ]),
 	      ticks = tbody([
-		settings["store-image-shapechanges"].map((s, n) => tr([
+		shapechangeTokens.map((s, n) => tr([
 			th([
 				img(),
 				span(s.name),
 				rename(),
 				remove()
 			]),
-			settings["shapechange-categories"].map((c, m) => td([
+			shapechangeCats.map((c, m) => td([
 				input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
 				}}),
 				label({"for": `5e-shapechange_${n}_${m}`})
