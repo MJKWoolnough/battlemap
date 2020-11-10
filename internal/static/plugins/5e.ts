@@ -637,38 +637,40 @@ const langs: Record<string, Record<string, string>> = {
       };
 
 if (userLevel === 1) {
+	const cats = tr([
+		td(),
+		settings["shapechange-categories"].map(c => th([
+			span(c.name),
+			rename(),
+			remove()
+		])),
+		th(button({"title": lang["SHAPECHANGE_TOKEN_CATEGORY"], "onclick": () => {
+		}}, "+"))
+	      ]),
+	      ticks = tbody([
+		settings["store-image-shapechanges"].map((s, n) => tr([
+			th([
+				img(),
+				span(s.name),
+				rename(),
+				remove()
+			]),
+			settings["shapechange-categories"].map((c, m) => td([
+				input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
+				}}),
+				label({"for": `5e-shapechange_${n}_${m}`})
+			]))
+		])),
+		tr(td(button({"title": lang["SHAPECHANGE_TOKEN_ADD"], "onclick": () => {
+		}}, "+")))
+	      ]);
 	plugin["menuItem"] = {
 		"priority": 0,
 		"fn": ["5e", div([
 			h1(lang["SHAPECHANGE_TITLE"]),
 			table([
-				thead(tr([
-					td(),
-					settings["shapechange-categories"].map(c => th([
-						span(c.name),
-						rename(),
-						remove()
-					])),
-					th(button({"title": lang["SHAPECHANGE_TOKEN_CATEGORY"], "onclick": () => {
-					}}, "+"))
-				])),
-				tbody([
-					settings["store-image-shapechanges"].map((s, n) => tr([
-						th([
-							img(),
-							span(s.name),
-							rename(),
-							remove()
-						]),
-						settings["shapechange-categories"].map((c, m) => td([
-							input({"id": `5e-shapechange_${n}_${m}`, "class": "settings_ticker", "type": "checkbox", "checked": c["images"][n], "onchange": function(this: HTMLInputElement) {
-							}}),
-							label({"for": `5e-shapechange_${n}_${m}`})
-						]))
-					])),
-					tr(td(button({"title": lang["SHAPECHANGE_TOKEN_ADD"], "onclick": () => {
-					}}, "+")))
-				])
+				thead(cats),
+				ticks
 			])
 		])]
 	};
