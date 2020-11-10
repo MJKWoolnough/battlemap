@@ -641,8 +641,8 @@ if (userLevel === 1) {
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => ({"id": s["id"], "name": s["name"]})),
 	      addCat = (c: ShapechangeCat) => th([
 		span(c.name),
-		rename(),
-		remove()
+		rename({"class": "itemRename"}),
+		remove({"class": "itemRemove"})
 	      ]),
 	      addTicker = (category: string, row: Uint, col: Uint, state = false) => td([
 			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
@@ -653,8 +653,8 @@ if (userLevel === 1) {
 		th([
 			img(),
 			span(t.name),
-			rename(),
-			remove()
+			rename({"class": "itemRename"}),
+			remove({"class": "itemRemove"})
 		]),
 		shapechangeCats.map((c, col) => addTicker(c["name"], row, col, c["images"][row]))
 	      ]),
