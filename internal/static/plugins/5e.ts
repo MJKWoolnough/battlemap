@@ -1,4 +1,4 @@
-import {KeystoreData, Uint, Int, IDName, MapData, Colour, TokenImage} from '../types.js';
+import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, feColorMatrix, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
@@ -58,9 +58,14 @@ type ShapechangeCat = {
 	"images": boolean[];
 }
 
+type ShapechangeToken = {
+	src: Uint;
+	name: string;
+}
+
 type Settings5E = {
 	"shapechange-categories": ShapechangeCat[];
-	"store-image-shapechanges": IDName[];
+	"store-image-shapechanges": ShapechangeToken[];
 }
 
 class SVGToken5E extends SVGToken {
@@ -641,7 +646,7 @@ const langs: Record<string, Record<string, string>> = {
 
 if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
-	      shapechangeTokens = settings["store-image-shapechanges"].map(s => ({"id": s["id"], "name": s["name"]})),
+	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
 	      addCat = (c: ShapechangeCat) => th([
 		span(c.name),
 		rename({"class": "itemRename"}),
@@ -652,7 +657,7 @@ if (userLevel === 1) {
 			}}),
 			label({"for": `5e-shapechange_${row}_${col}`})
 	      ]),
-	      addToken = (t: IDName, row: Uint) => tr([
+	      addToken = (t: ShapechangeToken, row: Uint) => tr([
 		th([
 			img(),
 			span(t.name),
@@ -693,10 +698,7 @@ if (userLevel === 1) {
 					if (!name) { 
 						return;
 					}
-					const t = {
-						"id": token!.src,
-						name
-					}
+					const t = Object.assign(token, {name}) as ShapechangeToken;
 					ticks.appendChild(addToken(t, shapechangeTokens.length));
 					shapechangeTokens.push(t);
 					for (const cat of shapechangeCats) {
