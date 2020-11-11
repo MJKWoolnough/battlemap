@@ -24,6 +24,7 @@ export type PluginType = {
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<SVGTokenConstructor>;
 	menuItem?: owp<[string, HTMLDivElement]>;
+	tokenDataFilter?: owp<string[]>;
 }
 
 const plugins = new Map<string, PluginType>(),
@@ -109,6 +110,13 @@ export const settings = () => {
 		}
 	}
 	return null;
+       },
+       tokenDataFilter = () => {
+	const tdf: string[] = [];
+	for (const p of filterSortPlugins("tokenDataFilter")) {
+		tdf.push(...p[1]["tokenDataFilter"].fn);
+	}
+	return tdf;
        },
        menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
