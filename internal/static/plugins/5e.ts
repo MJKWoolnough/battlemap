@@ -641,6 +641,10 @@ const langs: Record<string, Record<string, string>> = {
 	"tokenClass": {
 		"priority": 0,
 		"fn": SVGToken5E
+	},
+	"tokenDataFilter": {
+		"priority": 0,
+		"fn": ["5e-initiative"]
 	}
       };
 
