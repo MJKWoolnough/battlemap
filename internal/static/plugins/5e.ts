@@ -300,6 +300,8 @@ const langs: Record<string, Record<string, string>> = {
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
 		"SHAPECHANGE_TOKEN_CATEGORY": "Add Category",
 		"SHAPECHANGE_TOKEN_CATEGORY_LONG": "Please enter a name for this cateogory of Shapechanges.",
+		"SHAPECHANGE_TOKEN_CATEGORY_RENAME": "Rename Shapechange Category",
+		"SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG": "Please enter a new name for this Shapechange category.",
 		"SHAPECHANGE_TOKEN_NAME": "Enter Name",
 		"SHAPECHANGE_TOKEN_NAME_LONG": "Please enter a name for the selected token.",
 		"SHOW_AC": "Show Token Armour Class",
@@ -651,11 +653,21 @@ const langs: Record<string, Record<string, string>> = {
 if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
-	      addCat = (c: ShapechangeCat) => th([
-		span(c.name),
-		rename({"class": "itemRename"}),
-		remove({"class": "itemRemove"})
-	      ]),
+	      addCat = (c: ShapechangeCat) => {
+		const name = span(c.name);
+		return th([
+			name,
+			rename({"class": "itemRename", "onclick": () => {
+				requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
+					if (!newName || c.name === newName) {
+						return;
+					}
+					name.innerText = c.name = newName;
+				});
+			}}),
+			remove({"class": "itemRemove"})
+		]);
+	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => td([
 			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 			}}),
