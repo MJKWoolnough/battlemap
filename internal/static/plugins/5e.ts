@@ -659,26 +659,22 @@ if (userLevel === 1) {
 		const name = span(c.name);
 		return th([
 			name,
-			rename({"class": "itemRename", "onclick": () => {
-				requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
-					if (!newName || c.name === newName) {
-						return;
-					}
-					name.innerText = c.name = newName;
-				});
-			}}),
-			remove({"class": "itemRemove", "onclick": () => {
-				requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
-					if (!rm) {
-						return;
-					}
-					shapechangeCats[pos].name = "";
-					for (const row of Array.from(ticks.children)) {
-						(row.childNodes[pos+1] as HTMLTableCellElement).style.setProperty("display", "none");
-					}
-					(cats.childNodes[pos+1] as HTMLTableHeaderCellElement).style.setProperty("display", "none");
-				})
-			}})
+			rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
+				if (!newName || c.name === newName) {
+					return;
+				}
+				name.innerText = c.name = newName;
+			})}),
+			remove({"class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
+				if (!rm) {
+					return;
+				}
+				shapechangeCats[pos].name = "";
+				for (const row of Array.from(ticks.children)) {
+					(row.childNodes[pos+1] as HTMLTableCellElement).style.setProperty("display", "none");
+				}
+				(cats.childNodes[pos+1] as HTMLTableHeaderCellElement).style.setProperty("display", "none");
+			})})
 		]);
 	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => td([
