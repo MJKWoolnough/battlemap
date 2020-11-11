@@ -302,6 +302,8 @@ const langs: Record<string, Record<string, string>> = {
 		"SHAPECHANGE_TOKEN_CATEGORY_LONG": "Please enter a name for this cateogory of Shapechanges.",
 		"SHAPECHANGE_TOKEN_CATEGORY_RENAME": "Rename Shapechange Category",
 		"SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG": "Please enter a new name for this Shapechange category.",
+		"SHAPECHANGE_TOKEN_CATEGORY_REMOVE": "Remove Shapechange Category",
+		"SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG": "Are you sure you wish to Remove this Shapechange Category?",
 		"SHAPECHANGE_TOKEN_NAME": "Enter Name",
 		"SHAPECHANGE_TOKEN_NAME_LONG": "Please enter a name for the selected token.",
 		"SHOW_AC": "Show Token Armour Class",
@@ -653,7 +655,7 @@ const langs: Record<string, Record<string, string>> = {
 if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
-	      addCat = (c: ShapechangeCat) => {
+	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length) => {
 		const name = span(c.name);
 		return th([
 			name,
@@ -665,7 +667,18 @@ if (userLevel === 1) {
 					name.innerText = c.name = newName;
 				});
 			}}),
-			remove({"class": "itemRemove"})
+			remove({"class": "itemRemove", "onclick": () => {
+				requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
+					if (!rm) {
+						return;
+					}
+					shapechangeCats[pos].name = "";
+					for (const row of Array.from(ticks.children)) {
+						(row.childNodes[pos+1] as HTMLTableCellElement).style.setProperty("display", "none");
+					}
+					(cats.childNodes[pos+1] as HTMLTableHeaderCellElement).style.setProperty("display", "none");
+				})
+			}})
 		]);
 	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => td([
