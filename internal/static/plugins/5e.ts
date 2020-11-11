@@ -679,6 +679,7 @@ if (userLevel === 1) {
 	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => td([
 			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
+				shapechangeCats[col]["images"][row] = this.checked;
 			}}),
 			label({"for": `5e-shapechange_${row}_${col}`})
 	      ]),
