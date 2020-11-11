@@ -13,7 +13,7 @@ import Undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell} from './misc.js';
 import {panZoom} from './tools_default.js';
-import {tokenContext} from './plugins.js';
+import {tokenContext, tokenDataFilter} from './plugins.js';
 import {rpc} from './rpc.js';
 import lang from './language.js';
 
@@ -52,8 +52,12 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 export const getToken = () => {
 	const {token} = globals.selected;
 	if (token instanceof SVGToken) {
-		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap} = token;
-		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData: JSON.parse(JSON.stringify(tokenData)), snap};
+		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap} = token,
+		      tokenData = JSON.parse(JSON.stringify(token.tokenData));
+		for (const f of tokenDataFilter()) {
+			delete(tokenData[f]);
+		}
+		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
 	}
 	return undefined;
 };
