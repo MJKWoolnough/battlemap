@@ -767,7 +767,34 @@ if (userLevel === 1) {
 			table([
 				thead(cats),
 				ticks
-			])
+			]),
+			button({"onclick": () => {
+				const cats: ShapechangeCat[] = [],
+				      tokens: ShapechangeToken[] = [],
+				      valid: boolean[] = [];
+				for (const t of shapechangeTokens) {
+					if (t["name"]) {
+						valid.push(true);
+						tokens.push(JSON.parse(JSON.stringify(t)));
+					} else {
+						valid.push(false);
+					}
+				}
+				for (const cat of shapechangeCats) {
+					if (cat["name"]) {
+						const t: boolean[] = [];
+						for (let i = 0; i < valid.length; i++) {
+							if (valid[i]) {
+								t.push(cat["images"][i]);
+							}
+						}
+						cats.push({"name": cat["name"], "images": t});
+					}
+				}
+				settings["shapechange-categories"] = cats;
+				settings["store-image-shapechanges"] = tokens;
+				rpc.pluginSetting(importName, settings);
+			}}, mainLang["SAVE"])
 		])]
 	};
 }
