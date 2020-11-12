@@ -153,9 +153,8 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		return j, nil
 	case "set":
 		var toSet struct {
-			Filename string          `json:"file"`
-			Key      string          `json:"key"`
-			Value    json.RawMessage `json:"value"`
+			Filename string                     `json:"file"`
+			Data     map[string]json.RawMessage `json:"data"`
 		}
 		if err := json.Unmarshal(data, &toSet); err != nil {
 			return nil, err
@@ -166,18 +165,20 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			p.mu.Unlock()
 			return nil, ErrUnknownPlugin
 		}
-		if f := p.isLinkKey(toSet.Key); f != nil {
-			if d, ok := plugin.Data[toSet.Key]; ok {
-				f.setHiddenLinkJSON(d, toSet.Value)
-			} else {
-				f.setHiddenLinkJSON(nil, toSet.Value)
+		for key, value := range toSet.Data {
+			if f := p.isLinkKey(key); f != nil {
+				if d, ok := plugin.Data[key]; ok {
+					f.setHiddenLinkJSON(d, value)
+				} else {
+					f.setHiddenLinkJSON(nil, value)
+				}
 			}
-		}
-		if bytes.Equal(toSet.Value, null) {
-			delete(plugin.Data, toSet.Key)
-		} else {
-			plugin.Data[toSet.Key] = toSet.Value
+			if bytes.Equal(value, null) {
+				delete(plugin.Data, key)
+			} else {
+				plugin.Data[key] = value
 
+			}
 		}
 	case "enable", "disable":
 		var filename string
