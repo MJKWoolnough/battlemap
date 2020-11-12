@@ -33,9 +33,10 @@ const allowedKey = (key: string, character: boolean) => {
       ]));
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
-tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => div({"class": "tokenSelector"}, [
-	button({"onclick": function(this: HTMLButtonElement) {
-		(d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
+tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => {
+	const i = img({"src": d["store-image-data"] ? `/images/${d["store-image-data"].data["src"]}` : undefined, "style": "max-width: 100%; max-height: 100%"});
+	return div({"class": "tokenSelector"}, [
+		button({"onclick":() => (d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
 			if (!proceed) {
 				return;
 			}
@@ -44,15 +45,12 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 				w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
 				return;
 			}
-			if (this.nextSibling) {
-				this.nextSibling.remove();
-			}
 			changes["store-image-data"] = {"user": false, data};
-			clearElement(this.parentNode!).appendChild(img({"src": `/images/${data["src"]}`, "style": "max-width: 100%; max-height: 100%"}));
-		});
-	}}, lang["TOKEN_USE_SELECTED"]),
-	d["store-image-data"] ? img({"src": `/images/${d["store-image-data"].data["src"]}`, "style": "max-width: 100%; max-height: 100%"}) : []
-]),
+			i.setAttribute("src", `/images/${data["src"]}`);
+		})}, lang["TOKEN_USE_SELECTED"]),
+		i
+	]);
+},
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer && e.dataTransfer.getData("character")) {
 			e.preventDefault();
