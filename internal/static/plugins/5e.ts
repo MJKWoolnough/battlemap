@@ -306,6 +306,8 @@ const langs: Record<string, Record<string, string>> = {
 		"SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG": "Are you sure you wish to Remove this Shapechange Category?",
 		"SHAPECHANGE_TOKEN_NAME": "Enter Name",
 		"SHAPECHANGE_TOKEN_NAME_LONG": "Please enter a name for the selected token.",
+		"SHAPECHANGE_TOKEN_REMOVE": "Remove Shapechange Token",
+		"SHAPECHANGE_TOKEN_REMOVE_LONG": "Are you sure you wish to Remove this Shapechange Token?",
 		"SHAPECHANGE_TOKEN_RENAME": "Rename Shapechange Token",
 		"SHAPECHANGE_TOKEN_RENAME_LONG": "Please enter a new name for this token.",
 		"SHOW_AC": "Show Token Armour Class",
@@ -703,7 +705,13 @@ if (userLevel === 1) {
 					}
 					name.innerText = t.name = newName;
 				})}),
-				remove({"class": "itemRemove"})
+				remove({"class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
+					if (!rm) {
+						return;
+					}
+					rows[row].style.setProperty("display", "none");
+					shapechangeTokens[row]["name"] = "";
+				})})
 			]),
 			shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
 		      ]);
