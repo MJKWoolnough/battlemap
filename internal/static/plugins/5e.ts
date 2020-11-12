@@ -695,9 +695,13 @@ if (userLevel === 1) {
 	      addToken = (t: ShapechangeToken, row: Uint) => {
 		tickers.push([]);
 		const name = span(t.name),
+		      i = img({"src": `/images/${t.src}`}),
 		      r = tr([
 			th([
-				img(),
+				div({"class": "tokenSelector"}, [
+					button({"onclick": () => {}}),
+					i
+				]),
 				name,
 				rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t.name).then(newName => {
 					if (!newName || t.name === newName) {
