@@ -656,8 +656,8 @@ if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length) => {
-		const name = span(c.name);
-		return th([
+		const name = span(c.name),
+		      t = th([
 			name,
 			rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
 				if (!newName || c.name === newName) {
@@ -670,32 +670,44 @@ if (userLevel === 1) {
 					return;
 				}
 				shapechangeCats[pos].name = "";
-				for (const row of Array.from(ticks.children)) {
-					(row.childNodes[pos+1] as HTMLTableCellElement).style.setProperty("display", "none");
+				for (const row of tickers) {
+					row[pos].style.setProperty("display", "none");
 				}
-				(cats.childNodes[pos+1] as HTMLTableHeaderCellElement).style.setProperty("display", "none");
+				t.style.setProperty("display", "none");
 			})})
-		]);
+		      ]);
+		return t;
 	      },
-	      addTicker = (row: Uint, col: Uint, state = false) => td([
+	      addTicker = (row: Uint, col: Uint, state = false) => {
+		const t = td([
 			input({"id": `5e-shapechange_${row}_${col}`, "class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 				shapechangeCats[col]["images"][row] = this.checked;
 			}}),
 			label({"for": `5e-shapechange_${row}_${col}`})
-	      ]),
-	      addToken = (t: ShapechangeToken, row: Uint) => tr([
-		th([
-			img(),
-			span(t.name),
-			rename({"class": "itemRename"}),
-			remove({"class": "itemRemove"})
-		]),
-		shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
-	      ]),
+		      ]);
+		tickers[row].push(t);
+		return t;
+	      },
+	      addToken = (t: ShapechangeToken, row: Uint) => {
+		tickers.push([]);
+		const r = tr([
+			th([
+				img(),
+				span(t.name),
+				rename({"class": "itemRename"}),
+				remove({"class": "itemRemove"})
+			]),
+			shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
+		      ]);
+		rows.push(r);
+		return r;
+	      },
 	      cats = tr([
 		td(),
 		shapechangeCats.map(addCat),
 	      ]),
+	      rows: HTMLTableRowElement[] = [],
+	      tickers: HTMLTableCellElement[][] = [],
 	      ticks = tbody(shapechangeTokens.map(addToken));
 	plugin["menuItem"] = {
 		"priority": 0,
@@ -711,8 +723,8 @@ if (userLevel === 1) {
 				      },
 				      p = shapechangeCats.push(c);
 				cats.appendChild(addCat(c))
-				for (const row of Array.prototype.slice.call(ticks.childNodes, 1)) {
-					row.appendChild(addTicker(row, p));
+				for (let i = 0; i < rows.length; i++) {
+					rows[i].appendChild(addTicker(i, p));
 				}
 			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 			button({"onclick": () => {
