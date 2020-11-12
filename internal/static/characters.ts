@@ -34,7 +34,7 @@ const allowedKey = (key: string, character: boolean) => {
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => div({"class": "tokenSelector"}, [
-	button({"onclick": function(this: HTMLDivElement) {
+	button({"onclick": function(this: HTMLButtonElement) {
 		(d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
 			if (!proceed) {
 				return;
