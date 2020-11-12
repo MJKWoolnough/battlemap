@@ -144,10 +144,10 @@ export type RPC = RPCWaits & {
 
 	tokenModify: (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
 
-	listPlugins:   ()                                        => Promise<Record<string, Plugin>>;
-	enablePlugin:  (plugin: string)                          => Promise<void>;
-	disablePlugin: (plugin: string)                          => Promise<void>;
-	pluginSetting: (plugin: string, key: string, value: any) => Promise<void>;
+	listPlugins:   ()                                          => Promise<Record<string, Plugin>>;
+	enablePlugin:  (plugin: string)                            => Promise<void>;
+	disablePlugin: (plugin: string)                            => Promise<void>;
+	pluginSetting: (plugin: string, data: Record<string, any>) => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
