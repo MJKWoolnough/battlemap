@@ -72,6 +72,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitWallAdded",           broadcastWallAdd,             checkWallPath],
 				["waitWallRemoved",         broadcastWallRemove,          checkUint],
 				["waitPluginChange",        broadcastPluginChange,        returnVoid],
+				["waitPluginSetting",       broadcastPluginSettingChange, checkPluginSetting],
 				["waitBroadcast",           broadcastAny,                 checkBroadcast]
 			],
 			"images": [
@@ -489,6 +490,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
+      checksPluginSetting: checkers = [[checkObject, ""], [checkString, "name"], [checkObject, "data"]],
+      checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
