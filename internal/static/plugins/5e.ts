@@ -659,7 +659,7 @@ const langs: Record<string, Record<string, string>> = {
 if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
-	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length) => {
+	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
 		      t = th([
 			name,
