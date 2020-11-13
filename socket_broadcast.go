@@ -90,6 +90,7 @@ const (
 	broadcastWallRemove
 
 	broadcastPluginChange
+	broadcastPluginSettingChange
 
 	broadcastAny
 )
