@@ -866,6 +866,13 @@ rpc.waitMapDataRemove().then(removed => {
 	}
 });
 
+rpc.waitPluginSetting().then(setting => {
+	if (setting["file"] === importName && checkSettings(setting["data"])) {
+		settings["shapechange-categories"] = setting["data"]["shapechange-categories"];
+		settings["store-image-shapechanges"] = setting["data"]["store-image-shapechanges"];
+	}
+})
+
 combinedRPC.waitTokenRemove().then(id => {
 	setTimeout(updateInitiative, 0);
 });
