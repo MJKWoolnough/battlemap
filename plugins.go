@@ -159,6 +159,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		if err := json.Unmarshal(data, &toSet); err != nil {
 			return nil, err
 		}
+		if len(toSet.Data) == 0 {
+			return nil, nil
+		}
 		p.mu.Lock()
 		plugin, ok := p.plugins[toSet.Filename]
 		if !ok {
@@ -180,6 +183,10 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 
 			}
 		}
+		p.savePlugins()
+		cd.CurrentMap = 0
+		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, data)
+		p.mu.Unlock()
 	case "enable", "disable":
 		var filename string
 		if err := json.Unmarshal(data, &filename); err != nil {
@@ -192,13 +199,13 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Enabled = method == "enable"
+		p.savePlugins()
 		cd.CurrentMap = 0
+		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
+		p.mu.Unlock()
 	default:
 		return nil, ErrUnknownMethod
 	}
-	p.savePlugins()
-	p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
-	p.mu.Unlock()
 	return nil, nil
 }
 
