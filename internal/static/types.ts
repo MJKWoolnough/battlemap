@@ -80,6 +80,7 @@ type RPCWaits = {
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
 	waitPluginChange:            () => Subscription<void>;
+	waitPluginSetting:           () => Subscription<PluginSetting>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 }
 
@@ -360,6 +361,11 @@ type LightChange = ID & TokenLight;
 
 export type Plugin = {
 	enabled: boolean;
+	data: Record<string, any>;
+}
+
+type PluginSetting = {
+	name: string;
 	data: Record<string, any>;
 }
 
