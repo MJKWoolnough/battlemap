@@ -675,9 +675,9 @@ if (userLevel === 1) {
 				}
 				shapechangeCats[pos].name = "";
 				for (const row of tickers) {
-					row[pos].style.setProperty("display", "none");
+					row[pos].remove();
 				}
-				t.style.setProperty("display", "none");
+				t.remove();
 			})})
 		      ]);
 		return t;
@@ -713,7 +713,7 @@ if (userLevel === 1) {
 					if (!rm) {
 						return;
 					}
-					rows[row].style.setProperty("display", "none");
+					rows[row].remove();
 					shapechangeTokens[row]["name"] = "";
 				})})
 			]),
