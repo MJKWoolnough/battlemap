@@ -365,7 +365,7 @@ export type Plugin = {
 }
 
 type PluginSetting = {
-	name: string;
+	file: string;
 	data: Record<string, any>;
 }
 
