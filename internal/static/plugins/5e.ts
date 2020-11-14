@@ -755,7 +755,7 @@ if (userLevel === 1) {
 					"name": cat,
 					"images": Array.from({"length": shapechangeTokens.length}, _ => false),
 				      },
-				      p = shapechangeCats.push(c);
+				      p = shapechangeCats.push(c) - 1;
 				cats.appendChild(addCat(c))
 				for (let i = 0; i < rows.length; i++) {
 					rows[i].appendChild(addTicker(i, p));
