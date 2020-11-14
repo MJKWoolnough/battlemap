@@ -101,7 +101,7 @@ const defaultLanguage: Record<string, string> = {
 	"THEME": "Theme",
 	"TOKEN": "Token",
 	"TOKEN_REPLACE": "Replace Token?",
-	"TOKEN_REPALCE_CONFIRM": "Are you sure that you wish to replace the current token with the currently selected token?",
+	"TOKEN_REPLACE_CONFIRM": "Are you sure that you wish to replace the current token with the currently selected token?",
 	"TOKEN_SELECT": "Select Token",
 	"TOKEN_NONE_SELECTED": "No token selected",
 	"TOKEN_USE_SELECTED": "Use currently selected token",
