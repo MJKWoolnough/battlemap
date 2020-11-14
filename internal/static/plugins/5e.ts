@@ -364,8 +364,8 @@ const langs: Record<string, Record<string, string>> = {
 			console.log("entry of store-image-shapechanges must be an object");
 			return null;
 		}
-		if (!isUint(s["id"])) {
-			console.log("store-image-shapechanges.id must be a Uint");
+		if (!isUint(s["src"])) {
+			console.log("store-image-shapechanges.src must be a Uint");
 			return null;
 		}
 		if (typeof s["name"] !== "string") {
