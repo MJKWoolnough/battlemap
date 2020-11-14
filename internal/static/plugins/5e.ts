@@ -751,6 +751,7 @@ if (userLevel === 1) {
 				const token = getToken();
 				if (!token) {
 					requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+					return;
 				}
 				requestShell().prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
 					if (!name) { 
