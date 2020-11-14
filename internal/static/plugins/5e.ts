@@ -699,7 +699,20 @@ if (userLevel === 1) {
 		      r = tr([
 			th([
 				div({"class": "tokenSelector tokenSelector5E"}, [
-					button({"onclick": () => {}}),
+					button({"onclick": () => {
+						const token = getToken();
+						if (!token) {
+							requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+							return;
+						}
+						requestShell().confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
+							if (!replace) {
+								return;
+							}
+							Object.assign(t, token);
+							i.setAttribute("src", `/images/${t.src}`);
+						});
+					}}),
 					i
 				]),
 				br(),
