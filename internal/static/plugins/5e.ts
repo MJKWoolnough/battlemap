@@ -702,6 +702,7 @@ if (userLevel === 1) {
 					button({"onclick": () => {}}),
 					i
 				]),
+				br(),
 				name,
 				rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t.name).then(newName => {
 					if (!newName || t.name === newName) {
