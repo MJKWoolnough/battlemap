@@ -22,6 +22,8 @@ type IDInitiative = {
 	initiative: Uint;
 }
 
+type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop">;
+
 type TokenFields = {
 	"name"?: KeystoreData<string>;
 	"5e-initiative"?: KeystoreData<IDInitiative>;
@@ -29,6 +31,7 @@ type TokenFields = {
 	"5e-ac"?: KeystoreData<Uint>;
 	"5e-hp-max"?: KeystoreData<Uint>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
+	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
 }
 
 type Token5E = SVGToken & {
@@ -1002,6 +1005,17 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		case "5e-conditions":
 			if (!(val instanceof Array) || val.length !== conditions.length || !val.every(b => typeof b === "boolean")) {
 				err = "Token Data '5e-conditions' must be a boolean array of correct length";
+			}
+			break;
+		case "store-image-5e-initial-token":
+			if (typeof val !== "object") {
+				err = "Token Data 'store-image-5e-initial-token' must be an object";
+			} else if (!isUint(val["src"])) {
+				err = "Token Data 'store-image-5e-initial-token' src must be a Uint";
+			} else if (!isUint(val["width"]) || !isUint(val["height"])) {
+				err = "Token Data 'store-image-5e-initial-token' width & height must be Uints";
+			} else if (typeof val["flip"] !== "boolean" || typeof val["flop"] !== "boolean") {
+				err = "Token Data 'store-image-5e-initial-token' flip & flop must be boolean";
 			}
 			break;
 		}
