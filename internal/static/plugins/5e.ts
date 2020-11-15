@@ -4,7 +4,7 @@ import {br, button, div, h1, img, input, label, li, span, style, table, tbody, t
 import {createSVG, circle, defs, ellipse, feColorMatrix, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
-import {item, menu} from '../lib/context.js';
+import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
@@ -560,9 +560,11 @@ const langs: Record<string, Record<string, string>> = {
 			if (!token || !(token instanceof SVGToken5E) || token.isPattern) {
 				return [];
 			}
+			const initMod: number | null = token.getData("5e-initiative-mod"),
+			      tokenConditions = token.getData("5e-conditions") ?? [],
+			      ctxList: List = [];
 			if (token.tokenData["5e-initiative"]) {
-				const tokenConditions = token.getData("5e-conditions") ?? [];
-				return [
+				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => {
 						if (token.tokenData["5e-initiative"]) {
 							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
@@ -601,32 +603,33 @@ const langs: Record<string, Record<string, string>> = {
 						rpc.tokenModify(token.id, {"5e-conditions": {"user": true, data}}, []);
 						token.updateData();
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
-				];
+				);
+			} else {
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+					if (!initiative) {
+						throw new Error("invalid initiative");
+					}
+					return parseInt(initiative);
+				})).then(initiative => {
+					if (lastMapChange !== mapChange) {
+						requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
+						throw new Error("map changed");
+					}
+					const id = ++lastInitiativeID,
+					      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
+					Object.assign(token.tokenData, change);
+					rpc.tokenModify(token.id, change, []);
+					const md = globals.mapData as MapData5E;
+					if (md.data["5e-initiative"]) {
+						md.data["5e-initiative"].push(id);
+					} else {
+						md.data["5e-initiative"] = [id];
+					}
+					updateInitiative();
+					saveInitiative();
+				}).catch(() => {})));
 			}
-			const initMod: number | null = token.getData("5e-initiative-mod");
-			return [item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-				if (!initiative) {
-					throw new Error("invalid initiative");
-				}
-				return parseInt(initiative);
-			})).then(initiative => {
-				if (lastMapChange !== mapChange) {
-					requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
-					throw new Error("map changed");
-				}
-				const id = ++lastInitiativeID,
-				      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
-				Object.assign(token.tokenData, change);
-				rpc.tokenModify(token.id, change, []);
-				const md = globals.mapData as MapData5E;
-				if (md.data["5e-initiative"]) {
-					md.data["5e-initiative"].push(id);
-				} else {
-					md.data["5e-initiative"] = [id];
-				}
-				updateInitiative();
-				saveInitiative();
-			}).catch(() => {}))];
+			return ctxList;
 		}
 	},
 	"settings": {
