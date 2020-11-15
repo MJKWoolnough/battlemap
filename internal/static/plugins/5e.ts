@@ -61,8 +61,7 @@ type ShapechangeCat = {
 	"images": boolean[];
 }
 
-type ShapechangeToken = {
-	src: Uint;
+type ShapechangeToken = InitialToken & {
 	name: string;
 }
 
@@ -485,6 +484,9 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
       }),
+      setShapechange = (t: SVGToken5E, n: InitialToken) => {
+
+      },
       plugin: PluginType = {
 	"characterEdit": {
 		"priority": 0,
@@ -634,13 +636,17 @@ const langs: Record<string, Record<string, string>> = {
 			}
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
-					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {}) : [],
+					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
+						if (token.tokenData["store-image-5e-initial-token"]) {
+							setShapechange(token, token.tokenData["store-image-5e-initial-token"].data);
+						}
+					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
 						if (!b) {
 							return [];
 						}
-						const token = shapechangeTokens[n];
-						return item(token.name, () => {});
+						const newToken = shapechangeTokens[n];
+						return item(newToken.name, () => setShapechange(token, newToken));
 					})))
 				]));
 			}
