@@ -299,6 +299,8 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_NEXT": "Next",
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
+		"SHAPECHANGE": "Shapechange",
+		"SHAPECHANGE_INITIAL_RESTORE": "Restore Initial Token",
 		"SHAPECHANGE_TITLE": "Shapechange Settings",
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
 		"SHAPECHANGE_TOKEN_CATEGORY": "Add Category",
@@ -562,6 +564,7 @@ const langs: Record<string, Record<string, string>> = {
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod"),
 			      tokenConditions = token.getData("5e-conditions") ?? [],
+			      {"shapechange-categories": shapechangeCats, "store-image-shapechanges": shapechangeTokens} = settings,
 			      ctxList: List = [];
 			if (token.tokenData["5e-initiative"]) {
 				ctxList.push(
@@ -628,6 +631,18 @@ const langs: Record<string, Record<string, string>> = {
 					updateInitiative();
 					saveInitiative();
 				}).catch(() => {})));
+			}
+			if (shapechangeCats && shapechangeCats.length) {
+				ctxList.push(menu(lang["SHAPECHANGE"], [
+					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {}) : [],
+					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
+						if (!b) {
+							return [];
+						}
+						const token = shapechangeTokens[n];
+						return item(token.name, () => {});
+					})))
+				]));
 			}
 			return ctxList;
 		}
