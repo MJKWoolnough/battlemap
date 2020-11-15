@@ -484,6 +484,7 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
       }),
+      asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
       setShapechange = (t: SVGToken5E, n: InitialToken) => {
 
       },
@@ -694,7 +695,6 @@ const langs: Record<string, Record<string, string>> = {
 if (userLevel === 1) {
 	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
-	      asInitialToken = (t: any): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
 		      t = th([
@@ -736,11 +736,12 @@ if (userLevel === 1) {
 			th([
 				div({"class": "tokenSelector tokenSelector5E"}, [
 					button({"onclick": () => {
-						const token = asInitialToken(getToken());
-						if (!token) {
+						const t = getToken();
+						if (!t) {
 							requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 							return;
 						}
+						const token = asInitialToken(t);
 						requestShell().confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
 							if (!replace) {
 								return;
@@ -798,11 +799,12 @@ if (userLevel === 1) {
 				}
 			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 			button({"onclick": () => {
-				const token = asInitialToken(getToken());
-				if (!token) {
+				const t = getToken();
+				if (!t) {
 					requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 					return;
 				}
+				const token = asInitialToken(t);
 				requestShell().prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
 					if (!name) { 
 						return;
