@@ -557,7 +557,7 @@ const langs: Record<string, Record<string, string>> = {
 		"fn": () => {
 			const token = lastSelectedToken,
 			      mapChange = lastMapChange;
-			if (!token || !(token instanceof SVGToken5E)) {
+			if (!token || !(token instanceof SVGToken5E) || token.isPattern) {
 				return [];
 			}
 			if (token.tokenData["5e-initiative"]) {
