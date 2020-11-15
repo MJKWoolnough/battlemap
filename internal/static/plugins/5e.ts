@@ -1,13 +1,13 @@
 import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
-import {createSVG, circle, defs, ellipse, feColorMatrix, feGaussianBlur, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
+import {createSVG, circle, defs, ellipse, feColorMatrix, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
-import {globals, SVGToken, walkLayers, isSVGLayer, SVGLayer, SVGFolder} from '../map.js';
+import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken} from '../adminMap.js';
-import {mapLoadedReceive, requestShell, handleError, makeColourPicker, colour2Hex, colour2RGBA, rgba2Colour, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
+import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
