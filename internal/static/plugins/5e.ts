@@ -375,6 +375,14 @@ const langs: Record<string, Record<string, string>> = {
 			console.log("store-image-shapechanges.name must be a string");
 			return null;
 		}
+		if (!isUint(s["width"]) || !isUint(s["height"])) {
+			console.log("store-image-shapechanges.width/height must be a Uint");
+			return null;
+		}
+		if (typeof s["flip"] !== "boolean" || typeof s["flop"] !== "boolean") {
+			console.log("store-image-shapechanges.flip/flop must be a boolean");
+			return null;
+		}
 	}
 	return data;
       },
