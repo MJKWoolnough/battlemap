@@ -51,7 +51,7 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 
 export const getToken = () => {
 	const {token} = globals.selected;
-	if (token instanceof SVGToken) {
+	if (token instanceof SVGToken && !token.isPattern) {
 		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap} = token,
 		      tokenData = JSON.parse(JSON.stringify(token.tokenData));
 		for (const f of tokenDataFilter()) {
