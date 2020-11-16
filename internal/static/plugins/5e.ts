@@ -645,9 +645,19 @@ const langs: Record<string, Record<string, string>> = {
 							return;
 						}
 						if (token.tokenData["store-image-5e-initial-token"]) {
-							setShapechange(token, token.tokenData["store-image-5e-initial-token"].data);
-							rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
-							delete token.tokenData["store-image-5e-initial-token"];
+							const data = asInitialToken(token),
+							      initToken = token.tokenData["store-image-5e-initial-token"].data,
+							      doIt = () => {
+								setShapechange(token, initToken);
+								delete token.tokenData["store-image-5e-initial-token"];
+								rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
+								return () => {
+									rpc.tokenModify(token.id, {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}, []);
+									setShapechange(token, data);
+									return doIt;
+								};
+							      };
+							globals.undo.add(doIt);
 						}
 					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
