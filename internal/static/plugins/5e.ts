@@ -661,7 +661,9 @@ const langs: Record<string, Record<string, string>> = {
 							}
 							const data = asInitialToken(token);
 							setShapechange(token, newToken);
-							rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
+							if (!token.tokenData["store-image-5e-initial-token"]) {
+								rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
+							}
 						});
 					})))
 				]));
