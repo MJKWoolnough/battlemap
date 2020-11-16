@@ -694,7 +694,7 @@ const langs: Record<string, Record<string, string>> = {
 	},
 	"tokenDataFilter": {
 		"priority": 0,
-		"fn": ["5e-initiative"]
+		"fn": ["5e-initiative", "store-image-5e-initial-token"]
 	}
       };
 
