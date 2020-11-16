@@ -669,11 +669,22 @@ const langs: Record<string, Record<string, string>> = {
 							if (token !== lastSelectedToken) {
 								return;
 							}
-							const data = asInitialToken(token);
-							setShapechange(token, newToken);
-							if (!token.tokenData["store-image-5e-initial-token"]) {
-								rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
-							}
+							const data = asInitialToken(token),
+							      setInitial = !token.tokenData["store-iamge-5e-initial-token"],
+							      doIt = () => {
+								if (setInitial) {
+									rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
+								}
+								setShapechange(token, newToken);
+								return () => {
+									setShapechange(token, data);
+									if (setInitial) {
+										rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
+									}
+									return doIt;
+								};
+							      };
+							globals.undo.add(doIt);
 						});
 					})))
 				]));
