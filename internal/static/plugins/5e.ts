@@ -640,6 +640,8 @@ const langs: Record<string, Record<string, string>> = {
 					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
 						if (token.tokenData["store-image-5e-initial-token"]) {
 							setShapechange(token, token.tokenData["store-image-5e-initial-token"].data);
+							rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
+							delete token.tokenData["store-image-5e-initial-token"];
 						}
 					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
@@ -647,7 +649,11 @@ const langs: Record<string, Record<string, string>> = {
 							return [];
 						}
 						const newToken = shapechangeTokens[n];
-						return item(newToken.name, () => setShapechange(token, newToken));
+						return item(newToken.name, () => {
+							const data = asInitialToken(token);
+							setShapechange(token, newToken);
+							rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
+						});
 					})))
 				]));
 			}
