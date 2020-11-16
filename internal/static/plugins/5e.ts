@@ -617,6 +617,9 @@ const langs: Record<string, Record<string, string>> = {
 					}
 					return parseInt(initiative);
 				})).then(initiative => {
+					if (token !== lastSelectedToken) {
+						return;
+					}
 					if (lastMapChange !== mapChange) {
 						requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 						throw new Error("map changed");
@@ -638,6 +641,9 @@ const langs: Record<string, Record<string, string>> = {
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
 					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
+						if (token !== lastSelectedToken) {
+							return;
+						}
 						if (token.tokenData["store-image-5e-initial-token"]) {
 							setShapechange(token, token.tokenData["store-image-5e-initial-token"].data);
 							rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
@@ -650,6 +656,9 @@ const langs: Record<string, Record<string, string>> = {
 						}
 						const newToken = shapechangeTokens[n];
 						return item(newToken.name, () => {
+							if (token !== lastSelectedToken) {
+								return;
+							}
 							const data = asInitialToken(token);
 							setShapechange(token, newToken);
 							rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
