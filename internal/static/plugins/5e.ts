@@ -486,7 +486,24 @@ const langs: Record<string, Record<string, string>> = {
       }),
       asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
       setShapechange = (t: SVGToken5E, n: InitialToken) => {
-
+	const size = t.width !== n.width || t.height !== n.height,
+	      flip = t.flip !== n.flip,
+	      flop = t.flop !== n.flop;
+	Object.assign(t, n);
+	t.updateNode();
+	if (globals.selected.token === t) {
+		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
+	}
+	let p = rpc.setTokenSource(t.id, t.src);
+	if (size) {
+		p = p.then(() => rpc.setToken(t.id, t.x, t.y, n.width, n.height, t.rotation));
+	}
+	if (flip) {
+		p = p.then(() => rpc.flipToken(t.id, n.flip));
+	}
+	if (flop) {
+		p = p.then(() => rpc.flopToken(t.id, n.flop));
+	}
       },
       plugin: PluginType = {
 	"characterEdit": {
