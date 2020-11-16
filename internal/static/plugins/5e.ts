@@ -562,7 +562,7 @@ const langs: Record<string, Record<string, string>> = {
 		"fn": () => {
 			const token = lastSelectedToken,
 			      mapChange = lastMapChange;
-			if (!token || !(token instanceof SVGToken5E) || token.isPattern) {
+			if (!token) {
 				return [];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod"),
