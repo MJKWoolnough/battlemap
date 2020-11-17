@@ -67,6 +67,7 @@ type RPCWaits = {
 	waitTokenRemove:             () => Subscription<Uint>;
 	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
 	waitTokenMovePos:            () => Subscription<TokenMovePos>;
+	waitTokenSet:                () => Subscription<TokenSet>;
 	waitTokenSetImage:           () => Subscription<Uint>;
 	waitTokenSetPattern:         () => Subscription<Uint>;
 	waitTokenChange:             () => Subscription<TokenChange>;
@@ -124,6 +125,7 @@ export type RPC = RPCWaits & {
 	removeLayer:     (path: string)                                                         => Promise<void>;
 	addToken:        (path: string, token: Token)                                           => Promise<Uint>;
 	removeToken:     (id: Uint)                                                             => Promise<void>;
+	setTokenData:    (t: TokenSet)                                                          => Promise<void>;
 	setToken:        (id: Uint, x: Int, y: Int, width: Uint, height: Uint, rotation: Uint)  => Promise<void>;
 	flipToken:       (id: Uint, flip: boolean)                                              => Promise<void>;
 	flopToken:       (id: Uint, flop: boolean)                                              => Promise<void>;
@@ -238,6 +240,17 @@ export type TokenDrawing = TokenShape & {
 export type Coords = {
 	x: Int;
 	y: Int;
+}
+
+type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & {
+	ID:               Uint;
+	src?:             Uint;
+	patternWidth?:    Uint;
+	patternHeight?:   Uint;
+	flip?:            boolean;
+	flop?:            boolean;
+	tokenData?:       Record<string, KeystoreData>;
+	removeTokenData?: string[];
 }
 
 export type LayerTokens = {
