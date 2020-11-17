@@ -59,6 +59,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitTokenRemove",         broadcastTokenRemove,         checkUint],
 				["waitTokenMoveLayer",      broadcastTokenMoveLayer,      checkTokenMoveLayer],
 				["waitTokenMovePos",        broadcastTokenMovePos,        checkTokenMovePos],
+				["waitTokenSet",            broadcastTokenSet,            checkTokenSet],
 				["waitTokenSetImage",       broadcastTokenSetImage,       checkUint],
 				["waitTokenSetPattern",     broadcastTokenSetPattern,     checkUint],
 				["waitTokenChange",         broadcastTokenChange,         checkTokenChange],
@@ -139,6 +140,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid,       "waitLayerRemove", ""],
 				["addToken",       "maps.addToken",        "a",                                            checkUint,        "waitTokenAdd", "id"],
 				["removeToken",    "maps.removeToken",     "!",                                            returnVoid,       "waitTokenRemove", ""],
+				["setTokenData",   "maps.setTokenData",    "!",                                            returnVoid,       "waitTokenSet", ""],
 				["setToken",       "maps.setToken",       ["id", "x", "y", "width", "height", "rotation"], returnVoid,       "waitTokenChange", ""],
 				["flipToken",      "maps.flipToken",      ["id", "flip"],                                  returnVoid,       "waitTokenFlip", ""],
 				["flopToken",      "maps.flopToken",      ["id", "flop"],                                  returnVoid,       "waitTokenFlop", ""],
@@ -403,6 +405,21 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkTokenMovePos = (data: any) => checker(data, "TokenMovePos", checksTokenMovePos),
       checksTokenMoveLayer: checkers = [[checkID, ""], [checkUint, "pos"]],
       checkTokenMoveLayer = (data: any) => checker(data, "TokenMoveLayer", checksTokenMoveLayer),
+      checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"]],
+      checkTokenSet = (data: any) => {
+	checker(data, "TokenSet", checksTokenSet);
+	if (data["removeTokenData"]) {
+		for (const k of data["removeTokenData"]) {
+			checkString(k, "TokenSet", "removeTokenData");
+		}
+	}
+	if (data["points"]) {
+		for (const p of data["points"]) {
+			checker(p, "TokenSet->Points", checksCoords);
+		}
+	}
+	return data;
+      },
       checksTokenFlip: checkers = [[checkID, ""], [checkBoolean, "flip"]],
       checkTokenFlip = (data: any) =>  checker(data, "TokenFlip", checksTokenFlip),
       checksTokenFlop: checkers = [[checkID, ""], [checkBoolean, "flop"]],
