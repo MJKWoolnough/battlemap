@@ -72,6 +72,7 @@ const (
 	broadcastTokenAdd
 	broadcastTokenRemove
 	broadcastTokenMoveLayer
+	broadcastTokenSet
 	broadcastTokenMovePos
 	broadcastTokenSetImage
 	broadcastTokenSetPattern
