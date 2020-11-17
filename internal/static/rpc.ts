@@ -309,10 +309,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
       },
       checker = (data: any, name: string, checkers: checkers) => {
-	for (const [fn, key] of checkers) {
-		if (!(key.charAt(0) === "?" && data[key] === undefined)) {
-			fn(key ? data[key] : data, name, key);
+	for (let [fn, key] of checkers) {
+		if (key.charAt(0) === "?") {
+			key = key.slice(1);
+			if (data[key] === undefined) {
+				continue;
+			}
 		}
+		fn(key ? data[key] : data, name, key);
 	}
 	return data;
       },
