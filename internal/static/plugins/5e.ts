@@ -485,7 +485,7 @@ const langs: Record<string, Record<string, string>> = {
 	}
       }),
       asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
-      setShapechange = (t: SVGToken5E, n: InitialToken) => {
+      setShapechange = (t: SVGToken5E, n: InitialToken, p: Promise<any>) => {
 	const size = t.width !== n.width || t.height !== n.height,
 	      flip = t.flip !== n.flip,
 	      flop = t.flop !== n.flop;
@@ -494,7 +494,7 @@ const langs: Record<string, Record<string, string>> = {
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
-	let p = rpc.setTokenSource(t.id, t.src);
+	p = p.then(() => rpc.setTokenSource(t.id, t.src));
 	if (size) {
 		p = p.then(() => rpc.setToken(t.id, t.x, t.y, n.width, n.height, t.rotation));
 	}
@@ -504,6 +504,7 @@ const langs: Record<string, Record<string, string>> = {
 	if (flop) {
 		p = p.then(() => rpc.flopToken(t.id, n.flop));
 	}
+	return p;
       },
       plugin: PluginType = {
 	"characterEdit": {
@@ -665,12 +666,10 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      initToken = token.tokenData["store-image-5e-initial-token"].data,
 							      doIt = () => {
-								setShapechange(token, initToken);
+								setShapechange(token, initToken, Promise.resolve()).then(() => rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]));
 								delete token.tokenData["store-image-5e-initial-token"];
-								rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
 								return () => {
-									rpc.tokenModify(token.id, {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}, []);
-									setShapechange(token, data);
+									setShapechange(token, data, rpc.tokenModify(token.id, {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}, []));
 									return doIt;
 								};
 							      };
@@ -689,14 +688,11 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      setInitial = !token.tokenData["store-iamge-5e-initial-token"],
 							      doIt = () => {
-								if (setInitial) {
-									rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []);
-								}
-								setShapechange(token, newToken);
+								setShapechange(token, newToken, setInitial ? rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []) : Promise.resolve());
 								return () => {
-									setShapechange(token, data);
+									const p = setShapechange(token, data, Promise.resolve());
 									if (setInitial) {
-										rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]);
+										p.then(() => rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]));
 									}
 									return doIt;
 								};
