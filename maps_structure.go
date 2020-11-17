@@ -181,25 +181,25 @@ type token struct {
 	ID     uint64 `json:"-"`
 	Source uint64 `json:"src"`
 	coords
-	Width         uint64                  `json:"width"`
-	Height        uint64                  `json:"height"`
-	PatternWidth  uint64                  `json:"patternWidth"`
-	PatternHeight uint64                  `json:"patternHeight"`
-	TokenData     map[string]keystoreData `json:"tokenData"`
-	Rotation      uint8                   `json:"rotation"`
-	Flip          bool                    `json:"flip"`
-	Flop          bool                    `json:"flop"`
-	Snap          bool                    `json:"snap"`
-	LightColour   colour                  `json:"lightColour"`
-	LightIntesity uint64                  `jons:"lightIntensity"`
-	TokenType     tokenType               `json:"tokenType"`
-	IsEllipse     bool                    `json:"isEllipse"`
-	StrokeWidth   uint8                   `json:"strokeWidth"`
-	Fill          colour                  `json:"fill"`
-	Fills         []fill                  `json:"fills"`
-	FillType      fillType                `json:"fillType"`
-	Stroke        colour                  `json:"stroke"`
-	Points        []coords                `json:"points"`
+	Width          uint64                  `json:"width"`
+	Height         uint64                  `json:"height"`
+	PatternWidth   uint64                  `json:"patternWidth"`
+	PatternHeight  uint64                  `json:"patternHeight"`
+	TokenData      map[string]keystoreData `json:"tokenData"`
+	Rotation       uint8                   `json:"rotation"`
+	Flip           bool                    `json:"flip"`
+	Flop           bool                    `json:"flop"`
+	Snap           bool                    `json:"snap"`
+	LightColour    colour                  `json:"lightColour"`
+	LightIntensity uint64                  `jons:"lightIntensity"`
+	TokenType      tokenType               `json:"tokenType"`
+	IsEllipse      bool                    `json:"isEllipse"`
+	StrokeWidth    uint8                   `json:"strokeWidth"`
+	Fill           colour                  `json:"fill"`
+	Fills          []fill                  `json:"fills"`
+	FillType       fillType                `json:"fillType"`
+	Stroke         colour                  `json:"stroke"`
+	Points         []coords                `json:"points"`
 }
 
 type coords struct {
@@ -233,7 +233,7 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
 	p = t.LightColour.appendTo(append(p, ",\"lightColour\":"...))
-	p = strconv.AppendUint(append(p, ",\"lightIntensity\":"...), t.LightIntesity, 10)
+	p = strconv.AppendUint(append(p, ",\"lightIntensity\":"...), t.LightIntensity, 10)
 	switch t.TokenType {
 	case tokenImage:
 		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)

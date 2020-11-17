@@ -549,10 +549,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, lightToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
-			if tk.LightIntesity == lightToken.LightIntensity && tk.LightColour.R == lightToken.LightColour.R && tk.LightColour.G == lightToken.LightColour.G && tk.LightColour.B == lightToken.LightColour.B && tk.LightColour.A == lightToken.LightColour.A {
+			if tk.LightIntensity == lightToken.LightIntensity && tk.LightColour.R == lightToken.LightColour.R && tk.LightColour.G == lightToken.LightColour.G && tk.LightColour.B == lightToken.LightColour.B && tk.LightColour.A == lightToken.LightColour.A {
 				return false
 			}
-			tk.LightIntesity = lightToken.LightIntensity
+			tk.LightIntensity = lightToken.LightIntensity
 			tk.LightColour = lightToken.LightColour
 			m.socket.broadcastMapChange(cd, broadcastTokenLightChange, data)
 			return true
