@@ -130,7 +130,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 	case "broadcast":
 		if cd.IsAdmin() {
 			cd.CurrentMap = 0
-			c.socket.broadcastMapChange(cd, broadcastAny, data)
+			c.socket.broadcastMapChange(cd, broadcastAny, data, userAny)
 			return nil, nil
 		}
 	default:

@@ -185,7 +185,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		}
 		p.savePlugins()
 		cd.CurrentMap = 0
-		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, data)
+		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, data, userAny)
 		p.mu.Unlock()
 	case "enable", "disable":
 		var filename string
@@ -201,7 +201,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		plugin.Enabled = method == "enable"
 		p.savePlugins()
 		cd.CurrentMap = 0
-		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'})
+		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'}, userAny)
 		p.mu.Unlock()
 	default:
 		return nil, ErrUnknownMethod

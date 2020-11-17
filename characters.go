@@ -211,7 +211,7 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 	}
 	buf = append(buf, ']', '}')
 	cd.CurrentMap = 0
-	c.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf)
+	c.socket.broadcastMapChange(cd, broadcastCharacterDataChange, buf, userNotAdmin)
 	return c.fileStore.Set(string(m.ID), ms)
 }
 

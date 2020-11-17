@@ -146,13 +146,21 @@ func (s *socket) SetCurrentUserMap(currentUserMap uint64, data, mData json.RawMe
 	s.mu.RUnlock()
 }
 
-func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage) {
+type userStatus uint8
+
+const (
+	userAny userStatus = iota
+	userAdmin
+	userNotAdmin
+)
+
+func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage, user userStatus) {
 	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
 		id := c.ID
 		currentMap := atomic.LoadUint64(&c.CurrentMap)
-		if id != cd.ID && (currentMap == cd.CurrentMap || cd.CurrentMap == 0) {
+		if id != cd.ID && (currentMap == cd.CurrentMap || cd.CurrentMap == 0) && user == userAny || (user == userAdmin) == cd.IsAdmin() {
 			go c.rpc.SendData(dat)
 		}
 	}

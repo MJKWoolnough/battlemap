@@ -67,7 +67,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			mp.GridSize = md.GridSize
 			mp.GridColour = md.GridColour
 			mp.GridStroke = md.GridStroke
-			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data)
+			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data, userAny)
 			return true
 		})
 	case "setData":
@@ -80,7 +80,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			mp.Data[sd.Key] = sd.Data
-			m.socket.broadcastMapChange(cd, broadcastMapDataSet, data)
+			m.socket.broadcastMapChange(cd, broadcastMapDataSet, data, userAny)
 			return true
 		})
 	case "removeData":
@@ -90,7 +90,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			delete(mp.Data, rd)
-			m.socket.broadcastMapChange(cd, broadcastMapDataRemove, data)
+			m.socket.broadcastMapChange(cd, broadcastMapDataRemove, data, userAny)
 			return true
 		})
 	case "setLightColour":
@@ -100,7 +100,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
 			mp.Light = c
-			m.socket.broadcastMapChange(cd, broadcastMapLightChange, data)
+			m.socket.broadcastMapChange(cd, broadcastMapLightChange, data, userAny)
 			return true
 		}); err != nil {
 			return nil, err
@@ -120,7 +120,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			mp.LightX = pos.X
 			mp.LightY = pos.Y
-			m.socket.broadcastMapChange(cd, broadcastLightShift, data)
+			m.socket.broadcastMapChange(cd, broadcastLightShift, data, userAny)
 			return true
 		}); err != nil {
 			return nil, err
@@ -143,7 +143,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			wallAdd.wall.ID = mp.lastWallID
 			l.Walls = append(l.Walls, wallAdd.wall)
 			mp.walls[mp.lastWallID] = layerWall{l, wallAdd.wall}
-			m.socket.broadcastMapChange(cd, broadcastWallAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'))
+			m.socket.broadcastMapChange(cd, broadcastWallAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'), userAny)
 			return true
 		}); err != nil {
 			return nil, err
@@ -162,7 +162,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			l.Walls = append(l.Walls[:wallRemove.Pos], l.Walls[wallRemove.Pos+1:]...)
-			m.socket.broadcastMapChange(cd, broadcastWallRemove, data)
+			m.socket.broadcastMapChange(cd, broadcastWallRemove, data, userAny)
 			return true
 		}); err != nil {
 			return nil, err
@@ -181,7 +181,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			mp.Layers = append(mp.Layers, &layer{Name: name})
 			mp.layers[name] = struct{}{}
-			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerAdd, data, userAny)
 			return true
 		})
 		return data, err
@@ -202,7 +202,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				Name:   name,
 				Layers: []*layer{},
 			})
-			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerFolderAdd, data, userAny)
 			return true
 		})
 		return data, err
@@ -227,7 +227,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				rename.Name = l.Name
 				data = append(appendString(append(appendString(append(data[:0], "{\"path\":"...), rename.Path), ",\"name\":"...), rename.Name), '}')
 			}
-			m.socket.broadcastMapChange(cd, broadcastLayerRename, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerRename, data, userAny)
 			return true
 		})
 		return data, err
@@ -257,7 +257,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			op.removeLayer(l.Name)
 			np.addLayer(l, moveLayer.Position)
-			m.socket.broadcastMapChange(cd, broadcastLayerMove, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerMove, data, userAny)
 			return true
 		}); e != nil {
 			return nil, e
@@ -276,7 +276,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			l.Hidden = false
-			m.socket.broadcastMapChange(cd, broadcastLayerShow, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerShow, data, userAny)
 			return true
 		})
 	case "hideLayer":
@@ -292,7 +292,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			l.Hidden = true
-			m.socket.broadcastMapChange(cd, broadcastLayerHide, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerHide, data, userAny)
 			return true
 		})
 	case "addMask":
@@ -311,7 +311,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			l.Mask = addMask.Mask
-			m.socket.broadcastMapChange(cd, broadcastLayerMaskAdd, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerMaskAdd, data, userAny)
 			return true
 		})
 	case "removeMask":
@@ -327,7 +327,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			l.Mask = 0
-			m.socket.broadcastMapChange(cd, broadcastLayerMaskRemove, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerMaskRemove, data, userAny)
 			return true
 		})
 	case "removeLayer":
@@ -343,7 +343,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
 			l.removeLayer(name)
 			delete(mp.layers, name)
-			m.socket.broadcastMapChange(cd, broadcastLayerRemove, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerRemove, data, userAny)
 			return true
 		})
 		return nil, err
@@ -375,7 +375,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			newToken.token.ID = mp.lastTokenID
 			l.Tokens = append(l.Tokens, newToken.token)
 			mp.tokens[mp.lastTokenID] = layerToken{l, newToken.token}
-			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'))
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'), userAny)
 			return true
 		}); err != nil {
 			return nil, err
@@ -391,7 +391,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, modifyToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
-			m.socket.broadcastAdminChange(broadcastTokenDataChange, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenDataChange, data, userAdmin)
 			data := strconv.AppendUint(append(data[:0], "{\"id\":"...), modifyToken.ID, 10)
 			data = append(data, ",\"setting\":{"...)
 			first := true
@@ -451,7 +451,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					data = appendString(data, key)
 				}
 				data = append(data, ']')
-				m.socket.broadcastMapChange(cd, broadcastTokenDataChange, data)
+				m.socket.broadcastMapChange(cd, broadcastTokenDataChange, data, userNotAdmin)
 			}
 			return changed
 		})
@@ -464,7 +464,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.cleanupTokenRemove(mp, tk)
 			delete(mp.tokens, tokenID)
 			l.removeToken(tokenID)
-			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data, userAny)
 			return true
 		})
 	case "setTokenData":
@@ -498,7 +498,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, setToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
-			m.socket.broadcastAdminChange(broadcastTokenSet, data, cd.ID)
+			m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userAdmin)
 			data = strconv.AppendUint(append(data[:0], "{\"id\":"...), setToken.ID, 10)
 			l := len(data)
 			if setToken.X != nil && *setToken.X != tk.X {
@@ -637,7 +637,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			data = append(data, '}')
-			m.socket.broadcastMapChange(cd, broadcastTokenSet, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userNotAdmin)
 			return true
 		})
 	case "setToken":
@@ -661,7 +661,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			tk.Width = setToken.Width
 			tk.Height = setToken.Height
 			tk.Rotation = setToken.Rotation
-			m.socket.broadcastMapChange(cd, broadcastTokenChange, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenChange, data, userAny)
 			return true
 		})
 	case "flipToken":
@@ -677,7 +677,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			tk.Flip = flipToken.Flip
-			m.socket.broadcastMapChange(cd, broadcastTokenFlip, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenFlip, data, userAny)
 			return true
 		})
 	case "flopToken":
@@ -693,7 +693,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			tk.Flop = flopToken.Flop
-			m.socket.broadcastMapChange(cd, broadcastTokenFlop, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenFlop, data, userAny)
 			return true
 		})
 	case "setTokenSnap":
@@ -709,7 +709,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			tk.Snap = snapToken.Snap
-			m.socket.broadcastMapChange(cd, broadcastTokenSnap, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenSnap, data, userAny)
 			return true
 		})
 	case "setTokenLight":
@@ -727,7 +727,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			tk.LightIntensity = lightToken.LightIntensity
 			tk.LightColour = lightToken.LightColour
-			m.socket.broadcastMapChange(cd, broadcastTokenLightChange, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenLightChange, data, userAny)
 			return true
 		})
 	case "setTokenPattern":
@@ -741,7 +741,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			tk.PatternWidth = tk.Width
 			tk.PatternHeight = tk.Height
-			m.socket.broadcastMapChange(cd, broadcastTokenSetPattern, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenSetPattern, data, userAny)
 			return true
 
 		})
@@ -756,7 +756,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			tk.PatternWidth = 0
 			tk.PatternHeight = 0
-			m.socket.broadcastMapChange(cd, broadcastTokenSetImage, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenSetImage, data, userAny)
 			return true
 		})
 	case "setTokenSource":
@@ -772,7 +772,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return false
 			}
 			tk.Source = tokenSource.Source
-			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenSourceChange, data, userAny)
 			return true
 		})
 	case "setTokenLayer":
@@ -793,7 +793,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			l.removeToken(tokenLayer.ID)
 			ml.addToken(tk, uint(len(ml.Tokens)))
-			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data, userAny)
 			return true
 		})
 	case "setTokenPos":
@@ -812,7 +812,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			l.removeToken(tokenPos.ID)
 			l.addToken(tk, tokenPos.NewPos)
-			m.socket.broadcastMapChange(cd, broadcastTokenMovePos, data)
+			m.socket.broadcastMapChange(cd, broadcastTokenMovePos, data, userAny)
 			return true
 		}); e != nil {
 			return nil, e
@@ -841,7 +841,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				w.X2 += layerShift.DX
 				w.Y2 += layerShift.DY
 			}
-			m.socket.broadcastMapChange(cd, broadcastLayerShift, data)
+			m.socket.broadcastMapChange(cd, broadcastLayerShift, data, userAny)
 			return true
 		})
 	case "remove":

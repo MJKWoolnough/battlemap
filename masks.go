@@ -120,7 +120,7 @@ func (m *masksDir) Put(w http.ResponseWriter, r *http.Request) error {
 			im = gim
 		}
 		m.store.Set(idStr, pngWriterTo{im})
-		m.socket.broadcastMapChange(ConnData{ID: SocketIDFromRequest(r)}, broadcastLayerMaskChange, json.RawMessage(idStr))
+		m.socket.broadcastMapChange(ConnData{ID: SocketIDFromRequest(r)}, broadcastLayerMaskChange, json.RawMessage(idStr), userAny)
 	} else {
 		http.NotFound(w, r)
 	}
