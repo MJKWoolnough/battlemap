@@ -467,6 +467,179 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data)
 			return true
 		})
+	case "setTokenData":
+		var setToken struct {
+			ID             uint64  `json:"id"`
+			X              *int64  `json:"x"`
+			Y              *int64  `json:"y"`
+			Width          *uint64 `json:"width"`
+			Height         *uint64 `json:"height"`
+			Rotation       *uint8  `json:"rotation"`
+			Snap           *bool   `json:"snap"`
+			LightColour    *colour `json:"lightColour"`
+			LightIntensity *uint64 `json:"lightIntensity"`
+
+			Source          *uint64                 `json:"src"`
+			PatternWidth    *uint64                 `json:"patternWidth"`
+			PatternHeight   *uint64                 `json:"patternHeight"`
+			TokenData       map[string]keystoreData `json:"tokenData"`
+			RemoveTokenData []string                `json:"removeTokenData"`
+			Flip            *bool                   `json:"flip"`
+			Flop            *bool                   `json:"flop"`
+
+			IsEllipse   *bool   `json:"isEllipse"`
+			Fill        *colour `json:"fill"`
+			Stroke      *colour `json:"stroke"`
+			StrokeWidth *uint8  `json:"strokeWidth"`
+
+			Points []coords `json:"points"`
+		}
+		if err := json.Unmarshal(data, &setToken); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, setToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
+			m.socket.broadcastAdminChange(broadcastTokenSet, data, cd.ID)
+			data = strconv.AppendUint(append(data[:0], "{\"id\":"...), setToken.ID, 10)
+			l := len(data)
+			if setToken.X != nil && *setToken.X != tk.X {
+				tk.X = *setToken.X
+				data = strconv.AppendInt(append(data, ",\"x\":"...), tk.X, 10)
+			}
+			if setToken.Y != nil && *setToken.Y != tk.Y {
+				tk.Y = *setToken.Y
+				data = strconv.AppendInt(append(data, ",\"y\":"...), tk.Y, 10)
+			}
+			if setToken.Width != nil && *setToken.Width != tk.Width && *setToken.Width > 0 {
+				tk.Width = *setToken.Width
+				data = strconv.AppendUint(append(data, ",\"width\":"...), tk.Width, 10)
+			}
+			if setToken.Height != nil && *setToken.Height != tk.Height && *setToken.Height > 0 {
+				tk.Height = *setToken.Height
+				data = strconv.AppendUint(append(data, ",\"height\":"...), tk.Height, 10)
+			}
+			if setToken.Rotation != nil && *setToken.Rotation != tk.Rotation {
+				tk.Rotation = *setToken.Rotation
+				data = appendNum(append(data, ",\"rotation\":"...), tk.Rotation)
+			}
+			if setToken.Snap != nil && *setToken.Snap != tk.Snap {
+				tk.Snap = *setToken.Snap
+				data = strconv.AppendBool(append(data, ",\"snap\":"...), tk.Snap)
+			}
+			if setToken.LightColour != nil && *setToken.LightColour != tk.LightColour {
+				tk.LightColour = *setToken.LightColour
+				data = tk.LightColour.appendTo(append(data, ",\"lightColour\":"...))
+			}
+			if setToken.LightIntensity != nil && *setToken.LightIntensity != tk.LightIntensity {
+				tk.LightIntensity = *setToken.LightIntensity
+				data = strconv.AppendUint(append(data, ",\"lightIntensity\":"...), tk.LightIntensity, 10)
+			}
+			switch tk.TokenType {
+			case tokenImage:
+				if setToken.Source != nil && *setToken.Source != tk.Source {
+					tk.Source = *setToken.Source
+					data = strconv.AppendUint(append(data, ",\"src\":"...), tk.Source, 10)
+				}
+				if setToken.PatternWidth != nil && *setToken.PatternWidth != tk.PatternWidth {
+					tk.PatternWidth = *setToken.PatternWidth
+					data = strconv.AppendUint(append(data, ",\"patternWidth\":"...), tk.PatternWidth, 10)
+				}
+				if setToken.PatternHeight != nil && *setToken.PatternHeight != tk.PatternHeight {
+					tk.PatternHeight = *setToken.PatternHeight
+					data = strconv.AppendUint(append(data, ",\"patternHeight\":"...), tk.PatternHeight, 10)
+				}
+				if setToken.Flip != nil && *setToken.Flip != tk.Flip {
+					tk.Flip = *setToken.Flip
+					data = strconv.AppendBool(append(data, ",\"flip\":"...), tk.Flip)
+				}
+				if setToken.Flop != nil && *setToken.Flop != tk.Flop {
+					tk.Flop = *setToken.Flop
+					data = strconv.AppendBool(append(data, ",\"flip\":"...), tk.Flop)
+				}
+				if len(setToken.RemoveTokenData) > 0 {
+					data = append(data, ",\"removeTokenData\":["...)
+					first := true
+					for _, r := range setToken.RemoveTokenData {
+						delete(setToken.TokenData, r)
+						if d, ok := tk.TokenData[r]; ok {
+							if f := m.isLinkKey(r); f != nil {
+								f.setHiddenLinkJSON(d.Data, nil)
+							}
+							if d.User {
+								if first {
+									first = false
+								} else {
+									data = append(data, ',')
+								}
+								data = appendString(data, r)
+							}
+							delete(tk.TokenData, r)
+						}
+					}
+					data = append(data, ']')
+				}
+				if len(setToken.TokenData) > 0 {
+					data = append(data, ",\"tokenData\":{"...)
+					first := true
+					for key, kd := range setToken.TokenData {
+						if f := m.isLinkKey(key); f != nil {
+							if d, ok := tk.TokenData[key]; ok {
+								f.setHiddenLinkJSON(d.Data, kd.Data)
+							} else {
+								f.setHiddenLinkJSON(nil, kd.Data)
+							}
+						}
+						if kd.User {
+							if first {
+								first = false
+							} else {
+								data = append(data, ',')
+							}
+							data = append(append(append(appendString(data, key), ":{\"user\":true,\"data\":"...), kd.Data...), '}')
+						}
+						tk.TokenData[key] = kd
+					}
+					data = append(data, '}')
+				}
+			case tokenDrawing:
+				if setToken.Points != nil {
+					tk.Points = setToken.Points
+					data = append(data, ",\"points\":["...)
+					for n, p := range tk.Points {
+						if n > 0 {
+							data = append(data, ',')
+						}
+						data = strconv.AppendInt(append(data, "{\"x\":"...), p.X, 10)
+						data = strconv.AppendInt(append(data, ",\"y\":"...), p.Y, 10)
+						data = append(data, '}')
+					}
+					data = append(data, ']')
+				}
+				fallthrough
+			case tokenShape:
+				if setToken.IsEllipse != nil && *setToken.IsEllipse != tk.IsEllipse {
+					tk.IsEllipse = *setToken.IsEllipse
+					data = strconv.AppendBool(append(data, ",\"isEllipse\":"...), tk.IsEllipse)
+				}
+				if setToken.Fill != nil && *setToken.Fill != tk.Fill {
+					tk.Fill = *setToken.Fill
+					data = tk.Fill.appendTo(append(data, ",\"fill\":"...))
+				}
+				if setToken.Stroke != nil && *setToken.Stroke != tk.Stroke {
+					tk.Stroke = *setToken.Stroke
+					data = tk.Stroke.appendTo(append(data, ",\"stroke\":"...))
+				}
+				if setToken.StrokeWidth != nil && *setToken.StrokeWidth != tk.StrokeWidth {
+					tk.StrokeWidth = *setToken.StrokeWidth
+					data = appendNum(append(data, ",\"strokeWidth\":"...), tk.StrokeWidth)
+				}
+			}
+			if l == len(data) {
+				return false
+			}
+			data = append(data, '}')
+			m.socket.broadcastMapChange(cd, broadcastTokenSet, data)
+			return true
+		})
 	case "setToken":
 		var setToken struct {
 			ID       uint64 `json:"id"`
