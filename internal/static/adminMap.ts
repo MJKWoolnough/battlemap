@@ -804,12 +804,7 @@ export default function(oldBase: HTMLElement) {
 		oldBase = base;
 		canceller = Subscription.canceller(
 			{cancel},
-			rpc.waitTokenChange().then(st => {
-				/*
-				if (st.path === globals.selectedLayerPath && getSelectedTokenPos() === st.pos) {
-					tokenMouseUp(new MouseEvent(""));
-				}
-				*/
+			rpc.waitTokenSet().then(ts => {
 				undo.clear();
 			}),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
@@ -866,12 +861,6 @@ export default function(oldBase: HTMLElement) {
 				rpc.waitTokenRemove,
 				rpc.waitTokenMoveLayer,
 				rpc.waitTokenMovePos,
-				rpc.waitTokenSetImage,
-				rpc.waitTokenSetPattern,
-				rpc.waitTokenFlip,
-				rpc.waitTokenFlop,
-				rpc.waitTokenSnap,
-				rpc.waitTokenSourceChange,
 			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
 		);
 		mapLoadedSend(true);
