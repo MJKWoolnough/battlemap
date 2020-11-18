@@ -495,15 +495,15 @@ const langs: Record<string, Record<string, string>> = {
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
-	p = p.then(() => rpc.setTokenSource(t.id, t.src));
+	p = p.then(() => rpc.setTokenData({"id": t.id, "src": t.src}));
 	if (size) {
-		p = p.then(() => rpc.setToken(t.id, t.x, t.y, n.width, n.height, t.rotation));
+		p = p.then(() => rpc.setTokenData({"id": t.id, "x": t.x, "y": t.y, "width": n.width, "height": n.height, "rotation": t.rotation}));
 	}
 	if (flip) {
-		p = p.then(() => rpc.flipToken(t.id, n.flip));
+		p = p.then(() => rpc.setTokenData({"id": t.id, "flip": n.flip}));
 	}
 	if (flop) {
-		p = p.then(() => rpc.flopToken(t.id, n.flop));
+		p = p.then(() => rpc.setTokenData({"id": t.id, "flop": n.flop}));
 	}
 	return p;
       },
@@ -597,7 +597,7 @@ const langs: Record<string, Record<string, string>> = {
 									const init = parseInt(initiative);
 									if (isInt(init, -20, 40)) {
 										token.tokenData["5e-initiative"].data.initiative = init;
-										rpc.tokenModify(token.id, {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}, []);
+										rpc.setTokenData({"id": token.id, "tokenData": {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}});
 										updateInitiative();
 									}
 								}
@@ -613,7 +613,7 @@ const langs: Record<string, Record<string, string>> = {
 							initiativeWindow.remove();
 						}
 						delete(token.tokenData["5e-initiative"]);
-						rpc.tokenModify(token.id, {}, ["5e-initiative"]);
+						rpc.setTokenData({"id": token.id, "removeTokenData": ["5e-initiative"]});
 						saveInitiative();
 					}),
 					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[`CONDITION_${c}`], () => {
@@ -625,7 +625,7 @@ const langs: Record<string, Record<string, string>> = {
 							data = token.tokenData["5e-conditions"] = {"user": true, "data": data = Array.from({"length": conditions.length}, _ => false)};
 						}
 						data[n] = !data[n];
-						rpc.tokenModify(token.id, {"5e-conditions": {"user": true, data}}, []);
+						rpc.setTokenData({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
 						token.updateData();
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
@@ -646,7 +646,7 @@ const langs: Record<string, Record<string, string>> = {
 					const id = ++lastInitiativeID,
 					      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
 					Object.assign(token.tokenData, change);
-					rpc.tokenModify(token.id, change, []);
+					rpc.setTokenData({"id": token.id, "tokenData": change});
 					const md = globals.mapData as MapData5E;
 					if (md.data["5e-initiative"]) {
 						md.data["5e-initiative"].push(id);
@@ -667,10 +667,10 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      initToken = token.tokenData["store-image-5e-initial-token"].data,
 							      doIt = () => {
-								setShapechange(token, initToken, Promise.resolve()).then(() => rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]));
+								setShapechange(token, initToken, Promise.resolve()).then(() => rpc.setTokenData({"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
 								delete token.tokenData["store-image-5e-initial-token"];
 								return () => {
-									setShapechange(token, data, rpc.tokenModify(token.id, {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}, []));
+									setShapechange(token, data, rpc.setTokenData({"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
 									return doIt;
 								};
 							      };
@@ -689,11 +689,11 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      setInitial = !token.tokenData["store-iamge-5e-initial-token"],
 							      doIt = () => {
-								setShapechange(token, newToken, setInitial ? rpc.tokenModify(token.id, {"store-image-5e-initial-token": {"user": false, data}}, []) : Promise.resolve());
+								setShapechange(token, newToken, setInitial ? rpc.setTokenData({"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}}) : Promise.resolve());
 								return () => {
 									const p = setShapechange(token, data, Promise.resolve());
 									if (setInitial) {
-										p.then(() => rpc.tokenModify(token.id, {}, ["store-image-5e-initial-token"]));
+										p.then(() => rpc.setTokenData({"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
 									}
 									return doIt;
 								};
@@ -927,7 +927,7 @@ mapLoadedReceive(() => {
 						}
 						const data = parseInt(hp);
 						if (data >= 0) {
-							rpc.tokenModify(token.id, {"5e-hp-current": {"user": false, data}}, []);
+							rpc.setTokenData({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
 							token.tokenData["5e-hp-current"] = {"user": false, data};
 							token.updateData();
 						}
@@ -936,6 +936,29 @@ mapLoadedReceive(() => {
 				}
 			}
 		});
+	}
+});
+
+rpc.waitTokenSet().then(ts => {
+	const {tokenData, removeTokenData} = ts;
+	if (tokenData && (tokenData["5e-initiative"] || tokenData["name"] !== undefined) || removeTokenData && (removeTokenData.includes("5e-initiative") || removeTokenData.includes("name"))) {
+		setTimeout(() => {
+			updateInitiative();
+			(globals.tokens[ts.id].token as SVGToken5E).updateData();
+		}, 0);
+		return;
+	}
+	if (tokenData) {
+		for (const key in tokenData) {
+			switch (key) {
+			case "5e-ac":
+			case "5e-hp-max":
+			case "5e-hp-current":
+			case "5e-conditions":
+				setTimeout(() => (globals.tokens[ts.id].token as SVGToken5E).updateData(), 0);
+				return;
+			}
+		}
 	}
 });
 
