@@ -962,26 +962,6 @@ rpc.waitTokenSet().then(ts => {
 	}
 });
 
-rpc.waitTokenDataChange().then(changed => {
-	if (changed["setting"]["5e-initiative"] || changed["setting"]["name"] !== undefined || changed["removing"].includes("5e-initiative") || changed["removing"].includes("name")) {
-		setTimeout(() => {
-			updateInitiative();
-			(globals.tokens[changed.id].token as SVGToken5E).updateData();
-		}, 0);
-		return;
-	}
-	for (const key in changed["setting"]) {
-		switch (key) {
-		case "5e-ac":
-		case "5e-hp-max":
-		case "5e-hp-current":
-		case "5e-conditions":
-			setTimeout(() => (globals.tokens[changed.id].token as SVGToken5E).updateData(), 0);
-			return;
-		}
-	}
-});
-
 rpc.waitMapDataSet().then(changed => {
 	if (changed.key === "5e-initiative") {
 		setTimeout(updateInitiative, 0);
