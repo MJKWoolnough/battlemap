@@ -1,4 +1,4 @@
-import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall} from './types.js';
+import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
@@ -525,6 +525,36 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 							updateLight();
 						}
+					}
+				}
+			}),
+			rpc.waitTokenSet().then(ts => {
+				const {token} = globals.tokens[ts.id];
+				if (!token) {
+					return;
+				}
+				for (const k in ts) {
+					switch (k) {
+					case "id":
+						break;
+					case "tokenData":
+						if (token instanceof SVGToken) {
+							const tokenData = ts[k];
+							for (const k in tokenData) {
+								token["tokenData"][k] = tokenData[k];
+							}
+						}
+						break;
+					case "removeTokenData":
+						if (token instanceof SVGToken) {
+							const removeTokenData = ts[k]!;
+							for (const k of removeTokenData) {
+								delete token["tokenData"][k];
+							}
+						}
+						break;
+					default:
+						(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 					}
 				}
 			}),
