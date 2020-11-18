@@ -557,12 +557,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 						(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 					}
 				}
-			}),
-			rpc.waitTokenSnap().then(ts => {
-				const {token} = globals.tokens[ts.id];
-				if (token instanceof SVGToken) {
-					token.snap = true;
-				}
+				token.updateNode()
 			}),
 			rpc.waitTokenRemove().then(tk => {
 				const {layer, token} = globals.tokens[tk];
@@ -574,36 +569,6 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 					}
 				}
 			}),
-			rpc.waitTokenChange().then(st => {
-				const {token} = globals.tokens[st.id];
-				if (token instanceof SVGToken) {
-					token.x = st.x;
-					token.y = st.y;
-					token.width = st.width;
-					token.height = st.height;
-					token.rotation = st.rotation;
-					token.updateNode();
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
-				}
-			}),
-			rpc.waitTokenFlip().then(tf => {
-				const {token} = globals.tokens[tf.id];
-				if (token instanceof SVGToken) {
-					token.flip = tf.flip;
-					token.node.setAttribute("transform", token.transformString());
-				}
-			}),
-			rpc.waitTokenFlop().then(tf => {
-				const {token} = globals.tokens[tf.id];
-				if (token instanceof SVGToken) {
-					token.flop = tf.flop;
-					token.node.setAttribute("transform", token.transformString());
-				}
-			}),
-			rpc.waitTokenSetImage().then(ti => setTokenType(ti, true)),
-			rpc.waitTokenSetPattern().then(ti => setTokenType(ti, false)),
 			rpc.waitTokenMovePos().then(to => {
 				const {layer, token} = globals.tokens[to.id];
 				if (layer && token) {
@@ -658,15 +623,6 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 					token.lightColour = lc.lightColour;
 					token.lightIntensity = lc.lightIntensity;
 					updateLight();
-				}
-			}),
-			rpc.waitTokenDataChange().then(d => {
-				const {token} = globals.tokens[d.id];
-				if (token instanceof SVGToken) {
-					Object.assign(token.tokenData, d.setting);
-					for (const r of d.removing) {
-						delete token.tokenData[r];
-					}
 				}
 			}),
 			rpc.waitMapDataSet().then(kd => {
