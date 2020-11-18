@@ -171,7 +171,7 @@ export default function(oldBase: HTMLElement) {
 						tokenMousePos.height = newHeight;
 						createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 					}
-					rpc.setToken(token.id, newX, newY, newWidth, newHeight, newRotation);
+					rpc.setTokenData({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
 					return () => {
 						token.x = x;
 						token.y = y;
@@ -187,7 +187,7 @@ export default function(oldBase: HTMLElement) {
 							tokenMousePos.height = height;
 							createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
 						}
-						rpc.setToken(token.id, x, y, width, height, rotation);
+						rpc.setTokenData({"id": token.id, x, y, width, height, rotation});
 						return doIt;
 					};
 				      };
@@ -381,7 +381,7 @@ export default function(oldBase: HTMLElement) {
 					tokenMousePos.y = newY;
 					outline.setAttribute("transform", token.transformString(false));
 				}
-				rpc.setToken(token.id, newX, newY, token.width, token.height, token.rotation);
+				rpc.setTokenData({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
 				return () => {
 					token.x = oldX;
 					token.y = oldY;
@@ -391,7 +391,7 @@ export default function(oldBase: HTMLElement) {
 						tokenMousePos.y = oldY;
 						outline.setAttribute("transform", token.transformString(false));
 					}
-					rpc.setToken(token.id, oldX, oldY, token.width, token.height, token.rotation);
+					rpc.setTokenData({"id": token.id, "x": oldX, "y": oldY, "width": token.width, "height": token.height, "rotation": token.rotation});
 					return doIt;
 				};
 			      };
@@ -445,11 +445,11 @@ export default function(oldBase: HTMLElement) {
 						      doIt = () => {
 							currToken.flip = flip;
 							currToken.updateNode();
-							rpc.flipToken(currToken.id, flip);
+							rpc.setTokenData({"id": currToken.id, flip});
 							return () => {
 								currToken.flip = !flip;
 								currToken.updateNode();
-								rpc.flipToken(currToken.id, !flip);
+								rpc.setTokenData({"id": currToken.id, "flip": !flip});
 								return doIt;
 							};
 						      };
@@ -464,11 +464,11 @@ export default function(oldBase: HTMLElement) {
 						      doIt = () => {
 							currToken.flop = flop;
 							currToken.updateNode();
-							rpc.flopToken(currToken.id, flop);
+							rpc.setTokenData({"id": currToken.id, flop});
 							return () => {
 								currToken.flop = !flop;
 								currToken.updateNode();
-								rpc.flopToken(currToken.id, !flop);
+								rpc.setTokenData({"id": currToken.id, "flop": !flop});
 								return doIt;
 							};
 						      };
@@ -482,10 +482,18 @@ export default function(oldBase: HTMLElement) {
 						const isPattern = currToken.isPattern,
 						      doIt = () => {
 							currToken.setPattern(!isPattern);
-							(isPattern ? rpc.setTokenPattern : rpc.setTokenImage)(currToken.id);
+							if (isPattern) {
+								rpc.setTokenData({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+							} else {
+								rpc.setTokenData({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+							}
 							return () => {
-								currToken.setPattern(!isPattern);
-								(isPattern ? rpc.setTokenImage : rpc.setTokenPattern)(currToken.id);
+								currToken.setPattern(isPattern);
+								if (isPattern) {
+									rpc.setTokenData({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+								} else {
+									rpc.setTokenData({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+								}
 								return doIt;
 							};
 						      };
@@ -515,8 +523,7 @@ export default function(oldBase: HTMLElement) {
 									tokenMousePos.rotation = newRotation;
 									createSVG(outline, {"--outline-width": (tokenMousePos.width = newWidth) + "px", "--outline-height": (tokenMousePos.height = newHeight) + "px", "transform": currToken.transformString(false)});
 								}
-								rpc.setTokenSnap(currToken.id, currToken.snap = !snap);
-								rpc.setToken(currToken.id, newX, newY, newWidth, newHeight, newRotation);
+								rpc.setTokenData({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": currToken.snap = !snap});
 								return () => {
 									createSVG(currToken.node, {"width": currToken.width = width, "height": currToken.height = height});
 									currToken.x = x;
@@ -529,8 +536,7 @@ export default function(oldBase: HTMLElement) {
 										tokenMousePos.rotation = rotation;
 										createSVG(outline, {"--outline-width": (tokenMousePos.width = width) + "px", "--outline-height": (tokenMousePos.height = height) + "px", "transform": currToken.transformString(false)});
 									}
-									rpc.setTokenSnap(currToken.id, currToken.snap = snap);
-									rpc.setToken(currToken.id, x, y, width, height, rotation);
+									rpc.setTokenData({"id": currToken.id, x, y, width, height, rotation, "snap": currToken.snap = snap});
 									return doIt;
 								};
 							};
@@ -539,9 +545,9 @@ export default function(oldBase: HTMLElement) {
 						}
 					}
 					const doIt = () => {
-						rpc.setTokenSnap(currToken.id, currToken.snap = !snap);
+						rpc.setTokenData({"id": currToken.id, "snap": currToken.snap = !snap});
 						return () => {
-							rpc.setTokenSnap(currToken.id, currToken.snap = snap);
+							rpc.setTokenData({"id": currToken.id, "snap": currToken.snap = snap});
 							return doIt;
 						};
 					      };
