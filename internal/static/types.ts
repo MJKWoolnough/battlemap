@@ -243,7 +243,7 @@ export type Coords = {
 }
 
 type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & {
-	ID:               Uint;
+	id:               Uint;
 	src?:             Uint;
 	patternWidth?:    Uint;
 	patternHeight?:   Uint;
