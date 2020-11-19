@@ -1,4 +1,4 @@
-import {KeystoreData, Uint, Int, MapData, Colour, TokenImage} from '../types.js';
+import {KeystoreData, Uint, Int, MapData, Colour, TokenImage, TokenSet} from '../types.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, circle, defs, ellipse, feColorMatrix, filter, g, line, mask, path, polygon, rect, symbol, svg, text, use} from '../lib/svg.js';
@@ -486,26 +486,18 @@ const langs: Record<string, Record<string, string>> = {
 	}
       }),
       asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
-      setShapechange = (t: SVGToken5E, n: InitialToken, p: Promise<any>) => {
-	const size = t.width !== n.width || t.height !== n.height,
-	      flip = t.flip !== n.flip,
-	      flop = t.flop !== n.flop;
+      setShapechange = (t: SVGToken5E, n: InitialToken, data: TokenSet) => {
 	Object.assign(t, n);
 	t.updateNode();
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
-	p = p.then(() => rpc.setTokenData({"id": t.id, "src": t.src}));
-	if (size) {
-		p = p.then(() => rpc.setTokenData({"id": t.id, "x": t.x, "y": t.y, "width": n.width, "height": n.height, "rotation": t.rotation}));
+	for (const k in n) {
+		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
+			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
+		}
 	}
-	if (flip) {
-		p = p.then(() => rpc.setTokenData({"id": t.id, "flip": n.flip}));
-	}
-	if (flop) {
-		p = p.then(() => rpc.setTokenData({"id": t.id, "flop": n.flop}));
-	}
-	return p;
+	return data;
       },
       plugin: PluginType = {
 	"characterEdit": {
@@ -667,10 +659,10 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      initToken = token.tokenData["store-image-5e-initial-token"].data,
 							      doIt = () => {
-								setShapechange(token, initToken, Promise.resolve()).then(() => rpc.setTokenData({"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
+								rpc.setTokenData(setShapechange(token, initToken, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
 								delete token.tokenData["store-image-5e-initial-token"];
 								return () => {
-									setShapechange(token, data, rpc.setTokenData({"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
+									rpc.setTokenData(setShapechange(token, data, {"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
 									return doIt;
 								};
 							      };
@@ -687,14 +679,18 @@ const langs: Record<string, Record<string, string>> = {
 								return;
 							}
 							const data = asInitialToken(token),
-							      setInitial = !token.tokenData["store-iamge-5e-initial-token"],
+							      setInitial = !token.tokenData["store-image-5e-initial-token"],
 							      doIt = () => {
-								setShapechange(token, newToken, setInitial ? rpc.setTokenData({"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}}) : Promise.resolve());
+								const td = {"user": false, data};
+								if (setInitial) {
+									token.tokenData["store-image-5e-initial-token"]
+								}
+								rpc.setTokenData(setShapechange(token, newToken, setInitial ? {"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}} : {"id": token.id}));
 								return () => {
-									const p = setShapechange(token, data, Promise.resolve());
 									if (setInitial) {
-										p.then(() => rpc.setTokenData({"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
+										delete token.tokenData["store-image-5e-initial-token"];
 									}
+									const p = setShapechange(token, data, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]});
 									return doIt;
 								};
 							      };
