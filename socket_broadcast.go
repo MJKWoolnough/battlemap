@@ -74,15 +74,6 @@ const (
 	broadcastTokenMoveLayer
 	broadcastTokenSet
 	broadcastTokenMovePos
-	broadcastTokenSetImage
-	broadcastTokenSetPattern
-	broadcastTokenChange
-	broadcastTokenFlip
-	broadcastTokenFlop
-	broadcastTokenSnap
-	broadcastTokenSourceChange
-	broadcastTokenSetData
-	broadcastTokenUnsetData
 	broadcastLayerShift
 
 	broadcastLightShift
