@@ -467,7 +467,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data, userAny)
 			return true
 		})
-	case "setTokenData":
+	case "setToken":
 		var setToken struct {
 			ID             uint64  `json:"id"`
 			X              *int64  `json:"x"`

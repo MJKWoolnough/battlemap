@@ -124,7 +124,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			}
 			return true;
 		      });
-		return loadingWindow((character ? rpc.characterModify(id, changes, rms) : rpc.setTokenData({id, "tokenData": changes, "removeTokenData": rms})).then(() => {
+		return loadingWindow((character ? rpc.characterModify(id, changes, rms) : rpc.setToken({id, "tokenData": changes, "removeTokenData": rms})).then(() => {
 			Object.assign(d, changes);
 			keys.forEach(k => delete changes[k]);
 			removes.forEach(k => delete d[k]);

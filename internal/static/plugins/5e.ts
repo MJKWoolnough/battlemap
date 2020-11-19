@@ -589,7 +589,7 @@ const langs: Record<string, Record<string, string>> = {
 									const init = parseInt(initiative);
 									if (isInt(init, -20, 40)) {
 										token.tokenData["5e-initiative"].data.initiative = init;
-										rpc.setTokenData({"id": token.id, "tokenData": {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}});
+										rpc.setToken({"id": token.id, "tokenData": {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}});
 										updateInitiative();
 									}
 								}
@@ -605,7 +605,7 @@ const langs: Record<string, Record<string, string>> = {
 							initiativeWindow.remove();
 						}
 						delete(token.tokenData["5e-initiative"]);
-						rpc.setTokenData({"id": token.id, "removeTokenData": ["5e-initiative"]});
+						rpc.setToken({"id": token.id, "removeTokenData": ["5e-initiative"]});
 						saveInitiative();
 					}),
 					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[`CONDITION_${c}`], () => {
@@ -617,7 +617,7 @@ const langs: Record<string, Record<string, string>> = {
 							data = token.tokenData["5e-conditions"] = {"user": true, "data": data = Array.from({"length": conditions.length}, _ => false)};
 						}
 						data[n] = !data[n];
-						rpc.setTokenData({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+						rpc.setToken({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
 						token.updateData();
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
@@ -638,7 +638,7 @@ const langs: Record<string, Record<string, string>> = {
 					const id = ++lastInitiativeID,
 					      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
 					Object.assign(token.tokenData, change);
-					rpc.setTokenData({"id": token.id, "tokenData": change});
+					rpc.setToken({"id": token.id, "tokenData": change});
 					const md = globals.mapData as MapData5E;
 					if (md.data["5e-initiative"]) {
 						md.data["5e-initiative"].push(id);
@@ -659,10 +659,10 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      initToken = token.tokenData["store-image-5e-initial-token"].data,
 							      doIt = () => {
-								rpc.setTokenData(setShapechange(token, initToken, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
+								rpc.setToken(setShapechange(token, initToken, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
 								delete token.tokenData["store-image-5e-initial-token"];
 								return () => {
-									rpc.setTokenData(setShapechange(token, data, {"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
+									rpc.setToken(setShapechange(token, data, {"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
 									return doIt;
 								};
 							      };
@@ -685,7 +685,7 @@ const langs: Record<string, Record<string, string>> = {
 								if (setInitial) {
 									token.tokenData["store-image-5e-initial-token"]
 								}
-								rpc.setTokenData(setShapechange(token, newToken, setInitial ? {"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}} : {"id": token.id}));
+								rpc.setToken(setShapechange(token, newToken, setInitial ? {"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}} : {"id": token.id}));
 								return () => {
 									if (setInitial) {
 										delete token.tokenData["store-image-5e-initial-token"];
@@ -923,7 +923,7 @@ mapLoadedReceive(() => {
 						}
 						const data = parseInt(hp);
 						if (data >= 0) {
-							rpc.setTokenData({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+							rpc.setToken({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
 							token.tokenData["5e-hp-current"] = {"user": false, data};
 							token.updateData();
 						}

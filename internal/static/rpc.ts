@@ -133,7 +133,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid,       "waitLayerRemove", ""],
 				["addToken",       "maps.addToken",        "a",                                            checkUint,        "waitTokenAdd", "id"],
 				["removeToken",    "maps.removeToken",     "!",                                            returnVoid,       "waitTokenRemove", ""],
-				["setTokenData",   "maps.setTokenData",    "!",                                            returnVoid,       "waitTokenSet", ""],
+				["setToken",       "maps.setToken",        "!",                                            returnVoid,       "waitTokenSet", ""],
 				["setTokenLayer",  "maps.setTokenLayer",  ["id", "to"],                                    returnVoid,       "waitTokenMoveLayer", ""],
 				["setTokenPos",    "maps.setTokenPos",    ["id", "newPos"],                                returnVoid,       "waitTokenMovePos", ""],
 				["shiftLayer",     "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid,       "waitLayerShift", ""],
