@@ -441,17 +441,10 @@ export default function(oldBase: HTMLElement) {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						const flip = !currToken.flip,
-						      doIt = () => {
-							currToken.flip = flip;
+						const doIt = () => {
 							currToken.updateNode();
-							rpc.setTokenData({"id": currToken.id, flip});
-							return () => {
-								currToken.flip = !flip;
-								currToken.updateNode();
-								rpc.setTokenData({"id": currToken.id, "flip": !flip});
-								return doIt;
-							};
+							rpc.setTokenData({"id": currToken.id, "flip": currToken.flip = !currToken.flip});
+							return doIt;
 						      };
 						undo.add(doIt);
 						outline.focus();
@@ -460,17 +453,10 @@ export default function(oldBase: HTMLElement) {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						const flop = !currToken.flop,
-						      doIt = () => {
-							currToken.flop = flop;
+						const doIt = () => {
 							currToken.updateNode();
-							rpc.setTokenData({"id": currToken.id, flop});
-							return () => {
-								currToken.flop = !flop;
-								currToken.updateNode();
-								rpc.setTokenData({"id": currToken.id, "flop": !flop});
-								return doIt;
-							};
+							rpc.setTokenData({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
+							return doIt;
 						      };
 						undo.add(doIt);
 						outline.focus();
