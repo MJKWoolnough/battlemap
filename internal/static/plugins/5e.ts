@@ -62,7 +62,7 @@ type ShapechangeCat = {
 }
 
 type ShapechangeToken = InitialToken & {
-	name: string;
+	["5e-shapechange-name"]: string;
 }
 
 type Settings5E = {
@@ -674,7 +674,7 @@ const langs: Record<string, Record<string, string>> = {
 							return [];
 						}
 						const newToken = shapechangeTokens[n];
-						return item(newToken.name, () => {
+						return item(newToken["5e-shapechange-name"], () => {
 							if (token !== lastSelectedToken) {
 								return;
 							}
@@ -778,7 +778,7 @@ if (userLevel === 1) {
 	      },
 	      addToken = (t: ShapechangeToken, row: Uint) => {
 		tickers.push([]);
-		const name = span(t.name),
+		const name = span(t["5e-shapechange-name"]),
 		      i = img({"src": `/images/${t.src}`}),
 		      r = tr([
 			th([
@@ -802,11 +802,11 @@ if (userLevel === 1) {
 				]),
 				br(),
 				name,
-				rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t.name).then(newName => {
-					if (!newName || t.name === newName) {
+				rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
+					if (!newName || t["5e-shapechange-name"] === newName) {
 						return;
 					}
-					name.innerText = t.name = newName;
+					name.innerText = t["5e-shapechange-name"] = newName;
 				})}),
 				remove({"class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
 					if (!rm) {
@@ -857,7 +857,7 @@ if (userLevel === 1) {
 					if (!name) { 
 						return;
 					}
-					const t = Object.assign(token, {name}) as ShapechangeToken;
+					const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
 					ticks.appendChild(addToken(t, shapechangeTokens.length));
 					shapechangeTokens.push(t);
 					for (const cat of shapechangeCats) {
@@ -874,7 +874,7 @@ if (userLevel === 1) {
 				      tokens: ShapechangeToken[] = [],
 				      valid: boolean[] = [];
 				for (const t of shapechangeTokens) {
-					if (t["name"]) {
+					if (t["5e-shapechange-name"]) {
 						valid.push(true);
 						tokens.push(JSON.parse(JSON.stringify(t)));
 					} else {
