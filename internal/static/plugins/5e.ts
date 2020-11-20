@@ -493,6 +493,7 @@ const langs: Record<string, Record<string, string>> = {
 	Object.assign(t, n);
 	t.tokenNode.setAttribute("href", `/images/${t.src}`);
 	t.updateNode();
+	updateInitiative();
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
