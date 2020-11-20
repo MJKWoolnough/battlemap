@@ -686,16 +686,18 @@ const langs: Record<string, Record<string, string>> = {
 							const data = asInitialToken(token),
 							      setInitial = !token.tokenData["store-image-5e-initial-token"],
 							      doIt = () => {
-								const td = {"user": false, data};
+								const changes: TokenSet = {"id": token.id};
 								if (setInitial) {
-									token.tokenData["store-image-5e-initial-token"]
+									changes["tokenData"] = {"store-image-5e-initial-token": token["tokenData"]["store-image-5e-initial-token"] = {"user": false, data}};
 								}
-								rpc.setToken(setShapechange(token, newToken, setInitial ? {"id": token.id, "tokenData": {"store-image-5e-initial-token": {"user": false, data}}} : {"id": token.id}));
+								rpc.setToken(setShapechange(token, newToken, changes));
 								return () => {
+									const changes: TokenSet = {"id": token.id};
 									if (setInitial) {
 										delete token.tokenData["store-image-5e-initial-token"];
+										changes["removeTokenData"] = ["store-image-5e-initial-token"];
 									}
-									const p = setShapechange(token, data, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]});
+									rpc.setToken(setShapechange(token, data, changes));
 									return doIt;
 								};
 							      };
