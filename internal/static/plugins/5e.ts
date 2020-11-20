@@ -373,8 +373,8 @@ const langs: Record<string, Record<string, string>> = {
 			console.log("store-image-shapechanges.src must be a Uint");
 			return null;
 		}
-		if (typeof s["name"] !== "string") {
-			console.log("store-image-shapechanges.name must be a string");
+		if (typeof s["5e-shapechange-name"] !== "string") {
+			console.log("store-image-shapechanges.5e-shapechange-name must be a string");
 			return null;
 		}
 		if (!isUint(s["width"]) || !isUint(s["height"])) {
