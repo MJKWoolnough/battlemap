@@ -490,17 +490,17 @@ const langs: Record<string, Record<string, string>> = {
       }),
       asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
       setShapechange = (t: SVGToken5E, n: InitialToken, data: TokenSet) => {
+	for (const k in n) {
+		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
+			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
+		}
+	}
 	Object.assign(t, n);
 	t.tokenNode.setAttribute("href", `/images/${t.src}`);
 	t.updateNode();
 	updateInitiative();
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
-	}
-	for (const k in n) {
-		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
-			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
-		}
 	}
 	return data;
       },
