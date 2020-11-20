@@ -533,6 +533,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				tk.LightIntensity = *setToken.LightIntensity
 				data = strconv.AppendUint(append(data, ",\"lightIntensity\":"...), tk.LightIntensity, 10)
 			}
+			var changed bool
 			switch tk.TokenType {
 			case tokenImage:
 				if setToken.Source != nil && *setToken.Source != tk.Source {
@@ -597,6 +598,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 								userRemoves = append(userRemoves, r)
 							}
 							delete(tk.TokenData, r)
+							changed = true
 						}
 					}
 				}
@@ -646,12 +648,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					data = appendNum(append(data, ",\"strokeWidth\":"...), tk.StrokeWidth)
 				}
 			}
-			if l == len(data) {
-				return false
+			if len(data) > l {
+				changed = true
+				data = append(data, '}')
+				m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userNotAdmin)
 			}
-			data = append(data, '}')
-			m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userNotAdmin)
-			return true
+			return changed
 		})
 	case "setTokenLayer":
 		var tokenLayer struct {
