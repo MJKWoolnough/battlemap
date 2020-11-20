@@ -434,6 +434,9 @@ const langs: Record<string, Record<string, string>> = {
       updateInitiative = () => {
 	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
 	      tokens = new Map<Uint, [boolean, Token5E]>();
+	if (!initiative) {
+		return;
+	}
 	walkLayers((e, isHidden) => {
 		for (const t of e.tokens) {
 			if (t instanceof SVGToken && t.tokenData["5e-initiative"]) {
