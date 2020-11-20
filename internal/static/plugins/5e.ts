@@ -490,7 +490,7 @@ const langs: Record<string, Record<string, string>> = {
 	Object.assign(t, n);
 	t.updateNode();
 	if (globals.selected.token === t) {
-		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
+		createSVG(globals.outline, {"href": `/images/${t.src}`, "--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
 	for (const k in n) {
 		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
