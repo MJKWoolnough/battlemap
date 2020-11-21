@@ -48,9 +48,9 @@ export class Item {
 		this.parent = parent;
 		this.node = li({"class": "foldersItem"}, [
 			span(name, {"class": "item", "onclick": () => this.show()}),
-			rename({"class": "itemRename", "onclick": () => this.rename()}),
-			copy({"class": "itemLink", "onclick": () => this.link()}),
-			remove({"class": "itemRemove", "onclick": () => this.remove()}),
+			rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
+			copy({"title": lang["ITEM_LINK_ADD"], "class": "itemLink", "onclick": () => this.link()}),
+			remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
 	show() {}
@@ -177,9 +177,9 @@ export class Folder {
 				summary([
 					folder({"class": "folderIcon"}),
 					span(name),
-					rename({"class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
-					newFolder({"class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
-					remove({"class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
+					rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
+					newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
+					remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
 				this.children.node,
 			])
