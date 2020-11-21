@@ -75,6 +75,7 @@ const defaultLanguage: Record<string, string> = {
 	"MAP_SQUARE_WIDTH": "Width in Squares",
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
+	"PANEL_GRABBER": "Click to Show/Hide - Drag to Resize",
 	"PLUGINS": "Plugins",
 	"PLUGIN_REFRESH": "Refresh Page?",
 	"PLUGIN_REFRESH_REQUEST": "Plugin settings have change and a page refresh is required to load changes. Refresh the page now?",
