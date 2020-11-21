@@ -302,6 +302,7 @@ const langs: Record<string, Record<string, string>> = {
 		"NAME": "Character Name",
 		"SHAPECHANGE": "Shapechange",
 		"SHAPECHANGE_5E": "Shapechange (5E)",
+		"SHAPECHANGE_CHANGE": "Change to Selected Token",
 		"SHAPECHANGE_INITIAL_RESTORE": "Restore Initial Token",
 		"SHAPECHANGE_TITLE": "Shapechange Settings",
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
@@ -792,7 +793,7 @@ if (userLevel === 1) {
 		      r = tr([
 			th([
 				div({"class": "tokenSelector tokenSelector5E"}, [
-					button({"onclick": () => {
+					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
 						const t = getToken();
 						if (!t) {
 							requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
