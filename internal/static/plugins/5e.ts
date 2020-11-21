@@ -527,7 +527,7 @@ const langs: Record<string, Record<string, string>> = {
 				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
 				br(),
 				isCharacter ? [
-					label(`${mainLang["CHARACTER_IMAGE"]}$: `),
+					label(`${mainLang["CHARACTER_IMAGE"]}: `),
 					iconSelector(data, changes),
 					br(),
 					label(`${mainLang["TOKEN"]}: `),
