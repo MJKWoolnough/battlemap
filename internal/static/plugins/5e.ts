@@ -757,13 +757,13 @@ if (userLevel === 1) {
 		const name = span(c.name),
 		      t = th([
 			name,
-			rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
+			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
 				if (!newName || c.name === newName) {
 					return;
 				}
 				name.innerText = c.name = newName;
 			})}),
-			remove({"class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
+			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
 				if (!rm) {
 					return;
 				}
@@ -812,13 +812,13 @@ if (userLevel === 1) {
 				]),
 				br(),
 				name,
-				rename({"class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
+				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
 					if (!newName || t["5e-shapechange-name"] === newName) {
 						return;
 					}
 					name.innerText = t["5e-shapechange-name"] = newName;
 				})}),
-				remove({"class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
+				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
 					if (!rm) {
 						return;
 					}
