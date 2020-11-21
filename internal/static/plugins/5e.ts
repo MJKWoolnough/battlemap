@@ -301,6 +301,7 @@ const langs: Record<string, Record<string, string>> = {
 		"INITIATIVE_REMOVE": "Remove Initiative",
 		"NAME": "Character Name",
 		"SHAPECHANGE": "Shapechange",
+		"SHAPECHANGE_5E": "Shapechange (5E)",
 		"SHAPECHANGE_INITIAL_RESTORE": "Restore Initial Token",
 		"SHAPECHANGE_TITLE": "Shapechange Settings",
 		"SHAPECHANGE_TOKEN_ADD": "Add Token",
@@ -838,7 +839,7 @@ if (userLevel === 1) {
 	      ticks = tbody(shapechangeTokens.map(addToken));
 	plugin["menuItem"] = {
 		"priority": 0,
-		"fn": ["5e", div([
+		"fn": [lang["SHAPECHANGE_5E"], div([
 			h1(lang["SHAPECHANGE_TITLE"]),
 			button({"onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
 				if (!cat) {
