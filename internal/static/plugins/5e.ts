@@ -283,7 +283,7 @@ const langs: Record<string, Record<string, string>> = {
 		"CONDITION_SANCTUARY": "Sanctuary",
 		"CONDITION_SLOW": "Slow",
 		"CONDITION_STUNNED": "Stunned",
-		"CONDITION_UNCONSCIOUS": "Unconcious",
+		"CONDITION_UNCONSCIOUS": "Unconscious",
 		"CONDITIONS": "Conditions",
 		"DESATURATE_CONDITIONS": "Greyscale Conditions",
 		"HIGHLIGHT_COLOUR": "Token Highlight Colour",
