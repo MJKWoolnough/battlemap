@@ -51,6 +51,7 @@
 	height: 1em;
 	position: absolute;
 	left: calc(-1em - 4px);
+	cursor: pointer;
 }
 
 .layerHidden .layerVisibility {
