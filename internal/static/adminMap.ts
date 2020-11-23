@@ -805,12 +805,12 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				delete tk["path"];
-				if (isTokenImage(tk)) {
-					layer.tokens.push(SVGToken.from(tk));
-				} else if (isTokenDrawing(tk)) {
-					layer.tokens.push(SVGDrawing.from(tk));
+				if (isTokenImage(tk.token)) {
+					layer.tokens.push(SVGToken.from(tk.token));
+				} else if (isTokenDrawing(tk.token)) {
+					layer.tokens.push(SVGDrawing.from(tk.token));
 				} else {
-					layer.tokens.push(SVGShape.from(tk));
+					layer.tokens.push(SVGShape.from(tk.token));
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
