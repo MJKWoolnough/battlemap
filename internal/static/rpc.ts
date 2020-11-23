@@ -445,7 +445,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksTokenAdd: checkers = [[checkID, ""], [checkToken, ""]],
+      checksTokenAdd: checkers = [[checkID, ""], [checkString, "path"], [checkToken, ""]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"], [checkArray, "walls"]],

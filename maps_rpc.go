@@ -349,32 +349,32 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		return nil, err
 	case "addToken":
 		var newToken struct {
-			*token
-			Path string `json:"path"`
+			Token *token `json:"token"`
+			Path  string `json:"path"`
 		}
-		newToken.token = new(token)
+		newToken.Token = new(token)
 		if err := json.Unmarshal(data, &newToken); err != nil {
 			return nil, err
 		}
 		if !validTokenLayer(newToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
-		if err := newToken.validate(); err != nil {
+		if err := newToken.Token.validate(); err != nil {
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			if newToken.TokenType == tokenImage {
-				for key, data := range newToken.TokenData {
+			if newToken.Token.TokenType == tokenImage {
+				for key, data := range newToken.Token.TokenData {
 					if f := m.isLinkKey(key); f != nil {
 						f.setHiddenLinkJSON(nil, data.Data)
 					}
 				}
-				m.images.setHiddenLink(0, newToken.Source)
+				m.images.setHiddenLink(0, newToken.Token.Source)
 			}
 			mp.lastTokenID++
-			newToken.token.ID = mp.lastTokenID
-			l.Tokens = append(l.Tokens, newToken.token)
-			mp.tokens[mp.lastTokenID] = layerToken{l, newToken.token}
+			newToken.Token.ID = mp.lastTokenID
+			l.Tokens = append(l.Tokens, newToken.Token)
+			mp.tokens[mp.lastTokenID] = layerToken{l, newToken.Token}
 			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'), userAny)
 			return true
 		}); err != nil {
