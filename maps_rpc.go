@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -375,12 +376,14 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			newToken.Token.ID = mp.lastTokenID
 			l.Tokens = append(l.Tokens, newToken.Token)
 			mp.tokens[mp.lastTokenID] = layerToken{l, newToken.Token}
-			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'), userAny)
+			pos := bytes.IndexByte(data[1:], '{') + 2
+			id := strconv.AppendUint(nil, mp.lastTokenID, 10)
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id\":"...), id...), ','), data[pos:]...), userAny)
 			return true
 		}); err != nil {
 			return nil, err
 		}
-		return newToken.ID, nil
+		return newToken.Token.ID, nil
 	case "modifyTokenData":
 		var modifyToken struct {
 			ID       uint64                  `json:"id"`
