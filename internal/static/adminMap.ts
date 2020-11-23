@@ -799,19 +799,30 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
 			rpc.waitLayerRemove().then(removeLayer),
 			rpc.waitTokenAdd().then(tk => {
-				const layer = getLayer(layerList, tk.path);
+				const layer = getLayer(layerList, tk.path),
+				      path = tk.path;
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
 				}
 				delete tk["path"];
-				if (isTokenImage(tk.token)) {
-					layer.tokens.push(SVGToken.from(tk.token));
-				} else if (isTokenDrawing(tk.token)) {
-					layer.tokens.push(SVGDrawing.from(tk.token));
-				} else {
-					layer.tokens.push(SVGShape.from(tk.token));
-				}
+				const token = (isTokenImage(tk.token) ? SVGToken : isTokenDrawing(tk.token) ? SVGDrawing : SVGShape.from(tk.token)).from(tk.token),
+				      undoIt = () => {
+					if (token === globals.selected.token) {
+						unselectToken();
+					}
+					layer.tokens.pop();
+					rpc.removeToken(token.id);
+					return () => {
+						rpc.addToken(path, tk.token).then(id => {
+							token.id = id;
+							layer.tokens.push(token);
+						});
+						return undoIt;
+					};
+				      };
+				layer.tokens.push(token);
+				undo.add(() => undoIt);
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
 				const {layer, token} = globals.tokens[tm.id];
@@ -982,7 +993,6 @@ export default function(base: HTMLElement) {
 			...([
 				rpc.waitLayerRename,
 				rpc.waitMapLightChange,
-				rpc.waitTokenAdd,
 				rpc.waitTokenRemove,
 				rpc.waitTokenMoveLayer,
 				rpc.waitTokenMovePos,
