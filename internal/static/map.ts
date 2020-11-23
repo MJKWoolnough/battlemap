@@ -436,7 +436,7 @@ updateLight = () => {
 		wallPolygons
 	]);
 },
-mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivElement, () => void] => {
+mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 	const layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
@@ -461,7 +461,6 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 	definitions.setGrid(mapData);
 	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
-	oldBase.replaceWith(base);
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			(l.tokens as (SVGToken | SVGShape)[]).forEach(t => {
@@ -484,9 +483,19 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 		return false;
 	});
 	updateLight();
-	return [
-		base,
-		Subscription.canceller(
+	return base;
+};
+
+export default function(base: HTMLElement) {
+	let canceller = () => {}
+	globals.outline = g();
+	rpc.waitCurrentUserMapData().then(mapData => {
+		const oldBase = base;
+		oldBase.replaceWith(base = mapView(base, mapData, true));
+		canceller();
+		mapLoadedSend(false);
+		const {layerList} = globals;
+		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(setMapDetails),
 			rpc.waitMapLightChange().then(setLightColour),
 			rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
@@ -506,7 +515,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 				if (isTokenImage(tk)) {
 					layer.tokens.push(SVGToken.from(tk));
 					const cID = tk.tokenData["store-character-id"];
-					if (tk.tokenData && loadChars && cID && typeof cID.data === "number") {
+					if (tk.tokenData && cID && typeof cID.data === "number") {
 						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
 				} else if (isTokenDrawing(tk)) {
@@ -632,17 +641,5 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false): [HTMLDivE
 				delete mapData.data[key];
 			})
 		)
-	];
-};
-
-export default function(base: HTMLElement) {
-	let canceller = () => {}
-	globals.outline = g();
-	rpc.waitCurrentUserMapData().then(mapData => {
-		const [newBase, cancel] = mapView(base, mapData, true);
-		canceller();
-		base = newBase;
-		canceller = cancel;
-		mapLoadedSend(false);
 	});
 }
