@@ -272,8 +272,9 @@ type ID = {
 	id: Uint;
 }
 
-type TokenAdd = Token & {
+type TokenAdd = {
 	path: string;
+	token: Token;
 };
 
 type TokenChange = ID & {
