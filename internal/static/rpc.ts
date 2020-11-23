@@ -32,8 +32,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 			"": () => {},
 			"!": (args: IArguments) => args[0],
-			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]])),
-			"a": (args: IArguments) => Object.assign(args[1], {"path": args[0]})
+			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
 		      },
 		      waiters: Record<string, [string, number, (data: any) => any][]> ={
 			"": [
@@ -131,7 +130,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["addMask",        "maps.addMask",        ["path", "mask"],                                returnVoid,       "", ""],
 				["removeMask",     "maps.removeMask",      "!",                                            returnVoid,       "", ""],
 				["removeLayer",    "maps.removeLayer",     "!",                                            returnVoid,       "waitLayerRemove", ""],
-				["addToken",       "maps.addToken",        "a",                                            checkUint,        "waitTokenAdd", "id"],
+				["addToken",       "maps.addToken",       ["path", "token"],                               checkUint,        "waitTokenAdd", "token/id"],
 				["removeToken",    "maps.removeToken",     "!",                                            returnVoid,       "waitTokenRemove", ""],
 				["setToken",       "maps.setToken",        "!",                                            returnVoid,       "waitTokenSet", ""],
 				["setTokenLayer",  "maps.setTokenLayer",  ["id", "to"],                                    returnVoid,       "waitTokenMoveLayer", ""],
@@ -220,6 +219,15 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 						rk[name] = function() {
 							return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError).then(data => {
 								fn(data);
+								return data;
+							});
+						}
+					} else if (postKey === "token/id") {
+						rk[name] = function() {
+							const a = processArgs(arguments, args as string[]);
+							return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
+								a.token.id = data;
+								fn(a);
 								return data;
 							});
 						}
@@ -445,7 +453,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksTokenAdd: checkers = [[checkID, ""], [checkString, "path"], [checkToken, ""]],
+      checksTokenAdd: checkers = [[checkID, ""], [checkString, "path"], [checkToken, "token"]],
       checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkUint, "mask"], [checkArray, "tokens"], [checkArray, "walls"]],
