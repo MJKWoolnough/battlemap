@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, TokenSet} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -6,7 +6,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
@@ -62,14 +62,15 @@ export const getToken = () => {
 	return undefined;
 };
 
-export default function(oldBase: HTMLElement) {
+export default function(base: HTMLElement) {
 	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		canceller();
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
-		const [base, cancel] = mapView(oldBase, mapData),
-		      {root, definitions, layerList} = globals,
+		const oldBase = base;
+		oldBase.replaceWith(base = mapView(oldBase, mapData));
+		const {root, definitions, layerList} = globals,
 		      undo = new Undo(),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
@@ -787,9 +788,147 @@ export default function(oldBase: HTMLElement) {
 				return rpc.setLightColour(setLightColour(c))
 			},
 		});
-		oldBase = base;
 		canceller = Subscription.canceller(
-			{cancel},
+			rpc.waitMapChange().then(setMapDetails),
+			rpc.waitMapLightChange().then(setLightColour),
+			rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
+			rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
+			rpc.waitLayerAdd().then(addLayer),
+			rpc.waitLayerFolderAdd().then(addLayerFolder),
+			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
+			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
+			rpc.waitLayerRemove().then(removeLayer),
+			rpc.waitTokenAdd().then(tk => {
+				const layer = getLayer(layerList, tk.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				delete tk["path"];
+				if (isTokenImage(tk)) {
+					layer.tokens.push(SVGToken.from(tk));
+				} else if (isTokenDrawing(tk)) {
+					layer.tokens.push(SVGDrawing.from(tk));
+				} else {
+					layer.tokens.push(SVGShape.from(tk));
+				}
+			}),
+			rpc.waitTokenMoveLayer().then(tm => {
+				const {layer, token} = globals.tokens[tm.id];
+				if (token instanceof SVGToken) {
+					const newParent = getLayer(layerList, tm.to);
+					if (newParent && isSVGLayer(newParent)) {
+						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+						globals.tokens[tm.id].layer = newParent;
+						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+							updateLight();
+						}
+					}
+				}
+			}),
+			rpc.waitTokenSet().then(ts => {
+				const {token} = globals.tokens[ts.id];
+				if (!token) {
+					return;
+				}
+				for (const k in ts) {
+					switch (k) {
+					case "id":
+						break;
+					case "tokenData":
+						if (token instanceof SVGToken) {
+							const tokenData = ts[k];
+							for (const k in tokenData) {
+								token["tokenData"][k] = tokenData[k];
+							}
+						}
+						break;
+					case "removeTokenData":
+						if (token instanceof SVGToken) {
+							const removeTokenData = ts[k]!;
+							for (const k of removeTokenData) {
+								delete token["tokenData"][k];
+							}
+						}
+						break;
+					default:
+						(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+					}
+				}
+				token.updateNode()
+			}),
+			rpc.waitTokenRemove().then(tk => {
+				const {layer, token} = globals.tokens[tk];
+				layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
+				if (token instanceof SVGToken) {
+					token.cleanup();
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
+				}
+			}),
+			rpc.waitTokenMovePos().then(to => {
+				const {layer, token} = globals.tokens[to.id];
+				if (layer && token) {
+					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0])
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
+				}
+			}),
+			rpc.waitLayerShift().then(ls => {
+				const layer = getLayer(layerList, ls.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+					t.x += ls.dx;
+					t.y += ls.dy;
+					t.updateNode();
+				});
+				layer.walls.forEach(w => {
+					w.x1 += ls.dx;
+					w.y1 += ls.dy;
+					w.x2 += ls.dx;
+					w.y2 += ls.dy;
+				});
+				updateLight();
+			}),
+			rpc.waitLightShift().then(pos => {
+				mapData.lightX = pos.x;
+				mapData.lightY = pos.y;
+				updateLight();
+			}),
+			rpc.waitWallAdded().then(w => {
+				const layer = getLayer(layerList, w.path);
+				if (!layer || !isSVGLayer(layer)) {
+					// error
+					return;
+				}
+				delete w.path;
+				layer.walls.push(normaliseWall(w));
+				updateLight();
+			}),
+			rpc.waitWallRemoved().then(wp => {
+				const {layer, wall} = globals.walls[wp];
+				layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+				updateLight();
+			}),
+			rpc.waitTokenLightChange().then(lc => {
+				const {token} = globals.tokens[lc.id];
+				if (token instanceof SVGToken) {
+					token.lightColour = lc.lightColour;
+					token.lightIntensity = lc.lightIntensity;
+					updateLight();
+				}
+			}),
+			rpc.waitMapDataSet().then(kd => {
+				mapData.data[kd.key] = kd.data;
+			}),
+			rpc.waitMapDataRemove().then(key => {
+				delete mapData.data[key];
+			}),
 			rpc.waitTokenSet().then(ts => {
 				undo.clear();
 			}),
