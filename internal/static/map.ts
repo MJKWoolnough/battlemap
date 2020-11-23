@@ -512,16 +512,16 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				delete tk["path"];
-				if (isTokenImage(tk)) {
-					layer.tokens.push(SVGToken.from(tk));
-					const cID = tk.tokenData["store-character-id"];
-					if (tk.tokenData && cID && typeof cID.data === "number") {
+				if (isTokenImage(tk.token)) {
+					layer.tokens.push(SVGToken.from(tk.token));
+					const cID = tk.token.tokenData["store-character-id"];
+					if (tk.token.tokenData && cID && typeof cID.data === "number") {
 						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
-				} else if (isTokenDrawing(tk)) {
-					layer.tokens.push(SVGDrawing.from(tk));
+				} else if (isTokenDrawing(tk.token)) {
+					layer.tokens.push(SVGDrawing.from(tk.token));
 				} else {
-					layer.tokens.push(SVGShape.from(tk));
+					layer.tokens.push(SVGShape.from(tk.token));
 				}
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
