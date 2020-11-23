@@ -14,7 +14,7 @@ import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver
 import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
-import {rpc} from './rpc.js';
+import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
@@ -699,8 +699,8 @@ export default function(base: HTMLElement) {
 			"waitFolderAdded": rpc.waitLayerFolderAdd,
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
-			"waitLayerSetVisible": rpc.waitLayerShow,
-			"waitLayerSetInvisible": rpc.waitLayerHide,
+			"waitLayerSetVisible": combinedRPC.waitLayerShow,
+			"waitLayerSetInvisible": combinedRPC.waitLayerHide,
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
@@ -791,8 +791,35 @@ export default function(base: HTMLElement) {
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(setMapDetails),
 			rpc.waitMapLightChange().then(setLightColour),
-			rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
-			rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
+			rpc.waitLayerShow().then(path => {
+				setLayerVisibility(path, true);
+				const undoIt = () => {
+					setLayerVisibility(path, false);
+					checkLayer(path);
+					rpc.hideLayer(path);
+					return () => {
+						setLayerVisibility(path, true);
+						rpc.showLayer(path);
+						return undoIt;
+					};
+				      };
+				undo.add(undoIt);
+			}),
+			rpc.waitLayerHide().then(path => {
+				const undoIt = () => {
+					setLayerVisibility(path, true);
+					rpc.showLayer(path);
+					return () => {
+						setLayerVisibility(path, false);
+						checkLayer(path);
+						rpc.hideLayer(path);
+						return undoIt;
+					};
+				      };
+				setLayerVisibility(path, false);
+				checkLayer(path);
+				undo.add(undoIt);
+			}),
 			rpc.waitLayerAdd().then(addLayer),
 			rpc.waitLayerFolderAdd().then(addLayerFolder),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
@@ -944,7 +971,6 @@ export default function(base: HTMLElement) {
 				undo.clear();
 			}),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
-			rpc.waitLayerHide().then(checkLayer),
 			rpc.waitLayerMove().then(ml => {
 				const layer = getLayer(layerList, ml.to);
 				if (!layer) {
