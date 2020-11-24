@@ -23,17 +23,21 @@ type IDInitiative = {
 }
 
 type InitialTokenData = {
-	"name"?: KeystoreData<string>;
-	"5e-ac"?: KeystoreData<Uint>;
-	"5e-hp-max"?: KeystoreData<Uint>;
-	"5e-hp-current"?: KeystoreData<Uint>;
+	"name": KeystoreData<string> | null;
+	"5e-ac": KeystoreData<Uint> | null;
+	"5e-hp-max": KeystoreData<Uint> | null;
+	"5e-hp-current": KeystoreData<Uint> | null;
 };
 
 type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop"> & {
 	tokenData: InitialTokenData;
 };
 
-type TokenFields = InitialTokenData & {
+type TokenFields = {
+	"name"?: KeystoreData<string>;
+	"5e-ac"?: KeystoreData<Uint>;
+	"5e-hp-max"?: KeystoreData<Uint>;
+	"5e-hp-current"?: KeystoreData<Uint>;
 	"5e-initiative"?: KeystoreData<IDInitiative>;
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
@@ -501,7 +505,12 @@ const langs: Record<string, Record<string, string>> = {
 	}
       }),
       asInitialToken = (t: InitialToken): InitialToken => {
-	const tokenData: InitialTokenData = {},
+	const tokenData: InitialTokenData = {
+		"name": null,
+		"5e-ac": null,
+		"5e-hp-max": null,
+		"5e-hp-current": null
+	},
 	      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
 	if (name) {
 		tokenData["name"] = {"user": name.user, "data": name.data};
@@ -523,7 +532,11 @@ const langs: Record<string, Record<string, string>> = {
 			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
 			if (k === "tokenData") {
 				for (const key in n[k]) {
-					t["tokenData"][key] = {"user": n[k][key as keyof InitialTokenData]!["user"], "data": n[k][key as keyof InitialTokenData]!["user"]};
+					if (n[k][key as keyof InitialTokenData] === null) {
+						delete t[k][key];
+					} else {
+						t[k][key] = {"user": n[k][key as keyof InitialTokenData]!["user"], "data": n[k][key as keyof InitialTokenData]!["user"]};
+					}
 				}
 			} else {
 				(t as Record<string, any>)[k] = n[k as keyof InitialToken];
@@ -695,7 +708,7 @@ const langs: Record<string, Record<string, string>> = {
 							return;
 						}
 						if (token.tokenData["store-image-5e-initial-token"]) {
-							const data = asInitialToken(token),
+							const data = asInitialToken(token as InitialToken),
 							      initToken = token.tokenData["store-image-5e-initial-token"].data,
 							      doIt = () => {
 								rpc.setToken(setShapechange(token, initToken, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
@@ -717,7 +730,7 @@ const langs: Record<string, Record<string, string>> = {
 							if (token !== lastSelectedToken) {
 								return;
 							}
-							const data = asInitialToken(token),
+							const data = asInitialToken(token as InitialToken),
 							      setInitial = !token.tokenData["store-image-5e-initial-token"],
 							      doIt = () => {
 								const changes: TokenSet = {"id": token.id};
