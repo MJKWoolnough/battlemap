@@ -30,6 +30,7 @@ type TokenFields = {
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-ac"?: KeystoreData<Uint>;
 	"5e-hp-max"?: KeystoreData<Uint>;
+	"5e-hp-current"?: KeystoreData<Uint>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
 }
