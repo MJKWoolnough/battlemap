@@ -22,22 +22,20 @@ type IDInitiative = {
 	initiative: Uint;
 }
 
-type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop"> & {
-	tokenData: {
-		"name"?: KeystoreData<string>;
-		"5e-ac"?: KeystoreData<Uint>;
-		"5e-hp-max"?: KeystoreData<Uint>;
-		"5e-hp-current"?: KeystoreData<Uint>;
-	};
-};
-
-type TokenFields = {
+type InitialTokenData = {
 	"name"?: KeystoreData<string>;
-	"5e-initiative"?: KeystoreData<IDInitiative>;
-	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-ac"?: KeystoreData<Uint>;
 	"5e-hp-max"?: KeystoreData<Uint>;
 	"5e-hp-current"?: KeystoreData<Uint>;
+};
+
+type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop"> & {
+	tokenData: InitialTokenData;
+};
+
+type TokenFields = InitialTokenData & {
+	"5e-initiative"?: KeystoreData<IDInitiative>;
+	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
 }
