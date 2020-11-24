@@ -500,7 +500,23 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
       }),
-      asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], "tokenData": {}}),
+      asInitialToken = (t: InitialToken): InitialToken => {
+	const tokenData: InitialTokenData = {},
+	      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
+	if (name) {
+		tokenData["name"] = {"user": name.user, "data": name.data};
+	}
+	if (ac) {
+		tokenData["5e-ac"] = {"user": ac.user, "data": ac.data};
+	}
+	if (hpMax) {
+		tokenData["5e-hp-max"] = {"user": hpMax.user, "data": hpMax.data};
+	}
+	if (hpCurrent) {
+		tokenData["5e-hp-max"] = {"user": hpCurrent.user, "data": hpCurrent.data};
+	}
+	return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
+      },
       setShapechange = (t: SVGToken5E, n: InitialToken, data: TokenSet) => {
 	for (const k in n) {
 		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
