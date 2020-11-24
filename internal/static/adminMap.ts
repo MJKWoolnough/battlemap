@@ -808,7 +808,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(undoIt);
+				undo.add(() => undoIt);
 			}),
 			rpc.waitLayerHide().then(path => {
 				setLayerVisibility(path, false);
@@ -826,7 +826,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(undoIt);
+				undo.add(() => undoIt);
 			}),
 			rpc.waitLayerAdd().then(addLayer),
 			rpc.waitLayerFolderAdd().then(addLayerFolder),
