@@ -521,9 +521,15 @@ const langs: Record<string, Record<string, string>> = {
 	for (const k in n) {
 		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
 			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
+			if (k === "tokenData") {
+				for (const key in n[k]) {
+					t["tokenData"][key] = {"user": n[k][key as keyof InitialTokenData]!["user"], "data": n[k][key as keyof InitialTokenData]!["user"]};
+				}
+			} else {
+				(t as Record<string, any>)[k] = n[k as keyof InitialToken];
+			}
 		}
 	}
-	Object.assign(t, n);
 	t.tokenNode.setAttribute("href", `/images/${t.src}`);
 	t.updateNode();
 	updateInitiative();
