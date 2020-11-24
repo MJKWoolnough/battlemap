@@ -828,7 +828,22 @@ export default function(base: HTMLElement) {
 				      };
 				undo.add(() => undoIt);
 			}),
-			rpc.waitLayerAdd().then(addLayer),
+			rpc.waitLayerAdd().then(name => {
+				addLayer(name);
+				waitAdded[0]([{id: 1, name}]);
+				const path = "/" + name,
+				      undoIt = () => {
+					removeLayer(path);
+					checkLayer(path);
+					waitRemoved[0](path);
+					return () => {
+						addLayer(name);
+						waitAdded[0]([{id: 1, name}]);
+						return undoIt;
+					};
+				};
+				undo.add(() => undoIt);
+			}),
 			rpc.waitLayerFolderAdd().then(addLayerFolder),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
@@ -978,7 +993,6 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenSet().then(ts => {
 				undo.clear();
 			}),
-			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, name}])),
 			rpc.waitLayerMove().then(ml => {
 				const layer = getLayer(layerList, ml.to);
 				if (!layer) {
