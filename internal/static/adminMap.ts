@@ -44,6 +44,7 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
       waitAdded = subFn<IDName[]>(),
       waitMoved = subFn<FromTo>(),
       waitRemoved = subFn<string>(),
+      waitFolderAdded = subFn<string>(),
       waitFolderMoved = subFn<FromTo>(),
       waitFolderRemoved = subFn<string>(),
       waitLayerShow = subFn<string>(),
@@ -698,7 +699,7 @@ export default function(base: HTMLElement) {
 			"waitMoved": () => waitMoved[1],
 			"waitRemoved": () => waitRemoved[1],
 			"waitLinked": () => new Subscription<IDName>(() => {}),
-			"waitFolderAdded": rpc.waitLayerFolderAdd,
+			"waitFolderAdded": () => waitFolderAdded[1],
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
 			"waitLayerSetVisible": () => waitLayerShow[1],
@@ -844,7 +845,22 @@ export default function(base: HTMLElement) {
 				};
 				undo.add(() => undoIt);
 			}),
-			rpc.waitLayerFolderAdd().then(addLayerFolder),
+			rpc.waitLayerFolderAdd().then(name => {
+				addLayerFolder(name);
+				waitFolderAdded[0](name);
+				const path = "/" + name,
+				      undoIt = () => {
+					removeLayer(path);
+					checkLayer(path);
+					waitFolderRemoved[0](path);
+					return () => {
+						addLayer(name);
+						waitFolderAdded[0](name);
+						return undoIt;
+					};
+				};
+				undo.add(() => undoIt);
+			}),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
 			rpc.waitLayerRemove().then(removeLayer),
