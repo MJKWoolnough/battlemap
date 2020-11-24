@@ -22,7 +22,14 @@ type IDInitiative = {
 	initiative: Uint;
 }
 
-type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop">;
+type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop"> & {
+	tokenData: {
+		"name"?: KeystoreData<string>;
+		"5e-ac"?: KeystoreData<Uint>;
+		"5e-hp-max"?: KeystoreData<Uint>;
+		"5e-hp-current"?: KeystoreData<Uint>;
+	};
+};
 
 type TokenFields = {
 	"name"?: KeystoreData<string>;
@@ -495,7 +502,7 @@ const langs: Record<string, Record<string, string>> = {
 		}
 	}
       }),
-      asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"]}),
+      asInitialToken = (t: InitialToken): InitialToken => ({"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], "tokenData": {}}),
       setShapechange = (t: SVGToken5E, n: InitialToken, data: TokenSet) => {
 	for (const k in n) {
 		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
