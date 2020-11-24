@@ -46,6 +46,8 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
       waitRemoved = subFn<string>(),
       waitFolderMoved = subFn<FromTo>(),
       waitFolderRemoved = subFn<string>(),
+      waitLayerShow = subFn<string>(),
+      waitLayerHide = subFn<string>(),
       waitLayerPositionChange = subFn<LayerMove>(),
       invalidRPC = () => Promise.reject("invalid");
 
@@ -699,8 +701,8 @@ export default function(base: HTMLElement) {
 			"waitFolderAdded": rpc.waitLayerFolderAdd,
 			"waitFolderMoved": () => waitFolderMoved[1],
 			"waitFolderRemoved": () => waitFolderRemoved[1],
-			"waitLayerSetVisible": combinedRPC.waitLayerShow,
-			"waitLayerSetInvisible": combinedRPC.waitLayerHide,
+			"waitLayerSetVisible": () => waitLayerShow[1],
+			"waitLayerSetInvisible": () => waitLayerHide[1],
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
@@ -793,12 +795,15 @@ export default function(base: HTMLElement) {
 			rpc.waitMapLightChange().then(setLightColour),
 			rpc.waitLayerShow().then(path => {
 				setLayerVisibility(path, true);
+				waitLayerShow[0](path);
 				const undoIt = () => {
 					setLayerVisibility(path, false);
+					waitLayerHide[0](path);
 					checkLayer(path);
 					rpc.hideLayer(path);
 					return () => {
 						setLayerVisibility(path, true);
+						waitLayerShow[0](path);
 						rpc.showLayer(path);
 						return undoIt;
 					};
@@ -806,18 +811,21 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 			}),
 			rpc.waitLayerHide().then(path => {
+				setLayerVisibility(path, false);
+				waitLayerHide[0](path);
+				checkLayer(path);
 				const undoIt = () => {
 					setLayerVisibility(path, true);
+					waitLayerShow[0](path);
 					rpc.showLayer(path);
 					return () => {
 						setLayerVisibility(path, false);
+						waitLayerHide[0](path);
 						checkLayer(path);
 						rpc.hideLayer(path);
 						return undoIt;
 					};
 				      };
-				setLayerVisibility(path, false);
-				checkLayer(path);
 				undo.add(undoIt);
 			}),
 			rpc.waitLayerAdd().then(addLayer),
