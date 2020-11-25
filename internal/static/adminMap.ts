@@ -6,7 +6,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
@@ -723,7 +723,21 @@ export default function(base: HTMLElement) {
 			}),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => renameLayer(path, name)),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => {
+				const [parentPath, oldName] = splitAfterLastSlash(path),
+				      newPath = parentPath + "/" + name,
+				      undoIt = () => {
+					rpc.renameLayer(newPath, oldName);
+					renameLayer(newPath, oldName);
+					return () => {
+						rpc.renameLayer(path, name);
+						renameLayer(path, name);
+						return undoIt;
+					};
+				      };
+				undo.add(() => undoIt);
+				return renameLayer(path, name);
+			}),
 			"remove": path => {
 				undo.clear();
 				return removeS(path);
