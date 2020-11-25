@@ -263,7 +263,7 @@ export type Broadcast = {
 	data: any;
 };
 
-type LayerRename = {
+export type LayerRename = {
 	path: string;
 	name: string;
 }
