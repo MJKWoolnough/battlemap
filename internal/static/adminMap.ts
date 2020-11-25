@@ -727,7 +727,21 @@ export default function(base: HTMLElement) {
 			"remove": removeS,
 			"removeFolder": removeS,
 			"link": invalidRPC,
-			"newLayer": (name: string) => rpc.addLayer(name).then(addLayer),
+			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
+				const path = "/" + name,
+				      undoIt = () => {
+					removeS(path);
+					waitRemoved[0](path);
+					return () => {
+						addLayer(name);
+						waitAdded[0]([{id: 1, name}]);
+						rpc.addLayer(name);
+						return undoIt;
+					};
+				};
+				undo.add(() => undoIt);
+				return addLayer(name);
+			}),
 			"setVisibility": (path: string, visibility: boolean) => {
 				const undoIt = () => {
 					checkLayer(path);
