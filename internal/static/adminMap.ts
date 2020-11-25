@@ -224,14 +224,14 @@ export default function(base: HTMLElement) {
 			tokenSelected();
 		      },
 		      removeS = (path: string) => {
-			removeLayer(path).forEach(e => {
-				if (globals.selected.layer === e) {
-					globals.selected.layer = null;
-				} else if (isSVGFolder(e) && walkFolders(e, e => Object.is(e, globals.selected.layer))) {
-				       globals.selected.layer  = null;
+			const {layer} = globals.selected;
+			if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
+				globals.selected.layer = null;
+				if (globals.selected.token) {
+					unselectToken();
 				}
-			});
-			undo.clear();
+			}
+			removeLayer(path);
 			return rpc.removeLayer(path);
 		      },
 		      checkLayer = (path: string) => {
