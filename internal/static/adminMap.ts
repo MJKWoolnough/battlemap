@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, TokenSet} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -50,6 +50,7 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
       waitLayerShow = subFn<string>(),
       waitLayerHide = subFn<string>(),
       waitLayerPositionChange = subFn<LayerMove>(),
+      waitLayerRename = subFn<LayerRename>(),
       invalidRPC = () => Promise.reject("invalid");
 
 export const getToken = () => {
@@ -705,7 +706,7 @@ export default function(base: HTMLElement) {
 			"waitLayerSetVisible": () => waitLayerShow[1],
 			"waitLayerSetInvisible": () => waitLayerHide[1],
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
-			"waitLayerRename": rpc.waitLayerRename,
+			"waitLayerRename": () => waitLayerRename[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(newPath => {
 				const undoIt = () => {
@@ -909,7 +910,24 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 			}),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
-			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
+			rpc.waitLayerRename().then(lr => {
+				const [parentPath, oldName] = splitAfterLastSlash(lr.path),
+				      newPath = parentPath + "/" + name,
+				      undoIt = () => {
+					waitLayerRename[0]({"path": lr.path, "name": oldName});
+					renameLayer(newPath, oldName);
+					rpc.renameLayer(newPath, oldName);
+					return () => {
+						waitLayerRename[0](lr);
+						renameLayer(lr.path, lr.name);
+						rpc.renameLayer(lr.path, lr.name);
+						return undoIt;
+					};
+				      };
+				undo.add(undoIt);
+				waitLayerRename[0](lr);
+				return renameLayer(lr.path, lr.name);
+			}),
 			rpc.waitLayerRemove().then(removeLayer),
 			rpc.waitTokenAdd().then(tk => {
 				const layer = getLayer(layerList, tk.path),
