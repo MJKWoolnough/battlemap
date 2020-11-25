@@ -19,9 +19,8 @@ export default class Undo {
 			"limit": limit ?? undoLimit.value
 		});
 	}
-	add(fn: Fn) {
-		const {undos, redos, limit} = fns.get(this)!,
-		      undo = fn();
+	add(undo: Fn) {
+		const {undos, redos, limit} = fns.get(this)!;
 		redos.splice(0, redos.length);
 		if (limit === 0) {
 			undos.splice(0, undos.length);

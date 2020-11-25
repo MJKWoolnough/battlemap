@@ -70,7 +70,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 				return doIt;
 			};
 		};
-		undo.add(doIt);
+		undo.add(doIt());
 	      };
 	deselectToken();
 	this.addEventListener("mousemove", mover);

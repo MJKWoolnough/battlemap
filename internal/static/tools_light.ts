@@ -87,7 +87,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return doIt;
 			};
 		      };
-		globals.undo.add(doIt);
+		globals.undo.add(doIt());
 	} else if (wallTool.checked) {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
@@ -134,7 +134,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 						return doIt;
 					};
 				      };
-				globals.undo.add(doIt);
+				globals.undo.add(doIt());
 			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
@@ -163,7 +163,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return doIt;
 			};
 		      };
-		globals.undo.add(doIt);
+		globals.undo.add(doIt());
 	}
       },
       wallLayer = g({"stroke-width": 2}),

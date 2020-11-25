@@ -56,7 +56,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 							return doIt;
 						};
 					      };
-					globals.undo.add(doIt);
+					globals.undo.add(doIt());
 				} else {
 					requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 				}
@@ -129,7 +129,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 						return doIt;
 					};
 				      };
-				globals.undo.add(doIt);
+				globals.undo.add(doIt());
 			} else {
 				requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 			}

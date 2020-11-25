@@ -195,7 +195,7 @@ export default function(base: HTMLElement) {
 						return doIt;
 					};
 				      };
-				undo.add(doIt);
+				undo.add(doIt());
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -216,7 +216,7 @@ export default function(base: HTMLElement) {
 					return doIt;
 				};
 			      };
-			undo.add(doIt);
+			undo.add(doIt());
 		      },
 		      unselectToken = () => {
 			globals.selected.token = null;
@@ -298,7 +298,7 @@ export default function(base: HTMLElement) {
 					return doIt;
 				};
 			};
-			undo.add(doIt);
+			undo.add(doIt());
 		      }, "onmousedown": (e: MouseEvent) => {
 			const {layer} = globals.selected;
 			if (!layer || e.button !== 0) {
@@ -399,7 +399,7 @@ export default function(base: HTMLElement) {
 					return doIt;
 				};
 			      };
-			undo.add(doIt);
+			undo.add(doIt());
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			const {token} = globals.selected;
 			if (!token) {
@@ -450,7 +450,7 @@ export default function(base: HTMLElement) {
 							rpc.setToken({"id": currToken.id, "flip": currToken.flip = !currToken.flip});
 							return doIt;
 						      };
-						undo.add(doIt);
+						undo.add(doIt());
 						outline.focus();
 					}),
 					item(lang["CONTEXT_FLOP"], () => {
@@ -462,7 +462,7 @@ export default function(base: HTMLElement) {
 							rpc.setToken({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
 							return doIt;
 						      };
-						undo.add(doIt);
+						undo.add(doIt());
 						outline.focus();
 					}),
 					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
@@ -487,7 +487,7 @@ export default function(base: HTMLElement) {
 								return doIt;
 							};
 						      };
-						undo.add(doIt);
+						undo.add(doIt());
 					}),
 				] : [],
 				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
@@ -530,7 +530,7 @@ export default function(base: HTMLElement) {
 									return doIt;
 								};
 							};
-							undo.add(doIt);
+							undo.add(doIt());
 							return;
 						}
 					}
@@ -541,7 +541,7 @@ export default function(base: HTMLElement) {
 							return doIt;
 						};
 					      };
-					undo.add(doIt);
+					undo.add(doIt());
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
 					let c = currToken.lightColour;
@@ -571,7 +571,7 @@ export default function(base: HTMLElement) {
 											return doIt;
 										};
 									};
-									undo.add(doIt);
+									undo.add(doIt());
 								}
 							}
 							w.close();
@@ -594,7 +594,7 @@ export default function(base: HTMLElement) {
 								return doIt;
 							};
 						      };
-						undo.add(doIt);
+						undo.add(doIt());
 					}),
 					item(lang["CONTEXT_MOVE_UP"], () => {
 						if (!globals.tokens[currToken.id]) {
@@ -612,7 +612,7 @@ export default function(base: HTMLElement) {
 									return doIt;
 								};
 							      };
-							undo.add(doIt);
+							undo.add(doIt());
 						}
 					})
 				] : [],
@@ -633,7 +633,7 @@ export default function(base: HTMLElement) {
 									return doIt;
 								};
 							      };
-							undo.add(doIt);
+							undo.add(doIt());
 						}
 					}),
 					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
@@ -651,7 +651,7 @@ export default function(base: HTMLElement) {
 								return doIt;
 							};
 						      };
-						undo.add(doIt);
+						undo.add(doIt());
 					})
 				] : [],
 				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
@@ -677,7 +677,7 @@ export default function(base: HTMLElement) {
 							return doIt;
 						};
 					      };
-					undo.add(doIt);
+					undo.add(doIt());
 				}, currLayer.name)),
 				item(lang["CONTEXT_DELETE"], deleteToken)
 			]);
@@ -718,7 +718,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				return addLayerFolder(newPath);
 			}),
 			"move": invalidRPC,
@@ -735,7 +735,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				return renameLayer(path, name);
 			}),
 			"remove": path => {
@@ -759,7 +759,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				};
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				return addLayer(name);
 			}),
 			"setVisibility": (path: string, visibility: boolean) => {
@@ -774,7 +774,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				setLayerVisibility(path, visibility);
 				checkLayer(path);
 				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
@@ -806,7 +806,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				unselectToken();
 				moveLayer(from, to, position);
 				return rpc.moveLayer(from, to, position);
@@ -821,7 +821,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				return rpc.setMapDetails(setMapDetails(details))
 			},
 			"getLightColour": () => mapData.lightColour,
@@ -834,7 +834,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 				return rpc.setLightColour(setLightColour(c))
 			},
 		});
@@ -856,7 +856,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			rpc.waitLayerHide().then(path => {
 				setLayerVisibility(path, false);
@@ -874,7 +874,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				      };
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			rpc.waitLayerAdd().then(name => {
 				addLayer(name);
@@ -890,7 +890,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				};
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			rpc.waitLayerFolderAdd().then(name => {
 				addLayerFolder(name);
@@ -906,7 +906,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				};
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
@@ -935,7 +935,7 @@ export default function(base: HTMLElement) {
 					};
 				      };
 				layer.tokens.push(token);
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
 				const {layer, token} = globals.tokens[tm.id];
@@ -1099,7 +1099,7 @@ export default function(base: HTMLElement) {
 						return undoIt;
 					};
 				};
-				undo.add(() => undoIt);
+				undo.add(undoIt);
 			}),
 			...([
 				rpc.waitLayerRename,
