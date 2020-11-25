@@ -707,7 +707,20 @@ export default function(base: HTMLElement) {
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": rpc.waitLayerRename,
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path).then(addLayerFolder),
+			"createFolder": (path: string) => rpc.addLayerFolder(path).then(newPath => {
+				const undoIt = () => {
+					removeS(newPath);
+					waitFolderRemoved[0](newPath);
+					return () => {
+						addLayerFolder(newPath);
+						waitFolderAdded[0](newPath);
+						rpc.addLayerFolder(path);
+						return undoIt;
+					};
+				      };
+				undo.add(() => undoIt);
+				return addLayerFolder(newPath);
+			}),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
 			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => renameLayer(path, name)),
