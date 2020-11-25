@@ -724,8 +724,14 @@ export default function(base: HTMLElement) {
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
 			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => renameLayer(path, name)),
-			"remove": removeS,
-			"removeFolder": removeS,
+			"remove": path => {
+				undo.clear();
+				return removeS(path);
+			},
+			"removeFolder": path => {
+				undo.clear();
+				return removeS(path);
+			},
 			"link": invalidRPC,
 			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
 				const path = "/" + name,
