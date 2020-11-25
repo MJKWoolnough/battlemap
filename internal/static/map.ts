@@ -254,11 +254,7 @@ export class SVGDrawing extends SVGShape {
 	}
 }
 
-const splitAfterLastSlash = (path: string) => {
-	const pos = path.lastIndexOf("/")
-	return [path.slice(0, pos), path.slice(pos+1)];
-      },
-      idNames: Record<string, Int> = {
+const idNames: Record<string, Int> = {
 	"": 0,
 	"Grid": -1,
 	"Light": -2,
@@ -314,7 +310,11 @@ const splitAfterLastSlash = (path: string) => {
 	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
       };
 
-export const walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+export const splitAfterLastSlash = (path: string) => {
+	const pos = path.lastIndexOf("/")
+	return [path.slice(0, pos), path.slice(pos+1)];
+},
+walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
 walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = globals.layerList, hidden = false) => {
 	for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 		if (isSVGLayer(e)) {
