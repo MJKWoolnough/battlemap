@@ -354,10 +354,9 @@ renameLayer = (path: string, name: string) => {
 	return name;
 },
 removeLayer = (path: string) => {
-	const [fromParent, layer] = getParentLayer(path),
-	      ret = (fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+	const [fromParent, layer] = getParentLayer(path);
+	(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
-	return ret;
 },
 addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
