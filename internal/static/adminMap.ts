@@ -1187,7 +1187,6 @@ export default function(base: HTMLElement) {
 			}),
 			...([
 				rpc.waitLayerRename,
-				rpc.waitMapLightChange,
 				rpc.waitTokenRemove,
 				rpc.waitTokenMoveLayer,
 				rpc.waitTokenMovePos,
