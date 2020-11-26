@@ -730,9 +730,11 @@ export default function(base: HTMLElement) {
 				      undoIt = () => {
 					rpc.renameLayer(newPath, oldName);
 					renameLayer(newPath, oldName);
+					waitLayerRename[0]({"path": newPath, "name": oldName});
 					return () => {
 						rpc.renameLayer(path, name);
 						renameLayer(path, name);
+						waitLayerRename[0]({path, name});
 						return undoIt;
 					};
 				      };
