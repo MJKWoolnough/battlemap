@@ -295,7 +295,7 @@ const idNames: Record<string, Int> = {
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       getParentToken = (path: string, pos: Uint): [SVGLayer | null, SVGToken | SVGShape | null] => {
-	const parent = getLayer(globals.layerList, path);
+	const parent = getLayer(path);
 	if (!parent || !isSVGLayer(parent)) {
 		return [null, null];
 	}
@@ -318,7 +318,7 @@ walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = gl
 },
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
-getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter(b => b).every(p => {
+getLayer = (path: string, layer: SVGFolder | SVGLayer = globals.layerList) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
 	}
@@ -331,14 +331,14 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 }) ? layer : null,
 getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
-	      parent = getLayer(globals.layerList, parentStr);
+	      parent = getLayer(parentStr);
 	if (!parent || !isSVGFolder(parent)) {
 		return [null, null];
 	}
-	return [parent, getLayer(parent, name)];
+	return [parent, getLayer(name, parent)];
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
-	const layer = getLayer(globals.layerList, path)!;
+	const layer = getLayer(path)!;
 	if (visibility) {
 		layer.node.classList.remove("hiddenLayer");
 	} else {
@@ -348,7 +348,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
-	const l = getLayer(globals.layerList, path)!;
+	const l = getLayer(path)!;
 	l.name = name
 	l.path = `${splitAfterLastSlash(path)[0]}/${name}`;
 	return name;
@@ -361,8 +361,8 @@ removeLayer = (path: string) => {
 addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
-	      fromParent = getLayer(globals.layerList, parentStr)!,
-	      toParent = getLayer(globals.layerList, to) as SVGFolder;
+	      fromParent = getLayer(parentStr)!,
+	      toParent = getLayer(to) as SVGFolder;
 	if (isSVGFolder(fromParent)) {
 		const l = (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop();
 		l.path = to + "/" + l.name;
@@ -379,7 +379,7 @@ setMapDetails = (details: MapDetails) => {
 	updateLight();
 	return details;
 },
-setLightColour = (c: Colour) => (((getLayer(globals.layerList, "/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c)), updateLight(), c),
+setLightColour = (c: Colour) => (((getLayer("/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c)), updateLight(), c),
 globals = {
 	"definitions": null,
 	"root": null,
@@ -430,7 +430,7 @@ updateLight = () => {
 			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));
 		});
 	});
-	createSVG(clearElement(getLayer(globals.layerList, "/Light")!.node), [
+	createSVG(clearElement(getLayer("/Light")!.node), [
 		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
 		wallPolygons
 	]);
@@ -458,8 +458,8 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 	globals.tokens = [];
 	globals.walls = [];
 	definitions.setGrid(mapData);
-	(getLayer(layerList, "/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	(getLayer(layerList, "/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
+	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			(l.tokens as (SVGToken | SVGShape)[]).forEach(t => {
@@ -493,7 +493,6 @@ export default function(base: HTMLElement) {
 		oldBase.replaceWith(base = mapView(base, mapData, true));
 		canceller();
 		mapLoadedSend(false);
-		const {layerList} = globals;
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(setMapDetails),
 			rpc.waitMapLightChange().then(setLightColour),
@@ -505,7 +504,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
 			rpc.waitLayerRemove().then(removeLayer),
 			rpc.waitTokenAdd().then(tk => {
-				const layer = getLayer(layerList, tk.path);
+				const layer = getLayer(tk.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
@@ -526,7 +525,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenMoveLayer().then(tm => {
 				const {layer, token} = globals.tokens[tm.id];
 				if (token instanceof SVGToken) {
-					const newParent = getLayer(layerList, tm.to);
+					const newParent = getLayer(tm.to);
 					if (newParent && isSVGLayer(newParent)) {
 						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 						globals.tokens[tm.id].layer = newParent;
@@ -587,7 +586,7 @@ export default function(base: HTMLElement) {
 				}
 			}),
 			rpc.waitLayerShift().then(ls => {
-				const layer = getLayer(layerList, ls.path);
+				const layer = getLayer(ls.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
@@ -611,7 +610,7 @@ export default function(base: HTMLElement) {
 				updateLight();
 			}),
 			rpc.waitWallAdded().then(w => {
-				const layer = getLayer(layerList, w.path);
+				const layer = getLayer(w.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;

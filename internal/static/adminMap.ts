@@ -795,7 +795,7 @@ export default function(base: HTMLElement) {
 				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
-				globals.selected.layer = getLayer(layerList, path) as SVGLayer;
+				globals.selected.layer = getLayer(path) as SVGLayer;
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
@@ -996,7 +996,7 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitLayerRemove().then(removeLayer),
 			rpc.waitTokenAdd().then(tk => {
-				const layer = getLayer(layerList, tk.path),
+				const layer = getLayer(tk.path),
 				      path = tk.path;
 				if (!layer || !isSVGLayer(layer)) {
 					// error
@@ -1024,7 +1024,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenMoveLayer().then(tm => {
 				const {layer, token} = globals.tokens[tm.id];
 				if (token instanceof SVGToken) {
-					const newParent = getLayer(layerList, tm.to);
+					const newParent = getLayer(tm.to);
 					if (newParent && isSVGLayer(newParent)) {
 						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 						globals.tokens[tm.id].layer = newParent;
@@ -1085,7 +1085,7 @@ export default function(base: HTMLElement) {
 				}
 			}),
 			rpc.waitLayerShift().then(ls => {
-				const layer = getLayer(layerList, ls.path);
+				const layer = getLayer(ls.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
@@ -1109,7 +1109,7 @@ export default function(base: HTMLElement) {
 				updateLight();
 			}),
 			rpc.waitWallAdded().then(w => {
-				const layer = getLayer(layerList, w.path);
+				const layer = getLayer(w.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
@@ -1141,7 +1141,7 @@ export default function(base: HTMLElement) {
 				undo.clear();
 			}),
 			rpc.waitLayerMove().then(ml => {
-				const layer = getLayer(layerList, ml.to);
+				const layer = getLayer(ml.to);
 				if (!layer) {
 					handleError("Invalid layer move");
 					return;
@@ -1152,7 +1152,7 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
-				const layer = getLayer(layerList, path);
+				const layer = getLayer(path);
 				if (!layer) {
 					handleError("Invalid layer remove");
 					return;
@@ -1161,7 +1161,7 @@ export default function(base: HTMLElement) {
 				undo.clear();
 			}),
 			rpc.waitLayerShift().then(ls => {
-				const layer = getLayer(layerList, ls.path);
+				const layer = getLayer(ls.path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
