@@ -293,14 +293,6 @@ const idNames: Record<string, Int> = {
 	}
 	token.setPattern(!imagePattern);
       },
-      getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
-	const [parentStr, name] = splitAfterLastSlash(path),
-	      parent = getLayer(globals.layerList, parentStr);
-	if (!parent || !isSVGFolder(parent)) {
-		return [null, null];
-	}
-	return [parent, getLayer(parent, name)];
-      },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       getParentToken = (path: string, pos: Uint): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(globals.layerList, path);
@@ -337,6 +329,14 @@ getLayer = (layer: SVGFolder | SVGLayer, path: string) => path.split("/").filter
 	}
 	return false;
 }) ? layer : null,
+getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
+	const [parentStr, name] = splitAfterLastSlash(path),
+	      parent = getLayer(globals.layerList, parentStr);
+	if (!parent || !isSVGFolder(parent)) {
+		return [null, null];
+	}
+	return [parent, getLayer(parent, name)];
+},
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(globals.layerList, path)!;
 	if (visibility) {
