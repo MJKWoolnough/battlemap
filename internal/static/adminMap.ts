@@ -6,7 +6,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import Undo from './undo.js';
@@ -945,7 +945,37 @@ export default function(base: HTMLElement) {
 				};
 				undo.add(undoIt);
 			}),
-			rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
+			rpc.waitLayerMove().then(({from, to, position}) => {
+				const [parent, layer] = getParentLayer(from);
+				if (!parent || !layer) {
+					return;
+				}
+				const oldPos = parent.children.indexOf(layer),
+				      undoIt = () => {
+					unselectToken();
+					moveLayer(to, from, oldPos);
+					rpc.moveLayer(to, from, oldPos);
+					waitLayerPositionChange[0]({
+						"from": to,
+						"to": from,
+						"position": oldPos
+					});
+					return () => {
+						unselectToken();
+						moveLayer(from, to, position);
+						rpc.moveLayer(from, to, position);
+						waitLayerPositionChange[0]({
+							to,
+							from,
+							position
+						});
+						return undoIt;
+					};
+				      };
+				undo.add(undoIt);
+				unselectToken();
+				moveLayer(from, to, position);
+			}),
 			rpc.waitLayerRename().then(lr => {
 				const [parentPath, oldName] = splitAfterLastSlash(lr.path),
 				      newPath = parentPath + "/" + name,
