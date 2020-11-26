@@ -948,6 +948,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerMove().then(({from, to, position}) => {
 				const [parent, layer] = getParentLayer(from);
 				if (!parent || !layer) {
+					handleError("Invalid layer move");
 					return;
 				}
 				const oldPos = parent.children.indexOf(layer),
@@ -1140,16 +1141,6 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenSet().then(ts => {
 				undo.clear();
 			}),
-			rpc.waitLayerMove().then(ml => {
-				const layer = getLayer(ml.to);
-				if (!layer) {
-					handleError("Invalid layer move");
-					return;
-				}
-				(isSVGFolder(layer) ? waitFolderMoved : waitMoved)[0](ml);
-				waitLayerPositionChange[0](ml);
-				undo.clear();
-			}),
 			rpc.waitLayerRemove().then(path => {
 				checkLayer(path);
 				const layer = getLayer(path);
@@ -1186,7 +1177,6 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 			}),
 			...([
-				rpc.waitLayerRename,
 				rpc.waitTokenRemove,
 				rpc.waitTokenMoveLayer,
 				rpc.waitTokenMovePos,
