@@ -866,7 +866,18 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 				setMapDetails(details);
 			}),
-			rpc.waitMapLightChange().then(setLightColour),
+			rpc.waitMapLightChange().then(c => {
+				const oldColour = mapData.lightColour,
+				      undoIt = () => {
+					rpc.setLightColour(setLightColour(oldColour))
+					return () => {
+						rpc.setLightColour(setLightColour(c))
+						return undoIt;
+					};
+				      };
+				undo.add(undoIt);
+				setLightColour(c);
+			}),
 			rpc.waitLayerShow().then(path => {
 				setLayerVisibility(path, true);
 				waitLayerShow[0](path);
