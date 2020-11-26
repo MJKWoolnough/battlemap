@@ -769,11 +769,23 @@ export default function(base: HTMLElement) {
 				const undoIt = () => {
 					checkLayer(path);
 					setLayerVisibility(path, !visibility);
-					(!visibility ? rpc.showLayer : rpc.hideLayer)(path);
+					if (visibility) {
+						rpc.hideLayer(path);
+						waitLayerHide[0](path);
+					} else {
+						rpc.showLayer(path);
+						waitLayerShow[0](path);
+					}
 					return () => {
 						checkLayer(path);
 						setLayerVisibility(path, visibility);
-						(visibility ? rpc.showLayer : rpc.hideLayer)(path);
+						if (!visibility) {
+							rpc.hideLayer(path);
+							waitLayerHide[0](path);
+						} else {
+							rpc.showLayer(path);
+							waitLayerShow[0](path);
+						}
 						return undoIt;
 					};
 				      };
