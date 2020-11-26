@@ -854,7 +854,18 @@ export default function(base: HTMLElement) {
 			},
 		});
 		canceller = Subscription.canceller(
-			rpc.waitMapChange().then(setMapDetails),
+			rpc.waitMapChange().then(details => {
+				const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
+				      undoIt = () => {
+					rpc.setMapDetails(setMapDetails(oldDetails))
+					return () => {
+						rpc.setMapDetails(setMapDetails(details))
+						return undoIt;
+					};
+				      };
+				undo.add(undoIt);
+				setMapDetails(details);
+			}),
 			rpc.waitMapLightChange().then(setLightColour),
 			rpc.waitLayerShow().then(path => {
 				setLayerVisibility(path, true);
