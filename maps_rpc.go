@@ -658,49 +658,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			return changed
 		})
-	case "setTokenLayer":
-		var tokenLayer struct {
-			ID uint64 `jons:"id"`
-			To string `json:"to"`
+	case "setTokenLayerPos":
+		var tokenLayerPos struct {
+			ID     uint64 `jons:"id"`
+			To     string `json:"to"`
+			NewPos uint   `json:"newPos"`
 		}
-		if err := json.Unmarshal(data, &tokenLayer); err != nil {
+		if err := json.Unmarshal(data, &tokenLayerPos); err != nil {
 			return nil, err
 		}
-		if len(tokenLayer.To) == 0 || !validTokenLayer(tokenLayer.To) {
+		if len(tokenLayerPos.To) == 0 || !validTokenLayer(tokenLayerPos.To) {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayer.ID, func(mp *levelMap, l *layer, tk *token) bool {
-			ml := getLayer(&mp.layer, tokenLayer.To)
+		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayerPos.ID, func(mp *levelMap, l *layer, tk *token) bool {
+			ml := getLayer(&mp.layer, tokenLayerPos.To)
 			if ml == nil {
 				return false
 			}
-			l.removeToken(tokenLayer.ID)
-			ml.addToken(tk, uint(len(ml.Tokens)))
-			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayer, data, userAny)
+			l.removeToken(tokenLayerPos.ID)
+			ml.addToken(tk, tokenLayerPos.NewPos)
+			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayerPos, data, userAny)
 			return true
 		})
-	case "setTokenPos":
-		var tokenPos struct {
-			ID     uint64 `json:"id"`
-			NewPos uint   `json:"newPos"`
-		}
-		var err error
-		if err = json.Unmarshal(data, &tokenPos); err != nil {
-			return nil, err
-		}
-		if e := m.updateMapsLayerToken(cd.CurrentMap, tokenPos.ID, func(_ *levelMap, l *layer, tk *token) bool {
-			if tokenPos.NewPos >= uint(len(l.Tokens)) {
-				err = ErrInvalidTokenPos
-				return false
-			}
-			l.removeToken(tokenPos.ID)
-			l.addToken(tk, tokenPos.NewPos)
-			m.socket.broadcastMapChange(cd, broadcastTokenMovePos, data, userAny)
-			return true
-		}); e != nil {
-			return nil, e
-		}
-		return nil, err
 	case "shiftLayer":
 		var layerShift struct {
 			Path string `json:"path"`
