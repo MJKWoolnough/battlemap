@@ -235,7 +235,7 @@ export default function(base: HTMLElement) {
 			removeLayer(path);
 			return rpc.removeLayer(path);
 		      },
-		      checkLayer = (path: string) => {
+		      checkSelectedLayer = (path: string) => {
 			if (globals.selected.layer?.path.startsWith(path)) {
 				unselectToken();
 				// select new layer???
@@ -767,7 +767,7 @@ export default function(base: HTMLElement) {
 			}),
 			"setVisibility": (path: string, visibility: boolean) => {
 				const undoIt = () => {
-					checkLayer(path);
+					checkSelectedLayer(path);
 					setLayerVisibility(path, !visibility);
 					if (visibility) {
 						rpc.hideLayer(path);
@@ -777,7 +777,7 @@ export default function(base: HTMLElement) {
 						waitLayerShow[0](path);
 					}
 					return () => {
-						checkLayer(path);
+						checkSelectedLayer(path);
 						setLayerVisibility(path, visibility);
 						if (!visibility) {
 							rpc.hideLayer(path);
@@ -791,7 +791,7 @@ export default function(base: HTMLElement) {
 				      };
 				undo.add(undoIt);
 				setLayerVisibility(path, visibility);
-				checkLayer(path);
+				checkSelectedLayer(path);
 				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
 			},
 			"setLayer": (path: string) => {
@@ -884,7 +884,7 @@ export default function(base: HTMLElement) {
 				const undoIt = () => {
 					setLayerVisibility(path, false);
 					waitLayerHide[0](path);
-					checkLayer(path);
+					checkSelectedLayer(path);
 					rpc.hideLayer(path);
 					return () => {
 						setLayerVisibility(path, true);
@@ -898,7 +898,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerHide().then(path => {
 				setLayerVisibility(path, false);
 				waitLayerHide[0](path);
-				checkLayer(path);
+				checkSelectedLayer(path);
 				const undoIt = () => {
 					setLayerVisibility(path, true);
 					waitLayerShow[0](path);
@@ -906,7 +906,7 @@ export default function(base: HTMLElement) {
 					return () => {
 						setLayerVisibility(path, false);
 						waitLayerHide[0](path);
-						checkLayer(path);
+						checkSelectedLayer(path);
 						rpc.hideLayer(path);
 						return undoIt;
 					};
@@ -919,7 +919,7 @@ export default function(base: HTMLElement) {
 				const path = "/" + name,
 				      undoIt = () => {
 					removeLayer(path);
-					checkLayer(path);
+					checkSelectedLayer(path);
 					waitRemoved[0](path);
 					return () => {
 						addLayer(name);
@@ -995,7 +995,7 @@ export default function(base: HTMLElement) {
 				return renameLayer(lr.path, lr.name);
 			}),
 			rpc.waitLayerRemove().then(path => {
-				checkLayer(path);
+				checkSelectedLayer(path);
 				const layer = getLayer(path);
 				if (!layer) {
 					handleError("Invalid layer remove");
