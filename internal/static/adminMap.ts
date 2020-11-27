@@ -1010,7 +1010,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				delete tk["path"];
-				const token = (isTokenImage(tk.token) ? SVGToken : isTokenDrawing(tk.token) ? SVGDrawing : SVGShape.from(tk.token)).from(tk.token),
+				const token = isTokenImage(tk.token) ? SVGToken.from(tk.token) : isTokenDrawing(tk.token) ? SVGDrawing.from(tk.token) : SVGShape.from(tk.token),
 				      undoIt = () => {
 					if (token === globals.selected.token) {
 						unselectToken();
