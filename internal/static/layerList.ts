@@ -282,7 +282,7 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.to);
-				if (l && l.parent!.children.length -1 !== ml.position) {
+				if (l && l.parent!.children.length - 1 !== ml.position) {
 					l.parent!.children.pop();
 					l.parent!.children.splice(ml.position, 0, l);
 				}
