@@ -225,20 +225,17 @@ export default function(base: HTMLElement) {
 			tokenSelected();
 		      },
 		      removeS = (path: string) => {
+			checkSelectedLayer(path);
+			removeLayer(path);
+			return rpc.removeLayer(path);
+		      },
+		      checkSelectedLayer = (path: string) => {
 			const {layer} = globals.selected;
 			if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
 				globals.selected.layer = null;
 				if (globals.selected.token) {
 					unselectToken();
 				}
-			}
-			removeLayer(path);
-			return rpc.removeLayer(path);
-		      },
-		      checkSelectedLayer = (path: string) => {
-			if (globals.selected.layer?.path.startsWith(path)) {
-				unselectToken();
-				// select new layer???
 			}
 		      },
 		      outline = globals.outline = g();
