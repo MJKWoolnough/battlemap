@@ -976,20 +976,20 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerRename().then(lr => {
 				const [parentPath, oldName] = splitAfterLastSlash(lr.path),
 				      newPath = parentPath + "/" + name,
-				      undoIt = () => {
-					waitLayerRename[0]({"path": lr.path, "name": oldName});
-					renameLayer(newPath, oldName);
-					rpc.renameLayer(newPath, oldName);
-					return () => {
-						waitLayerRename[0](lr);
-						renameLayer(lr.path, lr.name);
+				      doIt = (sendRPC = true) => {
+					waitLayerRename[0](lr);
+					renameLayer(lr.path, lr.name);
+					if (sendRPC) {
 						rpc.renameLayer(lr.path, lr.name);
-						return undoIt;
+					}
+					return () => {
+						waitLayerRename[0]({"path": lr.path, "name": oldName});
+						renameLayer(newPath, oldName);
+						rpc.renameLayer(newPath, oldName);
+						return doIt;
 					};
 				      };
-				undo.add(undoIt);
-				waitLayerRename[0](lr);
-				return renameLayer(lr.path, lr.name);
+				undo.add(doIt(false));
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkSelectedLayer(path);
