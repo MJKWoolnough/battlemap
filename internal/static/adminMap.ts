@@ -995,7 +995,17 @@ export default function(base: HTMLElement) {
 				waitLayerRename[0](lr);
 				return renameLayer(lr.path, lr.name);
 			}),
-			rpc.waitLayerRemove().then(removeLayer),
+			rpc.waitLayerRemove().then(path => {
+				checkLayer(path);
+				const layer = getLayer(path);
+				if (!layer) {
+					handleError("Invalid layer remove");
+					return;
+				}
+				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
+				removeLayer(path);
+				undo.clear();
+			}),
 			rpc.waitTokenAdd().then(tk => {
 				const layer = getLayer(tk.path),
 				      path = tk.path;
@@ -1139,16 +1149,6 @@ export default function(base: HTMLElement) {
 				delete mapData.data[key];
 			}),
 			rpc.waitTokenSet().then(ts => {
-				undo.clear();
-			}),
-			rpc.waitLayerRemove().then(path => {
-				checkLayer(path);
-				const layer = getLayer(path);
-				if (!layer) {
-					handleError("Invalid layer remove");
-					return;
-				}
-				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
 				undo.clear();
 			}),
 			rpc.waitLayerShift().then(ls => {
