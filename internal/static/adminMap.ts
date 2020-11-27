@@ -929,21 +929,20 @@ export default function(base: HTMLElement) {
 				};
 				undo.add(undoIt);
 			}),
-			rpc.waitLayerFolderAdd().then(name => {
-				addLayerFolder(name);
-				waitFolderAdded[0](name);
-				const path = "/" + name,
-				      undoIt = () => {
-					removeLayer(path);
-					checkLayer(path);
-					waitFolderRemoved[0](path);
+			rpc.waitLayerFolderAdd().then(path => {
+				const doIt = (sendRPC = true) => {
+					addLayerFolder(path);
+					waitFolderAdded[0](path);
+					if (sendRPC) {
+						rpc.addLayerFolder(path);
+					}
 					return () => {
-						addLayer(name);
-						waitFolderAdded[0](name);
-						return undoIt;
+						removeS(path);
+						waitFolderRemoved[0](path);
+						return doIt;
 					};
-				};
-				undo.add(undoIt);
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitLayerMove().then(({from, to, position}) => {
 				const [parent, layer] = getParentLayer(from);
