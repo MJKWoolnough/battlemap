@@ -1029,15 +1029,13 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 			}),
 			rpc.waitTokenMoveLayer().then(tm => {
-				const {layer, token} = globals.tokens[tm.id];
-				if (token instanceof SVGToken) {
-					const newParent = getLayer(tm.to);
-					if (newParent && isSVGLayer(newParent)) {
-						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-						globals.tokens[tm.id].layer = newParent;
-						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-							updateLight();
-						}
+				const {layer, token} = globals.tokens[tm.id],
+				      newParent = getLayer(tm.to);
+				if (newParent && isSVGLayer(newParent)) {
+					newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+					globals.tokens[tm.id].layer = newParent;
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
 					}
 				}
 			}),
