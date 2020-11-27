@@ -64,8 +64,7 @@ type RPCWaits = {
 	waitLayerMaskRemove:         () => Subscription<Uint>;        //check type
 	waitTokenAdd:                () => Subscription<TokenAdd>;
 	waitTokenRemove:             () => Subscription<Uint>;
-	waitTokenMoveLayer:          () => Subscription<TokenMoveLayer>;
-	waitTokenMovePos:            () => Subscription<TokenMovePos>;
+	waitTokenMoveLayerPos:       () => Subscription<TokenMoveLayerPos>;
 	waitTokenSet:                () => Subscription<TokenSet>;
 	waitLayerShift:              () => Subscription<LayerShift>;
 	waitLightShift:              () => Subscription<Coords>;
@@ -285,12 +284,9 @@ type TokenChange = ID & {
 	rotation: Byte;
 }
 
-type TokenMovePos = ID & {
-	newPos: Uint;
-}
-
-type TokenMoveLayer = ID & {
+type TokenMoveLayerPos = ID & {
 	to: string;
+	newPos: Uint;
 }
 
 type TokenFlip = ID & {
