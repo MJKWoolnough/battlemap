@@ -1034,11 +1034,33 @@ export default function(base: HTMLElement) {
 					if (tm.newPos > newParent.tokens.length) {
 						tm.newPos = newParent.tokens.length;
 					}
-					newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-					globals.tokens[tm.id].layer = newParent;
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
+					const currentPos = layer.tokens.findIndex(t => t === token),
+					      doIt = (sendRPC = true) => {
+						newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
+						globals.tokens[tm.id].layer = newParent;
+						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+							updateLight();
+						}
+						if (globals.selected.token === token) {
+							unselectToken();
+						}
+						if (sendRPC) {
+							rpc.setTokenLayerPos(tm.id, layer.path, tm.newPos);
+						}
+						return () => {
+							newParent.tokens.splice(currentPos, 0, layer.tokens.splice(tm.newPos, 1)[0]);
+							globals.tokens[tm.id].layer = layer;
+							if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+								updateLight();
+							}
+							if (globals.selected.token === token) {
+								unselectToken();
+							}
+							rpc.setTokenLayerPos(tm.id, newParent.path, currentPos);
+							return doIt;
+						};
+					      };
+					undo.add(doIt(false));
 				}
 			}),
 			rpc.waitTokenSet().then(ts => {
