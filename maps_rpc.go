@@ -372,13 +372,16 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				}
 				m.images.setHiddenLink(0, newToken.Token.Source)
 			}
-			mp.lastTokenID++
-			newToken.Token.ID = mp.lastTokenID
+			if _, ok := mp.tokens[newToken.Token.ID]; !ok || newToken.Token.ID == 0 {
+				mp.lastTokenID++
+				newToken.Token.ID = mp.lastTokenID
+				pos := bytes.IndexByte(data[1:], '{') + 2
+				id := strconv.AppendUint(nil, mp.lastTokenID, 10)
+				data = append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id    \":"...), id...), ','), data[pos:]...)
+			}
 			l.Tokens = append(l.Tokens, newToken.Token)
-			mp.tokens[mp.lastTokenID] = layerToken{l, newToken.Token}
-			pos := bytes.IndexByte(data[1:], '{') + 2
-			id := strconv.AppendUint(nil, mp.lastTokenID, 10)
-			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id\":"...), id...), ','), data[pos:]...), userAny)
+			mp.tokens[newToken.Token.ID] = layerToken{l, newToken.Token}
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data, userAny)
 			return true
 		}); err != nil {
 			return nil, err
