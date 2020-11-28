@@ -520,16 +520,17 @@ export default function(base: HTMLElement) {
 					layer.tokens.push(SVGShape.from(tk.token));
 				}
 			}),
-			rpc.waitTokenMoveLayer().then(tm => {
-				const {layer, token} = globals.tokens[tm.id];
-				if (token instanceof SVGToken) {
-					const newParent = getLayer(tm.to);
-					if (newParent && isSVGLayer(newParent)) {
-						newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-						globals.tokens[tm.id].layer = newParent;
-						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-							updateLight();
-						}
+			rpc.waitTokenMoveLayerPos().then(tm => {
+				const {layer, token} = globals.tokens[tm.id],
+				      newParent = getLayer(tm.to);
+				if (layer && token && newParent && isSVGLayer(newParent)) {
+					if (tm.newPos > newParent.tokens.length) {
+						tm.newPos = newParent.tokens.length;
+					}
+					newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+					globals.tokens[tm.id].layer = newParent;
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
 					}
 				}
 			}),
@@ -569,15 +570,6 @@ export default function(base: HTMLElement) {
 				layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 				if (token instanceof SVGToken) {
 					token.cleanup();
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
-				}
-			}),
-			rpc.waitTokenMovePos().then(to => {
-				const {layer, token} = globals.tokens[to.id];
-				if (layer && token) {
-					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0])
 					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 						updateLight();
 					}
