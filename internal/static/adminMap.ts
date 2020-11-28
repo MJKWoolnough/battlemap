@@ -1081,6 +1081,7 @@ export default function(base: HTMLElement) {
 						updateLight();
 					}
 				}
+				undo.clear();
 			}),
 			rpc.waitLayerShift().then(ls => {
 				const layer = getLayer(ls.path);
@@ -1162,10 +1163,7 @@ export default function(base: HTMLElement) {
 					};
 				};
 				undo.add(undoIt);
-			}),
-			...([
-				rpc.waitTokenRemove,
-			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
+			})
 		);
 		mapLoadedSend(true);
 	}));
