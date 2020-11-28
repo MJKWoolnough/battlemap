@@ -1160,14 +1160,31 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitTokenRemove().then(tk => {
 				const {layer, token} = globals.tokens[tk];
-				layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
-				if (token instanceof SVGToken) {
-					token.cleanup();
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
+				if (!token) {
+					return;
 				}
-				undo.clear();
+				const pos = layer.tokens.findIndex(t => t === token),
+				      doIt = (sendRPC = true) => {
+					layer.tokens.splice(pos, 1);
+					if (token instanceof SVGToken) {
+						token.cleanup();
+						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+							updateLight();
+						}
+					}
+					if (sendRPC) {
+						rpc.removeToken(token.id);
+					}
+					return () => {
+						layer.tokens.splice(pos, 0, token);
+						rpc.addToken(layer.path, token).then(id => {
+							token.id = id;
+							globals.tokens[id] = {layer, token};
+						});
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitLayerShift().then(ls => {
 				const layer = getLayer(ls.path);
