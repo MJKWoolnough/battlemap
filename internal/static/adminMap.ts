@@ -1046,6 +1046,66 @@ export default function(base: HTMLElement) {
 				if (!token) {
 					return;
 				}
+				const original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []},
+				      doIt = (sendRPC = true) => {
+					for (const k in ts) {
+						switch (k) {
+						case "id":
+							break;
+						case "tokenData":
+							if (token instanceof SVGToken) {
+								const tokenData = ts[k];
+								for (const k in tokenData) {
+									token["tokenData"][k] = tokenData[k];
+								}
+							}
+							break;
+						case "removeTokenData":
+							if (token instanceof SVGToken) {
+								const removeTokenData = ts[k]!;
+								for (const k of removeTokenData) {
+									delete token["tokenData"][k];
+								}
+							}
+							break;
+						default:
+							(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+						}
+					}
+					token.updateNode()
+					if (sendRPC) {
+						rpc.setToken(ts);
+					}
+					return () => {
+						for (const k in original) {
+							switch (k) {
+							case "id":
+								break;
+							case "tokenData":
+								if (token instanceof SVGToken) {
+									const tokenData = original[k];
+									for (const k in tokenData) {
+										token["tokenData"][k] = tokenData[k];
+									}
+								}
+								break;
+							case "removeTokenData":
+								if (token instanceof SVGToken) {
+									const removeTokenData = original[k]!;
+									for (const k of removeTokenData) {
+										delete token["tokenData"][k];
+									}
+								}
+								break;
+							default:
+								(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+							}
+						}
+						token.updateNode()
+						rpc.setToken(original);
+						return doIt;
+					};
+				      };
 				for (const k in ts) {
 					switch (k) {
 					case "id":
@@ -1054,7 +1114,11 @@ export default function(base: HTMLElement) {
 						if (token instanceof SVGToken) {
 							const tokenData = ts[k];
 							for (const k in tokenData) {
-								token["tokenData"][k] = tokenData[k];
+								if (token["tokenData"][k]) {
+									original["tokenData"]![k] = token["tokenData"][k];
+								} else {
+									original["removeTokenData"]!.push(k);
+								}
 							}
 						}
 						break;
@@ -1062,15 +1126,15 @@ export default function(base: HTMLElement) {
 						if (token instanceof SVGToken) {
 							const removeTokenData = ts[k]!;
 							for (const k of removeTokenData) {
-								delete token["tokenData"][k];
+								original["tokenData"]![k] = token["tokenData"][k];
 							}
 						}
 						break;
 					default:
-						(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+						(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
 					}
 				}
-				token.updateNode()
+				undo.add(doIt(false));
 			}),
 			rpc.waitTokenRemove().then(tk => {
 				const {layer, token} = globals.tokens[tk];
