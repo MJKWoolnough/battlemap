@@ -585,10 +585,10 @@ export default function(base: HTMLElement) {
 						      newPos = currLayer.tokens.length - 1,
 						      doIt = () => {
 							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(currToken.id, newPos);
+							rpc.setTokenLayerPos(currToken.id, currLayer.path, newPos);
 							return () => {
 								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.pop()!);
-								rpc.setTokenPos(currToken.id, tokenPos);
+								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
 								return doIt;
 							};
 						      };
@@ -603,10 +603,10 @@ export default function(base: HTMLElement) {
 						if (tokenPos < currLayer.tokens.length - 1) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos + 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(currToken.id, tokenPos + 1);
+								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos + 1);
 								return () => {
 									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos + 1, 1)[0]);
-									rpc.setTokenPos(currToken.id, tokenPos);
+									rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
 									return doIt;
 								};
 							      };
@@ -624,10 +624,10 @@ export default function(base: HTMLElement) {
 						if (tokenPos > 0) {
 							const doIt = () => {
 								currLayer.tokens.splice(tokenPos - 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenPos(currToken.id, tokenPos - 1);
+								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos - 1);
 								return () => {
 									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos - 1, 1)[0]);
-									rpc.setTokenPos(currToken.id, tokenPos);
+									rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
 									return doIt;
 								};
 							      };
@@ -642,10 +642,10 @@ export default function(base: HTMLElement) {
 						      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
 						      doIt = () => {
 							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenPos(currToken.id, 0);
+							rpc.setTokenLayerPos(currToken.id, currLayer.path, 0);
 							return () => {
 								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.shift()!);
-								rpc.setTokenPos(currToken.id, tokenPos);
+								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
 								return doIt;
 							};
 						      };
@@ -662,15 +662,14 @@ export default function(base: HTMLElement) {
 						if (globals.selected.token === currToken) {
 							unselectToken();
 						}
-						sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
-						rpc.setTokenLayer(currToken.id, sl.path);
+						rpc.setTokenLayerPos(currToken.id, sl.path, sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]));
 						globals.tokens[currToken.id].layer = sl;
 						return () => {
 							if (globals.selected.token === currToken) {
 								unselectToken();
 							}
 							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
-							rpc.setTokenLayer(currToken.id, currLayer.path).then(() => rpc.setTokenPos(currToken.id, tokenPos));
+							rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
 							globals.tokens[currToken.id].layer = currLayer;
 							return doIt;
 						};
@@ -1028,11 +1027,14 @@ export default function(base: HTMLElement) {
 				layer.tokens.push(token);
 				undo.add(undoIt);
 			}),
-			rpc.waitTokenMoveLayer().then(tm => {
+			rpc.waitTokenMoveLayerPos().then(tm => {
 				const {layer, token} = globals.tokens[tm.id],
 				      newParent = getLayer(tm.to);
-				if (newParent && isSVGLayer(newParent)) {
-					newParent.tokens.push(layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+				if (layer && token && newParent && isSVGLayer(newParent)) {
+					if (tm.newPos > newParent.tokens.length) {
+						tm.newPos = newParent.tokens.length;
+					}
+					newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 					globals.tokens[tm.id].layer = newParent;
 					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 						updateLight();
@@ -1075,15 +1077,6 @@ export default function(base: HTMLElement) {
 				layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 				if (token instanceof SVGToken) {
 					token.cleanup();
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
-				}
-			}),
-			rpc.waitTokenMovePos().then(to => {
-				const {layer, token} = globals.tokens[to.id];
-				if (layer && token) {
-					layer.tokens.splice(to.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0])
 					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 						updateLight();
 					}
@@ -1172,8 +1165,6 @@ export default function(base: HTMLElement) {
 			}),
 			...([
 				rpc.waitTokenRemove,
-				rpc.waitTokenMoveLayer,
-				rpc.waitTokenMovePos,
 			] as (() => Subscription<any>)[]).map(p => p().then(() => undo.clear()))
 		);
 		mapLoadedSend(true);
