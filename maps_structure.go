@@ -122,9 +122,13 @@ func (l *layer) validate(layers map[string]struct{}, lm *levelMap, first bool) e
 		if err := token.validate(); err != nil {
 			return err
 		}
-		lm.lastTokenID++
-		token.ID = lm.lastTokenID
-		lm.tokens[lm.lastTokenID] = layerToken{l, token}
+		if _, ok := lm.tokens[token.ID]; ok {
+			return ErrDuplicateTokenID
+		}
+		if token.ID > lm.lastTokenID {
+			lm.lastTokenID = token.ID
+		}
+		lm.tokens[token.ID] = layerToken{l, token}
 	}
 	for _, wall := range l.Walls {
 		lm.lastWallID++
@@ -178,7 +182,7 @@ type layerToken struct {
 }
 
 type token struct {
-	ID     uint64 `json:"-"`
+	ID     uint64 `json:"id"`
 	Source uint64 `json:"src"`
 	coords
 	Width          uint64                  `json:"width"`
@@ -293,6 +297,9 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 }
 
 func (t *token) validate() error {
+	if t.ID == 0 {
+		return ErrInvalidTokenID
+	}
 	switch t.TokenType {
 	case tokenImage:
 		if t.FillType != 0 || t.Source == 0 || t.IsEllipse || !t.Fill.empty() || !t.Stroke.empty() || t.StrokeWidth > 0 || len(t.Points) > 0 || (t.PatternWidth > 0) != (t.PatternHeight > 0) {
@@ -416,8 +423,10 @@ func appendNum(p []byte, n uint8) []byte {
 
 // Errors
 var (
-	ErrDuplicateLayer = errors.New("duplicate layer name")
-	ErrInvalidLayer   = errors.New("invalid layer structure")
-	ErrInvalidToken   = errors.New("invalid token")
-	ErrInvalidWall    = errors.New("invalid wall")
+	ErrDuplicateLayer   = errors.New("duplicate layer name")
+	ErrInvalidLayer     = errors.New("invalid layer structure")
+	ErrInvalidToken     = errors.New("invalid token")
+	ErrInvalidWall      = errors.New("invalid wall")
+	ErrDuplicateTokenID = errors.New("duplicate token ID")
+	ErrInvalidTokenID   = errors.New("invalid token ID")
 )
