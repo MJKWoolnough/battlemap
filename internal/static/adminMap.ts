@@ -1206,9 +1206,22 @@ export default function(base: HTMLElement) {
 				updateLight();
 			}),
 			rpc.waitLightShift().then(pos => {
-				mapData.lightX = pos.x;
-				mapData.lightY = pos.y;
-				updateLight();
+				const {x, y} = pos,
+				      {lightX, lightY} = mapData,
+				      doIt = (sendRPC = true) => {
+					mapData.lightX = x;
+					mapData.lightY = y;
+					updateLight();
+					if (sendRPC) {
+						rpc.shiftLight(x, y);
+					}
+					return () => {
+						rpc.shiftLight(mapData.lightX = lightX, mapData.lightY = lightY);
+						updateLight();
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitWallAdded().then(w => {
 				const layer = getLayer(w.path);
