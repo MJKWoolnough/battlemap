@@ -1255,6 +1255,7 @@ export default function(base: HTMLElement) {
 						return doIt;
 					};
 				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitWallRemoved().then(wp => {
 				const {layer, wall} = globals.walls[wp];
