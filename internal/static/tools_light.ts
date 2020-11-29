@@ -123,7 +123,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 					walls.push(wall);
 					wallLayer.appendChild(wall.element);
 					wall.layer.walls.push(w);
-					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour);
+					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour).then(id => w.id = id);
 					updateLight();
 					return () => {
 						walls.pop();
