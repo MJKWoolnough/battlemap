@@ -1186,24 +1186,46 @@ export default function(base: HTMLElement) {
 				      };
 				undo.add(doIt(false));
 			}),
-			rpc.waitLayerShift().then(ls => {
-				const layer = getLayer(ls.path);
+			rpc.waitLayerShift().then(({path, dx, dy}) => {
+				const layer = getLayer(path);
 				if (!layer || !isSVGLayer(layer)) {
 					// error
 					return;
 				}
-				(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-					t.x += ls.dx;
-					t.y += ls.dy;
-					t.updateNode();
-				});
-				layer.walls.forEach(w => {
-					w.x1 += ls.dx;
-					w.y1 += ls.dy;
-					w.x2 += ls.dx;
-					w.y2 += ls.dy;
-				});
-				updateLight();
+				const doIt = (sendRPC = true) => {
+					(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+						t.x += dx;
+						t.y += dy;
+						t.updateNode();
+					});
+					layer.walls.forEach(w => {
+						w.x1 += dx;
+						w.y1 += dy;
+						w.x2 += dx;
+						w.y2 += dy;
+					});
+					updateLight();
+					if (sendRPC) {
+						rpc.shiftLayer(layer.path, dx, dy);
+					}
+					return () => {
+						(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+							t.x -= dx;
+							t.y -= dy;
+							t.updateNode();
+						});
+						layer.walls.forEach(w => {
+							w.x1 -= dx;
+							w.y1 -= dy;
+							w.x2 -= dx;
+							w.y2 -= dy;
+						});
+						updateLight();
+						rpc.shiftLayer(layer.path, -dx, -dy);
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitLightShift().then(pos => {
 				const {x, y} = pos,
