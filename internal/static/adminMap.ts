@@ -1289,11 +1289,25 @@ export default function(base: HTMLElement) {
 				undo.add(doIt(false));
 			}),
 			rpc.waitTokenLightChange().then(lc => {
-				const {token} = globals.tokens[lc.id];
+				const {id} = lc,
+				      {token} = globals.tokens[id];
 				if (token instanceof SVGToken) {
-					token.lightColour = lc.lightColour;
-					token.lightIntensity = lc.lightIntensity;
-					updateLight();
+					const {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token,
+					      {lightColour: newLightColour, lightIntensity: newLightIntensity} = lc,
+					      doIt = (sendRPC = true) => {
+						token.lightColour = newLightColour;
+						token.lightIntensity = newLightIntensity;
+						updateLight();
+						if (sendRPC) {
+							rpc.setTokenLight(id, newLightColour, newLightIntensity);
+						}
+						return () => {
+							rpc.setTokenLight(id, token.lightColour = oldLightColour, token.lightIntensity = oldLightIntensity);
+							updateLight();
+							return doIt;
+						};
+					      };
+					undo.add(doIt(false));
 				}
 			}),
 			rpc.waitMapDataSet().then(kd => {
