@@ -1249,7 +1249,7 @@ export default function(base: HTMLElement) {
 					}
 					return () => {
 						layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-							updateLight();
+						updateLight();
 						rpc.removeWall(wall.id);
 						wall.id = 0;
 						return doIt;
@@ -1258,8 +1258,25 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitWallRemoved().then(wp => {
 				const {layer, wall} = globals.walls[wp];
-				layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-				updateLight();
+				if (!layer || !wall) {
+					handleError("invalid wall to remove");
+					return;
+				}
+				const doIt = (sendRPC = true) => {
+					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+					updateLight();
+					if (sendRPC) {
+						rpc.removeWall(wall.id);
+					}
+					wall.id = 0;
+					return () => {
+						layer.walls.push(wall);
+						updateLight();
+						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => wall.id = id);
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitTokenLightChange().then(lc => {
 				const {token} = globals.tokens[lc.id];
