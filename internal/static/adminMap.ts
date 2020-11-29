@@ -1206,24 +1206,11 @@ export default function(base: HTMLElement) {
 					});
 					updateLight();
 					if (sendRPC) {
-						rpc.shiftLayer(layer.path, dx, dy);
+						rpc.shiftLayer(path, dx, dy);
 					}
-					return () => {
-						(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-							t.x -= dx;
-							t.y -= dy;
-							t.updateNode();
-						});
-						layer.walls.forEach(w => {
-							w.x1 -= dx;
-							w.y1 -= dy;
-							w.x2 -= dx;
-							w.y2 -= dy;
-						});
-						updateLight();
-						rpc.shiftLayer(layer.path, -dx, -dy);
-						return doIt;
-					};
+					dx = -dx;
+					dy = -dy;
+					return doIt;
 				      };
 				undo.add(doIt(false));
 			}),
