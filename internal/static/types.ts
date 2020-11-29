@@ -121,7 +121,7 @@ export type RPC = RPCWaits & {
 	shiftLayer:       (path: string, dx: Int, dy: Int)                                       => Promise<void>;
 	shiftLight:       (x: Uint, y: Uint)                                                     => Promise<void>;
 	setTokenLight:    (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
-	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<void>;
+	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 
 	characterCreate:     (name: string)                                                        => Promise<IDName>;
