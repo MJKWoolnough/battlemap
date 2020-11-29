@@ -1235,12 +1235,26 @@ export default function(base: HTMLElement) {
 			rpc.waitWallAdded().then(w => {
 				const layer = getLayer(w.path);
 				if (!layer || !isSVGLayer(layer)) {
-					// error
+					handleError("invalid layer for wall add")
 					return;
 				}
-				delete w.path;
-				layer.walls.push(normaliseWall(w));
-				updateLight();
+				const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
+				      colour = {r, g, b, a},
+				      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
+				      doIt = (sendRPC = true) => {
+					layer.walls.push(wall);
+					updateLight();
+					if (sendRPC) {
+						rpc.addWall(path, x1, y1, x2, y2, colour).then(id => wall.id = id);
+					}
+					return () => {
+						layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+							updateLight();
+						rpc.removeWall(wall.id);
+						wall.id = 0;
+						return doIt;
+					};
+				      };
 			}),
 			rpc.waitWallRemoved().then(wp => {
 				const {layer, wall} = globals.walls[wp];
