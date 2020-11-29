@@ -1245,17 +1245,22 @@ export default function(base: HTMLElement) {
 					layer.walls.push(wall);
 					updateLight();
 					if (sendRPC) {
-						rpc.addWall(path, x1, y1, x2, y2, colour).then(id => wall.id = id);
+						rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
+							wall.id = id;
+							globals.walls[id] = {layer, wall};
+						});
 					}
 					return () => {
 						layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 						updateLight();
 						rpc.removeWall(wall.id);
+						delete globals.walls[wall.id];
 						wall.id = 0;
 						return doIt;
 					};
 				      };
 				undo.add(doIt(false));
+				globals.walls[w.id] = {layer, wall};
 			}),
 			rpc.waitWallRemoved().then(wp => {
 				const {layer, wall} = globals.walls[wp];
@@ -1269,11 +1274,15 @@ export default function(base: HTMLElement) {
 					if (sendRPC) {
 						rpc.removeWall(wall.id);
 					}
+					delete globals.walls[wall.id];
 					wall.id = 0;
 					return () => {
 						layer.walls.push(wall);
 						updateLight();
-						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => wall.id = id);
+						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+							wall.id = id;
+							globals.walls[id] = {layer, wall};
+						});
 						return doIt;
 					};
 				      };
