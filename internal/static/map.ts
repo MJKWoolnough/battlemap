@@ -381,7 +381,10 @@ setMapDetails = (details: MapDetails) => {
 	globals.definitions.setGrid(details);
 	updateLight();
 },
-setLightColour = (c: Colour) => (((getLayer("/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c)), updateLight(), c),
+setLightColour = (c: Colour) => {
+	((getLayer("/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c));
+	updateLight();
+},
 globals = {
 	"definitions": null,
 	"root": null,
