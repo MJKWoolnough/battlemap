@@ -1332,7 +1332,21 @@ export default function(base: HTMLElement) {
 				undo.add(doIt(false));
 			}),
 			rpc.waitMapDataRemove().then(key => {
-				delete mapData.data[key];
+				const oldData = mapData.data[key];
+				if (!oldData) {
+					return;
+				}
+				const doIt = (sendRPC = true) => {
+					delete mapData.data[key];
+					if (sendRPC) {
+						rpc.removeMapKeyData(key);
+					}
+					return () => {
+						rpc.setMapKeyData(key, mapData.data[key] = oldData);
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitLayerShift().then(ls => {
 				const layer = getLayer(ls.path);
