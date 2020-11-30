@@ -1291,24 +1291,26 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenLightChange().then(lc => {
 				const {id} = lc,
 				      {token} = globals.tokens[id];
-				if (token instanceof SVGToken) {
-					const {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token,
-					      {lightColour: newLightColour, lightIntensity: newLightIntensity} = lc,
-					      doIt = (sendRPC = true) => {
-						token.lightColour = newLightColour;
-						token.lightIntensity = newLightIntensity;
-						updateLight();
-						if (sendRPC) {
-							rpc.setTokenLight(id, newLightColour, newLightIntensity);
-						}
-						return () => {
-							rpc.setTokenLight(id, token.lightColour = oldLightColour, token.lightIntensity = oldLightIntensity);
-							updateLight();
-							return doIt;
-						};
-					      };
-					undo.add(doIt(false));
+				if (!token) {
+					handleError("invalid token for light change");
+					return;
 				}
+				const {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token,
+				      {lightColour: newLightColour, lightIntensity: newLightIntensity} = lc,
+				      doIt = (sendRPC = true) => {
+					token.lightColour = newLightColour;
+					token.lightIntensity = newLightIntensity;
+					updateLight();
+					if (sendRPC) {
+						rpc.setTokenLight(id, newLightColour, newLightIntensity);
+					}
+					return () => {
+						rpc.setTokenLight(id, token.lightColour = oldLightColour, token.lightIntensity = oldLightIntensity);
+						updateLight();
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitMapDataSet().then(kd => {
 				mapData.data[kd.key] = kd.data;
