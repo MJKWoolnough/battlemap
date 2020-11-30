@@ -1318,9 +1318,6 @@ export default function(base: HTMLElement) {
 			rpc.waitMapDataRemove().then(key => {
 				delete mapData.data[key];
 			}),
-			rpc.waitTokenSet().then(ts => {
-				undo.clear();
-			}),
 			rpc.waitLayerShift().then(ls => {
 				const layer = getLayer(ls.path);
 				if (!layer || !isSVGLayer(layer)) {
