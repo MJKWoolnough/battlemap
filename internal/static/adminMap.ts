@@ -824,16 +824,8 @@ export default function(base: HTMLElement) {
 			},
 			"getMapDetails": () => mapData,
 			"setMapDetails": (details: MapDetails) => {
-				const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
-				      undoIt = () => {
-					rpc.setMapDetails(setMapDetails(oldDetails))
-					return () => {
-						rpc.setMapDetails(setMapDetails(details))
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				return rpc.setMapDetails(setMapDetails(details))
+				doMapChange(details);
+				return rpc.setMapDetails(details)
 			},
 			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => {
@@ -849,19 +841,23 @@ export default function(base: HTMLElement) {
 				return rpc.setLightColour(setLightColour(c))
 			},
 		});
-		canceller = Subscription.canceller(
-			rpc.waitMapChange().then(details => {
-				const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
-				      undoIt = () => {
-					rpc.setMapDetails(setMapDetails(oldDetails))
-					return () => {
-						rpc.setMapDetails(setMapDetails(details))
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
+		const doMapChange = (details: MapDetails) => {
+			const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
+			      doIt = (sendRPC = true) => {
 				setMapDetails(details);
-			}),
+				if (sendRPC) {
+					rpc.setMapDetails(details);
+				}
+				return () => {
+					setMapDetails(oldDetails)
+					rpc.setMapDetails(oldDetails);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(false));
+		};
+		canceller = Subscription.canceller(
+			rpc.waitMapChange().then(doMapChange),
 			rpc.waitMapLightChange().then(c => {
 				const oldColour = mapData.lightColour,
 				      undoIt = () => {
