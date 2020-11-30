@@ -1008,7 +1008,7 @@ export default function(base: HTMLElement) {
 					// error
 					return;
 				}
-				delete tk["path"];
+				delete (tk as Record<string, any>)["path"];
 				const token = isTokenImage(tk.token) ? SVGToken.from(tk.token) : isTokenDrawing(tk.token) ? SVGDrawing.from(tk.token) : SVGShape.from(tk.token),
 				      undoIt = () => {
 					if (token === globals.selected.token) {

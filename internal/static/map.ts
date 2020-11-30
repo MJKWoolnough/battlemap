@@ -510,7 +510,7 @@ export default function(base: HTMLElement) {
 					// error
 					return;
 				}
-				delete tk["path"];
+				delete (tk as Record<string, any>)["path"];
 				if (isTokenImage(tk.token)) {
 					layer.tokens.push(SVGToken.from(tk.token));
 					const cID = tk.token.tokenData["store-character-id"];
@@ -608,7 +608,7 @@ export default function(base: HTMLElement) {
 					// error
 					return;
 				}
-				delete w.path;
+				delete (w as Record<string, any>)["path"];
 				layer.walls.push(normaliseWall(w));
 				updateLight();
 			}),
