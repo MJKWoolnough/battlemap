@@ -1312,8 +1312,24 @@ export default function(base: HTMLElement) {
 				      };
 				undo.add(doIt(false));
 			}),
-			rpc.waitMapDataSet().then(kd => {
-				mapData.data[kd.key] = kd.data;
+			rpc.waitMapDataSet().then(({key, data}) => {
+				const oldData = mapData.data[key],
+				      doIt = (sendRPC = true) => {
+					mapData.data[key] = data;
+					if (sendRPC) {
+						rpc.setMapKeyData(key, data);
+					}
+					return () => {
+						if (oldData) {
+							rpc.setMapKeyData(key, mapData.data[key] = oldData);
+						} else {
+							delete mapData.data[key];
+							rpc.removeMapKeyData(key);
+						}
+						return doIt;
+					};
+				      };
+				undo.add(doIt(false));
 			}),
 			rpc.waitMapDataRemove().then(key => {
 				delete mapData.data[key];
