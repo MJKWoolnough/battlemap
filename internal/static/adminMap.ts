@@ -829,16 +829,8 @@ export default function(base: HTMLElement) {
 			},
 			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => {
-				const oldColour = mapData.lightColour,
-				      undoIt = () => {
-					rpc.setLightColour(setLightColour(oldColour))
-					return () => {
-						rpc.setLightColour(setLightColour(c))
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				return rpc.setLightColour(setLightColour(c))
+				doSetLightColour(c);
+				return rpc.setLightColour(c)
 			},
 		});
 		const doMapChange = (details: MapDetails) => {
@@ -855,21 +847,24 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(false));
-		};
+		      }, doSetLightColour = (c: Colour) => {
+			const oldColour = mapData.lightColour,
+			      doIt = (sendRPC = true) => {
+				setLightColour(c);
+				if (sendRPC) {
+					rpc.setLightColour(c);
+				}
+				return () => {
+					setLightColour(oldColour);
+					rpc.setLightColour(oldColour);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(false));
+		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
-			rpc.waitMapLightChange().then(c => {
-				const oldColour = mapData.lightColour,
-				      undoIt = () => {
-					rpc.setLightColour(setLightColour(oldColour))
-					return () => {
-						rpc.setLightColour(setLightColour(c))
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				setLightColour(c);
-			}),
+			rpc.waitMapLightChange().then(doSetLightColour),
 			rpc.waitLayerShow().then(path => {
 				setLayerVisibility(path, true);
 				waitLayerShow[0](path);
