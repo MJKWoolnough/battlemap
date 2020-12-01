@@ -740,31 +740,8 @@ export default function(base: HTMLElement) {
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, position: Uint, oldPos: Uint) => {
-				const undoIt = () => {
-					unselectToken();
-					moveLayer(to, from, oldPos);
-					rpc.moveLayer(to, from, oldPos);
-					waitLayerPositionChange[0]({
-						"from": to,
-						"to": from,
-						"position": oldPos
-					});
-					return () => {
-						unselectToken();
-						moveLayer(from, to, position);
-						rpc.moveLayer(from, to, position);
-						waitLayerPositionChange[0]({
-							to,
-							from,
-							position
-						});
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				unselectToken();
-				moveLayer(from, to, position);
+			"moveLayer": (from: string, to: string, position: Uint) => {
+				doLayerMove(from, to, position);
 				return rpc.moveLayer(from, to, position);
 			},
 			"getMapDetails": () => mapData,
@@ -862,6 +839,30 @@ export default function(base: HTMLElement) {
 			      };
 			undo.add(doIt(false));
 			return path;
+		      },
+		      doLayerMove = (from: string, to: string, newPos: Uint) => {
+			const [parent, layer] = getParentLayer(from);
+			if (!parent || !layer) {
+				handleError("Invalid layer move");
+				return;
+			}
+			let oldPos = parent.children.indexOf(layer);
+			const doIt = (sendRPC = true) => {
+				unselectToken();
+				moveLayer(from, to, newPos);
+				if (sendRPC) {
+					rpc.moveLayer(from, to, newPos);
+					waitLayerPositionChange[0]({
+						from,
+						to,
+						"position": newPos
+					});
+				}
+				[to, from] = [from, to];
+				[oldPos, newPos] = [newPos, oldPos];
+				return doIt;
+			      };
+			undo.add(doIt(false));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -870,38 +871,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false))),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name)}])),
 			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path))),
-			rpc.waitLayerMove().then(({from, to, position}) => {
-				const [parent, layer] = getParentLayer(from);
-				if (!parent || !layer) {
-					handleError("Invalid layer move");
-					return;
-				}
-				const oldPos = parent.children.indexOf(layer),
-				      undoIt = () => {
-					unselectToken();
-					moveLayer(to, from, oldPos);
-					rpc.moveLayer(to, from, oldPos);
-					waitLayerPositionChange[0]({
-						"from": to,
-						"to": from,
-						"position": oldPos
-					});
-					return () => {
-						unselectToken();
-						moveLayer(from, to, position);
-						rpc.moveLayer(from, to, position);
-						waitLayerPositionChange[0]({
-							to,
-							from,
-							position
-						});
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				unselectToken();
-				moveLayer(from, to, position);
-			}),
+			rpc.waitLayerMove().then(({from, to, position}) => doLayerMove(from, to, position)),
 			rpc.waitLayerRename().then(lr => {
 				const [parentPath, oldName] = splitAfterLastSlash(lr.path),
 				      newPath = parentPath + "/" + name,
