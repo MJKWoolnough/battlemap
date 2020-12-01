@@ -707,23 +707,7 @@ export default function(base: HTMLElement) {
 			"createFolder": (path: string) => rpc.addLayerFolder(path).then(doLayerFolderAdd),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => {
-				const [parentPath, oldName] = splitAfterLastSlash(path),
-				      newPath = parentPath + "/" + name,
-				      undoIt = () => {
-					rpc.renameLayer(newPath, oldName);
-					renameLayer(newPath, oldName);
-					waitLayerRename[0]({"path": newPath, "name": oldName});
-					return () => {
-						rpc.renameLayer(path, name);
-						renameLayer(path, name);
-						waitLayerRename[0]({path, name});
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				return renameLayer(path, name);
-			}),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name), name)),
 			"remove": path => {
 				undo.clear();
 				return removeS(path);
@@ -863,6 +847,21 @@ export default function(base: HTMLElement) {
 				return doIt;
 			      };
 			undo.add(doIt(false));
+		      },
+		      doLayerRename = (oldPath: string, newName: string) => {
+			let [parentPath, oldName] = splitAfterLastSlash(oldPath),
+			    newPath = parentPath + "/" + oldName;
+			const doIt = (sendRPC = true) => {
+				renameLayer(oldPath, newName);
+				if (sendRPC) {
+					rpc.renameLayer(oldPath, newName);
+					waitLayerRename[0]({"path": oldPath, "name": newName});
+				}
+				[oldPath, newPath] = [newPath, oldPath];
+				[oldName, newName] = [newName, oldName];
+				return doIt;
+			      };
+			undo.add(doIt(false));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -873,22 +872,8 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path))),
 			rpc.waitLayerMove().then(({from, to, position}) => doLayerMove(from, to, position)),
 			rpc.waitLayerRename().then(lr => {
-				const [parentPath, oldName] = splitAfterLastSlash(lr.path),
-				      newPath = parentPath + "/" + name,
-				      doIt = (sendRPC = true) => {
-					waitLayerRename[0](lr);
-					renameLayer(lr.path, lr.name);
-					if (sendRPC) {
-						rpc.renameLayer(lr.path, lr.name);
-					}
-					return () => {
-						waitLayerRename[0]({"path": lr.path, "name": oldName});
-						renameLayer(newPath, oldName);
-						rpc.renameLayer(newPath, oldName);
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
+				doLayerRename(lr["path"], lr["name"]);
+				waitLayerRename[0](lr);
 			}),
 			rpc.waitLayerRemove().then(path => {
 				checkSelectedLayer(path);
