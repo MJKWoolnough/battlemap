@@ -704,20 +704,7 @@ export default function(base: HTMLElement) {
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": () => waitLayerRename[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path).then(newPath => {
-				const undoIt = () => {
-					removeS(newPath);
-					waitFolderRemoved[0](newPath);
-					return () => {
-						addLayerFolder(newPath);
-						waitFolderAdded[0](newPath);
-						rpc.addLayerFolder(path);
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				return addLayerFolder(newPath);
-			}),
+			"createFolder": (path: string) => rpc.addLayerFolder(path).then(doLayerFolderAdd),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
 			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => {
@@ -858,6 +845,23 @@ export default function(base: HTMLElement) {
 			      };
 			undo.add(doIt(false));
 			return name;
+		      },
+		      doLayerFolderAdd = (path: string) => {
+			const doIt = (sendRPC = true) => {
+				addLayerFolder(path);
+				if (sendRPC) {
+					waitFolderAdded[0](path);
+					rpc.addLayerFolder(path);
+				}
+				return () => {
+					checkSelectedLayer(path);
+					removeLayer(path);
+					rpc.removeLayer(path);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(false));
+			return path;
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -865,21 +869,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true))),
 			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false))),
 			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name)}])),
-			rpc.waitLayerFolderAdd().then(path => {
-				const doIt = (sendRPC = true) => {
-					addLayerFolder(path);
-					waitFolderAdded[0](path);
-					if (sendRPC) {
-						rpc.addLayerFolder(path);
-					}
-					return () => {
-						removeS(path);
-						waitFolderRemoved[0](path);
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path))),
 			rpc.waitLayerMove().then(({from, to, position}) => {
 				const [parent, layer] = getParentLayer(from);
 				if (!parent || !layer) {
