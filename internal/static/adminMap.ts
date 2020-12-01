@@ -761,35 +761,7 @@ export default function(base: HTMLElement) {
 				undo.add(undoIt);
 				return addLayer(name);
 			}),
-			"setVisibility": (path: string, visibility: boolean) => {
-				const undoIt = () => {
-					checkSelectedLayer(path);
-					setLayerVisibility(path, !visibility);
-					if (visibility) {
-						rpc.hideLayer(path);
-						waitLayerHide[0](path);
-					} else {
-						rpc.showLayer(path);
-						waitLayerShow[0](path);
-					}
-					return () => {
-						checkSelectedLayer(path);
-						setLayerVisibility(path, visibility);
-						if (!visibility) {
-							rpc.hideLayer(path);
-							waitLayerHide[0](path);
-						} else {
-							rpc.showLayer(path);
-							waitLayerShow[0](path);
-						}
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-				setLayerVisibility(path, visibility);
-				checkSelectedLayer(path);
-				return (visibility ? rpc.showLayer : rpc.hideLayer)(path);
-			},
+			"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility)),
 			"setLayer": (path: string) => {
 				globals.selected.layer = getLayer(path) as SVGLayer;
 				unselectToken();
@@ -847,7 +819,8 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(false));
-		      }, doSetLightColour = (c: Colour) => {
+		      },
+		      doSetLightColour = (c: Colour) => {
 			const oldColour = mapData.lightColour,
 			      doIt = (sendRPC = true) => {
 				setLightColour(c);
@@ -861,45 +834,31 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(false));
+		      },
+		      doShowHideLayer = (path: string, visibility: boolean) => {
+			const doIt = (sendRPC = true) => {
+				checkSelectedLayer(path);
+				setLayerVisibility(path, visibility);
+				if (sendRPC) {
+					if (visibility) {
+						rpc.showLayer(path);
+						waitLayerShow[0](path);
+					} else {
+						rpc.hideLayer(path);
+						waitLayerHide[0](path);
+					}
+				}
+				visibility = !visibility;
+				return doIt;
+			      };
+			undo.add(doIt(false));
+			return path;
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
 			rpc.waitMapLightChange().then(doSetLightColour),
-			rpc.waitLayerShow().then(path => {
-				setLayerVisibility(path, true);
-				waitLayerShow[0](path);
-				const undoIt = () => {
-					setLayerVisibility(path, false);
-					waitLayerHide[0](path);
-					checkSelectedLayer(path);
-					rpc.hideLayer(path);
-					return () => {
-						setLayerVisibility(path, true);
-						waitLayerShow[0](path);
-						rpc.showLayer(path);
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-			}),
-			rpc.waitLayerHide().then(path => {
-				setLayerVisibility(path, false);
-				waitLayerHide[0](path);
-				checkSelectedLayer(path);
-				const undoIt = () => {
-					setLayerVisibility(path, true);
-					waitLayerShow[0](path);
-					rpc.showLayer(path);
-					return () => {
-						setLayerVisibility(path, false);
-						waitLayerHide[0](path);
-						checkSelectedLayer(path);
-						rpc.hideLayer(path);
-						return undoIt;
-					};
-				      };
-				undo.add(undoIt);
-			}),
+			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true))),
+			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false))),
 			rpc.waitLayerAdd().then(name => {
 				addLayer(name);
 				waitAdded[0]([{id: 1, name}]);
