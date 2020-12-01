@@ -32,16 +32,16 @@ export type LayerRPC = FolderRPC & {
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
 
-	newLayer:       (path: string)                                      => Promise<string>;
-	setVisibility:  (path: string, visible: boolean)                    => Promise<void>;
-	setLayer:       (path: string)                                      => void;
-	setLayerMask:   (path: string)                                      => void;
-	moveLayer:      (from: string, to: string, pos: Uint, oldPos: Uint) => Promise<void>;
-	renameLayer:    (path: string, name: string)                        => Promise<string>;
-	getMapDetails:  ()                                                  => MapDetails;
-	setMapDetails:  (details: MapDetails)                               => Promise<void>;
-	getLightColour: ()                                                  => Colour;
-	setLightColour: (c: Colour)                                         => Promise<void>;
+	newLayer:       (path: string)                        => Promise<string>;
+	setVisibility:  (path: string, visible: boolean)      => Promise<void>;
+	setLayer:       (path: string)                        => void;
+	setLayerMask:   (path: string)                        => void;
+	moveLayer:      (from: string, to: string, pos: Uint) => Promise<void>;
+	renameLayer:    (path: string, name: string)          => Promise<string>;
+	getMapDetails:  ()                                    => MapDetails;
+	setMapDetails:  (details: MapDetails)                 => Promise<void>;
+	getLightColour: ()                                    => Colour;
+	setLightColour: (c: Colour)                           => Promise<void>;
 }
 
 type RPCWaits = {

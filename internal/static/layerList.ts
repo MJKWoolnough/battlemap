@@ -87,7 +87,7 @@ const dragFn = (e: MouseEvent) => {
 		}
 		newPath = (l.parent as FolderLayer).getPath();
 	}
-	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos, currPos), requestShell());
+	loadingWindow((l.parent!.root.rpcFuncs as LayerRPC).moveLayer(oldPath, newPath + "/", pos), requestShell());
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging || e.button !== 0) {
