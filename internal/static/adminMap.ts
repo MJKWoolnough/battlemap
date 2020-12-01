@@ -746,21 +746,7 @@ export default function(base: HTMLElement) {
 				return removeS(path);
 			},
 			"link": invalidRPC,
-			"newLayer": (name: string) => rpc.addLayer(name).then(name => {
-				const path = "/" + name,
-				      undoIt = () => {
-					removeS(path);
-					waitRemoved[0](path);
-					return () => {
-						addLayer(name);
-						waitAdded[0]([{id: 1, name}]);
-						rpc.addLayer(name);
-						return undoIt;
-					};
-				};
-				undo.add(undoIt);
-				return addLayer(name);
-			}),
+			"newLayer": (name: string) => rpc.addLayer(name).then(doLayerAdd),
 			"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility)),
 			"setLayer": (path: string) => {
 				globals.selected.layer = getLayer(path) as SVGLayer;
@@ -853,28 +839,32 @@ export default function(base: HTMLElement) {
 			      };
 			undo.add(doIt(false));
 			return path;
+		      },
+		      doLayerAdd = (name: string) => {
+			const path = "/" + name,
+			      doIt = (sendRPC = true) => {
+				addLayer(name);
+				if (sendRPC) {
+					waitAdded[0]([{id: 1, name}]);
+					rpc.addLayer(name);
+				}
+				return () => {
+					checkSelectedLayer(path);
+					removeLayer(path);
+					waitRemoved[0](path);
+					rpc.removeLayer(path);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(false));
+			return name;
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
 			rpc.waitMapLightChange().then(doSetLightColour),
 			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true))),
 			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false))),
-			rpc.waitLayerAdd().then(name => {
-				addLayer(name);
-				waitAdded[0]([{id: 1, name}]);
-				const path = "/" + name,
-				      undoIt = () => {
-					removeLayer(path);
-					checkSelectedLayer(path);
-					waitRemoved[0](path);
-					return () => {
-						addLayer(name);
-						waitAdded[0]([{id: 1, name}]);
-						return undoIt;
-					};
-				};
-				undo.add(undoIt);
-			}),
+			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name)}])),
 			rpc.waitLayerFolderAdd().then(path => {
 				const doIt = (sendRPC = true) => {
 					addLayerFolder(path);
