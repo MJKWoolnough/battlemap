@@ -160,43 +160,7 @@ export default function(base: HTMLElement) {
 			      newWidth = Math.round(token.width),
 			      newHeight = Math.round(token.height);
 			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
-				const lp = globals.selected.layer.path,
-				      doIt = () => {
-					token.x = newX;
-					token.y = newY;
-					token.rotation = newRotation;
-					token.width = newWidth;
-					token.height = newHeight;
-					token.updateNode();
-					if (globals.selected.token === token) {
-						tokenMousePos.x = newX;
-						tokenMousePos.y = newY;
-						tokenMousePos.rotation = newRotation;
-						tokenMousePos.width = newWidth;
-						tokenMousePos.height = newHeight;
-						createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
-					}
-					rpc.setToken({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
-					return () => {
-						token.x = x;
-						token.y = y;
-						token.rotation = rotation;
-						token.width = width;
-						token.height = height;
-						token.updateNode();
-						if (globals.selected.token === token) {
-							tokenMousePos.x = x;
-							tokenMousePos.y = y;
-							tokenMousePos.rotation = rotation;
-							tokenMousePos.width = width;
-							tokenMousePos.height = height;
-							createSVG(outline, {"--outline-width": newWidth + "px", "--outline-height": newHeight + "px", "transform": token.transformString(false)});
-						}
-						rpc.setToken({"id": token.id, x, y, width, height, rotation});
-						return doIt;
-					};
-				      };
-				undo.add(doIt());
+				doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation}, true);
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -355,32 +319,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 			}
-			const oldX = tokenMousePos.x,
-			      oldY = tokenMousePos.y,
-			      doIt = () => {
-				token.x = newX;
-				token.y = newY;
-				token.updateNode();
-				if (globals.selected.token === token) {
-					tokenMousePos.x = newX;
-					tokenMousePos.y = newY;
-					outline.setAttribute("transform", token.transformString(false));
-				}
-				rpc.setToken({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
-				return () => {
-					token.x = oldX;
-					token.y = oldY;
-					token.updateNode();
-					if (globals.selected.token === token) {
-						tokenMousePos.x = oldX;
-						tokenMousePos.y = oldY;
-						outline.setAttribute("transform", token.transformString(false));
-					}
-					rpc.setToken({"id": token.id, "x": oldX, "y": oldY, "width": token.width, "height": token.height, "rotation": token.rotation});
-					return doIt;
-				};
-			      };
-			undo.add(doIt());
+			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation}, true);
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			const {token} = globals.selected;
 			if (!token) {
@@ -426,49 +365,25 @@ export default function(base: HTMLElement) {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						const doIt = () => {
-							currToken.updateNode();
-							rpc.setToken({"id": currToken.id, "flip": currToken.flip = !currToken.flip});
-							return doIt;
-						      };
-						undo.add(doIt());
+						doTokenSet({"id": currToken.id, "flip": currToken.flip}, true);
 						outline.focus();
 					}),
 					item(lang["CONTEXT_FLOP"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						const doIt = () => {
-							currToken.updateNode();
-							rpc.setToken({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
-							return doIt;
-						      };
-						undo.add(doIt());
+						doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop}, true);
 						outline.focus();
 					}),
 					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						const isPattern = currToken.isPattern,
-						      doIt = () => {
-							currToken.setPattern(!isPattern);
-							if (isPattern) {
-								rpc.setToken({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-							} else {
-								rpc.setToken({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-							}
-							return () => {
-								currToken.setPattern(isPattern);
-								if (isPattern) {
-									rpc.setToken({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-								} else {
-									rpc.setToken({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-								}
-								return doIt;
-							};
-						      };
-						undo.add(doIt());
+						if (currToken.isPattern) {
+							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height}, true);
+						} else {
+							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0}, true);
+						}
 					}),
 				] : [],
 				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
@@ -482,47 +397,11 @@ export default function(base: HTMLElement) {
 						      newHeight = Math.max(Math.round(height / sq) * sq, sq),
 						      newRotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
-							const doIt = () => {
-								createSVG(currToken.node, {"width": currToken.width = newWidth, "height": currToken.height = newHeight});
-								currToken.x = newX;
-								currToken.y = newY;
-								currToken.rotation = newRotation;
-								currToken.updateNode();
-								if (globals.selected.token === currToken) {
-									tokenMousePos.x = newX;
-									tokenMousePos.y = newY;
-									tokenMousePos.rotation = newRotation;
-									createSVG(outline, {"--outline-width": (tokenMousePos.width = newWidth) + "px", "--outline-height": (tokenMousePos.height = newHeight) + "px", "transform": currToken.transformString(false)});
-								}
-								rpc.setToken({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": currToken.snap = !snap});
-								return () => {
-									createSVG(currToken.node, {"width": currToken.width = width, "height": currToken.height = height});
-									currToken.x = x;
-									currToken.y = y;
-									currToken.rotation = rotation;
-									currToken.updateNode();
-									if (globals.selected.token === currToken) {
-										tokenMousePos.x = x;
-										tokenMousePos.y = y;
-										tokenMousePos.rotation = rotation;
-										createSVG(outline, {"--outline-width": (tokenMousePos.width = width) + "px", "--outline-height": (tokenMousePos.height = height) + "px", "transform": currToken.transformString(false)});
-									}
-									rpc.setToken({"id": currToken.id, x, y, width, height, rotation, "snap": currToken.snap = snap});
-									return doIt;
-								};
-							};
-							undo.add(doIt());
-							return;
+							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap}, true);
 						}
+					} else {
+						doTokenSet({"id": currToken.id, "snap": !snap}, true);
 					}
-					const doIt = () => {
-						rpc.setToken({"id": currToken.id, "snap": currToken.snap = !snap});
-						return () => {
-							rpc.setToken({"id": currToken.id, "snap": currToken.snap = snap});
-							return doIt;
-						};
-					      };
-					undo.add(doIt());
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
 					let c = currToken.lightColour;
@@ -853,6 +732,76 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doTokenSet = (ts: TokenSet, sendRPC = false) => {
+				const {token} = globals.tokens[ts.id];
+				if (!token) {
+					handleError("Invalid token for token set");
+					return;
+				}
+				let original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
+				for (const k in ts) {
+					switch (k) {
+					case "id":
+						break;
+					case "tokenData":
+						if (token instanceof SVGToken) {
+							const tokenData = ts[k];
+							for (const k in tokenData) {
+								if (token["tokenData"][k]) {
+									original["tokenData"]![k] = token["tokenData"][k];
+								} else {
+									original["removeTokenData"]!.push(k);
+								}
+							}
+						}
+						break;
+					case "removeTokenData":
+						if (token instanceof SVGToken) {
+							const removeTokenData = ts[k]!;
+							for (const k of removeTokenData) {
+								original["tokenData"]![k] = token["tokenData"][k];
+							}
+						}
+						break;
+					default:
+						(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
+					}
+				}
+				const updatePattern = isTokenImage(token) && (!!ts["patternWidth"] || !!ts["patternHeight"]),
+			              doIt = (sendRPC = true) => {
+					for (const k in ts) {
+						switch (k) {
+						case "id":
+							break;
+						case "tokenData":
+							if (token instanceof SVGToken) {
+								const tokenData = ts[k];
+								for (const k in tokenData) {
+									token["tokenData"][k] = tokenData[k];
+								}
+							}
+							break;
+						case "removeTokenData":
+							if (token instanceof SVGToken) {
+								const removeTokenData = ts[k]!;
+								for (const k of removeTokenData) {
+									delete token["tokenData"][k];
+								}
+							}
+							break;
+						default:
+							(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+						}
+					}
+					token.updateNode()
+					if (sendRPC) {
+						rpc.setToken(ts);
+					}
+					[original, ts] = [ts, original];
+					return doIt;
+				      };
+				undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -882,101 +831,7 @@ export default function(base: HTMLElement) {
 			}),
 			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token)(token.id)),
 			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos)),
-			rpc.waitTokenSet().then(ts => {
-				const {token} = globals.tokens[ts.id];
-				if (!token) {
-					return;
-				}
-				const original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []},
-				      doIt = (sendRPC = true) => {
-					for (const k in ts) {
-						switch (k) {
-						case "id":
-							break;
-						case "tokenData":
-							if (token instanceof SVGToken) {
-								const tokenData = ts[k];
-								for (const k in tokenData) {
-									token["tokenData"][k] = tokenData[k];
-								}
-							}
-							break;
-						case "removeTokenData":
-							if (token instanceof SVGToken) {
-								const removeTokenData = ts[k]!;
-								for (const k of removeTokenData) {
-									delete token["tokenData"][k];
-								}
-							}
-							break;
-						default:
-							(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
-						}
-					}
-					token.updateNode()
-					if (sendRPC) {
-						rpc.setToken(ts);
-					}
-					return () => {
-						for (const k in original) {
-							switch (k) {
-							case "id":
-								break;
-							case "tokenData":
-								if (token instanceof SVGToken) {
-									const tokenData = original[k];
-									for (const k in tokenData) {
-										token["tokenData"][k] = tokenData[k];
-									}
-								}
-								break;
-							case "removeTokenData":
-								if (token instanceof SVGToken) {
-									const removeTokenData = original[k]!;
-									for (const k of removeTokenData) {
-										delete token["tokenData"][k];
-									}
-								}
-								break;
-							default:
-								(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
-							}
-						}
-						token.updateNode()
-						rpc.setToken(original);
-						return doIt;
-					};
-				      };
-				for (const k in ts) {
-					switch (k) {
-					case "id":
-						break;
-					case "tokenData":
-						if (token instanceof SVGToken) {
-							const tokenData = ts[k];
-							for (const k in tokenData) {
-								if (token["tokenData"][k]) {
-									original["tokenData"]![k] = token["tokenData"][k];
-								} else {
-									original["removeTokenData"]!.push(k);
-								}
-							}
-						}
-						break;
-					case "removeTokenData":
-						if (token instanceof SVGToken) {
-							const removeTokenData = ts[k]!;
-							for (const k of removeTokenData) {
-								original["tokenData"]![k] = token["tokenData"][k];
-							}
-						}
-						break;
-					default:
-						(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
-					}
-				}
-				undo.add(doIt(false));
-			}),
+			rpc.waitTokenSet().then(doTokenSet),
 			rpc.waitTokenRemove().then(tk => {
 				const {layer, token} = globals.tokens[tk];
 				if (!token) {
