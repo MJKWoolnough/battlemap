@@ -138,23 +138,6 @@ export class SVGToken extends SVGTransform {
 	at(x: Int, y: Int, node = this.node) {
 		return super.at(x, y, node);
 	}
-	setPattern(isPattern: boolean) {
-		if (isPattern) {
-			if (this.patternWidth > 0) {
-				return;
-			}
-			const node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
-			this.node.replaceWith(node);
-			this.node = node;
-			this.patternWidth = this.width;
-			this.patternHeight = this.height;
-		} else if (this.patternWidth > 0) {
-			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"class": "mapToken", "href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
-			this.node.replaceWith(node);
-			this.node = node;
-		}
-	}
 	get isPattern() {
 		return this.patternWidth > 0;
 	}
@@ -164,6 +147,16 @@ export class SVGToken extends SVGTransform {
 		}
 	}
 	updateNode() {
+		if (this.node instanceof SVGRectElement && !this.isPattern) {
+			const node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
+			this.node.replaceWith(node);
+			this.node = node;
+		} else if (this.node instanceof SVGImageElement && this.isPattern) {
+			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
+			const node = image({"class": "mapToken", "href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
+			this.node.replaceWith(node);
+			this.node = node;
+		}
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
 	getData(key: string) {
