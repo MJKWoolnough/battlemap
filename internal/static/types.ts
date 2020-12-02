@@ -283,7 +283,7 @@ type TokenChange = ID & {
 	rotation: Byte;
 }
 
-type TokenMoveLayerPos = ID & {
+export type TokenMoveLayerPos = ID & {
 	to: string;
 	newPos: Uint;
 }
