@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -278,25 +278,8 @@ export default function(base: HTMLElement) {
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
-			const l = globals.selected.layer,
-			      lp = l.path,
-			      doIt = () => {
-				const sToken = SVGToken.from(token),
-				      pos = l.tokens.push(sToken) - 1;
-				rpc.addToken(lp, token).then(id => {
-					token.id = id;
-					globals.tokens[id] = {layer: l, token: sToken};
-				});
-				return () => {
-					if (globals.selected.token === token) {
-						unselectToken();
-					}
-					l.tokens.pop();
-					rpc.removeToken(token.id);
-					return doIt;
-				};
-			};
-			undo.add(doIt());
+			const lp = globals.selected.layer.path;
+			doTokenAdd(lp, token, true);
 		      }, "onmousedown": (e: MouseEvent) => {
 			const {layer} = globals.selected;
 			if (!layer || e.button !== 0) {
@@ -862,6 +845,35 @@ export default function(base: HTMLElement) {
 				return doIt;
 			      };
 			undo.add(doIt(false));
+		      },
+		      doTokenAdd = (path: string, tk: Token, sendRPC = false) => {
+			const layer = getLayer(path);
+			if (!layer || !isSVGLayer(layer)) {
+				handleError("Invalid layer for token add");
+				return () => {};
+			}
+			const token = isTokenImage(tk) ? SVGToken.from(tk) : isTokenDrawing(tk) ? SVGDrawing.from(tk) : SVGShape.from(tk),
+			      addToken = (id: Uint) => {
+				token.id = id;
+				layer.tokens.push(token);
+				globals.tokens[id] = {
+					layer,
+					token
+				};
+			      },
+			      doIt = (sendRPC = true) => {
+				if (sendRPC) {
+					rpc.addToken(path, token).then(addToken);
+				}
+				return () => {
+					delete globals.tokens[token.id];
+					layer.tokens.pop();
+					rpc.removeToken(token.id);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(sendRPC));
+			return addToken;
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -889,32 +901,7 @@ export default function(base: HTMLElement) {
 				removeLayer(path);
 				undo.clear();
 			}),
-			rpc.waitTokenAdd().then(tk => {
-				const layer = getLayer(tk.path),
-				      path = tk.path;
-				if (!layer || !isSVGLayer(layer)) {
-					// error
-					return;
-				}
-				delete (tk as Record<string, any>)["path"];
-				const token = isTokenImage(tk.token) ? SVGToken.from(tk.token) : isTokenDrawing(tk.token) ? SVGDrawing.from(tk.token) : SVGShape.from(tk.token),
-				      undoIt = () => {
-					if (token === globals.selected.token) {
-						unselectToken();
-					}
-					layer.tokens.pop();
-					rpc.removeToken(token.id);
-					return () => {
-						rpc.addToken(path, tk.token).then(id => {
-							token.id = id;
-							layer.tokens.push(token);
-						});
-						return undoIt;
-					};
-				      };
-				layer.tokens.push(token);
-				undo.add(undoIt);
-			}),
+			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token)(token.id)),
 			rpc.waitTokenMoveLayerPos().then(tm => {
 				const {layer, token} = globals.tokens[tm.id],
 				      newParent = getLayer(tm.to);
