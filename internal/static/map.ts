@@ -289,13 +289,6 @@ const idNames: Record<string, Int> = {
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
       },
-      setTokenType = (id: Uint, imagePattern: boolean) => {
-	const {layer, token} = globals.tokens[id];
-	if (!(token instanceof SVGToken)) {
-		return;
-	}
-	token.setPattern(!imagePattern);
-      },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       getParentToken = (path: string, pos: Uint): [SVGLayer | null, SVGToken | SVGShape | null] => {
 	const parent = getLayer(path);
