@@ -134,27 +134,31 @@ class SVGToken5E extends SVGToken {
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
 	}
-	setPattern(isPattern: boolean) {
-		super.setPattern(isPattern);
-		if (isPattern) {
-			if (lastSelectedToken === this) {
-				lastSelectedToken = null;
-			}
-			this.extra.remove();
-		} else {
-			if (globals.selected.token === this) {
-				lastSelectedToken = this;
-				globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
-			}
-			this.node.replaceWith(this.node = g([this.node, this.extra]));
-		}
-	}
 	unselect() {
 		if (!this.isPattern) {
 			this.node.appendChild(this.extra);
 		}
 	}
 	updateNode() {
+		const node = this.node,
+		      wasPattern = this.tokenNode instanceof SVGRectElement;
+		this.node = this.tokenNode;
+		super.updateNode();
+		this.node = node;
+		if (this.isPattern) {
+			if (!wasPattern) {
+				if (lastSelectedToken === this) {
+					lastSelectedToken = null;
+				}
+				this.extra.remove();
+			}
+		} else if (wasPattern) {
+			if (globals.selected.token === this) {
+				lastSelectedToken = this;
+				globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
+			}
+			this.node.replaceWith(this.node = g([this.node, this.extra]));
+		}
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
 		createSVG(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
