@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, TokenMoveLayerPos} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -564,37 +564,16 @@ export default function(base: HTMLElement) {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
-						const currLayer = globals.tokens[currToken.id].layer,
-						      newPos = currLayer.tokens.length - 1,
-						      doIt = () => {
-							currLayer.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenLayerPos(currToken.id, currLayer.path, newPos);
-							return () => {
-								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.pop()!);
-								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
-								return doIt;
-							};
-						      };
-						undo.add(doIt());
+						const currLayer = globals.tokens[currToken.id].layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1, true);
 					}),
 					item(lang["CONTEXT_MOVE_UP"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
 						const currLayer = globals.tokens[currToken.id].layer,
-						      tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-						if (tokenPos < currLayer.tokens.length - 1) {
-							const doIt = () => {
-								currLayer.tokens.splice(tokenPos + 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos + 1);
-								return () => {
-									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos + 1, 1)[0]);
-									rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
-									return doIt;
-								};
-							      };
-							undo.add(doIt());
-						}
+						      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos, true);
 					})
 				] : [],
 				tokenPos > 0 ? [
@@ -603,61 +582,23 @@ export default function(base: HTMLElement) {
 							return;
 						}
 						const currLayer = globals.tokens[currToken.id].layer,
-						      tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-						if (tokenPos > 0) {
-							const doIt = () => {
-								currLayer.tokens.splice(tokenPos - 1, 0, currLayer.tokens.splice(tokenPos, 1)[0]);
-								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos - 1);
-								return () => {
-									currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.splice(tokenPos - 1, 1)[0]);
-									rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
-									return doIt;
-								};
-							      };
-							undo.add(doIt());
-						}
+						      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos, true);
 					}),
 					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
-						const currLayer = globals.tokens[currToken.id].layer,
-						      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
-						      doIt = () => {
-							currLayer.tokens.unshift(currLayer.tokens.splice(tokenPos, 1)[0]);
-							rpc.setTokenLayerPos(currToken.id, currLayer.path, 0);
-							return () => {
-								currLayer.tokens.splice(tokenPos, 0, currLayer.tokens.shift()!);
-								rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
-								return doIt;
-							};
-						      };
-						undo.add(doIt());
+						const currLayer = globals.tokens[currToken.id].layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, 0, true);
 					})
 				] : [],
 				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
 					if (!globals.tokens[currToken.id]) {
 						return;
 					}
-					const currLayer = globals.tokens[currToken.id].layer,
-					      tokenPos = currLayer.tokens.findIndex(t => t === currToken),
-					      doIt = () => {
-						if (globals.selected.token === currToken) {
-							unselectToken();
-						}
-						rpc.setTokenLayerPos(currToken.id, sl.path, sl.tokens.push(currLayer.tokens.splice(tokenPos, 1)[0]));
-						globals.tokens[currToken.id].layer = sl;
-						return () => {
-							if (globals.selected.token === currToken) {
-								unselectToken();
-							}
-							currLayer.tokens.splice(tokenPos, 0, sl.tokens.pop()!);
-							rpc.setTokenLayerPos(currToken.id, currLayer.path, tokenPos);
-							globals.tokens[currToken.id].layer = currLayer;
-							return doIt;
-						};
-					      };
-					undo.add(doIt());
+					const currLayer = globals.tokens[currToken.id].layer;
+					doTokenMoveLayerPos( currToken.id, currLayer.path, currLayer.tokens.length, true);
 				}, currLayer.name)),
 				item(lang["CONTEXT_DELETE"], deleteToken)
 			]);
@@ -874,6 +815,44 @@ export default function(base: HTMLElement) {
 			      };
 			undo.add(doIt(sendRPC));
 			return addToken;
+		      },
+		      doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = false) => {
+			const {layer, token} = globals.tokens[id],
+			      newParent = getLayer(to);
+			if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
+				handleError("Invalid Token Move Layer/Pos");
+				return;
+			}
+			if (newPos > newParent.tokens.length) {
+				newPos = newParent.tokens.length;
+			}
+			const currentPos = layer.tokens.findIndex(t => t === token),
+			      doIt = (sendRPC = true) => {
+				newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
+				globals.tokens[id].layer = newParent;
+				if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+					updateLight();
+				}
+				if (globals.selected.token === token) {
+					unselectToken();
+				}
+				if (sendRPC) {
+					rpc.setTokenLayerPos(id, layer.path, newPos);
+				}
+				return () => {
+					newParent.tokens.splice(currentPos, 0, layer.tokens.splice(newPos, 1)[0]);
+					globals.tokens[id].layer = layer;
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
+					if (globals.selected.token === token) {
+						unselectToken();
+					}
+					rpc.setTokenLayerPos(id, newParent.path, currentPos);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -902,42 +881,7 @@ export default function(base: HTMLElement) {
 				undo.clear();
 			}),
 			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token)(token.id)),
-			rpc.waitTokenMoveLayerPos().then(tm => {
-				const {layer, token} = globals.tokens[tm.id],
-				      newParent = getLayer(tm.to);
-				if (layer && token && newParent && isSVGLayer(newParent)) {
-					if (tm.newPos > newParent.tokens.length) {
-						tm.newPos = newParent.tokens.length;
-					}
-					const currentPos = layer.tokens.findIndex(t => t === token),
-					      doIt = (sendRPC = true) => {
-						newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
-						globals.tokens[tm.id].layer = newParent;
-						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-							updateLight();
-						}
-						if (globals.selected.token === token) {
-							unselectToken();
-						}
-						if (sendRPC) {
-							rpc.setTokenLayerPos(tm.id, layer.path, tm.newPos);
-						}
-						return () => {
-							newParent.tokens.splice(currentPos, 0, layer.tokens.splice(tm.newPos, 1)[0]);
-							globals.tokens[tm.id].layer = layer;
-							if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-								updateLight();
-							}
-							if (globals.selected.token === token) {
-								unselectToken();
-							}
-							rpc.setTokenLayerPos(tm.id, newParent.path, currentPos);
-							return doIt;
-						};
-					      };
-					undo.add(doIt(false));
-				}
-			}),
+			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos)),
 			rpc.waitTokenSet().then(ts => {
 				const {token} = globals.tokens[ts.id];
 				if (!token) {
