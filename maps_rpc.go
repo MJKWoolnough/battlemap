@@ -377,7 +377,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				newToken.Token.ID = mp.lastTokenID
 				pos := bytes.IndexByte(data[1:], '{') + 2
 				id := strconv.AppendUint(nil, mp.lastTokenID, 10)
-				data = append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id    \":"...), id...), ','), data[pos:]...)
+				data = append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id\":"...), id...), ','), data[pos:]...)
 			}
 			l.Tokens = append(l.Tokens, newToken.Token)
 			mp.tokens[newToken.Token.ID] = layerToken{l, newToken.Token}
