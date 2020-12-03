@@ -838,6 +838,21 @@ export default function(base: HTMLElement) {
 				return doIt;
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doLightShift = (x: Uint, y: Uint, sendRPC = false) => {
+			let {lightX: oldX, lightY: oldY} = mapData;
+			const doIt = (sendRPC = true) => {
+				mapData.lightX = x;
+				mapData.lightY = y;
+				updateLight();
+				if (sendRPC) {
+					rpc.shiftLight(x, y);
+				}
+				[x, oldX] = [oldX, x];
+				[y, oldY] = [oldY, y];
+				return doIt;
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -870,24 +885,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenSet().then(doTokenSet),
 			rpc.waitTokenRemove().then(doTokenRemove),
 			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy)),
-			rpc.waitLightShift().then(pos => {
-				const {x, y} = pos,
-				      {lightX, lightY} = mapData,
-				      doIt = (sendRPC = true) => {
-					mapData.lightX = x;
-					mapData.lightY = y;
-					updateLight();
-					if (sendRPC) {
-						rpc.shiftLight(x, y);
-					}
-					return () => {
-						rpc.shiftLight(mapData.lightX = lightX, mapData.lightY = lightY);
-						updateLight();
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y)),
 			rpc.waitWallAdded().then(w => {
 				const layer = getLayer(w.path);
 				if (!layer || !isSVGLayer(layer)) {
