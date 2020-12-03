@@ -342,7 +342,7 @@ export type WallData = {
 
 export type Wall = WallData & ID;
 
-type WallPath = Wall & {
+export type WallPath = Wall & {
 	path: string;
 }
 
