@@ -164,25 +164,6 @@ export default function(base: HTMLElement) {
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
-		      deleteToken = () => {
-			const {layer, token} = globals.selected;
-			if (!layer || !token) {
-				return;
-			}
-			const pos = layer.tokens.findIndex(t => t == token),
-			      l = globals.selected.layer,
-			      doIt = () => {
-				layer.tokens.splice(pos, 1);
-				unselectToken();
-				rpc.removeToken(token.id);
-				return () => {
-					layer.tokens.splice(pos, 0, token);
-					rpc.addToken(layer.path, token).then(id => token.id = id);
-					return doIt;
-				};
-			      };
-			undo.add(doIt());
-		      },
 		      unselectToken = () => {
 			globals.selected.token = null;
 			outline.style.setProperty("display", "none");
@@ -283,7 +264,7 @@ export default function(base: HTMLElement) {
 				return;
 			}
 			if (e.key === "Delete") {
-				deleteToken();
+				doTokenRemove(token.id, true);
 				return;
 			}
 			let newX = token.x,
@@ -477,7 +458,7 @@ export default function(base: HTMLElement) {
 					const currLayer = globals.tokens[currToken.id].layer;
 					doTokenMoveLayerPos( currToken.id, currLayer.path, currLayer.tokens.length, true);
 				}, currLayer.name)),
-				item(lang["CONTEXT_DELETE"], deleteToken)
+				item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 			]);
 		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 			toolTokenMouseDown.call(this, e);
@@ -800,6 +781,35 @@ export default function(base: HTMLElement) {
 				return doIt;
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doTokenRemove = (tk: Uint, sendRPC = false) => {
+			const {layer, token} = globals.tokens[tk];
+			if (!token) {
+				handleError("invalid token for removal");
+				return;
+			}
+			const pos = layer.tokens.findIndex(t => t === token),
+			      doIt = (sendRPC = true) => {
+				layer.tokens.splice(pos, 1);
+				if (token instanceof SVGToken) {
+					token.cleanup();
+					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+						updateLight();
+					}
+				}
+				if (sendRPC) {
+					rpc.removeToken(token.id);
+				}
+				return () => {
+					layer.tokens.splice(pos, 0, token);
+					rpc.addToken(layer.path, token).then(id => {
+						token.id = id;
+						globals.tokens[id] = {layer, token};
+					});
+					return doIt;
+				};
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -830,34 +840,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token)(token.id)),
 			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos)),
 			rpc.waitTokenSet().then(doTokenSet),
-			rpc.waitTokenRemove().then(tk => {
-				const {layer, token} = globals.tokens[tk];
-				if (!token) {
-					return;
-				}
-				const pos = layer.tokens.findIndex(t => t === token),
-				      doIt = (sendRPC = true) => {
-					layer.tokens.splice(pos, 1);
-					if (token instanceof SVGToken) {
-						token.cleanup();
-						if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-							updateLight();
-						}
-					}
-					if (sendRPC) {
-						rpc.removeToken(token.id);
-					}
-					return () => {
-						layer.tokens.splice(pos, 0, token);
-						rpc.addToken(layer.path, token).then(id => {
-							token.id = id;
-							globals.tokens[id] = {layer, token};
-						});
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitTokenRemove().then(doTokenRemove),
 			rpc.waitLayerShift().then(({path, dx, dy}) => {
 				const layer = getLayer(path);
 				if (!layer || !isSVGLayer(layer)) {
