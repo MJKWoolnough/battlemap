@@ -214,7 +214,6 @@ export default function(base: HTMLElement) {
 			if (globals.selected.layer === null) {
 				return;
 			}
-			let charID = 0;
 			const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 			if (e.dataTransfer!.types.includes("character")) {
 				const tD = JSON.parse(e.dataTransfer!.getData("character")),
@@ -222,7 +221,6 @@ export default function(base: HTMLElement) {
 				if (char["store-token-data"]) {
 					Object.assign(token, char["store-token-data"].data);
 				} else {
-					charID = tD.id;
 					token.src = parseInt(char["store-image-icon"].data);
 					token.width = tD.width;
 					token.height = tD.height;
