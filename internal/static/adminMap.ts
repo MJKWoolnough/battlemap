@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, TokenMoveLayerPos} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, TokenMoveLayerPos, WallPath} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -853,6 +853,37 @@ export default function(base: HTMLElement) {
 				return doIt;
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doWallAdd = (w: WallPath, sendRPC = false) => {
+			const layer = getLayer(w.path);
+			if (!layer || !isSVGLayer(layer)) {
+				handleError("invalid layer for wall add")
+				return;
+			}
+			const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
+			      colour = {r, g, b, a},
+			      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
+			      doIt = (sendRPC = true) => {
+				layer.walls.push(wall);
+				updateLight();
+				if (sendRPC) {
+					rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
+						wall.id = id;
+						globals.walls[id] = {layer, wall};
+					});
+				} else if (w.id > 0) {
+					globals.walls[w.id] = {layer, wall};
+				}
+				return () => {
+					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+					updateLight();
+					rpc.removeWall(wall.id);
+					delete globals.walls[wall.id];
+					wall.id = 0;
+					return doIt;
+				};
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -886,36 +917,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenRemove().then(doTokenRemove),
 			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy)),
 			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y)),
-			rpc.waitWallAdded().then(w => {
-				const layer = getLayer(w.path);
-				if (!layer || !isSVGLayer(layer)) {
-					handleError("invalid layer for wall add")
-					return;
-				}
-				const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
-				      colour = {r, g, b, a},
-				      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
-				      doIt = (sendRPC = true) => {
-					layer.walls.push(wall);
-					updateLight();
-					if (sendRPC) {
-						rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
-							wall.id = id;
-							globals.walls[id] = {layer, wall};
-						});
-					}
-					return () => {
-						layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-						updateLight();
-						rpc.removeWall(wall.id);
-						delete globals.walls[wall.id];
-						wall.id = 0;
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-				globals.walls[w.id] = {layer, wall};
-			}),
+			rpc.waitWallAdded().then(doWallAdd),
 			rpc.waitWallRemoved().then(wp => {
 				const {layer, wall} = globals.walls[wp];
 				if (!layer || !wall) {
