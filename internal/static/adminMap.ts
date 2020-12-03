@@ -810,6 +810,34 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = false) => {
+			const layer = getLayer(path);
+			if (!layer || !isSVGLayer(layer)) {
+				handleError("invalid layer for shifting");
+				return;
+			}
+			const doIt = (sendRPC = true) => {
+				(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+					t.x += dx;
+					t.y += dy;
+					t.updateNode();
+				});
+				layer.walls.forEach(w => {
+					w.x1 += dx;
+					w.y1 += dy;
+					w.x2 += dx;
+					w.y2 += dy;
+				});
+				updateLight();
+				if (sendRPC) {
+					rpc.shiftLayer(path, dx, dy);
+				}
+				dx = -dx;
+				dy = -dy;
+				return doIt;
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -841,34 +869,7 @@ export default function(base: HTMLElement) {
 			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos)),
 			rpc.waitTokenSet().then(doTokenSet),
 			rpc.waitTokenRemove().then(doTokenRemove),
-			rpc.waitLayerShift().then(({path, dx, dy}) => {
-				const layer = getLayer(path);
-				if (!layer || !isSVGLayer(layer)) {
-					// error
-					return;
-				}
-				const doIt = (sendRPC = true) => {
-					(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-						t.x += dx;
-						t.y += dy;
-						t.updateNode();
-					});
-					layer.walls.forEach(w => {
-						w.x1 += dx;
-						w.y1 += dy;
-						w.x2 += dx;
-						w.y2 += dy;
-					});
-					updateLight();
-					if (sendRPC) {
-						rpc.shiftLayer(path, dx, dy);
-					}
-					dx = -dx;
-					dy = -dy;
-					return doIt;
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy)),
 			rpc.waitLightShift().then(pos => {
 				const {x, y} = pos,
 				      {lightX, lightY} = mapData,
@@ -1002,31 +1003,6 @@ export default function(base: HTMLElement) {
 					};
 				      };
 				undo.add(doIt(false));
-			}),
-			rpc.waitLayerShift().then(ls => {
-				const layer = getLayer(ls.path);
-				if (!layer || !isSVGLayer(layer)) {
-					// error
-					return;
-				}
-				const undoIt = () => {
-					(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-						t.x -= ls.dx;
-						t.y -= ls.dy;
-						t.updateNode();
-					});
-					rpc.shiftLayer(ls.path, -ls.dx, -ls.dy);
-					return () => {
-						(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-							t.x += ls.dx;
-							t.y += ls.dy;
-							t.updateNode();
-						});
-						rpc.shiftLayer(ls.path, ls.dx, ls.dy);
-						return undoIt;
-					};
-				};
-				undo.add(undoIt);
 			})
 		);
 		mapLoadedSend(true);
