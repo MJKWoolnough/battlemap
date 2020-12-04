@@ -948,7 +948,24 @@ export default function(base: HTMLElement) {
 					return doIt;
 				};
 			      };
-			undo.add(doIt(false));
+			undo.add(doIt(sendRPC));
+		      },
+		      doMapDataRemove = (key: string, sendRPC = false) => {
+			const oldData = mapData.data[key];
+			if (!oldData) {
+				return;
+			}
+			const doIt = (sendRPC = true) => {
+				delete mapData.data[key];
+				if (sendRPC) {
+					rpc.removeMapKeyData(key);
+				}
+				return () => {
+					rpc.setMapKeyData(key, mapData.data[key] = oldData);
+					return doIt;
+				};
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -986,23 +1003,7 @@ export default function(base: HTMLElement) {
 			rpc.waitWallRemoved().then(doWallRemove),
 			rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity)),
 			rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data)),
-			rpc.waitMapDataRemove().then(key => {
-				const oldData = mapData.data[key];
-				if (!oldData) {
-					return;
-				}
-				const doIt = (sendRPC = true) => {
-					delete mapData.data[key];
-					if (sendRPC) {
-						rpc.removeMapKeyData(key);
-					}
-					return () => {
-						rpc.setMapKeyData(key, mapData.data[key] = oldData);
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			})
+			rpc.waitMapDataRemove().then(doMapDataRemove)
 		);
 		mapLoadedSend(true);
 	}));
