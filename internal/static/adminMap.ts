@@ -884,6 +884,32 @@ export default function(base: HTMLElement) {
 				};
 			      };
 			undo.add(doIt(sendRPC));
+		      },
+		      doWallRemove = (wID: Uint, sendRPC = false) => {
+				const {layer, wall} = globals.walls[wID];
+				if (!layer || !wall) {
+					handleError("invalid wall to remove");
+					return;
+				}
+				const doIt = (sendRPC = true) => {
+					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+					updateLight();
+					if (sendRPC) {
+						rpc.removeWall(wall.id);
+					}
+					delete globals.walls[wall.id];
+					wall.id = 0;
+					return () => {
+						layer.walls.push(wall);
+						updateLight();
+						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+							wall.id = id;
+							globals.walls[id] = {layer, wall};
+						});
+						return doIt;
+					};
+				      };
+				undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -918,32 +944,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy)),
 			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y)),
 			rpc.waitWallAdded().then(doWallAdd),
-			rpc.waitWallRemoved().then(wp => {
-				const {layer, wall} = globals.walls[wp];
-				if (!layer || !wall) {
-					handleError("invalid wall to remove");
-					return;
-				}
-				const doIt = (sendRPC = true) => {
-					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-					updateLight();
-					if (sendRPC) {
-						rpc.removeWall(wall.id);
-					}
-					delete globals.walls[wall.id];
-					wall.id = 0;
-					return () => {
-						layer.walls.push(wall);
-						updateLight();
-						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
-							wall.id = id;
-							globals.walls[id] = {layer, wall};
-						});
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitWallRemoved().then(doWallRemove),
 			rpc.waitTokenLightChange().then(lc => {
 				const {id} = lc,
 				      {token} = globals.tokens[id];
