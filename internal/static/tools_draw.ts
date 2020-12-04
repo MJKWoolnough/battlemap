@@ -7,6 +7,7 @@ import {SVGShape, SVGDrawing, globals} from './map.js';
 import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
 import {rpc} from './rpc.js';
+import undo from './undo.js';
 import lang from './language.js';
 
 let over = false,
@@ -56,7 +57,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 							return doIt;
 						};
 					      };
-					globals.undo.add(doIt());
+					undo.add(doIt());
 				} else {
 					requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 				}
@@ -129,7 +130,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 						return doIt;
 					};
 				      };
-				globals.undo.add(doIt());
+				undo.add(doIt());
 			} else {
 				requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 			}

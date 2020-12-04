@@ -8,6 +8,7 @@ import {normaliseWall, updateLight, globals, SVGLayer, walkLayers} from './map.j
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {rpc} from './rpc.js';
+import undo from './undo.js';
 import lang from './language.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
@@ -87,7 +88,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return doIt;
 			};
 		      };
-		globals.undo.add(doIt());
+		undo.add(doIt());
 	} else if (wallTool.checked) {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
@@ -134,7 +135,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 						return doIt;
 					};
 				      };
-				globals.undo.add(doIt());
+				undo.add(doIt());
 			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
@@ -163,7 +164,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 				return doIt;
 			};
 		      };
-		globals.undo.add(doIt());
+		undo.add(doIt());
 	}
       },
       wallLayer = g({"stroke-width": 2}),

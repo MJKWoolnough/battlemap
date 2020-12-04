@@ -378,7 +378,6 @@ globals = {
 	"mapData": null,
 	"tokens": null,
 	"walls": null,
-	"undo": null,
 	"selected": {},
 	"outline": null,
 	deselectToken: () => {}
@@ -389,7 +388,6 @@ globals = {
 	mapData: MapData;
 	tokens: {layer: SVGLayer, token: SVGToken | SVGShape}[];
 	walls: {layer: SVGLayer, wall: Wall}[];
-	undo: Undo;
 	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
 	outline: SVGGElement;
 	deselectToken: () => void;

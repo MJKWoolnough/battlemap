@@ -9,43 +9,33 @@ type undoData = {
 	limit: Int;
 }
 
-const fns = new WeakMap<Undo, undoData>();
+const undos: Fn[] = [],
+      redos: Fn[] = [];
 
-export default class Undo {
-	constructor(limit?: Int) {
-		fns.set(this, {
-			"undos": [],
-			"redos": [],
-			"limit": limit ?? undoLimit.value
-		});
-	}
-	add(undo: Fn) {
-		const {undos, redos, limit} = fns.get(this)!;
+export default {
+	"add": (undo: Fn) => {
 		redos.splice(0, redos.length);
-		if (limit === 0) {
+		if (undoLimit.value === 0) {
 			undos.splice(0, undos.length);
 			return;
 		}
-		while (limit !== -1 && undos.length >= limit) {
+		while (undoLimit.value !== -1 && undos.length >= undoLimit.value) {
 			undos.shift();
 		}
 		undos.push(undo);
-	}
-	clear() {
-		const {undos, redos} = fns.get(this)!;
+	},
+	"clear": () => {
 		undos.splice(0, undos.length);
 		redos.splice(0, redos.length);
-	}
-	undo() {
-		const {undos, redos} = fns.get(this)!,
-		      fn = undos.pop();
+	},
+	"undo": () => {
+		const fn = undos.pop();
 		if (fn) {
 			redos.push(fn());
 		}
-	}
-	redo() {
-		const {undos, redos} = fns.get(this)!,
-		      fn = redos.pop();
+	},
+	"redo": () => {
+		const fn = redos.pop();
 		if (fn) {
 			undos.push(fn());
 		}

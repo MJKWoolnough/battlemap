@@ -9,7 +9,7 @@ import {windows} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, walkFolders, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
-import Undo from './undo.js';
+import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell} from './misc.js';
 import {panZoom} from './tools_default.js';
@@ -75,7 +75,6 @@ export default function(base: HTMLElement) {
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
 		const {root, definitions, layerList} = globals,
-		      undo = new Undo(),
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -184,7 +183,6 @@ export default function(base: HTMLElement) {
 			}
 		      },
 		      outline = globals.outline = g();
-		globals.undo = undo;
 		globals.deselectToken = unselectToken;
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {

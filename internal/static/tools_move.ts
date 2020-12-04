@@ -5,6 +5,7 @@ import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 import {rpc} from './rpc.js';
+import undo from './undo.js';
 import lang from './language.js';
 
 let ml: LayerRPC;
@@ -15,7 +16,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 	e.stopPropagation();
 	const ox = e.clientX, oy = e.clientY;
 	let dx = 0, dy = 0;
-	const {selected: {layer: selectedLayer}, deselectToken, undo} = globals;
+	const {selected: {layer: selectedLayer}, deselectToken} = globals;
 	if (!selectedLayer) {
 		return;
 	}
