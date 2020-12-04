@@ -910,6 +910,26 @@ export default function(base: HTMLElement) {
 					};
 				      };
 				undo.add(doIt(sendRPC));
+		      },
+		      doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = false) => {
+			const {token} = globals.tokens[id];
+			if (!token) {
+				handleError("invalid token for light change");
+				return;
+			}
+			let {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token;
+			const doIt = (sendRPC = true) => {
+				token.lightColour = lightColour;
+				token.lightIntensity = lightIntensity;
+				updateLight();
+				if (sendRPC) {
+					rpc.setTokenLight(id, lightColour, lightIntensity);
+				}
+				[lightColour, oldLightColour] = [oldLightColour, lightColour];
+				[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
+				return doIt;
+			      };
+			undo.add(doIt(sendRPC));
 		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
@@ -945,30 +965,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y)),
 			rpc.waitWallAdded().then(doWallAdd),
 			rpc.waitWallRemoved().then(doWallRemove),
-			rpc.waitTokenLightChange().then(lc => {
-				const {id} = lc,
-				      {token} = globals.tokens[id];
-				if (!token) {
-					handleError("invalid token for light change");
-					return;
-				}
-				const {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token,
-				      {lightColour: newLightColour, lightIntensity: newLightIntensity} = lc,
-				      doIt = (sendRPC = true) => {
-					token.lightColour = newLightColour;
-					token.lightIntensity = newLightIntensity;
-					updateLight();
-					if (sendRPC) {
-						rpc.setTokenLight(id, newLightColour, newLightIntensity);
-					}
-					return () => {
-						rpc.setTokenLight(id, token.lightColour = oldLightColour, token.lightIntensity = oldLightIntensity);
-						updateLight();
-						return doIt;
-					};
-				      };
-				undo.add(doIt(false));
-			}),
+			rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity)),
 			rpc.waitMapDataSet().then(({key, data}) => {
 				const oldData = mapData.data[key],
 				      doIt = (sendRPC = true) => {
