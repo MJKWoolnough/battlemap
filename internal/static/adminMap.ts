@@ -51,7 +51,21 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
       waitLayerHide = subFn<string>(),
       waitLayerPositionChange = subFn<LayerMove>(),
       waitLayerRename = subFn<LayerRename>(),
-      invalidRPC = () => Promise.reject("invalid");
+      invalidRPC = () => Promise.reject("invalid"),
+      removeS = (path: string) => {
+	checkSelectedLayer(path);
+	removeLayer(path);
+	return rpc.removeLayer(path);
+      },
+      checkSelectedLayer = (path: string) => {
+	const {layer} = globals.selected;
+	if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
+		globals.selected.layer = null;
+		if (globals.selected.token) {
+			unselectToken();
+		}
+	}
+      };
 
 export const getToken = () => {
 	const {token} = globals.selected;
@@ -64,7 +78,460 @@ export const getToken = () => {
 		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
 	}
 	return undefined;
+},
+unselectToken = () => {
+	globals.selected.token = null;
+	globals.outline.style.setProperty("display", "none");
+	tokenSelected();
+},
+doMapChange = (details: MapDetails) => {
+	const oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour},
+	      doIt = (sendRPC = true) => {
+		setMapDetails(details);
+		if (sendRPC) {
+			rpc.setMapDetails(details);
+		}
+		return () => {
+			setMapDetails(oldDetails)
+			rpc.setMapDetails(oldDetails);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(false));
+      },
+doSetLightColour = (c: Colour) => {
+	const oldColour = globals.mapData.lightColour,
+	      doIt = (sendRPC = true) => {
+		setLightColour(c);
+		if (sendRPC) {
+			rpc.setLightColour(c);
+		}
+		return () => {
+			setLightColour(oldColour);
+			rpc.setLightColour(oldColour);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(false));
+},
+doShowHideLayer = (path: string, visibility: boolean) => {
+	const doIt = (sendRPC = true) => {
+		checkSelectedLayer(path);
+		setLayerVisibility(path, visibility);
+		if (sendRPC) {
+			if (visibility) {
+				rpc.showLayer(path);
+				waitLayerShow[0](path);
+			} else {
+				rpc.hideLayer(path);
+				waitLayerHide[0](path);
+			}
+		}
+		visibility = !visibility;
+		return doIt;
+	      };
+	undo.add(doIt(false));
+	return path;
+},
+doLayerAdd = (name: string) => {
+	const path = "/" + name,
+	      doIt = (sendRPC = true) => {
+		addLayer(name);
+		if (sendRPC) {
+			waitAdded[0]([{id: 1, name}]);
+			rpc.addLayer(name);
+		}
+		return () => {
+			checkSelectedLayer(path);
+			removeLayer(path);
+			waitRemoved[0](path);
+			rpc.removeLayer(path);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(false));
+	return name;
+},
+doLayerFolderAdd = (path: string) => {
+	const doIt = (sendRPC = true) => {
+		addLayerFolder(path);
+		if (sendRPC) {
+			waitFolderAdded[0](path);
+			rpc.addLayerFolder(path);
+		}
+		return () => {
+			checkSelectedLayer(path);
+			removeLayer(path);
+			rpc.removeLayer(path);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(false));
+	return path;
+},
+doLayerMove = (from: string, to: string, newPos: Uint) => {
+	const [parent, layer] = getParentLayer(from);
+	if (!parent || !layer) {
+		handleError("Invalid layer move");
+		return;
+	}
+	let oldPos = parent.children.indexOf(layer);
+	const doIt = (sendRPC = true) => {
+		unselectToken();
+		moveLayer(from, to, newPos);
+		if (sendRPC) {
+			rpc.moveLayer(from, to, newPos);
+			waitLayerPositionChange[0]({
+				from,
+				to,
+				"position": newPos
+			});
+		}
+		[to, from] = [from, to];
+		[oldPos, newPos] = [newPos, oldPos];
+		return doIt;
+	      };
+	undo.add(doIt(false));
+},
+doLayerRename = (oldPath: string, newName: string) => {
+	let [parentPath, oldName] = splitAfterLastSlash(oldPath),
+	    newPath = parentPath + "/" + oldName;
+	const doIt = (sendRPC = true) => {
+		renameLayer(oldPath, newName);
+		if (sendRPC) {
+			rpc.renameLayer(oldPath, newName);
+			waitLayerRename[0]({"path": oldPath, "name": newName});
+		}
+		[oldPath, newPath] = [newPath, oldPath];
+		[oldName, newName] = [newName, oldName];
+		return doIt;
+	      };
+	undo.add(doIt(false));
+},
+doTokenAdd = (path: string, tk: Token, sendRPC = false) => {
+	const layer = getLayer(path);
+	if (!layer || !isSVGLayer(layer)) {
+		handleError("Invalid layer for token add");
+		return () => {};
+	}
+	const token = isTokenImage(tk) ? SVGToken.from(tk) : isTokenDrawing(tk) ? SVGDrawing.from(tk) : SVGShape.from(tk),
+	      addToken = (id: Uint) => {
+		token.id = id;
+		layer.tokens.push(token);
+		globals.tokens[id] = {
+			layer,
+			token
+		};
+	      },
+	      doIt = (sendRPC = true) => {
+		if (sendRPC) {
+			rpc.addToken(path, token).then(addToken);
+		}
+		return () => {
+			delete globals.tokens[token.id];
+			layer.tokens.pop();
+			rpc.removeToken(token.id);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
+	return addToken;
+},
+doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = false) => {
+	const {layer, token} = globals.tokens[id],
+	      newParent = getLayer(to);
+	if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
+		handleError("Invalid Token Move Layer/Pos");
+		return;
+	}
+	if (newPos > newParent.tokens.length) {
+		newPos = newParent.tokens.length;
+	}
+	const currentPos = layer.tokens.findIndex(t => t === token),
+	      doIt = (sendRPC = true) => {
+		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
+		globals.tokens[id].layer = newParent;
+		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+			updateLight();
+		}
+		if (globals.selected.token === token) {
+			unselectToken();
+		}
+		if (sendRPC) {
+			rpc.setTokenLayerPos(id, layer.path, newPos);
+		}
+		return () => {
+			newParent.tokens.splice(currentPos, 0, layer.tokens.splice(newPos, 1)[0]);
+			globals.tokens[id].layer = layer;
+			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+				updateLight();
+			}
+			if (globals.selected.token === token) {
+				unselectToken();
+			}
+			rpc.setTokenLayerPos(id, newParent.path, currentPos);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
+},
+doTokenSet = (ts: TokenSet, sendRPC = false) => {
+	const {token} = globals.tokens[ts.id];
+	if (!token) {
+		handleError("Invalid token for token set");
+		return;
+	}
+	let original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
+	for (const k in ts) {
+		switch (k) {
+		case "id":
+			break;
+		case "tokenData":
+			if (token instanceof SVGToken) {
+				const tokenData = ts[k];
+				for (const k in tokenData) {
+					if (token["tokenData"][k]) {
+						original["tokenData"]![k] = token["tokenData"][k];
+					} else {
+						original["removeTokenData"]!.push(k);
+					}
+				}
+			}
+			break;
+		case "removeTokenData":
+			if (token instanceof SVGToken) {
+				const removeTokenData = ts[k]!;
+				for (const k of removeTokenData) {
+					original["tokenData"]![k] = token["tokenData"][k];
+				}
+			}
+			break;
+		default:
+			(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
+		}
+	}
+	const updatePattern = isTokenImage(token) && (!!ts["patternWidth"] || !!ts["patternHeight"]),
+	      doIt = (sendRPC = true) => {
+		for (const k in ts) {
+			switch (k) {
+			case "id":
+				break;
+			case "tokenData":
+				if (token instanceof SVGToken) {
+					const tokenData = ts[k];
+					for (const k in tokenData) {
+						token["tokenData"][k] = tokenData[k];
+					}
+				}
+				break;
+			case "removeTokenData":
+				if (token instanceof SVGToken) {
+					const removeTokenData = ts[k]!;
+					for (const k of removeTokenData) {
+						delete token["tokenData"][k];
+					}
+				}
+				break;
+			default:
+				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+			}
+		}
+		token.updateNode()
+		if (sendRPC) {
+			rpc.setToken(ts);
+		}
+		[original, ts] = [ts, original];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC));
+},
+doTokenRemove = (tk: Uint, sendRPC = false) => {
+	const {layer, token} = globals.tokens[tk];
+	if (!token) {
+		handleError("invalid token for removal");
+		return;
+	}
+	const pos = layer.tokens.findIndex(t => t === token),
+	      doIt = (sendRPC = true) => {
+		layer.tokens.splice(pos, 1);
+		if (token instanceof SVGToken) {
+			token.cleanup();
+			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+				updateLight();
+			}
+		}
+		if (sendRPC) {
+			rpc.removeToken(token.id);
+		}
+		return () => {
+			layer.tokens.splice(pos, 0, token);
+			rpc.addToken(layer.path, token).then(id => {
+				token.id = id;
+				globals.tokens[id] = {layer, token};
+			});
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
+},
+doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = false) => {
+	const layer = getLayer(path);
+	if (!layer || !isSVGLayer(layer)) {
+		handleError("invalid layer for shifting");
+		return;
+	}
+	const doIt = (sendRPC = true) => {
+		(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+			t.x += dx;
+			t.y += dy;
+			t.updateNode();
+		});
+		layer.walls.forEach(w => {
+			w.x1 += dx;
+			w.y1 += dy;
+			w.x2 += dx;
+			w.y2 += dy;
+		});
+		updateLight();
+		if (sendRPC) {
+			rpc.shiftLayer(path, dx, dy);
+		}
+		dx = -dx;
+		dy = -dy;
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC));
+},
+doLightShift = (x: Uint, y: Uint, sendRPC = false) => {
+	let {lightX: oldX, lightY: oldY} = globals.mapData;
+	const doIt = (sendRPC = true) => {
+		globals.mapData.lightX = x;
+		globals.mapData.lightY = y;
+		updateLight();
+		if (sendRPC) {
+			rpc.shiftLight(x, y);
+		}
+		[x, oldX] = [oldX, x];
+		[y, oldY] = [oldY, y];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC));
+},
+doWallAdd = (w: WallPath, sendRPC = false) => {
+	const layer = getLayer(w.path);
+	if (!layer || !isSVGLayer(layer)) {
+		handleError("invalid layer for wall add")
+		return;
+	}
+	const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
+	      colour = {r, g, b, a},
+	      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
+	      doIt = (sendRPC = true) => {
+		layer.walls.push(wall);
+		updateLight();
+		if (sendRPC) {
+			rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
+				wall.id = id;
+				globals.walls[id] = {layer, wall};
+			});
+		} else if (w.id > 0) {
+			globals.walls[w.id] = {layer, wall};
+		}
+		return () => {
+			layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+			updateLight();
+			rpc.removeWall(wall.id);
+			delete globals.walls[wall.id];
+			wall.id = 0;
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
+},
+doWallRemove = (wID: Uint, sendRPC = false) => {
+		const {layer, wall} = globals.walls[wID];
+		if (!layer || !wall) {
+			handleError("invalid wall to remove");
+			return;
+		}
+		const doIt = (sendRPC = true) => {
+			layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+			updateLight();
+			if (sendRPC) {
+				rpc.removeWall(wall.id);
+			}
+			delete globals.walls[wall.id];
+			wall.id = 0;
+			return () => {
+				layer.walls.push(wall);
+				updateLight();
+				rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+					wall.id = id;
+					globals.walls[id] = {layer, wall};
+				});
+				return doIt;
+			};
+		      };
+		undo.add(doIt(sendRPC));
+},
+doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = false) => {
+	const {token} = globals.tokens[id];
+	if (!token) {
+		handleError("invalid token for light change");
+		return;
+	}
+	let {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token;
+	const doIt = (sendRPC = true) => {
+		token.lightColour = lightColour;
+		token.lightIntensity = lightIntensity;
+		updateLight();
+		if (sendRPC) {
+			rpc.setTokenLight(id, lightColour, lightIntensity);
+		}
+		[lightColour, oldLightColour] = [oldLightColour, lightColour];
+		[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC));
+},
+doMapDataSet = (key: string, data: any, sendRPC = false) => {
+	const oldData = globals.mapData.data[key],
+	      doIt = (sendRPC = true) => {
+		globals.mapData.data[key] = data;
+		if (sendRPC) {
+			rpc.setMapKeyData(key, data);
+		}
+		return () => {
+			if (oldData) {
+				rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
+			} else {
+				delete globals.mapData.data[key];
+				rpc.removeMapKeyData(key);
+			}
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
+},
+doMapDataRemove = (key: string, sendRPC = false) => {
+	const oldData = globals.mapData.data[key];
+	if (!oldData) {
+		return;
+	}
+	const doIt = (sendRPC = true) => {
+		delete globals.mapData.data[key];
+		if (sendRPC) {
+			rpc.removeMapKeyData(key);
+		}
+		return () => {
+			rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
 };
+
+globals.deselectToken = unselectToken;
 
 export default function(base: HTMLElement) {
 	let canceller = () => {};
@@ -163,27 +630,7 @@ export default function(base: HTMLElement) {
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
-		      unselectToken = () => {
-			globals.selected.token = null;
-			outline.style.setProperty("display", "none");
-			tokenSelected();
-		      },
-		      removeS = (path: string) => {
-			checkSelectedLayer(path);
-			removeLayer(path);
-			return rpc.removeLayer(path);
-		      },
-		      checkSelectedLayer = (path: string) => {
-			const {layer} = globals.selected;
-			if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
-				globals.selected.layer = null;
-				if (globals.selected.token) {
-					unselectToken();
-				}
-			}
-		      },
 		      outline = globals.outline = g();
-		globals.deselectToken = unselectToken;
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 				e.preventDefault();
@@ -519,452 +966,6 @@ export default function(base: HTMLElement) {
 				return rpc.setLightColour(c)
 			},
 		});
-		const doMapChange = (details: MapDetails) => {
-			const oldDetails = {"width": mapData.width, "height": mapData.height, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour},
-			      doIt = (sendRPC = true) => {
-				setMapDetails(details);
-				if (sendRPC) {
-					rpc.setMapDetails(details);
-				}
-				return () => {
-					setMapDetails(oldDetails)
-					rpc.setMapDetails(oldDetails);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(false));
-		      },
-		      doSetLightColour = (c: Colour) => {
-			const oldColour = mapData.lightColour,
-			      doIt = (sendRPC = true) => {
-				setLightColour(c);
-				if (sendRPC) {
-					rpc.setLightColour(c);
-				}
-				return () => {
-					setLightColour(oldColour);
-					rpc.setLightColour(oldColour);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(false));
-		      },
-		      doShowHideLayer = (path: string, visibility: boolean) => {
-			const doIt = (sendRPC = true) => {
-				checkSelectedLayer(path);
-				setLayerVisibility(path, visibility);
-				if (sendRPC) {
-					if (visibility) {
-						rpc.showLayer(path);
-						waitLayerShow[0](path);
-					} else {
-						rpc.hideLayer(path);
-						waitLayerHide[0](path);
-					}
-				}
-				visibility = !visibility;
-				return doIt;
-			      };
-			undo.add(doIt(false));
-			return path;
-		      },
-		      doLayerAdd = (name: string) => {
-			const path = "/" + name,
-			      doIt = (sendRPC = true) => {
-				addLayer(name);
-				if (sendRPC) {
-					waitAdded[0]([{id: 1, name}]);
-					rpc.addLayer(name);
-				}
-				return () => {
-					checkSelectedLayer(path);
-					removeLayer(path);
-					waitRemoved[0](path);
-					rpc.removeLayer(path);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(false));
-			return name;
-		      },
-		      doLayerFolderAdd = (path: string) => {
-			const doIt = (sendRPC = true) => {
-				addLayerFolder(path);
-				if (sendRPC) {
-					waitFolderAdded[0](path);
-					rpc.addLayerFolder(path);
-				}
-				return () => {
-					checkSelectedLayer(path);
-					removeLayer(path);
-					rpc.removeLayer(path);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(false));
-			return path;
-		      },
-		      doLayerMove = (from: string, to: string, newPos: Uint) => {
-			const [parent, layer] = getParentLayer(from);
-			if (!parent || !layer) {
-				handleError("Invalid layer move");
-				return;
-			}
-			let oldPos = parent.children.indexOf(layer);
-			const doIt = (sendRPC = true) => {
-				unselectToken();
-				moveLayer(from, to, newPos);
-				if (sendRPC) {
-					rpc.moveLayer(from, to, newPos);
-					waitLayerPositionChange[0]({
-						from,
-						to,
-						"position": newPos
-					});
-				}
-				[to, from] = [from, to];
-				[oldPos, newPos] = [newPos, oldPos];
-				return doIt;
-			      };
-			undo.add(doIt(false));
-		      },
-		      doLayerRename = (oldPath: string, newName: string) => {
-			let [parentPath, oldName] = splitAfterLastSlash(oldPath),
-			    newPath = parentPath + "/" + oldName;
-			const doIt = (sendRPC = true) => {
-				renameLayer(oldPath, newName);
-				if (sendRPC) {
-					rpc.renameLayer(oldPath, newName);
-					waitLayerRename[0]({"path": oldPath, "name": newName});
-				}
-				[oldPath, newPath] = [newPath, oldPath];
-				[oldName, newName] = [newName, oldName];
-				return doIt;
-			      };
-			undo.add(doIt(false));
-		      },
-		      doTokenAdd = (path: string, tk: Token, sendRPC = false) => {
-			const layer = getLayer(path);
-			if (!layer || !isSVGLayer(layer)) {
-				handleError("Invalid layer for token add");
-				return () => {};
-			}
-			const token = isTokenImage(tk) ? SVGToken.from(tk) : isTokenDrawing(tk) ? SVGDrawing.from(tk) : SVGShape.from(tk),
-			      addToken = (id: Uint) => {
-				token.id = id;
-				layer.tokens.push(token);
-				globals.tokens[id] = {
-					layer,
-					token
-				};
-			      },
-			      doIt = (sendRPC = true) => {
-				if (sendRPC) {
-					rpc.addToken(path, token).then(addToken);
-				}
-				return () => {
-					delete globals.tokens[token.id];
-					layer.tokens.pop();
-					rpc.removeToken(token.id);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-			return addToken;
-		      },
-		      doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = false) => {
-			const {layer, token} = globals.tokens[id],
-			      newParent = getLayer(to);
-			if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
-				handleError("Invalid Token Move Layer/Pos");
-				return;
-			}
-			if (newPos > newParent.tokens.length) {
-				newPos = newParent.tokens.length;
-			}
-			const currentPos = layer.tokens.findIndex(t => t === token),
-			      doIt = (sendRPC = true) => {
-				newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
-				globals.tokens[id].layer = newParent;
-				if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-					updateLight();
-				}
-				if (globals.selected.token === token) {
-					unselectToken();
-				}
-				if (sendRPC) {
-					rpc.setTokenLayerPos(id, layer.path, newPos);
-				}
-				return () => {
-					newParent.tokens.splice(currentPos, 0, layer.tokens.splice(newPos, 1)[0]);
-					globals.tokens[id].layer = layer;
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
-					if (globals.selected.token === token) {
-						unselectToken();
-					}
-					rpc.setTokenLayerPos(id, newParent.path, currentPos);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doTokenSet = (ts: TokenSet, sendRPC = false) => {
-			const {token} = globals.tokens[ts.id];
-			if (!token) {
-				handleError("Invalid token for token set");
-				return;
-			}
-			let original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
-			for (const k in ts) {
-				switch (k) {
-				case "id":
-					break;
-				case "tokenData":
-					if (token instanceof SVGToken) {
-						const tokenData = ts[k];
-						for (const k in tokenData) {
-							if (token["tokenData"][k]) {
-								original["tokenData"]![k] = token["tokenData"][k];
-							} else {
-								original["removeTokenData"]!.push(k);
-							}
-						}
-					}
-					break;
-				case "removeTokenData":
-					if (token instanceof SVGToken) {
-						const removeTokenData = ts[k]!;
-						for (const k of removeTokenData) {
-							original["tokenData"]![k] = token["tokenData"][k];
-						}
-					}
-					break;
-				default:
-					(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
-				}
-			}
-			const updatePattern = isTokenImage(token) && (!!ts["patternWidth"] || !!ts["patternHeight"]),
-			      doIt = (sendRPC = true) => {
-				for (const k in ts) {
-					switch (k) {
-					case "id":
-						break;
-					case "tokenData":
-						if (token instanceof SVGToken) {
-							const tokenData = ts[k];
-							for (const k in tokenData) {
-								token["tokenData"][k] = tokenData[k];
-							}
-						}
-						break;
-					case "removeTokenData":
-						if (token instanceof SVGToken) {
-							const removeTokenData = ts[k]!;
-							for (const k of removeTokenData) {
-								delete token["tokenData"][k];
-							}
-						}
-						break;
-					default:
-						(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
-					}
-				}
-				token.updateNode()
-				if (sendRPC) {
-					rpc.setToken(ts);
-				}
-				[original, ts] = [ts, original];
-				return doIt;
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doTokenRemove = (tk: Uint, sendRPC = false) => {
-			const {layer, token} = globals.tokens[tk];
-			if (!token) {
-				handleError("invalid token for removal");
-				return;
-			}
-			const pos = layer.tokens.findIndex(t => t === token),
-			      doIt = (sendRPC = true) => {
-				layer.tokens.splice(pos, 1);
-				if (token instanceof SVGToken) {
-					token.cleanup();
-					if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-						updateLight();
-					}
-				}
-				if (sendRPC) {
-					rpc.removeToken(token.id);
-				}
-				return () => {
-					layer.tokens.splice(pos, 0, token);
-					rpc.addToken(layer.path, token).then(id => {
-						token.id = id;
-						globals.tokens[id] = {layer, token};
-					});
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = false) => {
-			const layer = getLayer(path);
-			if (!layer || !isSVGLayer(layer)) {
-				handleError("invalid layer for shifting");
-				return;
-			}
-			const doIt = (sendRPC = true) => {
-				(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
-					t.x += dx;
-					t.y += dy;
-					t.updateNode();
-				});
-				layer.walls.forEach(w => {
-					w.x1 += dx;
-					w.y1 += dy;
-					w.x2 += dx;
-					w.y2 += dy;
-				});
-				updateLight();
-				if (sendRPC) {
-					rpc.shiftLayer(path, dx, dy);
-				}
-				dx = -dx;
-				dy = -dy;
-				return doIt;
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doLightShift = (x: Uint, y: Uint, sendRPC = false) => {
-			let {lightX: oldX, lightY: oldY} = mapData;
-			const doIt = (sendRPC = true) => {
-				mapData.lightX = x;
-				mapData.lightY = y;
-				updateLight();
-				if (sendRPC) {
-					rpc.shiftLight(x, y);
-				}
-				[x, oldX] = [oldX, x];
-				[y, oldY] = [oldY, y];
-				return doIt;
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doWallAdd = (w: WallPath, sendRPC = false) => {
-			const layer = getLayer(w.path);
-			if (!layer || !isSVGLayer(layer)) {
-				handleError("invalid layer for wall add")
-				return;
-			}
-			const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
-			      colour = {r, g, b, a},
-			      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
-			      doIt = (sendRPC = true) => {
-				layer.walls.push(wall);
-				updateLight();
-				if (sendRPC) {
-					rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
-						wall.id = id;
-						globals.walls[id] = {layer, wall};
-					});
-				} else if (w.id > 0) {
-					globals.walls[w.id] = {layer, wall};
-				}
-				return () => {
-					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-					updateLight();
-					rpc.removeWall(wall.id);
-					delete globals.walls[wall.id];
-					wall.id = 0;
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doWallRemove = (wID: Uint, sendRPC = false) => {
-				const {layer, wall} = globals.walls[wID];
-				if (!layer || !wall) {
-					handleError("invalid wall to remove");
-					return;
-				}
-				const doIt = (sendRPC = true) => {
-					layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-					updateLight();
-					if (sendRPC) {
-						rpc.removeWall(wall.id);
-					}
-					delete globals.walls[wall.id];
-					wall.id = 0;
-					return () => {
-						layer.walls.push(wall);
-						updateLight();
-						rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
-							wall.id = id;
-							globals.walls[id] = {layer, wall};
-						});
-						return doIt;
-					};
-				      };
-				undo.add(doIt(sendRPC));
-		      },
-		      doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = false) => {
-			const {token} = globals.tokens[id];
-			if (!token) {
-				handleError("invalid token for light change");
-				return;
-			}
-			let {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token;
-			const doIt = (sendRPC = true) => {
-				token.lightColour = lightColour;
-				token.lightIntensity = lightIntensity;
-				updateLight();
-				if (sendRPC) {
-					rpc.setTokenLight(id, lightColour, lightIntensity);
-				}
-				[lightColour, oldLightColour] = [oldLightColour, lightColour];
-				[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
-				return doIt;
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doMapDataSet = (key: string, data: any, sendRPC = false) => {
-			const oldData = mapData.data[key],
-			      doIt = (sendRPC = true) => {
-				mapData.data[key] = data;
-				if (sendRPC) {
-					rpc.setMapKeyData(key, data);
-				}
-				return () => {
-					if (oldData) {
-						rpc.setMapKeyData(key, mapData.data[key] = oldData);
-					} else {
-						delete mapData.data[key];
-						rpc.removeMapKeyData(key);
-					}
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-		      },
-		      doMapDataRemove = (key: string, sendRPC = false) => {
-			const oldData = mapData.data[key];
-			if (!oldData) {
-				return;
-			}
-			const doIt = (sendRPC = true) => {
-				delete mapData.data[key];
-				if (sendRPC) {
-					rpc.removeMapKeyData(key);
-				}
-				return () => {
-					rpc.setMapKeyData(key, mapData.data[key] = oldData);
-					return doIt;
-				};
-			      };
-			undo.add(doIt(sendRPC));
-		      };
 		canceller = Subscription.canceller(
 			rpc.waitMapChange().then(doMapChange),
 			rpc.waitMapLightChange().then(doSetLightColour),
