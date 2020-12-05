@@ -208,7 +208,7 @@ doLayerRename = (oldPath: string, newName: string) => {
 	      };
 	undo.add(doIt(false));
 },
-doTokenAdd = (path: string, tk: Token, sendRPC = false) => {
+doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	const layer = getLayer(path);
 	if (!layer || !isSVGLayer(layer)) {
 		handleError("Invalid layer for token add");
@@ -237,7 +237,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = false) => {
 	undo.add(doIt(sendRPC));
 	return addToken;
 },
-doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = false) => {
+doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 	const {layer, token} = globals.tokens[id],
 	      newParent = getLayer(to);
 	if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
@@ -275,7 +275,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doTokenSet = (ts: TokenSet, sendRPC = false) => {
+doTokenSet = (ts: TokenSet, sendRPC = true) => {
 	const {token} = globals.tokens[ts.id];
 	if (!token) {
 		handleError("Invalid token for token set");
@@ -345,7 +345,7 @@ doTokenSet = (ts: TokenSet, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doTokenRemove = (tk: Uint, sendRPC = false) => {
+doTokenRemove = (tk: Uint, sendRPC = true) => {
 	const {layer, token} = globals.tokens[tk];
 	if (!token) {
 		handleError("invalid token for removal");
@@ -374,7 +374,7 @@ doTokenRemove = (tk: Uint, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = false) => {
+doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 	const layer = getLayer(path);
 	if (!layer || !isSVGLayer(layer)) {
 		handleError("invalid layer for shifting");
@@ -402,7 +402,7 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doLightShift = (x: Uint, y: Uint, sendRPC = false) => {
+doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
 	let {lightX: oldX, lightY: oldY} = globals.mapData;
 	const doIt = (sendRPC = true) => {
 		globals.mapData.lightX = x;
@@ -417,7 +417,7 @@ doLightShift = (x: Uint, y: Uint, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doWallAdd = (w: WallPath, sendRPC = false) => {
+doWallAdd = (w: WallPath, sendRPC = true) => {
 	const layer = getLayer(w.path);
 	if (!layer || !isSVGLayer(layer)) {
 		handleError("invalid layer for wall add")
@@ -448,7 +448,7 @@ doWallAdd = (w: WallPath, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doWallRemove = (wID: Uint, sendRPC = false) => {
+doWallRemove = (wID: Uint, sendRPC = true) => {
 		const {layer, wall} = globals.walls[wID];
 		if (!layer || !wall) {
 			handleError("invalid wall to remove");
@@ -474,7 +474,7 @@ doWallRemove = (wID: Uint, sendRPC = false) => {
 		      };
 		undo.add(doIt(sendRPC));
 },
-doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = false) => {
+doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
 	const {token} = globals.tokens[id];
 	if (!token) {
 		handleError("invalid token for light change");
@@ -494,7 +494,7 @@ doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendR
 	      };
 	undo.add(doIt(sendRPC));
 },
-doMapDataSet = (key: string, data: any, sendRPC = false) => {
+doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	const oldData = globals.mapData.data[key],
 	      doIt = (sendRPC = true) => {
 		globals.mapData.data[key] = data;
@@ -513,7 +513,7 @@ doMapDataSet = (key: string, data: any, sendRPC = false) => {
 	      };
 	undo.add(doIt(sendRPC));
 },
-doMapDataRemove = (key: string, sendRPC = false) => {
+doMapDataRemove = (key: string, sendRPC = true) => {
 	const oldData = globals.mapData.data[key];
 	if (!oldData) {
 		return;
@@ -626,7 +626,7 @@ export default function(base: HTMLElement) {
 			      newWidth = Math.round(token.width),
 			      newHeight = Math.round(token.height);
 			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
-				doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation}, true);
+				doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
 			}
 		      },
 		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
@@ -667,7 +667,7 @@ export default function(base: HTMLElement) {
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			}
 			const lp = globals.selected.layer.path;
-			doTokenAdd(lp, token, true);
+			doTokenAdd(lp, token);
 		      }, "onmousedown": (e: MouseEvent) => {
 			const {layer} = globals.selected;
 			if (!layer || e.button !== 0) {
@@ -709,7 +709,7 @@ export default function(base: HTMLElement) {
 				return;
 			}
 			if (e.key === "Delete") {
-				doTokenRemove(token.id, true);
+				doTokenRemove(token.id);
 				return;
 			}
 			let newX = token.x,
@@ -743,7 +743,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 			}
-			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation}, true);
+			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
 		      }, "onkeydown": (e: KeyboardEvent) => {
 			const {token} = globals.selected;
 			if (!token) {
@@ -789,14 +789,14 @@ export default function(base: HTMLElement) {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						doTokenSet({"id": currToken.id, "flip": currToken.flip}, true);
+						doTokenSet({"id": currToken.id, "flip": currToken.flip});
 						outline.focus();
 					}),
 					item(lang["CONTEXT_FLOP"], () => {
 						if (!(currToken instanceof SVGToken)) {
 							return;
 						}
-						doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop}, true);
+						doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
 						outline.focus();
 					}),
 					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
@@ -804,9 +804,9 @@ export default function(base: HTMLElement) {
 							return;
 						}
 						if (currToken.isPattern) {
-							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height}, true);
+							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
 						} else {
-							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0}, true);
+							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
 						}
 					}),
 				] : [],
@@ -821,10 +821,10 @@ export default function(base: HTMLElement) {
 						      newHeight = Math.max(Math.round(height / sq) * sq, sq),
 						      newRotation = Math.round(rotation / 32) * 32 % 256;
 						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
-							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap}, true);
+							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap});
 						}
 					} else {
-						doTokenSet({"id": currToken.id, "snap": !snap}, true);
+						doTokenSet({"id": currToken.id, "snap": !snap});
 					}
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
@@ -868,7 +868,7 @@ export default function(base: HTMLElement) {
 							return;
 						}
 						const currLayer = globals.tokens[currToken.id].layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1, true);
+						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 					}),
 					item(lang["CONTEXT_MOVE_UP"], () => {
 						if (!globals.tokens[currToken.id]) {
@@ -876,7 +876,7 @@ export default function(base: HTMLElement) {
 						}
 						const currLayer = globals.tokens[currToken.id].layer,
 						      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos, true);
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 					})
 				] : [],
 				tokenPos > 0 ? [
@@ -886,14 +886,14 @@ export default function(base: HTMLElement) {
 						}
 						const currLayer = globals.tokens[currToken.id].layer,
 						      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos, true);
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 					}),
 					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
 						if (!globals.tokens[currToken.id]) {
 							return;
 						}
 						const currLayer = globals.tokens[currToken.id].layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, 0, true);
+						doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 					})
 				] : [],
 				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
@@ -901,7 +901,7 @@ export default function(base: HTMLElement) {
 						return;
 					}
 					const currLayer = globals.tokens[currToken.id].layer;
-					doTokenMoveLayerPos( currToken.id, currLayer.path, currLayer.tokens.length, true);
+					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length);
 				}, currLayer.name)),
 				item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 			]);
@@ -992,17 +992,17 @@ export default function(base: HTMLElement) {
 				removeLayer(path);
 				undo.clear();
 			}),
-			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token)(token.id)),
-			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos)),
-			rpc.waitTokenSet().then(doTokenSet),
-			rpc.waitTokenRemove().then(doTokenRemove),
-			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy)),
-			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y)),
-			rpc.waitWallAdded().then(doWallAdd),
-			rpc.waitWallRemoved().then(doWallRemove),
-			rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity)),
-			rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data)),
-			rpc.waitMapDataRemove().then(doMapDataRemove)
+			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token, false)(token.id)),
+			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false)),
+			rpc.waitTokenSet().then(t => doTokenSet(t, false)),
+			rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false)),
+			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false)),
+			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y, false)),
+			rpc.waitWallAdded().then(w => doWallAdd(w, false)),
+			rpc.waitWallRemoved().then(wid => doWallRemove(wid, false)),
+			rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity, false)),
+			rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data, false)),
+			rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false))
 		);
 		mapLoadedSend(true);
 	}));
