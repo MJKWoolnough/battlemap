@@ -720,6 +720,19 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		m.config.Get("currentUserMap", &cu)
 		if _, _, id := m.getFolderItem(mapPath); id == uint64(cu) {
 			return nil, ErrCurrentlySelected
+		} else {
+			inUse := false
+			m.socket.mu.RLock()
+			for c := range m.socket.conns {
+				if c.CurrentMap == id {
+					inUse = true
+					break
+				}
+			}
+			m.socket.mu.RUnlock()
+			if inUse {
+				return nil, ErrCurrentlyInUse
+			}
 		}
 	case "rename":
 		var (
@@ -793,6 +806,7 @@ func validTokenLayer(path string) bool {
 var (
 	ErrInvalidData               = errors.New("invalid map data")
 	ErrCurrentlySelected         = errors.New("cannot remove or rename currently selected map")
+	ErrCurrentlyInUse            = errors.New("cannot remove or rename map currently in use")
 	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
 	ErrInvalidLayerPath          = errors.New("invalid layer path")
 	ErrInvalidTokenPos           = errors.New("invalid token pos")
