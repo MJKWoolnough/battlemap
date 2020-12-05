@@ -4,11 +4,12 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {symbol, g, path} from './lib/svg.js';
 import {WindowElement, loadingWindow, windows} from './windows.js';
 import {mapLoadedReceive, requestShell} from './misc.js';
-import {getToken} from './adminMap.js';
+import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
+import undo from './undo.js';
 
 let n = 0,
     lastMapChanged = 0;
@@ -30,7 +31,42 @@ const allowedKey = (key: string, character: boolean) => {
 		      path({"d": "M10,30 L20,47 L47,0", "stroke": "#0f0", "fill": "none", "style": "display: var(--check-on, block)"}),
 		      path({"d": "M10,47 L47,0 M10,0 L47,47", "stroke": "#f00", "fill": "none", "style": "display: var(--check-off, none)"})
 	      ])
-      ]));
+      ])),
+      doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
+	let oldChanges: Record<string, KeystoreData> = {},
+	    oldRemoves: string[] = [];
+	const char = characterData.get(id)!,
+	      doIt = (sendRPC = true) => {
+		Object.assign(char, changes);
+		for (const r of removes) {
+			delete char[r];
+		}
+		if (sendRPC) {
+			rpc.characterModify(id, changes, removes)
+		}
+		[changes, oldChanges] = [oldChanges, changes];
+		[removes, oldRemoves] = [oldRemoves, removes];
+		return doIt;
+	      };
+	for (const k in changes) {
+		if (char[k]) {
+			oldChanges[k] = char[k];
+		} else {
+			oldRemoves.push(k);
+		}
+	}
+	for (const r of removes) {
+		if (char[r]) {
+			oldChanges[r] = char[r];
+		}
+	}
+	undo.add(doIt(false));
+      },
+      doTokenModify = (id: Uint, tokenData: Record<string, KeystoreData>, removeTokenData: string[]) => {
+	const t = {id, tokenData, removeTokenData};
+	doTokenSet(t, false);
+	return rpc.setToken(t);
+      };
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => {
@@ -124,10 +160,8 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			}
 			return true;
 		      });
-		return loadingWindow((character ? rpc.characterModify(id, changes, rms) : rpc.setToken({id, "tokenData": changes, "removeTokenData": rms})).then(() => {
-			Object.assign(d, changes);
+		return loadingWindow((character ? (doCharacterModify(id, changes, rms), rpc.characterModify(id, changes, rms)) : doTokenModify(id, changes, rms)).then(() => {
 			keys.forEach(k => delete changes[k]);
-			removes.forEach(k => delete d[k]);
 			removes.clear();
 		}), w);
 	      },
@@ -177,15 +211,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 }
 
 export default function () {
-	rpc.waitCharacterDataChange().then(d => {
-		const char = characterData.get(d.id);
-		if (char) {
-			Object.assign(char, d.setting);
-			for (const r of d.removing) {
-				delete char[r];
-			}
-		}
-	});
+	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
 
 };
