@@ -84,7 +84,7 @@ unselectToken = () => {
 	globals.outline.style.setProperty("display", "none");
 	tokenSelected();
 },
-doMapChange = (details: MapDetails) => {
+doMapChange = (details: MapDetails, sendRPC = true) => {
 	const oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour},
 	      doIt = (sendRPC = true) => {
 		setMapDetails(details);
@@ -97,9 +97,9 @@ doMapChange = (details: MapDetails) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
       },
-doSetLightColour = (c: Colour) => {
+doSetLightColour = (c: Colour, sendRPC = true) => {
 	const oldColour = globals.mapData.lightColour,
 	      doIt = (sendRPC = true) => {
 		setLightColour(c);
@@ -112,9 +112,9 @@ doSetLightColour = (c: Colour) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 },
-doShowHideLayer = (path: string, visibility: boolean) => {
+doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 	const doIt = (sendRPC = true) => {
 		checkSelectedLayer(path);
 		setLayerVisibility(path, visibility);
@@ -130,10 +130,10 @@ doShowHideLayer = (path: string, visibility: boolean) => {
 		visibility = !visibility;
 		return doIt;
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 	return path;
 },
-doLayerAdd = (name: string) => {
+doLayerAdd = (name: string, sendRPC = true) => {
 	const path = "/" + name,
 	      doIt = (sendRPC = true) => {
 		addLayer(name);
@@ -149,10 +149,10 @@ doLayerAdd = (name: string) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 	return name;
 },
-doLayerFolderAdd = (path: string) => {
+doLayerFolderAdd = (path: string, sendRPC = true) => {
 	const doIt = (sendRPC = true) => {
 		addLayerFolder(path);
 		if (sendRPC) {
@@ -166,10 +166,10 @@ doLayerFolderAdd = (path: string) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 	return path;
 },
-doLayerMove = (from: string, to: string, newPos: Uint) => {
+doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
 	const [parent, layer] = getParentLayer(from);
 	if (!parent || !layer) {
 		handleError("Invalid layer move");
@@ -191,9 +191,9 @@ doLayerMove = (from: string, to: string, newPos: Uint) => {
 		[oldPos, newPos] = [newPos, oldPos];
 		return doIt;
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 },
-doLayerRename = (oldPath: string, newName: string) => {
+doLayerRename = (oldPath: string, newName: string, sendRPC = true) => {
 	let [parentPath, oldName] = splitAfterLastSlash(oldPath),
 	    newPath = parentPath + "/" + oldName;
 	const doIt = (sendRPC = true) => {
@@ -206,7 +206,7 @@ doLayerRename = (oldPath: string, newName: string) => {
 		[oldName, newName] = [newName, oldName];
 		return doIt;
 	      };
-	undo.add(doIt(false));
+	undo.add(doIt(sendRPC));
 },
 doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	const layer = getLayer(path);
@@ -931,10 +931,10 @@ export default function(base: HTMLElement) {
 			"waitLayerPositionChange": () => waitLayerPositionChange[1],
 			"waitLayerRename": () => waitLayerRename[1],
 			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path).then(doLayerFolderAdd),
+			"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 			"move": invalidRPC,
 			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name), name)),
+			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name, false), name)),
 			"remove": path => {
 				undo.clear();
 				return removeS(path);
@@ -944,41 +944,41 @@ export default function(base: HTMLElement) {
 				return removeS(path);
 			},
 			"link": invalidRPC,
-			"newLayer": (name: string) => rpc.addLayer(name).then(doLayerAdd),
-			"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility)),
+			"newLayer": (name: string) => rpc.addLayer(name).then(n => doLayerAdd(n, false)),
+			"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false)),
 			"setLayer": (path: string) => {
 				globals.selected.layer = getLayer(path) as SVGLayer;
 				unselectToken();
 			},
 			"setLayerMask": (path: string) => {},
 			"moveLayer": (from: string, to: string, position: Uint) => {
-				doLayerMove(from, to, position);
+				doLayerMove(from, to, position, false);
 				return rpc.moveLayer(from, to, position);
 			},
 			"getMapDetails": () => mapData,
 			"setMapDetails": (details: MapDetails) => {
-				doMapChange(details);
+				doMapChange(details, false);
 				return rpc.setMapDetails(details)
 			},
 			"getLightColour": () => mapData.lightColour,
 			"setLightColour": (c: Colour) => {
-				doSetLightColour(c);
+				doSetLightColour(c, false);
 				return rpc.setLightColour(c)
 			},
 		});
 		canceller = Subscription.canceller(
-			rpc.waitMapChange().then(doMapChange),
-			rpc.waitMapLightChange().then(doSetLightColour),
-			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true))),
-			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false))),
-			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name)}])),
-			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path))),
+			rpc.waitMapChange().then(d => doMapChange(d, false)),
+			rpc.waitMapLightChange().then(c => doSetLightColour(c, false)),
+			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false))),
+			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false, false))),
+			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name, false)}])),
+			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false))),
 			rpc.waitLayerMove().then(({from, to, position}) => {
-				doLayerMove(from, to, position);
+				doLayerMove(from, to, position, false);
 				waitLayerPositionChange[0]({from, to, position});
 			}),
 			rpc.waitLayerRename().then(lr => {
-				doLayerRename(lr["path"], lr["name"]);
+				doLayerRename(lr["path"], lr["name"], false);
 				waitLayerRename[0](lr);
 			}),
 			rpc.waitLayerRemove().then(path => {
