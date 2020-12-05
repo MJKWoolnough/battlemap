@@ -1,11 +1,10 @@
 import {LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
-import {SVGToken, globals, updateLight} from './map.js';
+import {globals, updateLight} from './map.js';
+import {doLayerShift} from './adminMap.js';
 import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
-import {rpc} from './rpc.js';
-import undo from './undo.js';
 import lang from './language.js';
 
 let ml: LayerRPC;
@@ -38,40 +37,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
 		selectedLayer.node.removeAttribute("transform");
-		const doIt = () => {
-			dx = Math.round(dx);
-			dy = Math.round(dy);
-			(selectedLayer.tokens as SVGToken[]).forEach(t => {
-				t.x += dx;
-				t.y += dy;
-				t.updateNode();
-			});
-			selectedLayer.walls.forEach(w => {
-				w.x1 += dx;
-				w.y1 += dy;
-				w.x2 += dx;
-				w.y2 += dy;
-			});
-			rpc.shiftLayer(selectedLayer.path, dx, dy);
-			updateLight();
-			return () => {
-				(selectedLayer.tokens as SVGToken[]).forEach(t => {
-					t.x -= dx;
-					t.y -= dy;
-					t.updateNode();
-				});
-				selectedLayer.walls.forEach(w => {
-					w.x1 -= dx;
-					w.y1 -= dy;
-					w.x2 -= dx;
-					w.y2 -= dy;
-				});
-				rpc.shiftLayer(selectedLayer.path, -dx, -dy);
-				updateLight();
-				return doIt;
-			};
-		};
-		undo.add(doIt());
+		doLayerShift(selectedLayer.path, dx, dy);
 	      };
 	deselectToken();
 	this.addEventListener("mousemove", mover);
