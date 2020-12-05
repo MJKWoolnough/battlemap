@@ -8,7 +8,6 @@ import {div} from './lib/html.js';
 import {scrollAmount} from './settings.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
-import Undo from './undo.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
 
