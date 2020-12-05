@@ -5,10 +5,10 @@ import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
 import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkLayers} from './map.js';
+import {doLightShift, doWallAdd, doWallRemove} from './adminMap.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {rpc} from './rpc.js';
-import undo from './undo.js';
 import lang from './language.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
@@ -78,17 +78,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		return;
 	}
 	if (sunTool.checked) {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-		      {lightX, lightY} = globals.mapData,
-		      doIt = () => {
-			rpc.shiftLight(globals.mapData.lightX = x, globals.mapData.lightY = y);
-			updateLight();
-			return () => {
-				rpc.shiftLight(globals.mapData.lightX = lightX, globals.mapData.lightY = lightY);
-				return doIt;
-			};
-		      };
-		undo.add(doIt());
+		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+		doLightShift(x, y);
 	} else if (wallTool.checked) {
 		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
 		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
@@ -108,34 +99,21 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 			}
 			reset();
 			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-			      w = normaliseWall({"id": 0, x1, y1, x2, y2, "colour": wallColour}),
 			      {layer: selectedLayer} = globals.selected;
 			if (x2 === x1 && y2 === y1) {
 				return;
 			}
 			if (selectedLayer) {
-				const wall = {
-					"wall": w,
-					"element": line({x1, y1, x2, y2, "stroke": colour2RGBA(wallColour)}, title(selectedLayer.path)),
-					"layer": selectedLayer,
-					"pos": selectedLayer.walls.length
-				      },
-				      doIt = () => {
-					walls.push(wall);
-					wallLayer.appendChild(wall.element);
-					wall.layer.walls.push(w);
-					rpc.addWall(wall.layer.path, w.x1, w.y1, w.x2, w.y2, w.colour).then(id => w.id = id);
-					updateLight();
-					return () => {
-						walls.pop();
-						wall.element.remove();
-						wall.layer.walls.pop();
-						rpc.removeWall(wall.wall.id);
-						updateLight();
-						return doIt;
-					};
-				      };
-				undo.add(doIt());
+				doWallAdd({
+					"path": selectedLayer.path,
+					"id": 0,
+					x1,
+					y1,
+					x2,
+					y2,
+					"colour": wallColour
+				});
+				genWalls();
 			}
 		      },
 		      onkeydown = (e: KeyboardEvent) => {
@@ -146,25 +124,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
 		createSVG(this, {onmousemove, onmouseup}, l)
 		window.addEventListener("keydown", onkeydown);
 	} else if (lastWall !== null) {
-		const wall = lastWall,
-		      doIt = () => {
-			wall.element.remove();
-			wall.layer.walls.splice(wall.pos, 1);
-			rpc.removeWall(wall.wall.id);
-			if (lastWall === wall) {
-				lastWall = null;
-			}
-			updateLight();
-			return () => {
-				walls.push(wall);
-				wallLayer.appendChild(wall.element);
-				wall.layer.walls.push(wall.wall);
-				rpc.addWall(wall.layer.path, wall.wall.x1, wall.wall.y1, wall.wall.x2, wall.wall.y2, wall.wall.colour);
-				updateLight();
-				return doIt;
-			};
-		      };
-		undo.add(doIt());
+		doWallRemove(lastWall.wall.id);
+		genWalls();
 	}
       },
       wallLayer = g({"stroke-width": 2}),
