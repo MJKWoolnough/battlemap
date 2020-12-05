@@ -4,10 +4,9 @@ import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/s
 import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
+import {doTokenAdd} from './adminMap.js';
 import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
-import {rpc} from './rpc.js';
-import undo from './undo.js';
 import lang from './language.js';
 
 let over = false,
@@ -47,17 +46,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				      height = Math.abs(cy - y),
 				      token = {"id": 0, "x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
 				if (selectedLayer) {
-					const doIt = () => {
-						const pos = selectedLayer.tokens.length;
-						selectedLayer.tokens.push(SVGShape.from(token));
-						rpc.addToken(selectedLayer.path, token).then(id => token.id = id);
-						return () => {
-							selectedLayer.tokens.pop();
-							rpc.removeToken(token.id);
-							return doIt;
-						};
-					      };
-					undo.add(doIt());
+					doTokenAdd(selectedLayer.path, token);
 				} else {
 					requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 				}
@@ -120,17 +109,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			const {layer: selectedLayer} = globals.selected,
 			      token = {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
 			if (selectedLayer) {
-				const doIt = () => {
-					const pos = selectedLayer.tokens.length;
-					selectedLayer.tokens.push(SVGDrawing.from(token));
-					rpc.addToken(selectedLayer.path, token).then(id => token.id = id);
-					return () => {
-						selectedLayer.tokens.pop();
-						rpc.removeToken(token.id);
-						return doIt;
-					};
-				      };
-				undo.add(doIt());
+				doTokenAdd(selectedLayer.path, token);
 			} else {
 				requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 			}
