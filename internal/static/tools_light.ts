@@ -211,7 +211,7 @@ addTool({
 			rpc.waitLayerShow,
 			rpc.waitLayerHide,
 			rpc.waitLayerShift
-		] as (() => Subscription<any>)[]).map(fn => fn().then(genWalls)));
+		] as (() => Subscription<any>)[]).map(fn => fn().then(() => window.setTimeout(genWalls, 0))));
 		on = true;
 		genWalls();
 		globals.root.appendChild(wallLayer);
