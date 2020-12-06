@@ -39,7 +39,6 @@ type TokenFields = {
 	"5e-ac"?: KeystoreData<Uint>;
 	"5e-hp-max"?: KeystoreData<Uint>;
 	"5e-hp-current"?: KeystoreData<Uint>;
-	"5e-initiative"?: KeystoreData<IDInitiative>;
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
@@ -51,13 +50,14 @@ type Token5E = SVGToken & {
 
 type Initiative = {
 	token: Token5E;
+	initiative: Uint;
 	hidden: boolean;
 	node: HTMLLIElement;
 }
 
 type MapData5E = MapData & {
 	data: {
-		"5e-initiative"?: Uint[];
+		"5e-initiative"?: IDInitiative[];
 	}
 }
 
@@ -435,7 +435,10 @@ const langs: Record<string, Record<string, string>> = {
       sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-initiative"]!.data.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-initiative"]!.data.initiative,
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
-      saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => i.token.tokenData["5e-initiative"]!.data.id)),
+      saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => ({
+	"id": i.token.id,
+	"initiative": i.initiative
+      }))),
       savedWindowSetting = new JSONSetting<WindowData>("5e-window-data", [0, 0, 200, 400], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowSetting.value[0] + "px", "--window-top": savedWindowSetting.value[1] + "px", "--window-width": savedWindowSetting.value[2] + "px", "--window-height": savedWindowSetting.value[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), }, div({"id": "initiative-window-5e"}, [
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
@@ -461,29 +464,28 @@ const langs: Record<string, Record<string, string>> = {
 	] : []
       ])),
       updateInitiative = () => {
-	const {mapData: {data: {"5e-initiative": initiative}}} = globals,
-	      tokens = new Map<Uint, [boolean, Token5E]>();
+	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	if (!initiative) {
 		return;
 	}
-	walkLayers((e, isHidden) => {
-		for (const t of e.tokens) {
-			if (t instanceof SVGToken && t.tokenData["5e-initiative"]) {
-				const {tokenData: {"5e-initiative": {data: idInitiative}}} = t;
-				tokens.set(idInitiative.id, [isHidden, t]);
-				if (idInitiative.id > lastInitiativeID) {
-					lastInitiativeID = idInitiative.id;
-				}
-			}
+	initiativeList.splice(0, initiativeList.length);
+	const hiddenLayers = new Set<string>();
+	walkLayers((l, isHidden) => {
+		if (isHidden) {
+			hiddenLayers.add(l.path);
 		}
 	});
-	initiativeList.splice(0, initiativeList.length);
 	for (const i of initiative) {
-		if (tokens.has(i)) {
-			const [hidden, token] = tokens.get(i)!;
+		if (tokens[i]) {
+			const {layer, token} = tokens[i];
+			if (!(token instanceof SVGToken5E)) {
+				continue;
+			}
+			const hidden = hiddenLayers.has(layer.path);;
 			initiativeList.push({
 				token,
 				hidden,
+				"initiative": i.initiative,
 				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => {
 					if (token.node.parentNode) {
 						createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
@@ -700,15 +702,12 @@ const langs: Record<string, Record<string, string>> = {
 						requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 						throw new Error("map changed");
 					}
-					const id = ++lastInitiativeID,
-					      change = {"5e-initiative": {"user": true, "data": {id, initiative}}};
-					Object.assign(token.tokenData, change);
-					rpc.setToken({"id": token.id, "tokenData": change});
-					const md = globals.mapData as MapData5E;
+					const md = globals.mapData as MapData5E,
+					      data = {"id": token.id, initiative};
 					if (md.data["5e-initiative"]) {
-						md.data["5e-initiative"].push(id);
+						md.data["5e-initiative"].push(data);
 					} else {
-						md.data["5e-initiative"] = [id];
+						md.data["5e-initiative"] = [data];
 					}
 					updateInitiative();
 					saveInitiative();
@@ -803,7 +802,7 @@ const langs: Record<string, Record<string, string>> = {
 	},
 	"tokenDataFilter": {
 		"priority": 0,
-		"fn": ["5e-initiative", "store-image-5e-initial-token"]
+		"fn": ["store-image-5e-initial-token"]
 	}
       };
 
@@ -1063,13 +1062,21 @@ addMapDataChecker((data: Record<string, any>) => {
 	for (const key in data) {
 		let err = "";
 		if (key === "5e-initiative") {
-			const val = data[key];
+			const val = data[key] as IDInitiative[];
 			if (!(val instanceof Array)) {
 				err = "Map Data value of 5e-initiative needs to be an array";
 			} else {
 				for (const i of val) {
-					if (!isUint(i)) {
-						err = "Map Data value of 5e-initiative needs to be an array of Uints";
+					if (!(i instanceof Object)) {
+						err = "Map Data value of 5e-initiative needs to be an array of Objects";
+						break;
+					}
+					if (!isUint(i.id)) {
+						err = "Map Data value of IDInitiative.id needs to be a Uint";
+						break;
+					}
+					if (!isInt(i.initiative)) {
+						err = "Map Data value of 5e-initiative needs to be an Int";
 						break;
 					}
 				}
@@ -1148,11 +1155,6 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		case "5e-initiative-mod":
 			if (!isInt(val, -20, 20)) {
 				err = "Token Data '5e-initiative-mod' must be an Int between -20 and 20";
-			}
-			break;
-		case "5e-initiative":
-			if (!(val instanceof Object) || !isUint(val.id) || !isInt(val.initiative, -20, 40)) {
-				err = "Token Data '5e-initiative' must be an IDInitiative object";
 			}
 			break;
 		case "5e-conditions":
