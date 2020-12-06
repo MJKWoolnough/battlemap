@@ -1043,9 +1043,9 @@ rpc.waitPluginSetting().then(setting => {
 	}
 })
 
-combinedRPC.waitTokenRemove().then(id => {
-	setTimeout(updateInitiative, 0);
-});
+combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative, 0));
+combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative, 0));
+combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative, 0));
 
 tokenSelectedReceive(() => {
 	if (lastSelectedToken) {
