@@ -525,7 +525,7 @@ const langs: Record<string, Record<string, string>> = {
 		"5e-ac": null,
 		"5e-hp-max": null,
 		"5e-hp-current": null
-	},
+	      },
 	      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
 	if (name) {
 		tokenData["name"] = {"user": name.user, "data": name.data};
