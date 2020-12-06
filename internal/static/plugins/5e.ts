@@ -6,7 +6,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
-import {getToken} from '../adminMap.js';
+import {getToken, doMapDataSet} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
@@ -435,7 +435,7 @@ const langs: Record<string, Record<string, string>> = {
       sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-initiative"]!.data.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-initiative"]!.data.initiative,
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
-      saveInitiative = () => rpc.setMapKeyData("5e-initiative", (globals.mapData as MapData5E).data["5e-initiative"] = initiativeList.map(i => ({
+      saveInitiative = () => doMapDataSet("5e-initiative", initiativeList.map(i => ({
 	"id": i.token.id,
 	"initiative": i.initiative
       }))),
