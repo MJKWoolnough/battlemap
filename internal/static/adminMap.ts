@@ -842,21 +842,7 @@ export default function(base: HTMLElement) {
 						br(),
 						button({"onclick": () => {
 							if (globals.selected.token === currToken) {
-								const cc = c,
-								      ci = parseInt(i.value);
-								if (ci >= 0) {
-									const {lightColour, lightIntensity} = currToken,
-									      doIt = () => {
-										rpc.setTokenLight(currToken.id, currToken.lightColour = cc, currToken.lightIntensity = ci);
-										updateLight();
-										return () => {
-											rpc.setTokenLight(currToken.id, currToken.lightColour = lightColour, currToken.lightIntensity = lightIntensity);
-											updateLight();
-											return doIt;
-										};
-									};
-									undo.add(doIt());
-								}
+								doTokenLightChange(currToken.id, c, parseInt(i.value));
 							}
 							w.close();
 						}}, lang["SAVE"])
