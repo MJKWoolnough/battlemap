@@ -463,7 +463,22 @@ const langs: Record<string, Record<string, string>> = {
 		}}, initNext))
 	] : []
       ])),
-      updateInitiative = () => {
+      addToInitiative = (token: SVGToken5E, initiative: Uint, hidden: boolean) => initiativeList.push({
+	token,
+	hidden,
+	initiative,
+	node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => {
+		if (token.node.parentNode) {
+			createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
+			token.node.parentNode.insertBefore(highlight, token.node);
+		}
+	}, "onmouseleave": () => highlight.remove()}, [
+		img({"src": `/images/${token.src}`}),
+		span(token.getData("name") ?? ""),
+		span(token.tokenData["5e-initiative"]!.data.initiative.toString())
+	])
+      }),
+      updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	if (!initiative) {
 		return;
@@ -481,22 +496,22 @@ const langs: Record<string, Record<string, string>> = {
 			if (!(token instanceof SVGToken5E)) {
 				continue;
 			}
-			const hidden = hiddenLayers.has(layer.path);;
-			initiativeList.push({
-				token,
-				hidden,
-				"initiative": i.initiative,
-				node: li({"style": hidden && userLevel === 0 ? "display: none" : undefined, "onmouseover": () => {
-					if (token.node.parentNode) {
-						createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
-						token.node.parentNode.insertBefore(highlight, token.node);
-					}
-				}, "onmouseleave": () => highlight.remove()}, [
-					img({"src": `/images/${token.src}`}),
-					span(token.getData("name") ?? ""),
-					span(token.tokenData["5e-initiative"]!.data.initiative.toString())
-				])
-			});
+			let initiative = i.initiative;
+			if (change && change[0] === i.id) {
+				const i = change[1];
+				change = undefined;
+				if (i === null) {
+					continue;
+				}
+				initiative = i;
+			}
+			addToInitiative(token, initiative, hiddenLayers.has(layer.path));
+		}
+	}
+	if (change && change[1] !== null) {
+		const {token, layer} = tokens[change[0]];
+		if (token instanceof SVGToken5E) {
+			addToInitiative(token, change[1], hiddenLayers.has(layer.path));
 		}
 	}
 	if (initiativeList.length && !initiativeWindow.parentNode) {
