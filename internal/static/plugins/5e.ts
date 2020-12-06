@@ -701,8 +701,16 @@ const langs: Record<string, Record<string, string>> = {
 					}
 					const md = globals.mapData as MapData5E,
 					      data = {"id": token.id, initiative};
-					if (md.data["5e-initiative"]) {
-						md.data["5e-initiative"].push(data);
+					if (md.data["5e-initiative"] instanceof Array) {
+						if (!md.data["5e-initiative"].some(i => {
+							if (i.id === token.id) {
+								i.initiative = initiative;
+								return true;
+							}
+							return false;
+						})) {
+							md.data["5e-initiative"].push(data);
+						}
 					} else {
 						md.data["5e-initiative"] = [data];
 					}
