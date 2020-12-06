@@ -475,9 +475,9 @@ const langs: Record<string, Record<string, string>> = {
 			hiddenLayers.add(l.path);
 		}
 	});
-	for (const i of initiative) {
-		if (tokens[i]) {
-			const {layer, token} = tokens[i];
+	for (const i of initiative as IDInitiative[]) {
+		if (tokens[i.id]) {
+			const {layer, token} = tokens[i.id];
 			if (!(token instanceof SVGToken5E)) {
 				continue;
 			}
