@@ -6,7 +6,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
-import {getToken, doMapDataSet} from '../adminMap.js';
+import {getToken, doMapDataSet, doTokenSet} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
@@ -679,12 +679,9 @@ const langs: Record<string, Record<string, string>> = {
 						if (token !== lastSelectedToken) {
 							return;
 						}
-						let data = token.getData("5e-conditions");
-						if (!data) {
-							data = token.tokenData["5e-conditions"] = {"user": true, "data": data = Array.from({"length": conditions.length}, _ => false)};
-						}
+						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
 						data[n] = !data[n];
-						rpc.setToken({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
 						token.updateData();
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
