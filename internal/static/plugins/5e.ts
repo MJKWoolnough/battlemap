@@ -670,9 +670,8 @@ const langs: Record<string, Record<string, string>> = {
 								if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
 									const init = parseInt(initiative);
 									if (isInt(init, -20, 40)) {
-										token.tokenData["5e-initiative"].data.initiative = init;
-										rpc.setToken({"id": token.id, "tokenData": {"5e-initiative": {"user": true, "data": token.tokenData["5e-initiative"].data}}});
-										updateInitiative();
+										updateInitiative([token.id, init]);
+										saveInitiative();
 									}
 								}
 							});
@@ -682,12 +681,7 @@ const langs: Record<string, Record<string, string>> = {
 						if (token !== lastSelectedToken) {
 							return;
 						}
-						initiativeList.filterRemove(i => i.token === token);
-						if (initiativeList.length === 0) {
-							initiativeWindow.remove();
-						}
-						delete(token.tokenData["5e-initiative"]);
-						rpc.setToken({"id": token.id, "removeTokenData": ["5e-initiative"]});
+						updateInitiative([token.id, null]);
 						saveInitiative();
 					}),
 					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[`CONDITION_${c}`], () => {
@@ -707,29 +701,14 @@ const langs: Record<string, Record<string, string>> = {
 					}
 					return parseInt(initiative);
 				})).then(initiative => {
-					if (token !== lastSelectedToken) {
+					if (token !== lastSelectedToken || !isInt(initiative, -20, 40)) {
 						return;
 					}
 					if (lastMapChange !== mapChange) {
 						requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 						throw new Error("map changed");
 					}
-					const md = globals.mapData as MapData5E,
-					      data = {"id": token.id, initiative};
-					if (md.data["5e-initiative"] instanceof Array) {
-						if (!md.data["5e-initiative"].some(i => {
-							if (i.id === token.id) {
-								i.initiative = initiative;
-								return true;
-							}
-							return false;
-						})) {
-							md.data["5e-initiative"].push(data);
-						}
-					} else {
-						md.data["5e-initiative"] = [data];
-					}
-					updateInitiative();
+					updateInitiative([token.id, initiative]);
 					saveInitiative();
 				}).catch(() => {})));
 			}
