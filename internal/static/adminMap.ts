@@ -454,30 +454,30 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 	undo.add(doIt(sendRPC));
 },
 doWallRemove = (wID: Uint, sendRPC = true) => {
-		const {layer, wall} = globals.walls[wID];
-		if (!layer || !wall) {
-			handleError("invalid wall to remove");
-			return;
+	const {layer, wall} = globals.walls[wID];
+	if (!layer || !wall) {
+		handleError("invalid wall to remove");
+		return;
+	}
+	const doIt = (sendRPC = true) => {
+		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+		updateLight();
+		if (sendRPC) {
+			rpc.removeWall(wall.id);
 		}
-		const doIt = (sendRPC = true) => {
-			layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+		delete globals.walls[wall.id];
+		wall.id = 0;
+		return () => {
+			layer.walls.push(wall);
 			updateLight();
-			if (sendRPC) {
-				rpc.removeWall(wall.id);
-			}
-			delete globals.walls[wall.id];
-			wall.id = 0;
-			return () => {
-				layer.walls.push(wall);
-				updateLight();
-				rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
-					wall.id = id;
-					globals.walls[id] = {layer, wall};
-				});
-				return doIt;
-			};
-		      };
-		undo.add(doIt(sendRPC));
+			rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+				wall.id = id;
+				globals.walls[id] = {layer, wall};
+			});
+			return doIt;
+		};
+	      };
+	undo.add(doIt(sendRPC));
 },
 doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
 	const {token} = globals.tokens[id];
