@@ -641,7 +641,7 @@ const langs: Record<string, Record<string, string>> = {
 					const updateName = changes["name"];
 					save().finally(() => {
 						this.removeAttribute("disabled");
-						if (updateName && data["5e-initiative"] !== undefined) {
+						if (updateName && initiativeList.some(i => i.token.id === id)) {
 							updateInitiative();
 						}
 						(globals.tokens[id].token as SVGToken5E).updateData();
