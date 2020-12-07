@@ -988,8 +988,7 @@ mapLoadedReceive(() => {
 						}
 						const data = parseInt(hp);
 						if (data >= 0) {
-							rpc.setToken({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-							token.tokenData["5e-hp-current"] = {"user": false, data};
+							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
 							token.updateData();
 						}
 						globals.outline.focus();
