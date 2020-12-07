@@ -60,7 +60,7 @@ const allowedKey = (key: string, character: boolean) => {
 			oldChanges[r] = char[r];
 		}
 	}
-	undo.add(doIt(false));
+	undo.add(doIt(false), lang["UNDO_CHARACTER"]);
       },
       doTokenModify = (id: Uint, tokenData: Record<string, KeystoreData>, removeTokenData: string[]) => {
 	const t = {id, tokenData, removeTokenData};
