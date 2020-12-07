@@ -145,6 +145,9 @@ export class SVGToken extends SVGTransform {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
 		}
 	}
+	updateSource(source: Uint) {
+		(this.node instanceof SVGRectElement ? (globals.definitions.list[this.node.getAttribute("fill")!.slice(5, -1)]!.firstChild as SVGImageElement) : this.node).setAttribute("href", `images/${this.src = source}`);
+	}
 	updateNode() {
 		if (this.node instanceof SVGRectElement && !this.isPattern) {
 			const node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
