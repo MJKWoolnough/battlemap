@@ -556,30 +556,36 @@ const langs: Record<string, Record<string, string>> = {
 	}
 	return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
       },
-      setShapechange = (t: SVGToken5E, n: InitialToken, data: TokenSet) => {
-	for (const k in n) {
-		if (t[k as keyof SVGToken] != n[k as keyof InitialToken]) {
-			(data as Record<string, any>)[k] = n[k as keyof InitialToken];
-			if (k === "tokenData") {
-				for (const key in n[k]) {
-					if (n[k][key as keyof InitialTokenData] === null) {
-						delete t[k][key];
-					} else {
-						t[k][key] = {"user": n[k][key as keyof InitialTokenData]!["user"], "data": n[k][key as keyof InitialTokenData]!["user"]};
-					}
-				}
-			} else {
-				(t as Record<string, any>)[k] = n[k as keyof InitialToken];
-			}
+      setShapechange = (t: SVGToken5E, n?: InitialToken) => {
+	const tk: TokenSet = {"id": t.id, "tokenData": {}, "removeTokenData": []};
+	if (!n) {
+		if (!t.tokenData["store-image-5e-initial-token"]) {
+			return;
+		}
+		n = t.tokenData["store-image-5e-initial-token"].data;
+		tk.removeTokenData!.push("store-image-5e-initial-token");
+	} else if (!t.tokenData["store-image-5e-initial-token"]) {
+		tk.tokenData!["store-image-5e-initial-token"] = {"user": false, "data": asInitialToken(t as InitialToken)};
+	}
+	tk.src = n.src;
+	tk.width = n.width;
+	tk.height = n.height;
+	tk.flip = n.flip;
+	tk.flop = n.flop;
+	for (const k in tk.tokenData) {
+		const v = tk.tokenData[k];
+		if (v) {
+			tk.tokenData![k] = {"user": v.user, "data": v.data};
+		} else {
+			tk.removeTokenData!.push(k);
 		}
 	}
-	t.tokenNode.setAttribute("href", `/images/${t.src}`);
+	doTokenSet(tk);
 	t.updateNode();
 	updateInitiative();
 	if (globals.selected.token === t) {
 		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
 	}
-	return data;
       },
       plugin: PluginType = {
 	"characterEdit": {
@@ -718,19 +724,7 @@ const langs: Record<string, Record<string, string>> = {
 						if (token !== lastSelectedToken) {
 							return;
 						}
-						if (token.tokenData["store-image-5e-initial-token"]) {
-							const data = asInitialToken(token as InitialToken),
-							      initToken = token.tokenData["store-image-5e-initial-token"].data,
-							      doIt = () => {
-								rpc.setToken(setShapechange(token, initToken, {"id": token.id, "removeTokenData": ["store-image-5e-initial-token"]}));
-								delete token.tokenData["store-image-5e-initial-token"];
-								return () => {
-									rpc.setToken(setShapechange(token, data, {"id": token.id, "tokenData": {"store-image-5e-initial-token": token.tokenData["store-image-5e-initial-token"] = {"user": false, data}}}));
-									return doIt;
-								};
-							      };
-							undo.add(doIt);
-						}
+						setShapechange(token);
 					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
 						if (!b) {
@@ -741,25 +735,7 @@ const langs: Record<string, Record<string, string>> = {
 							if (token !== lastSelectedToken) {
 								return;
 							}
-							const data = asInitialToken(token as InitialToken),
-							      setInitial = !token.tokenData["store-image-5e-initial-token"],
-							      doIt = () => {
-								const changes: TokenSet = {"id": token.id};
-								if (setInitial) {
-									changes["tokenData"] = {"store-image-5e-initial-token": token["tokenData"]["store-image-5e-initial-token"] = {"user": false, data}};
-								}
-								rpc.setToken(setShapechange(token, newToken, changes));
-								return () => {
-									const changes: TokenSet = {"id": token.id};
-									if (setInitial) {
-										delete token.tokenData["store-image-5e-initial-token"];
-										changes["removeTokenData"] = ["store-image-5e-initial-token"];
-									}
-									rpc.setToken(setShapechange(token, data, changes));
-									return doIt;
-								};
-							      };
-							undo.add(doIt);
+							setShapechange(token, newToken);
 						});
 					})))
 				]));
