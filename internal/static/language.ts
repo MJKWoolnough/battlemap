@@ -128,6 +128,7 @@ const defaultLanguage: Record<string, string> = {
 	"TOOL_ZOOM": "Zoom",
 	"TOOL_ZOOM_IN": "Zoom In",
 	"TOOL_ZOOM_OUT": "Zoom Out",
+	"UNDO_CHARACTER": "Character change",
 	"UNDO_LIMIT": "Undo Limit (-1 for infinite, 0 to disable)",
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
 	"UPLOAD_AUDIO": "Upload Sound",
