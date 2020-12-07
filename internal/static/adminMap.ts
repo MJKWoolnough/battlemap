@@ -316,6 +316,11 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			switch (k) {
 			case "id":
 				break;
+			case "src":
+				if (token instanceof SVGToken && ts["src"]) {
+					token.updateSource(ts["src"]);
+				}
+				break;
 			case "tokenData":
 				if (token instanceof SVGToken) {
 					const tokenData = ts[k];
