@@ -140,6 +140,12 @@ class SVGToken5E extends SVGToken {
 			this.node.appendChild(this.extra);
 		}
 	}
+	updateSource(source: Uint) {
+		const node = this.node;
+		this.node = this.tokenNode;
+		super.updateSource(source);
+		this.node = node;
+	}
 	updateNode() {
 		const node = this.node,
 		      wasPattern = this.tokenNode instanceof SVGRectElement;
