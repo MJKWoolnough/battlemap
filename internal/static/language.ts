@@ -149,7 +149,9 @@ const defaultLanguage: Record<string, string> = {
 	"UNDO_TOKEN_SET": "Token Update",
 	"UNDO_WALL_ADD": "Wall Add",
 	"UNDO_WALL_REMOVE": "Wall Remove",
-
+	"UNDO_WINDOW_TITLE": "Undo Debug",
+	"UNDO_WINDOW_UNDOS": "Undo List",
+	"UNDO_WINDOW_REDOS": "Redo List",
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
 	"UPLOAD_AUDIO": "Upload Sound",
 	"UPLOAD_IMAGES": "Upload Image",
