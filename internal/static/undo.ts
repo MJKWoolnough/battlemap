@@ -15,7 +15,7 @@ const undos: FnDesc[] = [],
       redos: FnDesc[] = [];
 
 export default {
-	"add": (undo: Fn, description = "") => {
+	"add": (undo: Fn, description: string) => {
 		redos.splice(0, redos.length);
 		if (undoLimit.value === 0) {
 			undos.splice(0, undos.length);
