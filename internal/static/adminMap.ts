@@ -97,7 +97,7 @@ doMapChange = (details: MapDetails, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_MAP_CHANGE"]);
       },
 doSetLightColour = (c: Colour, sendRPC = true) => {
 	const oldColour = globals.mapData.lightColour,
@@ -112,7 +112,7 @@ doSetLightColour = (c: Colour, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LIGHT_COLOUR"]);
 },
 doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 	const doIt = (sendRPC = true) => {
@@ -130,7 +130,7 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 		visibility = !visibility;
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang[`UNDO_LAYER_${visibility ? "SHOW" : "HIDE"}`]);
 	return path;
 },
 doLayerAdd = (name: string, sendRPC = true) => {
@@ -149,7 +149,7 @@ doLayerAdd = (name: string, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LAYER_ADD"]);
 	return name;
 },
 doLayerFolderAdd = (path: string, sendRPC = true) => {
@@ -166,7 +166,7 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LAYER_FOLDER_ADD"]);
 	return path;
 },
 doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
@@ -191,7 +191,7 @@ doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
 		[oldPos, newPos] = [newPos, oldPos];
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LAYER_MOVE"]);
 },
 doLayerRename = (oldPath: string, newName: string, sendRPC = true) => {
 	let [parentPath, oldName] = splitAfterLastSlash(oldPath),
@@ -206,7 +206,7 @@ doLayerRename = (oldPath: string, newName: string, sendRPC = true) => {
 		[oldName, newName] = [newName, oldName];
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LAYER_RENAME"]);
 },
 doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	const layer = getLayer(path);
@@ -234,7 +234,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_ADD"]);
 	return addToken;
 },
 doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
@@ -273,7 +273,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_MOVE"]);
 },
 doTokenSet = (ts: TokenSet, sendRPC = true) => {
 	const {token} = globals.tokens[ts.id];
@@ -348,7 +348,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		[original, ts] = [ts, original];
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_SET"]);
 },
 doTokenRemove = (tk: Uint, sendRPC = true) => {
 	const {layer, token} = globals.tokens[tk];
@@ -377,7 +377,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_REMOVE"]);
 },
 doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 	const layer = getLayer(path);
@@ -405,7 +405,7 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 		dy = -dy;
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LAYER_SHIFT"]);
 },
 doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
 	let {lightX: oldX, lightY: oldY} = globals.mapData;
@@ -420,7 +420,7 @@ doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
 		[y, oldY] = [oldY, y];
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_LIGHT_SHIFT"]);
 },
 doWallAdd = (w: WallPath, sendRPC = true) => {
 	const layer = getLayer(w.path);
@@ -451,7 +451,7 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_WALL_ADD"]);
 },
 doWallRemove = (wID: Uint, sendRPC = true) => {
 	const {layer, wall} = globals.walls[wID];
@@ -477,7 +477,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_WALL_REMOVE"]);
 },
 doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
 	const {token} = globals.tokens[id];
@@ -497,7 +497,7 @@ doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendR
 		[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_LIGHT_CHANGE"]);
 },
 doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	const oldData = globals.mapData.data[key],
@@ -516,7 +516,7 @@ doMapDataSet = (key: string, data: any, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_SET"]);
 },
 doMapDataRemove = (key: string, sendRPC = true) => {
 	const oldData = globals.mapData.data[key];
@@ -533,7 +533,7 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 			return doIt;
 		};
 	      };
-	undo.add(doIt(sendRPC));
+	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
 };
 
 globals.deselectToken = unselectToken;
