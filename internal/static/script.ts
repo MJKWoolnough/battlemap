@@ -9,7 +9,7 @@ import layerList from './layerList.js';
 import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
-import {shell, desktop, windows} from './windows.js';
+import {WindowElement, shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
@@ -84,21 +84,16 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      ]),
 	      windowData: Record<string, savedWindow> = windowSettings.value,
 	      updateWindowData = () => windowSettings.set(windowData),
-	      mo = new MutationObserver(list => {
-		      list.forEach(m => {
-			      if (m.target instanceof HTMLElement) {
-				      windowData[m.target.getAttribute("window-title") || ""] = {
-					"out": true,
-					"x": parseInt(m.target.style.getPropertyValue("--window-left")),
-					"y": parseInt(m.target.style.getPropertyValue("--window-top")),
-					"width": parseInt(m.target.style.getPropertyValue("--window-width") || "0"),
-					"height": parseInt(m.target.style.getPropertyValue("--window-height") || "0"),
-				      };
-			      }
-		      });
-		      updateWindowData();
-	      }),
-	      obsInit = {"attributeFilter": ["style"], "attributes": true},
+	      updateWindowDims = function (this: WindowElement) {
+		windowData[this.getAttribute("window-title") || ""] = {
+			"out": true,
+			"x": parseInt(this.style.getPropertyValue("--window-left") || "0"),
+			"y": parseInt(this.style.getPropertyValue("--window-top") || "0"),
+			"width": parseInt(this.style.getPropertyValue("--window-width") || "0"),
+			"height": parseInt(this.style.getPropertyValue("--window-height") || "0"),
+		};
+		updateWindowData();
+	      },
 	      tabs: HTMLLabelElement[] = [],
 	      o = Object.freeze({
 		"add": (title: string, contents: Node, pop = true) => {
@@ -136,12 +131,12 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					mo.observe(s.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					s.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
 						updateWindowData();
-					}}, base))), obsInit);
+					}, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
