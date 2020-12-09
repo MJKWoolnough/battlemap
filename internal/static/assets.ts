@@ -38,11 +38,11 @@ class AudioAsset extends Item {
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, lang[`TAB_${fileType}`], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
+		const root = new Root(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
-			button(lang[`UPLOAD_${fileType}`], {"onclick": () => {
+			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
-					label({"for": "addAssets"}, lang[`UPLOAD_${fileType}`]),
+					label({"for": "addAssets"}, lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]),
 					autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 						const bar = progress({"style": "width: 100%"}) as HTMLElement;
 						loadingWindow(HTTPRequest(`/${fileType.toLowerCase()}/`, {
@@ -66,7 +66,7 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 						this.toggleAttribute("disabled", true);
 					}}))
 				      ]),
-				      window = requestShell().appendChild(windows({"window-title": lang[`UPLOAD_${fileType}`], "class": "assetAdd"}, [h1(lang[`UPLOAD_${fileType}`]), f]));
+				      window = requestShell().appendChild(windows({"window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
 			}}),
 			root.node
 		]);
