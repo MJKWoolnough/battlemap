@@ -130,7 +130,7 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 		visibility = !visibility;
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC), lang[`UNDO_LAYER_${visibility ? "SHOW" : "HIDE"}`]);
+	undo.add(doIt(sendRPC), lang[visibility ? "UNDO_LAYER_SHOW" : "UNDO_LAYER_HIDE"]);
 	return path;
 },
 doLayerAdd = (name: string, sendRPC = true) => {
