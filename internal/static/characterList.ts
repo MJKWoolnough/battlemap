@@ -65,7 +65,7 @@ export default function (base: Node) {
 						const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 						icon = tokenData.id;
 						clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
-					}}, lang["CHARACTER_DROP_ICON"]),
+					}}, lang["CHARACTER_DRAG_ICON"]),
 					br(),
 					button("Create", {"onclick": function(this: HTMLButtonElement) {
 						if (!name.value) {
