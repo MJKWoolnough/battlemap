@@ -1,6 +1,10 @@
 import {StringSetting} from './settings_types.js';
 
-const defaultLanguage: Record<string, string> = {
+type PartialPack = {
+	-readonly [K in keyof typeof defaultLanguage]?: typeof defaultLanguage[K];
+}
+
+const defaultLanguage = {
 	"ARE_YOU_SURE": "Are you sure?",
 	"AUTH": "Authentication",
 	"AUTOSNAP": "Autosnap",
@@ -157,15 +161,15 @@ const defaultLanguage: Record<string, string> = {
 	"UPLOAD_IMAGES": "Upload Image",
 	"UPLOADING": "Uploading Files...",
       },
-      overDefault = (pack: Record<string, string>) => {
+      overDefault = (pack: PartialPack) => {
 	for (const s in defaultLanguage) {
-		if (!pack[s]) {
-			pack[s] = defaultLanguage[s];
+		if (!pack[s as keyof PartialPack]) {
+			pack[s as keyof PartialPack] = defaultLanguage[s as keyof PartialPack];
 		}
 		return pack;
 	}
       },
-      languagePacks: Record<string, Record<string, string>> = {
+      languagePacks: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
 	"en": defaultLanguage,
       };
