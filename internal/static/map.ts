@@ -382,7 +382,6 @@ globals = {
 	"walls": null,
 	"selected": {},
 	"outline": null,
-	deselectToken: () => {}
 } as unknown as {
 	definitions: Defs;
 	root: SVGSVGElement;
@@ -392,7 +391,6 @@ globals = {
 	walls: {layer: SVGLayer, wall: Wall}[];
 	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
 	outline: SVGGElement;
-	deselectToken: () => void;
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
