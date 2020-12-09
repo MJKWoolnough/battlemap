@@ -536,8 +536,6 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
 };
 
-globals.deselectToken = unselectToken;
-
 export default function(base: HTMLElement) {
 	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
