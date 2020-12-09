@@ -47,7 +47,7 @@ const defaultLanguage = {
 	"INVALID_RENAME": "Cannot rename active map",
 	"INVALID_RENAME_CONTAIN": "Cannot rename while containing active map",
 	"INVALID_REMOVE": "Cannot remove active map",
-	"INVALID_REMOVE_CONTAINT": "Cannot remove while containing active map",
+	"INVALID_REMOVE_CONTAIN": "Cannot remove while containing active map",
 	"ITEM_LINK": "Link Item",
 	"ITEM_LINK_ADD": "Copy Item",
 	"ITEM_LINK_NEW": "Copy To",
