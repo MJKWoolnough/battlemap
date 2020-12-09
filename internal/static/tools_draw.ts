@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/s
 import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {SVGShape, SVGDrawing, globals} from './map.js';
-import {doTokenAdd} from './adminMap.js';
+import {doTokenAdd, unselectToken} from './adminMap.js';
 import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
@@ -136,12 +136,11 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 	}
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
-	const {deselectToken} = globals,
-	      onmousemove = (e: MouseEvent) => {
+	const onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
-	deselectToken();
+	unselectToken();
 	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
 		over = false;
 		root.removeEventListener("mousemove", onmousemove);
