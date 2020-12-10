@@ -146,6 +146,7 @@ const defaultLanguage = {
 	"UNDO_MAP_CHANGE": "Map Settings Change",
 	"UNDO_MAP_DATA_REMOVE": "Map Data Remove",
 	"UNDO_MAP_DATA_SET": "Map Data Set",
+	"UNDO_MAP_LOAD": "Map Loaded",
 	"UNDO_TOKEN_ADD": "Token Add",
 	"UNDO_TOKEN_LIGHT_CHANGE": "Token Light Change",
 	"UNDO_TOKEN_MOVE": "Token Move Layer/Position",
