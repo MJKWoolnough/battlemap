@@ -9,6 +9,7 @@ import {addSymbol} from './symbols.js';
 import {IntSetting} from './settings_types.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
+import undo from './undo.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
@@ -45,11 +46,24 @@ class MapItem extends Item {
 		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
 	show() {
-		setMap(this, selectedCurrent, "mapCurrent", "hasMapCurrent");
-		selectedCurrent = this;
-		mapLoadSend(this.id);
-		rpc.setCurrentMap(this.id);
-		selectedMap.set(this.id);
+		let thisMap: MapItem = this,
+		    oldMap = selectedCurrent!;
+		const doIt = () => {
+			if (oldMap) {
+				setMap(this, oldMap, "mapCurrent", "hasMapCurrent");
+			}
+			selectedCurrent = thisMap;
+			mapLoadSend(thisMap.id);
+			rpc.setCurrentMap(thisMap.id);
+			selectedMap.set(thisMap.id);
+			[thisMap, oldMap] = [oldMap, thisMap];
+			return doIt;
+		      };
+		if (selectedCurrent) {
+			undo.add(doIt(), lang["UNDO_MAP_LOAD"]);
+		} else {
+			doIt();
+		}
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
