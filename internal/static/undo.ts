@@ -31,7 +31,7 @@ const undos = new SortNode<FnDesc>(ul()),
       ]);
 
 if (showWindow.value) {
-	requestShell().appendChild(w);
+	setTimeout(() => requestShell().appendChild(w), 0);
 }
 
 Object.defineProperty(window, "showUndoWindow", {
