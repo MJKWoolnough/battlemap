@@ -23,7 +23,7 @@ const undos = new SortNode<FnDesc>(ul()),
       saveWindowData = function (this: WindowElement) {
 	undoWindowSettings.set([parseInt(this.style.getPropertyValue("--window-left") || "0"), parseInt(this.style.getPropertyValue("--window-top") || "0"), parseInt(this.style.getPropertyValue("--window-width") || "200"), parseInt(this.style.getPropertyValue("--window-height") || "600")]);
       },
-      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "--window-left": undoWindowSettings.value[0] + "px", "--window-top": undoWindowSettings.value[1] + "px", "--window-width": undoWindowSettings.value[2] + "px", "--window-height": undoWindowSettings.value[3] + "px", "resizable": true, "onmoved": saveWindowData, "onresized": saveWindowData, "onexit": () => showWindow.set(false)}, [
+      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "--window-left": undoWindowSettings.value[0] + "px", "--window-top": undoWindowSettings.value[1] + "px", "--window-width": undoWindowSettings.value[2] + "px", "--window-height": undoWindowSettings.value[3] + "px", "resizable": true, "onmoved": saveWindowData, "onresized": saveWindowData, "onremove": () => showWindow.set(false)}, [
 	h1(lang["UNDO_WINDOW_UNDOS"]),
 	undos.node,
 	h1(lang["UNDO_WINDOW_REDOS"]),
