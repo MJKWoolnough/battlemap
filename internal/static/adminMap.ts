@@ -266,7 +266,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 			rpc.setTokenLayerPos(id, layer.path, newPos);
 		}
 		return () => {
-			newParent.tokens.splice(currentPos, 0, layer.tokens.splice(newPos, 1)[0]);
+			layer.tokens.splice(currentPos, 0, newParent.tokens.splice(newPos, 1)[0]);
 			globals.tokens[id].layer = layer;
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 				updateLight();
