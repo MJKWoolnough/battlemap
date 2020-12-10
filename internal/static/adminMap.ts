@@ -91,11 +91,12 @@ doMapChange = (details: MapDetails, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.setMapDetails(details);
 		}
-		return () => {
-			setMapDetails(oldDetails)
-			rpc.setMapDetails(oldDetails);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		setMapDetails(oldDetails)
+		rpc.setMapDetails(oldDetails);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_CHANGE"]);
       },
@@ -106,11 +107,12 @@ doSetLightColour = (c: Colour, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.setLightColour(c);
 		}
-		return () => {
-			setLightColour(oldColour);
-			rpc.setLightColour(oldColour);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		setLightColour(oldColour);
+		rpc.setLightColour(oldColour);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LIGHT_COLOUR"]);
 },
@@ -141,13 +143,14 @@ doLayerAdd = (name: string, sendRPC = true) => {
 			waitAdded[0]([{id: 1, name}]);
 			rpc.addLayer(name);
 		}
-		return () => {
-			checkSelectedLayer(path);
-			removeLayer(path);
-			waitRemoved[0](path);
-			rpc.removeLayer(path);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		checkSelectedLayer(path);
+		removeLayer(path);
+		waitRemoved[0](path);
+		rpc.removeLayer(path);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_ADD"]);
 	return name;
@@ -159,12 +162,13 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 			waitFolderAdded[0](path);
 			rpc.addLayerFolder(path);
 		}
-		return () => {
-			checkSelectedLayer(path);
-			removeLayer(path);
-			rpc.removeLayer(path);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		checkSelectedLayer(path);
+		removeLayer(path);
+		rpc.removeLayer(path);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_FOLDER_ADD"]);
 	return path;
@@ -227,12 +231,13 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.addToken(path, token).then(addToken);
 		}
-		return () => {
-			delete globals.tokens[token.id];
-			layer.tokens.pop();
-			rpc.removeToken(token.id);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		delete globals.tokens[token.id];
+		layer.tokens.pop();
+		rpc.removeToken(token.id);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_ADD"]);
 	return addToken;
@@ -368,14 +373,15 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.removeToken(token.id);
 		}
-		return () => {
-			layer.tokens.splice(pos, 0, token);
-			rpc.addToken(layer.path, token).then(id => {
-				token.id = id;
-				globals.tokens[id] = {layer, token};
-			});
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		layer.tokens.splice(pos, 0, token);
+		rpc.addToken(layer.path, token).then(id => {
+			token.id = id;
+			globals.tokens[id] = {layer, token};
+		});
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_REMOVE"]);
 },
@@ -442,14 +448,15 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		} else if (w.id > 0) {
 			globals.walls[w.id] = {layer, wall};
 		}
-		return () => {
-			layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
-			updateLight();
-			rpc.removeWall(wall.id);
-			delete globals.walls[wall.id];
-			wall.id = 0;
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
+		updateLight();
+		rpc.removeWall(wall.id);
+		delete globals.walls[wall.id];
+		wall.id = 0;
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_ADD"]);
 },
@@ -467,15 +474,16 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 		}
 		delete globals.walls[wall.id];
 		wall.id = 0;
-		return () => {
-			layer.walls.push(wall);
-			updateLight();
-			rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
-				wall.id = id;
-				globals.walls[id] = {layer, wall};
-			});
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		layer.walls.push(wall);
+		updateLight();
+		rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+			wall.id = id;
+			globals.walls[id] = {layer, wall};
+		});
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_REMOVE"]);
 },
@@ -506,15 +514,16 @@ doMapDataSet = (key: string, data: any, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.setMapKeyData(key, data);
 		}
-		return () => {
-			if (oldData) {
-				rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
-			} else {
-				delete globals.mapData.data[key];
-				rpc.removeMapKeyData(key);
-			}
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		if (oldData) {
+			rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
+		} else {
+			delete globals.mapData.data[key];
+			rpc.removeMapKeyData(key);
+		}
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_SET"]);
 },
@@ -528,10 +537,11 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.removeMapKeyData(key);
 		}
-		return () => {
-			rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
-			return doIt;
-		};
+		return undoIt;
+	      },
+	      undoIt = () => {
+		rpc.setMapKeyData(key, globals.mapData.data[key] = oldData);
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
 };
