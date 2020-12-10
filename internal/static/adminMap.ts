@@ -342,6 +342,9 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.setToken(ts);
 		}
+		if (globals.selected.token === token) {
+			createSVG(globals.outline, {"--outline-width": token.width + "px", "--outline-height": token.height + "px", "transform": token.transformString(false)})
+		}
 		[original, ts] = [ts, original];
 		return doIt;
 	      };
