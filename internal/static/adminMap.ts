@@ -243,8 +243,9 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	return addToken;
 },
 doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
-	const {layer, token} = globals.tokens[id],
-	      newParent = getLayer(to);
+	let layer = globals.tokens[id].layer as SVGLayer,
+	    newParent = getLayer(to) as SVGLayer;
+	const token = globals.tokens[id].token;
 	if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
 		handleError("Invalid Token Move Layer/Pos");
 		return;
@@ -252,8 +253,8 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 	if (newPos > newParent.tokens.length) {
 		newPos = newParent.tokens.length;
 	}
-	const currentPos = layer.tokens.findIndex(t => t === token),
-	      doIt = (sendRPC = true) => {
+	let currentPos = layer.tokens.findIndex(t => t === token);
+	const doIt = (sendRPC = true) => {
 		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
 		globals.tokens[id].layer = newParent;
 		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
@@ -265,18 +266,9 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 		if (sendRPC) {
 			rpc.setTokenLayerPos(id, layer.path, newPos);
 		}
-		return () => {
-			layer.tokens.splice(currentPos, 0, newParent.tokens.splice(newPos, 1)[0]);
-			globals.tokens[id].layer = layer;
-			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
-				updateLight();
-			}
-			if (globals.selected.token === token) {
-				unselectToken();
-			}
-			rpc.setTokenLayerPos(id, newParent.path, currentPos);
-			return doIt;
-		};
+		[currentPos, newPos] = [newPos, currentPos];
+		[layer, newParent] = [newParent, layer];
+		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_MOVE"]);
 },
