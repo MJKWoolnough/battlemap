@@ -4,7 +4,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
-import {mapLayersReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell} from './misc.js';
+import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
@@ -261,8 +261,10 @@ class LayerRoot extends Root {
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
-	let canceller = () => {};
-	mapLayersReceive(rpc => rpc.list().then(layers => {
+	let canceller = () => {},
+	    rpc: LayerRPC;
+	mapLayersReceive(arpc => rpc = arpc);
+	mapLoadedReceive(() => rpc.list().then(layers => {
 		canceller();
 		selectedLayer = undefined;
 		const list = new LayerRoot(layers, rpc);
