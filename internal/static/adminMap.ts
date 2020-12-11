@@ -910,56 +910,56 @@ export default function(base: HTMLElement) {
 			tokenMousePos.mouseX = e.clientX;
 			tokenMousePos.mouseY = e.clientY;
 		      }}))));
-		mapLayersSend({
-			"waitAdded": () => waitAdded[1],
-			"waitMoved": () => waitMoved[1],
-			"waitRemoved": () => waitRemoved[1],
-			"waitLinked": () => new Subscription<IDName>(() => {}),
-			"waitFolderAdded": () => waitFolderAdded[1],
-			"waitFolderMoved": () => waitFolderMoved[1],
-			"waitFolderRemoved": () => waitFolderRemoved[1],
-			"waitLayerSetVisible": () => waitLayerShow[1],
-			"waitLayerSetInvisible": () => waitLayerHide[1],
-			"waitLayerPositionChange": () => waitLayerPositionChange[1],
-			"waitLayerRename": () => waitLayerRename[1],
-			"list": () => Promise.resolve(layerList as LayerFolder),
-			"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
-			"move": invalidRPC,
-			"moveFolder": invalidRPC,
-			"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name, false), name)),
-			"remove": path => {
-				undo.clear();
-				return removeS(path);
-			},
-			"removeFolder": path => {
-				undo.clear();
-				return removeS(path);
-			},
-			"link": invalidRPC,
-			"newLayer": (name: string) => rpc.addLayer(name).then(n => doLayerAdd(n, false)),
-			"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false)),
-			"setLayer": (path: string) => {
-				globals.selected.layer = getLayer(path) as SVGLayer;
-				unselectToken();
-			},
-			"setLayerMask": (path: string) => {},
-			"moveLayer": (from: string, to: string, position: Uint) => {
-				doLayerMove(from, to, position, false);
-				return rpc.moveLayer(from, to, position);
-			},
-			"getMapDetails": () => mapData,
-			"setMapDetails": (details: MapDetails) => {
-				doMapChange(details, false);
-				return rpc.setMapDetails(details)
-			},
-			"getLightColour": () => mapData.lightColour,
-			"setLightColour": (c: Colour) => {
-				doSetLightColour(c, false);
-				return rpc.setLightColour(c)
-			},
-		});
 		mapLoadedSend(true);
 	}));
+	mapLayersSend({
+		"waitAdded": () => waitAdded[1],
+		"waitMoved": () => waitMoved[1],
+		"waitRemoved": () => waitRemoved[1],
+		"waitLinked": () => new Subscription<IDName>(() => {}),
+		"waitFolderAdded": () => waitFolderAdded[1],
+		"waitFolderMoved": () => waitFolderMoved[1],
+		"waitFolderRemoved": () => waitFolderRemoved[1],
+		"waitLayerSetVisible": () => waitLayerShow[1],
+		"waitLayerSetInvisible": () => waitLayerHide[1],
+		"waitLayerPositionChange": () => waitLayerPositionChange[1],
+		"waitLayerRename": () => waitLayerRename[1],
+		"list": () => Promise.resolve(globals.layerList as LayerFolder),
+		"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
+		"move": invalidRPC,
+		"moveFolder": invalidRPC,
+		"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name, false), name)),
+		"remove": path => {
+			undo.clear();
+			return removeS(path);
+		},
+		"removeFolder": path => {
+			undo.clear();
+			return removeS(path);
+		},
+		"link": invalidRPC,
+		"newLayer": (name: string) => rpc.addLayer(name).then(n => doLayerAdd(n, false)),
+		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false)),
+		"setLayer": (path: string) => {
+			globals.selected.layer = getLayer(path) as SVGLayer;
+			unselectToken();
+		},
+		"setLayerMask": (path: string) => {},
+		"moveLayer": (from: string, to: string, position: Uint) => {
+			doLayerMove(from, to, position, false);
+			return rpc.moveLayer(from, to, position);
+		},
+		"getMapDetails": () => globals.mapData,
+		"setMapDetails": (details: MapDetails) => {
+			doMapChange(details, false);
+			return rpc.setMapDetails(details)
+		},
+		"getLightColour": () => globals.mapData.lightColour,
+		"setLightColour": (c: Colour) => {
+			doSetLightColour(c, false);
+			return rpc.setLightColour(c)
+		},
+	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
