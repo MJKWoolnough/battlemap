@@ -547,7 +547,7 @@ export default function(base: HTMLElement) {
 		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
-		const {root, definitions, layerList} = globals,
+		const {root, layerList} = globals,
 		      tokenDrag = (e: MouseEvent) => {
 			let {x, y, width, height, rotation} = tokenMousePos;
 			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
