@@ -1,6 +1,6 @@
 import {Uint, FolderRPC, FolderItems} from './types.js';
 import {Subscription} from './lib/inter.js';
-import {createHTML, autoFocus} from './lib/dom.js';
+import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows} from './windows.js';
@@ -346,6 +346,7 @@ export class Folder {
 
 
 export class Root {
+	fileType: string;
 	folder: Folder;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
@@ -356,12 +357,10 @@ export class Root {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.rpcFuncs = rpcFuncs;
-		this.folder = new newFolder(this, null, "", rootFolder);
-		this.node = div([
-			fileType,
-			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
-			this.folder.node.firstChild!.lastChild!
-		]);
+		this.fileType = fileType;
+		this.folder = undefined as any as Folder;    // INIT HACK
+		this.node = undefined as any as HTMLElement; // INIT HACK
+		Root.prototype.setRoot.call(this, rootFolder);
 		this.cancel = Subscription.canceller(
 			rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name))),
 			rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to)),
@@ -371,6 +370,14 @@ export class Root {
 			rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to)),
 			rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder)),
 		);
+	}
+	setRoot(rootFolder: FolderItems) {
+		this.folder = new this.newFolder(this, null, "", rootFolder);
+		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
+			this.fileType,
+			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
+			this.folder.node.firstChild!.lastChild!
+		]);
 	}
 	get root() {
 		return this;
