@@ -965,7 +965,7 @@ export default function(base: HTMLElement) {
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
 	rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false, false)));
 	rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name, false)}]));
-	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false))),
+	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false)));
 	rpc.waitLayerMove().then(({from, to, position}) => {
 		doLayerMove(from, to, position, false);
 		waitLayerPositionChange[0]({from, to, position});
