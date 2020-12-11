@@ -261,62 +261,61 @@ class LayerRoot extends Root {
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
-	let canceller = () => {},
-	    rpc: LayerRPC;
-	mapLayersReceive(arpc => rpc = arpc);
-	mapLoadedReceive(() => rpc.list().then(layers => {
-		canceller();
-		selectedLayer = undefined;
-		const list = new LayerRoot(layers, rpc);
-		canceller = Subscription.canceller(
-			list,
-			rpc.waitLayerSetVisible().then(path => {
-				const l = list.getLayer(path);
-				if (l) {
-					l.node.classList.remove("layerHidden");
-				}
-			}),
-			rpc.waitLayerSetInvisible().then(path => {
-				const l = list.getLayer(path);
-				if (l) {
-					l.node.classList.remove("layerHidden");
-				}
-			}),
-			rpc.waitLayerPositionChange().then(ml => {
-				const l = list.getLayer(ml.to);
-				if (l && l.parent!.children.length - 1 !== ml.position) {
-					l.parent!.children.pop();
-					l.parent!.children.splice(ml.position, 0, l);
-				}
-			}),
-			rpc.waitLayerRename().then(lr => {
-				const l = list.getLayer(lr.path);
-				if (l) {
-					l.name = lr.name;
-					l.nameElem.innerText = lr.name;
-				}
-			})
-		);
-		createHTML(clearElement(base), {"id": "layerList"}, [
-			button("Add Layer", {"onclick": () => {
-				const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
-				      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
-				createHTML(window, {"id": "layerAdd"}, [
-					h1("Add Layer"),
-					label({"for": "layerName"}, "Layer Name"),
-					name,
-					br(),
-					button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
-						this.toggleAttribute("disabled", true);
-						loadingWindow(rpc.newLayer(name.value), window).then(name => {
-							list.addItem(1, name);
-							window.remove();
-						})
-						.finally(() => this.removeAttribute("disabled"));
-					}})
+	mapLayersReceive(rpc => {
+		let loadFn = () => {
+			rpc.list().then(layers => {
+				let selectedLayer = undefined;
+				const list = new LayerRoot(layers, rpc);
+				rpc.waitLayerSetVisible().then(path => {
+					const l = list.getLayer(path);
+					if (l) {
+						l.node.classList.remove("layerHidden");
+					}
+				});
+				rpc.waitLayerSetInvisible().then(path => {
+					const l = list.getLayer(path);
+					if (l) {
+						l.node.classList.remove("layerHidden");
+					}
+				});
+				rpc.waitLayerPositionChange().then(ml => {
+					const l = list.getLayer(ml.to);
+					if (l && l.parent!.children.length - 1 !== ml.position) {
+						l.parent!.children.pop();
+						l.parent!.children.splice(ml.position, 0, l);
+					}
+				});
+				rpc.waitLayerRename().then(lr => {
+					const l = list.getLayer(lr.path);
+					if (l) {
+						l.name = lr.name;
+						l.nameElem.innerText = lr.name;
+					}
+				});
+				createHTML(clearElement(base), {"id": "layerList"}, [
+					button("Add Layer", {"onclick": () => {
+						const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
+						      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
+						createHTML(window, {"id": "layerAdd"}, [
+							h1("Add Layer"),
+							label({"for": "layerName"}, "Layer Name"),
+							name,
+							br(),
+							button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
+								this.toggleAttribute("disabled", true);
+								loadingWindow(rpc.newLayer(name.value), window).then(name => {
+									list.addItem(1, name);
+									window.remove();
+								})
+								.finally(() => this.removeAttribute("disabled"));
+							}})
+						]);
+					}}),
+					list.node
 				]);
-			}}),
-			list.node
-		]);
-	}));
+				loadFn = () => rpc.list().then(layers => list.setRoot(layers));
+			});
+		    };
+		mapLoadedReceive(() => loadFn());
+	});
 }
