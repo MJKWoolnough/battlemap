@@ -542,9 +542,7 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 };
 
 export default function(base: HTMLElement) {
-	let canceller = () => {};
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
-		canceller();
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
 		const oldBase = base;
@@ -960,44 +958,42 @@ export default function(base: HTMLElement) {
 				return rpc.setLightColour(c)
 			},
 		});
-		canceller = Subscription.canceller(
-			rpc.waitMapChange().then(d => doMapChange(d, false)),
-			rpc.waitMapLightChange().then(c => doSetLightColour(c, false)),
-			rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false))),
-			rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false, false))),
-			rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name, false)}])),
-			rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false))),
-			rpc.waitLayerMove().then(({from, to, position}) => {
-				doLayerMove(from, to, position, false);
-				waitLayerPositionChange[0]({from, to, position});
-			}),
-			rpc.waitLayerRename().then(lr => {
-				doLayerRename(lr["path"], lr["name"], false);
-				waitLayerRename[0](lr);
-			}),
-			rpc.waitLayerRemove().then(path => {
-				checkSelectedLayer(path);
-				const layer = getLayer(path);
-				if (!layer) {
-					handleError("Invalid layer remove");
-					return;
-				}
-				(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
-				removeLayer(path);
-				undo.clear();
-			}),
-			rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token, false)(token.id)),
-			rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false)),
-			rpc.waitTokenSet().then(t => doTokenSet(t, false)),
-			rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false)),
-			rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false)),
-			rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y, false)),
-			rpc.waitWallAdded().then(w => doWallAdd(w, false)),
-			rpc.waitWallRemoved().then(wid => doWallRemove(wid, false)),
-			rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity, false)),
-			rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data, false)),
-			rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false))
-		);
 		mapLoadedSend(true);
 	}));
+	rpc.waitMapChange().then(d => doMapChange(d, false));
+	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
+	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
+	rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false, false)));
+	rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name, false)}]));
+	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false))),
+	rpc.waitLayerMove().then(({from, to, position}) => {
+		doLayerMove(from, to, position, false);
+		waitLayerPositionChange[0]({from, to, position});
+	});
+	rpc.waitLayerRename().then(lr => {
+		doLayerRename(lr["path"], lr["name"], false);
+		waitLayerRename[0](lr);
+	});
+	rpc.waitLayerRemove().then(path => {
+		checkSelectedLayer(path);
+		const layer = getLayer(path);
+		if (!layer) {
+			handleError("Invalid layer remove");
+			return;
+		}
+		(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
+		removeLayer(path);
+		undo.clear();
+	});
+	rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token, false)(token.id));
+	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false));
+	rpc.waitTokenSet().then(t => doTokenSet(t, false));
+	rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false));
+	rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false));
+	rpc.waitLightShift().then(pos => doLightShift(pos.x, pos.y, false));
+	rpc.waitWallAdded().then(w => doWallAdd(w, false));
+	rpc.waitWallRemoved().then(wid => doWallRemove(wid, false));
+	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity, false));
+	rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data, false));
+	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
 }
