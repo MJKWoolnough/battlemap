@@ -1,7 +1,7 @@
 import {StringSetting} from './settings_types.js';
 
 type PartialPack = {
-	-readonly [K in keyof typeof defaultLanguage]?: typeof defaultLanguage[K];
+	[K in keyof typeof defaultLanguage]?: typeof defaultLanguage[K];
 }
 
 const defaultLanguage = {
