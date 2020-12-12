@@ -32,6 +32,7 @@ const allowedKey = (key: string, character: boolean) => {
 		      path({"d": "M10,47 L47,0 M10,0 L47,47", "stroke": "#f00", "fill": "none", "style": "display: var(--check-off, none)"})
 	      ])
       ])),
+      removeSymbol = getSymbol("remove")!,
       doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
 	let oldChanges: Record<string, KeystoreData> = {},
 	    oldRemoves: string[] = [];
@@ -113,7 +114,6 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 	n++;
 	let row = 0;
 	const mapChanged = lastMapChanged,
-	      removeSymbol = getSymbol("remove")!,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
