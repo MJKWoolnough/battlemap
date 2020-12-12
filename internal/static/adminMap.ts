@@ -544,7 +544,7 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 export default function(base: HTMLElement) {
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
-		let tokenDragX = 0, tokenDragY = 0, tokenDragMode = 0;
+		let tokenDragMode = 0;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
 		const {root, layerList} = globals,
