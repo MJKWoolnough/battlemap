@@ -1,5 +1,4 @@
 import {Uint, FolderRPC, FolderItems} from './types.js';
-import {Subscription} from './lib/inter.js';
 import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
