@@ -5,7 +5,7 @@ import {br, button, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
 import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, requestShell, point2Line} from './misc.js';
 import {normaliseWall, updateLight, globals, SVGLayer, walkLayers} from './map.js';
-import {doLightShift, doWallAdd, doWallRemove, unselectToken} from './adminMap.js';
+import {doLightShift, doWallAdd, doWallRemove, deselectToken} from './adminMap.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {rpc} from './rpc.js';
@@ -215,7 +215,7 @@ addTool({
 		on = true;
 		genWalls();
 		globals.root.appendChild(wallLayer);
-		unselectToken();
+		deselectToken();
 	},
 	"unset": () => {
 		wallWaiter();

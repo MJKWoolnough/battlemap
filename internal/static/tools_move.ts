@@ -1,7 +1,7 @@
 import {LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {globals, updateLight} from './map.js';
-import {doLayerShift, unselectToken} from './adminMap.js';
+import {doLayerShift, deselectToken} from './adminMap.js';
 import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
@@ -39,7 +39,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		selectedLayer.node.removeAttribute("transform");
 		doLayerShift(selectedLayer.path, dx, dy);
 	      };
-	unselectToken();
+	deselectToken();
 	this.addEventListener("mousemove", mover);
 	this.addEventListener("mouseup", mouseUp);
       },

@@ -62,7 +62,7 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 	if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
 		globals.selected.layer = null;
 		if (globals.selected.token) {
-			unselectToken();
+			deselectToken();
 		}
 	}
       };
@@ -79,7 +79,7 @@ export const getToken = () => {
 	}
 	return undefined;
 },
-unselectToken = () => {
+deselectToken = () => {
 	globals.selected.token = null;
 	globals.outline.style.setProperty("display", "none");
 	tokenSelected();
@@ -181,7 +181,7 @@ doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
 	}
 	let oldPos = parent.children.indexOf(layer);
 	const doIt = (sendRPC = true) => {
-		unselectToken();
+		deselectToken();
 		moveLayer(from, to, newPos);
 		if (sendRPC) {
 			rpc.moveLayer(from, to, newPos);
@@ -261,7 +261,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 			updateLight();
 		}
 		if (globals.selected.token === token) {
-			unselectToken();
+			deselectToken();
 		}
 		if (sendRPC) {
 			rpc.setTokenLayerPos(id, layer.path, newPos);
@@ -681,7 +681,7 @@ export default function(base: HTMLElement) {
 			}
 			const newToken = (layer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
 			if (!e.ctrlKey) {
-				unselectToken();
+				deselectToken();
 			}
 			if (!newToken || e.ctrlKey) {
 				return;
@@ -942,7 +942,7 @@ export default function(base: HTMLElement) {
 		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false)),
 		"setLayer": (path: string) => {
 			globals.selected.layer = getLayer(path) as SVGLayer;
-			unselectToken();
+			deselectToken();
 		},
 		"setLayerMask": (path: string) => {},
 		"moveLayer": (from: string, to: string, position: Uint) => {
