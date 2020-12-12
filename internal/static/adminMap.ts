@@ -841,7 +841,7 @@ export default function(base: HTMLElement) {
 					w.appendChild(createHTML(null, [
 						h1(lang["CONTEXT_SET_LIGHTING"]),
 						label({"for": `tokenLighting_${t}`}, `${lang["LIGHTING_COLOUR"]}: `),
-						makeColourPicker(w, "Pick Token Lighting Colour", () => c, d => c = d, `tokenLighting_${t}`),
+						makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`),
 						br(),
 						label({"for": `tokenIntensity_${t}`}, `${lang["LIGHTING_INTENSITY"]}: `),
 						i,
