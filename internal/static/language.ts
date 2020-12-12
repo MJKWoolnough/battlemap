@@ -62,6 +62,7 @@ const defaultLanguage = {
 	"LIGHT_MODE": "Light Mode",
 	"LIGHTING_COLOUR": "Light Colour",
 	"LIGHTING_INTENSITY": "Light Intensity (Distance)",
+	"LIGHTING_PICK_COLOUR": "Pick Token Lighting Colour",
 	"LOADING": "Loading…",
 	"LOGIN": "Login",
 	"LOGOUT": "Logout",
