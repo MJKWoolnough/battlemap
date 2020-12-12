@@ -1,5 +1,4 @@
 import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
-import {Subscription} from './lib/inter.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
