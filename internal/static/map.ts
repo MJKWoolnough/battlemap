@@ -1,11 +1,9 @@
 import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
-import {Subscription} from './lib/inter.js';
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, defs, ellipse, filter, g, image, mask, path, pattern, polygon, radialGradient, rect, stop, svg} from './lib/svg.js';
+import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {colour2RGBA, point2Line, mapLoadedSend} from './misc.js';
 import {div} from './lib/html.js';
-import {scrollAmount} from './settings.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
