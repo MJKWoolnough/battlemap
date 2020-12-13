@@ -77,14 +77,14 @@ type mapDetails struct {
 }
 
 type mapDimensions struct {
-	Width  uint64 `json:"width" xml:"width,attr"`
-	Height uint64 `json:"height" xml:"height,attr"`
+	Width  uint64 `json:"width"`
+	Height uint64 `json:"height"`
 }
 
 type mapGrid struct {
-	GridSize   uint64 `json:"gridSize" xml:"square,attr"`
-	GridColour colour `json:"gridColour" xml:"colour,attr"`
-	GridStroke uint64 `json:"gridStroke" xml:"stroke,attr"`
+	GridSize   uint64 `json:"gridSize"`
+	GridColour colour `json:"gridColour"`
+	GridStroke uint64 `json:"gridStroke"`
 }
 
 func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
