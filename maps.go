@@ -82,6 +82,7 @@ type mapDimensions struct {
 }
 
 type mapGrid struct {
+	GridType   uint8  `json:"gridType"`
 	GridSize   uint64 `json:"gridSize"`
 	GridColour colour `json:"gridColour"`
 	GridStroke uint64 `json:"gridStroke"`
