@@ -1,6 +1,6 @@
 import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, div, h1, input, label, span} from './lib/html.js';
+import {br, button, div, h1, input, label, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell} from './misc.js';
@@ -142,6 +142,7 @@ class ItemLayer extends Item {
 			const details = rpcFuncs.getMapDetails(),
 			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.width / details.gridSize), "id": "mapWidth"}),
 			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.height / details.gridSize), "id": "mapHeight"}),
+			      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": details.gridType === n}, l))),
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
@@ -152,6 +153,9 @@ class ItemLayer extends Item {
 				br(),
 				label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
 				height,
+				br(),
+				label({"for": "mapSquareType"}, `${lang["MAP_SQUARE_TYPE"]}: `),
+				sqWidth,
 				br(),
 				label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
 				sqWidth,
@@ -168,7 +172,7 @@ class ItemLayer extends Item {
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value) * sq,
 						"height": parseInt(height.value) * sq,
-						"gridType": 0,
+						"gridType": parseInt(sqType.value),
 						"gridSize": sq,
 						"gridColour": hex2Colour(sqColour.value),
 						"gridStroke": parseInt(sqLineWidth.value)
