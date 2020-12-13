@@ -85,7 +85,7 @@ deselectToken = () => {
 	tokenSelected();
 },
 doMapChange = (details: MapDetails, sendRPC = true) => {
-	const oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour},
+	const oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour},
 	      doIt = (sendRPC = true) => {
 		setMapDetails(details);
 		if (sendRPC) {

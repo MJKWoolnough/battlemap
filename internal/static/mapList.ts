@@ -217,6 +217,7 @@ export default function(base: Node) {
 							"name": name.value,
 							"width": parseInt(width.value) * sq,
 							"height": parseInt(height.value) * sq,
+							"gridType": 0,
 							"gridSize": sq,
 							"gridColour": hex2Colour(sqColour.value),
 							"gridStroke": parseInt(sqLineWidth.value)

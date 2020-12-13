@@ -168,6 +168,7 @@ class ItemLayer extends Item {
 					loadingWindow(rpcFuncs.setMapDetails({
 						"width": parseInt(width.value) * sq,
 						"height": parseInt(height.value) * sq,
+						"gridType": 0,
 						"gridSize": sq,
 						"gridColour": hex2Colour(sqColour.value),
 						"gridStroke": parseInt(sqLineWidth.value)
