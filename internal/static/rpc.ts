@@ -387,7 +387,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksMapDetails: checkers = [[checkObject, ""], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkUint, "gridSize"], [checkColour, "gridColour"]],
+      checksMapDetails: checkers = [[checkObject, ""], [checkByte, "gridType"], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkColour, "gridColour"]],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
       checksWallPos: checkers = [[checkObject, ""], [checkString, "path"], [checkUint, "pos"]],
       checkWallPos = (data: any, name = "TokenPos") => checker(data, name, checksWallPos),
