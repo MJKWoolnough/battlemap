@@ -1,6 +1,6 @@
 import {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, h1, h2, input, label, span} from './lib/html.js';
+import {br, button, h1, h2, input, label, option, span, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
 import {mapLoadSend, enterKey, hex2Colour, requestShell} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
@@ -186,6 +186,7 @@ export default function(base: Node) {
 				const name = autoFocus(input({"type": "text", "id": "mapName"})),
 				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth"}),
 				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight"}),
+				      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
 				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
@@ -200,6 +201,9 @@ export default function(base: Node) {
 					br(),
 					label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
 					height,
+					br(),
+					label({"for": "mapSquareType"}, `${lang["MAP_SQUARE_TYPE"]}: `),
+					sqType,
 					br(),
 					label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
 					sqWidth,
@@ -217,7 +221,7 @@ export default function(base: Node) {
 							"name": name.value,
 							"width": parseInt(width.value) * sq,
 							"height": parseInt(height.value) * sq,
-							"gridType": 0,
+							"gridType": parseInt(sqType.value),
 							"gridSize": sq,
 							"gridColour": hex2Colour(sqColour.value),
 							"gridStroke": parseInt(sqLineWidth.value)
