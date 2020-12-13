@@ -13,6 +13,7 @@ import (
 type levelMap struct {
 	Width      uint64                     `json:"width"`
 	Height     uint64                     `json:"height"`
+	GridType   uint8                      `json:"gridType"`
 	GridSize   uint64                     `json:"gridSize"`
 	GridStroke uint64                     `json:"gridStroke"`
 	GridColour colour                     `json:"gridColour"`
@@ -58,6 +59,7 @@ func (l *levelMap) writeJSON() {
 	l.JSON = l.JSON[:0]
 	l.JSON = strconv.AppendUint(append(l.JSON[:0], "{\"width\":"...), l.Width, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"height\":"...), l.Height, 10)
+	l.JSON = appendNum(append(l.JSON, ",\"gridType\":"...), l.GridType)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridSize, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridStroke\":"...), l.GridStroke, 10)
 	l.JSON = l.GridColour.appendTo(append(l.JSON, ",\"gridColour\":"...))
