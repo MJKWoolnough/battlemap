@@ -1,4 +1,4 @@
-import {svg, defs, mask, rect, path, use} from './lib/svg.js';
+import {svg, path} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import lang from './language.js';
