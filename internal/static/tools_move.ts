@@ -1,6 +1,6 @@
 import {LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
-import {globals, updateLight} from './map.js';
+import {globals} from './map.js';
 import {doLayerShift, deselectToken} from './adminMap.js';
 import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
