@@ -1,7 +1,6 @@
 import {br, div, input, label} from './lib/html.js';
-import {createSVG, circle, line, svg} from './lib/svg.js';
+import {circle, line, svg} from './lib/svg.js';
 import {defaultMouseWheel, zoom} from './tools_default.js';
-import {screen2Grid} from './misc.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
 
