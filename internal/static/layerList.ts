@@ -155,7 +155,7 @@ class ItemLayer extends Item {
 				height,
 				br(),
 				label({"for": "mapSquareType"}, `${lang["MAP_SQUARE_TYPE"]}: `),
-				sqWidth,
+				sqType,
 				br(),
 				label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
 				sqWidth,
