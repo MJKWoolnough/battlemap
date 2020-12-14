@@ -307,8 +307,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
 		}
 	}
-	const updatePattern = isTokenImage(token) && (!!ts["patternWidth"] || !!ts["patternHeight"]),
-	      doIt = (sendRPC = true) => {
+	const doIt = (sendRPC = true) => {
 		for (const k in ts) {
 			switch (k) {
 			case "id":
