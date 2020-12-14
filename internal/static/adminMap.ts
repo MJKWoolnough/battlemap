@@ -57,6 +57,7 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 	removeLayer(path);
 	return rpc.removeLayer(path);
       },
+      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
       checkSelectedLayer = (path: string) => {
 	const {layer} = globals.selected;
 	if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
@@ -343,6 +344,10 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		}
 		if (globals.selected.token === token) {
 			createSVG(globals.outline, {"--outline-width": token.width + "px", "--outline-height": token.height + "px", "transform": token.transformString(false)})
+			tokenMousePos.x = token.x;
+			tokenMousePos.y = token.y;
+			tokenMousePos.width = token.width;
+			tokenMousePos.height = token.height;
 		}
 		[original, ts] = [ts, original];
 		return doIt;
@@ -634,7 +639,6 @@ export default function(base: HTMLElement) {
 				doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
 			}
 		      },
-		      tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 		      outline = globals.outline = g();
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
