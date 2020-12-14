@@ -543,7 +543,11 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
-};
+},
+snapTokenToGrid = (x: Int, y: Int) => {
+	const sq = globals.mapData.gridSize;
+	return [Math.round(x / sq) * sq, Math.round(y / sq) * sq];
+}
 
 export default function(base: HTMLElement) {
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
@@ -566,8 +570,7 @@ export default function(base: HTMLElement) {
 				x += dx;
 				y += dy;
 				if (selectedToken.snap) {
-					x = Math.round(x / sq) * sq;
-					y = Math.round(y / sq) * sq;
+					[x, y] = snapTokenToGrid(x, y);
 				}
 				break;
 			case 1: {
@@ -609,8 +612,7 @@ export default function(base: HTMLElement) {
 				x = nx;
 				y = ny;
 				if (selectedToken!.snap) {
-					x = Math.round(x / sq) * sq;
-					y = Math.round(y / sq) * sq;
+					[x, y] = snapTokenToGrid(x, y);
 				}
 			}}
 			selectedToken!.x = x;
