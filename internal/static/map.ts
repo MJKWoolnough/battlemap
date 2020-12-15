@@ -502,7 +502,6 @@ export default function(base: HTMLElement) {
 	rpc.waitTokenAdd().then(tk => {
 		const layer = getLayer(tk.path);
 		if (!layer || !isSVGLayer(layer)) {
-			// error
 			return;
 		}
 		delete (tk as Record<string, any>)["path"];
@@ -581,7 +580,6 @@ export default function(base: HTMLElement) {
 	rpc.waitLayerShift().then(ls => {
 		const layer = getLayer(ls.path);
 		if (!layer || !isSVGLayer(layer)) {
-			// error
 			return;
 		}
 		(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
@@ -605,7 +603,6 @@ export default function(base: HTMLElement) {
 	rpc.waitWallAdded().then(w => {
 		const layer = getLayer(w.path);
 		if (!layer || !isSVGLayer(layer)) {
-			// error
 			return;
 		}
 		delete (w as Record<string, any>)["path"];
