@@ -594,7 +594,8 @@ export default function(base: HTMLElement) {
 					rotation += 256;
 				}
 				if (selectedToken.snap) {
-					rotation = Math.round(rotation / 32) * 32 % 256;
+					const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
+					rotation = Math.round(rotation / deg) * deg % 256;
 				}
 				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 			}
@@ -683,7 +684,7 @@ export default function(base: HTMLElement) {
 				token.width = tokenData.width;
 				token.height = tokenData.height;
 			}
-			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap);
+			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap)
 			if (token.snap && token.tokenData === 0) {
 				const sq = mapData.gridSize;
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
