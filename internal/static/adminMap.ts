@@ -348,6 +348,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;
 			tokenMousePos.height = token.height;
+			tokenMousePos.rotation = token.rotation;
 		}
 		[original, ts] = [ts, original];
 		return doIt;
