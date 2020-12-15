@@ -684,8 +684,9 @@ export default function(base: HTMLElement) {
 				token.width = tokenData.width;
 				token.height = tokenData.height;
 			}
-			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, token.snap)
+			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, false)
 			if (token.snap && token.tokenData === 0) {
+				[token.x, token.y] = snapTokenToGrid(token.x, token.y);
 				const sq = mapData.gridSize;
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
