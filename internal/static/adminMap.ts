@@ -603,8 +603,12 @@ export default function(base: HTMLElement) {
 				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
 				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
 				      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
-				      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
-				      [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
+				      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0;
+				let [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
+				if (selectedToken!.snap) {
+					mDx = Math.round(mDx / sq) * sq;
+					mDy = Math.round(mDy / sq) * sq;
+				}
 				if (dirX === -1) {
 					x += mDx;
 					width -= mDx;
@@ -617,17 +621,10 @@ export default function(base: HTMLElement) {
 				} else if (dirY === 1) {
 					height += mDy;
 				}
-				if (selectedToken!.snap) {
-					width = Math.round(width / sq) * sq;
-					height = Math.round(height / sq) * sq;
-				}
 				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
 				      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
 				x = nx;
 				y = ny;
-				if (selectedToken!.snap) {
-					[x, y] = snapTokenToGrid(x, y);
-				}
 			}}
 			selectedToken!.x = x;
 			selectedToken!.y = y;
