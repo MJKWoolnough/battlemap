@@ -168,6 +168,7 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 	      undoIt = () => {
 		checkSelectedLayer(path);
 		removeLayer(path);
+		waitFolderRemoved[0](path);
 		rpc.removeLayer(path);
 		return doIt;
 	      };
@@ -547,7 +548,9 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 },
 snapTokenToGrid = (token: Token) => {
 	const size = globals.mapData.gridSize,
-	      {x, y} = token;
+	      {x, y, width, height} = token,
+	      dw = width - (Math.round(width / size) * size),
+	      dh = height - (Math.round(height / size) * size);
 	switch (globals.mapData.gridType) {
 	case 1: {
 		const dy = 1.5 * size / Math.sqrt(3),
