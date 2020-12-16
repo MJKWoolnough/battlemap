@@ -3,10 +3,9 @@ import {undoLimit} from './settings.js';
 import {SortNode} from './lib/ordered.js';
 import {ul, li, h1} from './lib/html.js';
 import {BoolSetting, JSONSetting} from './settings_types.js';
-import {isInt, isUint, requestShell} from './misc.js';
+import {isInt, isUint, requestShell, queue} from './misc.js';
 import {WindowElement, windows} from './windows.js';
 import lang from './language.js';
-import queue from './queue.js';
 
 type Fn = () => Fn;
 
