@@ -6,6 +6,7 @@ import {BoolSetting, JSONSetting} from './settings_types.js';
 import {isInt, isUint, requestShell} from './misc.js';
 import {WindowElement, windows} from './windows.js';
 import lang from './language.js';
+import queue from './queue.js';
 
 type Fn = () => Fn;
 
@@ -43,35 +44,43 @@ Object.defineProperty(window, "showUndoWindow", {
 
 export default {
 	"add": (fn: Fn, description: string) => {
-		redos.splice(0, redos.length);
-		if (undoLimit.value === 0) {
-			undos.splice(0, undos.length);
-			return;
-		}
-		while (undoLimit.value !== -1 && undos.length >= undoLimit.value) {
-			undos.shift();
-		}
-		undos.push({
-			fn,
-			"node": li(description),
+		queue(async function() {
+			redos.splice(0, redos.length);
+			if (undoLimit.value === 0) {
+				undos.splice(0, undos.length);
+				return;
+			}
+			while (undoLimit.value !== -1 && undos.length >= undoLimit.value) {
+				undos.shift();
+			}
+			undos.push({
+				fn,
+				"node": li(description),
+			});
 		});
 	},
 	"clear": () => {
-		undos.splice(0, undos.length);
-		redos.splice(0, redos.length);
+		queue(async function() {
+			undos.splice(0, undos.length);
+			redos.splice(0, redos.length);
+		});
 	},
 	"undo": () => {
-		const fnDesc = undos.pop();
-		if (fnDesc) {
-			fnDesc.fn = fnDesc.fn();
-			redos.unshift(fnDesc);
-		}
+		queue(async function() {
+			const fnDesc = undos.pop();
+			if (fnDesc) {
+				fnDesc.fn = fnDesc.fn();
+				redos.unshift(fnDesc);
+			}
+		});
 	},
 	"redo": () => {
-		const fnDesc = redos.shift();
-		if (fnDesc) {
-			fnDesc.fn = fnDesc.fn();
-			undos.push(fnDesc);
-		}
+		queue(async function() {
+			const fnDesc = redos.shift();
+			if (fnDesc) {
+				fnDesc.fn = fnDesc.fn();
+				undos.push(fnDesc);
+			}
+		});
 	}
 }
