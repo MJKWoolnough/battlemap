@@ -4,7 +4,7 @@ import {ShellElement, WindowElement, desktop, shell, windows as awindows} from '
 
 export {ShellElement, WindowElement, desktop, shell};
 
-export const loadingWindow = (p: Promise<any>, parent: ShellElement|WindowElement, title = "Loading", content?: Children) => {
+export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = "Loading", content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
         parent.addWindow(w);
         return p.finally(() => w.remove());
