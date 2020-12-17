@@ -55,7 +55,7 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 								}
 							}
-						}), window, lang["UPLOADING"], div({"class": "loadBar"}, [
+						}) as Promise<IDName[]>, window, lang["UPLOADING"], div({"class": "loadBar"}, [
 							div(lang["UPLOADING"]),
 							bar
 						])).then((assets: IDName[]) => {
