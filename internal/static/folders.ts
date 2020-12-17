@@ -3,7 +3,7 @@ import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows} from './windows.js';
-import {enterKey, requestShell} from './misc.js';
+import {enterKey, requestShell, queue} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
@@ -70,11 +70,11 @@ export class Item {
 			br(),
 			button(lang["ITEM_MOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value), window).then(newPath => {
+				loadingWindow(queue(() => root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}})
 		]);
 	}
@@ -95,11 +95,11 @@ export class Item {
 			br(),
 			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.link(self.id, parents.value + newName.value), window).then(newPath => {
+				loadingWindow(queue(() => root.rpcFuncs.link(self.id, parents.value + newName.value).then(newPath => {
 					root.addItem(self.id, newPath);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}}),
 		]);
 	}
@@ -114,11 +114,11 @@ export class Item {
 			pathDiv,
 			autoFocus(button(lang["ITEM_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.remove(path), window).then(() => {
+				loadingWindow(queue(() => root.rpcFuncs.remove(path).then(() => {
 					root.removeItem(path);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}}))
 		]);
 	}
@@ -247,11 +247,11 @@ export class Folder {
 			br(),
 			button(lang["FOLDER_MOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value), window).then(newPath => {
+				loadingWindow(queue(() => root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}})
 		])
 	}
@@ -267,11 +267,11 @@ export class Folder {
 			pathDiv,
 			autoFocus(button(lang["FOLDER_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.removeFolder(path), window).then(() => {
+				loadingWindow(queue(() => root.rpcFuncs.removeFolder(path).then(() => {
 					root.removeFolder(path);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}}))
 		]);
 	}
@@ -288,11 +288,11 @@ export class Folder {
 			br(),
 			button(lang["FOLDER_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(root.rpcFuncs.createFolder(path + "/" + folderName.value), window).then(folder => {
+				loadingWindow(queue(() => root.rpcFuncs.createFolder(path + "/" + folderName.value).then(folder => {
 					root.addFolder(folder);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"));
+				.finally(() => this.removeAttribute("disabled"))), window);
 			}})
 		]);
 	}
