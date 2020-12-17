@@ -3,7 +3,7 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {WindowElement, loadingWindow, windows} from './windows.js';
-import {mapLoadedReceive, requestShell} from './misc.js';
+import {mapLoadedReceive, requestShell, queue} from './misc.js';
 import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
@@ -43,7 +43,7 @@ const allowedKey = (key: string, character: boolean) => {
 			delete char[r];
 		}
 		if (sendRPC) {
-			rpc.characterModify(id, changes, removes)
+			queue(() => rpc.characterModify(id, changes, removes));
 		}
 		[changes, oldChanges] = [oldChanges, changes];
 		[removes, oldRemoves] = [oldRemoves, removes];
