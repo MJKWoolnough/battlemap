@@ -5,7 +5,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
-import {requestShell} from './misc.js';
+import {requestShell, queue} from './misc.js';
 import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
@@ -45,24 +45,30 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 					label({"for": "addAssets"}, lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]),
 					autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 						const bar = progress({"style": "width: 100%"}) as HTMLElement;
-						loadingWindow(HTTPRequest(`/${fileType.toLowerCase()}/`, {
-							"data": new FormData(f),
-							"method": "POST",
-							"response": "json",
-							"onprogress": (e: ProgressEvent) => {
-								if (e.lengthComputable) {
-									createHTML(bar, {"value": e.loaded, "max": e.total});
-									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+						loadingWindow(
+							(HTTPRequest(`/${fileType.toLowerCase()}/`, {
+								"data": new FormData(f),
+								"method": "POST",
+								"response": "json",
+								"onprogress": (e: ProgressEvent) => {
+									if (e.lengthComputable) {
+										createHTML(bar, {"value": e.loaded, "max": e.total});
+										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+									}
 								}
-							}
-						}) as Promise<IDName[]>, window, lang["UPLOADING"], div({"class": "loadBar"}, [
-							div(lang["UPLOADING"]),
-							bar
-						])).then((assets: IDName[]) => {
-							assets.forEach(({id, name}) => root.addItem(id, name));
-							window.remove();
-						})
-						.finally(() => this.removeAttribute("disabled"));
+							}) as Promise<IDName[]>)
+							.then((assets: IDName[]) => {
+								assets.forEach(({id, name}) => root.addItem(id, name));
+								window.remove();
+							})
+							.finally(() => this.removeAttribute("disabled")),
+							window,
+							lang["UPLOADING"],
+							div({"class": "loadBar"}, [
+								div(lang["UPLOADING"]),
+								bar
+							])
+						);
 						this.toggleAttribute("disabled", true);
 					}}))
 				      ]),
