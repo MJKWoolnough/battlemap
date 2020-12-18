@@ -483,7 +483,7 @@ const defaultLanguage = {
 	}, "onmouseleave": () => highlight.remove()}, [
 		img({"src": `/images/${token.src}`}),
 		span(token.getData("name") ?? ""),
-		span(token.tokenData["5e-initiative"]!.data.initiative.toString())
+		span(initiative.toString())
 	])
       }),
       updateInitiative = (change?: [Uint, Uint | null]) => {
