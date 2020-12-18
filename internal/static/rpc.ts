@@ -139,9 +139,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,       "waitWallAdded", "id"],
 				["removeWall",       "maps.removeWall",      "!",                                            returnVoid,       "waitWallRemoved", ""],
 
-				["characterCreate", "characters.create", "!",                          checkIDName,       "", ""],
-				["characterModify", "characters.set",   ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
-				["characterGet",    "characters.get",    "!",                          checkCharacter,    "", ""],
+				["characterCreate", "characters.create", ["path", "data"],              checkIDName,       "", ""],
+				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
+				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
 
 				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
