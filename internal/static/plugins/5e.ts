@@ -471,7 +471,7 @@ const defaultLanguage = {
 		}}, initNext))
 	] : []
       ])),
-      addToInitiative = (token: SVGToken5E, initiative: Uint, hidden: boolean) => initiativeList.push({
+      addToInitiative = (token: SVGToken5E, initiative: Int, hidden: boolean) => initiativeList.push({
 	token,
 	hidden,
 	initiative,
