@@ -668,21 +668,20 @@ const defaultLanguage = {
 			const initMod: number | null = token.getData("5e-initiative-mod"),
 			      tokenConditions = token.getData("5e-conditions") ?? [],
 			      {"shapechange-categories": shapechangeCats, "store-image-shapechanges": shapechangeTokens} = settings,
-			      ctxList: List = [];
-			if (token.tokenData["5e-initiative"]) {
+			      ctxList: List = [],
+			      mapData = globals.mapData as MapData5E;
+			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => {
-						if (token.tokenData["5e-initiative"]) {
-							requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
-								if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
-									const init = parseInt(initiative);
-									if (isInt(init, -20, 40)) {
-										updateInitiative([token.id, init]);
-										saveInitiative();
-									}
+						requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
+							if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
+								const init = parseInt(initiative);
+								if (isInt(init, -20, 40)) {
+									updateInitiative([token.id, init]);
+									saveInitiative();
 								}
-							});
-						}
+							}
+						});
 					}),
 					item(lang["INITIATIVE_REMOVE"], () => {
 						if (token !== lastSelectedToken) {
