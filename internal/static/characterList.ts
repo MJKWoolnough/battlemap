@@ -77,7 +77,7 @@ export default function (base: Node) {
 							return;
 						}
 						this.toggleAttribute("disabled", true);
-						loadingWindow(rpc.characterCreate(name.value).then(({id, name}) => rpc.characterModify(id, {"store-image-icon": {"user": false, "data": icon}}, []).then(() => root.addItem(id, name))), w)
+						loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, name}) => root.addItem(id, name)), w)
 						.then(() => w.remove())
 						.finally(() => this.removeAttribute("disabled"));
 					}})
