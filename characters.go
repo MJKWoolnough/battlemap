@@ -128,6 +128,9 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 	if err := json.Unmarshal(data, &nameData); err != nil {
 		return nil, err
 	}
+	if nameData.Data == nil {
+		nameData.Data = make(characterData)
+	}
 	c.mu.Lock()
 	c.lastID++
 	kid := c.lastID
