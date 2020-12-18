@@ -20,7 +20,7 @@ document.head.appendChild(style({"type": "text/css"}, ".isAdmin #initiative-wind
 
 type IDInitiative = {
 	id: Uint;
-	initiative: Uint;
+	initiative: Int;
 }
 
 type InitialTokenData = {
