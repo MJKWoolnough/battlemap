@@ -952,7 +952,6 @@ mapLoadedReceive(() => {
 	lastSelectedToken = null;
 	if (userLevel === 1) {
 		globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
-			e.preventDefault();
 			if (lastSelectedToken !== null && e.key === 'h') {
 				const token = lastSelectedToken,
 				      hp = token.getData("5e-hp-current");
@@ -969,6 +968,7 @@ mapLoadedReceive(() => {
 						globals.outline.focus();
 					});
 				}
+				e.preventDefault();
 			}
 		});
 	}
