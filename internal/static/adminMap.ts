@@ -589,95 +589,96 @@ snapTokenToGrid = (token: Token) => {
 }
 
 export default function(base: HTMLElement) {
+	let tokenDragMode = 0;
+	const tokenDrag = (e: MouseEvent) => {
+		let {x, y, width, height, rotation} = tokenMousePos;
+		const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
+		      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
+		      mapData = globals.mapData,
+		      sq = mapData.gridSize,
+		      {token: selectedToken} = globals.selected;
+		if (!selectedToken) {
+			return;
+		}
+		switch (tokenDragMode) {
+		case 0:
+			x += dx;
+			y += dy;
+			if (selectedToken.snap) {
+				[x, y] = snapTokenToGrid(selectedToken);
+			}
+			break;
+		case 1: {
+			rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI);
+			while (rotation < 0) {
+				rotation += 256;
+			}
+			if (selectedToken.snap) {
+				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
+				rotation = Math.round(rotation / deg) * deg % 256;
+			}
+			globals.outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
+		}
+		break;
+		default: {
+			const r = -360 * rotation / 256,
+			      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
+			      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
+			      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
+			      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0;
+			let [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
+			if (selectedToken!.snap) {
+				mDx = Math.round(mDx / sq) * sq;
+				mDy = Math.round(mDy / sq) * sq;
+			}
+			if (dirX === -1) {
+				x += mDx;
+				width -= mDx;
+			} else if (dirX === 1) {
+				width += mDx;
+			}
+			if (dirY === -1) {
+				y += mDy;
+				height -= mDy;
+			} else if (dirY === 1) {
+				height += mDy;
+			}
+			const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
+			      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
+			x = nx;
+			y = ny;
+		}}
+		selectedToken!.x = x;
+		selectedToken!.y = y;
+		selectedToken!.width = width;
+		selectedToken!.rotation = rotation;
+		selectedToken!.height = height;
+		selectedToken!.updateNode();
+		createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
+	      },
+	      tokenMouseUp = (e: MouseEvent) => {
+		if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
+			return;
+		}
+		document.body.removeEventListener("mousemove", tokenDrag);
+		document.body.removeEventListener("mouseup", tokenMouseUp);
+		globals.root.style.removeProperty("--outline-cursor");
+		const {layer, token} = globals.selected,
+		      {x, y, width, height, rotation} = tokenMousePos,
+		      newX = Math.round(token.x),
+		      newY = Math.round(token.y),
+		      newRotation = Math.round(token.rotation),
+		      newWidth = Math.round(token.width),
+		      newHeight = Math.round(token.height);
+		if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
+			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
+		}
+	      };
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
-		let tokenDragMode = 0;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
 		const {root, layerList} = globals,
-		      tokenDrag = (e: MouseEvent) => {
-			let {x, y, width, height, rotation} = tokenMousePos;
-			const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
-			      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
-			      sq = mapData.gridSize,
-			      {token: selectedToken} = globals.selected;
-			if (!selectedToken) {
-				return;
-			}
-			switch (tokenDragMode) {
-			case 0:
-				x += dx;
-				y += dy;
-				if (selectedToken.snap) {
-					[x, y] = snapTokenToGrid(selectedToken);
-				}
-				break;
-			case 1: {
-				rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI);
-				while (rotation < 0) {
-					rotation += 256;
-				}
-				if (selectedToken.snap) {
-					const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
-					rotation = Math.round(rotation / deg) * deg % 256;
-				}
-				outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
-			}
-			break;
-			default: {
-				const r = -360 * rotation / 256,
-				      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
-				      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
-				      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
-				      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0;
-				let [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
-				if (selectedToken!.snap) {
-					mDx = Math.round(mDx / sq) * sq;
-					mDy = Math.round(mDy / sq) * sq;
-				}
-				if (dirX === -1) {
-					x += mDx;
-					width -= mDx;
-				} else if (dirX === 1) {
-					width += mDx;
-				}
-				if (dirY === -1) {
-					y += mDy;
-					height -= mDy;
-				} else if (dirY === 1) {
-					height += mDy;
-				}
-				const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
-				      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
-				x = nx;
-				y = ny;
-			}}
-			selectedToken!.x = x;
-			selectedToken!.y = y;
-			selectedToken!.width = width;
-			selectedToken!.rotation = rotation;
-			selectedToken!.height = height;
-			selectedToken!.updateNode();
-			createSVG(outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
-		      },
-		      tokenMouseUp = (e: MouseEvent) => {
-			if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
-				return;
-			}
-			document.body.removeEventListener("mousemove", tokenDrag);
-			document.body.removeEventListener("mouseup", tokenMouseUp);
-			root.style.removeProperty("--outline-cursor");
-			const {layer, token} = globals.selected,
-			      {x, y, width, height, rotation} = tokenMousePos,
-			      newX = Math.round(token.x),
-			      newY = Math.round(token.y),
-			      newRotation = Math.round(token.rotation),
-			      newWidth = Math.round(token.width),
-			      newHeight = Math.round(token.height);
-			if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
-				doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
-			}
-		      },
 		      outline = globals.outline = g();
 		createSVG(root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
