@@ -572,24 +572,6 @@ snapTokenToGrid = (token: Token) => {
 export default function(base: HTMLElement) {
 	let tokenDragMode = 0;
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
-	      ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
-		mDx *= dX;
-		mDy *= dY;
-		if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
-			mDy = mDx * height / width;
-		} else {
-			mDx = mDy * width / height;
-		}
-		if (dX !== 0 && width + mDx < min) {
-			mDx = min - width;
-			mDy = min * height / width - height;
-		}
-		if (dY !== 0 && height + mDy < min) {
-			mDx = min * width / height - width;
-			mDy = min - height;
-		}
-		return [mDx * dX, mDy * dY];
-	      },
 	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
@@ -625,8 +607,25 @@ export default function(base: HTMLElement) {
 			      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
 			      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
 			      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
-			      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0;
-			let [mDx, mDy] = ratio(aDx, aDy, width, height, dirX, dirY, selectedToken!.snap ? sq : 10);
+			      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
+			      min = selectedToken!.snap ? sq : 10;
+			let mDx = aDx * dirX,
+			    mDy = aDy * dirY;
+			if (dirX !== 0 && mDy < mDx * height / width || dirY === 0) {
+				mDy = mDx * height / width;
+			} else {
+				mDx = mDy * width / height;
+			}
+			if (dirX !== 0 && width + mDx < min) {
+				mDx = min - width;
+				mDy = min * height / width - height;
+			}
+			if (dirY !== 0 && height + mDy < min) {
+				mDx = min * width / height - width;
+				mDy = min - height;
+			}
+			mDx *= dirX;
+			mDy *= dirY;
 			if (selectedToken!.snap) {
 				mDx = Math.round(mDx / sq) * sq;
 				mDy = Math.round(mDy / sq) * sq;
