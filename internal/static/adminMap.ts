@@ -66,7 +66,8 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 			deselectToken();
 		}
 	}
-      };
+      },
+      SQRT3 = Math.sqrt(3);
 
 export const getToken = () => {
 	const {token} = globals.selected;
@@ -572,13 +573,13 @@ snapTokenToGrid = (token: Token) => {
 	      dh = height - (Math.round(height / size) * size);
 	switch (globals.mapData.gridType) {
 	case 1: {
-		const dy = 1.5 * size / Math.sqrt(3),
+		const dy = 1.5 * size / SQRT3,
 		      row = Math.round(y / dy),
 		      colOffset = row % 2 === 0 ? 0: size / 2;
 		return [Math.round((x - colOffset) / size) * size + colOffset, row * dy + dy / 12];
 	}
 	case 2: {
-		const dx = 1.5 * size / Math.sqrt(3),
+		const dx = 1.5 * size / SQRT3,
 		      col = Math.round(x / dx),
 		      rowOffset = col % 2 === 0 ? 0: size / 2;
 		return [col * dx + dx / 12, Math.round((y - rowOffset) / size) * size + rowOffset];
@@ -764,7 +765,7 @@ export default function(base: HTMLElement) {
 			    newY = token.y;
 			if (token.snap) {
 				const sq = mapData.gridSize,
-				      size = sq / Math.sqrt(3),
+				      size = sq / SQRT3,
 				      h = mapData.gridType === 2 ? Math.round(1.5 * size) : mapData.gridType === 1 ? sq / 2 : sq,
 				      v = mapData.gridType === 1 ? Math.round(1.5 * size) : mapData.gridType === 2 ? sq / 2 : sq;
 				switch (e.key) {
