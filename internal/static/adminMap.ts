@@ -763,19 +763,22 @@ export default function(base: HTMLElement) {
 			let newX = token.x,
 			    newY = token.y;
 			if (token.snap) {
-				const sq = mapData.gridSize;
+				const sq = mapData.gridSize,
+				      size = sq / Math.sqrt(3),
+				      h = mapData.gridType === 2 ? Math.round(1.5 * size) : mapData.gridType === 1 ? sq / 2 : sq,
+				      v = mapData.gridType === 1 ? Math.round(1.5 * size) : mapData.gridType === 2 ? sq / 2 : sq;
 				switch (e.key) {
 				case "ArrowUp":
-					newY -= sq;
+					newY -= v;
 					break;
 				case "ArrowDown":
-					newY += sq;
+					newY += v;
 					break;
 				case "ArrowLeft":
-					newX -= sq;
+					newX -= h;
 					break;
 				case "ArrowRight":
-					newX += sq;
+					newX += h;
 					break;
 				default:
 					return;
