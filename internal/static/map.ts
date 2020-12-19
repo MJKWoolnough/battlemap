@@ -392,7 +392,7 @@ globals = {
 	"tokens": null,
 	"walls": null,
 	"selected": {},
-	"outline": null,
+	"outline": g(),
 } as unknown as {
 	definitions: Defs;
 	root: SVGSVGElement;
@@ -484,7 +484,6 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 };
 
 export default function(base: HTMLElement) {
-	globals.outline = g();
 	rpc.waitCurrentUserMapData().then(mapData => {
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(base, mapData, true));
