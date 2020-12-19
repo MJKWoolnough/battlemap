@@ -17,26 +17,7 @@ import {tokenContext, tokenDataFilter} from './plugins.js';
 import {rpc} from './rpc.js';
 import lang from './language.js';
 
-const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
-      ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
-	mDx *= dX;
-	mDy *= dY;
-	if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
-		mDy = mDx * height / width;
-	} else {
-		mDx = mDy * width / height;
-	}
-	if (dX !== 0 && width + mDx < min) {
-		mDx = min - width;
-		mDy = min * height / width - height;
-	}
-	if (dY !== 0 && height + mDy < min) {
-		mDx = min * width / height - width;
-		mDy = min - height;
-	}
-	return [mDx * dX, mDy * dY];
-      },
-      subFn = <T>(): [(data: T) => void, Subscription<T>] => {
+const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
@@ -590,7 +571,26 @@ snapTokenToGrid = (token: Token) => {
 
 export default function(base: HTMLElement) {
 	let tokenDragMode = 0;
-	const tokenDrag = (e: MouseEvent) => {
+	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+	      ratio = (mDx: Int, mDy: Int, width: Uint, height: Uint, dX: (-1 | 0 | 1), dY: (-1 | 0 | 1), min = 10) => {
+		mDx *= dX;
+		mDy *= dY;
+		if (dX !== 0 && mDy < mDx * height / width || dY === 0) {
+			mDy = mDx * height / width;
+		} else {
+			mDx = mDy * width / height;
+		}
+		if (dX !== 0 && width + mDx < min) {
+			mDx = min - width;
+			mDy = min * height / width - height;
+		}
+		if (dY !== 0 && height + mDy < min) {
+			mDx = min * width / height - width;
+			mDy = min - height;
+		}
+		return [mDx * dX, mDy * dY];
+	      },
+	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
 		      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
