@@ -626,7 +626,7 @@ export default function(base: HTMLElement) {
 			}
 			mDx *= dirX;
 			mDy *= dirY;
-			if (selectedToken!.snap) {
+			if (selectedToken.snap) {
 				mDx = Math.round(mDx / sq) * sq;
 				mDy = Math.round(mDy / sq) * sq;
 			}
@@ -647,12 +647,12 @@ export default function(base: HTMLElement) {
 			x = nx;
 			y = ny;
 		}}
-		selectedToken!.x = x;
-		selectedToken!.y = y;
-		selectedToken!.width = width;
-		selectedToken!.rotation = rotation;
-		selectedToken!.height = height;
-		selectedToken!.updateNode();
+		selectedToken.x = x;
+		selectedToken.y = y;
+		selectedToken.width = width;
+		selectedToken.rotation = rotation;
+		selectedToken.height = height;
+		selectedToken.updateNode();
 		createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 	      },
 	      tokenMouseUp = (e: MouseEvent) => {
