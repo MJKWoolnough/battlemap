@@ -765,8 +765,8 @@ export default function(base: HTMLElement) {
 			    newY = token.y;
 			if (token.snap) {
 				const {mapData: {gridSize, gridType}} = globals,
-				      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize / 2 : gridSize,
-				      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize / 2 : gridSize;
+				      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
+				      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize;
 				switch (e.key) {
 				case "ArrowUp":
 					newY -= v;
