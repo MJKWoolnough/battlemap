@@ -547,9 +547,8 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
 },
-snapTokenToGrid = (token: Token) => {
+snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	const size = globals.mapData.gridSize,
-	      {x, y, width, height} = token,
 	      dw = width - (Math.round(width / size) * size),
 	      dh = height - (Math.round(height / size) * size);
 	switch (globals.mapData.gridType) {
@@ -587,7 +586,7 @@ export default function(base: HTMLElement) {
 			x += dx;
 			y += dy;
 			if (selectedToken.snap) {
-				[x, y] = snapTokenToGrid(selectedToken);
+				[x, y] = snapTokenToGrid(x, y, width, height);
 			}
 			break;
 		case 1: {
@@ -713,7 +712,7 @@ export default function(base: HTMLElement) {
 				const sq = mapData.gridSize;
 				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
 				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
-				[token.x, token.y] = snapTokenToGrid(token);
+				[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 			}
 			const lp = globals.selected.layer.path;
 			doTokenAdd(lp, token);
