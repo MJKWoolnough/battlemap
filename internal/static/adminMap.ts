@@ -671,14 +671,215 @@ export default function(base: HTMLElement) {
 		if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
 			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
 		}
-	      };
+	      },
+	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+		const {token} = globals.selected;
+		if (!token) {
+			return;
+		}
+		if (e.key === "Delete") {
+			doTokenRemove(token.id);
+			return;
+		}
+		let newX = token.x,
+		    newY = token.y;
+		if (token.snap) {
+			const {mapData: {gridSize, gridType}} = globals,
+			      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
+			      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize;
+			switch (e.key) {
+			case "ArrowUp":
+				newY -= v;
+				break;
+			case "ArrowDown":
+				newY += v;
+				break;
+			case "ArrowLeft":
+				newX -= h;
+				break;
+			case "ArrowRight":
+				newX += h;
+				break;
+			default:
+				return;
+			}
+		} else {
+			switch (e.key) {
+			case "ArrowUp":
+			case "ArrowDown":
+			case "ArrowLeft":
+			case "ArrowRight":
+				break;
+			default:
+				return;
+			}
+		}
+		doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
+	      }, "onkeydown": (e: KeyboardEvent) => {
+		const {token} = globals.selected;
+		if (!token) {
+			return;
+		}
+		if (token.snap) {
+			return;
+		}
+		switch (e.key) {
+		case "ArrowUp":
+			token.y--;
+			break;
+		case "ArrowDown":
+			token.y++;
+			break;
+		case "ArrowLeft":
+			token.x--;
+			break;
+		case "ArrowRight":
+			token.x++;
+			break;
+		default:
+			return;
+		}
+		token.updateNode();
+		outline.setAttribute("transform", token.transformString(false));
+	      }, "oncontextmenu": function (this: SVGGElement, e: MouseEvent) {
+		toolTokenContext.call(this, e);
+		if (e.defaultPrevented) {
+			return;
+		}
+		e.preventDefault();
+		const {layer: currLayer, token: currToken} = globals.selected;
+		if (!currLayer || !currToken) {
+			return;
+		}
+		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+		place(base, [e.clientX, e.clientY], [
+			tokenContext(),
+			isTokenImage(currToken) ? [
+				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
+				item(lang["CONTEXT_FLIP"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					doTokenSet({"id": currToken.id, "flip": currToken.flip});
+					outline.focus();
+				}),
+				item(lang["CONTEXT_FLOP"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
+					outline.focus();
+				}),
+				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					if (currToken.isPattern) {
+						doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+					} else {
+						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+					}
+				}),
+			] : [],
+			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
+				const snap = currToken.snap,
+				      sq = globals.mapData.gridSize,
+				      {x, y, width, height, rotation} = currToken;
+				if (!snap) {
+					const newX = Math.round(x / sq) * sq,
+					      newY = Math.round(y / sq) * sq,
+					      newWidth = Math.max(Math.round(width / sq) * sq, sq),
+					      newHeight = Math.max(Math.round(height / sq) * sq, sq),
+					      newRotation = Math.round(rotation / 32) * 32 % 256;
+					if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
+						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap});
+					}
+				} else {
+					doTokenSet({"id": currToken.id, "snap": !snap});
+				}
+			}),
+			item(lang["CONTEXT_SET_LIGHTING"], () => {
+				let c = currToken.lightColour;
+				const t = Date.now(),
+				      w = requestShell().appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
+				      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+				w.appendChild(createHTML(null, [
+					h1(lang["CONTEXT_SET_LIGHTING"]),
+					label({"for": `tokenLighting_${t}`}, `${lang["LIGHTING_COLOUR"]}: `),
+					makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`),
+					br(),
+					label({"for": `tokenIntensity_${t}`}, `${lang["LIGHTING_INTENSITY"]}: `),
+					i,
+					br(),
+					button({"onclick": () => {
+						if (globals.selected.token === currToken) {
+							doTokenLightChange(currToken.id, c, parseInt(i.value));
+						}
+						w.close();
+					}}, lang["SAVE"])
+				]));
+			}),
+			tokenPos < currLayer.tokens.length - 1 ? [
+				item(lang["CONTEXT_MOVE_TOP"], () => {
+					if (!globals.tokens[currToken.id]) {
+						return;
+					}
+					const currLayer = globals.tokens[currToken.id].layer;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
+				}),
+				item(lang["CONTEXT_MOVE_UP"], () => {
+					if (!globals.tokens[currToken.id]) {
+						return;
+					}
+					const currLayer = globals.tokens[currToken.id].layer,
+					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+				})
+			] : [],
+			tokenPos > 0 ? [
+				item(lang["CONTEXT_MOVE_DOWN"], () => {
+					if (!globals.tokens[currToken.id]) {
+						return;
+					}
+					const currLayer = globals.tokens[currToken.id].layer,
+					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+				}),
+				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
+					if (!globals.tokens[currToken.id]) {
+						return;
+					}
+					const currLayer = globals.tokens[currToken.id].layer;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
+				})
+			] : [],
+			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
+				if (!globals.tokens[currToken.id]) {
+					return;
+				}
+				const currLayer = globals.tokens[currToken.id].layer;
+				doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length);
+			}, currLayer.name)),
+			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
+		]);
+	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+		toolTokenMouseDown.call(this, e);
+		if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || ! globals.selected.token) {
+			return;
+		}
+		e.stopImmediatePropagation();
+		document.body.addEventListener("mousemove", tokenDrag);
+		document.body.addEventListener("mouseup", tokenMouseUp);
+		tokenDragMode = parseInt(this.getAttribute("data-outline")!);
+		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
+		tokenMousePos.mouseX = e.clientX;
+		tokenMousePos.mouseY = e.clientY;
+	      }})));
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
-		const {root, layerList} = globals,
-		      outline = globals.outline = g();
-		createSVG(root, {"ondragover": (e: DragEvent) => {
+		createSVG(globals.root, {"ondragover": (e: DragEvent) => {
 			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 				e.preventDefault();
 				e.dataTransfer!.dropEffect = "link";
@@ -751,209 +952,7 @@ export default function(base: HTMLElement) {
 					e.preventDefault();
 				}
 			}
-		      }}, createSVG(outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
-			const {token} = globals.selected;
-			if (!token) {
-				return;
-			}
-			if (e.key === "Delete") {
-				doTokenRemove(token.id);
-				return;
-			}
-			let newX = token.x,
-			    newY = token.y;
-			if (token.snap) {
-				const {mapData: {gridSize, gridType}} = globals,
-				      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
-				      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize;
-				switch (e.key) {
-				case "ArrowUp":
-					newY -= v;
-					break;
-				case "ArrowDown":
-					newY += v;
-					break;
-				case "ArrowLeft":
-					newX -= h;
-					break;
-				case "ArrowRight":
-					newX += h;
-					break;
-				default:
-					return;
-				}
-			} else {
-				switch (e.key) {
-				case "ArrowUp":
-				case "ArrowDown":
-				case "ArrowLeft":
-				case "ArrowRight":
-					break;
-				default:
-					return;
-				}
-			}
-			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
-		      }, "onkeydown": (e: KeyboardEvent) => {
-			const {token} = globals.selected;
-			if (!token) {
-				return;
-			}
-			if (token.snap) {
-				return;
-			}
-			switch (e.key) {
-			case "ArrowUp":
-				token.y--;
-				break;
-			case "ArrowDown":
-				token.y++;
-				break;
-			case "ArrowLeft":
-				token.x--;
-				break;
-			case "ArrowRight":
-				token.x++;
-				break;
-			default:
-				return;
-			}
-			token.updateNode();
-			outline.setAttribute("transform", token.transformString(false));
-		      }, "oncontextmenu": function (this: SVGGElement, e: MouseEvent) {
-			toolTokenContext.call(this, e);
-			if (e.defaultPrevented) {
-				return;
-			}
-			e.preventDefault();
-			const {layer: currLayer, token: currToken} = globals.selected;
-			if (!currLayer || !currToken) {
-				return;
-			}
-			const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-			place(base, [e.clientX, e.clientY], [
-				tokenContext(),
-				isTokenImage(currToken) ? [
-					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
-					item(lang["CONTEXT_FLIP"], () => {
-						if (!(currToken instanceof SVGToken)) {
-							return;
-						}
-						doTokenSet({"id": currToken.id, "flip": currToken.flip});
-						outline.focus();
-					}),
-					item(lang["CONTEXT_FLOP"], () => {
-						if (!(currToken instanceof SVGToken)) {
-							return;
-						}
-						doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
-						outline.focus();
-					}),
-					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-						if (!(currToken instanceof SVGToken)) {
-							return;
-						}
-						if (currToken.isPattern) {
-							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-						} else {
-							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-						}
-					}),
-				] : [],
-				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
-					const snap = currToken.snap,
-					      sq = mapData.gridSize,
-					      {x, y, width, height, rotation} = currToken;
-					if (!snap) {
-						const newX = Math.round(x / sq) * sq,
-						      newY = Math.round(y / sq) * sq,
-						      newWidth = Math.max(Math.round(width / sq) * sq, sq),
-						      newHeight = Math.max(Math.round(height / sq) * sq, sq),
-						      newRotation = Math.round(rotation / 32) * 32 % 256;
-						if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
-							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap});
-						}
-					} else {
-						doTokenSet({"id": currToken.id, "snap": !snap});
-					}
-				}),
-				item(lang["CONTEXT_SET_LIGHTING"], () => {
-					let c = currToken.lightColour;
-					const t = Date.now(),
-					      w = requestShell().appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
-					      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-					w.appendChild(createHTML(null, [
-						h1(lang["CONTEXT_SET_LIGHTING"]),
-						label({"for": `tokenLighting_${t}`}, `${lang["LIGHTING_COLOUR"]}: `),
-						makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`),
-						br(),
-						label({"for": `tokenIntensity_${t}`}, `${lang["LIGHTING_INTENSITY"]}: `),
-						i,
-						br(),
-						button({"onclick": () => {
-							if (globals.selected.token === currToken) {
-								doTokenLightChange(currToken.id, c, parseInt(i.value));
-							}
-							w.close();
-						}}, lang["SAVE"])
-					]));
-				}),
-				tokenPos < currLayer.tokens.length - 1 ? [
-					item(lang["CONTEXT_MOVE_TOP"], () => {
-						if (!globals.tokens[currToken.id]) {
-							return;
-						}
-						const currLayer = globals.tokens[currToken.id].layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
-					}),
-					item(lang["CONTEXT_MOVE_UP"], () => {
-						if (!globals.tokens[currToken.id]) {
-							return;
-						}
-						const currLayer = globals.tokens[currToken.id].layer,
-						      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-					})
-				] : [],
-				tokenPos > 0 ? [
-					item(lang["CONTEXT_MOVE_DOWN"], () => {
-						if (!globals.tokens[currToken.id]) {
-							return;
-						}
-						const currLayer = globals.tokens[currToken.id].layer,
-						      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-					}),
-					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-						if (!globals.tokens[currToken.id]) {
-							return;
-						}
-						const currLayer = globals.tokens[currToken.id].layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
-					})
-				] : [],
-				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
-					if (!globals.tokens[currToken.id]) {
-						return;
-					}
-					const currLayer = globals.tokens[currToken.id].layer;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length);
-				}, currLayer.name)),
-				item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
-			]);
-		}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
-			toolTokenMouseDown.call(this, e);
-			if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || ! globals.selected.token) {
-				return;
-			}
-			e.stopImmediatePropagation();
-			document.body.addEventListener("mousemove", tokenDrag);
-			document.body.addEventListener("mouseup", tokenMouseUp);
-			tokenDragMode = parseInt(this.getAttribute("data-outline")!);
-			root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
-			tokenMousePos.mouseX = e.clientX;
-			tokenMousePos.mouseY = e.clientY;
-		      }}))));
+		      }}, createHTML(outline, {"style": "display: none"}));
 		mapLoadedSend(true);
 	}));
 	mapLayersSend({
