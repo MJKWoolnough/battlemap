@@ -3,12 +3,12 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
-import {mapLayersReceive, screen2Grid, colour2RGBA, makeColourPicker, point2Line} from './misc.js';
+import {mapLoadedReceive, screen2Grid, colour2RGBA, makeColourPicker, point2Line} from './misc.js';
 import {globals, SVGLayer, walkLayers} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove, deselectToken} from './adminMap.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
-import {rpc} from './rpc.js';
+import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
 const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
@@ -162,15 +162,10 @@ let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
     wallWaiter = () => {},
     on = false;
 
-mapLayersReceive(l => {
-	([
-		l.waitRemoved,
-		l.waitFolderRemoved,
-		l.waitLayerSetVisible,
-		l.waitLayerSetInvisible,
-		l.waitLayerPositionChange
-	] as (() => Subscription<any>)[]).map(fn => fn().then(genWalls));
-	genWalls();
+mapLoadedReceive(a => {
+	if (a) {
+		genWalls();
+	}
 });
 
 addTool({
@@ -204,10 +199,10 @@ addTool({
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,
 			rpc.waitWallRemoved,
-			rpc.waitLayerMove,
-			rpc.waitLayerRemove,
-			rpc.waitLayerShow,
-			rpc.waitLayerHide,
+			combinedRPC.waitLayerMove,
+			combinedRPC.waitLayerRemove,
+			combinedRPC.waitLayerShow,
+			combinedRPC.waitLayerHide,
 			rpc.waitLayerShift
 		] as (() => Subscription<any>)[]).map(fn => fn().then(() => window.setTimeout(genWalls, 0))));
 		on = true;
