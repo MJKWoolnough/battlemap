@@ -164,8 +164,6 @@ let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
 
 mapLayersReceive(l => {
 	([
-		l.waitMoved,
-		l.waitFolderMoved,
 		l.waitRemoved,
 		l.waitFolderRemoved,
 		l.waitLayerSetVisible,
