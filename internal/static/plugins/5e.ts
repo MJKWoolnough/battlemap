@@ -945,6 +945,7 @@ if (userLevel === 1) {
 			      hp = token.getData("5e-hp-current");
 			if (hp !== null) {
 				requestShell().prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+					globals.outline.focus();
 					if (hp === null || token !== lastSelectedToken) {
 						return;
 					}
@@ -953,7 +954,6 @@ if (userLevel === 1) {
 						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
 						token.updateData();
 					}
-					globals.outline.focus();
 				});
 			}
 			e.preventDefault();
