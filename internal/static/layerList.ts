@@ -287,11 +287,13 @@ export default function(base: HTMLElement) {
 					}
 				});
 				rpc.waitLayerPositionChange().then(ml => {
-					const l = list.getLayer(ml.to);
-					if (l && l.parent!.children.length - 1 !== ml.position) {
-						l.parent!.children.pop();
-						l.parent!.children.splice(ml.position, 0, l);
+					const l = list.getLayer(ml.from),
+					      np = list.getLayer(ml.to);
+					if (!l || !(np instanceof FolderLayer)) {
+						return;
 					}
+					l.parent!.children.filterRemove(i => i === l);
+					np.children.splice(ml.position, 0, l);
 				});
 				rpc.waitLayerRename().then(lr => {
 					const l = list.getLayer(lr.path);
