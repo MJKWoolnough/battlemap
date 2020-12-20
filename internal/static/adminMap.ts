@@ -874,85 +874,89 @@ export default function(base: HTMLElement) {
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		tokenMousePos.mouseX = e.clientX;
 		tokenMousePos.mouseY = e.clientY;
-	      }})));
+	      }}))),
+	      mapOnDragOver = (e: DragEvent) => {
+		if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
+			e.preventDefault();
+			e.dataTransfer!.dropEffect = "link";
+		}
+	      },
+	      mapOnDrop = (e: DragEvent) => {
+		if (globals.selected.layer === null) {
+			return;
+		}
+		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+		if (e.dataTransfer!.types.includes("character")) {
+			const tD = JSON.parse(e.dataTransfer!.getData("character")),
+			      char = characterData.get(tD.id)!;
+			if (char["store-token-data"]) {
+				Object.assign(token, char["store-token-data"].data);
+			} else {
+				token.src = parseInt(char["store-image-icon"].data);
+				token.width = tD.width;
+				token.height = tD.height;
+			}
+			if (char["store-image-id"]) {
+				token.tokenData = char["store-image-id"].data;
+			}
+		} else {
+			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+			token.src = tokenData.id;
+			token.width = tokenData.width;
+			token.height = tokenData.height;
+		}
+		[token.x, token.y] = screen2Grid(e.clientX, e.clientY, false)
+		if (token.snap && token.tokenData === 0) {
+			const sq = globals.mapData.gridSize;
+			token.width = Math.max(Math.round(token.width / sq) * sq, sq);
+			token.height = Math.max(Math.round(token.height / sq) * sq, sq);
+			[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
+		}
+		const lp = globals.selected.layer.path;
+		doTokenAdd(lp, token);
+	      },
+	      mapOnMouseDown = (e: MouseEvent) => {
+		const {layer} = globals.selected;
+		if (!layer || e.button !== 0) {
+			return;
+		}
+		const newToken = (layer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
+		if (!e.ctrlKey) {
+			deselectToken();
+		}
+		if (!newToken || e.ctrlKey) {
+			return;
+		}
+		globals.selected.token = newToken;
+		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
+		tokenMousePos.x = newToken.x;
+		tokenMousePos.y = newToken.y;
+		tokenMousePos.width = newToken.width;
+		tokenMousePos.height = newToken.height;
+		tokenMousePos.rotation = newToken.rotation;
+		tokenSelected();
+	      },
+	      mapOnKeyDown = (e: KeyboardEvent) => {
+		if (e.ctrlKey) {
+			switch (e.key) {
+			case 'z':
+				if (!e.shiftKey) {
+					undo.undo();
+					e.preventDefault();
+					break;
+				}
+			case 'r':
+			case 'y':
+				undo.redo();
+				e.preventDefault();
+			}
+		}
+	      };
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
-		createSVG(globals.root, {"ondragover": (e: DragEvent) => {
-			if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
-				e.preventDefault();
-				e.dataTransfer!.dropEffect = "link";
-			}
-		      }, "ondrop": (e: DragEvent) => {
-			if (globals.selected.layer === null) {
-				return;
-			}
-			const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-			if (e.dataTransfer!.types.includes("character")) {
-				const tD = JSON.parse(e.dataTransfer!.getData("character")),
-				      char = characterData.get(tD.id)!;
-				if (char["store-token-data"]) {
-					Object.assign(token, char["store-token-data"].data);
-				} else {
-					token.src = parseInt(char["store-image-icon"].data);
-					token.width = tD.width;
-					token.height = tD.height;
-				}
-				if (char["store-image-id"]) {
-					token.tokenData = char["store-image-id"].data;
-				}
-			} else {
-				const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-				token.src = tokenData.id;
-				token.width = tokenData.width;
-				token.height = tokenData.height;
-			}
-			[token.x, token.y] = screen2Grid(e.clientX, e.clientY, false)
-			if (token.snap && token.tokenData === 0) {
-				const sq = mapData.gridSize;
-				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
-				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
-				[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
-			}
-			const lp = globals.selected.layer.path;
-			doTokenAdd(lp, token);
-		      }, "onmousedown": (e: MouseEvent) => {
-			const {layer} = globals.selected;
-			if (!layer || e.button !== 0) {
-				return;
-			}
-			const newToken = (layer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
-			if (!e.ctrlKey) {
-				deselectToken();
-			}
-			if (!newToken || e.ctrlKey) {
-				return;
-			}
-			globals.selected.token = newToken;
-			autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
-			tokenMousePos.x = newToken.x;
-			tokenMousePos.y = newToken.y;
-			tokenMousePos.width = newToken.width;
-			tokenMousePos.height = newToken.height;
-			tokenMousePos.rotation = newToken.rotation;
-			tokenSelected();
-		      }, "onkeydown": (e: KeyboardEvent) => {
-			if (e.ctrlKey) {
-				switch (e.key) {
-				case 'z':
-					if (!e.shiftKey) {
-						undo.undo();
-						e.preventDefault();
-						break;
-					}
-				case 'r':
-				case 'y':
-					undo.redo();
-					e.preventDefault();
-				}
-			}
-		      }}, createHTML(outline, {"style": "display: none"}));
+		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onmousedown": mapOnMouseDown, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
 		mapLoadedSend(true);
 	}));
 	mapLayersSend({
