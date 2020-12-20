@@ -23,16 +23,13 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	return [fn!, sub];
       },
       waitAdded = subFn<IDName[]>(),
-      waitMoved = subFn<FromTo>(),
       waitRemoved = subFn<string>(),
       waitFolderAdded = subFn<string>(),
-      waitFolderMoved = subFn<FromTo>(),
       waitFolderRemoved = subFn<string>(),
       waitLayerShow = subFn<string>(),
       waitLayerHide = subFn<string>(),
       waitLayerPositionChange = subFn<LayerMove>(),
       waitLayerRename = subFn<LayerRename>(),
-      invalidRPC = () => Promise.reject("invalid"),
       removeS = (path: string) => {
 	checkSelectedLayer(path);
 	removeLayer(path);
@@ -951,7 +948,9 @@ export default function(base: HTMLElement) {
 				e.preventDefault();
 			}
 		}
-	      };
+	      },
+	      unusedWait = new Subscription<any>(() => {}),
+	      invalidRPC = () => Promise.reject("invalid");
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
@@ -961,11 +960,11 @@ export default function(base: HTMLElement) {
 	}));
 	mapLayersSend({
 		"waitAdded": () => waitAdded[1],
-		"waitMoved": () => waitMoved[1],
+		"waitMoved": () => unusedWait,
 		"waitRemoved": () => waitRemoved[1],
-		"waitLinked": () => new Subscription<IDName>(() => {}),
+		"waitLinked": () => unusedWait,
 		"waitFolderAdded": () => waitFolderAdded[1],
-		"waitFolderMoved": () => waitFolderMoved[1],
+		"waitFolderMoved": () => unusedWait,
 		"waitFolderRemoved": () => waitFolderRemoved[1],
 		"waitLayerSetVisible": () => waitLayerShow[1],
 		"waitLayerSetInvisible": () => waitLayerHide[1],
