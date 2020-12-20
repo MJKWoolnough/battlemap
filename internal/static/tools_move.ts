@@ -2,13 +2,9 @@ import {LayerRPC} from './types.js';
 import {svg, g, line, path} from './lib/svg.js';
 import {globals} from './map.js';
 import {doLayerShift, deselectToken} from './adminMap.js';
-import {mapLayersReceive} from './misc.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
-
-let ml: LayerRPC;
-mapLayersReceive(l => ml = l);
 
 const startDrag = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
@@ -20,7 +16,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		return;
 	}
 	const snap = selectedLayer.tokens.some(t => t.snap),
-	      sq = snap ? ml.getMapDetails().gridSize : 1,
+	      sq = snap ? globals.mapData.gridSize : 1,
 	      mover = (e: MouseEvent) => {
 		dx = (e.clientX - ox) / panZoom.zoom;
 		dy = (e.clientY - oy) / panZoom.zoom;
