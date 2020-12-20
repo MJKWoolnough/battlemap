@@ -939,6 +939,26 @@ if (userLevel === 1) {
 			}}, mainLang["SAVE"])
 		])]
 	};
+	globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
+		if (lastSelectedToken !== null && e.key === 'h') {
+			const token = lastSelectedToken,
+			      hp = token.getData("5e-hp-current");
+			if (hp !== null) {
+				requestShell().prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+					if (hp === null || token !== lastSelectedToken) {
+						return;
+					}
+					const data = parseInt(hp);
+					if (data >= 0) {
+						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+						token.updateData();
+					}
+					globals.outline.focus();
+				});
+			}
+			e.preventDefault();
+		}
+	});
 }
 
 addPlugin("5e", plugin);
@@ -949,28 +969,6 @@ mapLoadedReceive(() => {
 	lastInitiativeID = 0;
 	updateInitiative();
 	lastSelectedToken = null;
-	if (userLevel === 1) {
-		globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
-			if (lastSelectedToken !== null && e.key === 'h') {
-				const token = lastSelectedToken,
-				      hp = token.getData("5e-hp-current");
-				if (hp !== null) {
-					requestShell().prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
-						if (hp === null || token !== lastSelectedToken) {
-							return;
-						}
-						const data = parseInt(hp);
-						if (data >= 0) {
-							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-							token.updateData();
-						}
-						globals.outline.focus();
-					});
-				}
-				e.preventDefault();
-			}
-		});
-	}
 });
 
 rpc.waitTokenSet().then(ts => {
