@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFol
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {colour2RGBA, point2Line, mapLoadedSend} from './misc.js';
+import {colour2RGBA, point2Line, mapLoadedSend, SQRT3} from './misc.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -46,12 +46,12 @@ class Defs {
 		switch (grid.gridType) {
 		case 1: {
 			const w = grid.gridSize,
-			      h = 2 * w / Math.sqrt(3);
+			      h = 2 * w / SQRT3;
 			this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": 1.5 * h}, path({"d": `M${w / 2},${1.5 * h} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
 		}; break;
 		case 2: {
 			const h = grid.gridSize,
-			      w = 2 * h / Math.sqrt(3);
+			      w = 2 * h / SQRT3;
 			this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": 1.5 * w, "height": h}, path({"d": `M${1.5 * w},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
 		}; break;
 		default:

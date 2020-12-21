@@ -121,4 +121,5 @@ isColour = (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && i
 queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
-})();
+})(),
+SQRT3 = Math.sqrt(3);

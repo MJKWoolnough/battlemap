@@ -11,7 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell, queue} from './misc.js';
+import {makeColourPicker, mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, noColour, handleError, screen2Grid, requestShell, queue, SQRT3} from './misc.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
 import {rpc} from './rpc.js';
@@ -44,8 +44,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 			deselectToken();
 		}
 	}
-      },
-      SQRT3 = Math.sqrt(3);
+      };
 
 export const getToken = () => {
 	const {token} = globals.selected;
