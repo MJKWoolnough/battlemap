@@ -300,7 +300,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			}
 			break;
 		default:
-			(original as Record<string, any>)[k] = ts[k as keyof TokenSet]
+			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
 		}
 	}
 	const doIt = (sendRPC = true) => {
