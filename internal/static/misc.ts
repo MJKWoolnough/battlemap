@@ -81,10 +81,15 @@ handleError = (e: Error | string) => {
 	console.log(e);
 	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
 },
-screen2Grid = (x: Uint, y: Uint, snap: boolean): [Int, Int] => {
+screen2Grid = (x: Uint, y: Uint, snap = false): [Int, Int] => {
 	const {mapData} = globals,
-	      snapDM = snap ? mapData.gridSize : 1;
-	return [snapDM * Math.round((x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom / snapDM), snapDM * Math.round((y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom / snapDM)];
+	      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
+	      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
+	if (snap) {
+		const size = mapData.gridSize >> 1;
+		return [size * Math.round(sx / size), size * Math.round(sy / size)];
+	}
+	return [Math.round(sx), Math.round(sy)];
 },
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
