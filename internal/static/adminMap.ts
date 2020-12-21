@@ -562,7 +562,7 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	}
 	}
 	return [Math.round(x / size) * size, Math.round(y / size) * size];
-}
+};
 
 export default function(base: HTMLElement) {
 	let tokenDragMode = 0;
@@ -901,7 +901,7 @@ export default function(base: HTMLElement) {
 			token.width = tokenData.width;
 			token.height = tokenData.height;
 		}
-		[token.x, token.y] = screen2Grid(e.clientX, e.clientY, false)
+		[token.x, token.y] = screen2Grid(e.clientX, e.clientY);
 		if (token.snap && token.tokenData === 0) {
 			const sq = globals.mapData.gridSize;
 			token.width = Math.max(Math.round(token.width / sq) * sq, sq);
