@@ -133,6 +133,7 @@ const defaultLanguage = {
 	"TOOL_LIGHT_SUN": "Position Sun/Moon",
 	"TOOL_LIGHT_WALL": "Wall Tool",
 	"TOOL_MASK": "Mask Tool",
+	"TOOL_MEASURE": "Measuring Tool",
 	"TOOL_MOVE": "Move All",
 	"TOOL_ZOOM": "Zoom",
 	"TOOL_ZOOM_IN": "Zoom In",
