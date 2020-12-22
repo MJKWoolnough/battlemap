@@ -107,42 +107,30 @@ screen2Grid = (() => {
 		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
 		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
 		if (snap) {
-			switch (globals.mapData.gridType) {
-			case 1: {
-				const w = globals.mapData.gridSize,
-				      h = 2 * Math.round(1.5 * w / SQRT3),
-				      px = sx / w,
-				      py = sy / h,
-				      dx = px % 1,
-				      dy = py % 1;
-				let nearestPoint: [number, number] = [0, 0],
-				    nearest = Infinity;
-				for (const point of points) {
-					const d = Math.hypot(point[0] - dx, point[1] - dy);
-					if (d < nearest) {
-						nearest = d;
-						nearestPoint = point;
-					}
-				}
-				return [Math.round((Math.floor(px) + nearestPoint[0]) * w), Math.round((Math.floor(py) + nearestPoint[1]) * h)];
-			}
+			const gridType = globals.mapData.gridType;
+			switch (gridType) {
+			case 1:
 			case 2: {
-				const h = globals.mapData.gridSize,
-				      w = 2 * Math.round(1.5 * h / SQRT3),
+				const size = globals.mapData.gridSize,
+				      o = 2 * Math.round(1.5 * size / SQRT3),
+				      w = gridType === 1 ? size : o,
+				      h = gridType === 2 ? size : o,
 				      px = sx / w,
 				      py = sy / h,
 				      dx = px % 1,
-				      dy = py % 1;
+				      dy = py % 1,
+				      first = gridType - 1,
+				      second = (first * -1) + 1
 				let nearestPoint: [number, number] = [0, 0],
 				    nearest = Infinity;
 				for (const point of points) {
-					const d = Math.hypot(point[1] - dx, point[0] - dy);
+					const d = Math.hypot(point[first] - dx, point[second] - dy);
 					if (d < nearest) {
 						nearest = d;
 						nearestPoint = point;
 					}
 				}
-				return [Math.round((Math.floor(px) + nearestPoint[1]) * w), Math.round((Math.floor(py) + nearestPoint[0]) * h)];
+				return [Math.round((Math.floor(px) + nearestPoint[first]) * w), Math.round((Math.floor(py) + nearestPoint[second]) * h)];
 			}
 			default:
 				const size = mapData.gridSize >> 1;
