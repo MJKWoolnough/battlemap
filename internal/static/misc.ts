@@ -81,16 +81,59 @@ handleError = (e: Error | string) => {
 	console.log(e);
 	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
 },
-screen2Grid = (x: Uint, y: Uint, snap = false): [Int, Int] => {
-	const {mapData} = globals,
-	      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
-	      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
-	if (snap) {
-		const size = mapData.gridSize >> 1;
-		return [size * Math.round(sx / size), size * Math.round(sy / size)];
-	}
-	return [Math.round(sx), Math.round(sy)];
-},
+SQRT3 = Math.sqrt(3),
+screen2Grid = (() => {
+	const points: [number, number][] = [
+		[0, 1/6],
+		[0, 2/6],
+		[0, 3/6],
+		[0, 5/6],
+		[1/4, 1/12],
+		[1/4, 7/12],
+		[1/2, 0],
+		[1/2, 1/3],
+		[1/2, 2/3],
+		[1/2, 5/6],
+		[1/2, 1],
+		[3/4, 1/12],
+		[3/4, 7/12],
+		[1, 1/6],
+		[1, 2/6],
+		[1, 3/6],
+		[1, 5/6]
+	      ];
+	return (x: Uint, y: Uint, snap = false): [Int, Int] => {
+		const {mapData} = globals,
+		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
+		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
+		if (snap) {
+			switch (globals.mapData.gridType) {
+			case 1: {
+				const w = globals.mapData.gridSize,
+				      h = 2 * Math.round(1.5 * w / SQRT3),
+				      px = sx / w,
+				      py = sy / h,
+				      dx = px % 1,
+				      dy = py % 1;
+				let nearestPoint: [number, number] = [0, 0],
+				    nearest = Infinity;
+				for (const point of points) {
+					const d = Math.hypot(point[0] - dx, point[1] - dy);
+					if (d < nearest) {
+						nearest = d;
+						nearestPoint = point;
+					}
+				}
+				return [Math.round((Math.floor(px) + nearestPoint[0]) * w), Math.round((Math.floor(py) + nearestPoint[1]) * h)];
+			}
+			default:
+				const size = mapData.gridSize >> 1;
+				return [size * Math.round(sx / size), size * Math.round(sy / size)];
+			}
+		}
+		return [Math.round(sx), Math.round(sy)];
+	};
+})(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
@@ -126,5 +169,4 @@ isColour = (v: any): v is Colour => v instanceof Object && isUint(v.r, 255) && i
 queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
-})(),
-SQRT3 = Math.sqrt(3);
+})();
