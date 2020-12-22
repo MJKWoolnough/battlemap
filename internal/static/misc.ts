@@ -126,6 +126,24 @@ screen2Grid = (() => {
 				}
 				return [Math.round((Math.floor(px) + nearestPoint[0]) * w), Math.round((Math.floor(py) + nearestPoint[1]) * h)];
 			}
+			case 2: {
+				const h = globals.mapData.gridSize,
+				      w = 2 * Math.round(1.5 * h / SQRT3),
+				      px = sx / w,
+				      py = sy / h,
+				      dx = px % 1,
+				      dy = py % 1;
+				let nearestPoint: [number, number] = [0, 0],
+				    nearest = Infinity;
+				for (const point of points) {
+					const d = Math.hypot(point[1] - dx, point[0] - dy);
+					if (d < nearest) {
+						nearest = d;
+						nearestPoint = point;
+					}
+				}
+				return [Math.round((Math.floor(px) + nearestPoint[1]) * w), Math.round((Math.floor(py) + nearestPoint[0]) * h)];
+			}
 			default:
 				const size = mapData.gridSize >> 1;
 				return [size * Math.round(sx / size), size * Math.round(sy / size)];
