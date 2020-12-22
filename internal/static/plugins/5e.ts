@@ -6,7 +6,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
-import {getToken, doMapDataSet, doTokenSet} from '../adminMap.js';
+import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement} from '../lib/windows.js';
@@ -442,10 +442,16 @@ const defaultLanguage = {
       sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-initiative"]!.data.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-initiative"]!.data.initiative,
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
-      saveInitiative = () => doMapDataSet("5e-initiative", initiativeList.map(i => ({
-	"id": i.token.id,
-	"initiative": i.initiative
-      }))),
+      saveInitiative = () => {
+	if (initiativeList.length === 0) {
+		doMapDataRemove("5e-initiative");
+	} else {
+		doMapDataSet("5e-initiative", initiativeList.map(i => ({
+			"id": i.token.id,
+			"initiative": i.initiative
+		})));
+	}
+      },
       savedWindowSetting = new JSONSetting<WindowData>("5e-window-data", [0, 0, 200, 400], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
       saveWindowSettings = () => savedWindowSetting.set([parseInt(initiativeWindow.style.getPropertyValue("--window-left")), parseInt(initiativeWindow.style.getPropertyValue("--window-top")), parseInt(initiativeWindow.style.getPropertyValue("--window-width")), parseInt(initiativeWindow.style.getPropertyValue("--window-height"))]),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowSetting.value[0] + "px", "--window-top": savedWindowSetting.value[1] + "px", "--window-width": savedWindowSetting.value[2] + "px", "--window-height": savedWindowSetting.value[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), "onmoved": saveWindowSettings, "onresized": saveWindowSettings}, div({"id": "initiative-window-5e"}, [
@@ -489,6 +495,7 @@ const defaultLanguage = {
       updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	if (!initiative) {
+		initiativeWindow.remove();
 		return;
 	}
 	initiativeList.splice(0, initiativeList.length);
@@ -522,7 +529,9 @@ const defaultLanguage = {
 			addToInitiative(token, change[1], hiddenLayers.has(layer.path));
 		}
 	}
-	if (initiativeList.length && !initiativeWindow.parentNode) {
+	if (initiativeList.length === 0) {
+		initiativeWindow.remove();
+	} else if (!initiativeWindow.parentNode) {
 		requestShell().appendChild(initiativeWindow);
 	}
       },
