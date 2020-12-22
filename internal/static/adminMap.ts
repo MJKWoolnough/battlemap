@@ -358,6 +358,9 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 	}
 	const pos = layer.tokens.findIndex(t => t === token),
 	      doIt = (sendRPC = true) => {
+		if (token === globals.selected.token) {
+			deselectToken();
+		}
 		layer.tokens.splice(pos, 1);
 		if (token instanceof SVGToken) {
 			token.cleanup();
