@@ -361,7 +361,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if !validTokenLayer(newToken.Path) {
 			return nil, ErrInvalidLayerPath
 		}
-		if err := newToken.Token.validate(); err != nil {
+		if err := newToken.Token.validate(false); err != nil {
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {

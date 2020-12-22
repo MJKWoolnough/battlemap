@@ -121,7 +121,7 @@ func (l *layer) validate(layers map[string]struct{}, lm *levelMap, first bool) e
 		}
 	}
 	for _, token := range l.Tokens {
-		if err := token.validate(); err != nil {
+		if err := token.validate(true); err != nil {
 			return err
 		}
 		if _, ok := lm.tokens[token.ID]; ok {
@@ -298,8 +298,8 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 	return append(p, '}')
 }
 
-func (t *token) validate() error {
-	if t.ID == 0 {
+func (t *token) validate(checkID bool) error {
+	if checkID && t.ID == 0 {
 		return ErrInvalidTokenID
 	}
 	switch t.TokenType {
