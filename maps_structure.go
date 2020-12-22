@@ -294,6 +294,17 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 		}
 		p = t.Stroke.appendTo(append(p, ",\"stroke\":"...))
 		p = appendNum(append(p, ",\"strokeWidth\":"...), t.StrokeWidth)
+		p = appendNum(append(p, ",\"fillType\":"...), uint8(t.FillType))
+		p = append(p, ",\"fills\":["...)
+		for n, f := range t.Fills {
+			if n > 0 {
+				p = append(p, ',')
+			}
+			p = appendNum(append(p, "{\"pos\":"...), f.Pos)
+			p = f.Colour.appendTo(append(p, ",\"colour\":"...))
+			p = append(p, '}')
+		}
+		p = append(p, ']')
 	}
 	return append(p, '}')
 }
