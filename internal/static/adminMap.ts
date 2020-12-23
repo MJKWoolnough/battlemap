@@ -853,7 +853,7 @@ export default function(base: HTMLElement) {
 		]);
 	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 		toolTokenMouseDown.call(this, e);
-		if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || ! globals.selected.token) {
+		if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || !globals.selected.token) {
 			return;
 		}
 		e.stopImmediatePropagation();
