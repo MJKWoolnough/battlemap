@@ -670,24 +670,23 @@ export default function(base: HTMLElement) {
 			doTokenRemove(token.id);
 			return;
 		}
-		let newX = token.x,
-		    newY = token.y;
+		let {x, y} = token;
 		if (token.snap) {
 			const {mapData: {gridSize, gridType}} = globals,
 			      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
 			      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize;
 			switch (e.key) {
 			case "ArrowUp":
-				newY -= v;
+				y -= v;
 				break;
 			case "ArrowDown":
-				newY += v;
+				y += v;
 				break;
 			case "ArrowLeft":
-				newX -= h;
+				x -= h;
 				break;
 			case "ArrowRight":
-				newX += h;
+				x += h;
 				break;
 			default:
 				return;
@@ -703,7 +702,7 @@ export default function(base: HTMLElement) {
 				return;
 			}
 		}
-		doTokenSet({"id": token.id, "x": newX, "y": newY, "width": token.width, "height": token.height, "rotation": token.rotation});
+		doTokenSet({"id": token.id, x, y});
 	      }, "onkeydown": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
 		if (!token) {
