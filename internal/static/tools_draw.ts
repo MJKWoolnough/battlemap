@@ -194,7 +194,9 @@ addTool({
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		draw(this, e);
+		if (e.button === 0) {
+			draw(this, e);
+		}
 	},
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
