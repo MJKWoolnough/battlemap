@@ -64,33 +64,25 @@ deselectToken = () => {
 	tokenSelected();
 },
 doMapChange = (details: MapDetails, sendRPC = true) => {
-	const oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour},
-	      doIt = (sendRPC = true) => {
+	let oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour};
+	const doIt = (sendRPC = true) => {
 		setMapDetails(details);
 		if (sendRPC) {
-			queue(() => rpc.setMapDetails(details));
+			queue(rpc.setMapDetails.bind(rpc, details));
 		}
-		return undoIt;
-	      },
-	      undoIt = () => {
-		setMapDetails(oldDetails)
-		queue(() => rpc.setMapDetails(oldDetails));
+		[details, oldDetails] = [oldDetails, details];
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_CHANGE"]);
       },
 doSetLightColour = (c: Colour, sendRPC = true) => {
-	const oldColour = globals.mapData.lightColour,
-	      doIt = (sendRPC = true) => {
+	let oldColour = globals.mapData.lightColour;
+	const doIt = (sendRPC = true) => {
 		setLightColour(c);
 		if (sendRPC) {
-			queue(() => rpc.setLightColour(c));
+			queue(rpc.setLightColour.bind(rpc, c));
 		}
-		return undoIt;
-	      },
-	      undoIt = () => {
-		setLightColour(oldColour);
-		queue(() => rpc.setLightColour(oldColour));
+		[c, oldColour] = [oldColour, c];
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LIGHT_COLOUR"]);
@@ -165,7 +157,7 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_FOLDER_ADD"]);
 	return path;
 },
-doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
+doLayerMove = (from: string, to: string, position: Uint, sendRPC = true) => {
 	const [parent, layer] = getParentLayer(from);
 	if (!parent || !layer) {
 		handleError("Invalid layer move");
@@ -174,36 +166,34 @@ doLayerMove = (from: string, to: string, newPos: Uint, sendRPC = true) => {
 	let oldPos = parent.children.indexOf(layer);
 	const doIt = (sendRPC = true) => {
 		deselectToken();
-		moveLayer(from, to, newPos);
+		moveLayer(from, to, position);
 		if (sendRPC) {
+			const data = {from, to, position};
 			queue(() => {
-				waitLayerPositionChange[0]({
-					from,
-					to,
-					"position": newPos
-				});
-				return rpc.moveLayer(from, to, newPos);
+				waitLayerPositionChange[0](data);
+				return rpc.moveLayer(data.from, data.to, data.position);
 			});
 		}
 		[to, from] = [from, to];
-		[oldPos, newPos] = [newPos, oldPos];
+		[oldPos, position] = [position, oldPos];
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_MOVE"]);
 },
-doLayerRename = (oldPath: string, newName: string, sendRPC = true) => {
-	let [parentPath, oldName] = splitAfterLastSlash(oldPath),
+doLayerRename = (path: string, name: string, sendRPC = true) => {
+	let [parentPath, oldName] = splitAfterLastSlash(path),
 	    newPath = parentPath + "/" + oldName;
 	const doIt = (sendRPC = true) => {
-		renameLayer(oldPath, newName);
+		renameLayer(path, name);
 		if (sendRPC) {
+			const data = {path, name}
 			queue(() => {
-				waitLayerRename[0]({"path": oldPath, "name": newName});
-				return rpc.renameLayer(oldPath, newName);
+				waitLayerRename[0](data);
+				return rpc.renameLayer(data.path, data.name);
 			});
 		}
-		[oldPath, newPath] = [newPath, oldPath];
-		[oldName, newName] = [newName, oldName];
+		[path, newPath] = [newPath, path];
+		[oldName, name] = [name, oldName];
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_RENAME"]);
@@ -260,7 +250,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 			deselectToken();
 		}
 		if (sendRPC) {
-			queue(() => rpc.setTokenLayerPos(id, layer.path, newPos));
+			queue(rpc.setTokenLayerPos.bind(rpc, id, layer.path, newPos));
 		}
 		[currentPos, newPos] = [newPos, currentPos];
 		[layer, newParent] = [newParent, layer];
@@ -335,7 +325,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		}
 		token.updateNode()
 		if (sendRPC) {
-			queue(() => rpc.setToken(ts));
+			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (globals.selected.token === token) {
 			createSVG(globals.outline, {"--outline-width": token.width + "px", "--outline-height": token.height + "px", "transform": token.transformString(false)})
@@ -403,7 +393,7 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 		});
 		updateLight();
 		if (sendRPC) {
-			queue(() => rpc.shiftLayer(path, dx, dy));
+			queue(rpc.shiftLayer.bind(rpc, path, dx, dy));
 		}
 		dx = -dx;
 		dy = -dy;
@@ -418,7 +408,7 @@ doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
 		globals.mapData.lightY = y;
 		updateLight();
 		if (sendRPC) {
-			queue(() => rpc.shiftLight(x, y));
+			queue(rpc.shiftLight.bind(rpc, x, y));
 		}
 		[x, oldX] = [oldX, x];
 		[y, oldY] = [oldY, y];
@@ -499,7 +489,7 @@ doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendR
 		token.lightIntensity = lightIntensity;
 		updateLight();
 		if (sendRPC) {
-			queue(() => rpc.setTokenLight(id, lightColour, lightIntensity));
+			queue(rpc.setTokenLight.bind(rpc, id, lightColour, lightIntensity));
 		}
 		[lightColour, oldLightColour] = [oldLightColour, lightColour];
 		[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
