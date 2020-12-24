@@ -658,6 +658,11 @@ export default function(base: HTMLElement) {
 		      newWidth = Math.round(token.width),
 		      newHeight = Math.round(token.height);
 		if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
+			token.x = tokenMousePos.x;
+			token.y = tokenMousePos.y;
+			token.width = tokenMousePos.width;
+			token.height = tokenMousePos.height;
+			token.rotation = tokenMousePos.rotation;
 			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
 		}
 	      },
@@ -697,6 +702,8 @@ export default function(base: HTMLElement) {
 			case "ArrowDown":
 			case "ArrowLeft":
 			case "ArrowRight":
+				token.x = tokenMousePos.x;
+				token.y = tokenMousePos.y;
 				break;
 			default:
 				return;
