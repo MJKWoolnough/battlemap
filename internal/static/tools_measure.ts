@@ -1,5 +1,5 @@
 import {br, div, input, label} from './lib/html.js';
-import {svg, path} from './lib/svg.js';
+import {svg, g, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals} from './map.js';
 import {defaultMouseWheel} from './tools_default.js';
@@ -12,6 +12,12 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		snap.click();
 	}
       },
+      marker = g([
+              polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
+              polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
+              polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
+              polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
+      ]),
       showMarker = (root: SVGElement) => {
 
       },
