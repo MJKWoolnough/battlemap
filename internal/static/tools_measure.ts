@@ -14,6 +14,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		snap.click();
 	}
       },
+      info = div({"style": "background-color: #fff; color: #000; position: absolute; top: 0;"}),
       marker = g([
               polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
               polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
@@ -22,15 +23,18 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
       ]),
       showMarker = (root: SVGElement) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
+	document.body.appendChild(info);
 	const onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+		info.innerText = `${x}x${y}`;
 	};
 	deselectToken();
 	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
 		root.removeEventListener("mousemove", onmousemove);
 		root.style.removeProperty("cursor");
 		marker.remove();
+		info.remove();
 	}});
       },
       draw = (e: MouseEvent) => {
