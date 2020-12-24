@@ -1,9 +1,11 @@
 import {br, div, input, label} from './lib/html.js';
-import {svg, g, path, polygon} from './lib/svg.js';
+import {createSVG, svg, g, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals} from './map.js';
+import {deselectToken} from './adminMap.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
+import {screen2Grid} from './misc.js';
 import lang from './language.js';
 
 const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
@@ -19,7 +21,17 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
               polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       showMarker = (root: SVGElement) => {
-
+	createSVG(root, {"style": {"cursor": "none"}}, marker);
+	const onmousemove = (e: MouseEvent) => {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	};
+	deselectToken();
+	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
+		root.removeEventListener("mousemove", onmousemove);
+		root.style.removeProperty("cursor");
+		marker.remove();
+	}});
       },
       draw = (e: MouseEvent) => {
 	if (e.button !== 0) {
