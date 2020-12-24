@@ -656,14 +656,36 @@ export default function(base: HTMLElement) {
 		      newY = Math.round(token.y),
 		      newRotation = Math.round(token.rotation),
 		      newWidth = Math.round(token.width),
-		      newHeight = Math.round(token.height);
-		if (newX !== x || newY !== y || newWidth !== width || newHeight !== height || newRotation !== rotation) {
+		      newHeight = Math.round(token.height),
+		      ts: TokenSet = {"id": token.id};
+		let changed = false;
+		if (newX !== x) {
 			token.x = tokenMousePos.x;
+			ts.x = newX;
+			changed = true;
+		}
+		if (newY !== y) {
 			token.y = tokenMousePos.y;
+			ts.y = newY;
+			changed = true;
+		}
+		if (newWidth !== width) {
 			token.width = tokenMousePos.width;
+			ts.width = newWidth;
+			changed = true;
+		}
+		if (newHeight !== height) {
 			token.height = tokenMousePos.height;
+			ts.height = newHeight;
+			changed = true;
+		}
+		if (newRotation !== rotation) {
 			token.rotation = tokenMousePos.rotation;
-			doTokenSet({"id": token.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation});
+			ts.rotation = newRotation;
+			changed = true;
+		}
+		if (changed) {
+			doTokenSet(ts);
 		}
 	      },
 	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
