@@ -5,9 +5,16 @@ const pipes = new Map<Setting<any>, Pipe<any>>();
 
 class Setting<T> {
 	name: string;
-	constructor(name: string) {
+	value: T;
+	constructor(name: string, value: T) {
 		this.name = name;
+		this.value = value;
 		pipes.set(this, new Pipe<T>());
+	}
+	set(v: T, s: string) {
+		this.value = v;
+		window.localStorage.setItem(this.name, s);
+		pipes.get(this)?.send(v);
 	}
 	remove() {
 		window.localStorage.removeItem(this.name);
@@ -18,10 +25,8 @@ class Setting<T> {
 }
 
 export class BoolSetting extends Setting<boolean> {
-	value: boolean;
 	constructor(name: string) {
-		super(name);
-		this.value = window.localStorage.getItem(name) !== null;
+		super(name, window.localStorage.getItem(name) !== null);
 	}
 	set(b: boolean) {
 		this.value = b;
@@ -31,41 +36,30 @@ export class BoolSetting extends Setting<boolean> {
 			window.localStorage.removeItem(this.name);
 		}
 		pipes.get(this)?.send(b);
-		return b;
 	}
 }
 
 export class IntSetting extends Setting<Int> {
-	value: Int;
 	constructor(name: string, starting = "0") {
-		super(name);
-		this.value = parseInt(window.localStorage.getItem(name) || starting);
+		super(name, parseInt(window.localStorage.getItem(name) || starting));
 	}
 	set(i: Int) {
-		this.value = i;
-		window.localStorage.setItem(this.name, i.toString());
-		pipes.get(this)?.send(i);
+		super.set(i, i.toString());
 	}
 }
 
 export class StringSetting extends Setting<string> {
-	value: string;
 	constructor(name: string, starting = "") {
-		super(name);
-		this.value = window.localStorage.getItem(name) ?? starting;
+		super(name, window.localStorage.getItem(name) ?? starting);
 	}
 	set(s: string) {
-		this.value = s;
-		window.localStorage.setItem(this.name, s);
-		pipes.get(this)?.send(s);
+		super.set(s, s);
 	}
 }
 
 export class JSONSetting<T> extends Setting<T> {
-	value: T;
 	constructor(name: string, starting: T, validator: (v: any) => v is T) {
-		super(name);
-		this.value = starting;
+		super(name, starting);
 		const s = window.localStorage.getItem(name);
 		if (s) {
 			try {
@@ -77,8 +71,6 @@ export class JSONSetting<T> extends Setting<T> {
 		}
 	}
 	set(v: T) {
-		this.value = v;
-		window.localStorage.setItem(this.name, JSON.stringify(v));
-		pipes.get(this)?.send(v);
+		super.set(v, JSON.stringify(v));
 	}
 }
