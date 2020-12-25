@@ -204,10 +204,10 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		clearElement(document.body).appendChild(s);
 	} else {
 		lastTab.set(0);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1]);
 		}
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
