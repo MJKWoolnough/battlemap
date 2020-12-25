@@ -23,7 +23,9 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 		}}, languages.map(l => option({"selected": l === language.value}, l))),
 		h1(lang["THEME"]),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.innerText = invert.set(!invert.value) ? lang["LIGHT_MODE"] : lang["DARK_MODE"];
+			const v = !invert.value;
+			invert.set(v);
+			this.innerText = v ? lang["LIGHT_MODE"] : lang["DARK_MODE"];
 		}}, invert.value ? lang["LIGHT_MODE"] : lang["DARK_MODE"]),
 		h1(lang["MAP_SETTINGS"]),
 		loggedIn ? [
