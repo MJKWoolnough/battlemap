@@ -24,8 +24,9 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
               polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       spot = circle({"r": 3, "fill": "#000", "stroke": "#fff"}),
-      l = line({"stroke": "#000"}),
-      drawnLine = g([l, spot]),
+      lone = line({"stroke": "#fff", "stroke-width": 4, "stroke-linecap": "square"}),
+      ltwo = line({"stroke": "#000", "stroke-width": 2}),
+      drawnLine = g([lone, ltwo, spot]),
       showMarker = (root: SVGElement) => {
 	if (over) {
 		return;
@@ -37,7 +38,9 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 	      onmousedown = (e: MouseEvent) => {
 		if (e.button === 0) {
 			[coords[0], coords[1]] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			createSVG(l, {"x1": coords[0], "y1": coords[1], "x2": coords[0], "y2": coords[1]});
+			const l = {"x1": coords[0], "y1": coords[1], "x2": coords[0], "y2": coords[1]};
+			createSVG(lone, l);
+			createSVG(ltwo, l);
 			createSVG(spot, {"cx": coords[0], "cy": coords[1]});
 			root.insertBefore(drawnLine, marker);
 		}
@@ -55,9 +58,11 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		if (isNaN(coords[0])) {
 			info.innerText = `${x}x${y}`;
 		} else {
-			const size = globals.mapData.gridSize;
+			const size = globals.mapData.gridSize,
+			      l = {"x2": x, "y2": y};
 			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
-			createSVG(l, {"x2": x, "y2": y});
+			createSVG(lone, l);
+			createSVG(ltwo, l);
 		}
 	      };
 	deselectToken();
