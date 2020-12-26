@@ -63,7 +63,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		over = false;
 	}});
       },
-      draw = (e: MouseEvent) => {
+      disable = (e: MouseEvent) => {
 	if (e.button !== 0) {
 		return;
 	}
@@ -84,8 +84,8 @@ addTool({
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 	},
-	"mapMouseDown": draw,
+	"mapMouseDown": disable,
 	"tokenMouseOver": () => showMarker(globals.root),
-	"tokenMouseDown": draw,
+	"tokenMouseDown": disable,
 	"mapMouseWheel": defaultMouseWheel
 });
