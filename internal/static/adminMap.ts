@@ -549,7 +549,7 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 		const dx = 1.5 * size / SQRT3,
 		      col = Math.round(x / dx),
 		      rowOffset = col % 2 === 0 ? 0: size >> 1;
-		return [Math.round(col * dx + dx / 12), Math.round((y - rowOffset) / size) * size + rowOffset];
+		return [Math.round(col * dx + (((2 * size / SQRT3) + dx * (Math.round(width / dx) - 1) - width) >> 1)), Math.round((y - rowOffset) / size) * size + rowOffset + ((Math.round(height / size) * size - height) >> 1)];
 	}}
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 };
