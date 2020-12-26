@@ -24,13 +24,32 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
       showMarker = (root: SVGElement) => {
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	document.body.appendChild(info);
-	const onmousemove = (e: MouseEvent) => {
+	const coords = [NaN, NaN],
+	      onmousedown = (e: MouseEvent) => {
+		if (e.button === 0) {
+			[coords[0], coords[1]] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		}
+	      },
+	      onmouseup = (e: MouseEvent) => {
+		if (e.button === 0) {
+			coords[0] = NaN;
+			coords[1] = NaN;
+		}
+	      },
+	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-		info.innerText = `${x}x${y}`;
-	};
+		if (isNaN(coords[0])) {
+			info.innerText = `${x}x${y}`;
+		} else {
+			const size = globals.mapData.gridSize;
+			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
+		}
+	      };
 	deselectToken();
-	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
+	createSVG(root, {onmousedown, onmouseup, onmousemove, "1onmouseleave": (e: MouseEvent) => {
+		root.removeEventListener("mousedown", onmousedown);
+		root.removeEventListener("mouseup", onmouseup);
 		root.removeEventListener("mousemove", onmousemove);
 		root.style.removeProperty("cursor");
 		marker.remove();
