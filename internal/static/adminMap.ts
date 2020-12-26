@@ -537,9 +537,7 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
 },
 snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
-	const size = globals.mapData.gridSize,
-	      dw = width - (Math.round(width / size) * size),
-	      dh = height - (Math.round(height / size) * size);
+	const size = globals.mapData.gridSize;
 	switch (globals.mapData.gridType) {
 	case 1: {
 		const dy = 1.5 * size / SQRT3,
@@ -552,9 +550,8 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 		      col = Math.round(x / dx),
 		      rowOffset = col % 2 === 0 ? 0: size >> 1;
 		return [Math.round(col * dx + dx / 12), Math.round((y - rowOffset) / size) * size + rowOffset];
-	}
-	}
-	return [Math.round(x / size) * size, Math.round(y / size) * size];
+	}}
+	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 };
 
 export default function(base: HTMLElement) {
