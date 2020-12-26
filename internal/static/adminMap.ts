@@ -930,6 +930,9 @@ export default function(base: HTMLElement) {
 		doTokenAdd(lp, token);
 	      },
 	      mapOnMouseDown = (e: MouseEvent) => {
+		if (e.defaultPrevented) {
+			return;
+		}
 		const {layer} = globals.selected;
 		if (!layer || e.button !== 0) {
 			return;
