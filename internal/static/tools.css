@@ -13,6 +13,7 @@
 #toolList > ul > li {
 	cursor: pointer;
 	padding: 0.4em;
+	user-select: none;
 }
 
 #toolList li.selected {
