@@ -8,6 +8,8 @@ import {autosnap} from './settings.js';
 import {screen2Grid} from './misc.js';
 import lang from './language.js';
 
+let over = false;
+
 const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
@@ -22,6 +24,10 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
               polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
       showMarker = (root: SVGElement) => {
+	if (over) {
+		return;
+	}
+	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	document.body.appendChild(info);
 	const coords = [NaN, NaN],
@@ -54,6 +60,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		root.style.removeProperty("cursor");
 		marker.remove();
 		info.remove();
+		over = false;
 	}});
       },
       draw = (e: MouseEvent) => {
