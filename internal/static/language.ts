@@ -134,6 +134,7 @@ const defaultLanguage = {
 	"TOOL_LIGHT_WALL": "Wall Tool",
 	"TOOL_MASK": "Mask Tool",
 	"TOOL_MEASURE": "Measuring Tool",
+	"TOOL_MEASURE_CELL": "Cell Distance",
 	"TOOL_MEASURE_SNAP": "Snap to Grid",
 	"TOOL_MOVE": "Move All",
 	"TOOL_ZOOM": "Zoom",
