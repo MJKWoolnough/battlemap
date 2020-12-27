@@ -2,16 +2,17 @@ import {br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals} from './map.js';
-import {deselectToken} from './adminMap.js';
+import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {screen2Grid} from './misc.js';
+import {screen2Grid, mapLoadedReceive, isInt} from './misc.js';
 import lang from './language.js';
 
 let over = false;
 
-const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
-      cellValue = input({"id": "measureCell", "type": "number", "value": 1}),
+const mapKey = "TOOL_MEASURE_CELL_VALUE",
+      snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
+      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "onchange": () => doMapDataSet(mapKey, parseInt(cellValue.value))}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -105,4 +106,11 @@ addTool({
 	"tokenMouseOver": () => showMarker(globals.root),
 	"tokenMouseDown": disable,
 	"mapMouseWheel": defaultMouseWheel
+});
+
+mapLoadedReceive(() => {
+	const v = globals.mapData.data[mapKey]
+	if (isInt(v, 1)) {
+		cellValue.value = v.toString();
+	}
 });
