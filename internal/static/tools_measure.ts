@@ -5,14 +5,14 @@ import {globals} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {screen2Grid, mapLoadedReceive, isInt} from './misc.js';
+import {screen2Grid, mapLoadedReceive, isUint} from './misc.js';
 import lang from './language.js';
 
 let over = false;
 
 const mapKey = "TOOL_MEASURE_CELL_VALUE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
-      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "onchange": () => doMapDataSet(mapKey, parseInt(cellValue.value))}),
+      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => doMapDataSet(mapKey, parseInt(cellValue.value))}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -110,7 +110,7 @@ addTool({
 
 mapLoadedReceive(() => {
 	const v = globals.mapData.data[mapKey]
-	if (isInt(v, 1)) {
+	if (isUint(v)) {
 		cellValue.value = v.toString();
 	}
 });
