@@ -11,6 +11,7 @@ import lang from './language.js';
 let over = false;
 
 const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
+      cellValue = input({"id": "measureCell", "type": "number", "value": 1}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -60,7 +61,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		} else {
 			const size = globals.mapData.gridSize,
 			      l = {"x2": x, "y2": y};
-			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
+			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
 			createSVG(lone, l);
 			createSVG(ltwo, l);
 		}
@@ -92,6 +93,9 @@ addTool({
 	"options": div([
 		label({"for": "measureSnap"}, lang["TOOL_MEASURE_SNAP"]),
 		snap,
+		br(),
+		label({"for": "measureCell"}, lang["TOOL_MEASURE_CELL"]),
+		cellValue,
 		br()
 	]),
 	"mapMouseOver": function(this: SVGElement) {
