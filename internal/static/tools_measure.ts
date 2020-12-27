@@ -91,10 +91,10 @@ addTool({
 	"name": lang["TOOL_MEASURE"],
 	"icon": svg({"viewBox": "0 0 50 50"}, path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})),
 	"options": div([
-		label({"for": "measureSnap"}, lang["TOOL_MEASURE_SNAP"]),
+		label({"for": "measureSnap"}, `${lang["TOOL_MEASURE_SNAP"]}: `),
 		snap,
 		br(),
-		label({"for": "measureCell"}, lang["TOOL_MEASURE_CELL"]),
+		label({"for": "measureCell"}, `${lang["TOOL_MEASURE_CELL"]}: `),
 		cellValue,
 		br()
 	]),
