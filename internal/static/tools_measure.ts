@@ -7,6 +7,7 @@ import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
 import {screen2Grid, mapLoadedReceive, isUint} from './misc.js';
 import lang from './language.js';
+import {addMapDataChecker} from './rpc.js';
 
 let over = false;
 
@@ -113,9 +114,16 @@ addTool({
 	"mapMouseWheel": defaultMouseWheel
 });
 
-mapLoadedReceive(() => {
-	const v = globals.mapData.data[mapKey]
-	if (isUint(v)) {
-		cellValue.value = v.toString();
+addMapDataChecker((data: Record<string, any>) => {
+	for (const key in data) {
+		if (key === mapKey) {
+			const v = data[key];
+			if (isUint(v)) {
+				cellValue.value = "" + v;
+			} else {
+				delete data[key];
+				console.log(new TypeError(`Map Data value of '${mapKey}' must be a Uint`));
+			}
+		}
 	}
 });
