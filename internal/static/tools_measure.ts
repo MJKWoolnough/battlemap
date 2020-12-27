@@ -34,7 +34,6 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 	}
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
-	document.body.appendChild(info);
 	const coords = [NaN, NaN],
 	      onmousedown = (e: MouseEvent) => {
 		if (e.button === 0) {
@@ -44,6 +43,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 			createSVG(ltwo, l);
 			createSVG(spot, {"cx": coords[0], "cy": coords[1]});
 			root.insertBefore(drawnLine, marker);
+			document.body.appendChild(info);
 		}
 	      },
 	      onmouseup = (e: MouseEvent) => {
@@ -51,14 +51,13 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 			coords[0] = NaN;
 			coords[1] = NaN;
 			drawnLine.remove();
+			info.remove();
 		}
 	      },
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-		if (isNaN(coords[0])) {
-			info.innerText = `${x}x${y}`;
-		} else {
+		if (!isNaN(coords[0])) {
 			const size = globals.mapData.gridSize,
 			      l = {"x2": x, "y2": y};
 			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
@@ -73,6 +72,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		root.removeEventListener("mousemove", onmousemove);
 		root.style.removeProperty("cursor");
 		marker.remove();
+		drawnLine.remove();
 		info.remove();
 		over = false;
 	}});
