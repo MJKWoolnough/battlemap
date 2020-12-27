@@ -12,7 +12,12 @@ let over = false;
 
 const mapKey = "TOOL_MEASURE_CELL_VALUE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
-      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => doMapDataSet(mapKey, parseInt(cellValue.value))}),
+      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
+	const v = parseInt(cellValue.value);
+	if (!isUint(v)) {
+		doMapDataSet(mapKey, v);
+	}
+      }}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
