@@ -60,7 +60,7 @@ const snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap
 		if (!isNaN(coords[0])) {
 			const size = globals.mapData.gridSize,
 			      l = {"x2": x, "y2": y};
-			info.innerText = `${coords[0]}x${coords[1]} -> ${x}x${y} = ${parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size)}`;
+			info.innerText = "" + parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size);
 			createSVG(lone, l);
 			createSVG(ltwo, l);
 		}
