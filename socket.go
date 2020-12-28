@@ -96,10 +96,6 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		ID:         ID(atomic.LoadUint64((*uint64)(&c.ID))),
 		AuthConn:   c.AuthConn,
 	}
-	pos := strings.IndexByte(method, '.')
-	if method[:pos] == "auth" {
-		return cd.RPCData(cd, method[pos+1:], data)
-	}
 	switch method {
 	case "conn.connID":
 		return cd.ID, nil
@@ -134,6 +130,13 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			return nil, nil
 		}
 	default:
+		pos := strings.IndexByte(method, '.')
+		if pos <= 0 {
+			return nil, ErrUnknownMethod
+		}
+		if method[:pos] == "auth" {
+			return cd.RPCData(cd, method[pos+1:], data)
+		}
 		submethod := method[pos+1:]
 		method = method[:pos]
 		switch method {
