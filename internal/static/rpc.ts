@@ -156,7 +156,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString,  "", ""],
 				["logout",            "auth.logout",          "",                            returnVoid,   "", ""],
 
-				["broadcast", "broadcast", "!", checkBroadcast, "waitBroadcast", ""],
+				["broadcast", "broadcast", "!", returnVoid, "waitBroadcast", ""],
 			],
 			"images": [
 				["list",         "imageAssets.list",         "",             checkFolderItems, "", ""],
