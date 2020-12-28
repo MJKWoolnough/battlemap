@@ -7,7 +7,7 @@ import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
 import {screen2Grid, mapLoadedReceive, isUint} from './misc.js';
 import lang from './language.js';
-import {addMapDataChecker} from './rpc.js';
+import {addMapDataChecker, rpc} from './rpc.js';
 
 let over = false;
 
@@ -16,7 +16,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
       cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
 	if (!isUint(v)) {
-		doMapDataSet(mapKey, v);
+		rpc.setMapKeyData(mapKey, v);
 	}
       }}),
       shiftSnap = (e: KeyboardEvent) => {
@@ -121,9 +121,9 @@ addMapDataChecker((data: Record<string, any>) => {
 			if (isUint(v)) {
 				cellValue.value = "" + v;
 			} else {
-				delete data[key];
 				console.log(new TypeError(`Map Data value of '${mapKey}' must be a Uint`));
 			}
+			delete data[key];
 		}
 	}
 });
