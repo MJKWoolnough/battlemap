@@ -344,8 +344,12 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksMapKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
       checkMapKeyData = (data: any) => {
 	checker(data, "KeyData", checksMapKeyData)
+	const d = {[data.key]: data.value};
 	for (const c of mapDataCheckers) {
-		c({[data.key]: data.value});
+		c(d);
+	}
+	if (!d[data.Key]) {
+		return {"key": ""};
 	}
 	return data;
       },
