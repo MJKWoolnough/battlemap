@@ -5,13 +5,14 @@ import {globals} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {screen2Grid, mapLoadedReceive, isUint} from './misc.js';
+import {screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
 import lang from './language.js';
 import {addMapDataChecker, rpc} from './rpc.js';
 
 let over = false;
 
 const mapKey = "TOOL_MEASURE_CELL_VALUE",
+      broadcastKey = "TOOL_MEASURE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
       cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
@@ -41,6 +42,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 	}
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
+	let send = false;
 	const coords = [NaN, NaN],
 	      onmousedown = (e: MouseEvent) => {
 		if (e.button === 0) {
@@ -51,14 +53,24 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			createSVG(spot, {"cx": coords[0], "cy": coords[1]});
 			root.insertBefore(drawnLine, marker);
 			document.body.appendChild(info);
+		} else if (e.button === 2 && !isNaN(coords[0]) && !send) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
+			send = true;
 		}
 	      },
 	      onmouseup = (e: MouseEvent) => {
-		if (e.button === 0) {
+		switch (e.button) {
+		case 0:
 			coords[0] = NaN;
 			coords[1] = NaN;
 			drawnLine.remove();
 			info.remove();
+		case 2:
+			if (send) {
+				rpc.broadcast({"type": broadcastKey, "data": []});
+				send = false;
+			}
 		}
 	      },
 	      onmousemove = (e: MouseEvent) => {
@@ -70,6 +82,9 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			info.innerText = "" + parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size);
 			createSVG(lone, l);
 			createSVG(ltwo, l);
+			if (send) {
+				rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
+			}
 		}
 	      };
 	deselectToken();
@@ -85,7 +100,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 	}});
       },
       disable = (e: MouseEvent) => {
-	if (e.button !== 0) {
+	if (e.button !== 0 && e.button !== 2) {
 		return;
 	}
 	e.preventDefault();
@@ -111,7 +126,9 @@ addTool({
 	"mapMouseDown": disable,
 	"tokenMouseOver": () => showMarker(globals.root),
 	"tokenMouseDown": disable,
-	"mapMouseWheel": defaultMouseWheel
+	"mapMouseWheel": defaultMouseWheel,
+	"tokenMouseContext": disable,
+	"mapMouseContext": disable
 });
 
 addMapDataChecker((data: Record<string, any>) => {
@@ -127,3 +144,31 @@ addMapDataChecker((data: Record<string, any>) => {
 		}
 	}
 });
+
+rpcInitReceive(() => rpc.waitLogin().then(u => {
+	if (u === 0) {
+		rpc.waitBroadcast().then(broadcast => {
+			if (broadcast.type === broadcastKey) {
+				if (broadcast.data instanceof Array && broadcast.data.length === 4) {
+					const [x1, y1, x2, y2] = broadcast.data;
+					if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
+						const size = globals.mapData.gridSize,
+						      l = {x1, y1, x2, y2};
+						createSVG(lone, l);
+						createSVG(ltwo, l);
+						createSVG(spot, {"cx": x1, "cy": y1});
+						globals.root.appendChild(drawnLine);
+						createSVG(marker, {"transform": `translate(${x2 - 10}, ${y2 - 10})`});
+						globals.root.appendChild(marker);
+						info.innerText = "" + parseInt(cellValue.value) * Math.round(Math.hypot(x1 - x2, y1 - y2) / size);
+						document.body.appendChild(info);
+						return;
+					}
+				}
+				drawnLine.remove();
+				marker.remove();
+				info.remove();
+			}
+		});
+	}
+}));
