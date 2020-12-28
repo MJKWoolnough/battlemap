@@ -133,6 +133,7 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
+{send: rpcInitSend, receive: rpcInitReceive} = pipeBind<void>(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
