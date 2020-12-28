@@ -624,7 +624,9 @@ export default function(base: HTMLElement) {
 		}
 	}),
 	rpc.waitMapDataSet().then(kd => {
-		globals.mapData.data[kd.key] = kd.data;
+		if (kd.key) {
+			globals.mapData.data[kd.key] = kd.data;
+		}
 	}),
 	rpc.waitMapDataRemove().then(key => {
 		delete globals.mapData.data[key];

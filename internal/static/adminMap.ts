@@ -1060,6 +1060,10 @@ export default function(base: HTMLElement) {
 	rpc.waitWallAdded().then(w => doWallAdd(w, false));
 	rpc.waitWallRemoved().then(wid => doWallRemove(wid, false));
 	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => doTokenLightChange(id, lightColour, lightIntensity, false));
-	rpc.waitMapDataSet().then(({key, data}) => doMapDataSet(key, data, false));
+	rpc.waitMapDataSet().then(({key, data}) => {
+		if (key) {
+			doMapDataSet(key, data, false)
+		}
+	});
 	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
 }
