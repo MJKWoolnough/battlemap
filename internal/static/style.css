@@ -161,3 +161,7 @@ windows-window {
 	height: calc(100vh - 30px);
 	overflow: auto;
 }
+
+input[type="number"] {
+	width: 5em;
+}
