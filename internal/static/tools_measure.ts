@@ -89,12 +89,12 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			}
 		}
 	      };
-	deselectToken();
-	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "1onmouseleave": (e: MouseEvent) => {
+	cleanup = () => {
 		document.body.removeEventListener("mousedown", onmousedown);
 		document.body.removeEventListener("mouseup", onmouseup);
 		document.body.removeEventListener("mousemove", onmousemove);
-		document.body.style.removeProperty("cursor");
+		document.body.removeEventListener("mouseleave", cleanup);
+		root.style.removeProperty("cursor");
 		marker.remove();
 		drawnLine.remove();
 		info.remove();
@@ -102,14 +102,20 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		if (send) {
 			rpc.broadcast({"type": broadcastKey, "data": []});
 		}
-	}});
+		cleanup = noopCleanup;
+	};
+	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "onmouseleave": cleanup});
+	deselectToken();
       },
       disable = (e: MouseEvent) => {
 	if (e.button !== 0 && e.button !== 2) {
 		return;
 	}
 	e.preventDefault();
-      }
+      },
+      noopCleanup = () => {};
+
+let cleanup = noopCleanup;
 
 window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
@@ -133,7 +139,8 @@ addTool({
 	"tokenMouseDown": disable,
 	"mapMouseWheel": defaultMouseWheel,
 	"tokenMouseContext": disable,
-	"mapMouseContext": disable
+	"mapMouseContext": disable,
+	"unset": () => cleanup()
 });
 
 addMapDataChecker((data: Record<string, any>) => {
