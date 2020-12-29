@@ -349,8 +349,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (const c of mapDataCheckers) {
 		c(d);
 	}
-	if (!d[data.Key]) {
-		return {"key": ""};
+	if (!d[data.key]) {
+		return {"": ""};
 	}
 	return data;
       },
