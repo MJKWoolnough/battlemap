@@ -1,11 +1,11 @@
-import {br, div, input, label} from './lib/html.js';
+import {createHTML, br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
+import {grid2Screen, screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
 import lang from './language.js';
 import {addMapDataChecker, rpc} from './rpc.js';
 
@@ -25,7 +25,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		snap.click();
 	}
       },
-      info = div({"style": "background-color: #fff; color: #000; position: absolute; top: 0;"}),
+      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute;"}),
       marker = g([
               polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
               polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
@@ -52,6 +52,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			createSVG(ltwo, l);
 			createSVG(spot, {"cx": coords[0], "cy": coords[1]});
 			root.insertBefore(drawnLine, marker);
+			createHTML(info, {"style": {"left": (e.clientX + 5) + "px", "top": (e.clientY + 5) + "px"}});
 			document.body.appendChild(info);
 		} else if (e.button === 2 && !isNaN(coords[0]) && !send) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -78,8 +79,9 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 		if (!isNaN(coords[0])) {
 			const size = globals.mapData.gridSize,
-			      l = {"x2": x, "y2": y};
-			info.innerText = "" + parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size);
+			      l = {"x2": x, "y2": y},
+			      [sx, sy] = grid2Screen(x, y);
+			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size));
 			createSVG(lone, l);
 			createSVG(ltwo, l);
 			if (send) {
@@ -88,11 +90,11 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		}
 	      };
 	deselectToken();
-	createSVG(root, {onmousedown, onmouseup, onmousemove, "1onmouseleave": (e: MouseEvent) => {
-		root.removeEventListener("mousedown", onmousedown);
-		root.removeEventListener("mouseup", onmouseup);
-		root.removeEventListener("mousemove", onmousemove);
-		root.style.removeProperty("cursor");
+	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "1onmouseleave": (e: MouseEvent) => {
+		document.body.removeEventListener("mousedown", onmousedown);
+		document.body.removeEventListener("mouseup", onmouseup);
+		document.body.removeEventListener("mousemove", onmousemove);
+		document.body.style.removeProperty("cursor");
 		marker.remove();
 		drawnLine.remove();
 		info.remove();
@@ -153,14 +155,15 @@ rpcInitReceive(() => rpc.waitLogin().then(u => {
 					const [x1, y1, x2, y2] = broadcast.data;
 					if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
 						const size = globals.mapData.gridSize,
-						      l = {x1, y1, x2, y2};
+						      l = {x1, y1, x2, y2},
+						      [x, y] = grid2Screen(x2, y2);
 						createSVG(lone, l);
 						createSVG(ltwo, l);
 						createSVG(spot, {"cx": x1, "cy": y1});
 						globals.root.appendChild(drawnLine);
 						createSVG(marker, {"transform": `translate(${x2 - 10}, ${y2 - 10})`});
 						globals.root.appendChild(marker);
-						info.innerText = "" + parseInt(cellValue.value) * Math.round(Math.hypot(x1 - x2, y1 - y2) / size);
+						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + parseInt(cellValue.value) * Math.round(Math.hypot(x1 - x2, y1 - y2) / size));
 						document.body.appendChild(info);
 						return;
 					}
