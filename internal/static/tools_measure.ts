@@ -81,7 +81,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			const size = globals.mapData.gridSize,
 			      l = {"x2": x, "y2": y},
 			      [sx, sy] = grid2Screen(x, y);
-			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + parseInt(cellValue.value) * Math.round(Math.hypot(x - coords[0], y - coords[1]) / size));
+			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(parseInt(cellValue.value) * Math.hypot(x - coords[0], y - coords[1]) / size));
 			createSVG(lone, l);
 			createSVG(ltwo, l);
 			if (send) {
@@ -163,7 +163,7 @@ rpcInitReceive(() => rpc.waitLogin().then(u => {
 						globals.root.appendChild(drawnLine);
 						createSVG(marker, {"transform": `translate(${x2 - 10}, ${y2 - 10})`});
 						globals.root.appendChild(marker);
-						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + parseInt(cellValue.value) * Math.round(Math.hypot(x1 - x2, y1 - y2) / size));
+						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + Math.round(parseInt(cellValue.value) * Math.hypot(x1 - x2, y1 - y2) / size));
 						document.body.appendChild(info);
 						return;
 					}
