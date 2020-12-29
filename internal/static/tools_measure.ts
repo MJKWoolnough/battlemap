@@ -99,6 +99,9 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		drawnLine.remove();
 		info.remove();
 		over = false;
+		if (send) {
+			rpc.broadcast({"type": broadcastKey, "data": []});
+		}
 	}});
       },
       disable = (e: MouseEvent) => {
