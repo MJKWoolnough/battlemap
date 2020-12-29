@@ -12,6 +12,7 @@ import {addMapDataChecker, rpc} from './rpc.js';
 let over = false;
 
 const mapKey = "TOOL_MEASURE_CELL_VALUE",
+      diagonalKey = "TOOL_MEASURE_CELL_DIAGONALS",
       broadcastKey = "TOOL_MEASURE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
       cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
@@ -20,6 +21,7 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		rpc.setMapKeyData(mapKey, v);
 	}
       }}),
+      diagonals = input({"id": "measureDiagonals", "type": "checkbox", "checked": true, "onchange": () => rpc.setMapKeyData(diagonalKey, diagonals.checked)}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -81,7 +83,8 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 			const size = globals.mapData.gridSize,
 			      l = {"x2": x, "y2": y},
 			      [sx, sy] = grid2Screen(x, y);
-			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(parseInt(cellValue.value) * Math.hypot(x - coords[0], y - coords[1]) / size));
+			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(
+				parseInt(cellValue.value) * (diagonals.checked ? Math.hypot(x - coords[0], y - coords[1]) : Math.max(Math.abs(x - coords[0]), Math.abs(y - coords[1]))) / size));
 			createSVG(lone, l);
 			createSVG(ltwo, l);
 			if (send) {
@@ -127,9 +130,11 @@ addTool({
 		label({"for": "measureSnap"}, `${lang["TOOL_MEASURE_SNAP"]}: `),
 		snap,
 		br(),
+		label({"for": "measureDiagonals"}, `${lang["TOOL_MEASURE_DIAGONALS"]}: `),
+		diagonals,
+		br(),
 		label({"for": "measureCell"}, `${lang["TOOL_MEASURE_CELL"]}: `),
-		cellValue,
-		br()
+		cellValue
 	]),
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
@@ -145,7 +150,8 @@ addTool({
 
 addMapDataChecker((data: Record<string, any>) => {
 	for (const key in data) {
-		if (key === mapKey) {
+		switch (key) {
+		case mapKey:{
 			const v = data[key];
 			if (isUint(v)) {
 				cellValue.value = "" + v;
@@ -153,7 +159,11 @@ addMapDataChecker((data: Record<string, any>) => {
 				console.log(new TypeError(`Map Data value of '${mapKey}' must be a Uint`));
 			}
 			delete data[key];
-		}
+		}; break;
+		case diagonalKey: {
+			diagonals.checked = data[key] === true;
+			delete data[key];
+		}}
 	}
 });
 
@@ -173,7 +183,7 @@ rpcInitReceive(() => rpc.waitLogin().then(u => {
 						globals.root.appendChild(drawnLine);
 						createSVG(marker, {"transform": `translate(${x2 - 10}, ${y2 - 10})`});
 						globals.root.appendChild(marker);
-						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + Math.round(parseInt(cellValue.value) * Math.hypot(x1 - x2, y1 - y2) / size));
+						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + Math.round(parseInt(cellValue.value) * (diagonals.checked ? Math.hypot(x1 - x2, y1 - y2) : Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2))) / size));
 						document.body.appendChild(info);
 						return;
 					}
