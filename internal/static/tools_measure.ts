@@ -27,16 +27,16 @@ const mapKey = "TOOL_MEASURE_CELL_VALUE",
 		snap.click();
 	}
       },
-      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute;"}),
+      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute; user-select: none;"}),
       marker = g([
               polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
               polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
               polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
               polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
-      spot = circle({"r": 3, "fill": "#000", "stroke": "#fff"}),
-      lone = line({"stroke": "#fff", "stroke-width": 4, "stroke-linecap": "square"}),
-      ltwo = line({"stroke": "#000", "stroke-width": 2}),
+      spot = circle({"r": 8, "fill": "#000", "stroke": "#fff", "stroke-width": 2}),
+      lone = line({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square"}),
+      ltwo = line({"stroke": "#000", "stroke-width": 6}),
       drawnLine = g([lone, ltwo, spot]),
       showMarker = (root: SVGElement) => {
 	if (over) {
