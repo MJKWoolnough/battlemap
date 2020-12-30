@@ -49,12 +49,12 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 export const getToken = () => {
 	const {token} = globals.selected;
 	if (token instanceof SVGToken && !token.isPattern) {
-		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap} = token,
+		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity} = token,
 		      tokenData = JSON.parse(JSON.stringify(token.tokenData));
 		for (const f of tokenDataFilter()) {
 			delete(tokenData[f]);
 		}
-		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, tokenData, snap};
+		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity, tokenData};
 	}
 	return undefined;
 },
