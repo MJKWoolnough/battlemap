@@ -788,10 +788,6 @@ const defaultLanguage = {
 	"tokenClass": {
 		"priority": 0,
 		"fn": SVGToken5E
-	},
-	"tokenDataFilter": {
-		"priority": 0,
-		"fn": ["store-image-5e-initial-token"]
 	}
       };
 
