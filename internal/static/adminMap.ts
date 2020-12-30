@@ -44,7 +44,8 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 			deselectToken();
 		}
 	}
-      };
+      },
+      pasteCoords = [0, 0];
 
 let copiedToken: Token | null = null;
 
@@ -932,6 +933,8 @@ export default function(base: HTMLElement) {
 		doTokenAdd(lp, token);
 	      },
 	      mapOnMouseDown = (e: MouseEvent) => {
+		pasteCoords[0] = e.clientX;
+		pasteCoords[1] = e.clientY;
 		if (e.defaultPrevented) {
 			return;
 		}
@@ -979,6 +982,12 @@ export default function(base: HTMLElement) {
 					}
 				}
 				break;
+			case 'v':
+				if (!copiedToken || !globals.selected.layer) {
+					return;
+				}
+				const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
+				doTokenAdd(globals.selected.layer.path, Object.assign({"id": 0, x, y}, copiedToken));
 			}
 		}
 	      },
@@ -989,6 +998,8 @@ export default function(base: HTMLElement) {
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(oldBase, mapData));
 		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onmousedown": mapOnMouseDown, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
+		pasteCoords[0] = 0;
+		pasteCoords[1] = 0;
 		mapLoadedSend(true);
 	}));
 	mapLayersSend({
