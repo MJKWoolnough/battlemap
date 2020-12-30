@@ -46,6 +46,8 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	}
       };
 
+let copiedToken: Token | null = null;
+
 export const getToken = () => {
 	const {token} = globals.selected;
 	if (token instanceof SVGToken && !token.isPattern) {
@@ -966,6 +968,17 @@ export default function(base: HTMLElement) {
 			case 'y':
 				undo.redo();
 				e.preventDefault();
+				break;
+			case 'x':
+			case 'c':
+				const t = getToken() as Token;
+				if (t) {
+					copiedToken = t;
+					if (e.key === 'x' && globals.selected.token) {
+						doTokenRemove(globals.selected.token.id);
+					}
+				}
+				break;
 			}
 		}
 	      },
