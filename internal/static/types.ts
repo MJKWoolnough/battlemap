@@ -16,7 +16,6 @@ type FolderWaits = {
 }
 
 export type FolderRPC = FolderWaits & {
-
 	list:         ()                         => Promise<FolderItems>;
 	createFolder: (path: string)             => Promise<string>;
 	move:         (from: string, to: string) => Promise<string>;
