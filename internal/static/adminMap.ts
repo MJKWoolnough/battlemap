@@ -223,6 +223,9 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		return undoIt;
 	      },
 	      undoIt = () => {
+		if (token === globals.selected.token) {
+			deselectToken();
+		}
 		delete globals.tokens[token.id];
 		layer.tokens.pop();
 		queue(() => rpc.removeToken(token.id));
