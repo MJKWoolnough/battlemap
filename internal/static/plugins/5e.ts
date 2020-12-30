@@ -835,12 +835,12 @@ if (userLevel === 1) {
 			th([
 				div({"class": "tokenSelector tokenSelector5E"}, [
 					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
-						const t = getToken();
-						if (!t) {
+						const gt = getToken();
+						if (!gt) {
 							requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 							return;
 						}
-						const token = asInitialToken(t);
+						const token = asInitialToken(gt);
 						requestShell().confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
 							if (!replace) {
 								return;
