@@ -1016,7 +1016,7 @@ export default function(base: HTMLElement) {
 		"waitLayerSetInvisible": () => waitLayerHide[1],
 		"waitLayerPositionChange": () => waitLayerPositionChange[1],
 		"waitLayerRename": () => waitLayerRename[1],
-		"list": () => Promise.resolve(globals.layerList as LayerFolder),
+		"list": invalidRPC,
 		"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 		"move": invalidRPC,
 		"moveFolder": invalidRPC,
