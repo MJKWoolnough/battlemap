@@ -3,6 +3,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
+import {globals} from './map.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
@@ -271,60 +272,58 @@ export default function(base: HTMLElement) {
 	dragBase = base;
 	mapLayersReceive(rpc => {
 		let loadFn = () => {
-			rpc.list().then(layers => {
-				let selectedLayer = undefined;
-				const list = new LayerRoot(layers, rpc);
-				rpc.waitLayerSetVisible().then(path => {
-					const l = list.getLayer(path);
-					if (l) {
-						l.node.classList.remove("layerHidden");
-					}
-				});
-				rpc.waitLayerSetInvisible().then(path => {
-					const l = list.getLayer(path);
-					if (l) {
-						l.node.classList.remove("layerHidden");
-					}
-				});
-				rpc.waitLayerPositionChange().then(ml => {
-					const l = list.getLayer(ml.from),
-					      np = list.getLayer(ml.to);
-					if (!l || !(np instanceof FolderLayer)) {
-						return;
-					}
-					l.parent!.children.filterRemove(i => i === l);
-					np.children.splice(ml.position, 0, l);
-				});
-				rpc.waitLayerRename().then(lr => {
-					const l = list.getLayer(lr.path);
-					if (l) {
-						l.name = lr.name;
-						l.nameElem.innerText = lr.name;
-					}
-				});
-				createHTML(clearElement(base), {"id": "layerList"}, [
-					button("Add Layer", {"onclick": () => {
-						const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
-						      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
-						createHTML(window, {"id": "layerAdd"}, [
-							h1("Add Layer"),
-							label({"for": "layerName"}, "Layer Name"),
-							name,
-							br(),
-							button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
-								this.toggleAttribute("disabled", true);
-								loadingWindow(queue(() => rpc.newLayer(name.value).then(name => {
-									list.addItem(1, name);
-									window.remove();
-								})
-								.finally(() => this.removeAttribute("disabled"))), window);
-							}})
-						]);
-					}}),
-					list.node
-				]);
-				loadFn = () => rpc.list().then(layers => list.setRoot(layers));
+			let selectedLayer = undefined;
+			const list = new LayerRoot(globals.layerList, rpc);
+			rpc.waitLayerSetVisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l.node.classList.remove("layerHidden");
+				}
 			});
+			rpc.waitLayerSetInvisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l.node.classList.remove("layerHidden");
+				}
+			});
+			rpc.waitLayerPositionChange().then(ml => {
+				const l = list.getLayer(ml.from),
+				      np = list.getLayer(ml.to);
+				if (!l || !(np instanceof FolderLayer)) {
+					return;
+				}
+				l.parent!.children.filterRemove(i => i === l);
+				np.children.splice(ml.position, 0, l);
+			});
+			rpc.waitLayerRename().then(lr => {
+				const l = list.getLayer(lr.path);
+				if (l) {
+					l.name = lr.name;
+					l.nameElem.innerText = lr.name;
+				}
+			});
+			createHTML(clearElement(base), {"id": "layerList"}, [
+				button("Add Layer", {"onclick": () => {
+					const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
+					      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
+					createHTML(window, {"id": "layerAdd"}, [
+						h1("Add Layer"),
+						label({"for": "layerName"}, "Layer Name"),
+						name,
+						br(),
+						button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
+							this.toggleAttribute("disabled", true);
+							loadingWindow(queue(() => rpc.newLayer(name.value).then(name => {
+								list.addItem(1, name);
+								window.remove();
+							})
+							.finally(() => this.removeAttribute("disabled"))), window);
+						}})
+					]);
+				}}),
+				list.node
+			]);
+			loadFn = () => list.setRoot(globals.layerList);
 		    };
 		mapLoadedReceive(() => loadFn());
 	});
