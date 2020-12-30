@@ -929,8 +929,7 @@ export default function(base: HTMLElement) {
 			token.height = Math.max(Math.round(token.height / sq) * sq, sq);
 			[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 		}
-		const lp = globals.selected.layer.path;
-		doTokenAdd(lp, token);
+		doTokenAdd(globals.selected.layer.path, token);
 	      },
 	      mapOnMouseDown = (e: MouseEvent) => {
 		pasteCoords[0] = e.clientX;
