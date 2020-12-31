@@ -289,7 +289,7 @@ export default function(base: HTMLElement) {
 			rpc.waitLayerSetInvisible().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
-					l.node.classList.remove("layerHidden");
+					l.node.classList.add("layerHidden");
 				}
 			});
 			rpc.waitLayerPositionChange().then(ml => {
