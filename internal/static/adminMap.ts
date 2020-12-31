@@ -1035,8 +1035,7 @@ export default function(base: HTMLElement) {
 		"setLayer": (path: string) => {
 			globals.selected.layer = getLayer(path) as SVGLayer;
 			deselectToken();
-		},
-		"setLayerMask": (path: string) => {}
+		}
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
