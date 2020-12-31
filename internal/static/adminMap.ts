@@ -1030,7 +1030,6 @@ export default function(base: HTMLElement) {
 			return removeS(path);
 		},
 		"link": invalidRPC,
-		"newLayer": (name: string) => rpc.addLayer(name).then(n => doLayerAdd(n, false)),
 		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false))
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));

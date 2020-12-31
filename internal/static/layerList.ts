@@ -4,7 +4,7 @@ import {br, button, div, h1, input, label, option, select, span} from './lib/htm
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {SVGLayer, globals, getLayer} from './map.js';
-import {deselectToken, doLayerMove, doMapChange, doSetLightColour} from './adminMap.js';
+import {deselectToken, doLayerAdd, doLayerMove, doMapChange, doSetLightColour} from './adminMap.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
@@ -277,23 +277,23 @@ class LayerRoot extends Root {
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
-	mapLayersReceive(rpc => {
+	mapLayersReceive(lrpc => {
 		let loadFn = () => {
 			let selectedLayer = undefined;
-			const list = new LayerRoot(globals.layerList, rpc);
-			rpc.waitLayerSetVisible().then(path => {
+			const list = new LayerRoot(globals.layerList, lrpc);
+			lrpc.waitLayerSetVisible().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
 					l.node.classList.remove("layerHidden");
 				}
 			});
-			rpc.waitLayerSetInvisible().then(path => {
+			lrpc.waitLayerSetInvisible().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
 					l.node.classList.add("layerHidden");
 				}
 			});
-			rpc.waitLayerPositionChange().then(ml => {
+			lrpc.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
 				if (!l || !(np instanceof FolderLayer)) {
@@ -302,7 +302,7 @@ export default function(base: HTMLElement) {
 				l.parent!.children.filterRemove(i => i === l);
 				np.children.splice(ml.position, 0, l);
 			});
-			rpc.waitLayerRename().then(lr => {
+			lrpc.waitLayerRename().then(lr => {
 				const l = list.getLayer(lr.path);
 				if (l) {
 					l.name = lr.name;
@@ -320,7 +320,8 @@ export default function(base: HTMLElement) {
 						br(),
 						button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
 							this.toggleAttribute("disabled", true);
-							loadingWindow(queue(() => rpc.newLayer(name.value).then(name => {
+							loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
+								doLayerAdd(name, false);
 								list.addItem(1, name);
 								window.remove();
 							})
