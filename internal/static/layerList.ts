@@ -4,11 +4,13 @@ import {br, button, div, h1, input, label, option, select, span} from './lib/htm
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {globals} from './map.js';
+import {doSetLightColour} from './adminMap.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
+import {rpc} from './rpc.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
@@ -187,7 +189,7 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(requestShell(), lang["LAYER_LIGHT_COLOUR"], rpcFuncs.getLightColour()).then(c => loadingWindow(queue(() => rpcFuncs.setLightColour(c)), requestShell()));
+			colourPicker(requestShell(), lang["LAYER_LIGHT_COLOUR"], globals.mapData.lightColour).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), requestShell()));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
