@@ -4,7 +4,7 @@ import {br, button, div, h1, input, label, option, select, span} from './lib/htm
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {globals} from './map.js';
-import {doSetLightColour} from './adminMap.js';
+import {doMapChange, doSetLightColour} from './adminMap.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
@@ -142,13 +142,13 @@ class ItemLayer extends Item {
 	show() {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
-			const details = rpcFuncs.getMapDetails(),
-			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.width / details.gridSize), "id": "mapWidth"}),
-			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(details.height / details.gridSize), "id": "mapHeight"}),
-			      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": details.gridType === n}, l))),
-			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": details.gridSize, "id": "mapSquareWidth"}),
-			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(details.gridColour)}),
-			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": details.gridStroke, "id": "mapSquareLineWidth"}),
+			const {mapData} = globals,
+			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize), "id": "mapWidth"}),
+			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize), "id": "mapHeight"}),
+			      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
+			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth"}),
+			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(mapData.gridColour)}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth"}),
 			      window = requestShell().appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
@@ -173,16 +173,20 @@ class ItemLayer extends Item {
 					this.toggleAttribute("disabled", true);
 					const sq = parseInt(sqWidth.value);
 					loadingWindow(
-						queue(() => rpcFuncs.setMapDetails({
-							"width": parseInt(width.value) * sq,
-							"height": parseInt(height.value) * sq,
-							"gridType": parseInt(sqType.value),
-							"gridSize": sq,
-							"gridColour": hex2Colour(sqColour.value),
-							"gridStroke": parseInt(sqLineWidth.value)
-						})
-						.then(() => window.remove())
-						.finally(() => this.removeAttribute("disabled"))),
+						queue(() => {
+							const details = {
+								"width": parseInt(width.value) * sq,
+								"height": parseInt(height.value) * sq,
+								"gridType": parseInt(sqType.value),
+								"gridSize": sq,
+								"gridColour": hex2Colour(sqColour.value),
+								"gridStroke": parseInt(sqLineWidth.value)
+							      };
+							doMapChange(details, false);
+							return rpc.setMapDetails(details)
+							.then(() => window.remove())
+							.finally(() => this.removeAttribute("disabled"))
+						}),
 						window
 					);
 				}})
