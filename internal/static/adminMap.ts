@@ -1040,11 +1040,6 @@ export default function(base: HTMLElement) {
 		"moveLayer": (from: string, to: string, position: Uint) => {
 			doLayerMove(from, to, position, false);
 			return rpc.moveLayer(from, to, position);
-		},
-		"getMapDetails": () => globals.mapData,
-		"setMapDetails": (details: MapDetails) => {
-			doMapChange(details, false);
-			return rpc.setMapDetails(details)
 		}
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
