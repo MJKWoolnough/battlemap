@@ -3,8 +3,8 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, label, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
-import {globals} from './map.js';
-import {doLayerMove, doMapChange, doSetLightColour} from './adminMap.js';
+import {SVGLayer, globals, getLayer} from './map.js';
+import {deselectToken, doLayerMove, doMapChange, doSetLightColour} from './adminMap.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
@@ -200,7 +200,8 @@ class ItemLayer extends Item {
 			}
 			this.node.classList.add("selectedLayer");
 			selectedLayer = this;
-			rpcFuncs.setLayer(this.getPath());
+			deselectToken();
+			globals.selected.layer = getLayer(this.getPath()) as SVGLayer;
 		}
 	}
 	rename() {

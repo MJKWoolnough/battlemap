@@ -1031,11 +1031,7 @@ export default function(base: HTMLElement) {
 		},
 		"link": invalidRPC,
 		"newLayer": (name: string) => rpc.addLayer(name).then(n => doLayerAdd(n, false)),
-		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false)),
-		"setLayer": (path: string) => {
-			globals.selected.layer = getLayer(path) as SVGLayer;
-			deselectToken();
-		}
+		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false))
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
