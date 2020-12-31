@@ -1020,7 +1020,6 @@ export default function(base: HTMLElement) {
 		"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 		"move": invalidRPC,
 		"moveFolder": invalidRPC,
-		"renameLayer": (path: string, name: string) => rpc.renameLayer(path, name).then(({name}) => (doLayerRename(path, name, false), name)),
 		"remove": path => {
 			undo.clear();
 			return removeS(path);
