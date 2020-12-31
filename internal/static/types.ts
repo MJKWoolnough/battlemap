@@ -39,8 +39,6 @@ export type LayerRPC = FolderRPC & {
 	renameLayer:    (path: string, name: string)          => Promise<string>;
 	getMapDetails:  ()                                    => MapDetails;
 	setMapDetails:  (details: MapDetails)                 => Promise<void>;
-	getLightColour: ()                                    => Colour;
-	setLightColour: (c: Colour)                           => Promise<void>;
 }
 
 type RPCWaits = {

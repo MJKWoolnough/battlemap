@@ -1045,12 +1045,7 @@ export default function(base: HTMLElement) {
 		"setMapDetails": (details: MapDetails) => {
 			doMapChange(details, false);
 			return rpc.setMapDetails(details)
-		},
-		"getLightColour": () => globals.mapData.lightColour,
-		"setLightColour": (c: Colour) => {
-			doSetLightColour(c, false);
-			return rpc.setLightColour(c)
-		},
+		}
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
