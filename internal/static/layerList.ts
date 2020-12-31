@@ -4,7 +4,7 @@ import {br, button, div, h1, input, label, option, select, span} from './lib/htm
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {SVGLayer, globals, getLayer} from './map.js';
-import {deselectToken, doLayerAdd, doLayerMove, doMapChange, doSetLightColour} from './adminMap.js';
+import {deselectToken, doLayerAdd, doLayerMove, doMapChange, doSetLightColour, doShowHideLayer} from './adminMap.js';
 import {mapLayersReceive, mapLoadedReceive, enterKey, colour2Hex, hex2Colour, colourPicker, requestShell, queue} from './misc.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows} from './windows.js';
@@ -112,7 +112,11 @@ const dragFn = (e: MouseEvent) => {
 		circle({"cx": 50, "cy": 35, "r": 27, "stroke": "#888", "stroke-width": 10}),
 		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
 	])
-      ]));
+      ])),
+      showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
+	const visible = !l.node.classList.toggle("layerHidden");
+	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
+      });
 
 class ItemLayer extends Item {
 	hidden: boolean;
@@ -134,7 +138,7 @@ class ItemLayer extends Item {
 		if (hidden) {
 			this.node.classList.add("layerHidden");
 		}
-		this.node.insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => queue(() => (parent.root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")))}), this.nameElem);
+		this.node.insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
 		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
 		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
@@ -234,7 +238,7 @@ class FolderLayer extends Folder {
 			this.node.classList.add("layerFolder");
 			const fc = this.open.firstChild as HTMLElement;
 			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
-				queue(() => (root.rpcFuncs as LayerRPC).setVisibility(this.getPath(), !this.node.classList.toggle("layerHidden")));
+				showHideLayer(this);
 				e.preventDefault()
 			}}), this.nameElem);
 			createHTML(fc, [

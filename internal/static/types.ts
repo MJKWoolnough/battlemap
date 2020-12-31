@@ -31,7 +31,6 @@ export type LayerRPC = FolderRPC & {
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
 
-	setVisibility:  (path: string, visible: boolean)      => Promise<void>;
 	renameLayer:    (path: string, name: string)          => Promise<string>;
 }
 

@@ -1029,8 +1029,7 @@ export default function(base: HTMLElement) {
 			undo.clear();
 			return removeS(path);
 		},
-		"link": invalidRPC,
-		"setVisibility": (path: string, visibility: boolean) => (visibility ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(path, visibility, false))
+		"link": invalidRPC
 	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
