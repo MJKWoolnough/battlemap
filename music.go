@@ -2,9 +2,12 @@ package battlemap
 
 import (
 	"compress/gzip"
+	"fmt"
 	"io"
+	"path/filepath"
 
 	"vimagination.zapto.org/byteio"
+	"vimagination.zapto.org/keystore"
 )
 
 type musicTrack struct {
@@ -61,9 +64,30 @@ func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 
 type musicPacksDir struct {
 	*Battlemap
+	fileStore *keystore.FileStore
+	packs     map[string]*musicPack
 }
 
 func (m *musicPacksDir) Init(b *Battlemap) error {
+	m.Battlemap = b
+	var location keystore.String
+	err := b.config.Get("MusicPacksDir", &location)
+	if err != nil {
+		return fmt.Errorf("error retrieving music packs location: %w", err)
+	}
+	mp := filepath.Join(b.config.BaseDir, string(location))
+	m.fileStore, err = keystore.NewFileStore(mp, mp, keystore.NoMangle)
+	if err != nil {
+		return fmt.Errorf("error creating music packs keystore: %w", err)
+	}
+	m.packs = make(map[string]*musicPack)
+	for _, packName := range m.fileStore.Keys() {
+		pack := new(musicPack)
+		if err := m.fileStore.Get(packName, pack); err != nil {
+			return fmt.Errorf("error reading music pack %q: %w", packName, err)
+		}
+		m.packs[packName] = pack
+	}
 	return nil
 }
 
