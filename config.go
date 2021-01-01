@@ -24,6 +24,7 @@ func (c *config) Init(baseDir string) error {
 		"ServerPort":     keystore.Uint16(8080),
 		"ImageAssetsDir": keystore.String("assets/images"),
 		"AudioAssetsDir": keystore.String("assets/audio"),
+		"MusicPacksDir":  keystore.String("musicPacks"),
 		"CharsDir":       keystore.String("characters"),
 		"MasksDir":       keystore.String("masks"),
 		"MapsDir":        keystore.String("maps"),
