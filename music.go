@@ -2,6 +2,7 @@ package battlemap
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -92,3 +93,10 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 }
 
 func (musicPacksDir) Cleanup() {}
+
+func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+	switch method {
+
+	}
+	return nil, ErrUnknownMethod
+}
