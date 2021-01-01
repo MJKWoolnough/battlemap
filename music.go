@@ -20,6 +20,26 @@ type musicPack struct {
 	Playing  bool
 }
 
+func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
+	g, err := gzip.NewReader(r)
+	if err != nil {
+		return 0, err
+	}
+	br := byteio.StickyLittleEndianReader{Reader: g}
+	m.Tracks = make([]musicTrack, br.ReadUint64())
+	for n := range m.Tracks {
+		m.Tracks[n] = musicTrack{
+			AssetID: br.ReadUint64(),
+			Volume:  br.ReadUint32(),
+			Repeat:  br.ReadInt32(),
+		}
+	}
+	m.Repeat = br.ReadUint64()
+	m.PlayTime = br.ReadUint64()
+	m.Playing = br.ReadBool()
+	return br.Count, br.Err
+}
+
 func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 	g, err := gzip.NewWriterLevel(w, gzip.BestCompression)
 	if err != nil {
