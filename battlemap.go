@@ -15,17 +15,18 @@ import (
 // This type implements the http.Handler interface so that it can be easily
 // added to an existing server.
 type Battlemap struct {
-	config  config
-	socket  socket
-	auth    Auth
-	images  assetsDir
-	sounds  assetsDir
-	chars   charactersDir
-	maps    mapsDir
-	masks   masksDir
-	files   filesDir
-	plugins pluginsDir
-	mux     http.ServeMux
+	config     config
+	socket     socket
+	auth       Auth
+	images     assetsDir
+	sounds     assetsDir
+	musicPacks musicPacksDir
+	chars      charactersDir
+	maps       mapsDir
+	masks      masksDir
+	files      filesDir
+	plugins    pluginsDir
+	mux        http.ServeMux
 }
 
 // New creates a new, initialised Battlemap type, using the given path as its
@@ -62,14 +63,15 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		Init(b *Battlemap) error
 		Cleanup()
 	}{
-		"Socket":  &b.socket,
-		"Images":  &b.images,
-		"Sounds":  &b.sounds,
-		"Chars":   &b.chars,
-		"Maps":    &b.maps,
-		"Masks":   &b.masks,
-		"Files":   &b.files,
-		"Plugins": &b.plugins,
+		"Socket":     &b.socket,
+		"Images":     &b.images,
+		"Sounds":     &b.sounds,
+		"MusicPacks": &b.musicPacks,
+		"Chars":      &b.chars,
+		"Maps":       &b.maps,
+		"Masks":      &b.masks,
+		"Files":      &b.files,
+		"Plugins":    &b.plugins,
 	}
 	for module, init := range mods {
 		if err := init.Init(b); err != nil {
