@@ -4,6 +4,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, style} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
 import assets from './assets.js';
+import musicPacks, {userMusic} from './musicPacks.js';
 import mapList from './mapList.js';
 import layerList from './layerList.js';
 import characters from './characterList.js';
@@ -191,6 +192,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
 		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
 		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
+		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musocLoading")));
 		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps")));
 		layerList(tabs.add(lang["TAB_LAYERS"], div()));
 		tools(tabs.add(lang["TAB_TOOLS"], div()));
@@ -209,6 +211,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 			tabs.add(mi[0], mi[1]);
 		}
 		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
+		userMusic();
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
 		clearElement(document.body).appendChild(s);
