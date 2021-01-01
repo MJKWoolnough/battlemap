@@ -107,6 +107,7 @@ const defaultLanguage = {
 	"TAB_IMAGES": "Images",
 	"TAB_LAYERS": "Layers",
 	"TAB_MAPS": "Maps",
+	"TAB_MUSIC_PACKS": "Music",
 	"TAB_SETTINGS": "Settings",
 	"TAB_TOOLS": "Tools",
 	"THEME": "Theme",
