@@ -148,6 +148,14 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			if cd.IsAdmin() {
 				return c.sounds.RPCData(cd, submethod, data)
 			}
+		case "characters":
+			if cd.IsAdmin() || submethod == "get" {
+				return c.chars.RPCData(cd, submethod, data)
+			}
+		case "music":
+			if cd.IsAdmin() || submethod == "list" {
+				return c.musicPacks.RPCData(cd, submethod, data)
+			}
 		case "maps":
 			if submethod == "getUserMap" {
 				var currentUserMap keystore.Uint64
@@ -155,10 +163,6 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 				return currentUserMap, nil
 			} else if cd.IsAdmin() {
 				return c.maps.RPCData(cd, submethod, data)
-			}
-		case "characters":
-			if cd.IsAdmin() || submethod == "get" {
-				return c.chars.RPCData(cd, submethod, data)
 			}
 		case "plugins":
 			if cd.IsAdmin() || submethod == "list" {
