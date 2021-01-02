@@ -95,7 +95,7 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (musicPacksDir) Cleanup() {}
+func (*musicPacksDir) Cleanup() {}
 
 func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
