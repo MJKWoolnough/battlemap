@@ -365,7 +365,7 @@ type MusicTrack = {
 	repeat: Int;
 }
 
-type MusicPack = {
+export type MusicPack = {
 	tracks: MusicTrack[];
 	repeat: Uint;
 	playTime: Uint;
