@@ -6,22 +6,23 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"sync"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
 )
 
 type musicTrack struct {
-	AssetID uint64
-	Volume  uint32
-	Repeat  int32
+	ID     uint64 `json:"id"`
+	Volume uint32 `json:"volume"`
+	Repeat int32  `json:"repeat"`
 }
 
 type musicPack struct {
-	Tracks   []musicTrack
-	Repeat   uint64
-	PlayTime uint64
-	Playing  bool
+	Tracks   []musicTrack `json:"tracks"`
+	Repeat   uint64       `json:"repeat"`
+	PlayTime uint64       `json:"playTime"`
+	Playing  bool         `json:"playing"`
 }
 
 func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
@@ -66,7 +67,9 @@ func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 type musicPacksDir struct {
 	*Battlemap
 	fileStore *keystore.FileStore
-	packs     map[string]*musicPack
+
+	mu    sync.RWMutex
+	packs map[string]*musicPack
 }
 
 func (m *musicPacksDir) Init(b *Battlemap) error {
@@ -96,7 +99,11 @@ func (musicPacksDir) Cleanup() {}
 
 func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
-
+	case "list":
+		m.mu.RLock()
+		r, _ := json.Marshal(m.packs)
+		m.mu.RUnlock()
+		return r, nil
 	}
 	return nil, ErrUnknownMethod
 }
