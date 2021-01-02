@@ -103,7 +103,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.mu.RLock()
 		r, _ := json.Marshal(m.packs)
 		m.mu.RUnlock()
-		return r, nil
+		return json.RawMessage(r), nil
 	}
 	return nil, ErrUnknownMethod
 }
