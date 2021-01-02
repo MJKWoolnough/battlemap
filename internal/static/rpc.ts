@@ -139,6 +139,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,       "waitWallAdded", "id"],
 				["removeWall",       "maps.removeWall",      "!",                                            returnVoid,       "waitWallRemoved", ""],
 
+				["musicList", "music.list", "", checkMusicPacks, "", ""],
+
 				["characterCreate", "characters.create", ["path", "data"],              checkIDName,       "", ""],
 				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
 				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
@@ -502,6 +504,23 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
       checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
+      checksMusicTrack: checkers = [[checkObject, ""], [checkUint, "volume"], [checkInt, "repeat"]],
+      checkMusicTrack = (data: any) => checker(data, "musicTrack", checksMusicTrack),
+      checksMusicPack: checkers = [[checkObject, ""], [checkArray, "tracks"], [checkUint, "repeat"], [checkUint, "playTime"], [checkBoolean, "playing"]],
+      checkMusicPack = (data: any) => {
+	checker(data, "musicPack", checksMusicPack);
+	for (const t of data["tracks"]) {
+		checkMusicTrack(t);
+	}
+	return data;
+      },
+      checkMusicPacks = (data: any) => {
+	checkObject(data, "musicPacks");
+	for (const n in data) {
+		checkMusicPack(data[n]);
+	}
+	return data;
+      },
       checkPlugins = (data: any) => {
 	checkObject(data, "plugins");
 	for (const p in data) {
