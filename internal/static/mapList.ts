@@ -182,7 +182,7 @@ export default function(base: Node) {
 			setUserMap(userMap, s);
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
-			button("New Map", {"onclick": () => {
+			button(lang["MAP_NEW"], {"onclick": () => {
 				const name = autoFocus(input({"type": "text", "id": "mapName"})),
 				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth"}),
 				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight"}),
