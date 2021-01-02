@@ -34,9 +34,9 @@ func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
 	m.Tracks = make([]musicTrack, br.ReadUint64())
 	for n := range m.Tracks {
 		m.Tracks[n] = musicTrack{
-			AssetID: br.ReadUint64(),
-			Volume:  br.ReadUint32(),
-			Repeat:  br.ReadInt32(),
+			ID:     br.ReadUint64(),
+			Volume: br.ReadUint32(),
+			Repeat: br.ReadInt32(),
 		}
 	}
 	m.Repeat = br.ReadUint64()
@@ -53,7 +53,7 @@ func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 	bw := byteio.StickyLittleEndianWriter{Writer: g}
 	bw.WriteUint64(uint64(len(m.Tracks)))
 	for _, t := range m.Tracks {
-		bw.WriteUint64(t.AssetID)
+		bw.WriteUint64(t.ID)
 		bw.WriteUint32(t.Volume)
 		bw.WriteInt32(t.Repeat)
 	}
