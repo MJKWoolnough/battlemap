@@ -83,6 +83,7 @@ const defaultLanguage = {
 	"MAP_SQUARE_TYPE_HEX_V": "Hexagon Tiles - Vertical",
 	"MAP_SQUARE_TYPE_SQUARE": "Square Tiles",
 	"MAP_SQUARE_WIDTH": "Width in Tiles",
+	"MUSIC_ADD": "Add Music Pack",
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
 	"PANEL_GRABBER": "Click to Show/Hide - Drag to Resize",
