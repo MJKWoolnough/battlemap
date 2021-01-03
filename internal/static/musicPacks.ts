@@ -5,6 +5,8 @@ import lang from './language.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
+import {windows, loadingWindow} from './windows.js';
+import {requestShell} from './misc.js';
 
 type MusicPackNode = MusicPack & {
 	name: string;
@@ -13,7 +15,13 @@ type MusicPackNode = MusicPack & {
 
 const rename = getSymbol("rename")!,
       copy = getSymbol("copy")!,
-      remove = getSymbol("remove")!;
+      remove = getSymbol("remove")!,
+      addPackToList = (musicList: MusicPackNode[], name: string, pack: MusicPack) => musicList.push(Object.assign(pack, {name, "node": li([
+	span(name),
+	rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => {}}),
+	copy({"title": lang["ITEM_LINK_ADD"], "class": "itemLink", "onclick": () => {}}),
+	remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => {}})
+      ])}));
 
 export const userMusic = () => {};
 
@@ -27,15 +35,16 @@ export default function(base: Node) {
 			return dt;
 		});
 		for (const name in list) {
-			musicList.push(Object.assign(list[name], {name, "node": li([
-				span(name),
-				rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => {}}),
-				copy({"title": lang["ITEM_LINK_ADD"], "class": "itemLink", "onclick": () => {}}),
-				remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => {}})
-			])}));
+			addPackToList(musicList, name, list[name]);
 		}
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
-			button(lang["MUSIC_ADD"], {"onclick": () => {}}),
+			button(lang["MUSIC_ADD"], {"onclick": () => requestShell().prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
+				if (name) {
+					rpc.newMusicPack(name).then(name => {
+						addPackToList(musicList, name, {"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
+					})
+				}
+			})}),
 			musicList.node
 		]);
 	});
