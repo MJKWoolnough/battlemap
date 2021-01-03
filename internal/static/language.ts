@@ -84,6 +84,7 @@ const defaultLanguage = {
 	"MAP_SQUARE_TYPE_SQUARE": "Square Tiles",
 	"MAP_SQUARE_WIDTH": "Width in Tiles",
 	"MUSIC_ADD": "Add Music Pack",
+	"MUSIC_ADD_NAME": "Please enter a name for this new music pack",
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
 	"PANEL_GRABBER": "Click to Show/Hide - Drag to Resize",
