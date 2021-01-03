@@ -3,6 +3,7 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -98,6 +99,20 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 
 func (*musicPacksDir) Cleanup() {}
 
+func (m *musicPacksDir) getPack(name string, fn func(*musicPack) bool) error {
+	var err error
+	m.mu.Lock()
+	if p, ok := m.packs[name]; ok {
+		if fn(p) {
+			err = m.fileStore.Set(name, p)
+		}
+	} else {
+		err = ErrUnknownMusicPack
+	}
+	m.mu.Unlock()
+	return err
+}
+
 func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
@@ -133,3 +148,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 	}
 	return nil, ErrUnknownMethod
 }
+
+// errors
+var (
+	ErrUnknownMusicPack = errors.New("unknown music pack")
+)
