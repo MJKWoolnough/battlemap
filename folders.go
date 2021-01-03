@@ -156,41 +156,23 @@ func (f *folders) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func addItemTo(items map[string]uint64, name string, id uint64) string {
-	if _, ok := items[name]; !ok {
-		items[name] = id
-		return name
-	}
-	n := make([]byte, len(name)+32)
-	m := n[len(name)+1 : len(name)+1]
-	copy(n, name)
-	n[len(name)] = '.'
-	for i := uint64(0); ; i++ {
-		p := len(strconv.AppendUint(m, i, 10))
-		if _, ok := items[string(n[:len(name)+1+p])]; !ok {
-			name := string(n[:len(name)+1+p])
+	return uniqueName(name, func(name string) bool {
+		if _, ok := items[name]; !ok {
 			items[name] = id
-			return name
+			return true
 		}
-	}
+		return false
+	})
 }
 
 func addFolderTo(folders map[string]*folder, name string, f *folder) string {
-	if _, ok := folders[name]; !ok {
-		folders[name] = f
-		return name
-	}
-	n := make([]byte, len(name)+32)
-	m := n[len(name)+1 : len(name)+1]
-	copy(n, name)
-	n[len(name)] = '.'
-	for i := uint64(0); ; i++ {
-		p := len(strconv.AppendUint(m, i, 10))
-		if _, ok := folders[string(n[:len(name)+1+p])]; !ok {
-			name := string(n[:len(name)+1+p])
+	return uniqueName(name, func(name string) bool {
+		if _, ok := folders[name]; !ok {
 			folders[name] = f
-			return name
+			return true
 		}
-	}
+		return false
+	})
 }
 
 func (f *folders) processFolder(fd *folder) {
