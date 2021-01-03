@@ -199,22 +199,13 @@ func (m *mapsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func uniqueLayer(l map[string]struct{}, name string) string {
-	if _, ok := l[name]; !ok {
-		l[name] = struct{}{}
-		return name
-	}
-	n := make([]byte, len(name)+32)
-	m := n[len(name)+1 : len(name)+1]
-	copy(n, name)
-	n[len(name)] = '.'
-	for i := uint64(0); ; i++ {
-		p := len(strconv.AppendUint(m, i, 10))
-		if _, ok := l[string(n[:len(name)+1+p])]; !ok {
-			name := string(n[:len(name)+1+p])
+	return uniqueName(name, func(name string) bool {
+		if _, ok := l[name]; !ok {
 			l[name] = struct{}{}
-			return name
+			return true
 		}
-	}
+		return false
+	})
 }
 
 func getLayer(l *layer, p string) *layer {
