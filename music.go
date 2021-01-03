@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strconv"
 	"sync"
 
 	"vimagination.zapto.org/byteio"
@@ -104,6 +105,31 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		r, _ := json.Marshal(m.packs)
 		m.mu.RUnlock()
 		return json.RawMessage(r), nil
+	case "new":
+		var name string
+		if err := json.Unmarshal(data, &name); err != nil {
+			return nil, err
+		}
+		m.mu.Lock()
+		if _, ok := m.packs[name]; !ok {
+			name += "."
+			for i := uint64(0); ; i++ {
+				tname := name + strconv.FormatUint(i, 10)
+				if _, ok = m.packs[tname]; !ok {
+					name = tname
+					data = appendString(data[:0], name)
+					break
+				}
+			}
+		}
+		p := new(musicPack)
+		m.packs[name] = p
+		err := m.fileStore.Set(name, p)
+		m.mu.Unlock()
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
 	}
 	return nil, ErrUnknownMethod
 }
