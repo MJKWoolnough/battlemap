@@ -139,7 +139,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,       "waitWallAdded", "id"],
 				["removeWall",       "maps.removeWall",      "!",                                            returnVoid,       "waitWallRemoved", ""],
 
-				["musicList", "music.list", "", checkMusicPacks, "", ""],
+				["musicList",    "music.list", "",  checkMusicPacks, "", ""],
+				["newMusicPack", "music.new",  "!", checkString,     "", ""],
 
 				["characterCreate", "characters.create", ["path", "data"],              checkIDName,       "", ""],
 				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
