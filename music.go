@@ -140,6 +140,29 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		return data, nil
+	case "rename":
+		var names struct {
+			OldName string `json:"oldName"`
+			NewName string `json:"newName"`
+		}
+		if err := json.Unmarshal(data, &names); err != nil {
+			return nil, err
+		}
+		m.mu.Lock()
+		mp, ok := m.packs[names.OldName]
+		if !ok {
+			m.mu.Unlock()
+			return nil, ErrUnknownMusicPack
+		}
+		delete(m.packs, names.OldName)
+		names.NewName = uniqueName(names.NewName, func(name string) bool {
+			_, ok := m.packs[name]
+			return !ok
+		})
+		m.packs[names.NewName] = mp
+		m.fileStore.Rename(names.OldName, names.NewName)
+		m.mu.Unlock()
+		return names.NewName, nil
 	}
 	return nil, ErrUnknownMethod
 }
