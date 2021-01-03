@@ -163,6 +163,20 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.fileStore.Rename(names.OldName, names.NewName)
 		m.mu.Unlock()
 		return names.NewName, nil
+	case "remove":
+		var name string
+		if err := json.Unmarshal(data, &name); err != nil {
+			return nil, err
+		}
+		m.mu.Lock()
+		if _, ok := m.packs[name]; !ok {
+			m.mu.Unlock()
+			return nil, ErrUnknownMusicPack
+		}
+		delete(m.packs, name)
+		m.fileStore.Remove(name)
+		m.mu.Unlock()
+		return nil, nil
 	}
 	return nil, ErrUnknownMethod
 }
