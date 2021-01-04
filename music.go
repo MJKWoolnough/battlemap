@@ -198,8 +198,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		np := &musicPack{
 			Tracks:   make([]musicTrack, len(mp.Tracks)),
 			Repeat:   mp.Repeat,
-			PlayTime: mp.PlayTime,
-			Playing:  mp.Playing,
+			PlayTime: 0,
+			Playing:  false,
 		}
 		for n, t := range mp.Tracks {
 			np.Tracks[n] = t
