@@ -53,7 +53,7 @@ class AudioRoot extends Root {
 
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
-	rpcFuncs.list().then(folderList => {
+	queue(() => rpcFuncs.list().then(folderList => {
 		const root = new (fileType === "AUDIO" ? AudioRoot : Root)(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
@@ -101,5 +101,5 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 				return asset.name;
 			});
 		}
-	});
+	}));
 };

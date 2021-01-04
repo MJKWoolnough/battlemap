@@ -6,7 +6,7 @@ import {SortNode, stringSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
 import {windows, loadingWindow} from './windows.js';
-import {requestShell} from './misc.js';
+import {requestShell, queue} from './misc.js';
 
 type MusicPackNode = MusicPack & {
 	name: string;
@@ -55,7 +55,7 @@ const rename = getSymbol("rename")!,
 export const userMusic = () => {};
 
 export default function(base: Node) {
-	rpc.musicList().then(list => {
+	queue(() => rpc.musicList().then(list => {
 		const musicList = new SortNode<MusicPackNode>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
@@ -74,5 +74,5 @@ export default function(base: Node) {
 			})}),
 			musicList.node
 		]);
-	});
+	}));
 }
