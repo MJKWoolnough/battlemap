@@ -208,6 +208,23 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.fileStore.Set(names.NewName, np)
 		m.mu.Unlock()
 		return names.NewName, nil
+	case "addTracks":
+		var trackData struct {
+			MusicPack string   `json:"musicPack"`
+			Tracks    []uint64 `json:"tracks"`
+		}
+		if err := json.Unmarshal(data, &trackData); err != nil {
+			return err
+		}
+		if err := m.getPack(trackData.MusicPack, func(mp *musicPack) bool {
+			for _, t := range trackData.Tracks {
+				mp.Tracks = append(mp.Tracks, musicPack{ID: t})
+			}
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	}
 	return nil, ErrUnknownMethod
 }
