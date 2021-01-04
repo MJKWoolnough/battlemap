@@ -136,11 +136,14 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["shiftLayer",       "maps.shiftLayer",     ["path", "dx", "dy"],                            returnVoid,       "waitLayerShift", ""],
 				["shiftLight",       "maps.shiftLight",     ["x", "y"],                                      returnVoid,       "waitLightShift", ""],
 				["setTokenLight",    "maps.setTokenLight",  ["id", "lightColour", "lightIntensity"],         returnVoid,       "waitTokenLightChange", ""],
-				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,       "waitWallAdded", "id"],
+				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,        "waitWallAdded", "id"],
 				["removeWall",       "maps.removeWall",      "!",                                            returnVoid,       "waitWallRemoved", ""],
 
-				["musicList",    "music.list", "",  checkMusicPacks, "", ""],
-				["newMusicPack", "music.new",  "!", checkString,     "", ""],
+				["musicList",       "music.list",    "",                    checkMusicPacks, "", ""],
+				["newMusicPack",    "music.new",     "!",                   checkString,     "", ""],
+				["renameMusicPack", "music.rename", ["oldName", "newName"], checkString,     "", ""],
+				["removeMusicPack", "music.remove",  "!",                   returnVoid,      "", ""],
+				["copyMusicPack",   "music.copy",   ["oldName", "newName"], checkString,     "", ""],
 
 				["characterCreate", "characters.create", ["path", "data"],              checkIDName,       "", ""],
 				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],

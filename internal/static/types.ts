@@ -112,8 +112,11 @@ export type RPC = RPCWaits & {
 	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 
-	musicList:    ()             => Promise<Record<string, MusicPack>>;
-	newMusicPack: (name: string) => Promise<string>;
+	musicList:       ()                                 => Promise<Record<string, MusicPack>>;
+	newMusicPack:    (name: string)                     => Promise<string>;
+	renameMusicPack: (oldName: string, newName: string) => Promise<string>;
+	removeMusicPack: (name: string)                     => Promise<void>;
+	copyMusicPack:   (oldName: string, newName: string) => Promise<string>;
 
 	characterCreate:     (name: string, data: Record<string, KeystoreData>)                    => Promise<IDName>;
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
