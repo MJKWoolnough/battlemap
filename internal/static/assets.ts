@@ -5,7 +5,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
-import {requestShell, queue} from './misc.js';
+import {requestShell, respondWithAudioAssetName, queue} from './misc.js';
 import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
@@ -25,7 +25,13 @@ class ImageAsset extends DraggableItem {
 	}
 }
 
+const audioAssets = new Map<Uint, AudioAsset>();
+
 class AudioAsset extends Item {
+	constructor(parent: Folder, id: Uint, name: string) {
+		super(parent, id, name);
+		audioAssets.set(id, this);
+	}
 	show() {
 		const root = this.parent.root;
 		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
@@ -35,10 +41,20 @@ class AudioAsset extends Item {
 	}
 }
 
+class AudioRoot extends Root {
+	removeItem(path: string) {
+		const id = super.removeItem(path);
+		if (id > 0) {
+			audioAssets.delete(id);
+		}
+		return id;
+	}
+}
+
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new Root(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
+		const root = new (fileType === "AUDIO" ? AudioRoot : Root)(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
@@ -76,5 +92,14 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 			}}),
 			root.node
 		]);
+		if (fileType === "AUDIO") {
+			respondWithAudioAssetName((id: Uint) => {
+				const asset = audioAssets.get(id);
+				if (!asset) {
+					return "";
+				}
+				return asset.name;
+			});
+		}
 	});
 };
