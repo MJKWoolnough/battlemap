@@ -8,11 +8,11 @@ import lang from './language.js';
 
 const pipeBind = <T>() => {
 	const p = new Pipe<T>();
-	return {"send": p.send.bind(p), "receive": p.receive.bind(p)};
+	return {"send": (data: T) => p.send(data), "receive": (fn: (data: T) => void) => p.receive(fn)};
       },
-      requesterBind = <T>() => {
-	const r = new Requester<T>();
-	return {"request": r.request.bind(r), "responder": r.responder.bind(r)};
+      requesterBind = <T, U extends any[] = any[]>() => {
+	const r = new Requester<T, U>();
+	return {"request": (...data: U) => r.request(...data), "responder": (fn: ((...data: U) => T) | T) => r.responder(fn)};
       };
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
