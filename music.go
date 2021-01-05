@@ -21,6 +21,7 @@ type musicTrack struct {
 
 type musicPack struct {
 	Tracks   []musicTrack `json:"tracks"`
+	Volume   uint8        `json:"volume"`
 	Repeat   uint64       `json:"repeat"`
 	PlayTime uint64       `json:"playTime"`
 	Playing  bool         `json:"playing"`
@@ -147,6 +148,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return false
 		})
 		p := new(musicPack)
+		p.Volume = 255
 		m.packs[name] = p
 		err := m.fileStore.Set(name, p)
 		m.mu.Unlock()
@@ -215,6 +217,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		})
 		np := &musicPack{
 			Tracks:   make([]musicTrack, len(mp.Tracks)),
+			Volume:   mp.Volume,
 			Repeat:   mp.Repeat,
 			PlayTime: 0,
 			Playing:  false,
@@ -226,6 +229,24 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.fileStore.Set(names.NewName, np)
 		m.mu.Unlock()
 		return names.NewName, nil
+	case "setVolume":
+		var packData struct {
+			MusicPack string `json:"musicPack"`
+			Volume    uint8  `json:"volume"`
+		}
+		if err := json.Unmarshal(data, &packData); err != nil {
+			return nil, err
+		}
+		if err := m.getPack(packData.MusicPack, func(mp *musicPack) bool {
+			if mp.Volume == packData.Volume {
+				return false
+			}
+			mp.Volume = packData.Volume
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "addTracks":
 		var trackData struct {
 			MusicPack string   `json:"musicPack"`
