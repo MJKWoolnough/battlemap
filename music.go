@@ -15,7 +15,7 @@ import (
 
 type musicTrack struct {
 	ID     uint64 `json:"id"`
-	Volume uint32 `json:"volume"`
+	Volume uint8  `json:"volume"`
 	Repeat int32  `json:"repeat"`
 }
 
@@ -255,6 +255,25 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		if err := m.getTrack(trackData.MusicPack, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
 			m.sounds.setHiddenLink(mt.ID, 0)
 			mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	case "setTrackVolume":
+		var trackData struct {
+			MusicPack string `json:"musicPack"`
+			Track     uint   `json:"track"`
+			Volume    uint8  `json:"volume"`
+		}
+		if err := json.Unmarshal(data, &trackData); err != nil {
+			return nil, err
+		}
+		if err := m.getTrack(trackData.MusicPack, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+			if mt.Volume == trackData.Volume {
+				return false
+			}
+			mt.Volume = trackData.Volume
 			return true
 		}); err != nil {
 			return nil, err
