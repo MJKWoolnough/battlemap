@@ -214,7 +214,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			Tracks    []uint64 `json:"tracks"`
 		}
 		if err := json.Unmarshal(data, &trackData); err != nil {
-			return err
+			return nil, err
 		}
 		if err := m.getPack(trackData.MusicPack, func(mp *musicPack) bool {
 			for _, t := range trackData.Tracks {
