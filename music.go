@@ -169,9 +169,13 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		m.mu.Lock()
-		if _, ok := m.packs[name]; !ok {
+		mp, ok := m.packs[name]
+		if !ok {
 			m.mu.Unlock()
 			return nil, ErrUnknownMusicPack
+		}
+		for _, t := range mp.Tracks {
+			m.sounds.setHiddenLink(t.ID, 0)
 		}
 		delete(m.packs, name)
 		m.fileStore.Remove(name)
