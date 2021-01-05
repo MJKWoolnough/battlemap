@@ -37,10 +37,11 @@ func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
 	for n := range m.Tracks {
 		m.Tracks[n] = musicTrack{
 			ID:     br.ReadUint64(),
-			Volume: br.ReadUint32(),
+			Volume: br.ReadUint8(),
 			Repeat: br.ReadInt32(),
 		}
 	}
+	m.Volume = br.ReadUint8()
 	m.Repeat = br.ReadUint64()
 	m.PlayTime = br.ReadUint64()
 	m.Playing = br.ReadBool()
@@ -56,9 +57,10 @@ func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 	bw.WriteUint64(uint64(len(m.Tracks)))
 	for _, t := range m.Tracks {
 		bw.WriteUint64(t.ID)
-		bw.WriteUint32(t.Volume)
+		bw.WriteUint8(t.Volume)
 		bw.WriteInt32(t.Repeat)
 	}
+	bw.WriteUint8(m.Volume)
 	bw.WriteUint64(m.Repeat)
 	bw.WriteUint64(m.PlayTime)
 	bw.WriteBool(m.Playing)
