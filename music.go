@@ -112,6 +112,20 @@ func (m *musicPacksDir) getPack(name string, fn func(*musicPack) bool) error {
 	return err
 }
 
+func (m *musicPacksDir) getTrack(name string, track uint, fn func(*musicPack, *musicTrack) bool) error {
+	var errr error
+	if err := m.getPack(name, func(mp *musicPack) bool {
+		if track >= uint(len(mp.Tracks)) {
+			errr = ErrUnknownMusicTrack
+			return false
+		}
+		return fn(mp, &mp.Tracks[track])
+	}); err != nil {
+		return err
+	}
+	return errr
+}
+
 func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
@@ -255,5 +269,6 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 
 // errors
 var (
-	ErrUnknownMusicPack = errors.New("unknown music pack")
+	ErrUnknownMusicPack  = errors.New("unknown music pack")
+	ErrUnknownMusicTrack = errors.New("unknown music track")
 )
