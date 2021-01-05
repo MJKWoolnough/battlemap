@@ -218,6 +218,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}
 		if err := m.getPack(trackData.MusicPack, func(mp *musicPack) bool {
 			for _, t := range trackData.Tracks {
+				m.sounds.setHiddenLink(0, t)
 				mp.Tracks = append(mp.Tracks, musicPack{ID: t})
 			}
 			return true
