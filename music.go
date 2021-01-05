@@ -238,6 +238,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			if trackData.Track >= len(mp.Tracks) {
 				return false
 			}
+			m.sounds.setHiddenLink(mp.Tracks[trackData.Track].ID, 0)
 			mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
 			return true
 		}); err != nil {
