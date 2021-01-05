@@ -247,16 +247,13 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 	case "removeTrack":
 		var trackData struct {
 			MusicPack string `json:"musicPack"`
-			Track     uint   `json:"tracks"`
+			Track     uint   `json:"track"`
 		}
 		if err := json.Unmarshal(data, &trackData); err != nil {
 			return nil, err
 		}
-		if err := m.getPack(trackData.MusicPack, func(mp *musicPack) bool {
-			if trackData.Track >= uint(len(mp.Tracks)) {
-				return false
-			}
-			m.sounds.setHiddenLink(mp.Tracks[trackData.Track].ID, 0)
+		if err := m.getTrack(trackData.MusicPack, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+			m.sounds.setHiddenLink(mt.ID, 0)
 			mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
 			return true
 		}); err != nil {
