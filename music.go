@@ -137,13 +137,14 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		m.mu.Lock()
-		name = uniqueName(name, func(name string) bool {
-			if _, ok := m.packs[name]; !ok {
-				data = appendString(data[:0], name)
-				return true
-			}
-			return false
+		oName := name
+		name = uniqueName(oName, func(name string) bool {
+			_, ok := m.packs[name]
+			return !ok
 		})
+		if oName != name {
+			data = appendString(data[:0], name)
+		}
 		p := new(musicPack)
 		p.Volume = 255
 		m.packs[name] = p
@@ -168,10 +169,14 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, ErrUnknownMusicPack
 		}
 		delete(m.packs, names.OldName)
-		names.NewName = uniqueName(names.NewName, func(name string) bool {
+		nName := names.NewName
+		names.NewName = uniqueName(nName, func(name string) bool {
 			_, ok := m.packs[name]
 			return !ok
 		})
+		if nName != names.NewName {
+			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"oldName\":"...), names.OldName), ",\"newName\":"...), names.NewName), '}'))
+		}
 		m.packs[names.NewName] = mp
 		m.fileStore.Rename(names.OldName, names.NewName)
 		m.mu.Unlock()
@@ -208,10 +213,14 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			m.mu.Unlock()
 			return nil, ErrUnknownMusicPack
 		}
-		names.NewName = uniqueName(names.NewName, func(name string) bool {
+		nName := names.NewName
+		names.NewName = uniqueName(nName, func(name string) bool {
 			_, ok := m.packs[name]
 			return !ok
 		})
+		if nName != names.NewName {
+			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"oldName\":"...), names.OldName), ",\"newName\":"...), names.NewName), '}'))
+		}
 		np := &musicPack{
 			Tracks:   make([]musicTrack, len(mp.Tracks)),
 			Volume:   mp.Volume,
