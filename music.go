@@ -263,6 +263,21 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		return packData.PlayTime, nil
+	case "stopPack":
+		var packData string
+		if err := json.Unmarshal(data, &packData); err != nil {
+			return nil, err
+		}
+		if err := m.getPack(packData, func(mp *musicPack) bool {
+			if mp.PlayTime == 0 {
+				return false
+			}
+			mp.PlayTime = 0
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "addTracks":
 		var trackData struct {
 			MusicPack string   `json:"musicPack"`
