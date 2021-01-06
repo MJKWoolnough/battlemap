@@ -22,7 +22,7 @@ const rename = getSymbol("rename")!,
 		nameSpan,
 		rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], musicPack.name).then(name => {
 			if (name && name !== musicPack.name) {
-				rpc.renameMusicPack(musicPack.name, name).then(name => {
+				rpc.musicPackRename(musicPack.name, name).then(name => {
 					if (name !== musicPack.name) {
 						nameSpan.innerText = musicPack.name = name;
 						musicList.sort();
@@ -32,7 +32,7 @@ const rename = getSymbol("rename")!,
 		})}),
 		copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], musicPack.name).then(name => {
 			if (name) {
-				rpc.copyMusicPack(musicPack.name, name).then(name => {
+				rpc.musicPackCopy(musicPack.name, name).then(name => {
 					addPackToList(musicList, name, {
 						"tracks": JSON.parse(JSON.stringify(musicPack.tracks)),
 						"repeat": musicPack.repeat,
@@ -45,7 +45,7 @@ const rename = getSymbol("rename")!,
 		remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 			if (remove) {
 				musicList.filterRemove(p => Object.is(p, musicPack));
-				rpc.removeMusicPack(musicPack.name);
+				rpc.musicPackRemove(musicPack.name);
 			}
 		})})
 	      ])});
@@ -55,7 +55,7 @@ const rename = getSymbol("rename")!,
 export const userMusic = () => {};
 
 export default function(base: Node) {
-	queue(() => rpc.musicList().then(list => {
+	queue(() => rpc.musicPackList().then(list => {
 		const musicList = new SortNode<MusicPackNode>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
@@ -69,7 +69,7 @@ export default function(base: Node) {
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
 			button(lang["MUSIC_ADD"], {"onclick": () => requestShell().prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 				if (name) {
-					rpc.newMusicPack(name).then(name => addPackToList(musicList, name, {"tracks": [], "repeat": 0, "playTime": 0, "playing": false}));
+					rpc.musicPackAdd(name).then(name => addPackToList(musicList, name, {"tracks": [], "repeat": 0, "playTime": 0, "playing": false}));
 				}
 			})}),
 			musicList.node
