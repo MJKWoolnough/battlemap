@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -267,6 +268,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}
 		if packData.PlayTime == 0 {
 			packData.PlayTime = uint64(time.Now().Unix())
+			data = json.RawMessage(append(strconv.AppendUint(append(appendString(append(data[:0], "{\"musicPack\":"...), packData.MusicPack), ",\"playTime\":"...), packData.PlayTime, 10), '}'))
 		}
 		if err := m.getPack(packData.MusicPack, func(mp *musicPack) bool {
 			if mp.PlayTime == packData.PlayTime {
