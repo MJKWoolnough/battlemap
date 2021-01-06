@@ -22,9 +22,7 @@ type musicTrack struct {
 type musicPack struct {
 	Tracks   []musicTrack `json:"tracks"`
 	Volume   uint8        `json:"volume"`
-	Repeat   uint64       `json:"repeat"`
 	PlayTime uint64       `json:"playTime"`
-	Playing  bool         `json:"playing"`
 }
 
 func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
@@ -42,9 +40,7 @@ func (m *musicPack) ReadFrom(r io.Reader) (int64, error) {
 		}
 	}
 	m.Volume = br.ReadUint8()
-	m.Repeat = br.ReadUint64()
 	m.PlayTime = br.ReadUint64()
-	m.Playing = br.ReadBool()
 	return br.Count, br.Err
 }
 
@@ -61,9 +57,7 @@ func (m *musicPack) WriteTo(w io.Writer) (int64, error) {
 		bw.WriteInt32(t.Repeat)
 	}
 	bw.WriteUint8(m.Volume)
-	bw.WriteUint64(m.Repeat)
 	bw.WriteUint64(m.PlayTime)
-	bw.WriteBool(m.Playing)
 	g.Close()
 	return bw.Count, bw.Err
 }
@@ -220,9 +214,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		np := &musicPack{
 			Tracks:   make([]musicTrack, len(mp.Tracks)),
 			Volume:   mp.Volume,
-			Repeat:   mp.Repeat,
 			PlayTime: 0,
-			Playing:  false,
 		}
 		for n, t := range mp.Tracks {
 			np.Tracks[n] = t
