@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"golang.org/x/net/websocket"
 	"vimagination.zapto.org/jsonrpc"
@@ -115,6 +116,8 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			})
 		}
 		return nil, nil
+	case "conn.currentTime":
+		return time.Now().Unix(), nil
 	case "maps.setCurrentMap":
 		if cd.IsAdmin() {
 			if err := json.Unmarshal(data, &cd.CurrentMap); err != nil {
