@@ -278,6 +278,17 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		return nil, nil
+	case "stopAllPacks":
+		m.mu.Lock()
+		for k, p := range m.packs {
+			if p.PlayTime == 0 {
+				continue
+			}
+			p.PlayTime = 0
+			m.fileStore.Set(k, p)
+		}
+		m.mu.Unlock()
+		return nil, nil
 	case "addTracks":
 		var trackData struct {
 			MusicPack string   `json:"musicPack"`
