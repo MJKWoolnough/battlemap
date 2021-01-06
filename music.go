@@ -8,6 +8,7 @@ import (
 	"io"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"vimagination.zapto.org/byteio"
 	"vimagination.zapto.org/keystore"
@@ -241,6 +242,27 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		return nil, nil
+	case "playPack":
+		var packData struct {
+			MusicPack string `json:"musicPack"`
+			PlayTime  uint64 `jons:"playTime"`
+		}
+		if err := json.Unmarshal(data, &packData); err != nil {
+			return nil, err
+		}
+		if packData.PlayTime == 0 {
+			packData.PlayTime = uint64(time.Now().Unix())
+		}
+		if err := m.getPack(packData.MusicPack, func(mp *musicPack) bool {
+			if mp.PlayTime == packData.PlayTime {
+				return false
+			}
+			mp.PlayTime = packData.PlayTime
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return packData.PlayTime, nil
 	case "addTracks":
 		var trackData struct {
 			MusicPack string   `json:"musicPack"`
