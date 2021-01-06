@@ -159,8 +159,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return data, nil
 	case "rename":
 		var names struct {
-			OldName string `json:"oldName"`
-			NewName string `json:"newName"`
+			OldName string `json:"from"`
+			NewName string `json:"to"`
 		}
 		if err := json.Unmarshal(data, &names); err != nil {
 			return nil, err
@@ -178,7 +178,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return !ok
 		})
 		if nName != names.NewName {
-			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"oldName\":"...), names.OldName), ",\"newName\":"...), names.NewName), '}'))
+			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"from\":"...), names.OldName), ",\"to\":"...), names.NewName), '}'))
 		}
 		m.packs[names.NewName] = mp
 		m.fileStore.Rename(names.OldName, names.NewName)
@@ -206,8 +206,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return nil, nil
 	case "copy":
 		var names struct {
-			OldName string `json:"oldName"`
-			NewName string `json:"newName"`
+			From string `json:"from"`
+			To   string `json:"to"`
 		}
 		if err := json.Unmarshal(data, &names); err != nil {
 			return nil, err
@@ -224,7 +224,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return !ok
 		})
 		if nName != names.NewName {
-			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"oldName\":"...), names.OldName), ",\"newName\":"...), names.NewName), '}'))
+			data = json.RawMessage(append(appendString(append(appendString(append(data[:0], "{\"from\":"...), names.OldName), ",\"to\":"...), names.NewName), '}'))
 		}
 		np := &musicPack{
 			Tracks:   make([]musicTrack, len(mp.Tracks)),
