@@ -342,6 +342,25 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		return nil, nil
+	case "setTrackRepeat":
+		var trackData struct {
+			MusicPack string `json:"musicPack"`
+			Track     uint   `json:"track"`
+			Repeat    int32  `json:"repeat"`
+		}
+		if err := json.Unmarshal(data, &trackData); err != nil {
+			return nil, err
+		}
+		if err := m.getTrack(trackData.MusicPack, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
+			if mt.Repeat == trackData.Repeat {
+				return false
+			}
+			mt.Repeat = trackData.Repeat
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	}
 	return nil, ErrUnknownMethod
 }
