@@ -256,7 +256,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
-		m.socket.broadcastMapChange(cd, broadcastMusicPackSetVolume, data, userAny)
+		m.socket.broadcastMapChange(cd, broadcastMusicPackVolume, data, userAny)
 		return nil, nil
 	case "playPack":
 		var packData struct {

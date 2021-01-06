@@ -84,7 +84,7 @@ const (
 	broadcastMusicPackRename
 	broadcastMusicPackRemove
 	broadcastMusicPackCopy
-	broadcastMusicPackSetVolume
+	broadcastMusicPackVolume
 	broadcastMusicPackPlay
 	broadcastMusicPackStop
 	broadcastMusicPackStopAll
