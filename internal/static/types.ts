@@ -59,6 +59,18 @@ type RPCWaits = {
 	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
+	waitMusicPackAdd:            () => Subscription<string>;
+	waitMusicPackRename:         () => Subscription<FromTo>;
+	waitMusicPackCopy:           () => Subscription<FromTo>;
+	waitMusicPackRemove:         () => Subscription<string>;
+	waitMusicPackVolume:         () => Subscription<MusicPackVolume>;
+	waitMusicPackPlay:           () => Subscription<MusicPackPlay>;
+	waitMusicPackStop:           () => Subscription<string>;
+	waitMusicPackStopAll:        () => Subscription<void>;
+	waitMusicPackTrackAdd:       () => Subscription<MusicPackTrackAdd>;
+	waitMusicPackTrackRemove:    () => Subscription<MusicPackTrackRemove>;
+	waitMusicPackTrackVolume:    () => Subscription<MusicPackTrackVolume>;
+	waitMusicPackTrackRepeat:    () => Subscription<MusicPackTrackRepeat>;
 	waitPluginChange:            () => Subscription<void>;
 	waitPluginSetting:           () => Subscription<PluginSetting>;
 	waitBroadcast:               () => Subscription<Broadcast>;
@@ -112,11 +124,19 @@ export type RPC = RPCWaits & {
 	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 
-	musicList:       ()                                 => Promise<Record<string, MusicPack>>;
-	newMusicPack:    (name: string)                     => Promise<string>;
-	renameMusicPack: (oldName: string, newName: string) => Promise<string>;
-	removeMusicPack: (name: string)                     => Promise<void>;
-	copyMusicPack:   (oldName: string, newName: string) => Promise<string>;
+	musicList:            ()                                             => Promise<Record<string, MusicPack>>;
+	newMusicPack:         (name: string)                                 => Promise<string>;
+	renameMusicPack:      (from: string, to: string)                     => Promise<string>;
+	removeMusicPack:      (name: string)                                 => Promise<void>;
+	copyMusicPack:        (from: string, to: string)                     => Promise<string>;
+	musicPackSetVolume:   (musicPack: string, volume: Uint)              => Promise<void>;
+	musicPackPlay:        (musicPack: string, playTime: Uint)            => Promise<Uint>;
+	musicPackStop:        (musicPack: string)                            => Promise<void>;
+	musicPackStopAll:     ()                                             => Promise<void>;
+	musicPackTrackAdd:    (musicPack: string, tracks: Uint[])            => Promise<void>;
+	musicPackTrackRemove: (musicPack: string, track: Uint)               => Promise<void>;
+	musicPackTrackVolume: (musicPack: string, track: Uint, volume: Uint) => Promise<void>;
+	musicPackTrackRepeat: (musicPack: string, track: Uint, repeat: Int)  => Promise<void>;
 
 	characterCreate:     (name: string, data: Record<string, KeystoreData>)                    => Promise<IDName>;
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
@@ -374,4 +394,36 @@ export type MusicPack = {
 	repeat: Uint;
 	playTime: Uint;
 	playing: boolean;
+}
+
+type MusicPackVolume = {
+	musicPack: string;
+	volume: Uint;
+}
+
+type MusicPackPlay = {
+	musicPack: string;
+	playTime: Uint;
+}
+
+type MusicPackTrackAdd = {
+	musicPack: string;
+	tracks: Uint[];
+}
+
+type MusicPackTrackRemove = {
+	musicPack: string;
+	track: Uint;
+}
+
+type MusicPackTrackVolume = {
+	musicPack: string;
+	track: Uint;
+	volume: Uint;
+}
+
+type MusicPackTrackRepeat = {
+	musicPack: string;
+	track: Uint;
+	repeat: Int;
 }
