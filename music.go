@@ -125,6 +125,7 @@ func (m *musicPacksDir) getTrack(name string, track uint, fn func(*musicPack, *m
 }
 
 func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
+	cd.CurrentMap = 0
 	switch method {
 	case "list":
 		m.mu.RLock()
@@ -153,6 +154,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		if err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackAdd, data, userAny)
 		return data, nil
 	case "rename":
 		var names struct {
@@ -180,6 +182,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.packs[names.NewName] = mp
 		m.fileStore.Rename(names.OldName, names.NewName)
 		m.mu.Unlock()
+		m.socket.broadcastMapChange(cd, broadcastMusicPackRename, data, userAny)
 		return names.NewName, nil
 	case "remove":
 		var name string
@@ -198,6 +201,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		delete(m.packs, name)
 		m.fileStore.Remove(name)
 		m.mu.Unlock()
+		m.socket.broadcastMapChange(cd, broadcastMusicPackRemove, data, userAny)
 		return nil, nil
 	case "copy":
 		var names struct {
@@ -232,6 +236,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		m.packs[names.NewName] = np
 		m.fileStore.Set(names.NewName, np)
 		m.mu.Unlock()
+		m.socket.broadcastMapChange(cd, broadcastMusicPackCopy, data, userAny)
 		return names.NewName, nil
 	case "setVolume":
 		var packData struct {
@@ -250,6 +255,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackSetVolume, data, userAny)
 		return nil, nil
 	case "playPack":
 		var packData struct {
@@ -271,6 +277,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackPlay, data, userAny)
 		return packData.PlayTime, nil
 	case "stopPack":
 		var packData string
@@ -286,6 +293,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackStop, data, userAny)
 		return nil, nil
 	case "stopAllPacks":
 		m.mu.Lock()
@@ -297,6 +305,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			m.fileStore.Set(k, p)
 		}
 		m.mu.Unlock()
+		m.socket.broadcastMapChange(cd, broadcastMusicPackStopAll, data, userAny)
 		return nil, nil
 	case "addTracks":
 		var trackData struct {
@@ -315,6 +324,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackAdd, data, userAny)
 		return nil, nil
 	case "removeTrack":
 		var trackData struct {
@@ -331,6 +341,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRemove, data, userAny)
 		return nil, nil
 	case "setTrackVolume":
 		var trackData struct {
@@ -350,6 +361,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackVolume, data, userAny)
 		return nil, nil
 	case "setTrackRepeat":
 		var trackData struct {
@@ -369,6 +381,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}); err != nil {
 			return nil, err
 		}
+		m.socket.broadcastMapChange(cd, broadcastMusicPackTrackRepeat, data, userAny)
 		return nil, nil
 	}
 	return nil, ErrUnknownMethod
