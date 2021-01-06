@@ -80,6 +80,19 @@ const (
 	broadcastWallAdd
 	broadcastWallRemove
 
+	broadcastMusicPackAdd
+	broadcastMusicPackRename
+	broadcastMusicPackRemove
+	broadcastMusicPackCopy
+	broadcastMusicPackSetVolume
+	broadcastMusicPackPlay
+	broadcastMusicPackStop
+	broadcastMusicPackStopAll
+	broadcastMusicPackTrackAdd
+	broadcastMusicPackTrackRemove
+	broadcastMusicPackTrackVolume
+	broadcastMusicPackTrackRepeat
+
 	broadcastPluginChange
 	broadcastPluginSettingChange
 
