@@ -13,7 +13,21 @@ type MusicPackNode = MusicPack & {
 	node: HTMLLIElement;
 }
 
-const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false});
+const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
+      commonWaits = (getPack: (name: string) => (MusicPack | undefined)) => {
+	rpc.waitMusicPackVolume().then(pv => {
+		const pack = getPack(pv.musicPack);
+		if (pack) {
+			pack.volume = pv.volume;
+		}
+	});
+	rpc.waitMusicPackPlay().then(pp => {
+		const pack = getPack(pp.musicPack);
+		if (pack) {
+			pack.playTime = pp.playTime;
+		}
+	});
+      };
 
 export const userMusic = () => {
 	rpc.musicPackList().then(list => {
@@ -32,18 +46,7 @@ export const userMusic = () => {
 				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0, "playing": false};
 			}
 		});
-		rpc.waitMusicPackVolume().then(pv => {
-			const p = list[pv.musicPack];
-			if (p) {
-				p.volume = pv.volume;
-			}
-		});
-		rpc.waitMusicPackPlay().then(pp => {
-			const pack = list[pp.musicPack];
-			if (pack) {
-				pack.playTime = pp.playTime;
-			}
-		});
+		commonWaits((name: string) => list[name]);
 	});
 };
 
@@ -131,17 +134,13 @@ export default function(base: Node) {
 				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0, "playing": false});
 			}
 		});
-		rpc.waitMusicPackVolume().then(pv => {
-			const pack = findPack(pv.musicPack);
-			if (pack) {
-				pack.volume = pv.volume;
+		commonWaits((name: string) => {
+			for (const p of musicList) {
+				if (p.name === name) {
+					return p;
+				}
 			}
-		});
-		rpc.waitMusicPackPlay().then(pp => {
-			const pack = findPack(pp.musicPack);
-			if (pack) {
-				pack.playTime = pp.playTime;
-			}
+			return undefined;
 		});
 	}));
 }
