@@ -50,9 +50,14 @@ const rename = getSymbol("rename")!,
 		})})
 	      ])});
 	musicList.push(musicPack);
-      };
+      },
+      newPack = () => ({"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
 
-export const userMusic = () => {};
+export const userMusic = () => {
+	rpc.musicPackList().then(list => {
+		rpc.waitMusicPackAdd().then(name => list[name] = newPack());
+	});
+};
 
 export default function(base: Node) {
 	queue(() => rpc.musicPackList().then(list => {
@@ -69,10 +74,11 @@ export default function(base: Node) {
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
 			button(lang["MUSIC_ADD"], {"onclick": () => requestShell().prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 				if (name) {
-					rpc.musicPackAdd(name).then(name => addPackToList(musicList, name, {"tracks": [], "repeat": 0, "playTime": 0, "playing": false}));
+					rpc.musicPackAdd(name).then(name => addPackToList(musicList, name, newPack()));
 				}
 			})}),
 			musicList.node
 		]);
+		rpc.waitMusicPackAdd().then(name => addPackToList(musicList, name, newPack()));
 	}));
 }
