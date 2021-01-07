@@ -67,6 +67,12 @@ export const userMusic = () => {
 			}
 		});
 		rpc.waitMusicPackRemove().then(name => delete list[name]);
+		rpc.waitMusicPackCopy().then(ft => {
+			const p = list[ft.from];
+			if (p) {
+				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "repeat": p.repeat, "playTime": 0, "playing": false};
+			}
+		});
 	});
 };
 
@@ -101,5 +107,13 @@ export default function(base: Node) {
 			}
 		});
 		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name));
+		rpc.waitMusicPackCopy().then(ft => {
+			for (const p of musicList) {
+				if (p.name === ft.from) {
+					addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(p.tracks)), "repeat": p.repeat, "playTime": 0, "playing": false});
+					break;
+				}
+			}
+		});
 	}));
 }
