@@ -27,6 +27,12 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 			pack.playTime = pp.playTime;
 		}
 	});
+	rpc.waitMusicPackStop().then(name => {
+		const pack = getPack(name);
+		if (pack) {
+			pack.playTime = 0;
+		}
+	});
       };
 
 export const userMusic = () => {
