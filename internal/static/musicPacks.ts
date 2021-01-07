@@ -84,7 +84,15 @@ export default function(base: Node) {
 				return stringSort(a.name, b.name);
 			}
 			return dt;
-		});
+		      }),
+		      findPack = (name: string) => {
+			for (const p of musicList) {
+				if (p.name === name) {
+					return p;
+				}
+			}
+			return null;
+		      };
 		for (const name in list) {
 			addPackToList(musicList, name, list[name]);
 		}
@@ -98,21 +106,17 @@ export default function(base: Node) {
 		]);
 		rpc.waitMusicPackAdd().then(name => addPackToList(musicList, name, newPack()));
 		rpc.waitMusicPackRename().then(ft => {
-			for (const p of musicList) {
-				if (p.name === ft.from) {
-					p.name = ft.to;
-					musicList.sort();
-					break;
-				}
+			const pack = findPack(ft.from);
+			if (pack) {
+				pack.name = ft.to;
+				musicList.sort();
 			}
 		});
 		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name));
 		rpc.waitMusicPackCopy().then(ft => {
-			for (const p of musicList) {
-				if (p.name === ft.from) {
-					addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(p.tracks)), "repeat": p.repeat, "playTime": 0, "playing": false});
-					break;
-				}
+			const pack = findPack(ft.from);
+			if (pack) {
+				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "repeat": pack.repeat, "playTime": 0, "playing": false});
 			}
 		});
 	}));
