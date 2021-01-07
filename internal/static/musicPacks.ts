@@ -66,6 +66,7 @@ export const userMusic = () => {
 				list[ft.to] = p;
 			}
 		});
+		rpc.waitMusicPackRemove().then(name => delete list[name]);
 	});
 };
 
@@ -99,5 +100,6 @@ export default function(base: Node) {
 				}
 			}
 		});
+		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name));
 	}));
 }
