@@ -32,6 +32,12 @@ export const userMusic = () => {
 				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0, "playing": false};
 			}
 		});
+		rpc.waitMusicPackVolume().then(pv => {
+			const p = list[pv.musicPack];
+			if (p) {
+				p.volume = pv.volume;
+			}
+		});
 	});
 };
 
@@ -117,6 +123,12 @@ export default function(base: Node) {
 			const pack = findPack(ft.from);
 			if (pack) {
 				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0, "playing": false});
+			}
+		});
+		rpc.waitMusicPackVolume().then(pv => {
+			const pack = findPack(pv.musicPack);
+			if (pack) {
+				pack.volume = pv.volume;
 			}
 		});
 	}));
