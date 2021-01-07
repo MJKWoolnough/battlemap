@@ -53,6 +53,12 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 			pack.tracks[mv.track].volume = mv.volume;
 		}
 	});
+	rpc.waitMusicPackTrackRepeat().then(mr => {
+		const pack = getPack(mr.musicPack);
+		if (pack && pack.tracks.length >= mr.track) {
+			pack.tracks[mr.track].repeat = mr.repeat;
+		}
+	});
       };
 
 export const userMusic = () => {
