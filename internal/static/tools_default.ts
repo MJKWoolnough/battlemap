@@ -69,7 +69,7 @@ export default Object.freeze({
 			this.style.removeProperty("--outline-cursor");
 			this.removeEventListener("mousemove", viewDrag);
 			this.removeEventListener("mouseup", stop);
-			this,removeEventListener("mouseleave", stop);
+			this.removeEventListener("mouseleave", stop);
 		      };
 		this.addEventListener("mousemove", viewDrag);
 		this.addEventListener("mouseup", stop);
