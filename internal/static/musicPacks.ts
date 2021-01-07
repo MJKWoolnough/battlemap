@@ -33,6 +33,14 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 			pack.playTime = 0;
 		}
 	});
+	rpc.waitMusicPackTrackAdd().then(mt => {
+		const pack = getPack(mt.musicPack);
+		if (pack) {
+			for (const t of mt.tracks) {
+				pack.tracks.push({"id": t, "volume": 255, "repeat": 0});
+			}
+		}
+	});
       };
 
 export const userMusic = () => {
