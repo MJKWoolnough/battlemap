@@ -47,6 +47,12 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 			pack.tracks.splice(mr.track, 1);
 		}
 	});
+	rpc.waitMusicPackTrackVolume().then(mv => {
+		const pack = getPack(mv.musicPack);
+		if (pack && pack.tracks.length >= mv.track) {
+			pack.tracks[mv.track].volume = mv.volume;
+		}
+	});
       };
 
 export const userMusic = () => {
