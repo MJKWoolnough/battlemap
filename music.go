@@ -206,8 +206,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return nil, nil
 	case "copy":
 		var names struct {
-			From string `json:"from"`
-			To   string `json:"to"`
+			OldName string `json:"from"`
+			NewName string `json:"to"`
 		}
 		if err := json.Unmarshal(data, &names); err != nil {
 			return nil, err
