@@ -13,7 +13,7 @@ type MusicPackNode = MusicPack & {
 	node: HTMLLIElement;
 }
 
-const newPack = () => ({"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
+const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false});
 
 export const userMusic = () => {
 	rpc.musicPackList().then(list => {
@@ -29,7 +29,7 @@ export const userMusic = () => {
 		rpc.waitMusicPackCopy().then(ft => {
 			const p = list[ft.from];
 			if (p) {
-				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "repeat": p.repeat, "playTime": 0, "playing": false};
+				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0, "playing": false};
 			}
 		});
 	});
@@ -59,7 +59,7 @@ export default function(base: Node) {
 						rpc.musicPackCopy(musicPack.name, name).then(name => {
 							addPackToList(musicList, name, {
 								"tracks": JSON.parse(JSON.stringify(musicPack.tracks)),
-								"repeat": musicPack.repeat,
+								"volume": musicPack.volume,
 								"playTime": 0,
 								"playing": false
 							});
@@ -116,7 +116,7 @@ export default function(base: Node) {
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
-				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "repeat": pack.repeat, "playTime": 0, "playing": false});
+				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0, "playing": false});
 			}
 		});
 	}));

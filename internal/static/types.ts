@@ -391,7 +391,7 @@ type MusicTrack = {
 
 export type MusicPack = {
 	tracks: MusicTrack[];
-	repeat: Uint;
+	volume: Uint;
 	playTime: Uint;
 	playing: boolean;
 }

@@ -530,7 +530,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
       checksMusicTrack: checkers = [[checkObject, ""], [checkUint, "volume"], [checkInt, "repeat"]],
       checkMusicTrack = (data: any) => checker(data, "musicTrack", checksMusicTrack),
-      checksMusicPack: checkers = [[checkObject, ""], [checkArray, "tracks"], [checkUint, "repeat"], [checkUint, "playTime"], [checkBoolean, "playing"]],
+      checksMusicPack: checkers = [[checkObject, ""], [checkArray, "tracks"], [checkUint, "volume"], [checkUint, "playTime"], [checkBoolean, "playing"]],
       checkMusicPack = (data: any) => {
 	checker(data, "musicPack", checksMusicPack);
 	for (const t of data["tracks"]) {
