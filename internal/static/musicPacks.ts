@@ -13,48 +13,7 @@ type MusicPackNode = MusicPack & {
 	node: HTMLLIElement;
 }
 
-const rename = getSymbol("rename")!,
-      copy = getSymbol("copy")!,
-      remove = getSymbol("remove")!,
-      addPackToList = (musicList: SortNode<MusicPackNode>, name: string, pack: MusicPack) => {
-	const nameSpan = span(name),
-	      musicPack = Object.defineProperty(Object.assign(pack, {"node": li([
-		nameSpan,
-		rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], musicPack.name).then(name => {
-			if (name && name !== musicPack.name) {
-				rpc.musicPackRename(musicPack.name, name).then(name => {
-					if (name !== musicPack.name) {
-						musicPack.name = name;
-						musicList.sort();
-					}
-				});
-			}
-		})}),
-		copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], musicPack.name).then(name => {
-			if (name) {
-				rpc.musicPackCopy(musicPack.name, name).then(name => {
-					addPackToList(musicList, name, {
-						"tracks": JSON.parse(JSON.stringify(musicPack.tracks)),
-						"repeat": musicPack.repeat,
-						"playTime": 0,
-						"playing": false
-					});
-				});
-			}
-		})}),
-		remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
-			if (remove) {
-				musicList.filterRemove(p => Object.is(p, musicPack));
-				rpc.musicPackRemove(musicPack.name);
-			}
-		})})
-	      ])}), "name", {
-		"get": () => name,
-		"set": (n: string) => nameSpan.innerText = name = n
-	      });
-	musicList.push(musicPack);
-      },
-      newPack = () => ({"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
+const newPack = () => ({"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
 
 export const userMusic = () => {
 	rpc.musicPackList().then(list => {
@@ -78,7 +37,48 @@ export const userMusic = () => {
 
 export default function(base: Node) {
 	queue(() => rpc.musicPackList().then(list => {
-		const musicList = new SortNode<MusicPackNode>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
+		const rename = getSymbol("rename")!,
+		      copy = getSymbol("copy")!,
+		      remove = getSymbol("remove")!,
+		      addPackToList = (musicList: SortNode<MusicPackNode>, name: string, pack: MusicPack) => {
+			const nameSpan = span(name),
+			      musicPack = Object.defineProperty(Object.assign(pack, {"node": li([
+				nameSpan,
+				rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], musicPack.name).then(name => {
+					if (name && name !== musicPack.name) {
+						rpc.musicPackRename(musicPack.name, name).then(name => {
+							if (name !== musicPack.name) {
+								musicPack.name = name;
+								musicList.sort();
+							}
+						});
+					}
+				})}),
+				copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], musicPack.name).then(name => {
+					if (name) {
+						rpc.musicPackCopy(musicPack.name, name).then(name => {
+							addPackToList(musicList, name, {
+								"tracks": JSON.parse(JSON.stringify(musicPack.tracks)),
+								"repeat": musicPack.repeat,
+								"playTime": 0,
+								"playing": false
+							});
+						});
+					}
+				})}),
+				remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
+					if (remove) {
+						musicList.filterRemove(p => Object.is(p, musicPack));
+						rpc.musicPackRemove(musicPack.name);
+					}
+				})})
+			      ])}), "name", {
+				"get": () => name,
+				"set": (n: string) => nameSpan.innerText = name = n
+			      });
+			musicList.push(musicPack);
+		      },
+		      musicList = new SortNode<MusicPackNode>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
 				return stringSort(a.name, b.name);
