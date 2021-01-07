@@ -2,6 +2,7 @@ import {SVGToken} from './map.js';
 import {createSVG, svg, path} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 import {globals} from './map.js';
+import {deselectToken} from './adminMap.js';
 import lang from './language.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
@@ -57,8 +58,10 @@ export default Object.freeze({
 		}
 		this.style.setProperty("--outline-cursor", "grabbing");
 		let mX = e.clientX,
-		    mY = e.clientY;
+		    mY = e.clientY,
+		    moved = false;
 		const viewDrag = (e: MouseEvent) => {
+			moved = true;
 			panZoom.x += e.clientX - mX;
 			panZoom.y += e.clientY - mY;
 			createSVG(this, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
@@ -66,6 +69,9 @@ export default Object.freeze({
 			mY = e.clientY;
 		      },
 		      stop = () => {
+			if (!moved) {
+				deselectToken();
+			}
 			this.style.removeProperty("--outline-cursor");
 			this.removeEventListener("mousemove", viewDrag);
 			this.removeEventListener("mouseup", stop);
