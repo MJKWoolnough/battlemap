@@ -18,13 +18,13 @@ const rename = getSymbol("rename")!,
       remove = getSymbol("remove")!,
       addPackToList = (musicList: SortNode<MusicPackNode>, name: string, pack: MusicPack) => {
 	const nameSpan = span(name),
-	      musicPack = Object.assign(pack, {name, "node": li([
+	      musicPack = Object.defineProperty(Object.assign(pack, {"node": li([
 		nameSpan,
 		rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], musicPack.name).then(name => {
 			if (name && name !== musicPack.name) {
 				rpc.musicPackRename(musicPack.name, name).then(name => {
 					if (name !== musicPack.name) {
-						nameSpan.innerText = musicPack.name = name;
+						musicPack.name = name;
 						musicList.sort();
 					}
 				});
@@ -48,7 +48,10 @@ const rename = getSymbol("rename")!,
 				rpc.musicPackRemove(musicPack.name);
 			}
 		})})
-	      ])});
+	      ])}), "name", {
+		"get": () => name,
+		"set": (n: string) => nameSpan.innerText = name = n
+	      });
 	musicList.push(musicPack);
       },
       newPack = () => ({"tracks": [], "repeat": 0, "playTime": 0, "playing": false});
@@ -56,6 +59,13 @@ const rename = getSymbol("rename")!,
 export const userMusic = () => {
 	rpc.musicPackList().then(list => {
 		rpc.waitMusicPackAdd().then(name => list[name] = newPack());
+		rpc.waitMusicPackRename().then(ft => {
+			const p = list[ft.from];
+			if (p) {
+				delete list[ft.from];
+				list[ft.to] = p;
+			}
+		});
 	});
 };
 
@@ -80,5 +90,14 @@ export default function(base: Node) {
 			musicList.node
 		]);
 		rpc.waitMusicPackAdd().then(name => addPackToList(musicList, name, newPack()));
+		rpc.waitMusicPackRename().then(ft => {
+			for (const p of musicList) {
+				if (p.name === ft.from) {
+					p.name = ft.to;
+					musicList.sort();
+					break;
+				}
+			}
+		});
 	}));
 }
