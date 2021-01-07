@@ -38,6 +38,12 @@ export const userMusic = () => {
 				p.volume = pv.volume;
 			}
 		});
+		rpc.waitMusicPackPlay().then(pp => {
+			const pack = list[pp.musicPack];
+			if (pack) {
+				pack.playTime = pp.playTime;
+			}
+		});
 	});
 };
 
@@ -129,6 +135,12 @@ export default function(base: Node) {
 			const pack = findPack(pv.musicPack);
 			if (pack) {
 				pack.volume = pv.volume;
+			}
+		});
+		rpc.waitMusicPackPlay().then(pp => {
+			const pack = findPack(pp.musicPack);
+			if (pack) {
+				pack.playTime = pp.playTime;
 			}
 		});
 	}));
