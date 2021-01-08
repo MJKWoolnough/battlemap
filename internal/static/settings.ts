@@ -40,11 +40,13 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			scrollAmount.set(parseInt(this.value));
 		}}),
 		br(),
-		label({"for": "undoLimit"}, `${lang["UNDO_LIMIT"]}: `),
-		input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
-			undoLimit.set(parseInt(this.value));
-		}}),
-		br(),
+		loggedIn ? [
+			label({"for": "undoLimit"}, `${lang["UNDO_LIMIT"]}: `),
+			input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
+				undoLimit.set(parseInt(this.value));
+			}}),
+			br()
+		] : [],
 		input({"type": "checkbox", "id": "menuHide", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}),
