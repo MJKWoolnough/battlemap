@@ -499,10 +499,6 @@ const defaultLanguage = {
       }),
       updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
-	if (!initiative) {
-		initiativeWindow.remove();
-		return;
-	}
 	initiativeList.splice(0, initiativeList.length);
 	const hiddenLayers = new Set<string>();
 	walkLayers((l, isHidden) => {
@@ -510,22 +506,24 @@ const defaultLanguage = {
 			hiddenLayers.add(l.path);
 		}
 	});
-	for (const i of initiative as IDInitiative[]) {
-		if (tokens[i.id]) {
-			const {layer, token} = tokens[i.id];
-			if (!(token instanceof SVGToken5E)) {
-				continue;
-			}
-			let initiative = i.initiative;
-			if (change && change[0] === i.id) {
-				const i = change[1];
-				change = undefined;
-				if (i === null) {
+	if (initiative) {
+		for (const i of initiative as IDInitiative[]) {
+			if (tokens[i.id]) {
+				const {layer, token} = tokens[i.id];
+				if (!(token instanceof SVGToken5E)) {
 					continue;
 				}
-				initiative = i;
+				let initiative = i.initiative;
+				if (change && change[0] === i.id) {
+					const i = change[1];
+					change = undefined;
+					if (i === null) {
+						continue;
+					}
+					initiative = i;
+				}
+				addToInitiative(token, initiative, hiddenLayers.has(layer.path));
 			}
-			addToInitiative(token, initiative, hiddenLayers.has(layer.path));
 		}
 	}
 	if (change && change[1] !== null) {
