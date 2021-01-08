@@ -383,7 +383,7 @@ type KeyData = {
 	data: any;
 }
 
-type MusicTrack = {
+export type MusicTrack = {
 	id: Uint;
 	volume: Uint;
 	repeat: Int;
