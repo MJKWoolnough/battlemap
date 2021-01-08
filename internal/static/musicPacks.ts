@@ -6,7 +6,7 @@ import {SortNode, stringSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
 import {windows, loadingWindow} from './windows.js';
-import {requestShell, queue} from './misc.js';
+import {requestShell} from './misc.js';
 
 type MusicPackNode = MusicPack & {
 	name: string;
@@ -83,7 +83,7 @@ export const userMusic = () => {
 };
 
 export default function(base: Node) {
-	queue(() => rpc.musicPackList().then(list => {
+	rpc.musicPackList().then(list => {
 		const rename = getSymbol("rename")!,
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
@@ -173,5 +173,5 @@ export default function(base: Node) {
 			}
 			return undefined;
 		});
-	}));
+	});
 }

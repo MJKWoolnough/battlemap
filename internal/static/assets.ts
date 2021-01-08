@@ -6,7 +6,7 @@ import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
-import {requestShell, respondWithAudioAssetName, queue} from './misc.js';
+import {requestShell, respondWithAudioAssetName} from './misc.js';
 import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
@@ -60,7 +60,7 @@ class AudioRoot extends Root {
 
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
-	queue(() => rpcFuncs.list().then(folderList => {
+	rpcFuncs.list().then(folderList => {
 		const root = new (fileType === "AUDIO" ? AudioRoot : Root)(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
@@ -111,5 +111,5 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 				return () => asset![0].remove(fn);
 			});
 		}
-	}));
+	});
 };
