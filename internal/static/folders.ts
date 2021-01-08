@@ -183,8 +183,12 @@ export class Folder {
 				this.children.node,
 			])
 		]);
-		Object.entries(children.folders).forEach(([name, f]) => this.children.push(new this.root.newFolder(root, this, name, f)));
-		Object.entries(children.items).forEach(([name, iid]) => this.children.push(new this.root.newItem(this, iid, name)));
+		for (const name in children.folders) {
+			this.children.push(new this.root.newFolder(root, this, name, children.folders[name]));
+		}
+		for (const name in children.items) {
+			this.children.push(new this.root.newItem(this, children.items[name], name));
+		}
 	}
 	get folderSorter() {
 		return stringSorter;
@@ -359,7 +363,11 @@ export class Root {
 		this.folder = undefined as any as Folder;    // INIT HACK
 		this.node = undefined as any as HTMLElement; // INIT HACK
 		Root.prototype.setRoot.call(this, rootFolder);
-		rpcFuncs.waitAdded().then(items => items.forEach(({id, name}) => this.addItem(id, name)));
+		rpcFuncs.waitAdded().then(items => {
+			for (const {id, name} of items) {
+				this.addItem(id, name);
+			}
+		});
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
 		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
 		rpcFuncs.waitLinked().then(({id, name}) => this.addItem(id, name));
@@ -411,17 +419,19 @@ export class Root {
 	addFolder(path: string) {
 		const parts = path.split("/");
 		let f = this.folder.addFolder(parts.shift()!);
-		parts.forEach(p => {f = f.addFolder(p)});
+		for (const p of parts) {
+			f = f.addFolder(p);
+		}
 		return f;
 	}
 	moveFolder(from: string, to: string) {
 		const f = this.removeFolder(from);
 		if (f) {
 			const t = this.addFolder(to);
-			f.children.forEach(c => {
+			for (const c of f.children) {
 				f.parent = t;
 				t.children.push(f);
-			});
+			}
 			return f;
 		}
 	}

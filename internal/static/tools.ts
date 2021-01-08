@@ -100,7 +100,9 @@ export default function (base: HTMLElement) {
 		} else {
 			toolOptions.style.setProperty("display", "none");
 		}
-		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
+		for (const c of list.childNodes as NodeListOf<HTMLElement>) {
+			c.classList.remove("selected")
+		}
 		this.classList.add("selected");
 	      }}, [
 		t.icon,
@@ -110,8 +112,14 @@ export default function (base: HTMLElement) {
 	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
 	fc.click();
 	mapLoadedReceive(() => {
-		(Array.from(list.childNodes) as HTMLElement[]).forEach(c => c.classList.remove("selected"));
+		for (const c of list.childNodes as NodeListOf<HTMLElement>) {
+			c.classList.remove("selected");
+		}
 		fc.classList.add("selected");
-		tools.forEach(t => t.reset && t.reset());
+		for (const t of tools) {
+			if (t.reset) {
+				t.reset();
+			}
+		}
 	});
 }

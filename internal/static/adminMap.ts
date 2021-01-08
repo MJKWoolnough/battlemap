@@ -387,17 +387,17 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 		return;
 	}
 	const doIt = (sendRPC = true) => {
-		(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+		for (const t of layer.tokens) {
 			t.x += dx;
 			t.y += dy;
 			t.updateNode();
-		});
-		layer.walls.forEach(w => {
+		}
+		for (const w of layer.walls) {
 			w.x1 += dx;
 			w.y1 += dy;
 			w.x2 += dx;
 			w.y2 += dy;
-		});
+		}
 		updateLight();
 		if (sendRPC) {
 			queue(rpc.shiftLayer.bind(rpc, path, dx, dy));

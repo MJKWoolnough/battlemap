@@ -81,7 +81,9 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 								}
 							}) as Promise<IDName[]>)
 							.then((assets: IDName[]) => {
-								assets.forEach(({id, name}) => root.addItem(id, name));
+								for (const {id, name} of assets) {
+									root.addItem(id, name);
+								}
 								window.remove();
 							})
 							.finally(() => this.removeAttribute("disabled")),

@@ -161,7 +161,9 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			return true;
 		      });
 		return loadingWindow((character ? (doCharacterModify(id, changes, rms), rpc.characterModify(id, changes, rms)) : doTokenModify(id, changes, rms)).then(() => {
-			keys.forEach(k => delete changes[k]);
+			for (const k of keys) {
+				delete changes[k];
+			}
 			removes.clear();
 		}), w);
 	      },

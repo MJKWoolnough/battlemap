@@ -278,12 +278,14 @@ const idNames: Record<string, Int> = {
 	}
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
-		layer.children.forEach(c => children.push(processLayers(c, path)));
+		for (const c of layer.children) {
+			children.push(processLayers(c, path));
+		}
 		return Object.assign(layer, {node, children, path});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
-		layer.tokens.forEach(t => {
+		for (const t of layer.tokens) {
 			if (isTokenImage(t)) {
 				tokens.push(SVGToken.from(t));
 			} else if (isTokenDrawing(t)) {
@@ -291,7 +293,7 @@ const idNames: Record<string, Int> = {
 			} else {
 				tokens.push(SVGShape.from(t));
 			}
-		});
+		};
 	} else {
 		layer.walls = [];
 	}
@@ -420,7 +422,7 @@ updateLight = () => {
 	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`,
 	      wallPolygons: SVGPolygonElement[] = [];
 	walkLayers((l: SVGLayer, hidden: boolean) => {
-		l.walls.forEach(w => {
+		for (const w of l.walls) {
 			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
 				return [];
 			}
@@ -430,7 +432,7 @@ updateLight = () => {
 			}
 			const dm = distance;
 			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));
-		});
+		};
 	});
 	createSVG(clearElement(getLayer("/Light")!.node), [
 		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
@@ -441,7 +443,9 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 	const layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
-		mapData.children.forEach(c => children.push(processLayers(c)));
+		for (const c of mapData.children) {
+			children.push(processLayers(c));
+		}
 		return {
 			id: 0,
 			name: "",
@@ -462,7 +466,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
-			(l.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+			for (const t of l.tokens) {
 				globals.tokens[t.id] = {
 					layer: l,
 					token: t
@@ -473,11 +477,13 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
 				}
-			})
-			l.walls.forEach(w => globals.walls[w.id] = {
-				layer: l,
-				wall: w
-			});
+			}
+			for (const w of l.walls) {
+				globals.walls[w.id] = {
+					layer: l,
+					wall: w
+				};
+			}
 		}
 		return false;
 	});
@@ -583,17 +589,17 @@ export default function(base: HTMLElement) {
 		if (!layer || !isSVGLayer(layer)) {
 			return;
 		}
-		(layer.tokens as (SVGToken | SVGShape)[]).forEach(t => {
+		for (const t of layer.tokens) {
 			t.x += ls.dx;
 			t.y += ls.dy;
 			t.updateNode();
-		});
-		layer.walls.forEach(w => {
+		};
+		for (const w of layer.walls) {
 			w.x1 += ls.dx;
 			w.y1 += ls.dy;
 			w.x2 += ls.dx;
 			w.y2 += ls.dy;
-		});
+		};
 		updateLight();
 	}),
 	rpc.waitLightShift().then(pos => {

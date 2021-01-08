@@ -233,7 +233,9 @@ class FolderLayer extends Folder {
 		}
 		this.id = lf.id;
 		if (lf.children) {
-			lf.children.forEach(c => this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden)));
+			for (const c of lf.children) {
+				this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
+			}
 		}
 		if (lf.id > 0) {
 			this.node.classList.add("layerFolder");
