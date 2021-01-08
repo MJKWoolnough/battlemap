@@ -5,6 +5,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {loadingWindow, windows} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
+import {Pipe} from './lib/inter.js';
 import {requestShell, respondWithAudioAssetName, queue} from './misc.js';
 import {rpc} from './rpc.js';
 
@@ -25,13 +26,9 @@ class ImageAsset extends DraggableItem {
 	}
 }
 
-const audioAssets = new Map<Uint, AudioAsset>();
+const audioAssets = new Map<Uint, [Pipe<string>, string]>();
 
 class AudioAsset extends Item {
-	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name);
-		audioAssets.set(id, this);
-	}
 	show() {
 		const root = this.parent.root;
 		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
@@ -42,10 +39,20 @@ class AudioAsset extends Item {
 }
 
 class AudioRoot extends Root {
+	addItem(id: Uint, name: string) {
+		const v = audioAssets.get(id);
+		if (v) {
+			v[0].send(v[1] = name);
+		} else {
+			audioAssets.set(id, [new Pipe(), name]);
+		}
+		return super.addItem(id, name);
+	}
 	removeItem(path: string) {
 		const id = super.removeItem(path);
 		if (id > 0) {
-			audioAssets.delete(id);
+			const v = audioAssets.get(id)!;
+			v[0].send(v[1] = "");
 		}
 		return id;
 	}
@@ -93,12 +100,15 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 			root.node
 		]);
 		if (fileType === "AUDIO") {
-			respondWithAudioAssetName((id: Uint) => {
-				const asset = audioAssets.get(id);
+			respondWithAudioAssetName((id: Uint, fn: (name: string) => void) => {
+				let asset = audioAssets.get(id);
 				if (!asset) {
-					return "";
+					asset = [new Pipe(), ""];
+					audioAssets.set(id, asset);
 				}
-				return asset.name;
+				fn(asset[1]);
+				asset[0].receive(fn);
+				return () => asset![0].remove(fn);
 			});
 		}
 	}));
