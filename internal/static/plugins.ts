@@ -49,28 +49,30 @@ export const settings = () => {
 		(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
 	      }}, lang["SAVE"]);
 	return [
-		h1(lang["PLUGINS"]),
-		label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
-		select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
-			if (this.value === "") {
-				check.toggleAttribute("disabled", true);
-				check.checked = false;
-				save.toggleAttribute("disabled", true);
-				selected = "";
-				return;
-			}
-			const plugin = pluginList.get(this.value);
-			if (plugin) {
-				check.removeAttribute("disabled");
-				check.checked = pluginList.get(this.value)!.enabled;
-				save.removeAttribute("disabled");
-				selected = this.value;
-			}
-		}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
-		check,
-		label({"for": "plugins_ticker"}),
-		br(),
-		save,
+		userLevel > 0 ? [
+			h1(lang["PLUGINS"]),
+			label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
+			select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
+				if (this.value === "") {
+					check.toggleAttribute("disabled", true);
+					check.checked = false;
+					save.toggleAttribute("disabled", true);
+					selected = "";
+					return;
+				}
+				const plugin = pluginList.get(this.value);
+				if (plugin) {
+					check.removeAttribute("disabled");
+					check.checked = pluginList.get(this.value)!.enabled;
+					save.removeAttribute("disabled");
+					selected = this.value;
+				}
+			}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
+			check,
+			label({"for": "plugins_ticker"}),
+			br(),
+			save,
+		] : [],
 		filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn()])
 	];
 },
