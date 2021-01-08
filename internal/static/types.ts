@@ -393,7 +393,6 @@ export type MusicPack = {
 	tracks: MusicTrack[];
 	volume: Uint;
 	playTime: Uint;
-	playing: boolean;
 }
 
 type MusicPackVolume = {

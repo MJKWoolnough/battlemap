@@ -75,7 +75,7 @@ export const userMusic = () => {
 		rpc.waitMusicPackCopy().then(ft => {
 			const p = list[ft.from];
 			if (p) {
-				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0, "playing": false};
+				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0};
 			}
 		});
 		commonWaits((name: string) => list[name]);
@@ -107,8 +107,7 @@ export default function(base: Node) {
 							addPackToList(musicList, name, {
 								"tracks": JSON.parse(JSON.stringify(musicPack.tracks)),
 								"volume": musicPack.volume,
-								"playTime": 0,
-								"playing": false
+								"playTime": 0
 							});
 						});
 					}
@@ -163,7 +162,7 @@ export default function(base: Node) {
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
-				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0, "playing": false});
+				addPackToList(musicList, ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0});
 			}
 		});
 		commonWaits((name: string) => {
