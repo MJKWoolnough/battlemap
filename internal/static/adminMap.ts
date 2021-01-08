@@ -65,6 +65,7 @@ deselectToken = () => {
 	globals.selected.token = null;
 	globals.outline.style.setProperty("display", "none");
 	tokenSelected();
+	globals.root.focus();
 },
 doMapChange = (details: MapDetails, sendRPC = true) => {
 	let oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour};
