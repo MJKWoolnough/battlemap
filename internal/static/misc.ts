@@ -143,7 +143,7 @@ grid2Screen = (x: Uint, y: Uint) => {
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
 {send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
 {request: requestShell, responder: respondWithShell} = requesterBind<ShellElement>(),
-{request: requestAudioAssetName, responder: respondWithAudioAssetName} = requesterBind<() => void, [Uint, (name: string) => void, () => void]>(),
+{request: requestAudioAssetName, responder: respondWithAudioAssetName} = requesterBind<() => void, [Uint, (name: string) => void]>(),
 point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		if (py >= y1 && py <= y2) {
