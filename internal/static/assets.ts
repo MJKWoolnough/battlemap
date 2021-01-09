@@ -28,7 +28,14 @@ class ImageAsset extends DraggableItem {
 
 const audioAssets = new Map<Uint, [Pipe<string>, string]>();
 
-class AudioAsset extends Item {
+class AudioAsset extends DraggableItem {
+	constructor(parent: Folder, id: Uint, name: string) {
+		super(parent, id, name);
+		this.image.setAttribute("src", 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="53" height="71" viewBox="0 0 53 71"%3E%3Cpath d="M12,56 s-5,-2 -10,5 s7,15 15,0 v-30 l30,-10 v30 s-5,-2 -10,5 s7,15 15,0 v-55 l-40,13 z m5,-29 l30,-10 v-5 l-30,10 v5 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" fill-rule="evenodd" /%3E%3C/svg%3E');
+	}
+	dragName() {
+		return "audioasset";
+	}
 	show() {
 		const root = this.parent.root;
 		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
