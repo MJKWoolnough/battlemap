@@ -5,7 +5,7 @@ import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
-import {windows, loadingWindow} from './windows.js';
+import {WindowElement, windows, loadingWindow} from './windows.js';
 import {requestAudioAssetName, requestShell} from './misc.js';
 
 type MusicPackNode = MusicPack & {
@@ -98,7 +98,15 @@ export default function(base: Node) {
 				this.node = li([
 					this.nameNode = span(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume, "onchange": () => rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.volumeNode.value))}),
-					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.repeatNode.value))})
+					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.repeatNode.value))}),
+					remove({"onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
+						if (!d) {
+							return;
+						}
+						const pos = parent.tracks.findIndex(t => t === this);
+						rpc.musicPackTrackRemove(parent._name, pos);
+						parent.tracks.splice(pos, 1);
+					})})
 				]);
 				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
 			}
@@ -125,12 +133,13 @@ export default function(base: Node) {
 			nameNode: HTMLSpanElement;
 			titleNode: HTMLElement;
 			volumeNode: HTMLInputElement;
+			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
 				this.tracks = new SortNode<Track>(ul(), noSort);
 				for (const track of pack.tracks) {
 					this.tracks.push(new Track(this, track));
 				}
-				const w = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
+				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
 						e.preventDefault();
 						e.dataTransfer.dropEffect = "link";
@@ -147,7 +156,7 @@ export default function(base: Node) {
 					this.tracks.node
 				]);
 				this.node = li([
-					this.nameNode = span({"onclick": () => requestShell().addWindow(w)}, this._name = name),
+					this.nameNode = span({"onclick": () => requestShell().addWindow(this.window)}, this._name = name),
 					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this._name).then(name => {
 						if (name && name !== this._name) {
 							rpc.musicPackRename(this._name, name).then(name => {
