@@ -186,11 +186,7 @@ export default function(base: Node) {
 					})}),
 					remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 						if (remove) {
-							this.window.remove();
-							for (const t of this.tracks) {
-								t.cleanup();
-							}
-							musicList.filterRemove(p => Object.is(p, this));
+							this.remove();
 							rpc.musicPackRemove(this._name);
 						}
 					})})
@@ -212,6 +208,13 @@ export default function(base: Node) {
 			}
 			set playTime(playTime: Uint) {
 				this._playTime = playTime;
+			}
+			remove() {
+				this.window.remove();
+				for (const t of this.tracks) {
+					t.cleanup();
+				}
+				musicList.filterRemove(p => Object.is(p, this));
 			}
 		}
 		const rename = getSymbol("rename")!,
@@ -251,7 +254,7 @@ export default function(base: Node) {
 				musicList.sort();
 			}
 		});
-		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name));
+		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name)[0].remove());
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
