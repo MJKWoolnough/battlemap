@@ -130,7 +130,18 @@ export default function(base: Node) {
 				for (const track of pack.tracks) {
 					this.tracks.push(new Track(track));
 				}
-				const w = windows({}, [
+				const w = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
+					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
+						e.preventDefault();
+						e.dataTransfer.dropEffect = "link";
+					}
+				}, "ondrop": (e: DragEvent) => {
+					if (e.dataTransfer!.types.includes("audioasset")) {
+						const id = JSON.parse(e.dataTransfer!.getData("audioasset")).id;
+						this.tracks.push(new Track({id, "volume": 255, "repeat": 0}));
+						rpc.musicPackTrackAdd(this._name, [id]);
+					}
+				}}, [
 					this.titleNode = h1(name),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => rpc.musicPackSetVolume(this._name, parseInt(this.volumeNode.value))}),
 					this.tracks.node
