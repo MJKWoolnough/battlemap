@@ -1,6 +1,6 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, button, input, li, span, ul} from './lib/html.js';
+import {createHTML, button, h1, input, li, span, ul} from './lib/html.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
@@ -122,14 +122,20 @@ export default function(base: Node) {
 			_playTime: Uint;
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
+			titleNode: HTMLElement;
 			volumeNode: HTMLInputElement;
 			constructor(name: string, pack: MusicPack) {
 				this.tracks = new SortNode<Track>(ul(), noSort);
 				for (const track of pack.tracks) {
 					this.tracks.push(new Track(track));
 				}
+				const w = windows({}, [
+					this.titleNode = h1(name),
+					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume =pack.volume}),
+					this.tracks.node
+				]);
 				this.node = li([
-					this.nameNode = span(this._name = name),
+					this.nameNode = span({"onclick": () => requestShell().addWindow(w)}, this._name = name),
 					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this._name).then(name => {
 						if (name && name !== this._name) {
 							rpc.musicPackRename(this._name, name).then(name => {
@@ -159,13 +165,12 @@ export default function(base: Node) {
 					})})
 				]);
 				this._playTime = pack.playTime;
-				this.volumeNode = input({"type": "range", "max": 255, "value": this._volume =pack.volume})
 			}
 			get name() {
 				return this._name;
 			}
 			set name(name: string) {
-				this.nameNode.innerText = this._name = name;
+				this.titleNode.innerText = this.nameNode.innerText = this._name = name;
 			}
 			get volume() {
 				return this._volume;
