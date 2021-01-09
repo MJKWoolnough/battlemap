@@ -1,6 +1,7 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, button, h1, input, li, span, ul} from './lib/html.js';
+import {createHTML, br, button, h1, input, li, span, ul} from './lib/html.js';
+import {svg, animate, path, rect} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
@@ -130,6 +131,9 @@ export default function(base: Node) {
 				return pos;
 			}
 		}
+		type SVGAnimateBeginElement = SVGAnimateElement & {
+			beginElement: Function;
+		}
 		class Pack {
 			tracks: SortNode<Track>;
 			_name: string;
@@ -145,6 +149,9 @@ export default function(base: Node) {
 				for (const track of pack.tracks) {
 					this.tracks.push(new Track(this, track));
 				}
+				this._playTime = pack.playTime;
+				const toPlay = animate({"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement,
+				      toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
 				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
 						e.preventDefault();
@@ -158,6 +165,20 @@ export default function(base: Node) {
 					}
 				}}, [
 					this.titleNode = h1(name),
+					svg({"style": "width: 1em", "viewBox": "0 0 90 90"}, [
+						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [toPlay, toPause]),
+						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
+							if (this._playTime === 0) {
+								this._playTime = 1;
+								toPause.beginElement();
+							} else {
+								this._playTime = 0;
+								toPlay.beginElement();
+							}
+
+						}})
+					]),
+					br(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => rpc.musicPackSetVolume(this._name, parseInt(this.volumeNode.value))}),
 					this.tracks.node
 				]);
@@ -191,7 +212,6 @@ export default function(base: Node) {
 						}
 					})})
 				]);
-				this._playTime = pack.playTime;
 			}
 			get name() {
 				return this._name;
@@ -234,7 +254,9 @@ export default function(base: Node) {
 				}
 			}
 			return null;
-		      };
+		      },
+		      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
+		      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z";
 		for (const name in list) {
 			musicList.push(new Pack(name, list[name]));
 		}
