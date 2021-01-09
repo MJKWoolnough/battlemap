@@ -131,7 +131,7 @@ export default function(base: Node) {
 				}
 				const w = windows({}, [
 					this.titleNode = h1(name),
-					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume =pack.volume}),
+					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => rpc.musicPackSetVolume(this._name, parseInt(this.volumeNode.value))}),
 					this.tracks.node
 				]);
 				this.node = li([
