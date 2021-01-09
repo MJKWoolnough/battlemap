@@ -93,12 +93,12 @@ export default function(base: Node) {
 			volumeNode: HTMLInputElement;
 			repeatNode: HTMLInputElement;
 			cleanup: () => void;
-			constructor(track: MusicTrack) {
+			constructor(parent: Pack, track: MusicTrack) {
 				this.id = track.id;
 				this.node = li([
 					this.nameNode = span(),
-					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume}),
-					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat})
+					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume, "onchange": () => rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.volumeNode.value))}),
+					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.repeatNode.value))})
 				]);
 				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
 			}
@@ -128,7 +128,7 @@ export default function(base: Node) {
 			constructor(name: string, pack: MusicPack) {
 				this.tracks = new SortNode<Track>(ul(), noSort);
 				for (const track of pack.tracks) {
-					this.tracks.push(new Track(track));
+					this.tracks.push(new Track(this, track));
 				}
 				const w = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
@@ -138,7 +138,7 @@ export default function(base: Node) {
 				}, "ondrop": (e: DragEvent) => {
 					if (e.dataTransfer!.types.includes("audioasset")) {
 						const id = JSON.parse(e.dataTransfer!.getData("audioasset")).id;
-						this.tracks.push(new Track({id, "volume": 255, "repeat": 0}));
+						this.tracks.push(new Track(this, {id, "volume": 255, "repeat": 0}));
 						rpc.musicPackTrackAdd(this._name, [id]);
 					}
 				}}, [
@@ -243,7 +243,7 @@ export default function(base: Node) {
 			const pack = findPack(mt.musicPack);
 			if (pack) {
 				for (const t of mt.tracks) {
-					pack.tracks.push(new Track({"id": t, "volume": 255, "repeat": 0}));
+					pack.tracks.push(new Track(pack, {"id": t, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
