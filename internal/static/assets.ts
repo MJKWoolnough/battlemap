@@ -1,4 +1,4 @@
-import {IDName, Uint} from './types.js';
+import {IDName, Uint, FolderItems} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
@@ -45,14 +45,23 @@ class AudioAsset extends DraggableItem {
 	}
 }
 
-class AudioRoot extends Root {
-	addItem(id: Uint, name: string) {
+class AudioFolder extends Folder {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
+		super(root, parent, name, children);
+		for (const name in children.items) {
+			this.registerItem(children.items[name], name);
+		}
+	}
+	registerItem(id: Uint, name: string) {
 		const v = audioAssets.get(id);
 		if (v) {
 			v[0].send(v[1] = name);
 		} else {
 			audioAssets.set(id, [new Pipe(), name]);
 		}
+	}
+	addItem(id: Uint, name: string) {
+		this.registerItem(id, name);
 		return super.addItem(id, name);
 	}
 	removeItem(path: string) {
@@ -68,7 +77,7 @@ class AudioRoot extends Root {
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
-		const root = new (fileType === "AUDIO" ? AudioRoot : Root)(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset);
+		const root = new Root(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset, fileType === "AUDIO" ? AudioFolder : Folder);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
