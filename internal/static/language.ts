@@ -91,6 +91,7 @@ const defaultLanguage = {
 	"MUSIC_REMOVE_LONG": "Are you sure you wish to remove this music pack",
 	"MUSIC_COPY": "Copy Music Pack",
 	"MUSIC_COPY_LONG": "Please enter a name for this music pack copy",
+	"MUSIC_WINDOW_TITLE": "Music Pack",
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
 	"PANEL_GRABBER": "Click to Show/Hide - Drag to Resize",
