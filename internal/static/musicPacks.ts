@@ -1,12 +1,12 @@
-import {MusicPack} from './types.js';
+import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, button, li, span, ul} from './lib/html.js';
+import {createHTML, button, input, li, span, ul} from './lib/html.js';
 import lang from './language.js';
-import {SortNode, stringSort} from './lib/ordered.js';
+import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
 import {windows, loadingWindow} from './windows.js';
-import {requestShell} from './misc.js';
+import {requestAudioAssetName, requestShell} from './misc.js';
 
 type MusicPackNode = MusicPack & {
 	name: string;
@@ -84,6 +84,37 @@ export const userMusic = () => {
 
 export default function(base: Node) {
 	rpc.musicPackList().then(list => {
+		class Track {
+			id: Uint;
+			_volume: Uint;
+			_repeat: Int;
+			node: HTMLLIElement;
+			nameNode: HTMLSpanElement;
+			volumeNode: HTMLInputElement;
+			cleanup: () => void;
+			constructor(track: MusicTrack) {
+				this.id = track.id;
+				this._repeat = track.repeat;
+				this.node = li([
+					this.nameNode = span(),
+					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume})
+				]);
+				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
+			}
+			get volume() {
+				return this._volume;
+			}
+			set volume(volume: Uint) {
+				this._volume = volume;
+				this.volumeNode.value = volume.toString();
+			}
+			get repeat() {
+				return this._repeat;
+			}
+			set repeat(repeat: Int) {
+				this._repeat = repeat;
+			}
+		}
 		const rename = getSymbol("rename")!,
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
