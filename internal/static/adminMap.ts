@@ -899,7 +899,7 @@ export default function(base: HTMLElement) {
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
+			e.dataTransfer.dropEffect = "link";
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
