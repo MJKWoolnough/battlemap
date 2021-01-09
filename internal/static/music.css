@@ -1,0 +1,14 @@
+#musicPackList {
+	margin: 0;
+	padding-left: 0;
+	list-style: none;
+}
+
+#musicPackList > li {
+	display: grid;
+	grid-template-columns: auto 1em 1em 1em;
+}
+
+#musicPackList > li > span {
+	cursor: pointer;
+}
