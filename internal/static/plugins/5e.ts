@@ -357,7 +357,7 @@ const defaultLanguage = {
 	"SHOW_AC": "Show Token Armour Class",
 	"SHOW_HP": "Show Token Hit Points",
 	"SHOW_NAMES": "Show Token Names",
-	"SHOW_CONDITIONS": "Show Token Conditions",
+	"HIDE_CONDITIONS": "Hide Token Conditions",
 	"TOKEN_SELECTED": "Selected",
 	"TOKENS_UNSELECTED": "Unselected",
       },
@@ -542,9 +542,9 @@ const defaultLanguage = {
 	"SHOW_HP": [new BoolSetting5E("5e-show-token-hp", b => document.body.classList.toggle("hide-token-hp-5e", !b)), new BoolSetting5E("5e-show-selected-hp", b => document.body.classList.toggle("hide-selected-hp-5e", !b))],
 	"SHOW_AC": [new BoolSetting5E("5e-show-token-ac", b => document.body.classList.toggle("hide-token-ac-5e", !b)), new BoolSetting5E("5e-show-selected-ac", b => document.body.classList.toggle("hide-selected-ac-5e", !b))],
 	"SHOW_NAMES": [new BoolSetting5E("5e-show-token-names", b => document.body.classList.toggle("hide-token-names-5e", !b)), new BoolSetting5E("5e-show-selected-names", b => document.body.classList.toggle("hide-selected-names-5e", !b))],
-	"SHOW_CONDITIONS": [new BoolSetting5E("5e-show-token-conditions", b => document.body.classList.toggle("hide-token-conditions-5e", !b)), new BoolSetting5E("5e-show-selected-conditions", b => document.body.classList.toggle("hide-selected-conditions-5e", !b))],
+	"HIDE_CONDITIONS": [new BoolSetting5E("5e-hide-token-conditions", b => document.body.classList.toggle("hide-token-conditions-5e", b)), new BoolSetting5E("5e-hide-selected-conditions", b => document.body.classList.toggle("hide-selected-conditions-5e", b))],
 	"DESATURATE_CONDITIONS": [new BoolSetting5E("5e-desaturate-token-conditions", b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting5E("5e-desaturate-selected-conditions", b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
-      } as Record<string, [BoolSetting5E, BoolSetting5E]>,
+      } as Record<keyof typeof lang, [BoolSetting5E, BoolSetting5E]>,
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       asInitialToken = (t: InitialToken): InitialToken => {
