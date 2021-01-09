@@ -93,8 +93,10 @@ export default function(base: Node) {
 			volumeNode: HTMLInputElement;
 			repeatNode: HTMLInputElement;
 			cleanup: () => void;
+			parent: Pack;
 			constructor(parent: Pack, track: MusicTrack) {
 				this.id = track.id;
+				this.parent = parent;
 				this.node = li([
 					this.nameNode = span(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume, "onchange": () => rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.volumeNode.value))}),
@@ -103,9 +105,7 @@ export default function(base: Node) {
 						if (!d) {
 							return;
 						}
-						const pos = parent.tracks.findIndex(t => t === this);
-						rpc.musicPackTrackRemove(parent._name, pos);
-						parent.tracks.splice(pos, 1);
+						rpc.musicPackTrackRemove(parent._name, this.remove());
 					})})
 				]);
 				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
@@ -122,6 +122,12 @@ export default function(base: Node) {
 			}
 			set repeat(repeat: Int) {
 				this._repeat = repeat;
+			}
+			remove() {
+				const pos = this.parent.tracks.findIndex(t => t === this);
+				this.parent.tracks.splice(pos, 1);
+				this.cleanup();
+				return pos;
 			}
 		}
 		class Pack {
