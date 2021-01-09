@@ -147,7 +147,9 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		if oName != name {
 			data = appendString(data[:0], name)
 		}
-		p := new(musicPack)
+		p := &musicPack{
+			Tracks: make([]musicTrack, 0),
+		}
 		p.Volume = 255
 		m.packs[name] = p
 		err := m.fileStore.Set(name, p)
