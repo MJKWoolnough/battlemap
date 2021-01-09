@@ -186,6 +186,10 @@ export default function(base: Node) {
 					})}),
 					remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 						if (remove) {
+							this.window.remove();
+							for (const t of this.tracks) {
+								t.cleanup();
+							}
 							musicList.filterRemove(p => Object.is(p, this));
 							rpc.musicPackRemove(this._name);
 						}
