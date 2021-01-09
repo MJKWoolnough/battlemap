@@ -91,13 +91,14 @@ export default function(base: Node) {
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
 			volumeNode: HTMLInputElement;
+			repeatNode: HTMLInputElement;
 			cleanup: () => void;
 			constructor(track: MusicTrack) {
 				this.id = track.id;
-				this._repeat = track.repeat;
 				this.node = li([
 					this.nameNode = span(),
-					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume})
+					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume}),
+					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat})
 				]);
 				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
 			}
