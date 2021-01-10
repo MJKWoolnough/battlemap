@@ -1,7 +1,7 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
 import {createHTML, br, button, h1, input, li, span, ul} from './lib/html.js';
-import {svg, animate, path, rect} from './lib/svg.js';
+import {svg, animate, path, rect, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
@@ -152,7 +152,8 @@ export default function(base: Node) {
 				}
 				this._playTime = pack.playTime;
 				const toPlay = animate({"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement,
-				      toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
+				      toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement,
+				      t = title(this._playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
 						e.preventDefault();
@@ -167,22 +168,26 @@ export default function(base: Node) {
 				}}, [
 					this.titleNode = h1(name),
 					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
+						t,
 						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [toPlay, toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this._playTime === 0) {
 								this._playTime = 1;
 								toPause.beginElement();
+								t.textContent = lang["MUSIC_PAUSE"];
 							} else {
 								this._playTime = 0;
 								toPlay.beginElement();
+								t.textContent = lang["MUSIC_PLAY"];
 							}
 
 						}})
 					]),
-					stop({"style": "width: 2em", "onclick": () => {
+					stop({"style": "width: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
 						if (this._playTime !== 0) {
 							this._playTime = 0;
 							toPlay.beginElement();
+							t.textContent = lang["MUSIC_PLAY"];
 						}
 					}}),
 					br(),
