@@ -428,5 +428,5 @@ type MusicPackTrackRepeat = {
 }
 
 type IDPath = ID & {
-	Path: string;
+	path: string;
 }
