@@ -166,7 +166,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
 
 				["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
-				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
+				["characterModify", "characters.modify",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
 				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
 
 				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
