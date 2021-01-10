@@ -183,7 +183,7 @@ export default function(base: Node) {
 
 						}})
 					]),
-					stop({"style": "width: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
+					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
 						if (this._playTime !== 0) {
 							this._playTime = 0;
 							toPlay.beginElement();
