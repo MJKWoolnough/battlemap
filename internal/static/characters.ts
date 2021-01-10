@@ -10,6 +10,7 @@ import {characterEdit} from './plugins.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 import undo from './undo.js';
+import './folders.js';
 
 let n = 0,
     lastMapChanged = 0;
