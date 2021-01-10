@@ -151,7 +151,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["addWall",          "maps.addWall",        ["path", "x1", "y1", "x2", "y2", "colour"],      checkUint,        "waitWallAdded", "id"],
 				["removeWall",       "maps.removeWall",      "!",                                            returnVoid,       "waitWallRemoved", ""],
 
-				["musicPackList",            "music.list",            "",                              checkMusicPacks, "", ""],
+				["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
 				["musicPackAdd",         "music.new",             "!",                             checkString,     "waitMusicPackAdd", "*"],
 				["musicPackRename",      "music.rename",         ["from", "to"],                   checkString,     "waitMusicPackRename", "*"],
 				["musicPackRemove",      "music.remove",          "!",                             returnVoid,      "waitMusicPackRemove", ""],
@@ -165,7 +165,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["musicPackTrackVolume", "music.setTrackVolume", ["musicPack", "track", "volume"], returnVoid,      "waitMusicPackTrackVolume", ""],
 				["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
 
-				["characterCreate", "characters.create", ["path", "data"],              checkIDName,       "", ""],
+				["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
 				["characterModify", "characters.set",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
 				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
 
@@ -351,6 +351,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkID = (data: any, name: string) => checker(data, name, checksID),
       checksIDName: checkers = [[checkID, ""], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
+      checksIDPath: checkers = [[checkID, ""], [checkString, "path"]],
+      checkIDPath = (data: any) => checker(data, "IDPath", checksIDPath),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
       checkFromTo = (data: any, name = "FromTo") => checker(data, name, checksFromTo),
       checksLayerMove: checkers = [[checkID, ""], [checkString, "to"]],

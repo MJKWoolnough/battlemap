@@ -138,7 +138,7 @@ export type RPC = RPCWaits & {
 	musicPackTrackVolume: (musicPack: string, track: Uint, volume: Uint) => Promise<void>;
 	musicPackTrackRepeat: (musicPack: string, track: Uint, repeat: Int)  => Promise<void>;
 
-	characterCreate:     (name: string, data: Record<string, KeystoreData>)                    => Promise<IDName>;
+	characterCreate:     (path: string, data: Record<string, KeystoreData>)                    => Promise<IDPath>;
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 	characterGet:        (id: Uint)                                                            => Promise<Record<string, KeystoreData>>;
 
@@ -425,4 +425,8 @@ type MusicPackTrackRepeat = {
 	musicPack: string;
 	track: Uint;
 	repeat: Int;
+}
+
+type IDPath = ID & {
+	Path: string;
 }

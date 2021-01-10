@@ -122,7 +122,7 @@ func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage
 
 func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
 	var nameData struct {
-		Name string        `json:"name"`
+		Path string        `json:"path"`
 		Data characterData `json:"data"`
 	}
 	if err := json.Unmarshal(data, &nameData); err != nil {
@@ -134,14 +134,14 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 	c.mu.Lock()
 	c.lastID++
 	kid := c.lastID
-	nameData.Name = addItemTo(c.root.Items, nameData.Name, kid)
+	nameData.Path = addItemTo(c.root.Items, nameData.Path, kid)
 	c.links[kid] = 1
 	c.saveFolders()
 	strID := strconv.FormatUint(kid, 10)
 	c.data[strID] = nameData.Data
 	c.mu.Unlock()
 	c.fileStore.Set(strID, nameData.Data)
-	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"name\":"...), nameData.Name), '}', ']')
+	buf := append(appendString(append(append(append(json.RawMessage{}, "[{\"id\":"...), strID...), ",\"path\":"...), nameData.Path), '}', ']')
 	c.socket.broadcastAdminChange(broadcastCharacterItemAdd, buf, cd.ID)
 	return buf[1 : len(buf)-1], nil
 }
