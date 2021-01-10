@@ -1,6 +1,6 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, br, button, h1, input, li, span, ul} from './lib/html.js';
+import {createHTML, audio, br, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
@@ -94,6 +94,8 @@ export default function(base: Node) {
 			volumeNode: HTMLInputElement;
 			repeatNode: HTMLInputElement;
 			cleanup: () => void;
+			audioElement: HTMLAudioElement | null = null;
+			repeatWait: Int = -1;
 			parent: Pack;
 			constructor(parent: Pack, track: MusicTrack) {
 				this.id = track.id;
@@ -124,9 +126,35 @@ export default function(base: Node) {
 			set repeat(repeat: Int) {
 				this._repeat = repeat;
 			}
+			play() {
+				if (this.audioElement) {
+					return;
+				}
+				const track = this;
+				this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": function (this: HTMLAudioElement) {
+					this.play();
+				}, "onended": function(this: HTMLAudioElement) {
+					if (track._repeat === 0) {
+						this.play();
+					} else if (track._repeat !== -1) {
+						track.repeatWait = window.setTimeout(() => this.play(), 1000 * track._repeat);
+					}
+				}});
+			}
+			stop() {
+				if (this.audioElement) {
+					this.audioElement.pause();
+					this.audioElement = null;
+					if (this.repeatWait !== -1) {
+						window.clearTimeout(this.repeatWait);
+						this.repeatWait = -1;
+					}
+				}
+			}
 			remove() {
 				const pos = this.parent.tracks.findIndex(t => t === this);
 				this.parent.tracks.splice(pos, 1);
+				this.stop();
 				this.cleanup();
 				return pos;
 			}
@@ -175,10 +203,16 @@ export default function(base: Node) {
 								this._playTime = 1;
 								toPause.beginElement();
 								t.textContent = lang["MUSIC_PAUSE"];
+								for (const t of this.tracks) {
+									t.play();
+								}
 							} else {
 								this._playTime = 0;
 								toPlay.beginElement();
 								t.textContent = lang["MUSIC_PLAY"];
+								for (const t of this.tracks) {
+									t.stop();
+								}
 							}
 
 						}})
@@ -188,6 +222,9 @@ export default function(base: Node) {
 							this._playTime = 0;
 							toPlay.beginElement();
 							t.textContent = lang["MUSIC_PLAY"];
+							for (const t of this.tracks) {
+								t.stop();
+							}
 						}
 					}}),
 					br(),
