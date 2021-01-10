@@ -624,7 +624,7 @@ const defaultLanguage = {
 					iconSelector(data, changes),
 					br(),
 					label(`${mainLang["TOKEN"]}: `),
-					tokenSelector(windows(), data, changes, removes)
+					tokenSelector(w, data, changes, removes)
 				] : [
 					label(`${mainLang["CHARACTER"]}: `),
 					characterSelector(data, changes)
