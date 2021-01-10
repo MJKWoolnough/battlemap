@@ -4,7 +4,7 @@ import {createHTML, br, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
-import {getSymbol} from './symbols.js';
+import {addSymbol, getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
 import {WindowElement, windows, loadingWindow} from './windows.js';
 import {requestAudioAssetName, requestShell} from './misc.js';
@@ -139,6 +139,7 @@ export default function(base: Node) {
 			_name: string;
 			_volume: Uint;
 			_playTime: Uint;
+			currentTime: Uint = 0;
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
 			titleNode: HTMLElement;
@@ -165,7 +166,7 @@ export default function(base: Node) {
 					}
 				}}, [
 					this.titleNode = h1(name),
-					svg({"style": "width: 1em", "viewBox": "0 0 90 90"}, [
+					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [toPlay, toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this._playTime === 0) {
@@ -178,6 +179,12 @@ export default function(base: Node) {
 
 						}})
 					]),
+					stop({"style": "width: 2em", "onclick": () => {
+						if (this._playTime !== 0) {
+							this._playTime = 0;
+							toPlay.beginElement();
+						}
+					}}),
 					br(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => rpc.musicPackSetVolume(this._name, parseInt(this.volumeNode.value))}),
 					this.tracks.node
@@ -240,6 +247,7 @@ export default function(base: Node) {
 		const rename = getSymbol("rename")!,
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
+		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
 		      musicList = new SortNode<Pack>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
