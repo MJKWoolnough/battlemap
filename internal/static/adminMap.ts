@@ -910,8 +910,8 @@ export default function(base: HTMLElement) {
 		if (e.dataTransfer!.types.includes("character")) {
 			const tD = JSON.parse(e.dataTransfer!.getData("character")),
 			      char = characterData.get(tD.id)!;
-			if (char["store-token-data"]) {
-				Object.assign(token, char["store-token-data"].data);
+			if (char["store-image-data"]) {
+				Object.assign(token, char["store-image-data"].data);
 			} else {
 				token.src = parseInt(char["store-image-icon"].data);
 				token.width = tD.width;
