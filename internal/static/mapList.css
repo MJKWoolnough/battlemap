@@ -23,12 +23,12 @@
 	grid-template-columns: auto 1em 1em;
 }
 
-.hasMapUser > span:nth-child(1) {
+.hasMapUser > details > summary {
 	background-color: #ccffcc !important;
 }
 
 .hasMapCurrent > details > summary {
-	background-color: #f8f8f8;
+	background-color: #f8f8f8 !important;
 }
 
 .mapCurrent {

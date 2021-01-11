@@ -61,3 +61,11 @@
 .invert .dragging .dragBefore:hover {
 	border-top-color: #fff;
 }
+
+.invert .hasMapUser > details > summary {
+	background-color: #400 !important;
+}
+
+.invert .hasMapCurrent > details > summary {
+	background-color: #600 !important;
+}
