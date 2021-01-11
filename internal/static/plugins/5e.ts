@@ -862,7 +862,7 @@ if (userLevel === 1) {
 						return;
 					}
 					rows[row].remove();
-					shapechangeTokens[row]["name"] = "";
+					shapechangeTokens[row]["5e-shapechange-name"] = "";
 				})})
 			]),
 			shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
