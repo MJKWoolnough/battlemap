@@ -936,8 +936,7 @@ export default function(base: HTMLElement) {
 		doTokenAdd(globals.selected.layer.path, token);
 	      },
 	      mapOnMouseDown = (e: MouseEvent) => {
-		pasteCoords[0] = e.clientX;
-		pasteCoords[1] = e.clientY;
+		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
 		if (e.defaultPrevented) {
 			return;
 		}
