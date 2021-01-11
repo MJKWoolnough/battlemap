@@ -12,7 +12,6 @@ type WheelFn = (this: SVGElement, e: WheelEvent) => void;
 type Tool = {
 	name: string;
 	icon: SVGElement;
-	reset?: Function;
 	set?: () => void;
 	unset?: () => void;
 	options?: HTMLDivElement;
@@ -116,10 +115,5 @@ export default function (base: HTMLElement) {
 			c.classList.remove("selected");
 		}
 		fc.classList.add("selected");
-		for (const t of tools) {
-			if (t.reset) {
-				t.reset();
-			}
-		}
 	});
 }
