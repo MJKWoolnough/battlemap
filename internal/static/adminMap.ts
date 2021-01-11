@@ -634,6 +634,11 @@ export default function(base: HTMLElement) {
 			} else if (dirY === 1) {
 				height += mDy;
 			}
+			if (selectedToken.snap) {
+				width = Math.max(Math.round(width / sq) * sq, sq);
+				height = Math.max(Math.round(height / sq) * sq, sq);
+				[x, y] = snapTokenToGrid(x, y, width, height);
+			}
 			const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
 			      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
 			x = nx;
@@ -807,13 +812,10 @@ export default function(base: HTMLElement) {
 				      sq = globals.mapData.gridSize,
 				      {x, y, width, height, rotation} = currToken;
 				if (!snap) {
-					const newX = Math.round(x / sq) * sq,
-					      newY = Math.round(y / sq) * sq,
-					      newWidth = Math.max(Math.round(width / sq) * sq, sq),
-					      newHeight = Math.max(Math.round(height / sq) * sq, sq),
+					const [newX, newY] = snapTokenToGrid(Math.round(x / sq) * sq, Math.round(y / sq) * sq, width, height),
 					      newRotation = Math.round(rotation / 32) * 32 % 256;
-					if (x !== newX || y !== newY || width !== newWidth || height !== newHeight || rotation !== newRotation) {
-						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "width": newWidth, "height": newHeight, "rotation": newRotation, "snap": !snap});
+					if (x !== newX || y !== newY || rotation !== newRotation) {
+						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
 					}
 				} else {
 					doTokenSet({"id": currToken.id, "snap": !snap});
