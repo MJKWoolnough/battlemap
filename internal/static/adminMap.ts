@@ -701,6 +701,10 @@ export default function(base: HTMLElement) {
 		if (!token) {
 			return;
 		}
+		if (e.key === "Escape") {
+			deselectToken();
+			return;
+		}
 		if (e.key === "Delete") {
 			doTokenRemove(token.id);
 			return;
