@@ -43,7 +43,7 @@ Object.defineProperty(window, "showUndoWindow", {
 
 export default {
 	"add": (fn: Fn, description: string) => {
-		queue(async function() {
+		queue(async () => {
 			redos.splice(0, redos.length);
 			if (undoLimit.value === 0) {
 				undos.splice(0, undos.length);
@@ -59,13 +59,13 @@ export default {
 		});
 	},
 	"clear": () => {
-		queue(async function() {
+		queue(async () => {
 			undos.splice(0, undos.length);
 			redos.splice(0, redos.length);
 		});
 	},
 	"undo": () => {
-		queue(async function() {
+		queue(async () => {
 			const fnDesc = undos.pop();
 			if (fnDesc) {
 				fnDesc.fn = fnDesc.fn();
@@ -74,7 +74,7 @@ export default {
 		});
 	},
 	"redo": () => {
-		queue(async function() {
+		queue(async () => {
 			const fnDesc = redos.shift();
 			if (fnDesc) {
 				fnDesc.fn = fnDesc.fn();
