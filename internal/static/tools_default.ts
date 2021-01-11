@@ -3,6 +3,7 @@ import {createSVG, svg, path} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 import {globals} from './map.js';
 import {deselectToken} from './adminMap.js';
+import {mapLoadedReceive} from './misc.js';
 import lang from './language.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
@@ -35,14 +36,15 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	}
 };
 
+window.setTimeout(() => mapLoadedReceive(() => {
+	panZoom.x = 0;
+	panZoom.y = 0;
+	panZoom.zoom = 1;
+}), 0);
+
 export default Object.freeze({
 	"name": lang["TOOL_DEFAULT"],
 	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})),
-	"reset": () => {
-		panZoom.x = 0;
-		panZoom.y = 0;
-		panZoom.zoom = 1;
-	},
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0 && e.button !== 1) {
 			return;
