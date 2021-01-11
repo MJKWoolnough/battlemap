@@ -286,7 +286,6 @@ export default function(base: HTMLElement) {
 	dragBase = base;
 	mapLayersReceive(lrpc => {
 		let loadFn = () => {
-			let selectedLayer = undefined;
 			const list = new LayerRoot(globals.layerList, lrpc);
 			lrpc.waitLayerSetVisible().then(path => {
 				const l = list.getLayer(path);
@@ -338,7 +337,10 @@ export default function(base: HTMLElement) {
 				}}),
 				list.node
 			]);
-			loadFn = () => list.setRoot(globals.layerList);
+			loadFn = () => {
+				selectedLayer = undefined;
+				list.setRoot(globals.layerList);
+			};
 		    };
 		mapLoadedReceive(() => loadFn());
 	});
