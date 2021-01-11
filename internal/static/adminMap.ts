@@ -44,8 +44,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 			deselectToken();
 		}
 	}
-      },
-      pasteCoords = [0, 0];
+      };
 
 let copiedToken: Token | null = null;
 
@@ -996,7 +995,8 @@ export default function(base: HTMLElement) {
 		}
 	      },
 	      unusedWait = new Subscription<any>(() => {}),
-	      invalidRPC = () => Promise.reject("invalid");
+	      invalidRPC = () => Promise.reject("invalid"),
+	      pasteCoords = [0, 0];
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
