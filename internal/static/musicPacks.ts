@@ -190,6 +190,7 @@ export default function(base: Node) {
 						window.clearTimeout(this.repeatWait);
 						this.repeatWait = -1;
 					}
+					this.parent.checkPlayState();
 				}
 			}
 			remove() {
