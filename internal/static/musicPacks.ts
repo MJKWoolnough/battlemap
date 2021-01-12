@@ -182,6 +182,9 @@ export default function(base: Node) {
 			nameNode: HTMLSpanElement;
 			titleNode: HTMLElement;
 			volumeNode: HTMLInputElement;
+			toPlay = animate({"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
+			toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
+			playPauseTitle: SVGTitleElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
 				this.tracks = new SortNode<Track>(ul(), noSort);
@@ -189,9 +192,7 @@ export default function(base: Node) {
 					this.tracks.push(new Track(this, track));
 				}
 				this._playTime = pack.playTime;
-				const toPlay = animate({"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement,
-				      toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement,
-				      t = title(this._playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
+				this.playPauseTitle = title(this._playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
 						e.preventDefault();
@@ -206,35 +207,20 @@ export default function(base: Node) {
 				}}, [
 					this.titleNode = h1(name),
 					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
-						t,
-						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [toPlay, toPause]),
+						this.playPauseTitle,
+						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this._playTime === 0) {
-								this._playTime = 1;
-								toPause.beginElement();
-								t.textContent = lang["MUSIC_PAUSE"];
-								for (const t of this.tracks) {
-									t.play();
-								}
+								this.play();
 							} else {
-								this._playTime = 0;
-								toPlay.beginElement();
-								t.textContent = lang["MUSIC_PLAY"];
-								for (const t of this.tracks) {
-									t.stop();
-								}
+								this.pause();
 							}
 
 						}})
 					]),
 					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
 						if (this._playTime !== 0) {
-							this._playTime = 0;
-							toPlay.beginElement();
-							t.textContent = lang["MUSIC_PLAY"];
-							for (const t of this.tracks) {
-								t.stop();
-							}
+							this.stop();
 						}
 					}}),
 					br(),
@@ -291,6 +277,25 @@ export default function(base: Node) {
 			}
 			set playTime(playTime: Uint) {
 				this._playTime = playTime;
+			}
+			play() {
+				this._playTime = 1;
+				this.toPause.beginElement();
+				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
+				for (const t of this.tracks) {
+					t.play();
+				}
+			}
+			pause() {
+				this.stop();
+			}
+			stop() {
+				this._playTime = 0;
+				this.toPlay.beginElement();
+				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
+				for (const t of this.tracks) {
+					t.stop();
+				}
 			}
 			updateVolume() {
 				for (const t of this.tracks) {
