@@ -103,8 +103,8 @@ export default function(base: Node) {
 				this.node = li([
 					this.nameNode = span(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume, "onchange": () => {
+						rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), this._volume = parseInt(this.volumeNode.value));
 						this.updateVolume();
-						rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), parseInt(this.volumeNode.value));
 					}}),
 					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent._name, parent.tracks.findIndex(t => t === this), this._repeat = parseInt(this.repeatNode.value))}),
 					remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
@@ -133,7 +133,7 @@ export default function(base: Node) {
 			}
 			updateVolume() {
 				if (this.audioElement) {
-					this.audioElement.volume = parseInt(this.volumeNode.value) * parseInt(this.parent.volumeNode.value) / 65025
+					this.audioElement.volume = this._volume * this.parent._volume / 65025
 				}
 			}
 			play() {
@@ -229,8 +229,8 @@ export default function(base: Node) {
 					}}),
 					br(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => {
+						rpc.musicPackSetVolume(this._name, this._volume = parseInt(this.volumeNode.value));
 						this.updateVolume();
-						rpc.musicPackSetVolume(this._name, parseInt(this.volumeNode.value));
 					}}),
 					this.tracks.node
 				]);
