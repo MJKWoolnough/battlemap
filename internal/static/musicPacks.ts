@@ -148,6 +148,9 @@ export default function(base: Node) {
 						this.play();
 					} else if (track._repeat !== -1) {
 						track.repeatWait = window.setTimeout(() => this.play(), 1000 * track._repeat);
+					} else {
+						track.audioElement = null;
+						track.parent.checkPlayState();
 					}
 				}});
 			}
@@ -296,6 +299,17 @@ export default function(base: Node) {
 				for (const t of this.tracks) {
 					t.stop();
 				}
+			}
+			checkPlayState() {
+				if (this._playTime === 0) {
+					return;
+				}
+				for (const t of this.tracks) {
+					if (t.audioElement !== null) {
+						return;
+					}
+				}
+				this.stop();
 			}
 			updateVolume() {
 				for (const t of this.tracks) {
