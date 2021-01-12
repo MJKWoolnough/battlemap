@@ -130,6 +130,7 @@ export default function(base: Node) {
 			set repeat(repeat: Int) {
 				this._repeat = repeat;
 				this.repeatNode.value = repeat.toString()
+				this.waitPlay();
 			}
 			updateVolume() {
 				if (this.audioElement) {
@@ -140,20 +141,46 @@ export default function(base: Node) {
 				if (this.audioElement) {
 					return;
 				}
-				const track = this;
-				this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": function (this: HTMLAudioElement) {
-					track.updateVolume();
-					this.play();
-				}, "onended": function(this: HTMLAudioElement) {
-					if (track._repeat === 0) {
-						this.play();
-					} else if (track._repeat !== -1) {
-						track.repeatWait = window.setTimeout(() => this.play(), 1000 * track._repeat);
-					} else {
-						track.audioElement = null;
-						track.parent.checkPlayState();
-					}
+				this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": () => {
+					this.updateVolume();
+					this.waitPlay();
+				}, "onended": () => {
+					this.waitPlay();
 				}});
+			}
+			waitPlay() {
+				if (this.audioElement === null) {
+					return;
+				}
+				if (this.repeatWait !== -1) {
+					window.clearTimeout(this.repeatWait);
+					this.repeatWait = -1;
+				}
+				const now = Date.now() / 1000,
+				      length = this.audioElement.duration;
+				if (this._repeat === -1) {
+					if (now < this.parent._playTime + length) {
+						this.audioElement.currentTime = now - this.parent._playTime;
+						this.audioElement.play();
+					} else {
+						this.stop();
+					}
+				} else {
+					const cycle = length + this._repeat,
+					      p = (now - this.parent._playTime) % cycle;
+					if (p < length) {
+						this.audioElement.currentTime = p;
+						this.audioElement.play();
+					} else {
+						this.audioElement.pause();
+						this.repeatWait = window.setTimeout(() => {
+							if (this.audioElement) {
+								this.audioElement.play();
+							}
+							this.repeatWait = -1;
+						}, cycle - p);
+					}
+				}
 			}
 			stop() {
 				if (this.audioElement) {
