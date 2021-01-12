@@ -214,8 +214,8 @@ export default function(base: Node) {
 			nameNode: HTMLSpanElement;
 			titleNode: HTMLElement;
 			volumeNode: HTMLInputElement;
-			toPlay = animate({"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
-			toPause = animate({"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"}) as SVGAnimateBeginElement;
+			toPlay = animate(toPlayOptions) as SVGAnimateBeginElement;
+			toPause = animate(toPauseOptions) as SVGAnimateBeginElement;
 			playPauseTitle: SVGTitleElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
@@ -373,7 +373,9 @@ export default function(base: Node) {
 			return null;
 		      },
 		      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
-		      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z";
+		      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
+		      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
+		      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"};
 		for (const name in list) {
 			musicList.push(new Pack(name, list[name]));
 		}
