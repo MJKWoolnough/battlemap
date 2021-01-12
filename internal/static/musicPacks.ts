@@ -129,6 +129,7 @@ export default function(base: Node) {
 			}
 			set repeat(repeat: Int) {
 				this._repeat = repeat;
+				this.repeatNode.value = repeat.toString()
 			}
 			updateVolume() {
 				if (this.audioElement) {
