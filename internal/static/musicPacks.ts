@@ -129,7 +129,7 @@ export default function(base: Node) {
 			}
 			set repeat(repeat: Int) {
 				this._repeat = repeat;
-				this.repeatNode.value = repeat.toString()
+				this.repeatNode.value = repeat.toString();
 				this.waitPlay();
 			}
 			updateVolume() {
@@ -164,6 +164,7 @@ export default function(base: Node) {
 						this.audioElement.play();
 					} else {
 						this.stop();
+						this.parent.checkPlayState();
 					}
 				} else {
 					const cycle = length + this._repeat,
@@ -190,7 +191,6 @@ export default function(base: Node) {
 						window.clearTimeout(this.repeatWait);
 						this.repeatWait = -1;
 					}
-					this.parent.checkPlayState();
 				}
 			}
 			remove() {
