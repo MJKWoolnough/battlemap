@@ -315,7 +315,11 @@ export default function(base: Node) {
 					this.stop();
 				} else {
 					this._playTime = playTime;
-					this.play();
+					this.toPause.beginElement();
+					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
+					for (const t of this.tracks) {
+						t.play();
+					}
 				}
 			}
 			play() {
