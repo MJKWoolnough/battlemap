@@ -299,7 +299,7 @@ export default function(base: Node) {
 				}
 				this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
-					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
+					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset") && this.currentTime === 0) {
 						e.preventDefault();
 						e.dataTransfer.dropEffect = "link";
 					}
