@@ -330,6 +330,7 @@ export default function(base: Node) {
 				for (const t of this.tracks) {
 					t.stop();
 				}
+				rpc.musicPackStop(this.name);
 			}
 			checkPlayState() {
 				if (this._playTime === 0) {
