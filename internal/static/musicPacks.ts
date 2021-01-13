@@ -9,11 +9,6 @@ import {rpc} from './rpc.js';
 import {WindowElement, windows, loadingWindow} from './windows.js';
 import {requestAudioAssetName, requestShell} from './misc.js';
 
-type MusicPackNode = MusicPack & {
-	name: string;
-	node: HTMLLIElement;
-}
-
 class Track {
 	id: Uint;
 	volume: Uint;
@@ -110,7 +105,7 @@ class Pack {
 	volume: Uint;
 	playTime: Uint;
 	currentTime: Uint = 0;
-	constructor(name: string, pack: MusicPack) {
+	constructor(pack: MusicPack) {
 		this.tracks = [];
 		for (const track of pack.tracks) {
 			this.tracks.push(new Track(this, track));
@@ -529,7 +524,7 @@ export default function(base: Node) {
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
 		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
-		      musicList = new SortNode<Pack>(ul({"id": "musicPackList"}), (a: MusicPackNode, b: MusicPackNode) => {
+		      musicList = new SortNode<Pack>(ul({"id": "musicPackList"}), (a: Pack, b: Pack) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
 				return stringSort(a.name, b.name);
