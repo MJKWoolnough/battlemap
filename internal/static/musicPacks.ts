@@ -149,7 +149,7 @@ export default function(base: Node) {
 				}});
 			}
 			waitPlay() {
-				if (this.audioElement === null) {
+				if (!this.audioElement) {
 					return;
 				}
 				if (this.repeatWait !== -1) {
