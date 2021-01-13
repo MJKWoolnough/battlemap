@@ -311,12 +311,14 @@ export default function(base: Node) {
 				this._playTime = playTime;
 			}
 			play() {
-				this._playTime = 1;
 				this.toPause.beginElement();
 				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
-				for (const t of this.tracks) {
-					t.play();
-				}
+				rpc.musicPackPlay(this.name, 0).then(playTime => {
+					this._playTime = playTime;
+					for (const t of this.tracks) {
+						t.play();
+					}
+				});
 			}
 			pause() {
 				this.stop();
