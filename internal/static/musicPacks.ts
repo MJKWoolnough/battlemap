@@ -292,6 +292,9 @@ export default function(base: Node) {
 						}
 					})})
 				]);
+				if (this._playTime !== 0) {
+					this.play();
+				}
 			}
 			get name() {
 				return this._name;
