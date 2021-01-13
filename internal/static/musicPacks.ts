@@ -14,6 +14,163 @@ type MusicPackNode = MusicPack & {
 	node: HTMLLIElement;
 }
 
+class Track {
+	id: Uint;
+	volume: Uint;
+	repeat: Int;
+	audioElement: HTMLAudioElement | null = null;
+	repeatWait: Int = -1;
+	parent: Pack;
+	constructor(parent: Pack, track: MusicTrack) {
+		this.id = track.id;
+		this.volume = track.volume;
+		this.repeat = track.repeat;
+		this.parent = parent;
+	}
+	setVolume(volume: Uint) {
+		this.volume = volume;
+		this.updateVolume();
+	}
+	setRepeat(repeat: Int) {
+		this.repeat = repeat;
+		this.waitPlay();
+	}
+	updateVolume() {
+		if (this.audioElement) {
+			this.audioElement.volume = this.volume * this.parent.volume / 65025
+		}
+	}
+	checkPlay() {
+		if (this.audioElement) {
+			this.waitPlay();
+			return;
+		}
+		this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": () => {
+			this.updateVolume();
+			this.waitPlay();
+		}, "onended": () => {
+			this.waitPlay();
+		}});
+	}
+	waitPlay() {
+		if (!this.audioElement) {
+			return;
+		}
+		if (this.repeatWait !== -1) {
+			window.clearTimeout(this.repeatWait);
+			this.repeatWait = -1;
+		}
+		const now = Date.now() / 1000,
+		      length = this.audioElement.duration;
+		if (this.repeat === -1) {
+			if (now < this.parent.playTime + length) {
+				this.audioElement.currentTime = now - this.parent.playTime;
+				this.audioElement.play();
+			} else {
+				this.stop();
+				this.parent.checkPlayState();
+			}
+		} else {
+			const cycle = length + this.repeat,
+			      p = (now - this.parent.playTime) % cycle;
+			if (p < length) {
+				this.audioElement.currentTime = p;
+				this.audioElement.play();
+			} else {
+				this.audioElement.pause();
+				this.repeatWait = window.setTimeout(() => {
+					if (this.audioElement) {
+						this.audioElement.play();
+					}
+					this.repeatWait = -1;
+				}, cycle - p);
+			}
+		}
+	}
+	stop() {
+		if (this.audioElement) {
+			this.audioElement.pause();
+			this.audioElement = null;
+			if (this.repeatWait !== -1) {
+				window.clearTimeout(this.repeatWait);
+				this.repeatWait = -1;
+			}
+		}
+	}
+	remove() {
+		const pos = this.parent.tracks.findIndex(t => t === this);
+		this.parent.tracks.splice(pos, 1);
+		this.stop();
+		return pos;
+	}
+}
+
+class Pack {
+	tracks: Track[];
+	volume: Uint;
+	playTime: Uint;
+	currentTime: Uint = 0;
+	constructor(name: string, pack: MusicPack) {
+		this.tracks = [];
+		for (const track of pack.tracks) {
+			this.tracks.push(new Track(this, track));
+		}
+		this.volume = pack.volume;
+		this.playTime = pack.playTime;
+		if (this.playTime !== 0) {
+			this.play(this.playTime);
+		}
+	}
+	setVolume(volume: Uint) {
+		this.volume = volume;
+		this.updateVolume();
+	}
+	play(playTime: Uint) {
+		if (playTime === 0) {
+			this.stop();
+		} else {
+			this.playTime = playTime;
+			for (const t of this.tracks) {
+				t.checkPlay();
+			}
+		}
+		this.playTime = playTime;
+		for (const t of this.tracks) {
+			t.checkPlay();
+		}
+	}
+	pause() {
+		this.stop();
+	}
+	stop() {
+		this.playTime = 0;
+		for (const t of this.tracks) {
+			t.stop();
+		}
+	}
+	checkPlayState() {
+		if (this.playTime === 0) {
+			return;
+		}
+		for (const t of this.tracks) {
+			if (t.audioElement !== null) {
+				return;
+			}
+		}
+		this.stop();
+	}
+	updateVolume() {
+		for (const t of this.tracks) {
+			t.updateVolume();
+		}
+	}
+	remove() {
+		for (const t of this.tracks) {
+			t.stop();
+		}
+	}
+}
+
 const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (getPack: (name: string) => (MusicPack | undefined)) => {
 	rpc.waitMusicPackVolume().then(pv => {
