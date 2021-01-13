@@ -308,7 +308,12 @@ export default function(base: Node) {
 				this.updateVolume();
 			}
 			set playTime(playTime: Uint) {
-				this._playTime = playTime;
+				if (playTime === 0) {
+					this.stop();
+				} else {
+					this._playTime = playTime;
+					this.play();
+				}
 			}
 			play() {
 				this.toPause.beginElement();
