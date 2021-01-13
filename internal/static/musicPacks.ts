@@ -237,118 +237,41 @@ export const userMusic = () => {
 
 export default function(base: Node) {
 	rpc.musicPackList().then(list => {
-		class Track {
-			id: Uint;
-			_volume: Uint;
-			_repeat: Int;
+		class AdminTrack extends Track {
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
 			volumeNode: HTMLInputElement;
 			repeatNode: HTMLInputElement;
 			cleanup: () => void;
-			audioElement: HTMLAudioElement | null = null;
 			repeatWait: Int = -1;
-			parent: Pack;
-			constructor(parent: Pack, track: MusicTrack) {
-				this.id = track.id;
-				this.parent = parent;
+			constructor(parent: AdminPack, track: MusicTrack) {
+				super(parent, track);
 				this.node = li([
 					this.nameNode = span(),
-					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = track.volume, "onchange": () => {
-						rpc.musicPackTrackVolume(parent._name, parent.tracks.findIndex(t => t === this), this._volume = parseInt(this.volumeNode.value));
+					this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
+						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = parseInt(this.volumeNode.value));
 						this.updateVolume();
 					}}),
-					this.repeatNode = input({"type": "number", "min": -1, "value": this._repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent._name, parent.tracks.findIndex(t => t === this), this._repeat = parseInt(this.repeatNode.value))}),
+					this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.name, parent.tracks.findIndex(t => t === this), this.repeat = parseInt(this.repeatNode.value))}),
 					remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
 						if (!d) {
 							return;
 						}
-						rpc.musicPackTrackRemove(parent._name, this.remove());
+						rpc.musicPackTrackRemove(parent.name, this.remove());
 					})})
 				]);
 				this.cleanup = requestAudioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
 			}
-			get volume() {
-				return this._volume;
-			}
-			set volume(volume: Uint) {
-				this._volume = volume;
+			setVolume(volume: Uint) {
+				super.setVolume(volume);
 				this.volumeNode.value = volume.toString();
-				this.updateVolume();
 			}
-			get repeat() {
-				return this._repeat;
-			}
-			set repeat(repeat: Int) {
-				this._repeat = repeat;
+			setRepeat(repeat: Int) {
+				super.setRepeat(repeat);
 				this.repeatNode.value = repeat.toString();
-				this.waitPlay();
-			}
-			updateVolume() {
-				if (this.audioElement) {
-					this.audioElement.volume = this._volume * this.parent._volume / 65025
-				}
-			}
-			play() {
-				if (this.audioElement) {
-					return;
-				}
-				this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": () => {
-					this.updateVolume();
-					this.waitPlay();
-				}, "onended": () => {
-					this.waitPlay();
-				}});
-			}
-			waitPlay() {
-				if (!this.audioElement) {
-					return;
-				}
-				if (this.repeatWait !== -1) {
-					window.clearTimeout(this.repeatWait);
-					this.repeatWait = -1;
-				}
-				const now = Date.now() / 1000,
-				      length = this.audioElement.duration;
-				if (this._repeat === -1) {
-					if (now < this.parent._playTime + length) {
-						this.audioElement.currentTime = now - this.parent._playTime;
-						this.audioElement.play();
-					} else {
-						this.stop();
-						this.parent.checkPlayState();
-					}
-				} else {
-					const cycle = length + this._repeat,
-					      p = (now - this.parent._playTime) % cycle;
-					if (p < length) {
-						this.audioElement.currentTime = p;
-						this.audioElement.play();
-					} else {
-						this.audioElement.pause();
-						this.repeatWait = window.setTimeout(() => {
-							if (this.audioElement) {
-								this.audioElement.play();
-							}
-							this.repeatWait = -1;
-						}, cycle - p);
-					}
-				}
-			}
-			stop() {
-				if (this.audioElement) {
-					this.audioElement.pause();
-					this.audioElement = null;
-					if (this.repeatWait !== -1) {
-						window.clearTimeout(this.repeatWait);
-						this.repeatWait = -1;
-					}
-				}
 			}
 			remove() {
-				const pos = this.parent.tracks.findIndex(t => t === this);
-				this.parent.tracks.splice(pos, 1);
-				this.stop();
+				const pos = super.remove();
 				this.cleanup();
 				return pos;
 			}
@@ -356,11 +279,9 @@ export default function(base: Node) {
 		type SVGAnimateBeginElement = SVGAnimateElement & {
 			beginElement: Function;
 		}
-		class Pack {
-			tracks: SortNode<Track>;
-			_name: string;
-			_volume: Uint;
-			_playTime: Uint;
+		class AdminPack extends Pack {
+			tracks: SortNode<AdminTrack>;
+			name: string;
 			currentTime: Uint = 0;
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
@@ -371,12 +292,12 @@ export default function(base: Node) {
 			playPauseTitle: SVGTitleElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
-				this.tracks = new SortNode<Track>(ul(), noSort);
+				super(pack);
+				this.tracks = new SortNode<AdminTrack>(ul(), noSort);
 				for (const track of pack.tracks) {
-					this.tracks.push(new Track(this, track));
+					this.tracks.push(new AdminTrack(this, track));
 				}
-				this._playTime = pack.playTime;
-				this.playPauseTitle = title(this._playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
+				this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 				this.window = windows({"window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset")) {
 						e.preventDefault();
@@ -385,53 +306,53 @@ export default function(base: Node) {
 				}, "ondrop": (e: DragEvent) => {
 					if (e.dataTransfer!.types.includes("audioasset")) {
 						const id = JSON.parse(e.dataTransfer!.getData("audioasset")).id;
-						this.tracks.push(new Track(this, {id, "volume": 255, "repeat": 0}));
-						rpc.musicPackTrackAdd(this._name, [id]);
+						this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0}));
+						rpc.musicPackTrackAdd(this.name, [id]);
 					}
 				}}, [
 					this.titleNode = h1(name),
 					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 						this.playPauseTitle,
-						path({"d": this._playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
+						path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
-							if (this._playTime === 0) {
-								this.play();
+							if (this.playTime === 0) {
+								this.play(this.playTime, true);
 							} else {
-								this.pause();
+								this.pause(true);
 							}
 
 						}})
 					]),
 					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
-						if (this._playTime !== 0) {
-							this.stop();
+						if (this.playTime !== 0) {
+							this.stop(true);
 						}
 					}}),
 					br(),
-					this.volumeNode = input({"type": "range", "max": 255, "value": this._volume = pack.volume, "onchange": () => {
-						rpc.musicPackSetVolume(this._name, this._volume = parseInt(this.volumeNode.value));
+					this.volumeNode = input({"type": "range", "max": 255, "value": pack.volume, "onchange": () => {
+						rpc.musicPackSetVolume(this.name, this.volume = parseInt(this.volumeNode.value));
 						this.updateVolume();
 					}}),
 					this.tracks.node
 				]);
 				this.node = li([
-					this.nameNode = span({"onclick": () => requestShell().addWindow(this.window)}, this._name = name),
-					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this._name).then(name => {
-						if (name && name !== this._name) {
-							rpc.musicPackRename(this._name, name).then(name => {
-								if (name !== this._name) {
+					this.nameNode = span({"onclick": () => requestShell().addWindow(this.window)}, this.name = name),
+					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
+						if (name && name !== this.name) {
+							rpc.musicPackRename(this.name, name).then(name => {
+								if (name !== this.name) {
 									this.name = name;
 									musicList.sort();
 								}
 							});
 						}
 					})}),
-					copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this._name).then(name => {
+					copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 						if (name) {
-							rpc.musicPackCopy(this._name, name).then(name => {
-								musicList.push(new Pack(name, {
+							rpc.musicPackCopy(this.name, name).then(name => {
+								musicList.push(new AdminPack(name, {
 									"tracks": this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})),
-									"volume": this._volume,
+									"volume": this.volume,
 									"playTime": 0
 								}));
 							});
@@ -440,79 +361,47 @@ export default function(base: Node) {
 					remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 						if (remove) {
 							this.remove();
-							rpc.musicPackRemove(this._name);
+							rpc.musicPackRemove(this.name);
 						}
 					})})
 				]);
-				if (this._playTime !== 0) {
-					this.play();
+				if (this.playTime !== 0) {
+					this.play(this.playTime);
 				}
 			}
-			get name() {
-				return this._name;
+			setName(name: string) {
+				this.titleNode.innerText = this.nameNode.innerText = this.name = name;
 			}
-			set name(name: string) {
-				this.titleNode.innerText = this.nameNode.innerText = this._name = name;
-			}
-			get volume() {
-				return this._volume;
-			}
-			set volume(volume: Uint) {
-				this._volume = volume;
+			setVolume(volume: Uint) {
+				super.setVolume(volume);
 				this.volumeNode.value = volume.toString();
-				this.updateVolume();
 			}
-			set playTime(playTime: Uint) {
-				if (playTime === 0) {
-					this.stop();
-				} else {
-					this._playTime = playTime;
-					this.toPause.beginElement();
-					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
-					for (const t of this.tracks) {
-						t.play();
-					}
-				}
-			}
-			play() {
+			play(playTime: Uint, sendRPC = false) {
+				super.play(playTime);
 				this.toPause.beginElement();
 				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
-				rpc.musicPackPlay(this.name, 0).then(playTime => {
-					this._playTime = playTime;
-					for (const t of this.tracks) {
-						t.play();
-					}
-				});
+				if (sendRPC) {
+					rpc.musicPackPlay(this.name, 0).then(playTime => {
+						this.playTime = playTime;
+						for (const t of this.tracks) {
+							t.checkPlay();
+						}
+					});
+				}
 			}
-			pause() {
-				this.stop();
+			pause(sendRPC = false) {
+				this.stop(sendRPC);
 			}
-			stop() {
-				this._playTime = 0;
+			stop(sendRPC = false) {
+				super.stop();
 				this.toPlay.beginElement();
 				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
-				for (const t of this.tracks) {
-					t.stop();
-				}
-				rpc.musicPackStop(this.name);
-			}
-			checkPlayState() {
-				if (this._playTime === 0) {
-					return;
-				}
-				for (const t of this.tracks) {
-					if (t.audioElement !== null) {
-						return;
-					}
-				}
-				this.stop();
-			}
-			updateVolume() {
-				for (const t of this.tracks) {
-					t.updateVolume();
+				if (sendRPC) {
+					rpc.musicPackStop(this.name);
 				}
 			}
 			remove() {
+				super.remove();
 				this.window.remove();
 				for (const t of this.tracks) {
 					t.cleanup();
@@ -524,7 +413,7 @@ export default function(base: Node) {
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
 		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
-		      musicList = new SortNode<Pack>(ul({"id": "musicPackList"}), (a: Pack, b: Pack) => {
+		      musicList = new SortNode<AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
 				return stringSort(a.name, b.name);
@@ -544,17 +433,17 @@ export default function(base: Node) {
 		      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 		      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"};
 		for (const name in list) {
-			musicList.push(new Pack(name, list[name]));
+			musicList.push(new AdminPack(name, list[name]));
 		}
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
 			button(lang["MUSIC_ADD"], {"onclick": () => requestShell().prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 				if (name) {
-					rpc.musicPackAdd(name).then(name => musicList.push(new Pack(name, newPack())));
+					rpc.musicPackAdd(name).then(name => musicList.push(new AdminPack(name, newPack())));
 				}
 			})}),
 			musicList.node
 		]);
-		rpc.waitMusicPackAdd().then(name => musicList.push(new Pack(name, newPack())));
+		rpc.waitMusicPackAdd().then(name => musicList.push(new AdminPack(name, newPack())));
 		rpc.waitMusicPackRename().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
@@ -566,14 +455,14 @@ export default function(base: Node) {
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
-				musicList.push(new Pack(ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0}));
+				musicList.push(new AdminPack(ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0}));
 			}
 		});
 		rpc.waitMusicPackTrackAdd().then(mt => {
 			const pack = findPack(mt.musicPack);
 			if (pack) {
 				for (const t of mt.tracks) {
-					pack.tracks.push(new Track(pack, {"id": t, "volume": 255, "repeat": 0}));
+					pack.tracks.push(new AdminTrack(pack, {"id": t, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
