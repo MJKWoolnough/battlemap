@@ -210,8 +210,8 @@ export const userMusic = () => {
 		rpc.waitMusicPackRename().then(ft => {
 			const p = packs[ft.from];
 			if (p) {
-				delete list[ft.from];
-				list[ft.to] = p;
+				delete packs[ft.from];
+				packs[ft.to] = p;
 			}
 		});
 		rpc.waitMusicPackRemove().then(name => delete packs[name]);
