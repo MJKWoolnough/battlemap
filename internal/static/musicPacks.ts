@@ -365,9 +365,6 @@ export default function(base: Node) {
 						}
 					})})
 				]);
-				if (this.playTime !== 0) {
-					this.play(this.playTime);
-				}
 			}
 			setName(name: string) {
 				this.titleNode.innerText = this.nameNode.innerText = this.name = name;
