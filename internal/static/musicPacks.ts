@@ -202,36 +202,40 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 
 export const userMusic = () => {
 	rpc.musicPackList().then(list => {
-		rpc.waitMusicPackAdd().then(name => list[name] = newPack());
+		const packs: Record<string, Pack> = {};
+		for (const name in list) {
+			packs[name] = new Pack(list[name]);
+		}
+		rpc.waitMusicPackAdd().then(name => packs[name] = new Pack(newPack()));
 		rpc.waitMusicPackRename().then(ft => {
-			const p = list[ft.from];
+			const p = packs[ft.from];
 			if (p) {
 				delete list[ft.from];
 				list[ft.to] = p;
 			}
 		});
-		rpc.waitMusicPackRemove().then(name => delete list[name]);
+		rpc.waitMusicPackRemove().then(name => delete packs[name]);
 		rpc.waitMusicPackCopy().then(ft => {
-			const p = list[ft.from];
+			const p = packs[ft.from];
 			if (p) {
 				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0};
 			}
 		});
 		rpc.waitMusicPackTrackAdd().then(mt => {
-			const p = list[mt.musicPack];
+			const p = packs[mt.musicPack];
 			if (p) {
 				for (const t of mt.tracks) {
-					p.tracks.push({"id": t, "volume": 255, "repeat": 0});
+					p.tracks.push(new Track(p, {"id": t, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
 		rpc.waitMusicPackTrackRemove().then(mr => {
-			const pack = list[mr.musicPack];
+			const pack = packs[mr.musicPack];
 			if (pack && pack.tracks.length >= mr.track) {
 				pack.tracks.splice(mr.track, 1);
 			}
 		});
-		commonWaits((name: string) => list[name]);
+		commonWaits((name: string) => packs[name]);
 	});
 };
 
