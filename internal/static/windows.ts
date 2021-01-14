@@ -1,9 +1,20 @@
+import {Int, Uint} from './types.js';
 import {DOMBind, Props, Children} from './lib/dom.js';
 import {createHTML, div} from './lib/html.js';
 import {ShellElement, WindowElement, desktop, shell, windows as awindows} from './lib/windows.js';
+import {JSONSetting} from './settings_types.js';
+import {isInt, isUint} from './misc.js';
 import lang from './language.js';
 
 export {ShellElement, WindowElement, desktop, shell};
+
+type WindowData = [Int, Int, Uint, Uint];
+
+export class WindowSettings extends JSONSetting<WindowData> {
+	constructor(name: string, starting: WindowData) {
+		super(name, starting, (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3]));
+	}
+}
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));

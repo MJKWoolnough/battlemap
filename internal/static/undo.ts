@@ -2,9 +2,9 @@ import {Int, Uint} from './types.js';
 import {undoLimit} from './settings.js';
 import {SortNode} from './lib/ordered.js';
 import {ul, li, h1} from './lib/html.js';
-import {BoolSetting, JSONSetting} from './settings_types.js';
+import {BoolSetting} from './settings_types.js';
 import {isInt, isUint, requestShell, queue} from './misc.js';
-import {WindowElement, windows} from './windows.js';
+import {WindowElement, WindowSettings, windows} from './windows.js';
 import lang from './language.js';
 
 type Fn = () => Fn;
@@ -14,11 +14,9 @@ type FnDesc = {
 	node: HTMLLIElement;
 };
 
-type WindowData = [Int, Int, Uint, Uint];
-
 const undos = new SortNode<FnDesc>(ul()),
       redos = new SortNode<FnDesc>(ul()),
-      undoWindowSettings = new JSONSetting<WindowData>("undo-window-settings", [0, 0, 200, 600], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
+      undoWindowSettings = new WindowSettings("undo-window-settings", [0, 0, 200, 600]),
       showWindow = new BoolSetting("undo-window-show"),
       saveWindowData = function (this: WindowElement) {
 	undoWindowSettings.set([parseInt(this.style.getPropertyValue("--window-left") || "0"), parseInt(this.style.getPropertyValue("--window-top") || "0"), parseInt(this.style.getPropertyValue("--window-width") || "200"), parseInt(this.style.getPropertyValue("--window-height") || "600")]);

@@ -9,7 +9,7 @@ import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
-import {windows, WindowElement} from '../windows.js';
+import {windows, WindowSettings, WindowElement} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
@@ -457,7 +457,7 @@ const defaultLanguage = {
 		})));
 	}
       },
-      savedWindowSetting = new JSONSetting<WindowData>("5e-window-data", [0, 0, 200, 400], (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3])),
+      savedWindowSetting = new WindowSettings("5e-window-data", [0, 0, 200, 400]),
       saveWindowSettings = () => savedWindowSetting.set([parseInt(initiativeWindow.style.getPropertyValue("--window-left")), parseInt(initiativeWindow.style.getPropertyValue("--window-top")), parseInt(initiativeWindow.style.getPropertyValue("--window-width")), parseInt(initiativeWindow.style.getPropertyValue("--window-height"))]),
       initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": savedWindowSetting.value[0] + "px", "--window-top": savedWindowSetting.value[1] + "px", "--window-width": savedWindowSetting.value[2] + "px", "--window-height": savedWindowSetting.value[3] + "px", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true), "onmoved": saveWindowSettings, "onresized": saveWindowSettings}, div({"id": "initiative-window-5e"}, [
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
