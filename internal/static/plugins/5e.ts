@@ -9,7 +9,7 @@ import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
 import {mapLoadedReceive, requestShell, makeColourPicker, colour2Hex, colour2RGBA, tokenSelectedReceive, isInt, isUint, isColour} from '../misc.js';
 import mainLang, {language} from '../language.js';
-import {windows, WindowElement} from '../lib/windows.js';
+import {windows, WindowElement} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
