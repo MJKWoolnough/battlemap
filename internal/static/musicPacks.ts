@@ -14,6 +14,7 @@ class Track {
 	volume: Uint;
 	repeat: Int;
 	audioElement: HTMLAudioElement | null = null;
+	loaded: Promise<void> | null = null;
 	repeatWait: Int = -1;
 	parent: Pack;
 	constructor(parent: Pack, track: MusicTrack) {
@@ -30,22 +31,22 @@ class Track {
 		this.repeat = repeat;
 		this.waitPlay();
 	}
+	load() {
+		if (this.loaded) {
+			return this.loaded;
+		}
+		return this.loaded = new Promise(successFn => {
+			this.audioElement = audio({"src": `/audio/${this.id}`, "1onloadeddata": () => {
+				successFn();
+			}, "onended": () => {
+				this.waitPlay();
+			}});
+		});
+	}
 	updateVolume() {
 		if (this.audioElement) {
 			this.audioElement.volume = this.volume * this.parent.volume / 65025
 		}
-	}
-	checkPlay() {
-		if (this.audioElement) {
-			this.waitPlay();
-			return;
-		}
-		this.audioElement = audio({"src": `/audio/${this.id}`, "1oncanplaythrough": () => {
-			this.updateVolume();
-			this.waitPlay();
-		}, "onended": () => {
-			this.waitPlay();
-		}});
 	}
 	waitPlay() {
 		if (!this.audioElement) {
@@ -86,6 +87,7 @@ class Track {
 		if (this.audioElement) {
 			this.audioElement.pause();
 			this.audioElement = null;
+			this.loaded = null;
 			if (this.repeatWait !== -1) {
 				window.clearTimeout(this.repeatWait);
 				this.repeatWait = -1;
@@ -123,16 +125,18 @@ class Pack {
 	play(playTime: Uint) {
 		if (playTime === 0) {
 			this.stop();
-		} else {
-			this.playTime = playTime;
-			for (const t of this.tracks) {
-				t.checkPlay();
-			}
+			return;
 		}
 		this.playTime = playTime;
+		const tracks: Promise<void>[] = [];
 		for (const t of this.tracks) {
-			t.checkPlay();
+			tracks.push(t.load());
 		}
+		Promise.all(tracks).then(() => {
+			for (const t of this.tracks) {
+				t.waitPlay();
+			}
+		});
 	}
 	pause() {
 		this.stop();
@@ -388,9 +392,6 @@ export default function(base: Node) {
 				if (sendRPC) {
 					rpc.musicPackPlay(this.name, 0).then(playTime => {
 						this.playTime = playTime;
-						for (const t of this.tracks) {
-							t.checkPlay();
-						}
 					});
 				}
 			}
