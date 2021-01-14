@@ -218,7 +218,11 @@ export const userMusic = () => {
 		rpc.waitMusicPackCopy().then(ft => {
 			const p = packs[ft.from];
 			if (p) {
-				list[ft.to] = {"tracks": JSON.parse(JSON.stringify(p.tracks)), "volume": p.volume, "playTime": 0};
+				const tracks: MusicTrack[] = [];
+				for (const track in p.tracks) {
+					tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
+				}
+				packs[ft.to] = new Pack({tracks, "volume": p.volume, "playTime": 0});
 			}
 		});
 		rpc.waitMusicPackTrackAdd().then(mt => {
@@ -456,7 +460,11 @@ export default function(base: Node) {
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = findPack(ft.from);
 			if (pack) {
-				musicList.push(new AdminPack(ft.to, {"tracks": JSON.parse(JSON.stringify(pack.tracks)), "volume": pack.volume, "playTime": 0}));
+				const tracks: MusicTrack[] = [];
+				for (const track in pack.tracks) {
+					tracks.push({"id": pack.tracks[track].id, "volume": pack.tracks[track].volume, "repeat": pack.tracks[track].repeat});
+				}
+				musicList.push(new AdminPack(ft.to, {tracks, "volume": pack.volume, "playTime": 0}));
 			}
 		});
 		rpc.waitMusicPackTrackAdd().then(mt => {
