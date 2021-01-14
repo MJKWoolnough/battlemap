@@ -113,7 +113,7 @@ class Pack {
 		this.volume = pack.volume;
 		this.playTime = pack.playTime;
 		if (this.playTime !== 0) {
-			this.play(this.playTime);
+			window.setTimeout(() => this.play(this.playTime), 0);
 		}
 	}
 	setVolume(volume: Uint) {
