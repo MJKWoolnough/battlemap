@@ -1,10 +1,11 @@
 import {DOMBind, Props, Children} from './lib/dom.js';
 import {createHTML, div} from './lib/html.js';
 import {ShellElement, WindowElement, desktop, shell, windows as awindows} from './lib/windows.js';
+import lang from './language.js';
 
 export {ShellElement, WindowElement, desktop, shell};
 
-export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = "Loading", content?: Children) => {
+export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
         parent.addWindow(w);
         return p.finally(() => w.remove());
