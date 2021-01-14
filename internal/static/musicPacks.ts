@@ -167,35 +167,35 @@ class Pack {
 }
 
 const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
-      commonWaits = (getPack: (name: string) => (MusicPack | undefined)) => {
+      commonWaits = (getPack: (name: string) => (Pack | undefined)) => {
 	rpc.waitMusicPackVolume().then(pv => {
 		const pack = getPack(pv.musicPack);
 		if (pack) {
-			pack.volume = pv.volume;
+			pack.setVolume(pv.volume);
 		}
 	});
 	rpc.waitMusicPackPlay().then(pp => {
 		const pack = getPack(pp.musicPack);
 		if (pack) {
-			pack.playTime = pp.playTime;
+			pack.play(pp.playTime);
 		}
 	});
 	rpc.waitMusicPackStop().then(name => {
 		const pack = getPack(name);
 		if (pack) {
-			pack.playTime = 0;
+			pack.stop();
 		}
 	});
 	rpc.waitMusicPackTrackVolume().then(mv => {
 		const pack = getPack(mv.musicPack);
 		if (pack && pack.tracks.length >= mv.track) {
-			pack.tracks[mv.track].volume = mv.volume;
+			pack.tracks[mv.track].setVolume(mv.volume);
 		}
 	});
 	rpc.waitMusicPackTrackRepeat().then(mr => {
 		const pack = getPack(mr.musicPack);
 		if (pack && pack.tracks.length >= mr.track) {
-			pack.tracks[mr.track].repeat = mr.repeat;
+			pack.tracks[mr.track].setRepeat(mr.repeat);
 		}
 	});
       };
