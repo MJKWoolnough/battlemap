@@ -14,7 +14,6 @@ class Track {
 	volume: Uint;
 	repeat: Int;
 	audioElement: HTMLAudioElement | null = null;
-	loaded: Promise<void> | null = null;
 	repeatWait: Int = -1;
 	parent: Pack;
 	constructor(parent: Pack, track: MusicTrack) {
@@ -31,17 +30,12 @@ class Track {
 		this.repeat = repeat;
 		this.waitPlay();
 	}
-	load() {
-		if (this.loaded) {
-			return this.loaded;
+	play() {
+		if (this.audioElement) {
+			this.waitPlay()
+			return;
 		}
-		return this.loaded = new Promise(successFn => {
-			this.audioElement = audio({"src": `/audio/${this.id}`, "1onloadeddata": () => {
-				successFn();
-			}, "onended": () => {
-				this.waitPlay();
-			}});
-		});
+		this.audioElement = audio({"src": `/audio/${this.id}`, "1onloadeddata": () => this.waitPlay(), "onended": () => this.waitPlay()});
 	}
 	updateVolume() {
 		if (this.audioElement) {
@@ -87,7 +81,6 @@ class Track {
 		if (this.audioElement) {
 			this.audioElement.pause();
 			this.audioElement = null;
-			this.loaded = null;
 			if (this.repeatWait !== -1) {
 				window.clearTimeout(this.repeatWait);
 				this.repeatWait = -1;
@@ -128,15 +121,9 @@ class Pack {
 			return;
 		}
 		this.playTime = playTime;
-		const tracks: Promise<void>[] = [];
 		for (const t of this.tracks) {
-			tracks.push(t.load());
+			t.play();
 		}
-		Promise.all(tracks).then(() => {
-			for (const t of this.tracks) {
-				t.waitPlay();
-			}
-		});
 	}
 	pause() {
 		this.stop();
