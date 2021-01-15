@@ -73,7 +73,7 @@ class Track {
 						this.audioElement.play();
 					}
 					this.repeatWait = -1;
-				}, cycle - p);
+				}, (cycle - p) * 1000);
 			}
 		}
 	}
