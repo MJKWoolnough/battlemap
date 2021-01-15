@@ -5,7 +5,8 @@ import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {globals} from './map.js';
 import {doTokenAdd, deselectToken} from './adminMap.js';
-import {colour2RGBA, makeColourPicker, noColour, screen2Grid, requestShell} from './misc.js';
+import {screen2Grid, requestShell} from './misc.js';
+import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
 

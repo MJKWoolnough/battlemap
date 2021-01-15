@@ -2,7 +2,8 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFol
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {colour2RGBA, point2Line, mapLoadedSend, SQRT3} from './misc.js';
+import {point2Line, mapLoadedSend, SQRT3} from './misc.js';
+import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
