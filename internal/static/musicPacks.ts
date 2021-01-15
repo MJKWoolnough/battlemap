@@ -315,7 +315,7 @@ export default function(base: Node) {
 						path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this.playTime === 0) {
-								this.play(this.playTime, true);
+								this.play(Date.now(), true);
 							} else {
 								this.pause(true);
 							}
