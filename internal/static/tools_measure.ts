@@ -2,11 +2,11 @@ import {Uint} from './types.js';
 import {createHTML, br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
-import {globals} from './map.js';
+import {globals, screen2Grid} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
+import {mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
 import lang from './language.js';
 import {addMapDataChecker, rpc} from './rpc.js';
 
