@@ -288,6 +288,7 @@ export default function(base: Node) {
 			volumeNode: HTMLInputElement;
 			toPlay = animate(toPlayOptions) as SVGAnimateBeginElement;
 			toPause = animate(toPauseOptions) as SVGAnimateBeginElement;
+			playPauseNode: SVGSVGElement;
 			playPauseTitle: SVGTitleElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
@@ -310,7 +311,7 @@ export default function(base: Node) {
 					}
 				}}, [
 					this.titleNode = h1(name),
-					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
+					this.playPauseNode = svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 						this.playPauseTitle,
 						path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
@@ -374,9 +375,13 @@ export default function(base: Node) {
 			}
 			play(playTime: Uint, sendRPC = false) {
 				super.play(playTime);
-				if (sendRPC) {
+				if (document.body.contains(this.toPause)) {
 					this.toPause.beginElement();
-					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
+				} else {
+					this.playPauseNode.setAttribute("d", pauseIcon);
+				}
+				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
+				if (sendRPC) {
 					rpc.musicPackPlay(this.name, 0).then(playTime => {
 						this.playTime = playTime;
 					});
@@ -387,7 +392,11 @@ export default function(base: Node) {
 			}
 			stop(sendRPC = false) {
 				super.stop();
-				this.toPlay.beginElement();
+				if (document.body.contains(this.toPlay)) {
+					this.toPlay.beginElement();
+				} else {
+					this.playPauseNode.setAttribute("d", playIcon);
+				}
 				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
 				if (sendRPC) {
 					rpc.musicPackStop(this.name);
