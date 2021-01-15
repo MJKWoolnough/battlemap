@@ -1,6 +1,6 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, audio, br, button, h1, input, li, span, ul} from './lib/html.js';
+import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
@@ -8,6 +8,8 @@ import {addSymbol, getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
 import {WindowElement, windows, loadingWindow} from './windows.js';
 import {requestAudioAssetName, requestShell} from './misc.js';
+
+const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5)", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}))));
 
 class Track {
 	id: Uint;
@@ -192,7 +194,7 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
       };
 
 export const userMusic = () => {
-	rpc.musicPackList().then(list => {
+	audioEnabled().then(rpc.musicPackList).then(list => {
 		const packs: Record<string, Pack> = {};
 		for (const name in list) {
 			packs[name] = new Pack(list[name]);
@@ -235,7 +237,7 @@ export const userMusic = () => {
 };
 
 export default function(base: Node) {
-	rpc.musicPackList().then(list => {
+	audioEnabled().then(rpc.musicPackList).then(list => {
 		class AdminTrack extends Track {
 			node: HTMLLIElement;
 			nameNode: HTMLSpanElement;
