@@ -85,6 +85,7 @@ const defaultLanguage = {
 	"MAP_SQUARE_WIDTH": "Width in Tiles",
 	"MUSIC_ADD": "Add Music Pack",
 	"MUSIC_ADD_NAME": "Please enter a name for this new music pack",
+	"MUSIC_ENABLE": "Autoplay is disabled, please click here to enable",
 	"MUSIC_RENAME": "Rename Music Pack",
 	"MUSIC_RENAME_LONG": "Please enter a new name for this music pack",
 	"MUSIC_REMOVE": "Remove Music Pack",
