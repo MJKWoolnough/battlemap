@@ -1,11 +1,12 @@
+import {Uint} from './types.js';
 import {createHTML, br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
-import {defaultMouseWheel} from './tools_default.js';
+import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {grid2Screen, screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
+import {screen2Grid, mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
 import lang from './language.js';
 import {addMapDataChecker, rpc} from './rpc.js';
 
@@ -13,6 +14,10 @@ let over = false;
 
 const mapKey = "TOOL_MEASURE_CELL_VALUE",
       diagonalKey = "TOOL_MEASURE_CELL_DIAGONALS",
+      grid2Screen = (x: Uint, y: Uint) => {
+	const {mapData: {width, height}} = globals;
+	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
+      },
       broadcastKey = "TOOL_MEASURE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
       cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {

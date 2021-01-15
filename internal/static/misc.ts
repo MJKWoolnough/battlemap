@@ -87,10 +87,6 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
-grid2Screen = (x: Uint, y: Uint) => {
-	const {mapData: {width, height}} = globals;
-	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
-},
 {send: rpcInitSend, receive: rpcInitReceive} = pipeBind<void>(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
