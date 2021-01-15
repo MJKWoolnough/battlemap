@@ -374,9 +374,9 @@ export default function(base: Node) {
 			}
 			play(playTime: Uint, sendRPC = false) {
 				super.play(playTime);
-				this.toPause.beginElement();
-				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 				if (sendRPC) {
+					this.toPause.beginElement();
+					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 					rpc.musicPackPlay(this.name, 0).then(playTime => {
 						this.playTime = playTime;
 					});
