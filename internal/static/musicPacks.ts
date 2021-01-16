@@ -272,9 +272,8 @@ export default function(base: Node) {
 				this.repeatNode.value = repeat.toString();
 			}
 			remove() {
-				const pos = super.remove();
 				this.cleanup();
-				return pos;
+				return super.remove();
 			}
 		}
 		type SVGAnimateBeginElement = SVGAnimateElement & {
