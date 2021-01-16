@@ -368,6 +368,7 @@ export default function(base: Node) {
 			}
 			setName(name: string) {
 				this.titleNode.innerText = this.nameNode.innerText = this.name = name;
+				musicList.sort();
 			}
 			setVolume(volume: Uint) {
 				super.setVolume(volume);
@@ -387,6 +388,7 @@ export default function(base: Node) {
 						this.playTime = playTime;
 					});
 				}
+				musicList.sort();
 			}
 			pause(sendRPC = false) {
 				this.stop(sendRPC);
@@ -403,6 +405,7 @@ export default function(base: Node) {
 				if (sendRPC) {
 					rpc.musicPackStop(this.name);
 				}
+				musicList.sort();
 			}
 			remove() {
 				super.remove();
