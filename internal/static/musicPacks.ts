@@ -1,7 +1,7 @@
 import {MusicPack, MusicTrack, Int, Uint} from './types.js';
 import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
-import {svg, animate, path, rect, title} from './lib/svg.js';
+import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
@@ -9,7 +9,8 @@ import {rpc} from './rpc.js';
 import {WindowElement, windows, loadingWindow} from './windows.js';
 import {requestAudioAssetName, requestShell} from './misc.js';
 
-const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer; user-select: none", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3em; text-align: center"}, lang["MUSIC_ENABLE"])))));
+const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer; user-select: none", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3em; text-align: center"}, lang["MUSIC_ENABLE"]))))),
+      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "style": "fill: currentColor"})));
 
 class Track {
 	id: Uint;
@@ -291,6 +292,7 @@ export default function(base: Node) {
 			toPause = animate(toPauseOptions) as SVGAnimateBeginElement;
 			playPauseNode: SVGPathElement;
 			playPauseTitle: SVGTitleElement;
+			playStatus: SVGSVGElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
 				super(pack);
@@ -337,6 +339,7 @@ export default function(base: Node) {
 					this.tracks.node
 				]);
 				this.node = li([
+					this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 					this.nameNode = span({"onclick": () => requestShell().addWindow(this.window)}, this.name = name),
 					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
 						if (name && name !== this.name) {
@@ -381,6 +384,7 @@ export default function(base: Node) {
 				} else {
 					this.playPauseNode.setAttribute("d", pauseIcon);
 				}
+				this.playStatus.style.removeProperty("visibility");
 				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 				if (sendRPC) {
 					rpc.musicPackPlay(this.name, 0).then(playTime => {
@@ -398,6 +402,7 @@ export default function(base: Node) {
 				} else {
 					this.playPauseNode.setAttribute("d", playIcon);
 				}
+				this.playStatus.style.setProperty("visibility", "hidden");
 				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
 				if (sendRPC) {
 					rpc.musicPackStop(this.name);
