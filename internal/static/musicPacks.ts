@@ -290,7 +290,7 @@ export default function(base: Node) {
 			volumeNode: HTMLInputElement;
 			toPlay = animate(toPlayOptions) as SVGAnimateBeginElement;
 			toPause = animate(toPauseOptions) as SVGAnimateBeginElement;
-			playPauseNode: SVGSVGElement;
+			playPauseNode: SVGPathElement;
 			playPauseTitle: SVGTitleElement;
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
@@ -313,9 +313,9 @@ export default function(base: Node) {
 					}
 				}}, [
 					this.titleNode = h1(name),
-					this.playPauseNode = svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
+					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 						this.playPauseTitle,
-						path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
+						this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this.playTime === 0) {
 								this.play(Date.now(), true);
