@@ -326,11 +326,7 @@ export default function(base: Node) {
 
 						}})
 					]),
-					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => {
-						if (this.playTime !== 0) {
-							this.stop(true);
-						}
-					}}),
+					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => this.stop(true)}),
 					br(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": pack.volume, "onchange": () => {
 						rpc.musicPackSetVolume(this.name, this.volume = parseInt(this.volumeNode.value));
