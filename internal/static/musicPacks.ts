@@ -332,7 +332,8 @@ export default function(base: Node) {
 						rpc.musicPackSetVolume(this.name, this.volume = parseInt(this.volumeNode.value));
 						this.updateVolume();
 					}}),
-					this.tracks.node
+					this.tracks.node,
+					div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 				]);
 				this.node = li([
 					this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
