@@ -1,7 +1,6 @@
 import {Int, Uint, LayerRPC} from './types.js';
 import {ShellElement} from './lib/windows.js';
 import {Pipe, Requester} from './lib/inter.js';
-import lang from './language.js';
 
 const pipeBind = <T>() => {
 	const p = new Pipe<T>();
