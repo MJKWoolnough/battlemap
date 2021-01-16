@@ -296,7 +296,7 @@ export default function(base: Node) {
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
 				super(pack);
-				this.tracks = new SortNode<AdminTrack>(ul(), noSort);
+				this.tracks = new SortNode<AdminTrack>(ul({"class": "musicTrackList"}), noSort);
 				for (const track of pack.tracks) {
 					this.tracks.push(new AdminTrack(this, track));
 				}
