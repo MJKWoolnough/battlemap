@@ -92,6 +92,7 @@ const defaultLanguage = {
 	"MUSIC_REMOVE_LONG": "Are you sure you wish to remove this music pack",
 	"MUSIC_COPY": "Copy Music Pack",
 	"MUSIC_COPY_LONG": "Please enter a name for this music pack copy",
+	"MUSIC_DROP": "To add a track, drag an Audio Asset here",
 	"MUSIC_PAUSE": "Pause",
 	"MUSIC_PLAY": "Play",
 	"MUSIC_STOP": "Stop",
