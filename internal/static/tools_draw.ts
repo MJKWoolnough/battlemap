@@ -5,7 +5,7 @@ import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {globals, screen2Grid} from './map.js';
 import {doTokenAdd, deselectToken} from './adminMap.js';
-import {requestShell} from './misc.js';
+import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
@@ -49,7 +49,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				if (selectedLayer) {
 					doTokenAdd(selectedLayer.path, token);
 				} else {
-					requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
+					shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 				}
 			}
 		      },
@@ -112,7 +112,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 			if (selectedLayer) {
 				doTokenAdd(selectedLayer.path, token);
 			} else {
-				requestShell().alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
+				shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 			}
 		};
 		createSVG(root, {onmousemove}, p);

@@ -7,10 +7,10 @@ import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
-import {mapLoadedReceive, requestShell, tokenSelectedReceive, isInt, isUint} from '../misc.js';
+import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint} from '../misc.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import mainLang, {language} from '../language.js';
-import {windows, WindowElement} from '../windows.js';
+import {windows, WindowElement, shell} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
@@ -534,7 +534,7 @@ const defaultLanguage = {
 	if (initiativeList.length === 0) {
 		initiativeWindow.remove();
 	} else if (!initiativeWindow.parentNode) {
-		requestShell().appendChild(initiativeWindow);
+		shell.appendChild(initiativeWindow);
 	}
       },
       displaySettings = {
@@ -684,7 +684,7 @@ const defaultLanguage = {
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => {
-						requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
+						shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
 							if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
 								const init = parseInt(initiative);
 								if (isInt(init, -20, 40)) {
@@ -712,7 +712,7 @@ const defaultLanguage = {
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
 			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : requestShell().prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
 					if (!initiative) {
 						throw new Error("invalid initiative");
 					}
@@ -722,7 +722,7 @@ const defaultLanguage = {
 						return;
 					}
 					if (lastMapChange !== mapChange) {
-						requestShell().alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
+						shell.alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
 						throw new Error("map changed");
 					}
 					updateInitiative([token.id, initiative]);
@@ -795,13 +795,13 @@ if (userLevel === 1) {
 		const name = span(c.name),
 		      t = th([
 			name,
-			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
+			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
 				if (!newName || c.name === newName) {
 					return;
 				}
 				name.innerText = c.name = newName;
 			})}),
-			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
+			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
 				if (!rm) {
 					return;
 				}
@@ -834,11 +834,11 @@ if (userLevel === 1) {
 					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
 						const gt = getToken();
 						if (!gt) {
-							requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+							shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 							return;
 						}
 						const token = asInitialToken(gt);
-						requestShell().confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
+						shell.confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
 							if (!replace) {
 								return;
 							}
@@ -850,13 +850,13 @@ if (userLevel === 1) {
 				]),
 				br(),
 				name,
-				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
+				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
 					if (!newName || t["5e-shapechange-name"] === newName) {
 						return;
 					}
 					name.innerText = t["5e-shapechange-name"] = newName;
 				})}),
-				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
+				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
 					if (!rm) {
 						return;
 					}
@@ -880,7 +880,7 @@ if (userLevel === 1) {
 		"priority": 0,
 		"fn": [lang["SHAPECHANGE_5E"], div([
 			h1(lang["SHAPECHANGE_TITLE"]),
-			button({"onclick": () => requestShell().prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
+			button({"onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
 				if (!cat) {
 					return;
 				}
@@ -897,11 +897,11 @@ if (userLevel === 1) {
 			button({"onclick": () => {
 				const t = getToken();
 				if (!t) {
-					requestShell().alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+					shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 					return;
 				}
 				const token = asInitialToken(t);
-				requestShell().prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
+				shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
 					if (!name) { 
 						return;
 					}
@@ -951,7 +951,7 @@ if (userLevel === 1) {
 			const token = lastSelectedToken,
 			      hp = token.getData("5e-hp-current");
 			if (hp !== null) {
-				requestShell().prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
 					globals.outline.focus();
 					if (hp === null || token !== lastSelectedToken) {
 						return;

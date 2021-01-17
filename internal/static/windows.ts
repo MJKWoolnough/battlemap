@@ -1,12 +1,12 @@
 import {Int, Uint} from './types.js';
 import {DOMBind, Props, Children} from './lib/dom.js';
 import {createHTML, div} from './lib/html.js';
-import {ShellElement, WindowElement, desktop, shell, windows as awindows} from './lib/windows.js';
+import {ShellElement, WindowElement, desktop, shell as ashell, windows as awindows} from './lib/windows.js';
 import {JSONSetting} from './settings_types.js';
 import {isInt, isUint} from './misc.js';
 import lang from './language.js';
 
-export {ShellElement, WindowElement, desktop, shell};
+export {ShellElement, WindowElement, desktop};
 
 export type WindowData = [Int, Int, Uint, Uint];
 
@@ -47,4 +47,5 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 		}, 0);
 	}
 	return w;
-};
+},
+shell = ashell();

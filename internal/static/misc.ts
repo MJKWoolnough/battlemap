@@ -1,5 +1,4 @@
 import {Int, Uint, LayerRPC} from './types.js';
-import {ShellElement} from './lib/windows.js';
 import {Pipe, Requester} from './lib/inter.js';
 
 const pipeBind = <T>() => {
@@ -26,7 +25,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
 {send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
-{request: requestShell, responder: respondWithShell} = requesterBind<ShellElement>(),
 {request: requestAudioAssetName, responder: respondWithAudioAssetName} = requesterBind<() => void, [Uint, (name: string) => void]>(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),

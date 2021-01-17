@@ -5,10 +5,10 @@ import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {SVGLayer, globals, getLayer} from './map.js';
 import {deselectToken, doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer} from './adminMap.js';
-import {mapLayersReceive, mapLoadedReceive, enterKey, requestShell, queue} from './misc.js';
+import {mapLayersReceive, mapLoadedReceive, enterKey, queue} from './misc.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
-import {loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
@@ -43,7 +43,7 @@ const dragFn = (e: MouseEvent) => {
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
 	      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": self.name, "onkeypress": enterKey})),
-	      window = requestShell().appendChild(windows({"window-title": lang["LAYER_RENAME"]}));
+	      window = shell.appendChild(windows({"window-title": lang["LAYER_RENAME"]}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		label({"for": "renameLayer"}, `${lang["LAYER_NAME"]}: `),
@@ -91,7 +91,7 @@ const dragFn = (e: MouseEvent) => {
 		}
 		newPath = (l.parent as FolderLayer).getPath();
 	}
-	loadingWindow(queue(() => (doLayerMove(oldPath, newPath + "/", pos, false), rpc.moveLayer(oldPath, newPath + "/", pos))), requestShell());
+	loadingWindow(queue(() => (doLayerMove(oldPath, newPath + "/", pos, false), rpc.moveLayer(oldPath, newPath + "/", pos))), shell);
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging || e.button !== 0) {
@@ -155,7 +155,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(mapData.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth"}),
-			      window = requestShell().appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+			      window = shell.appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
 				width,
@@ -199,7 +199,7 @@ class ItemLayer extends Item {
 			      ]));
 			return window;
 		} else if (this.id === -2) { // Light
-			colourPicker(requestShell(), lang["LAYER_LIGHT_COLOUR"], globals.mapData.lightColour).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), requestShell()));
+			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], globals.mapData.lightColour).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
 			if (selectedLayer) {
 				selectedLayer.node.classList.remove("selectedLayer");
@@ -319,7 +319,7 @@ export default function(base: HTMLElement) {
 			createHTML(clearElement(base), {"id": "layerList"}, [
 				button("Add Layer", {"onclick": () => {
 					const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
-					      window = requestShell().appendChild(windows({"window-title": "Add Layer"}));
+					      window = shell.appendChild(windows({"window-title": "Add Layer"}));
 					createHTML(window, {"id": "layerAdd"}, [
 						h1("Add Layer"),
 						label({"for": "layerName"}, "Layer Name"),

@@ -2,8 +2,8 @@ import {Uint, KeystoreData} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
-import {WindowElement, loadingWindow, windows} from './windows.js';
-import {mapLoadedReceive, requestShell, queue} from './misc.js';
+import {WindowElement, loadingWindow, windows, shell} from './windows.js';
+import {mapLoadedReceive, queue} from './misc.js';
 import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
@@ -146,7 +146,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 	      save = (): Promise<void> => {
 		if (lastMapChanged !== mapChanged && !character) {
 			w.remove();
-			requestShell().alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
+			shell.alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
 			throw new Error("map changed");
 		}
 		const rms = Array.from(removes.values()).filter(k => {
@@ -169,7 +169,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 		}), w);
 	      },
 	      w = windows();
-	requestShell().appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	shell.appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {

@@ -6,8 +6,8 @@ import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc} from './rpc.js';
-import {WindowElement, windows, loadingWindow} from './windows.js';
-import {requestAudioAssetName, requestShell} from './misc.js';
+import {WindowElement, windows, loadingWindow, shell} from './windows.js';
+import {requestAudioAssetName} from './misc.js';
 
 const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer; user-select: none", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-size: 3em; text-align: center"}, lang["MUSIC_ENABLE"]))))),
       playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "style": "fill: currentColor"})));
@@ -337,8 +337,8 @@ export default function(base: Node) {
 				]);
 				this.node = li([
 					this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
-					this.nameNode = span({"onclick": () => requestShell().addWindow(this.window)}, this.name = name),
-					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => requestShell().prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
+					this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name = name),
+					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
 						if (name && name !== this.name) {
 							rpc.musicPackRename(this.name, name).then(name => {
 								if (name !== this.name) {
@@ -348,7 +348,7 @@ export default function(base: Node) {
 							});
 						}
 					})}),
-					copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => requestShell().prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
+					copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 						if (name) {
 							rpc.musicPackCopy(this.name, name).then(name => {
 								musicList.push(new AdminPack(name, {
@@ -359,7 +359,7 @@ export default function(base: Node) {
 							});
 						}
 					})}),
-					remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => requestShell().confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
+					remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 						if (remove) {
 							this.remove();
 							rpc.musicPackRemove(this.name);
@@ -444,7 +444,7 @@ export default function(base: Node) {
 			musicList.push(new AdminPack(name, list[name]));
 		}
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
-			button(lang["MUSIC_ADD"], {"onclick": () => requestShell().prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
+			button(lang["MUSIC_ADD"], {"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 				if (name) {
 					rpc.musicPackAdd(name).then(name => musicList.push(new AdminPack(name, newPack())));
 				}

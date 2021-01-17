@@ -1,7 +1,7 @@
 import {Colour} from './types.js';
 import {br, button, div, h1, input, label} from './lib/html.js';
-import {ShellElement, WindowElement, windows} from './windows.js';
-import {requestShell, isUint} from './misc.js';
+import {ShellElement, WindowElement, windows, shell} from './windows.js';
+import {isUint} from './misc.js';
 import lang from './language.js';
 
 export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": parseInt(hex.slice(1, 3), 16), "g": parseInt(hex.slice(3, 5), 16), "b": parseInt(hex.slice(5, 7), 16), a}),
@@ -44,7 +44,7 @@ makeColourPicker = (() => {
 		return c;
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "") => {
-		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(w ?? requestShell(), title, getColour()).then(c => setColour(sc(b, c)))});
+		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(w ?? shell, title, getColour()).then(c => setColour(sc(b, c)))});
 		sc(b, getColour());
 		return b;
 	};

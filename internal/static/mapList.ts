@@ -2,10 +2,10 @@ import {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, label, option, span, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
-import {mapLoadSend, enterKey, requestShell} from './misc.js';
+import {mapLoadSend, enterKey} from './misc.js';
 import {hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
-import {loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
 import {IntSetting} from './settings_types.js';
 import lang from './language.js';
@@ -68,14 +68,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(requestShell().appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
+			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(requestShell().appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
+			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
 		} else {
 			return super.remove();
 		}
@@ -89,14 +89,14 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return requestShell().appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
+			return shell.appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return requestShell().appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
+			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
 		} else {
 			return super.remove(e);
 		}
@@ -191,7 +191,7 @@ export default function(base: Node) {
 				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
-				      window = requestShell().appendChild(windows({"window-title": lang["MAP_NEW"]}));
+				      window = shell.appendChild(windows({"window-title": lang["MAP_NEW"]}));
 				return createHTML(window, {"class": "mapAdd"}, [
 					h1(lang["MAP_NEW"]),
 					label({"for": "mapName"},  `${lang["MAP_NAME"]}: `),

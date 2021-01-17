@@ -14,7 +14,7 @@ import {WindowElement, shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell, isInt, isUint} from './misc.js';
+import {isInt, isUint} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -133,7 +133,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					s.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					shell.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
@@ -175,10 +175,10 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	return o;
       }()),
       spinner = (id: string) => h2({"id": id}, [lang["LOADING"], div({"class": "loadSpinner"})]),
-      base = desktop(symbols),
-      s = shell({"snap": 50}, base);
+      base = desktop(symbols);
 
-respondWithShell(s);
+createHTML(shell, {"snap": 50}, base);
+
 invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
 if (invert.value) {
 	document.documentElement.classList.add("invert");
@@ -203,7 +203,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		loadMap(base.appendChild(div()));
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
-		clearElement(document.body).appendChild(s);
+		clearElement(document.body).appendChild(shell);
 	} else {
 		lastTab.set(0);
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
@@ -214,8 +214,8 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		userMusic();
 		document.head.appendChild(style({"type": "text/css"}, tabs.css));
 		base.appendChild(tabs.html);
-		clearElement(document.body).appendChild(s);
+		clearElement(document.body).appendChild(shell);
 	}
-	s.realignWindows();
-	window.addEventListener("resize", () => s.realignWindows(), {"passive": true});
+	shell.realignWindows();
+	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
 }))).catch(handleError);

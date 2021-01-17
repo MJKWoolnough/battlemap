@@ -1,11 +1,10 @@
 import {Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterData} from './characters.js';
 import lang from './language.js';
-import {requestShell} from './misc.js';
 import {rpc} from './rpc.js';
 
 class Character extends DraggableItem {
@@ -50,7 +49,7 @@ export default function (base: Node) {
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
 				const name = autoFocus(input({"id": "characterName"})),
-				      w = requestShell().appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
+				      w = shell.appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 					h1(lang["CHARACTER_NEW"]),
 					label({"for": "characterName"}, `${lang["CHARACTER_NAME"]}: `),
 					name,

@@ -5,13 +5,13 @@ import {createHTML, br, button, input, h1, label} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
-import {windows} from './windows.js';
+import {windows, shell} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, screen2Grid, SQRT3} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, requestShell, queue} from './misc.js';
+import {mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, queue} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
@@ -828,7 +828,7 @@ export default function(base: HTMLElement) {
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
 				const t = Date.now(),
-				      w = requestShell().appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
+				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
 				      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createHTML(null, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),

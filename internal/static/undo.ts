@@ -3,8 +3,8 @@ import {undoLimit} from './settings.js';
 import {SortNode} from './lib/ordered.js';
 import {ul, li, h1} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
-import {isInt, isUint, requestShell, queue} from './misc.js';
-import {WindowElement, windows} from './windows.js';
+import {isInt, isUint, queue} from './misc.js';
+import {WindowElement, windows, shell} from './windows.js';
 import lang from './language.js';
 
 type Fn = () => Fn;
@@ -25,13 +25,13 @@ const undos = new SortNode<FnDesc>(ul()),
       ]);
 
 if (showWindow.value) {
-	window.setTimeout(() => requestShell().appendChild(w), 0);
+	window.setTimeout(() => shell.appendChild(w), 0);
 }
 
 Object.defineProperty(window, "showUndoWindow", {
 	"value": () => {
 		showWindow.set(true);
-		requestShell().appendChild(w);
+		shell.appendChild(w);
 	}
 });
 

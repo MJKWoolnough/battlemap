@@ -2,11 +2,11 @@ import {IDName, Uint, FolderItems} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
-import {loadingWindow, windows} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
-import {requestShell, respondWithAudioAssetName} from './misc.js';
+import {respondWithAudioAssetName} from './misc.js';
 import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
@@ -19,7 +19,7 @@ class ImageAsset extends DraggableItem {
 	}
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			img({"src": `/images/${this.id}`})
 		]))));
@@ -38,7 +38,7 @@ class AudioAsset extends DraggableItem {
 	}
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(requestShell().appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			audio({"src": `/audio/${this.id}`, "controls": "controls"})
 		]))));
@@ -113,7 +113,7 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 						this.toggleAttribute("disabled", true);
 					}}))
 				      ]),
-				      window = requestShell().appendChild(windows({"window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
+				      window = shell.appendChild(windows({"window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
 			}}),
 			root.node
 		]);

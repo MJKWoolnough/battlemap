@@ -3,7 +3,7 @@ import {createHTML, button, br, h1, input, label, select, option} from './lib/ht
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
-import {requestShell} from './misc.js';
+import {shell} from './windows.js';
 
 export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
@@ -53,7 +53,7 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 		label({"for": "menuHide"}, `${lang["HIDE_MENU"]}: `),
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),
-		button({"onclick": () => requestShell().confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
+		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
 			if (!v) {
 				return;
 			}

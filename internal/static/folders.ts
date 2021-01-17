@@ -2,8 +2,8 @@ import {Uint, FolderRPC, FolderItems} from './types.js';
 import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
-import {loadingWindow, windows} from './windows.js';
-import {enterKey, requestShell, queue} from './misc.js';
+import {loadingWindow, windows, shell} from './windows.js';
+import {enterKey, queue} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
@@ -60,7 +60,7 @@ export class Item {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = requestShell().appendChild(windows({"window-title": lang["ITEM_MOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]}));
 		return createHTML(window, {"class": "renameItem"}, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
@@ -85,7 +85,7 @@ export class Item {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = requestShell().appendChild(windows({"window-title": "Link Item"}));
+		      window = shell.appendChild(windows({"window-title": "Link Item"}));
 		return createHTML(window, {"class": "linkItem"}, [
 			h1(lang["ITEM_LINK_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
@@ -107,7 +107,7 @@ export class Item {
 		const root = this.parent.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = requestShell().appendChild(windows({"window-title": lang["ITEM_REMOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_REMOVE"]}));
 		return createHTML(window, {"class": "removeItem"}, [
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
@@ -241,7 +241,7 @@ export class Folder {
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
-		      window = requestShell().appendChild(windows({"window-title": lang["FOLDER_MOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]}));
 		return createHTML(window, [
 			h1(lang["FOLDER_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
@@ -264,7 +264,7 @@ export class Folder {
 		const root = this.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = requestShell().appendChild(windows({"window-title": lang["FOLDER_REMOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_REMOVE"]}));
 		return createHTML(window, {"class": "folderRemove"}, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
@@ -284,7 +284,7 @@ export class Folder {
 		const root = this.root,
 		      path = this.getPath(),
 		      folderName = autoFocus(input({"id": "folderName", "onkeypress": enterKey})),
-		      window = requestShell().appendChild(windows({"window-title": lang["FOLDER_ADD"]}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]}));
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1(lang["FOLDER_ADD"]),
 			label({"for": "folderName"}, `${lang["FOLDER_NAME"]}: ${path + "/"}`),
