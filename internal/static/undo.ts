@@ -25,7 +25,7 @@ const undos = new SortNode<FnDesc>(ul()),
       ]);
 
 if (showWindow.value) {
-	window.setTimeout(() => shell.appendChild(w), 0);
+	shell.appendChild(w);
 }
 
 Object.defineProperty(window, "showUndoWindow", {

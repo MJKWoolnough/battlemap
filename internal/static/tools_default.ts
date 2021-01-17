@@ -36,11 +36,11 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	}
 };
 
-window.setTimeout(() => mapLoadedReceive(() => {
+mapLoadedReceive(() => {
 	panZoom.x = 0;
 	panZoom.y = 0;
 	panZoom.zoom = 1;
-}), 0);
+});
 
 export default Object.freeze({
 	"name": lang["TOOL_DEFAULT"],
