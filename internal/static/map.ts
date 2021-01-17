@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFol
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {point2Line, mapLoadedSend} from './misc.js';
+import {mapLoadedSend} from './misc.js';
 import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
@@ -369,6 +369,30 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
+point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
+	if (x1 === x2) {
+		if (py >= y1 && py <= y2) {
+			return Math.abs(px - x1);
+		}
+		return Math.hypot(px - x1, Math.min(Math.abs(py - y1), Math.abs(py - y2)));
+	} else if (y1 === y2) {
+		if (px >= x1 && px <= x2) {
+			return Math.abs(py - y1);
+		}
+		return Math.hypot(Math.min(Math.abs(px - x1), Math.abs(px - x2)), py - y1);
+	}
+	const m = (y2 - y1) / (x2 - x1),
+	      n = (x1 - x2) / (y2 - y1),
+	      c = y1 - m * x1,
+	      d = py - px * n;
+	let cx = (d - c) / (m - n);
+	if (cx < x1) {
+		cx = x1;
+	} else if (cx > x2) {
+		cx = x2;
+	}
+	return Math.hypot(px - cx, py - m * cx - c);
+},
 splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
