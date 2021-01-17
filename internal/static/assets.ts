@@ -6,7 +6,6 @@ import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
-import {respondWithAudioAssetName} from './misc.js';
 import {rpc} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
@@ -74,6 +73,17 @@ class AudioFolder extends Folder {
 	}
 }
 
+export const audioAssetName = ((id: Uint, fn: (name: string) => void) => {
+	let asset = audioAssets.get(id);
+	if (!asset) {
+		asset = [new Pipe(), ""];
+		audioAssets.set(id, asset);
+	}
+	fn(asset[1]);
+	asset[0].receive(fn);
+	return () => asset![0].remove(fn);
+});
+
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
@@ -117,17 +127,5 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 			}}),
 			root.node
 		]);
-		if (fileType === "AUDIO") {
-			respondWithAudioAssetName((id: Uint, fn: (name: string) => void) => {
-				let asset = audioAssets.get(id);
-				if (!asset) {
-					asset = [new Pipe(), ""];
-					audioAssets.set(id, asset);
-				}
-				fn(asset[1]);
-				asset[0].receive(fn);
-				return () => asset![0].remove(fn);
-			});
-		}
 	});
 };

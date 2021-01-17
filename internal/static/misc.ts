@@ -1,13 +1,9 @@
 import {Int, Uint, LayerRPC} from './types.js';
-import {Pipe, Requester} from './lib/inter.js';
+import {Pipe} from './lib/inter.js';
 
 const pipeBind = <T>() => {
 	const p = new Pipe<T>();
 	return {"send": (data: T) => p.send(data), "receive": (fn: (data: T) => void) => p.receive(fn)};
-      },
-      requesterBind = <T, U extends any[] = any[]>() => {
-	const r = new Requester<T, U>();
-	return {"request": (...data: U) => r.request(...data), "responder": (fn: ((...data: U) => T) | T) => r.responder(fn)};
       };
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
@@ -25,7 +21,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
 {send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
-{request: requestAudioAssetName, responder: respondWithAudioAssetName} = requesterBind<() => void, [Uint, (name: string) => void]>(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 queue = (() => {
