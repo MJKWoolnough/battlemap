@@ -85,6 +85,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, checkMusicPackTrackRepeat],
 				["waitPluginChange",         broadcastPluginChange,         returnVoid],
 				["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
+				["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
 				["waitBroadcast",            broadcastAny,                  checkBroadcast]
 			],
 			"images": [
@@ -139,6 +140,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["setLightColour",   "maps.setLightColour", "!",            returnVoid,  "waitMapLightChange", ""],
 				["setMapKeyData",    "maps.setData",       ["key", "data"], returnVoid,  "waitMapDataSet", ""],
 				["removeMapKeyData", "maps.removeData",     "!",            returnVoid,  "waitMapDataRemove", ""],
+				["signalPosition",   "maps.signalPosition", "!",            returnVoid, "", ""],
 
 				["addLayer",         "maps.addLayer",        "!",                                            checkString,      "waitLayerAdd", "*"],
 				["addLayerFolder",   "maps.addLayerFolder",  "!",                                            checkString,      "waitLayerFolderAdd", "*"],
@@ -586,6 +588,15 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksPluginSetting: checkers = [[checkObject, ""], [checkString, "name"], [checkObject, "data"]],
       checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
+      checkSignalPosition = (data: any) => {
+	checkArray(data, "SignalPosition");
+	if (data.length !== 2) {
+		throw new TypeError("invalid SignalPosition array, needs length 2");
+	}
+	checkUint(data[0], "SignalPosition.x");
+	checkUint(data[1], "SignalPosition.y");
+	return data;
+      },
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {

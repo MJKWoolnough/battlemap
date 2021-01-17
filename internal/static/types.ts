@@ -73,6 +73,7 @@ type RPCWaits = {
 	waitMusicPackTrackRepeat:    () => Subscription<MusicPackTrackRepeat>;
 	waitPluginChange:            () => Subscription<void>;
 	waitPluginSetting:           () => Subscription<PluginSetting>;
+	waitSignalPosition:          () => Subscription<[Uint, Uint]>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 }
 
@@ -104,6 +105,7 @@ export type RPC = RPCWaits & {
 	setLightColour:    (c: Colour)               => Promise<void>;
 	setMapKeyData:     (key: string, value: any) => Promise<void>;
 	removeMapKeyData:  (key: string)             => Promise<void>;
+	signalPosition:    (pos: [Uint, Uint])       => Promise<void>;
 
 	addLayer:         (name: string)                                                         => Promise<string>;
 	addLayerFolder:   (path: string)                                                         => Promise<string>;
