@@ -16,7 +16,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 		}
 	}
 },
-{send: rpcInitSend, receive: rpcInitReceive} = pipeBind<void>(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
 {send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),

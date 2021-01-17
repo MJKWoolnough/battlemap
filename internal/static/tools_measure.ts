@@ -6,9 +6,9 @@ import {globals, screen2Grid} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {mapLoadedReceive, isUint, rpcInitReceive} from './misc.js';
+import {mapLoadedReceive, isUint} from './misc.js';
 import lang from './language.js';
-import {addMapDataChecker, rpc} from './rpc.js';
+import {addMapDataChecker, rpc, inited} from './rpc.js';
 
 let over = false;
 
@@ -172,7 +172,7 @@ addMapDataChecker((data: Record<string, any>) => {
 	}
 });
 
-rpcInitReceive(() => rpc.waitLogin().then(u => {
+inited.then(() => rpc.waitLogin().then(u => {
 	if (u === 0) {
 		rpc.waitBroadcast().then(broadcast => {
 			if (broadcast.type === broadcastKey) {
