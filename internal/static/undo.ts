@@ -4,7 +4,7 @@ import {SortNode} from './lib/ordered.js';
 import {ul, li, h1} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
 import {isInt, isUint, requestShell, queue} from './misc.js';
-import {WindowElement, WindowSettings, windows} from './windows.js';
+import {WindowElement, windows} from './windows.js';
 import lang from './language.js';
 
 type Fn = () => Fn;
@@ -16,12 +16,8 @@ type FnDesc = {
 
 const undos = new SortNode<FnDesc>(ul()),
       redos = new SortNode<FnDesc>(ul()),
-      undoWindowSettings = new WindowSettings("undo-window-settings", [0, 0, 200, 600]),
       showWindow = new BoolSetting("undo-window-show"),
-      saveWindowData = function (this: WindowElement) {
-	undoWindowSettings.set([parseInt(this.style.getPropertyValue("--window-left") || "0"), parseInt(this.style.getPropertyValue("--window-top") || "0"), parseInt(this.style.getPropertyValue("--window-width") || "200"), parseInt(this.style.getPropertyValue("--window-height") || "600")]);
-      },
-      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "--window-left": undoWindowSettings.value[0] + "px", "--window-top": undoWindowSettings.value[1] + "px", "--window-width": undoWindowSettings.value[2] + "px", "--window-height": undoWindowSettings.value[3] + "px", "resizable": true, "onmoved": saveWindowData, "onresized": saveWindowData, "onremove": () => showWindow.set(false)}, [
+      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
 	h1(lang["UNDO_WINDOW_UNDOS"]),
 	undos.node,
 	h1(lang["UNDO_WINDOW_REDOS"]),
@@ -29,7 +25,7 @@ const undos = new SortNode<FnDesc>(ul()),
       ]);
 
 if (showWindow.value) {
-	setTimeout(() => requestShell().appendChild(w), 0);
+	window.setTimeout(() => requestShell().appendChild(w), 0);
 }
 
 Object.defineProperty(window, "showUndoWindow", {

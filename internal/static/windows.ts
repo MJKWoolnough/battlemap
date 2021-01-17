@@ -8,11 +8,14 @@ import lang from './language.js';
 
 export {ShellElement, WindowElement, desktop, shell};
 
-type WindowData = [Int, Int, Uint, Uint];
+export type WindowData = [Int, Int, Uint, Uint];
 
-export class WindowSettings extends JSONSetting<WindowData> {
+const getWindowData = (w: WindowElement): WindowData => [parseInt(w.style.getPropertyValue("--window-left") || "0"), parseInt(w.style.getPropertyValue("--window-top") || "0"), parseInt(w.style.getPropertyValue("--window-width") || "200"), parseInt(w.style.getPropertyValue("--window-height") || "600")],
+      checkWindowData = (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3]);
+
+class WindowSettings extends JSONSetting<WindowData> {
 	constructor(name: string, starting: WindowData) {
-		super(name, starting, (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3]));
+		super(name, starting, checkWindowData);
 	}
 }
 
@@ -26,8 +29,13 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 		if (e.key === "Escape") {
 			this.remove();
 		}
-	}}), props, children);
-	if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--windows-height"))) {
+	}}), props, children),
+	      saveName = w.getAttribute("window-data");
+	if (saveName) {
+		const settings = new WindowSettings(saveName, getWindowData(w)),
+		      save = () => settings.set(getWindowData(w));
+		createHTML(w, {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px", "onmoved": save, "onresized": save});
+	} else if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--windows-height"))) {
 		w.style.setProperty("visibility", "hidden");
 		window.setTimeout(() => {
 			if (w.parentNode) {
