@@ -126,6 +126,13 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			atomic.StoreUint64(&c.CurrentMap, cd.CurrentMap)
 			return nil, nil
 		}
+	case "maps.signalPosition":
+		who := userAdmin
+		if cd.IsAdmin() {
+			who = userAny
+		}
+		c.socket.broadcastMapChange(cd, broadcastSignalPosition, data, userAdmin)
+		return nil, nil
 	case "broadcast":
 		if cd.IsAdmin() {
 			cd.CurrentMap = 0

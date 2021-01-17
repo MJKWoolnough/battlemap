@@ -96,6 +96,7 @@ const (
 	broadcastPluginChange
 	broadcastPluginSettingChange
 
+	broadcastSignalPosition
 	broadcastAny
 )
 
