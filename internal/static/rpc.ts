@@ -1,7 +1,7 @@
 import {RPC as RPCType, InternalWaits, KeystoreData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
-import {handleError, queue, rpcInitSend} from './misc.js';
+import {requestShell, queue, rpcInitSend} from './misc.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastImageItemAdd = -6, broadcastAudioItemAdd = -7, broadcastCharacterItemAdd = -8, broadcastMapItemAdd = -9, broadcastImageItemMove = -10, broadcastAudioItemMove = -11, broadcastCharacterItemMove = -12, broadcastMapItemMove = -13, broadcastImageItemRemove = -14, broadcastAudioItemRemove = -15, broadcastCharacterItemRemove = -16, broadcastMapItemRemove = -17, broadcastImageItemLink = -18, broadcastAudioItemLink = -19, broadcastCharacterItemLink = -20, broadcastMapItemLink = -21, broadcastImageFolderAdd = -22, broadcastAudioFolderAdd = -23, broadcastCharacterFolderAdd = -24, broadcastMapFolderAdd = -25, broadcastImageFolderMove = -26, broadcastAudioFolderMove = -27, broadcastCharacterFolderMove = -28, broadcastMapFolderMove = -29, broadcastImageFolderRemove = -30, broadcastAudioFolderRemove = -31, broadcastCharacterFolderRemove = -32, broadcastMapFolderRemove = -33, broadcastMapItemChange = -34, broadcastCharacterDataChange = -35, broadcastTokenDataChange = -36, broadcastCharacterDataRemove = -37, broadcastTokenDataRemove = -38, broadcastLayerAdd = -39, broadcastLayerFolderAdd = -40, broadcastLayerMove = -41, broadcastLayerRename = -42, broadcastLayerRemove = -43, broadcastMapLightChange = -44, broadcastLayerShow = -45, broadcastLayerHide = -46, broadcastLayerMaskAdd = -47, broadcastLayerMaskChange = -48, broadcastLayerMaskRemove = -49, broadcastTokenAdd = -50, broadcastTokenRemove = -51, broadcastTokenMoveLayerPos = -52, broadcastTokenSet = -53, broadcastLayerShift = -54, broadcastLightShift = -55, broadcastTokenLightChange = -56, broadcastWallAdd = -57, broadcastWallRemove = -58, broadcastMusicPackAdd = -59, broadcastMusicPackRename = -60, broadcastMusicPackRemove = -61, broadcastMusicPackCopy = -62, broadcastMusicPackVolume = -63, broadcastMusicPackPlay = -64, broadcastMusicPackStop = -65, broadcastMusicPackStopAll = -66, broadcastMusicPackTrackAdd = -67, broadcastMusicPackTrackRemove = -68, broadcastMusicPackTrackVolume = -69, broadcastMusicPackTrackRepeat = -70, broadcastPluginChange = -71, broadcastPluginSettingChange = -72, broadcastAny = -73;
 
@@ -25,7 +25,11 @@ rpc = {
 } as RPCType,
 addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
-addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn);
+addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
+handleError = (e: Error | string) => {
+	console.log(e);
+	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
+};
 
 export default function (url: string): Promise<Readonly<RPCType>>{
 	return RPC(url, 1.1).then(arpc => {

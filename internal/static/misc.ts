@@ -21,10 +21,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 		}
 	}
 },
-handleError = (e: Error | string) => {
-	console.log(e);
-	requestShell().alert("Error", e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
-},
 {send: rpcInitSend, receive: rpcInitReceive} = pipeBind<void>(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
 {send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),

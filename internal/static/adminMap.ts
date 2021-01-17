@@ -11,11 +11,11 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, handleError, requestShell, queue} from './misc.js';
+import {mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, requestShell, queue} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
-import {rpc} from './rpc.js';
+import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {

@@ -4,10 +4,10 @@ import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
-import {handleError, requestShell} from './misc.js';
+import {requestShell} from './misc.js';
 import lang from './language.js';
 import {WindowElement} from './windows.js';
-import {rpc} from './rpc.js';
+import {rpc, handleError} from './rpc.js';
 
 type owp<T> = {
 	priority: Uint;

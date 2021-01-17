@@ -1,4 +1,4 @@
-import RPC from './rpc.js';
+import RPC, {handleError} from './rpc.js';
 import {Int, Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, style} from './lib/html.js';
@@ -14,7 +14,7 @@ import {WindowElement, shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert} from './settings.js';
 import tools from './tools.js';
 import characterStore from './characters.js';
-import {respondWithShell, handleError, isInt, isUint} from './misc.js';
+import {respondWithShell, isInt, isUint} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
