@@ -4,8 +4,8 @@ import {br, button, div, h1, input, label, option, select, span} from './lib/htm
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {SVGLayer, globals, getLayer} from './map.js';
-import {deselectToken, doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer} from './adminMap.js';
-import {mapLayersReceive, mapLoadedReceive, enterKey, queue} from './misc.js';
+import {deselectToken, doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './adminMap.js';
+import {mapLoadedReceive, enterKey, queue} from './misc.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -285,7 +285,7 @@ class LayerRoot extends Root {
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
-	mapLayersReceive(lrpc => {
+	layersRPC.then(lrpc => {
 		let loadFn = () => {
 			const list = new LayerRoot(globals.layerList, lrpc);
 			lrpc.waitLayerSetVisible().then(path => {

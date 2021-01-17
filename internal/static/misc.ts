@@ -1,4 +1,4 @@
-import {Int, Uint, LayerRPC} from './types.js';
+import {Int, Uint} from './types.js';
 import {Pipe} from './lib/inter.js';
 
 const pipeBind = <T>() => {
@@ -18,7 +18,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 },
 {send: rpcInitSend, receive: rpcInitReceive} = pipeBind<void>(),
 {send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
-{send: mapLayersSend, receive: mapLayersReceive} = pipeBind<LayerRPC>(),
 {send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
 {send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,

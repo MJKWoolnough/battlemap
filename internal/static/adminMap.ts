@@ -1,4 +1,4 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, WallPath} from './types.js';
+import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, input, h1, label} from './lib/html.js';
@@ -11,7 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {mapLayersSend, mapLoadReceive, mapLoadedSend, tokenSelected, queue} from './misc.js';
+import {mapLoadReceive, mapLoadedSend, tokenSelected, queue} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
@@ -47,7 +47,9 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	}
       };
 
-let copiedToken: Token | null = null;
+let copiedToken: Token | null = null,
+    mapLayersSend: (l: LayerRPC) => void;
+
 
 export const getToken = () => {
 	const {token} = globals.selected;
@@ -559,7 +561,8 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 		return [Math.round(col * dx + (((2 * size / SQRT3) + dx * (Math.round(width / dx) - 1) - width) >> 1)), Math.round((y - rowOffset) / size) * size + rowOffset + ((Math.round(height / size) * size - height) >> 1)];
 	}}
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
-};
+},
+layersRPC = new Promise<LayerRPC>(success => mapLayersSend = success);
 
 export default function(base: HTMLElement) {
 	let tokenDragMode = 0;
