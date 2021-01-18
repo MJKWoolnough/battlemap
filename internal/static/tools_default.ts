@@ -1,10 +1,12 @@
+import {Uint} from './types.js';
 import {SVGToken} from './map.js';
-import {createSVG, svg, path} from './lib/svg.js';
+import {createSVG, svg, animate, circle, g, path} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
-import {globals} from './map.js';
+import {globals, screen2Grid} from './map.js';
 import {deselectToken} from './adminMap.js';
 import {mapLoadedReceive} from './misc.js';
 import lang from './language.js';
+import {rpc, inited} from './rpc.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 zoom = (root: SVGElement, delta: number, x: number, y: number) => {
@@ -161,5 +163,31 @@ export default Object.freeze({
 			}, {"once": true})
 		}
 	},
-	"mapMouseWheel": defaultMouseWheel
+	"mapMouseWheel": defaultMouseWheel,
+	"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
+		const pos = screen2Grid(e.clientX, e.clientY);
+		showSignal(pos);
+		rpc.signalPosition(pos);
+		e.preventDefault();
+	},
+	"tokenMouseContext": (e: MouseEvent) => e.stopPropagation()
 });
+
+type SVGAnimateBeginElement = SVGAnimateElement & {
+	beginElement: Function;
+}
+
+const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
+      signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
+      signal = g([
+	circle({"cx": 50, "cy": 50, "stroke": "#f00", "stroke-width": 8, "fill": "none"}, signalAnim1),
+	circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, signalAnim2)
+      ]),
+      showSignal = (pos: [Uint, Uint]) => {
+	signal.setAttribute("transform", `translate(${pos[0] - 50}, ${pos[1] - 50})`);
+	globals.root.appendChild(signal);
+	signalAnim1.beginElement();
+	signalAnim2.beginElement();
+      };
+
+inited.then(() => {rpc.waitSignalPosition().then(showSignal)});
