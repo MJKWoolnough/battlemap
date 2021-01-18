@@ -361,6 +361,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			deselectToken();
 		}
 		layer.tokens.splice(pos, 1);
+		delete globals.tokens[tk];
 		if (token instanceof SVGToken) {
 			token.cleanup();
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
