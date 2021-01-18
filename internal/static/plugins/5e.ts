@@ -496,6 +496,36 @@ const defaultLanguage = {
 		span(initiative.toString())
 	])
       }),
+      initChange = (token: SVGToken) => {
+	shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+		if (token === lastSelectedToken && initiative !== null) {
+			const init = parseInt(initiative);
+			if (isInt(init, -20, 40)) {
+				updateInitiative([token.id, init]);
+				saveInitiative();
+			}
+		}
+	});
+      },
+      initRemove = (token: SVGToken) => {
+	if (token !== lastSelectedToken) {
+		return;
+	}
+	updateInitiative([token.id, null]);
+	saveInitiative();
+      },
+      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+	if (!initiative) {
+		throw new Error("invalid initiative");
+	}
+	return parseInt(initiative);
+})).then(initiative => {
+	if (token !== lastSelectedToken || !isInt(initiative, -20, 40)) {
+		return;
+	}
+	updateInitiative([token.id, initiative]);
+	saveInitiative();
+      }).catch(() => {}),
       updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	initiativeList.splice(0, initiativeList.length);
@@ -683,24 +713,8 @@ const defaultLanguage = {
 			      mapData = globals.mapData as MapData5E;
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
-					item(lang["INITIATIVE_CHANGE"], () => {
-						shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-							if (token === lastSelectedToken && initiative !== null) {
-								const init = parseInt(initiative);
-								if (isInt(init, -20, 40)) {
-									updateInitiative([token.id, init]);
-									saveInitiative();
-								}
-							}
-						});
-					}),
-					item(lang["INITIATIVE_REMOVE"], () => {
-						if (token !== lastSelectedToken) {
-							return;
-						}
-						updateInitiative([token.id, null]);
-						saveInitiative();
-					}),
+					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
+					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
 					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
 						if (token !== lastSelectedToken) {
 							return;
@@ -712,22 +726,7 @@ const defaultLanguage = {
 					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
 			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-					if (!initiative) {
-						throw new Error("invalid initiative");
-					}
-					return parseInt(initiative);
-				})).then(initiative => {
-					if (token !== lastSelectedToken || !isInt(initiative, -20, 40)) {
-						return;
-					}
-					if (lastMapChange !== mapChange) {
-						shell.alert(mainLang["MAP_CHANGED"], mainLang["MAP_CHANGED_LONG"]);
-						throw new Error("map changed");
-					}
-					updateInitiative([token.id, initiative]);
-					saveInitiative();
-				}).catch(() => {})));
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => initAdd(token, initMod)));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
@@ -947,23 +946,32 @@ if (userLevel === 1) {
 		])]
 	};
 	globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
-		if (lastSelectedToken !== null && e.key === 'h') {
-			const token = lastSelectedToken,
-			      hp = token.getData("5e-hp-current");
-			if (hp !== null) {
-				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
-					globals.outline.focus();
-					if (hp === null || token !== lastSelectedToken) {
-						return;
-					}
-					const data = parseInt(hp);
-					if (data >= 0) {
-						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-						token.updateData();
-					}
-				});
+		if (lastSelectedToken !== null) {
+			const token = lastSelectedToken;
+			if (e.key === 'h') {
+				const hp = token.getData("5e-hp-current");
+				if (hp !== null) {
+					shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+						globals.outline.focus();
+						if (hp === null || token !== lastSelectedToken) {
+							return;
+						}
+						const data = parseInt(hp);
+						if (data >= 0) {
+							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+							token.updateData();
+						}
+					});
+				}
+				e.preventDefault();
+			} else if (e.key === 'i') {
+				const mapData = globals.mapData as MapData5E;
+				if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+					initChange(token);
+				} else {
+					initAdd(token, token.getData("5e-initiative-mod"));
+				}
 			}
-			e.preventDefault();
 		}
 	});
 }
