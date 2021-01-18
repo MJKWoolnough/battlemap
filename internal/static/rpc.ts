@@ -242,7 +242,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 					rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
 				} else {
 					let fn: Function;
-					ik[name] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
+					ik[internalWaiter] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
 					if (postKey === "") {
 						rk[name] = function() {
 							const a = processArgs(arguments, args as string[]);
