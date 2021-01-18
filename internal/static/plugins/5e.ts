@@ -276,8 +276,7 @@ addSymbol("5e-CONDITION_SLOW", symbol({"viewBox": "0 0 100 65"}, [defs(pattern({
 addSymbol("5e-CONDITION_STUNNED", symbol({"viewBox": "0 0 100 100"}, g({"stroke": "#000"}, [circle({"cx": 50, "cy": 50, "r": 49, "fill": "#fc8"}), path({"id": "5e-stunned", "d": "M30,40 l3,8.5 h9 l-7,5.5 l2.5,8 l-7.5,-5 l-7.5,5 l2.5,-8.5 l-7,-5.5 h9 z", "fill": "#ff0"}), use({"href": "#5e-stunned", "transform": "translate(40, 0) scale(0.5)", "stroke-width": 1.5}), path({"d": "M50,80 l-1,-8 l16,2 l-2,-16 l16,2 l-1,-8", "fill": "none", "stroke-linecap": "round", "stroke-linejoin": "round"})])));
 addSymbol("5e-CONDITION_UNCONSCIOUS", symbol({"viewBox": "0 0 100 100"}, [defs(path({"id": "5e-z", "d": "M3,2 h20 v3 l-15,20 h15 l1,-3 h1 l-1,5 h-20 v-3 l15,-20 h-15 l-1,3 h-1 z", "stroke-width": 1, "stroke": "#000", "fill": "#fff"})), use({"href": "#5e-z", "transform": "scale(1.2) translate(55, 0)"}), use({"href": "#5e-z", "transform": "translate(45, 30)"}), use({"href": "#5e-z", "transform": "scale(0.8) translate(35, 70)"}), use({"href": "#5e-z", "transform": "scale(0.6) translate(25, 130)"})]));
 
-let lastMapChange = 0,
-    n = 0,
+let n = 0,
     lastInitiativeID = 0,
     lastSelectedToken: SVGToken5E | null = null;
 
@@ -701,8 +700,7 @@ const defaultLanguage = {
 	"tokenContext": {
 		"priority": 0,
 		"fn": () => {
-			const token = lastSelectedToken,
-			      mapChange = lastMapChange;
+			const token = lastSelectedToken;
 			if (!token) {
 				return [];
 			}
@@ -979,7 +977,6 @@ if (userLevel === 1) {
 addPlugin("5e", plugin);
 
 mapLoadedReceive(() => {
-	lastMapChange = Date.now();
 	initiativeWindow.remove();
 	lastInitiativeID = 0;
 	updateInitiative();
