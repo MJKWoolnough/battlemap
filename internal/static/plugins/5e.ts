@@ -445,8 +445,8 @@ const defaultLanguage = {
 	const n = parseInt(s);
 	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
       },
-      sortAsc = (a: Initiative, b: Initiative) => a.token.tokenData["5e-initiative"]!.data.initiative - b.token.tokenData["5e-initiative"]!.data.initiative,
-      sortDesc = (a: Initiative, b: Initiative) => b.token.tokenData["5e-initiative"]!.data.initiative - a.token.tokenData["5e-initiative"]!.data.initiative,
+      sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
+      sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -684,8 +684,8 @@ const defaultLanguage = {
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => {
-						shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], token.tokenData["5e-initiative"].data.initiative.toString()).then(initiative => {
-							if (token === lastSelectedToken && token.tokenData["5e-initiative"] && initiative !== null) {
+						shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+							if (token === lastSelectedToken && initiative !== null) {
 								const init = parseInt(initiative);
 								if (isInt(init, -20, 40)) {
 									updateInitiative([token.id, init]);
