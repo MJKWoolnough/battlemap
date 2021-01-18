@@ -200,7 +200,7 @@ type NewMap = MapDetails & {
 
 export type GridDetails = {
 	gridType: Uint;
-	gridSize:  Uint;
+	gridSize: Uint;
 	gridStroke: Uint;
 	gridColour: Colour;
 }
