@@ -191,7 +191,7 @@ addTool({
 		label({"for": "strokeColour"}, `${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
 		br(),
-		label({"for": "fillColour"}, `${lang["TOOL_DRAW_STROKE_WIDTH"]}: `),
+		label({"for": "fillColour"}, `${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
