@@ -9,9 +9,6 @@ import {rpc} from './rpc.js';
 import {WindowElement, windows, loadingWindow, shell} from './windows.js';
 import {audioAssetName} from './assets.js';
 
-const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer; user-select: none", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em"}, lang["MUSIC_ENABLE"]))))),
-      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "style": "fill: currentColor"})));
-
 class Track {
 	id: Uint;
 	volume: Uint;
@@ -160,7 +157,9 @@ class Pack {
 	}
 }
 
-const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
+const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer; user-select: none", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em"}, lang["MUSIC_ENABLE"]))))),
+      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "style": "fill: currentColor"}))),
+      newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (getPack: (name: string) => (Pack | undefined)) => {
 	rpc.waitMusicPackVolume().then(pv => {
 		const pack = getPack(pv.musicPack);
@@ -234,8 +233,8 @@ export const userMusic = () => {
 		rpc.waitMusicPackTrackAdd().then(mt => {
 			const p = packs[mt.musicPack];
 			if (p) {
-				for (const t of mt.tracks) {
-					p.tracks.push(new Track(p, {"id": t, "volume": 255, "repeat": 0}));
+				for (const id of mt.tracks) {
+					p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
@@ -479,8 +478,8 @@ export default function(base: Node) {
 		rpc.waitMusicPackTrackAdd().then(mt => {
 			const pack = findPack(mt.musicPack);
 			if (pack) {
-				for (const t of mt.tracks) {
-					pack.tracks.push(new AdminTrack(pack, {"id": t, "volume": 255, "repeat": 0}));
+				for (const id of mt.tracks) {
+					pack.tracks.push(new AdminTrack(pack, {id, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
