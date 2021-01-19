@@ -373,7 +373,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				}
 				m.images.setHiddenLink(0, newToken.Token.Source)
 			}
-			if _, ok := mp.tokens[newToken.Token.ID]; !ok || newToken.Token.ID == 0 {
+			if _, ok := mp.tokens[newToken.Token.ID]; ok || newToken.Token.ID == 0 {
 				mp.lastTokenID++
 				newToken.Token.ID = mp.lastTokenID
 				pos := bytes.IndexByte(data[1:], '{') + 2
