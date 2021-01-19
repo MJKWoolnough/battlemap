@@ -597,17 +597,20 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		delete (tk as Record<string, any>)["path"];
+		let token: SVGToken | SVGShape | SVGDrawing;
 		if (isTokenImage(tk.token)) {
-			layer.tokens.push(SVGToken.from(tk.token));
+			token = SVGToken.from(tk.token);
 			const cID = tk.token.tokenData["store-character-id"];
 			if (tk.token.tokenData && cID && typeof cID.data === "number") {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 			}
 		} else if (isTokenDrawing(tk.token)) {
-			layer.tokens.push(SVGDrawing.from(tk.token));
+			token = SVGDrawing.from(tk.token);
 		} else {
-			layer.tokens.push(SVGShape.from(tk.token));
+			token = SVGShape.from(tk.token);
 		}
+		layer.tokens.push(token);
+		globals.tokens[token.id] = {layer, token};
 	}),
 	rpc.waitTokenMoveLayerPos().then(tm => {
 		const {layer, token} = globals.tokens[tm.id],
