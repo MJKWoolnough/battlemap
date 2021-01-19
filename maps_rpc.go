@@ -1,7 +1,6 @@
 package battlemap
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -376,13 +375,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			if _, ok := mp.tokens[newToken.Token.ID]; ok || newToken.Token.ID == 0 {
 				mp.lastTokenID++
 				newToken.Token.ID = mp.lastTokenID
-				pos := bytes.IndexByte(data[1:], '{') + 2
-				id := strconv.AppendUint(nil, mp.lastTokenID, 10)
-				data = append(append(append(append(append(make(json.RawMessage, 0, len(data)+len(id)+6), data[:pos]...), "\"id\":"...), id...), ','), data[pos:]...)
+				data = append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), false), '}')
 			}
 			l.Tokens = append(l.Tokens, newToken.Token)
 			mp.tokens[newToken.Token.ID] = layerToken{l, newToken.Token}
-			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data, userAny)
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, data, userAdmin)
+			m.socket.broadcastMapChange(cd, broadcastTokenAdd, append(newToken.Token.appendTo(append(appendString(append(data[:0], "{\"path\":"...), newToken.Path), ",\"token\":"...), true), '}'), userNotAdmin)
 			return true
 		}); err != nil {
 			return nil, err
