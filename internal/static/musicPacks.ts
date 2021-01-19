@@ -180,6 +180,12 @@ const newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": f
 			pack.stop();
 		}
 	});
+	rpc.waitMusicPackTrackRemove().then(mr => {
+		const pack = getPack(mr.musicPack);
+		if (pack && pack.tracks.length >= mr.track) {
+			pack.tracks[mr.track].remove();
+		}
+	});
 	rpc.waitMusicPackTrackVolume().then(mv => {
 		const pack = getPack(mv.musicPack);
 		if (pack && pack.tracks.length >= mv.track) {
@@ -225,12 +231,6 @@ export const userMusic = () => {
 				for (const t of mt.tracks) {
 					p.tracks.push(new Track(p, {"id": t, "volume": 255, "repeat": 0}));
 				}
-			}
-		});
-		rpc.waitMusicPackTrackRemove().then(mr => {
-			const pack = packs[mr.musicPack];
-			if (pack && pack.tracks.length >= mr.track) {
-				pack.tracks.splice(mr.track, 1);
 			}
 		});
 		commonWaits((name: string) => packs[name]);
@@ -476,12 +476,6 @@ export default function(base: Node) {
 				for (const t of mt.tracks) {
 					pack.tracks.push(new AdminTrack(pack, {"id": t, "volume": 255, "repeat": 0}));
 				}
-			}
-		});
-		rpc.waitMusicPackTrackRemove().then(mr => {
-			const pack = findPack(mr.musicPack);
-			if (pack && pack.tracks.length >= mr.track) {
-				pack.tracks[mr.track].remove();
 			}
 		});
 		commonWaits((name: string) => {
