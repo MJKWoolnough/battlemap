@@ -214,10 +214,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
-		globals.tokens[id] = {
-			layer,
-			token
-		};
+		globals.tokens[id] = {layer, token};
 	      },
 	      doIt = (sendRPC = true) => {
 		if (sendRPC) {
