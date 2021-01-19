@@ -214,7 +214,13 @@ export const userMusic = () => {
 				packs[ft.to] = p;
 			}
 		});
-		rpc.waitMusicPackRemove().then(name => delete packs[name]);
+		rpc.waitMusicPackRemove().then(name => {
+			const p = packs[name];
+			if (p) {
+				p.remove();
+				delete packs[name]
+			}
+		});
 		rpc.waitMusicPackCopy().then(ft => {
 			const p = packs[ft.from];
 			if (p) {
