@@ -231,7 +231,10 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["link",         "maps.link",         ["id", "name"], checkString,      "waitLinked", "name"]
 			]
 		      },
-		      pseudoWait = () => new Subscription<any>(() => {});
+		      pseudoWait = () => new Subscription<any>(() => {}),
+		      waitLogin = arpc.await(broadcastIsAdmin).then(checkUint);
+
+		rpc.waitLogin = () => waitLogin;
 
 		for (const e in endpoints) {
 			const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
@@ -296,7 +299,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				}
 			}
 		}
-		rpc.waitLogin = () => arpc.await(broadcastIsAdmin).then(checkUint);
 		initSend();
 		return Object.freeze(rpc);
 	});
