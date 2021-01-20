@@ -133,6 +133,10 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		}
 		c.socket.broadcastMapChange(cd, broadcastSignalPosition, data, who)
 		return nil, nil
+	case "maps.signalMovePosition":
+		if cd.IsAdmin() {
+			c.socket.broadcastMapChange(cd, broadcastSignalMovePosition, data, userNotAdmin)
+		}
 	case "broadcast":
 		if cd.IsAdmin() {
 			cd.CurrentMap = 0
