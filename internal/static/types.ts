@@ -74,6 +74,7 @@ type RPCWaits = {
 	waitPluginChange:            () => Subscription<void>;
 	waitPluginSetting:           () => Subscription<PluginSetting>;
 	waitSignalPosition:          () => Subscription<[Uint, Uint]>;
+	waitSignalMovePosition:      () => Subscription<[Uint, Uint]>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 }
 
@@ -100,12 +101,14 @@ export type RPC = RPCWaits & {
 	setUserMap:    (id: Uint) => Promise<void>;
 	getMapData:    (id: Uint) => Promise<MapData>;
 
-	newMap:            (map: NewMap)             => Promise<IDName>;
-	setMapDetails:     (map: GridDetails)        => Promise<void>;
-	setLightColour:    (c: Colour)               => Promise<void>;
-	setMapKeyData:     (key: string, value: any) => Promise<void>;
-	removeMapKeyData:  (key: string)             => Promise<void>;
-	signalPosition:    (pos: [Uint, Uint])       => Promise<void>;
+	newMap:           (map: NewMap)             => Promise<IDName>;
+	setMapDetails:    (map: GridDetails)        => Promise<void>;
+	setLightColour:   (c: Colour)               => Promise<void>;
+	setMapKeyData:    (key: string, value: any) => Promise<void>;
+	removeMapKeyData: (key: string)             => Promise<void>;
+
+	signalPosition:     (pos: [Uint, Uint]) => Promise<void>;
+	signalMovePosition: (pos: [Uint, Uint]) => Promise<void>;
 
 	addLayer:         (name: string)                                                         => Promise<string>;
 	addLayerFolder:   (path: string)                                                         => Promise<string>;
