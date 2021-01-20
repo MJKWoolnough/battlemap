@@ -1,4 +1,4 @@
-import {Uint} from './types.js';
+import {Uint, SVGAnimateBeginElement} from './types.js';
 import {SVGToken} from './map.js';
 import {createSVG, svg, animate, circle, g, path} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
@@ -176,10 +176,6 @@ export default Object.freeze({
 	},
 	"tokenMouseContext": (e: MouseEvent) => e.stopPropagation()
 });
-
-type SVGAnimateBeginElement = SVGAnimateElement & {
-	beginElement: Function;
-}
 
 const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
       signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,

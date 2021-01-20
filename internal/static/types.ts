@@ -435,3 +435,7 @@ type MusicPackTrackRepeat = {
 type IDPath = ID & {
 	path: string;
 }
+
+export type SVGAnimateBeginElement = SVGAnimateElement & {
+	beginElement: Function;
+}

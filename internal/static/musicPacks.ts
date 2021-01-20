@@ -1,4 +1,4 @@
-import {MusicPack, MusicTrack, Int, Uint} from './types.js';
+import {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './types.js';
 import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
@@ -281,9 +281,6 @@ export default function(base: Node) {
 				this.cleanup();
 				return super.remove();
 			}
-		}
-		type SVGAnimateBeginElement = SVGAnimateElement & {
-			beginElement: Function;
 		}
 		class AdminPack extends Pack {
 			tracks: SortNode<AdminTrack>;
