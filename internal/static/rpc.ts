@@ -86,6 +86,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitPluginChange",         broadcastPluginChange,         returnVoid],
 				["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
 				["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
+				["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
 				["waitBroadcast",            broadcastAny,                  checkBroadcast]
 			],
 			"images": [
@@ -140,7 +141,9 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["setLightColour",   "maps.setLightColour", "!",            returnVoid,  "waitMapLightChange", ""],
 				["setMapKeyData",    "maps.setData",       ["key", "data"], returnVoid,  "waitMapDataSet", ""],
 				["removeMapKeyData", "maps.removeData",     "!",            returnVoid,  "waitMapDataRemove", ""],
-				["signalPosition",   "maps.signalPosition", "!",            returnVoid, "", ""],
+
+				["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
+				["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
 
 				["addLayer",         "maps.addLayer",          "!",                                       checkString,      "waitLayerAdd", "*"],
 				["addLayerFolder",   "maps.addLayerFolder",    "!",                                       checkString,      "waitLayerFolderAdd", "*"],
