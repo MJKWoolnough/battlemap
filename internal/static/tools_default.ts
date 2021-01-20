@@ -167,7 +167,11 @@ export default Object.freeze({
 	"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
-		rpc.signalPosition(pos);
+		if (e.ctrlKey && isAdmin) {
+			rpc.signalMovePosition(pos);
+		} else {
+			rpc.signalPosition(pos);
+		}
 		e.preventDefault();
 	},
 	"tokenMouseContext": (e: MouseEvent) => e.stopPropagation()
@@ -190,4 +194,19 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	signalAnim2.beginElement();
       };
 
-inited.then(() => {rpc.waitSignalPosition().then(showSignal)});
+let isAdmin = false;
+
+inited.then(() => {
+	rpc.waitLogin().then(level => {
+		isAdmin = level === 1;
+		if (!isAdmin) {
+			rpc.waitSignalMovePosition().then(pos => {
+				panZoom.x = window.innerWidth / 2 / panZoom.zoom - pos[0];
+				panZoom.y = window.innerHeight / 2 / panZoom.zoom - pos[1];
+				createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+				showSignal(pos);
+			});
+		}
+	});
+	rpc.waitSignalPosition().then(showSignal);
+});
