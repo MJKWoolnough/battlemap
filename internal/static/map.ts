@@ -143,7 +143,7 @@ export class SVGToken extends SVGTransform {
 			svgToken.width = width;
 			svgToken.height = height;
 		}
-		Object.defineProperty(this, "node", {"enumerable": false});
+		Object.defineProperty(svgToken, "node", {"enumerable": false});
 		if (svgToken.init instanceof Function) {
 			svgToken.init();
 		}
@@ -212,7 +212,7 @@ export class SVGShape extends SVGTransform {
 		}
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
 		createSVG(node, {"class": "mapShape", "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
-		Object.defineProperty(this, "node", {"enumerable": false});
+		Object.defineProperty(svgShape, "node", {"enumerable": false});
 		return svgShape;
 	}
 	at(x: Int, y: Int) {
@@ -257,7 +257,7 @@ export class SVGDrawing extends SVGShape {
 		      node = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
 		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {node, oWidth, oHeight}), SVGDrawing.prototype);
 		node.setAttribute("transform", svgDrawing.transformString());
-		Object.defineProperty(this, "node", {"enumerable": false});
+		Object.defineProperty(svgDrawing, "node", {"enumerable": false});
 		return svgDrawing;
 	}
 	updateNode() {
