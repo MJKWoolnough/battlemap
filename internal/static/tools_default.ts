@@ -12,8 +12,7 @@ export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	const width = parseInt(root.getAttribute("width") || "0") / 2,
 	      height = parseInt(root.getAttribute("height") || "0") / 2,
-	      oldZoom = panZoom.zoom,
-	      {outline} = globals;
+	      oldZoom = panZoom.zoom;
 	if (delta < 0) {
 		panZoom.zoom /= -delta;
 	} else if (delta > 0) {
@@ -21,9 +20,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	}
 	panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 	panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-	if (outline instanceof SVGGElement) {
-		createSVG(outline, {"--zoom": panZoom.zoom});
-	}
+	createSVG(globals.outline, {"--zoom": panZoom.zoom});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 },
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
