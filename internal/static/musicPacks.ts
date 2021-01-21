@@ -204,48 +204,46 @@ let timeShift = 0;
 
 inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000);
 
-export const userMusic = () => {
-	audioEnabled().then(rpc.musicPackList).then(list => {
-		const packs: Record<string, Pack> = {};
-		for (const name in list) {
-			packs[name] = new Pack(list[name]);
+export const userMusic = () => audioEnabled().then(rpc.musicPackList).then(list => {
+	const packs: Record<string, Pack> = {};
+	for (const name in list) {
+		packs[name] = new Pack(list[name]);
+	}
+	rpc.waitMusicPackAdd().then(name => packs[name] = new Pack(newPack()));
+	rpc.waitMusicPackRename().then(ft => {
+		const p = packs[ft.from];
+		if (p) {
+			delete packs[ft.from];
+			packs[ft.to] = p;
 		}
-		rpc.waitMusicPackAdd().then(name => packs[name] = new Pack(newPack()));
-		rpc.waitMusicPackRename().then(ft => {
-			const p = packs[ft.from];
-			if (p) {
-				delete packs[ft.from];
-				packs[ft.to] = p;
-			}
-		});
-		rpc.waitMusicPackRemove().then(name => {
-			const p = packs[name];
-			if (p) {
-				p.remove();
-				delete packs[name]
-			}
-		});
-		rpc.waitMusicPackCopy().then(ft => {
-			const p = packs[ft.from];
-			if (p) {
-				const tracks: MusicTrack[] = [];
-				for (const track in p.tracks) {
-					tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
-				}
-				packs[ft.to] = new Pack({tracks, "volume": p.volume, "playTime": 0});
-			}
-		});
-		rpc.waitMusicPackTrackAdd().then(mt => {
-			const p = packs[mt.musicPack];
-			if (p) {
-				for (const id of mt.tracks) {
-					p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
-				}
-			}
-		});
-		commonWaits((name: string) => packs[name]);
 	});
-};
+	rpc.waitMusicPackRemove().then(name => {
+		const p = packs[name];
+		if (p) {
+			p.remove();
+			delete packs[name]
+		}
+	});
+	rpc.waitMusicPackCopy().then(ft => {
+		const p = packs[ft.from];
+		if (p) {
+			const tracks: MusicTrack[] = [];
+			for (const track in p.tracks) {
+				tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
+			}
+			packs[ft.to] = new Pack({tracks, "volume": p.volume, "playTime": 0});
+		}
+	});
+	rpc.waitMusicPackTrackAdd().then(mt => {
+		const p = packs[mt.musicPack];
+		if (p) {
+			for (const id of mt.tracks) {
+				p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
+			}
+		}
+	});
+	commonWaits((name: string) => packs[name]);
+});
 
 export default function(base: Node) {
 	audioEnabled().then(rpc.musicPackList).then(list => {
