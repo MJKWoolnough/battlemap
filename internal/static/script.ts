@@ -172,6 +172,11 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
+	window.addEventListener("keydown", (e: KeyboardEvent) => {
+		if (e.key === "F9") {
+			c.checked = !c.checked;
+		}
+	});
 	return o;
       }()),
       spinner = (id: string) => h2({"id": id}, [lang["LOADING"], div({"class": "loadSpinner"})]),
