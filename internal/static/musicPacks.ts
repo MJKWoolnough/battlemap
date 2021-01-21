@@ -5,7 +5,7 @@ import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
-import {rpc} from './rpc.js';
+import {rpc, inited} from './rpc.js';
 import {WindowElement, windows, loadingWindow, shell} from './windows.js';
 import {audioAssetName} from './assets.js';
 
@@ -50,11 +50,11 @@ class Track {
 			window.clearTimeout(this.repeatWait);
 			this.repeatWait = -1;
 		}
-		const now = Date.now() / 1000,
+		const tnow = now(),
 		      length = this.audioElement.duration;
 		if (this.repeat === -1) {
-			if (now < this.parent.playTime + length) {
-				this.audioElement.currentTime = now - this.parent.playTime;
+			if (tnow < this.parent.playTime + length) {
+				this.audioElement.currentTime = tnow - this.parent.playTime;
 				this.audioElement.play();
 			} else {
 				this.stop();
@@ -62,7 +62,7 @@ class Track {
 			}
 		} else {
 			const cycle = length + this.repeat,
-			      p = (now - this.parent.playTime) % cycle;
+			      p = (tnow - this.parent.playTime) % cycle;
 			if (p < length) {
 				this.audioElement.currentTime = p;
 				this.audioElement.play();
@@ -197,7 +197,12 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
 			pack.tracks[mr.track].setRepeat(mr.repeat);
 		}
 	});
-      };
+      },
+      now = () => timeShift + Date.now() / 1000;
+
+let timeShift = 0;
+
+inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000);
 
 export const userMusic = () => {
 	audioEnabled().then(rpc.musicPackList).then(list => {
@@ -321,7 +326,7 @@ export default function(base: Node) {
 						this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this.playTime === 0) {
-								this.play(Date.now(), true);
+								this.play(now(), true);
 							} else {
 								this.pause(true);
 							}
