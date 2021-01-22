@@ -48,7 +48,6 @@ export default Object.freeze({
 		if (e.button !== 0 && e.button !== 1) {
 			return;
 		}
-		document.body.classList.toggle("dragging", true);
 		const {outline} = globals;
 		if (!e.ctrlKey && e.button !== 1) {
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
@@ -58,6 +57,7 @@ export default Object.freeze({
 				return;
 			}
 		}
+		document.body.classList.toggle("dragging", true);
 		this.style.setProperty("--outline-cursor", "grabbing");
 		let mX = e.clientX,
 		    mY = e.clientY,
