@@ -111,9 +111,15 @@ export default function (base: HTMLElement) {
 	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
 	fc.click();
 	mapLoadedReceive(() => {
-		for (const c of list.childNodes as NodeListOf<HTMLElement>) {
-			c.classList.remove("selected");
+		if (selectedTool !== defaultTool) {
+			for (const c of list.childNodes as NodeListOf<HTMLElement>) {
+				c.classList.remove("selected");
+			}
+			fc.classList.add("selected");
+			if (selectedTool.unset) {
+				selectedTool.unset();
+			}
+			selectedTool = defaultTool;
 		}
-		fc.classList.add("selected");
 	});
 }
