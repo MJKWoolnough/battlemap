@@ -86,7 +86,7 @@ export default function (base: HTMLElement) {
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
-		if (selectedTool?.unset) {
+		if (selectedTool.unset) {
 			selectedTool.unset();
 		}
 		if (t.set) {
