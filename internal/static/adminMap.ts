@@ -711,7 +711,7 @@ export default function(base: HTMLElement) {
 			doTokenRemove(token.id);
 			return;
 		}
-		let {x, y} = token;
+		let {x, y, rotation} = token;
 		if (token.snap) {
 			const {mapData: {gridSize, gridType}} = globals,
 			      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
@@ -724,10 +724,30 @@ export default function(base: HTMLElement) {
 				y += v;
 				break;
 			case "ArrowLeft":
-				x -= h;
+				if (e.shiftKey) {
+					const {mapData: {gridType}} = globals,
+					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
+					rotation = Math.round(rotation - deg);
+					while (rotation < 0) {
+						rotation += 256;
+					}
+					e.preventDefault();
+				} else {
+					x -= h;
+				}
 				break;
 			case "ArrowRight":
-				x += h;
+				if (e.shiftKey) {
+					const {mapData: {gridType}} = globals,
+					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
+					rotation = Math.round(rotation + deg);
+					while (rotation > 255) {
+						rotation -= 256;
+					}
+					e.preventDefault();
+				} else {
+					x += h;
+				}
 				break;
 			default:
 				return;
@@ -745,7 +765,7 @@ export default function(base: HTMLElement) {
 				return;
 			}
 		}
-		doTokenSet({"id": token.id, x, y});
+		doTokenSet({"id": token.id, x, y, rotation});
 	      }, "onkeydown": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
 		if (!token) {
