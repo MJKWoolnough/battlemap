@@ -760,6 +760,7 @@ export default function(base: HTMLElement) {
 			case "ArrowRight":
 				token.x = tokenMousePos.x;
 				token.y = tokenMousePos.y;
+				token.rotation = tokenMousePos.rotation;
 				break;
 			default:
 				return;
@@ -782,10 +783,26 @@ export default function(base: HTMLElement) {
 			token.y++;
 			break;
 		case "ArrowLeft":
-			token.x--;
+			if (e.shiftKey) {
+				token.rotation--;
+				while (token.rotation < 0) {
+					token.rotation += 256;
+				}
+				e.preventDefault();
+			} else {
+				token.x--;
+			}
 			break;
 		case "ArrowRight":
-			token.x++;
+			if (e.shiftKey) {
+				token.rotation++;
+				while (token.rotation > 255) {
+					token.rotation -= 256;
+				}
+				e.preventDefault();
+			} else {
+				token.x++;
+			}
 			break;
 		default:
 			return;
