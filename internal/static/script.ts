@@ -175,6 +175,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	window.addEventListener("keydown", (e: KeyboardEvent) => {
 		if (e.key === "F9") {
 			c.checked = !c.checked;
+			e.preventDefault();
 		}
 	});
 	return o;
