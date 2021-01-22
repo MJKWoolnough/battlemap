@@ -207,21 +207,18 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		}
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), true);
 		loadMap(base.appendChild(div()));
-		document.head.appendChild(style({"type": "text/css"}, tabs.css));
-		base.appendChild(tabs.html);
-		clearElement(document.body).appendChild(shell);
 	} else {
 		lastTab.set(0);
 		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1]);
 		}
-		loadUserMap(base.appendChild(div({"style": "height: 100%"})));
+		loadUserMap(base.appendChild(div()));
 		userMusic();
-		document.head.appendChild(style({"type": "text/css"}, tabs.css));
-		base.appendChild(tabs.html);
-		clearElement(document.body).appendChild(shell);
 	}
+	document.head.appendChild(style({"type": "text/css"}, tabs.css));
+	base.appendChild(tabs.html);
+	clearElement(document.body).appendChild(shell);
 	shell.realignWindows();
 	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
 }))).catch(handleError);
