@@ -23,6 +23,8 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	const sub = new Subscription<T>(resolver => fn = resolver);
 	return [fn!, sub];
       },
+      unusedWait = new Subscription<any>(() => {}),
+      invalidRPC = () => Promise.reject("invalid"),
       waitAdded = subFn<IDName[]>(),
       waitRemoved = subFn<string>(),
       waitFolderAdded = subFn<string>(),
@@ -47,9 +49,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	}
       };
 
-let copiedToken: Token | null = null,
-    mapLayersSend: (l: LayerRPC) => void;
-
+let copiedToken: Token | null = null;
 
 export const getToken = () => {
 	const {token} = globals.selected;
@@ -560,7 +560,32 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	}}
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 },
-layersRPC = new Promise<LayerRPC>(success => mapLayersSend = success);
+layersRPC: LayerRPC = {
+	"waitAdded": () => waitAdded[1],
+	"waitMoved": () => unusedWait,
+	"waitRemoved": () => waitRemoved[1],
+	"waitLinked": () => unusedWait,
+	"waitFolderAdded": () => waitFolderAdded[1],
+	"waitFolderMoved": () => unusedWait,
+	"waitFolderRemoved": () => waitFolderRemoved[1],
+	"waitLayerSetVisible": () => waitLayerShow[1],
+	"waitLayerSetInvisible": () => waitLayerHide[1],
+	"waitLayerPositionChange": () => waitLayerPositionChange[1],
+	"waitLayerRename": () => waitLayerRename[1],
+	"list": invalidRPC,
+	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
+	"move": invalidRPC,
+	"moveFolder": invalidRPC,
+	"remove": path => {
+		undo.clear();
+		return removeS(path);
+	},
+	"removeFolder": path => {
+		undo.clear();
+		return removeS(path);
+	},
+	"link": invalidRPC
+};
 
 export default function(base: HTMLElement) {
 	let tokenDragMode = 0;
@@ -1037,8 +1062,6 @@ export default function(base: HTMLElement) {
 			}
 		}
 	      },
-	      unusedWait = new Subscription<any>(() => {}),
-	      invalidRPC = () => Promise.reject("invalid"),
 	      pasteCoords = [0, 0];
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
@@ -1049,32 +1072,6 @@ export default function(base: HTMLElement) {
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
 	}));
-	mapLayersSend({
-		"waitAdded": () => waitAdded[1],
-		"waitMoved": () => unusedWait,
-		"waitRemoved": () => waitRemoved[1],
-		"waitLinked": () => unusedWait,
-		"waitFolderAdded": () => waitFolderAdded[1],
-		"waitFolderMoved": () => unusedWait,
-		"waitFolderRemoved": () => waitFolderRemoved[1],
-		"waitLayerSetVisible": () => waitLayerShow[1],
-		"waitLayerSetInvisible": () => waitLayerHide[1],
-		"waitLayerPositionChange": () => waitLayerPositionChange[1],
-		"waitLayerRename": () => waitLayerRename[1],
-		"list": invalidRPC,
-		"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
-		"move": invalidRPC,
-		"moveFolder": invalidRPC,
-		"remove": path => {
-			undo.clear();
-			return removeS(path);
-		},
-		"removeFolder": path => {
-			undo.clear();
-			return removeS(path);
-		},
-		"link": invalidRPC
-	});
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
