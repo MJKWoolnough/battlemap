@@ -196,8 +196,9 @@ inited.then(() => {
 		isAdmin = level === 1;
 		if (!isAdmin) {
 			rpc.waitSignalMovePosition().then(pos => {
-				panZoom.x = window.innerWidth / 2 / panZoom.zoom - pos[0];
-				panZoom.y = window.innerHeight / 2 / panZoom.zoom - pos[1];
+				const {mapData: {width, height}} = globals;
+				panZoom.x = (window.innerWidth - width) / 2 - (pos[0] - width / 2) * panZoom.zoom;
+				panZoom.y = (window.innerHeight - height) / 2 - (pos[1] - height / 2) * panZoom.zoom;
 				createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 				showSignal(pos);
 			});
