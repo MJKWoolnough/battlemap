@@ -57,7 +57,9 @@ export default Object.freeze({
 				return;
 			}
 		}
-		document.body.classList.toggle("dragging", true);
+		if (!isAdmin) {
+			document.body.classList.toggle("dragging", true);
+		}
 		this.style.setProperty("--outline-cursor", "grabbing");
 		let mX = e.clientX,
 		    mY = e.clientY,
@@ -74,7 +76,9 @@ export default Object.freeze({
 			if (!moved) {
 				deselectToken();
 			}
-			document.body.classList.remove("dragging");
+			if (!isAdmin) {
+				document.body.classList.remove("dragging");
+			}
 			this.style.removeProperty("--outline-cursor");
 			this.removeEventListener("mousemove", viewDrag);
 			this.removeEventListener("mouseup", stop);
