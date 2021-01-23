@@ -1,5 +1,6 @@
 import {SVGAnimateBeginElement} from './types.js';
-import {div, h1, input, label, span} from './lib/html.js';
+import {clearElement} from './lib/dom.js';
+import {createHTML, div, h1, input, label, span} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {shell, windows} from './windows.js';
 import lang from './language.js';
@@ -12,19 +13,19 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
       mapSignal = input({"id": "helpMapSignal", "type": "radio", "name": "helpInstruction"}),
       panelOpen = input({"id": "helpPanelOpen", "type": "radio", "name": "helpInstruction"}),
       panelResize = input({"id": "helpPanelResize", "type": "radio", "name": "helpInstruction"}),
-      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end 0.5s"}) as SVGAnimateBeginElement,
-      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
-      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
-      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": () => {
-	if (mapDrag.checked) {
-		startMapDragDemo.beginElement();
-	} else if (panelOpen.checked) {
-		startPanelOpenDemo.beginElement();
-	}
-      }}) as SVGAnimateBeginElement,
-      help = windows({"title": lang["HELP"], "maximised": true}, div({"id": "help"}, [
-	h1(lang["HELP"]),
-	svg({"viewBox": "0 0 500 300"}, [
+      createDemo = () => {
+	const mouseInit = animateMotion({"id": "helpMouseInit", "dur": "1s", "fill": "freeze", "path": "M0,0 L250,150"}) as SVGAnimateBeginElement,
+	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end 0.5s"}) as SVGAnimateBeginElement,
+	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": () => {
+		if (mapDrag.checked) {
+			startMapDragDemo.beginElement();
+		} else if (panelOpen.checked) {
+			startPanelOpenDemo.beginElement();
+		}
+	      }}) as SVGAnimateBeginElement;
+	return svg({"viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
 			rect({"width": "1000", "height": "600", "fill": "#00f"}),
@@ -60,7 +61,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 				animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
 				animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenMouse1.end 0.5s"}),
 			]),
-			animateMotion({"id": "helpMouseInit", "dur": "1s", "fill": "freeze", "path": "M0,0 L250,150"}),
+			mouseInit,
 			animateMotion({"id": "helpMapDragMouse", "dur": "5s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
 
 			startPanelOpenDemo,
@@ -68,33 +69,33 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			restartPanelOpenDemo,
 			endPanelDemo
 		])
-	]),
-	mapDrag,
-	label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
-	mapZoom,
-	label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
-	mapScroll,
-	label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
-	mapSignal,
-	label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
-	panelOpen,
-	label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
-	panelResize,
-	label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
-]));
-
-let first = true;
+	      ]);
+      },
+      help = windows({"window-title": lang["HELP"], "maximised": true});
 
 export default function () {
 	if (!help.parentNode) {
-		shell.appendChild(help);
-		if (first) {
-			window.setTimeout(() => {
-				const w = settingsText.getComputedTextLength() + 5;
-				settingsOutline.setAttribute("d", `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${775 - w}`);
-			}, 0);
-			first = false;
-		}
+		shell.appendChild(createHTML(clearElement(help), div({"id": "help"}, [
+				h1(lang["HELP"]),
+				createDemo(),
+				mapDrag,
+				label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
+				mapZoom,
+				label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
+				mapScroll,
+				label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
+				mapSignal,
+				label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
+				panelOpen,
+				label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
+				panelResize,
+				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
+		])));
+		window.setTimeout(() => {
+			const w = settingsText.getComputedTextLength() + 5;
+			settingsOutline.setAttribute("d", `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${775 - w}`);
+			mapDrag.click();
+		}, 0);
 	} else {
 		help.remove();
 	}
