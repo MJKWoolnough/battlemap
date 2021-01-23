@@ -42,6 +42,7 @@ const defaultLanguage = {
 	"FOLDER_NAME": "Folder Name",
 	"FOLDER_REMOVE": "Remove Folder",
 	"FOLDER_REMOVE_CONFIRM": "Remove the following folder? NB: This will remove all folders and items it contains.",
+	"HELP": "Help",
 	"HIDE_MENU": "Hide Menu Button?",
 	"INVALID_ACTION": "Invalid Action",
 	"INVALID_RENAME": "Cannot rename active map",
