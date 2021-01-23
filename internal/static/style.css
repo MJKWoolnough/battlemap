@@ -166,3 +166,7 @@ windows-window {
 input[type="number"] {
 	width: 5em;
 }
+
+#helpBack {
+	fill: #fff;
+}

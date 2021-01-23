@@ -69,3 +69,7 @@
 .invert .hasMapCurrent > details > summary {
 	background-color: #600 !important;
 }
+
+.invert #helpBack {
+	fill: #000;
+}
