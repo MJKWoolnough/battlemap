@@ -1,3 +1,4 @@
+import {SVGAnimateBeginElement} from './types.js';
 import {div, h1, input, label, span} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {shell, windows} from './windows.js';
@@ -5,12 +6,13 @@ import lang from './language.js';
 
 const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "style": "fill: currentColor"}, lang["TAB_SETTINGS"]),
-      mapDrag = input({"id": "helpMapDrag", "type": "radio", "name": "helpInstruction"}),
+      mapDrag = input({"id": "helpMapDrag", "type": "radio", "name": "helpInstruction", "checked": true}),
       mapZoom = input({"id": "helpMapZoom", "type": "radio", "name": "helpInstruction"}),
       mapScroll = input({"id": "helpMapScroll", "type": "radio", "name": "helpInstruction"}),
       mapSignal = input({"id": "helpMapSignal", "type": "radio", "name": "helpInstruction"}),
       panelOpen = input({"id": "helpPanelOpen", "type": "radio", "name": "helpInstruction"}),
       panelResize = input({"id": "helpPanelResize", "type": "radio", "name": "helpInstruction"}),
+      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end"}) as SVGAnimateBeginElement,
       help = windows({"title": lang["HELP"], "maximised": true}, div({"id": "help"}, [
 	h1(lang["HELP"]),
 	svg({"viewBox": "0 0 500 300"}, [
@@ -19,6 +21,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			rect({"width": "1000", "height": "600", "fill": "#00f"}),
 			path({"d": "M50,150 C200,0 400,300 500,250 S 600,300 900,200 S950,400 850,500 S400,600 300,550 S0,300 50,150 Z", "fill": "#0f0"}),
 			rect({"width": "1000", "height": "600", "fill": "url(#helpGrid)"}),
+			animateMotion({"dur": "5s", "path": "M0,0 C-50,150 -150,-150 -250,-150 C-150,150 250,150 0,0", "begin": "helpMapDragClick1.end"})
 		]),
 		g({"transform": "translate(500, 0)"}, [
 			rect({"id": "helpBack", "width": "100%", "height": "100%"}),
@@ -27,7 +30,17 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			settingsText
 		]),
 		g([
-			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z", "stroke": "#000", "fill": "#fff"})
+			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z", "stroke": "#000", "fill": "#fff"}, [
+				startMapDragDemo,
+				animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "2s", "begin": "helpMapDragMouse.end", "onendEvent": () => {
+					if (mapDrag.checked) {
+						startMapDragDemo.beginElement();
+					}
+
+				}})
+			]),
+			animateMotion({"id": "helpMouseInit", "dur": "1s", "fill": "freeze", "path": "M0,0 L250,150"}),
+			animateMotion({"id": "helpMapDragMouse", "dur": "5s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"})
 		])
 	]),
 	mapDrag,
