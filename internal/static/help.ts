@@ -12,7 +12,16 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
       mapSignal = input({"id": "helpMapSignal", "type": "radio", "name": "helpInstruction"}),
       panelOpen = input({"id": "helpPanelOpen", "type": "radio", "name": "helpInstruction"}),
       panelResize = input({"id": "helpPanelResize", "type": "radio", "name": "helpInstruction"}),
-      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end"}) as SVGAnimateBeginElement,
+      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end 0.5s"}) as SVGAnimateBeginElement,
+      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
+      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
+      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": () => {
+	if (mapDrag.checked) {
+		startMapDragDemo.beginElement();
+	} else if (panelOpen.checked) {
+		startPanelOpenDemo.beginElement();
+	}
+      }}) as SVGAnimateBeginElement,
       help = windows({"title": lang["HELP"], "maximised": true}, div({"id": "help"}, [
 	h1(lang["HELP"]),
 	svg({"viewBox": "0 0 500 300"}, [
@@ -27,20 +36,37 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			rect({"id": "helpBack", "width": "100%", "height": "100%"}),
 			settingsOutline,
 			circle({"cy": 11, "r": 10, "stroke": "#f00", "stroke-width": 2, "fill": "#000"}),
-			settingsText
+			settingsText,
+			animateTransform({"id": "helpPanelOpenOpen", "attributeName": "transform", "type": "translate", "from": "500 0", "to": "250 0", "dur": "1s", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
+			animateTransform({"attributeName": "transform", "type": "translate", "from": "250 0", "to": "500 0", "dur": "1s", "fill": "freeze", "begin": "helpPanelOpenClick2.end 0.1s", "onendEvent": () => {
+				if (panelOpen.checked) {
+					restartPanelOpenDemo.beginElement();
+				} else {
+					endPanelDemo.beginElement();
+				}
+			}}),
 		]),
 		g([
 			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z", "stroke": "#000", "fill": "#fff"}, [
 				startMapDragDemo,
-				animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "2s", "begin": "helpMapDragMouse.end", "onendEvent": () => {
+				animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "1s", "begin": "helpMapDragMouse.end", "onendEvent": () => {
 					if (mapDrag.checked) {
 						startMapDragDemo.beginElement();
+					} else if (panelOpen.checked) {
+						startPanelOpenDemo.beginElement();
 					}
 
-				}})
+				}}),
+				animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
+				animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenMouse1.end 0.5s"}),
 			]),
 			animateMotion({"id": "helpMouseInit", "dur": "1s", "fill": "freeze", "path": "M0,0 L250,150"}),
-			animateMotion({"id": "helpMapDragMouse", "dur": "5s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"})
+			animateMotion({"id": "helpMapDragMouse", "dur": "5s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
+
+			startPanelOpenDemo,
+			animateMotion({"id": "helpPanelOpenMouse1", "dur": "2.5s", "path": "M495,13 C200,400 0,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s"}),
+			restartPanelOpenDemo,
+			endPanelDemo
 		])
 	]),
 	mapDrag,
