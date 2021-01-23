@@ -22,6 +22,7 @@ import './tools_mask.js';
 import './tools_measure.js';
 import './tools_move.js';
 import './tools_zoom.js';
+import help from './help.js';
 import pluginInit, {menuItems} from './plugins.js';
 import lang from './language.js';
 import {BoolSetting, IntSetting, JSONSetting} from './settings_types.js';
@@ -175,6 +176,9 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	window.addEventListener("keydown", (e: KeyboardEvent) => {
 		if (e.key === "F9") {
 			c.checked = !c.checked;
+			e.preventDefault();
+		} else if (e.key === "F1") {
+			help();
 			e.preventDefault();
 		}
 	});
