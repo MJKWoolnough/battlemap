@@ -1,9 +1,10 @@
 import {IDName, Uint, FolderItems} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {audio, button, div, form, h1, img, input, label, progress} from './lib/html.js';
+import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem, Item} from './folders.js';
+import {labels} from './misc.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
 import {rpc} from './rpc.js';
@@ -90,39 +91,36 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 		const root = new Root(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset, fileType === "AUDIO" ? AudioFolder : Folder);
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
-				const f = form({"enctype": "multipart/form-data", "method": "post"}, [
-					label({"for": "addAssets"}, lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]),
-					autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
-						const bar = progress({"style": "width: 100%"}) as HTMLElement;
-						loadingWindow(
-							(HTTPRequest(`/${fileType.toLowerCase()}/`, {
-								"data": new FormData(f),
-								"method": "POST",
-								"response": "json",
-								"onprogress": (e: ProgressEvent) => {
-									if (e.lengthComputable) {
-										createHTML(bar, {"value": e.loaded, "max": e.total});
-										bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
-									}
+				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets_", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+					const bar = progress({"style": "width: 100%"}) as HTMLElement;
+					loadingWindow(
+						(HTTPRequest(`/${fileType.toLowerCase()}/`, {
+							"data": new FormData(f),
+							"method": "POST",
+							"response": "json",
+							"onprogress": (e: ProgressEvent) => {
+								if (e.lengthComputable) {
+									createHTML(bar, {"value": e.loaded, "max": e.total});
+									bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 								}
-							}) as Promise<IDName[]>)
-							.then((assets: IDName[]) => {
-								for (const {id, name} of assets) {
-									root.addItem(id, name);
-								}
-								window.remove();
-							})
-							.finally(() => this.removeAttribute("disabled")),
-							window,
-							lang["UPLOADING"],
-							div({"class": "loadBar"}, [
-								div(lang["UPLOADING"]),
-								bar
-							])
-						);
-						this.toggleAttribute("disabled", true);
-					}}))
-				      ]),
+							}
+						}) as Promise<IDName[]>)
+						.then((assets: IDName[]) => {
+							for (const {id, name} of assets) {
+								root.addItem(id, name);
+							}
+							window.remove();
+						})
+						.finally(() => this.removeAttribute("disabled")),
+						window,
+						lang["UPLOADING"],
+						div({"class": "loadBar"}, [
+							div(lang["UPLOADING"]),
+							bar
+						])
+					);
+					this.toggleAttribute("disabled", true);
+				      }})))),
 				      window = shell.appendChild(windows({"window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
 			}}),
 			root.node
