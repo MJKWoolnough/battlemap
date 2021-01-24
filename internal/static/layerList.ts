@@ -1,11 +1,11 @@
 import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, div, h1, input, label, option, select, span} from './lib/html.js';
+import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {SVGLayer, globals, getLayer} from './map.js';
 import {deselectToken, doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './adminMap.js';
-import {mapLoadedReceive, enterKey, queue} from './misc.js';
+import {mapLoadedReceive, enterKey, queue, labels} from './misc.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -42,12 +42,11 @@ const dragFn = (e: MouseEvent) => {
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
-	      newName = autoFocus(input({"type": "text", "id": "renameLayer", "value": self.name, "onkeypress": enterKey})),
+	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey})),
 	      window = shell.appendChild(windows({"window-title": lang["LAYER_RENAME"]}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
-		label({"for": "renameLayer"}, `${lang["LAYER_NAME"]}: `),
-		newName,
+		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
 		button(lang["LAYER_RENAME"], {"onclick": function(this: HTMLButtonElement) {
 			this.toggleAttribute("disabled", true);
@@ -149,31 +148,25 @@ class ItemLayer extends Item {
 		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
 			const {mapData} = globals,
-			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize), "id": "mapWidth"}),
-			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize), "id": "mapHeight"}),
-			      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
-			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth"}),
-			      sqColour = input({"type": "color", "id": "mapSquareColour", "value": colour2Hex(mapData.gridColour)}),
-			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth"}),
+			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize), "id": "mapWidth_"}),
+			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize), "id": "mapHeight_"}),
+			      sqType = select({"id": "mapSquareType_"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
+			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth_"}),
+			      sqColour = input({"type": "color", "id": "mapSquareColour_", "value": colour2Hex(mapData.gridColour)}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth_"}),
 			      window = shell.appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
-				label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
-				width,
+				labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
 				br(),
-				label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
-				height,
+				labels(`${lang["MAP_SQUARE_HEIGHT"]}: `, height),
 				br(),
-				label({"for": "mapSquareType"}, `${lang["MAP_SQUARE_TYPE"]}: `),
-				sqType,
+				labels(`${lang["MAP_SQUARE_TYPE"]}: `, sqType),
 				br(),
-				label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
-				sqWidth,
+				labels(`${lang["MAP_SQUARE_SIZE"]}: `, sqWidth),
 				br(),
-				label({"for": "mapSquareColour"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
-				sqColour,
+				labels(`${lang["MAP_SQUARE_COLOUR"]}: `, sqColour),
 				br(),
-				label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_LINE"]}: `),
-				sqLineWidth,
+				labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 				br(),
 				button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
@@ -317,12 +310,11 @@ export default function(base: HTMLElement) {
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
-				const name = autoFocus(input({"id": "layerName", "onkeypress": enterKey})),
+				const name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey})),
 				      window = shell.appendChild(windows({"window-title": "Add Layer"}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1("Add Layer"),
-					label({"for": "layerName"}, "Layer Name"),
-					name,
+					labels("Layer Name", name),
 					br(),
 					button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
 						this.toggleAttribute("disabled", true);
