@@ -4,6 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterData} from './characters.js';
+import {labels} from './misc.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -48,11 +49,10 @@ export default function (base: Node) {
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
-				const name = autoFocus(input({"id": "characterName"})),
+				const name = autoFocus(input({"id": "characterName_"})),
 				      w = shell.appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 					h1(lang["CHARACTER_NEW"]),
-					label({"for": "characterName"}, `${lang["CHARACTER_NAME"]}: `),
-					name,
+					labels(`${lang["CHARACTER_NAME"]}: `, name),
 					br(),
 					label(`${lang["CHARACTER_IMAGE"]}: `),
 					div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
