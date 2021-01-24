@@ -3,7 +3,7 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {WindowElement, loadingWindow, windows, shell} from './windows.js';
-import {mapLoadedReceive, queue} from './misc.js';
+import {mapLoadedReceive, queue, labels} from './misc.js';
 import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
@@ -118,18 +118,16 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
-		const data = input({"id": `character_${n}_${row}`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
+		const data = input({"id": `character_${n}_${row}_`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 		      }}),
-		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
+		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user_`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
 		      }});
 		return [
-			label({"for": `character_${n}_${row}`}, k),
-			data,
-			visibility,
-			label({"for": `character_${n}_${row}_user`}, userVisible()),
-			input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove`, "onchange": function(this: HTMLInputElement) {
+			labels(k, data),
+			labels(userVisible(), visibility, false, {}),
+			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove_`, "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
 					data.toggleAttribute("disabled", true);
@@ -137,8 +135,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 					removes.delete(k);
 					data.removeAttribute("disabled");
 				}
-			}}),
-			label({"for": `character_${n}_${row++}_remove`, "class": "itemRemove"}, removeSymbol()),
+			}}), false, {"class": "itemRemove"}),
 			br()
 		]
 	      },
