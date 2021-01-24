@@ -1,9 +1,9 @@
 import {Uint, FolderRPC, FolderItems} from './types.js';
 import {createHTML, autoFocus, clearElement} from './lib/dom.js';
-import {br, button, details, div, h1, img, input, label, li, option, select, span, summary, ul} from './lib/html.js';
+import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {enterKey, queue} from './misc.js';
+import {enterKey, queue, labels} from './misc.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
@@ -58,14 +58,13 @@ export class Item {
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]}));
 		return createHTML(window, {"class": "renameItem"}, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
-			label({"for": "folderName"}, `${lang["NEW_LOCATION"]}: `),
-			parents,
+			labels(`${lang["NEW_LOCATION"]}: `, parents),
 			newName,
 			br(),
 			button(lang["ITEM_MOVE"], {"onclick": function(this: HTMLButtonElement) {
@@ -83,14 +82,13 @@ export class Item {
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": "Link Item"}));
 		return createHTML(window, {"class": "linkItem"}, [
 			h1(lang["ITEM_LINK_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
-			label({"for": "folderName"}, `${lang["ITEM_LINK_NEW"]}: `),
-			parents,
+			labels(`${lang["ITEM_LINK_NEW"]}: `, parents),
 			newName,
 			br(),
 			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
@@ -239,14 +237,13 @@ export class Folder {
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
-		      parents = select({"id": "folderName"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]}));
 		return createHTML(window, [
 			h1(lang["FOLDER_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
-			label({"for": "folderName"}, `${lang["NEW_LOCATION"]}: `),
-			parents,
+			labels(`${lang["NEW_LOCATION"]}: `, parents),
 			newName,
 			br(),
 			button(lang["FOLDER_MOVE"], {"onclick": function(this: HTMLButtonElement) {
@@ -283,12 +280,11 @@ export class Folder {
 		e.preventDefault();
 		const root = this.root,
 		      path = this.getPath(),
-		      folderName = autoFocus(input({"id": "folderName", "onkeypress": enterKey})),
+		      folderName = autoFocus(input({"id": "folderName_", "onkeypress": enterKey})),
 		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]}));
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1(lang["FOLDER_ADD"]),
-			label({"for": "folderName"}, `${lang["FOLDER_NAME"]}: ${path + "/"}`),
-			folderName,
+			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
 			button(lang["FOLDER_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
