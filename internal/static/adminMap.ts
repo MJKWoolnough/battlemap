@@ -1,7 +1,7 @@
 import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
-import {createHTML, br, button, input, h1, label} from './lib/html.js';
+import {createHTML, br, button, input, h1} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -11,7 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {mapLoadReceive, mapLoadedSend, tokenSelected, queue} from './misc.js';
+import {mapLoadReceive, mapLoadedSend, tokenSelected, queue, labels} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
@@ -892,14 +892,12 @@ export default function(base: HTMLElement) {
 				let c = currToken.lightColour;
 				const t = Date.now(),
 				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
-				      i = input({"id": `tokenIntensity_${t}`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createHTML(null, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
-					label({"for": `tokenLighting_${t}`}, `${lang["LIGHTING_COLOUR"]}: `),
-					makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`),
+					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
 					br(),
-					label({"for": `tokenIntensity_${t}`}, `${lang["LIGHTING_INTENSITY"]}: `),
-					i,
+					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
 					br(),
 					button({"onclick": () => {
 						if (globals.selected.token === currToken) {
