@@ -62,6 +62,7 @@ const defaultLanguage = {
 	"ITEM_REMOVE": "Remove Item",
 	"ITEM_REMOVE_CONFIRM": "Remove the following item?",
 	"LANGUAGE": "Language",
+	"LAYER_ADD": "Add Layer",
 	"LAYER_LIGHT_COLOUR": "Change Light Colour",
 	"LAYER_NAME": "Name",
 	"LAYER_RENAME": "Rename Layer",
