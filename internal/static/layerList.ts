@@ -313,10 +313,10 @@ export default function(base: HTMLElement) {
 				const name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey})),
 				      window = shell.appendChild(windows({"window-title": "Add Layer"}));
 				createHTML(window, {"id": "layerAdd"}, [
-					h1("Add Layer"),
-					labels("Layer Name", name),
+					h1(lang["LAYER_ADD"]),
+					labels(lang["LAYER_NAME"], name),
 					br(),
-					button("Add Layer", {"onclick": function(this: HTMLButtonElement) {
+					button(lang["LAYER_ADD"], {"onclick": function(this: HTMLButtonElement) {
 						this.toggleAttribute("disabled", true);
 						loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
 							doLayerAdd(name, false);
