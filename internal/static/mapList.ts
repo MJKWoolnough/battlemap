@@ -1,8 +1,8 @@
 import {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, h1, h2, input, label, option, span, select} from './lib/html.js';
+import {br, button, h1, h2, input, option, span, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
-import {mapLoadSend, enterKey} from './misc.js';
+import {mapLoadSend, enterKey, labels} from './misc.js';
 import {hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -184,36 +184,29 @@ export default function(base: Node) {
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button(lang["MAP_NEW"], {"onclick": () => {
-				const name = autoFocus(input({"type": "text", "id": "mapName"})),
-				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth"}),
-				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight"}),
-				      sqType = select({"id": "mapSquareType"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
-				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth"}),
-				      sqColour = input({"type": "color", "id": "mapSquareColour"}),
-				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth"}),
+				const name = autoFocus(input({"type": "text", "id": "mapName_"})),
+				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth_"}),
+				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight_"}),
+				      sqType = select({"id": "mapSquareType_"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
+				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth_"}),
+				      sqColour = input({"type": "color", "id": "mapSquareColour_"}),
+				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth_"}),
 				      window = shell.appendChild(windows({"window-title": lang["MAP_NEW"]}));
 				return createHTML(window, {"class": "mapAdd"}, [
 					h1(lang["MAP_NEW"]),
-					label({"for": "mapName"},  `${lang["MAP_NAME"]}: `),
-					name,
+					labels(`${lang["MAP_NAME"]}: `, name),
 					br(),
-					label({"for": "mapWidth"}, `${lang["MAP_SQUARE_WIDTH"]}: `),
-					width,
+					labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
 					br(),
-					label({"for": "mapHeight"}, `${lang["MAP_SQUARE_HEIGHT"]}: `),
-					height,
+					labels(`${lang["MAP_SQUARE_HEIGHT"]}: `, height),
 					br(),
-					label({"for": "mapSquareType"}, `${lang["MAP_SQUARE_TYPE"]}: `),
-					sqType,
+					labels(`${lang["MAP_SQUARE_TYPE"]}: `, sqType),
 					br(),
-					label({"for": "mapSquareWidth"}, `${lang["MAP_SQUARE_SIZE"]}: `),
-					sqWidth,
+					labels(`${lang["MAP_SQUARE_SIZE"]}: `, sqWidth),
 					br(),
-					label({"for": "mapSquareColour"}, `${lang["MAP_SQUARE_COLOUR"]}: `),
-					sqColour,
+					labels(`${lang["MAP_SQUARE_COLOUR"]}: `, sqColour),
 					br(),
-					label({"for": "mapSquareLineWidth"}, `${lang["MAP_SQUARE_LINE"]}: `),
-					sqLineWidth,
+					labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 					br(),
 					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
 						this.setAttribute("disabled", "disabled");

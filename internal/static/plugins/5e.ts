@@ -7,7 +7,7 @@ import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
-import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint} from '../misc.js';
+import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels} from '../misc.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement, shell} from '../windows.js';
@@ -632,20 +632,17 @@ const defaultLanguage = {
 	"characterEdit": {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
-			n++;
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
 				return (key: string) => data[key] ?? cd[key] ?? {};
 			})() : (key: string) => data[key] ?? {},
 			      name = getData("name"),
 			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-			      nameInput = input({"type": "text", "id": `edit_5e_name_${n}`, "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_${n}`, "checked": name["user"] !== false, "onchange": nameUpdate});
+			      nameInput = input({"type": "text", "id": `edit_5e_name_`, "value": name["data"], "onchange": nameUpdate}),
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_`, "checked": name["user"] !== false, "onchange": nameUpdate});
 			return [
-				label({"for": `edit_5e_name_${n}`}, `${lang["NAME"]}: `),
-				nameInput,
-				nameVisibility,
-				label({"for": `edit_5e_nameVisibility_${n}`}, userVisibility()),
+				labels(`${lang["NAME"]}: `, nameInput),
+				labels(userVisibility(), nameVisibility, false),
 				br(),
 				isCharacter ? [
 					label(`${mainLang["CHARACTER_IMAGE"]}: `),
@@ -658,30 +655,26 @@ const defaultLanguage = {
 					characterSelector(data, changes)
 				],
 				br(),
-				label({"for": `edit_5e_initiative_${n}`}, `${lang["INITIATIVE_MOD"]}: `),
-				input({"type": "number", "id": `edit_5e_initiative_${n}`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "id": `edit_5e_initiative_`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
 					if (this.value === "") {
 						removes.add("5e-initiative-mod");
 					} else {
 						removes.delete("5e-initiative-mod");
 						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
 					}
-				}}),
+				}})),
 				br(),
-				label({"for": `edit_5e_ac_${n}`}, `${lang["ARMOUR_CLASS"]}: `),
-				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
-				}}),
+				}})),
 				br(),
-				label({"for": `edit_5e_current_${n}`}, `${lang["HP_CURRENT"]}: `),
-				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
-				}}),
+				}})),
 				br(),
-				label({"for": `edit_5e_hp_${n}`}, `${lang["HP_MAX"]}: `),
-				input({"type": "number", "id": `edit_5e_ac_${n}`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
-				}}),
+				}})),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
@@ -769,12 +762,9 @@ const defaultLanguage = {
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
 					td(`${lang[name as keyof typeof defaultLanguage]}: `),
-					settings.map((setting, n) => td([
-						input({"type": "checkbox", "id": `5e-${name}-${n}`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
-							setting.set(this.checked);
-						}}),
-						label({"for": `5e-${name}-${n}`})
-					])),
+					settings.map((setting, n) => td(labels("", input({"type": "checkbox", "id": `5e-${name}_`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+						setting.set(this.checked);
+					}}), false))),
 				])))
 			]),
 		])
