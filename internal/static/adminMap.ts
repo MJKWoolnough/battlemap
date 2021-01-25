@@ -1019,7 +1019,8 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		globals.selected.token = newToken;
-		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
+		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom}));
+		outline.setAttribute("class", `cursor_${((newToken.rotation + 143) >> 5) % 4}`);
 		tokenMousePos.x = newToken.x;
 		tokenMousePos.y = newToken.y;
 		tokenMousePos.width = newToken.width;
