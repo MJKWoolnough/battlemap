@@ -35,7 +35,10 @@ class Track {
 			this.waitPlay()
 			return;
 		}
-		this.audioElement = audio({"src": `/audio/${this.id}`, "1onloadeddata": () => this.waitPlay(), "onended": () => this.waitPlay()});
+		this.audioElement = audio({"src": `/audio/${this.id}`, "1onloadeddata": () => {
+			this.updateVolume();
+			this.waitPlay();
+		}, "onended": () => this.waitPlay()});
 	}
 	updateVolume() {
 		if (this.audioElement) {
