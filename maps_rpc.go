@@ -679,6 +679,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			l.removeToken(tokenLayerPos.ID)
 			ml.addToken(tk, tokenLayerPos.NewPos)
+			mp.tokens[tk.ID] = layerToken{ml, tk}
 			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayerPos, data, userAny)
 			return true
 		})
