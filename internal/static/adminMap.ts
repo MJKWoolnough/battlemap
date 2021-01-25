@@ -256,7 +256,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 			deselectToken();
 		}
 		if (sendRPC) {
-			queue(rpc.setTokenLayerPos.bind(rpc, id, layer.path, newPos));
+			queue(rpc.setTokenLayerPos.bind(rpc, id, newParent.path, newPos));
 		}
 		[currentPos, newPos] = [newPos, currentPos];
 		[layer, newParent] = [newParent, layer];
@@ -946,7 +946,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				const currLayer = globals.tokens[currToken.id].layer;
-				doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length);
+				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
