@@ -845,7 +845,7 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-		place(base, [e.clientX, e.clientY], [
+		place(document.body, [e.clientX, e.clientY], [
 			tokenContext(),
 			isTokenImage(currToken) ? [
 				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
