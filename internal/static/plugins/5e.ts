@@ -999,13 +999,13 @@ rpc.waitTokenSet().then(ts => {
 	}
 });
 
-rpc.waitMapDataSet().then(changed => {
+combinedRPC.waitMapDataSet().then(changed => {
 	if (changed.key === "5e-initiative") {
 		setTimeout(updateInitiative, 0);
 	}
 });
 
-rpc.waitMapDataRemove().then(removed => {
+combinedRPC.waitMapDataRemove().then(removed => {
 	if (removed === "5e-initiative") {
 		initiativeWindow.remove();
 	}
