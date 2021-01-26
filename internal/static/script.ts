@@ -99,7 +99,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      },
 	      tabs: HTMLLabelElement[] = [],
 	      o = Object.freeze({
-		"add": (title: string, contents: Node, pop = true) => {
+		"add": (title: string, contents: Node, pop = false, popIcon?: string) => {
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": pos === lastTab.value}), t),
@@ -134,7 +134,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					shell.appendChild(autoFocus(windows({"window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
@@ -199,21 +199,21 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	characterStore();
 	document.body.classList.add(userLevel ? "isAdmin" : "isUser");
 	if (userLevel === 1) {
-		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading")), "IMAGES");
-		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading")), "AUDIO");
-		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading")));
-		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musocLoading")));
-		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps")));
-		layerList(tabs.add(lang["TAB_LAYERS"], div()));
-		tools(tabs.add(lang["TAB_TOOLS"], div()));
+		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true), "IMAGES");
+		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true), "AUDIO");
+		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading"), true));
+		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musicLoading"), true));
+		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps"), true));
+		layerList(tabs.add(lang["TAB_LAYERS"], div(), true));
+		tools(tabs.add(lang["TAB_TOOLS"], div(), true));
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1]);
 		}
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), true);
+		settings(tabs.add(lang["TAB_SETTINGS"], div()), true);
 		loadMap(base.appendChild(div()));
 	} else {
 		lastTab.set(0);
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false), false);
+		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1]);
 		}
