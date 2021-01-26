@@ -459,7 +459,7 @@ const defaultLanguage = {
 		})));
 	}
       },
-      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px", "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "hide-minimise": userLevel === 0, "resizable": true, "onmouseover": () => initiativeWindow.toggleAttribute("hide-titlebar", false), "onmouseleave": () => initiativeWindow.toggleAttribute("hide-titlebar", true)}, div({"id": "initiative-window-5e"}, [
+      initiativeWindow = windows({"window-title": lang["INITIATIVE"], "--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px", "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
 	userLevel === 1 ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
