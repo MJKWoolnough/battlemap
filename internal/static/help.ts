@@ -29,13 +29,13 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 	return svg({"viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
-			rect({"width": "1000", "height": "600", "fill": "#00f"}),
+			rect({"width": 1000, "height": 600, "fill": "#00f"}),
 			path({"d": "M50,150 C200,0 400,300 500,250 S 600,300 900,200 S950,400 850,500 S400,600 300,550 S0,300 50,150 Z", "fill": "#0f0"}),
-			rect({"width": "1000", "height": "600", "fill": "url(#helpGrid)"}),
+			rect({"width": 1000, "height": 600, "fill": "url(#helpGrid)"}),
 			animateMotion({"dur": "5s", "path": "M0,0 C-50,150 -150,-150 -250,-150 C-150,150 250,150 0,0", "begin": "helpMapDragClick1.end"})
 		]),
 		g({"transform": "translate(500, 0)"}, [
-			rect({"id": "helpBack", "width": "100%", "height": "100%"}),
+			rect({"id": "helpBack", "width": 500, "height": 301}),
 			settingsOutline,
 			circle({"cy": 11, "r": 10, "stroke": "#f00", "stroke-width": 2, "fill": "#000"}, [
 				animate({"attributeName": "fill", "dur": "1s", "values": "#000;#fff", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
