@@ -37,7 +37,10 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 		g({"transform": "translate(500, 0)"}, [
 			rect({"id": "helpBack", "width": "100%", "height": "100%"}),
 			settingsOutline,
-			circle({"cy": 11, "r": 10, "stroke": "#f00", "stroke-width": 2, "fill": "#000"}),
+			circle({"cy": 11, "r": 10, "stroke": "#f00", "stroke-width": 2, "fill": "#000"}, [
+				animate({"attributeName": "fill", "dur": "1s", "values": "#000;#fff", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
+				animate({"attributeName": "fill", "dur": "1s", "values": "#fff;#000", "fill": "freeze", "begin": "helpPanelOpenClick2.end 0.1s"}),
+			]),
 			settingsText,
 			animateTransform({"id": "helpPanelOpenOpen", "attributeName": "transform", "type": "translate", "from": "500 0", "to": "250 0", "dur": "1s", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
 			animateTransform({"attributeName": "transform", "type": "translate", "from": "250 0", "to": "500 0", "dur": "1s", "fill": "freeze", "begin": "helpPanelOpenClick2.end 0.1s", "onendEvent": () => {
