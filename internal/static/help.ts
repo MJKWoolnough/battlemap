@@ -87,7 +87,7 @@ export default function () {
 		])));
 		window.setTimeout(() => {
 			const w = settingsText.getComputedTextLength() + 5;
-			settingsOutline.setAttribute("d", `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${775 - w}`);
+			settingsOutline.setAttribute("d", `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`);
 			mapDrag.click();
 		}, 0);
 	} else {
