@@ -1033,9 +1033,14 @@ export default function(base: HTMLElement) {
 		if (!layer || e.button !== 0) {
 			return;
 		}
-		const newToken = (layer.tokens as (SVGToken | SVGShape)[]).reduce((old, t) => t.at(e.clientX, e.clientY) ? t : old, null as SVGToken | SVGShape | null);
 		if (!e.ctrlKey) {
 			deselectToken();
+		}
+		let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
+		for (const t of layer.tokens as (SVGToken | SVGShape)[]) {
+			if (t.at(e.clientX, e.clientY)) {
+				newToken = t;
+			}
 		}
 		if (!newToken || e.ctrlKey) {
 			return;
