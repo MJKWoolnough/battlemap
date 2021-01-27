@@ -207,7 +207,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		layerList(tabs.add(lang["TAB_LAYERS"], div(), true));
 		tools(tabs.add(lang["TAB_TOOLS"], div(), true));
 		for (const mi of menuItems()) {
-			tabs.add(mi[0], mi[1]);
+			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
 		settings(tabs.add(lang["TAB_SETTINGS"], div()), true);
 		loadMap(base.appendChild(div()));
@@ -215,7 +215,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		lastTab.set(0);
 		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
 		for (const mi of menuItems()) {
-			tabs.add(mi[0], mi[1]);
+			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
 		loadUserMap(base.appendChild(div()));
 		userMusic();

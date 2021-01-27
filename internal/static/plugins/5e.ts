@@ -941,7 +941,7 @@ if (userLevel === 1) {
 				settings["store-image-shapechanges"] = tokens;
 				rpc.pluginSetting(importName, settings);
 			}}, mainLang["SAVE"])
-		])]
+		]), true, undefined]
 	};
 	globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
 		if (lastSelectedToken !== null) {
