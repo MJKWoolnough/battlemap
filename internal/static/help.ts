@@ -32,7 +32,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement;
-	return svg({"viewBox": "0 0 500 300"}, [
+	return svg({"id": "helpDemo", "viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
 			rect({"width": 1000, "height": 600, "fill": "#00f"}),
@@ -64,6 +64,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 				}
 			}}),
 		]),
+
 		g({"stroke": "#000", "fill": "#fff"}, [
 			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z"}),
 			rect({"y": 17, "width": 15, "height": 20, "rx": 2}),
