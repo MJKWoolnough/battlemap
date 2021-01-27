@@ -950,7 +950,7 @@ export default function(base: HTMLElement) {
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
-	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"data-outline": n, "onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 		toolTokenMouseDown.call(this, e);
 		if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || !globals.selected.token) {
 			return;
@@ -978,7 +978,7 @@ export default function(base: HTMLElement) {
 		}
 		document.body.addEventListener("mousemove", tokenDrag);
 		document.body.addEventListener("mouseup", tokenMouseUp);
-		tokenDragMode = parseInt(this.getAttribute("data-outline")!);
+		tokenDragMode = n;
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		tokenMousePos.mouseX = e.clientX;
 		tokenMousePos.mouseY = e.clientY;
