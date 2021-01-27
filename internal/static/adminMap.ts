@@ -956,6 +956,26 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		e.stopImmediatePropagation();
+		if (n === 0 && e.shiftKey) {
+			const {layer, token} = globals.selected;
+			if (!layer) {
+				return;
+			}
+			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
+			for (const tk of layer.tokens as (SVGToken | SVGShape)[]) {
+				if (tk === token) {
+					if (newToken)  {
+						break;
+					}
+				} else if (tk.at(e.clientX, e.clientY)) {
+					newToken = tk;
+				}
+			}
+			if (newToken) {
+				selectToken(newToken);
+			}
+			return;
+		}
 		document.body.addEventListener("mousemove", tokenDrag);
 		document.body.addEventListener("mouseup", tokenMouseUp);
 		tokenDragMode = parseInt(this.getAttribute("data-outline")!);
@@ -1020,6 +1040,9 @@ export default function(base: HTMLElement) {
 		if (!newToken || e.ctrlKey) {
 			return;
 		}
+		selectToken(newToken);
+	      },
+	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		globals.selected.token = newToken;
 		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "--zoom": panZoom.zoom}));
 		outline.setAttribute("class", `cursor_${((newToken.rotation + 143) >> 5) % 4}`);
