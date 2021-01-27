@@ -14,20 +14,23 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
       panelOpen = input({"id": "helpPanelOpen", "type": "radio", "name": "helpInstruction"}),
       panelResize = input({"id": "helpPanelResize", "type": "radio", "name": "helpInstruction"}),
       createDemo = () => {
-	const mouseInit = animateMotion({"id": "helpMouseInit", "dur": "1s", "fill": "freeze", "path": "M0,0 L250,150"}) as SVGAnimateBeginElement,
-	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "helpMouseInit.end 0.5s"}) as SVGAnimateBeginElement,
-	      startMapZoomDemo = animateTransform({"id": "helpMapZoom1", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "1 1", "to": "0.5 0.5", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      startNextDemo = () => {
+	const startNextDemo = () => {
 		if (mapDrag.checked) {
 			startMapDragDemo.beginElement();
 		} else if (mapZoom.checked) {
 			startMapZoomDemo.beginElement();
+		} else if (mapScroll.checked) {
+			startMapScrollDemo.beginElement();
 		} else if (panelOpen.checked) {
 			startPanelOpenDemo.beginElement();
 		}
 	      },
+	      mouseInit = animateMotion({"dur": "1s", "fill": "freeze", "path": "M0,0 L250,150", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
+	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      startMapZoomDemo = animateTransform({"id": "helpMapZoom1", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "1 1", "to": "0.5 0.5", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      startMapScrollDemo = animateMotion({"id": "helpMapScroll1", "dur": "8s", "path": "M0,0 h-500 v-300 h500 v300", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
+	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement;
 	return svg({"viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
@@ -41,7 +44,8 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			animateTransform({"id": "helpMapZoom3", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "2 2", "to": "1 1", "begin": "helpMapZoom2.end", "onendEvent": startNextDemo}),
 			animateMotion({"dur": "1s", "path": "M0,0 L125,75", "begin": "helpMapZoom1.begin"}),
 			animateMotion({"dur": "2s", "path": "M125,75 L-250,-150", "begin": "helpMapZoom2.begin"}),
-			animateMotion({"dur": "1s", "path": "M-250,-150 L0,0", "begin": "helpMapZoom3.begin"})
+			animateMotion({"dur": "1s", "path": "M-250,-150 L0,0", "begin": "helpMapZoom3.begin"}),
+			startMapScrollDemo
 		]),
 		g({"transform": "translate(500, 0)"}, [
 			rect({"id": "helpBack", "width": 500, "height": 301}),
@@ -71,21 +75,25 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			]),
 			rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}),
 			path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z", "stroke-width": 0.5}, [
-				animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"})
+				animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"}),
+				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin 4s"})
 			]),
 			path({"d": "M7.5,27.5 l-3,-3 h2 v-2 h2 v2 h2 z", "stroke-width": 0.5}, [
 				animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom1.begin"}),
-				animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"})
+				animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"}),
+				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin"})
 			]),
 			g([
 				rect({"y": 37, "width": 15, "height": 7, "rx": 2}),
 				text({"x": 2, "y": 42, "textLength": 11, "style": "font:arial;font-size:5px", "stroke-width": 0.3}, "Shift"),
+				animate({"attributeName": "fill", "values": "#000", "dur": "2.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 4s"}),
+				animate({"attributeName": "stroke", "values": "#fff", "dur": "2.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 4s"})
 			]),
 			g([
 				rect({"y": 44, "width": 15, "height": 7, "rx": 2}),
 				text({"x": 2, "y": 49, "style": "font:arial;font-size:5px", "stroke-width": 0.3}, "Ctrl"),
 				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapZoom1.begin"}),
-				animate({"attributeName": "stroke", "values": "#fff", "dur": "4s", "begin": "helpMapZoom1.begin"})
+				animate({"attributeName": "stroke", "values": "#fff", "dur": "4s", "begin": "helpMapZoom1.begin"}),
 			]),
 			mouseInit,
 			animateMotion({"id": "helpMapDragMouse", "dur": "4s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
@@ -109,9 +117,9 @@ export default function () {
 			mapZoom,
 			label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
 			mapScroll,
-			label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
-			mapSignal,
 			label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
+			mapSignal,
+			label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
 			panelOpen,
 			label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
 			panelResize,
