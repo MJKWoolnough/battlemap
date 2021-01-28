@@ -21,17 +21,20 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			startMapZoomDemo.beginElement();
 		} else if (mapScroll.checked) {
 			startMapScrollDemo.beginElement();
-		} else if (panelOpen.checked) {
+		} else if (panelOpen.checked || panelResize.checked) {
 			startPanelOpenDemo.beginElement();
 		}
 	      },
+	      checkPanelOpenEnd = () => window.setTimeout(() => (panelResize.checked ? helpPanelResizeStart : helpPanelCloseClick).beginElement(), 500),
 	      mouseInit = animateMotion({"dur": "1s", "fill": "freeze", "path": "M0,0 L250,150", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
 	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      startMapZoomDemo = animateTransform({"id": "helpMapZoom1", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "1 1", "to": "0.5 0.5", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      startMapScrollDemo = animateMotion({"id": "helpMapScroll1", "dur": "8s", "path": "M0,0 h-500 v-300 h500 v300", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
 	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement;
+	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
+	      helpPanelCloseClick = animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      helpPanelResizeStart = animate({"id": "helpPanelResizeMouseDown", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.5s", "begin": "indefinite"}) as SVGAnimateBeginElement;
 	return svg({"id": "helpDemo", "viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
@@ -63,6 +66,9 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 					endPanelDemo.beginElement();
 				}
 			}}),
+			animateTransform({"id": "helpPanelResize1", "attributeName": "transform", "type": "translate", "from": "250 0", "to": "100 0", "dur": "1s", "begin": "helpPanelResizeMouseDown.end"}),
+			animateTransform({"id": "helpPanelResize2", "attributeName": "transform", "type": "translate", "from": "100 0", "to": "400 0", "dur": "2s", "begin": "helpPanelResize1.end"}),
+			animateTransform({"id": "helpPanelResize3", "attributeName": "transform", "type": "translate", "from": "400 0", "to": "250 0", "dur": "1s", "begin": "helpPanelResize2.end"}),
 		]),
 
 		g({"stroke": "#000", "fill": "#fff"}, [
@@ -73,7 +79,9 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 					startMapDragDemo,
 					animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "1s", "begin": "helpMapDragMouse.end", "onendEvent": startNextDemo}),
 					animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
-					animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenMouse1.end 0.5s"}),
+					helpPanelCloseClick,
+					helpPanelResizeStart,
+					animate({"attributeName": "fill", "values": "#fff", "dur": "0.2s", "fill": "freeze", "begin": "helpPanelResize3.end 0.5s", "onendEvent": checkPanelOpenEnd}),
 				]),
 				rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}),
 				path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z"}, [
@@ -102,9 +110,10 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			animateMotion({"id": "helpMapDragMouse", "dur": "4s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
 
 			startPanelOpenDemo,
-			animateMotion({"id": "helpPanelOpenMouse1", "dur": "2.5s", "path": "M495,13 C200,400 0,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s"}),
+			animateMotion({"dur": "2.5s", "path": "M495,13 C200,400 0,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s", "onendEvent": checkPanelOpenEnd}),
 			restartPanelOpenDemo,
-			endPanelDemo
+			endPanelDemo,
+			animateMotion({"dur": "4s", "path": "M253,13 h-150 h300 h-150", "fill": "freeze", "begin": "helpPanelResizeMouseDown.end"})
 		])
 	      ]);
       },
