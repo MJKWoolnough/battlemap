@@ -68,21 +68,23 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 		g({"stroke": "#000", "fill": "#fff"}, [
 			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z"}),
 			rect({"y": 17, "width": 15, "height": 20, "rx": 2}),
-			rect({"x": 1, "y": 18, "width": 3, "height": 10, "rx": 1}, [
-				startMapDragDemo,
-				animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "1s", "begin": "helpMapDragMouse.end", "onendEvent": startNextDemo}),
-				animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
-				animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenMouse1.end 0.5s"}),
-			]),
-			rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}),
-			path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z", "stroke-width": 0.5}, [
-				animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"}),
-				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin 4s"})
-			]),
-			path({"d": "M7.5,27.5 l-3,-3 h2 v-2 h2 v2 h2 z", "stroke-width": 0.5}, [
-				animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom1.begin"}),
-				animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"}),
-				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin"})
+			g({"stroke-width": 0.5}, [
+				rect({"x": 1, "y": 18, "width": 3, "height": 10, "rx": 1}, [
+					startMapDragDemo,
+					animate({"id": "helpMapDragClick2", "attributeName": "fill", "values": "#fff", "fill": "freeze", "dur": "1s", "begin": "helpMapDragMouse.end", "onendEvent": startNextDemo}),
+					animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
+					animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenMouse1.end 0.5s"}),
+				]),
+				rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}),
+				path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z"}, [
+					animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"}),
+					animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin 4s"})
+				]),
+				path({"d": "M7.5,27.5 l-3,-3 h2 v-2 h2 v2 h2 z"}, [
+					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom1.begin"}),
+					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"}),
+					animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin"})
+				]),
 			]),
 			g([
 				rect({"y": 37, "width": 15, "height": 7, "rx": 2}),
