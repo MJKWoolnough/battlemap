@@ -167,3 +167,7 @@ windows-window {
 input[type="number"] {
 	width: 5em;
 }
+
+windows-desktop {
+	background-color: #000;
+}
