@@ -1,6 +1,6 @@
 import {SVGAnimateBeginElement} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, br, div, h1, input, label, span} from './lib/html.js';
+import {createHTML, div, h1, input, label, span} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {shell, windows} from './windows.js';
 import lang from './language.js';
@@ -140,19 +140,20 @@ export default function () {
 		shell.appendChild(createHTML(clearElement(help), div({"id": "help"}, [
 			h1(lang["HELP"]),
 			createDemo(),
-			br(),
-			mapDrag,
-			label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
-			mapZoom,
-			label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
-			mapScroll,
-			label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
-			mapSignal,
-			label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
-			panelOpen,
-			label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
-			panelResize,
-			label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
+			div({"id": "helpDemos"}, [
+				mapDrag,
+				label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
+				mapZoom,
+				label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
+				mapScroll,
+				label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
+				mapSignal,
+				label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
+				panelOpen,
+				label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
+				panelResize,
+				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"])
+			])
 		])));
 		window.setTimeout(() => {
 			const w = settingsText.getComputedTextLength() + 5;

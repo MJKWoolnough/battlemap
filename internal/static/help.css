@@ -12,3 +12,21 @@
 	max-width: 100%;
 	height: 80vh;
 }
+
+#helpDemos input {
+	display: none;
+}
+
+#helpDemos label {
+	display: inline-block;
+	border: 5px solid transparent;
+	border-radius: 0.5em;
+	cursor: pointer;
+	padding: 5px;
+	margin-right: 5px;
+}
+
+#helpDemos input:checked + label {
+	border-style: inset;
+	border-color: #000;
+}
