@@ -21,6 +21,8 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			startMapZoomDemo.beginElement();
 		} else if (mapScroll.checked) {
 			startMapScrollDemo.beginElement();
+		} else if (mapSignal.checked) {
+			helpSignalStart.beginElement();
 		} else if (panelOpen.checked || panelResize.checked) {
 			startPanelOpenDemo.beginElement();
 		}
@@ -34,7 +36,8 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
 	      helpPanelCloseClick = animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      helpPanelResizeStart = animate({"id": "helpPanelResizeMouseDown", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.5s", "begin": "indefinite"}) as SVGAnimateBeginElement;
+	      helpPanelResizeStart = animate({"id": "helpPanelResizeMouseDown", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.5s", "begin": "indefinite"}) as SVGAnimateBeginElement,
+	      helpSignalStart = animate({"id": "helpSignalClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement;
 	return svg({"id": "helpDemo", "viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
@@ -70,7 +73,13 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			animateTransform({"id": "helpPanelResize2", "attributeName": "transform", "type": "translate", "from": "100 0", "to": "400 0", "dur": "2s", "begin": "helpPanelResize1.end"}),
 			animateTransform({"id": "helpPanelResize3", "attributeName": "transform", "type": "translate", "from": "400 0", "to": "250 0", "dur": "1s", "begin": "helpPanelResize2.end"}),
 		]),
-
+		g([
+			circle({"cx": 50, "cy": 50, "stroke": "#f00", "stroke-width": 8, "fill": "none"}, animate({"attributeName": "r", "values": "4;46", "dur": "1s", "begin": "helpSignalClick1.end; helpSignalClick2.end; helpSignalClick3.end"})),
+			circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, animate({"attributeName": "r", "values": "4;46", "dur": "1s", "begin": "helpSignalClick1.end; helpSignalClick2.end; helpSignalClick3.end"})),
+			animateTransform({"attributeName": "transform", "type": "translate", "from": "200 100", "to": "200 100", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick1.end"}),
+			animateTransform({"attributeName": "transform", "type": "translate", "from": "50 150", "to": "50 150", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick2.end"}),
+			animateTransform({"attributeName": "transform", "type": "translate", "from": "300 200", "to": "300 200", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick3.end"}),
+		]),
 		g({"stroke": "#000", "fill": "#fff"}, [
 			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z"}),
 			rect({"y": 17, "width": 15, "height": 20, "rx": 2}),
@@ -83,7 +92,11 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 					helpPanelResizeStart,
 					animate({"attributeName": "fill", "values": "#fff", "dur": "0.2s", "fill": "freeze", "begin": "helpPanelResize3.end 0.5s", "onendEvent": checkPanelOpenEnd}),
 				]),
-				rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}),
+				rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}, [
+					helpSignalStart,
+					animate({"id": "helpSignalClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpSignalMove1.end"}),
+					animate({"id": "helpSignalClick3", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpSignalMove2.end"})
+				]),
 				path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z"}, [
 					animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"}),
 					animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin 4s"})
@@ -113,7 +126,10 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			animateMotion({"dur": "2.5s", "path": "M495,13 C200,400 0,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s", "onendEvent": checkPanelOpenEnd}),
 			restartPanelOpenDemo,
 			endPanelDemo,
-			animateMotion({"dur": "4s", "path": "M253,13 h-150 h300 h-150", "fill": "freeze", "begin": "helpPanelResizeMouseDown.end"})
+			animateMotion({"dur": "4s", "path": "M253,13 h-150 h300 h-150", "fill": "freeze", "begin": "helpPanelResizeMouseDown.end"}),
+			animateMotion({"id": "helpSignalMove1", "dur": "1s", "path": "M250,150 L100,200", "fill": "freeze", "begin": "helpSignalClick1.end"}),
+			animateMotion({"id": "helpSignalMove2", "dur": "1s", "path": "M100,200 L350,250", "fill": "freeze", "begin": "helpSignalClick2.end"}),
+			animateMotion({"dur": "1s", "path": "M350,250 L250,150", "fill": "freeze", "begin": "helpSignalClick3.end", "onendEvent": startNextDemo})
 		])
 	      ]);
       },
