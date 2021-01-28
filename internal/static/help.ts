@@ -1,6 +1,6 @@
 import {SVGAnimateBeginElement} from './types.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, div, h1, input, label, span} from './lib/html.js';
+import {createHTML, br, div, h1, input, label, span} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {shell, windows} from './windows.js';
 import lang from './language.js';
@@ -140,6 +140,7 @@ export default function () {
 		shell.appendChild(createHTML(clearElement(help), div({"id": "help"}, [
 			h1(lang["HELP"]),
 			createDemo(),
+			br(),
 			mapDrag,
 			label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
 			mapZoom,
