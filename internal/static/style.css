@@ -108,8 +108,7 @@ html, body {
 }
 
 #panelHider:checked ~ #panels {
-	right: calc(-1 * var(--panel-width));
-	border-color: transparent;
+	right: calc(-1 * var(--panel-width) - 1px);
 }
 
 #panelHider:checked ~ #panels > #panelGrabber {
