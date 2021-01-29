@@ -152,7 +152,13 @@ export default function () {
 				panelOpen,
 				label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
 				panelResize,
-				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"])
+				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
+				div(lang["HELP_DEMO_DRAG"]),
+				div(lang["HELP_DEMO_ZOOM"]),
+				div(lang["HELP_DEMO_SCROLL"]),
+				div(lang["HELP_DEMO_SIGNAL"]),
+				div(lang["HELP_DEMO_SIDEPANEL_OPEN"]),
+				div(lang["HELP_DEMO_SIDEPANEL_RESIZE"])
 			])
 		])));
 		window.setTimeout(() => {
