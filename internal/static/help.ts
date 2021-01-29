@@ -31,7 +31,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 	      mouseInit = animateMotion({"dur": "1s", "fill": "freeze", "path": "M0,0 L250,150", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
 	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      startMapZoomDemo = animateTransform({"id": "helpMapZoom1", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "1 1", "to": "0.5 0.5", "begin": "indefinite"}) as SVGAnimateBeginElement,
-	      startMapScrollDemo = animateMotion({"id": "helpMapScroll1", "dur": "8s", "path": "M0,0 h-500 v-300 h500 v300", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
+	      startMapScrollDemo = animateMotion({"id": "helpMapScroll1", "dur": "6s", "path": "M0,0 h-300 v-300 h300 v300", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
 	      startPanelOpenDemo = animateMotion({"id": "helpPanelOpenInit", "dur": "1s", "fill": "freeze", "path": "M250,150 L495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      restartPanelOpenDemo = animateMotion({"id": "helpPanelOpenRestart", "dur": "1s", "fill": "freeze", "path": "M253,13 C300,20 300,0 495,13", "begin": "indefinite"}) as SVGAnimateBeginElement,
 	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}) as SVGAnimateBeginElement,
@@ -99,19 +99,19 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 				]),
 				path({"d": "M7.5,17.5 l-3,3 h2 v2 h2 v-2 h2 z"}, [
 					animate({"attributeName": "fill", "values": "#000", "dur": "2s", "begin": "helpMapZoom2.begin"}),
-					animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin 4s"})
+					animate({"attributeName": "fill", "values": "#000", "dur": "3s", "begin": "helpMapScroll1.begin 3s"})
 				]),
 				path({"d": "M7.5,27.5 l-3,-3 h2 v-2 h2 v2 h2 z"}, [
 					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom1.begin"}),
 					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"}),
-					animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapScroll1.begin"})
+					animate({"attributeName": "fill", "values": "#000", "dur": "3s", "begin": "helpMapScroll1.begin"})
 				]),
 			]),
 			g([
 				rect({"y": 37, "width": 15, "height": 7, "rx": 2}),
 				text({"x": 2, "y": 42, "textLength": 11, "style": "font:arial;font-size:5px", "stroke-width": 0.3}, "Shift"),
-				animate({"attributeName": "fill", "values": "#000", "dur": "2.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 4s"}),
-				animate({"attributeName": "stroke", "values": "#fff", "dur": "2.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 4s"})
+				animate({"attributeName": "fill", "values": "#000", "dur": "1.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 3s"}),
+				animate({"attributeName": "stroke", "values": "#fff", "dur": "1.5s", "begin": "helpMapScroll1.begin; helpMapScroll1.begin 3s"})
 			]),
 			g([
 				rect({"y": 44, "width": 15, "height": 7, "rx": 2}),
