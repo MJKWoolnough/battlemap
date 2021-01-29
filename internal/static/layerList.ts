@@ -117,7 +117,21 @@ const dragFn = (e: MouseEvent) => {
       showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
 	const visible = !l.node.classList.toggle("layerHidden");
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
-      });
+      }),
+      walkLayers = (f: FolderLayer, fn: (l: ItemLayer) => boolean) => {
+	for (const c of f.children) {
+		if (c instanceof FolderLayer) {
+			if (walkLayers(c, fn)) {
+				return true;
+			}
+		} else if (c instanceof ItemLayer) {
+			if (fn(c)) {
+				return true;
+			}
+		}
+	}
+	return false;
+      };
 
 class ItemLayer extends Item {
 	hidden: boolean;
@@ -333,6 +347,37 @@ export default function(base: HTMLElement) {
 			selectedLayer = undefined;
 			list.setRoot(globals.layerList);
 		};
+		window.addEventListener("keypress", (e: KeyboardEvent) => {
+			let sl: ItemLayer | undefined;
+			switch (e.key) {
+			case '[':
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (l === selectedLayer) {
+							return true;
+						}
+						sl = l;
+					}
+					return false;
+				});
+				break;
+			case ']':
+				let next = false;
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (next) {
+							sl = l;
+							return true;
+						}
+						next = l === selectedLayer;
+					}
+					return false;
+				});
+			}
+			if (sl) {
+				sl.show();
+			}
+		});
 	    };
 	mapLoadedReceive(() => loadFn());
 }
