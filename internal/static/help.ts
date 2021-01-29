@@ -1,5 +1,5 @@
 import {SVGAnimateBeginElement} from './types.js';
-import {clearElement} from './lib/dom.js';
+import {clearElement, formatText} from './lib/dom.js';
 import {createHTML, div, h1, input, label, span} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {shell, windows} from './windows.js';
@@ -153,12 +153,12 @@ export default function () {
 				label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
 				panelResize,
 				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
-				div(lang["HELP_DEMO_DRAG"]),
-				div(lang["HELP_DEMO_ZOOM"]),
-				div(lang["HELP_DEMO_SCROLL"]),
-				div(lang["HELP_DEMO_SIGNAL"]),
-				div(lang["HELP_DEMO_SIDEPANEL_OPEN"]),
-				div(lang["HELP_DEMO_SIDEPANEL_RESIZE"])
+				div(formatText(lang["HELP_DEMO_DRAG"])),
+				div(formatText(lang["HELP_DEMO_ZOOM"])),
+				div(formatText(lang["HELP_DEMO_SCROLL"])),
+				div(formatText(lang["HELP_DEMO_SIGNAL"])),
+				div(formatText(lang["HELP_DEMO_SIDEPANEL_OPEN"])),
+				div(formatText(lang["HELP_DEMO_SIDEPANEL_RESIZE"]))
 			])
 		])));
 		window.setTimeout(() => {
