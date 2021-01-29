@@ -123,7 +123,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
 			animateMotion({"id": "helpMapDragMouse", "dur": "4s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
 
 			startPanelOpenDemo,
-			animateMotion({"dur": "2.5s", "path": "M495,13 C200,400 0,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s", "onendEvent": checkPanelOpenEnd}),
+			animateMotion({"dur": "1.5s", "path": "M495,13 C200,300 150,100 253,13", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.5s", "onendEvent": checkPanelOpenEnd}),
 			restartPanelOpenDemo,
 			endPanelDemo,
 			animateMotion({"dur": "4s", "path": "M253,13 h-150 h300 h-150", "fill": "freeze", "begin": "helpPanelResizeMouseDown.end"}),
