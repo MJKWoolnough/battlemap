@@ -29,6 +29,7 @@
 #helpDemos input:checked + label {
 	border-style: inset;
 	border-color: #000;
+	user-select: none;
 }
 
 #helpDemos div {
