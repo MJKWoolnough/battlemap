@@ -47,6 +47,7 @@ const defaultLanguage = {
 	"HELP_MAP_SCROLL": "Map Scrolling",
 	"HELP_MAP_SIGNAL": "Signalling",
 	"HELP_MAP_ZOOM": "Map Zoom",
+	"HELP_OPEN": "Press F1 anytime, or click here, to open Help",
 	"HELP_PANEL_OPEN": "Opening/Closing Side Panel",
 	"HELP_PANEL_RESIZE": "Resizing Side Panel",
 	"HIDE_MENU": "Hide Menu Button?",

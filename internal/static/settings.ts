@@ -3,6 +3,7 @@ import {createHTML, button, br, h1, input, label, select, option} from './lib/ht
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
+import help from './help.js';
 import {shell} from './windows.js';
 
 export const autosnap = new BoolSetting("autosnap"),
@@ -13,6 +14,7 @@ invert = new BoolSetting("invert");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
+		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
 		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, lang["LOGOUT"]) : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, lang["LOGIN"]),
 		br(),
