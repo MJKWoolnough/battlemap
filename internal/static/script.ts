@@ -40,7 +40,7 @@ declare const pageLoad: Promise<void>;
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "style": "stroke: currentColor"}))),
       lastTab = new IntSetting("lastTab"),
       tabs = (function() {
-	let n = 0;
+	let n = 0, moved = false;
 	const panelShow = new BoolSetting("panelShow"),
 	      panelWidth = new IntSetting("panelWidth", "300"),
 	      windowSettings = new JSONSetting<Record<string, savedWindow>>("windowData", {}, (v: any): v is Record<string, savedWindow> => {
@@ -60,6 +60,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			const x = document.body.clientWidth - e.clientX;
 			panelWidth.set(x);
 			h.style.setProperty("--panel-width", `${x}px`);
+			moved = true;
 		}
 	      },
 	      mouseUp = (e: MouseEvent) => {
@@ -80,6 +81,11 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				window.addEventListener("mousemove", mousemove);
 				window.addEventListener("mouseup", mouseUp);
 			}
+			moved = false;
+	      }, "onclick": (e: MouseEvent) => {
+		if (moved) {
+			e.preventDefault();
+		}
 	      }}),
 	      h = div({"id": "panels", "--panel-width": `${panelWidth.value}px`}, [
 		m,
