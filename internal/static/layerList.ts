@@ -293,7 +293,38 @@ export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
 	let loadFn = () => {
-		const list = new LayerRoot(globals.layerList, layersRPC);
+		const list = new LayerRoot(globals.layerList, layersRPC),
+		      addKeyboard =  () => globals.root.addEventListener("keypress", (e: KeyboardEvent) => {
+			let sl: ItemLayer | undefined;
+			switch (e.key) {
+			case '[':
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (l === selectedLayer) {
+							return true;
+						}
+						sl = l;
+					}
+					return false;
+				});
+				break;
+			case ']':
+				let next = false;
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (next) {
+							sl = l;
+							return true;
+						}
+						next = l === selectedLayer;
+					}
+					return false;
+				});
+			}
+			if (sl) {
+				sl.show();
+			}
+		      });
 		layersRPC.waitLayerSetVisible().then(path => {
 			const l = list.getLayer(path);
 			if (l) {
@@ -343,41 +374,12 @@ export default function(base: HTMLElement) {
 			}}),
 			list.node
 		]);
+		addKeyboard();
 		loadFn = () => {
 			selectedLayer = undefined;
 			list.setRoot(globals.layerList);
+			addKeyboard();
 		};
-		window.addEventListener("keypress", (e: KeyboardEvent) => {
-			let sl: ItemLayer | undefined;
-			switch (e.key) {
-			case '[':
-				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
-						if (l === selectedLayer) {
-							return true;
-						}
-						sl = l;
-					}
-					return false;
-				});
-				break;
-			case ']':
-				let next = false;
-				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
-						if (next) {
-							sl = l;
-							return true;
-						}
-						next = l === selectedLayer;
-					}
-					return false;
-				});
-			}
-			if (sl) {
-				sl.show();
-			}
-		});
 	    };
 	mapLoadedReceive(() => loadFn());
 }
