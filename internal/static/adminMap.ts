@@ -592,8 +592,9 @@ export default function(base: HTMLElement) {
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
-		const dx = (e.clientX - tokenMousePos.mouseX) / panZoom.zoom,
-		      dy = (e.clientY - tokenMousePos.mouseY) / panZoom.zoom,
+		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
+		      dx = bdx - tokenMousePos.mouseX,
+		      dy = bdy - tokenMousePos.mouseY,
 		      mapData = globals.mapData,
 		      sq = mapData.gridSize,
 		      {token: selectedToken} = globals.selected;
@@ -980,8 +981,7 @@ export default function(base: HTMLElement) {
 		document.body.addEventListener("mouseup", tokenMouseUp);
 		tokenDragMode = n;
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
-		tokenMousePos.mouseX = e.clientX;
-		tokenMousePos.mouseY = e.clientY;
+		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 	      }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
