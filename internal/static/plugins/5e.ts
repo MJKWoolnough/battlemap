@@ -947,16 +947,19 @@ if (userLevel === 1) {
 		if (lastSelectedToken !== null) {
 			const token = lastSelectedToken;
 			if (e.key === 'h') {
-				const hp = token.getData("5e-hp-current");
-				if (hp !== null) {
-					shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], hp).then(hp => {
+				const currHP = token.getData("5e-hp-current");
+				if (currHP !== null) {
+					shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
 						globals.outline.focus();
 						if (hp === null || token !== lastSelectedToken) {
 							return;
 						}
-						const data = parseInt(hp);
+						const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
 						if (data >= 0) {
 							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+							token.updateData();
+						} else {
+							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
 							token.updateData();
 						}
 					});
