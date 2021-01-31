@@ -4,6 +4,10 @@
 	overflow: visible;
 }
 
+.isUser #map {
+	overflow: hidden;
+}
+
 #map > g:not(#outline) {
 	clip-path: view-box;
 }
