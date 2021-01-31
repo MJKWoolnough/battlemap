@@ -95,7 +95,6 @@ doSetLightColour = (c: Colour, sendRPC = true) => {
 },
 doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 	const doIt = (sendRPC = true) => {
-		checkSelectedLayer(path);
 		setLayerVisibility(path, visibility);
 		if (sendRPC) {
 			if (visibility) {
