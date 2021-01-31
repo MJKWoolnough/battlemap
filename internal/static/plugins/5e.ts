@@ -207,7 +207,7 @@ class SVGToken5E extends SVGToken {
 	updateConditions() {
 		clearElement(this.conditions);
 		const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
-		      size = Math.min(this.width, this.height) / 8,
+		      size = Math.min(this.width, this.height) / 4,
 		      perRow = Math.floor(this.width / size);
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
