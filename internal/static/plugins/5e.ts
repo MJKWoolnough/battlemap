@@ -152,6 +152,7 @@ class SVGToken5E extends SVGToken {
 		      wasPattern = this.tokenNode instanceof SVGRectElement;
 		this.node = this.tokenNode;
 		super.updateNode();
+		this.tokenNode = this.node;
 		this.node = node;
 		if (this.isPattern) {
 			if (!wasPattern) {
@@ -165,7 +166,7 @@ class SVGToken5E extends SVGToken {
 				lastSelectedToken = this;
 				globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
 			}
-			this.node.replaceWith(this.node = g([this.node, this.extra]));
+			this.node.replaceWith(this.node = g([this.tokenNode, this.extra]));
 		}
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
