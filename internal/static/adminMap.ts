@@ -868,7 +868,7 @@ export default function(base: HTMLElement) {
 					if (!(currToken instanceof SVGToken)) {
 						return;
 					}
-					if (currToken.isPattern) {
+					if (!currToken.isPattern) {
 						doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
 					} else {
 						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
