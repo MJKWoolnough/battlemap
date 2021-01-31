@@ -33,12 +33,13 @@ class Defs {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.width, "height": t.height}, t.node.cloneNode(false)));
+		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, createSVG(t.node.cloneNode(false), {"transform": undefined})));
 		return id;
 	}
 	remove(id: string) {
-		this.node.removeChild(this.list[id]);
+		const node = this.node.removeChild(this.list[id]).firstChild as SVGImageElement;
 		delete(this.list[id]);
+		return node;
 	}
 	setGrid(grid: GridDetails) {
 		const old = this.list["grid"];
@@ -98,7 +99,7 @@ class SVGTransform {
 		this.lightIntensity = token.lightIntensity;
 	}
 	at(x: Int, y: Int, node: SVGGraphicsElement) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(node!.getScreenCTM()!.inverse());
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(node.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	transformString(scale = true) {
@@ -134,18 +135,13 @@ export class SVGToken extends SVGTransform {
 		const node = image(),
 		      tc = tokenClass() ?? SVGToken,
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc.prototype);
-		createSVG(node, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.width, "height": token.height, "transform": svgToken.transformString()});
-		if (token.patternWidth > 0) {
-			const {width, height} = token;
-			svgToken.width = token.patternWidth;
-			svgToken.height = token.patternHeight;
-			svgToken.setPattern(true);
-			svgToken.width = width;
-			svgToken.height = height;
-		}
+		createSVG(node, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
 		Object.defineProperty(svgToken, "node", {"enumerable": false});
 		if (svgToken.init instanceof Function) {
 			svgToken.init();
+		}
+		if (token.patternWidth > 0) {
+			svgToken.updateNode();
 		}
 		return svgToken;
 	}
@@ -165,14 +161,9 @@ export class SVGToken extends SVGTransform {
 	}
 	updateNode() {
 		if (this.node instanceof SVGRectElement && !this.isPattern) {
-			const node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`});
-			this.node.replaceWith(node);
-			this.node = node;
+			this.node.replaceWith(this.node = globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1)));
 		} else if (this.node instanceof SVGImageElement && this.isPattern) {
-			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			const node = image({"class": "mapToken", "href": `/images/${this.src}`, "preserveAspectRatio": "none", "width": this.width, "height": this.height, "transform": this.transformString()});
-			this.node.replaceWith(node);
-			this.node = node;
+			this.node.replaceWith(this.node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`}));
 		}
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
