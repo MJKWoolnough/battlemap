@@ -516,7 +516,9 @@ updateLight = () => {
 	]);
 },
 mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
-	const layerList = (() => {
+	Object.assign(globals, {mapData, "tokens": [], "walls": []});
+	const definitions = globals.definitions = new Defs(),
+	      layerList = globals.layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
 		for (const c of mapData.children) {
@@ -533,10 +535,8 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 			path: "/"
 		} as SVGFolder;
 	      })(),
-	      definitions = new Defs(),
-	      root = svg({"id": "map", "style": {"position": "absolute", "left": "0px", "top": "0px"}, "width": mapData.width, "height": mapData.height, "tabindex": -1}, [definitions.node, layerList.node]),
+	      root = globals.root = svg({"id": "map", "style": {"position": "absolute", "left": "0px", "top": "0px"}, "width": mapData.width, "height": mapData.height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
-	Object.assign(globals, {definitions, root, layerList, mapData, "tokens": [], "walls": []});
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
