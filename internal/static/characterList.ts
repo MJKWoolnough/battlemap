@@ -49,8 +49,9 @@ export default function (base: Node) {
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
-				const name = autoFocus(input({"id": "characterName_"})),
-				      w = shell.appendChild(windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
+				const w = windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
+				      name = autoFocus(input({"id": "characterName_"}));
+				shell.appendChild(createHTML(w, [
 					h1(lang["CHARACTER_NEW"]),
 					labels(`${lang["CHARACTER_NAME"]}: `, name),
 					br(),
@@ -80,7 +81,7 @@ export default function (base: Node) {
 						.then(() => w.remove())
 						.finally(() => this.removeAttribute("disabled"));
 					}})
-				      ]));
+				]));
 			}}),
 			root.node
 		]);
