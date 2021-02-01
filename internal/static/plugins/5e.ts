@@ -136,6 +136,9 @@ class SVGToken5E extends SVGToken {
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
 	}
+	select() {
+		globals.outline.insertAdjacentElement("beforebegin", this.extra);
+	}
 	unselect() {
 		if (!this.isPattern) {
 			this.node.appendChild(this.extra);
@@ -1046,9 +1049,10 @@ tokenSelectedReceive(() => {
 		lastSelectedToken.unselect();
 		lastSelectedToken = null;
 	}
-	if (globals.selected.token instanceof SVGToken5E && !globals.selected.token.isPattern) {
-		lastSelectedToken = globals.selected.token;
-		globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
+	const {selected: {token}} = globals;
+	if (token instanceof SVGToken5E && !token.isPattern) {
+		lastSelectedToken = token;
+		token.select();
 	}
 });
 
