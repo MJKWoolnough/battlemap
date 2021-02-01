@@ -695,7 +695,9 @@ const defaultLanguage = {
 						if (updateName && initiativeList.some(i => i.token.id === id)) {
 							updateInitiative();
 						}
-						(globals.tokens[id].token as SVGToken5E).updateData();
+						if (!isCharacter) {
+							(globals.tokens[id].token as SVGToken5E).updateData();
+						}
 					});
 				}}, mainLang["SAVE"])
 			];
