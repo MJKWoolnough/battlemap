@@ -59,8 +59,8 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]})),
+		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, {"class": "renameItem"}, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
@@ -83,8 +83,8 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": "Link Item"}));
+		      window = shell.appendChild(windows({"window-title": "Link Item"})),
+		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, {"class": "linkItem"}, [
 			h1(lang["ITEM_LINK_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
@@ -280,8 +280,8 @@ export class Folder {
 		e.preventDefault();
 		const root = this.root,
 		      path = this.getPath(),
-		      folderName = autoFocus(input({"id": "folderName_", "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]})),
+		      folderName = autoFocus(input({"id": "folderName_", "onkeypress": enterKey}));
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1(lang["FOLDER_ADD"]),
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
