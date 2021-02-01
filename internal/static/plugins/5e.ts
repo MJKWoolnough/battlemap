@@ -697,6 +697,12 @@ const defaultLanguage = {
 						}
 						if (!isCharacter) {
 							(globals.tokens[id].token as SVGToken5E).updateData();
+						} else {
+							for (const {token} of globals.tokens) {
+								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
+									token.updateData();
+								}
+							}
 						}
 					});
 				}}, mainLang["SAVE"])
