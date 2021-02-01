@@ -83,7 +83,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      window = shell.appendChild(windows({"window-title": "Link Item"})),
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_LINK_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, {"class": "linkItem"}, [
 			h1(lang["ITEM_LINK_ADD"]),
