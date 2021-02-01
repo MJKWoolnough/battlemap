@@ -42,8 +42,8 @@ const dragFn = (e: MouseEvent) => {
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
-	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey})),
-	      window = shell.appendChild(windows({"window-title": lang["LAYER_RENAME"]}));
+	      window = shell.appendChild(windows({"window-title": lang["LAYER_RENAME"]})),
+	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
@@ -355,8 +355,8 @@ export default function(base: HTMLElement) {
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
-				const name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey})),
-				      window = shell.appendChild(windows({"window-title": "Add Layer"}));
+				const window = shell.appendChild(windows({"window-title": "Add Layer"})),
+				      name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1(lang["LAYER_ADD"]),
 					labels(lang["LAYER_NAME"], name),
