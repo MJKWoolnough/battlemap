@@ -1029,11 +1029,8 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		const {layer} = globals.selected;
-		if (!layer || e.button !== 0) {
+		if (!layer || e.button !== 0 || e.ctrlKey) {
 			return;
-		}
-		if (!e.ctrlKey) {
-			deselectToken();
 		}
 		let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
 		for (const t of layer.tokens as (SVGToken | SVGShape)[]) {
@@ -1041,7 +1038,10 @@ export default function(base: HTMLElement) {
 				newToken = t;
 			}
 		}
-		if (!newToken || e.ctrlKey) {
+		if (!newToken) {
+			if (!e.ctrlKey) {
+				deselectToken();
+			}
 			return;
 		}
 		selectToken(newToken);
