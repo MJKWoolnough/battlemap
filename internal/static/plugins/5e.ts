@@ -955,7 +955,7 @@ if (userLevel === 1) {
 			}}, mainLang["SAVE"])
 		]), true, undefined]
 	};
-	globals.outline.addEventListener("keydown", (e: KeyboardEvent) => {
+	globals.outline.addEventListener("keypress", (e: KeyboardEvent) => {
 		if (lastSelectedToken !== null) {
 			const token = lastSelectedToken;
 			if (e.key === 'h') {
