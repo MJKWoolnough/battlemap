@@ -140,7 +140,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": "min-width: 45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
