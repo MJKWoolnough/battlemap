@@ -2,6 +2,7 @@
 	cursor: var(--outline-cursor);
 	background-color: #fff;
 	overflow: visible;
+	outline: none;
 }
 
 .isUser #map {
