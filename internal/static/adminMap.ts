@@ -1003,9 +1003,6 @@ export default function(base: HTMLElement) {
 				token.width = tD.width;
 				token.height = tD.height;
 			}
-			if (char["store-image-id"]) {
-				token.tokenData = char["store-image-id"].data;
-			}
 		} else {
 			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 			token.src = tokenData.id;
