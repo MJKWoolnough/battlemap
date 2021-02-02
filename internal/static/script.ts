@@ -155,7 +155,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			      ]));
 			tabs.push(l);
 			if (pop && windowData[title] && windowData[title]["out"]) {
-				(l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click"));
+				window.setTimeout(() => (l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click")));
 			}
 			return base;
 		},
