@@ -2,7 +2,7 @@ import {Colour, Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
-import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title,  use} from './lib/svg.js';
+import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {mapLoadedReceive} from './misc.js';
 import {colour2RGBA, makeColourPicker} from './colours.js';
 import {globals, SVGLayer, walkLayers, screen2Grid, point2Line} from './map.js';
@@ -175,6 +175,7 @@ mapLoadedReceive(a => {
 addTool({
 	"name": lang["TOOL_LIGHT"],
 	"icon": svg({"viewBox": "0 0 44 75"}, [
+		title(lang["TOOL_LIGHT"]),
 		g({"style": "stroke: currentColor", "fill": "none", "stroke-linejoin": "round"}, [
 			path({"d": "M12,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2}),
 			path({"id": "c", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4", "stroke-width": 1}),

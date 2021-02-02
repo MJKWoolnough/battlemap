@@ -1,5 +1,5 @@
 import {LayerRPC} from './types.js';
-import {svg, g, line, path} from './lib/svg.js';
+import {svg, g, line, path, title} from './lib/svg.js';
 import {globals} from './map.js';
 import {doLayerShift, deselectToken} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
@@ -48,6 +48,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 addTool({
 	"name": lang["TOOL_MOVE"],
 	"icon": svg({"viewBox": "0 0 22 22", "style": "fill: currentColor"}, [
+		title(lang["TOOL_MOVE"]),
 		g({"stroke-width": 1, "style": "stroke: currentColor", "stroke-linecap": "round"}, [
 			line({"x1": 11, "y1": 6, "x2": 11, "y2": 16}),
 			line({"x1": 6, "y1": 11, "x2": 16, "y2": 11}),

@@ -1,6 +1,6 @@
 import {Uint, SVGAnimateBeginElement} from './types.js';
 import {SVGToken} from './map.js';
-import {createSVG, svg, animate, circle, g, path} from './lib/svg.js';
+import {createSVG, svg, animate, circle, g, path, title} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 import {globals, screen2Grid} from './map.js';
 import {deselectToken} from './adminMap.js';
@@ -51,7 +51,7 @@ mapLoadedReceive(() => {
 
 export default Object.freeze({
 	"name": lang["TOOL_DEFAULT"],
-	"icon": svg({"viewBox": "0 0 20 20"}, path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})),
+	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0 && e.button !== 1) {
 			return;

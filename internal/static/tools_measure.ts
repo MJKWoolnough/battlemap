@@ -1,6 +1,6 @@
 import {Uint} from './types.js';
 import {createHTML, br, div, input, label} from './lib/html.js';
-import {createSVG, svg, circle, g, line, path, polygon} from './lib/svg.js';
+import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals, screen2Grid} from './map.js';
 import {deselectToken, doMapDataSet} from './adminMap.js';
@@ -130,7 +130,7 @@ window.addEventListener("keyup", shiftSnap);
 
 addTool({
 	"name": lang["TOOL_MEASURE"],
-	"icon": svg({"viewBox": "0 0 50 50"}, path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})),
+	"icon": svg({"viewBox": "0 0 50 50"}, [title(lang["TOOL_MEASURE"]), path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})]),
 	"options": div([
 		label({"for": "measureSnap"}, `${lang["TOOL_MEASURE_SNAP"]}: `),
 		snap,

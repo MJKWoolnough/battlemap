@@ -1,6 +1,6 @@
 import {Colour, Coords, Uint} from './types.js';
 import {br, button, div, input, label, span} from './lib/html.js';
-import {createSVG, svg, rect, ellipse, g, path, polyline, polygon} from './lib/svg.js';
+import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {globals, screen2Grid} from './map.js';
@@ -169,6 +169,7 @@ window.addEventListener("keyup", shiftSnap);
 addTool({
 	"name": lang["TOOL_DRAW"],
 	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "style": "stroke: currentColor"}, [
+		title(lang["TOOL_DRAW"]),
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),

@@ -1,5 +1,5 @@
 import {br, div, input, label} from './lib/html.js';
-import {circle, line, svg} from './lib/svg.js';
+import {circle, line, svg, title} from './lib/svg.js';
 import {defaultMouseWheel, zoom} from './tools_default.js';
 import {addTool} from './tools.js';
 import lang from './language.js';
@@ -34,6 +34,7 @@ let zoomMode: 1 | -1 = -1;
 addTool({
 	"name": lang["TOOL_ZOOM"],
 	"icon": svg({"viewBox": "0 0 32 32", "style": "stroke: currentColor"}, [
+		title(lang["TOOL_ZOOM"]),
 		circle({"cx": 11.5, "cy": 11.5, "r": 10, "stroke-width": 3, "fill": "none"}),
 		line({"x1": 18, "y1": 18, "x2": 30, "y2": 30, "stroke-width": 4})
 	]),
