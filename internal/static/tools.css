@@ -37,3 +37,12 @@ span.colourButton {
 #wallTool:not(:checked) ~ #wallToolOptions {
 	display: none;
 }
+
+windows-window #toolList > ul svg + span {
+	display: none;
+}
+
+windows-window #toolList > ul {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
