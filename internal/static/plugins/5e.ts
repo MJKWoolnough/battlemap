@@ -159,15 +159,11 @@ class SVGToken5E extends SVGToken {
 		this.node = node;
 		if (this.isPattern) {
 			if (!wasPattern) {
-				if (lastSelectedToken === this) {
-					lastSelectedToken = null;
-				}
 				this.extra.remove();
 			}
 		} else if (wasPattern) {
 			if (globals.selected.token === this) {
-				lastSelectedToken = this;
-				globals.outline.insertAdjacentElement("beforebegin", lastSelectedToken.extra);
+				globals.outline.insertAdjacentElement("beforebegin", this.extra);
 			}
 			this.node.replaceWith(this.node = g([this.tokenNode, this.extra]));
 		}
@@ -281,8 +277,7 @@ addSymbol("5e-CONDITION_STUNNED", symbol({"viewBox": "0 0 100 100"}, g({"stroke"
 addSymbol("5e-CONDITION_UNCONSCIOUS", symbol({"viewBox": "0 0 100 100"}, [defs(path({"id": "5e-z", "d": "M3,2 h20 v3 l-15,20 h15 l1,-3 h1 l-1,5 h-20 v-3 l15,-20 h-15 l-1,3 h-1 z", "stroke-width": 1, "stroke": "#000", "fill": "#fff"})), use({"href": "#5e-z", "transform": "scale(1.2) translate(55, 0)"}), use({"href": "#5e-z", "transform": "translate(45, 30)"}), use({"href": "#5e-z", "transform": "scale(0.8) translate(35, 70)"}), use({"href": "#5e-z", "transform": "scale(0.6) translate(25, 130)"})]));
 
 let n = 0,
-    lastInitiativeID = 0,
-    lastSelectedToken: SVGToken5E | null = null;
+    lastInitiativeID = 0;
 
 const defaultLanguage = {
 	"ARMOUR_CLASS": "Armour Class",
@@ -452,6 +447,7 @@ const defaultLanguage = {
       },
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
+      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && !!globals.tokens[t.id],
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -506,12 +502,13 @@ const defaultLanguage = {
 		span({"class": userLevel === 1 ? "token-initiative-5e" : undefined, "onclick": userLevel === 1 ? () => {
 			updateInitiative([token.id, null]);
 			saveInitiative();
+			highlight.remove();
 		} : undefined}, initiative.toString())
 	])
       }),
       initChange = (token: SVGToken) => {
 	shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-		if (token === lastSelectedToken && initiative !== null) {
+		if (isValidToken(token) && initiative !== null) {
 			const init = parseInt(initiative);
 			if (isInt(init, -20, 40)) {
 				updateInitiative([token.id, init]);
@@ -521,7 +518,7 @@ const defaultLanguage = {
 	});
       },
       initRemove = (token: SVGToken) => {
-	if (token !== lastSelectedToken) {
+	if (!isValidToken(token)) {
 		return;
 	}
 	updateInitiative([token.id, null]);
@@ -533,7 +530,7 @@ const defaultLanguage = {
 	}
 	return parseInt(initiative);
 })).then(initiative => {
-	if (token !== lastSelectedToken || !isInt(initiative, -20, 40)) {
+	if (!isValidToken(token) || !isInt(initiative, -20, 40)) {
 		return;
 	}
 	updateInitiative([token.id, initiative]);
@@ -715,8 +712,8 @@ const defaultLanguage = {
 	"tokenContext": {
 		"priority": 0,
 		"fn": () => {
-			const token = lastSelectedToken;
-			if (!token) {
+			const {selected: {token}} = globals;
+			if (!(token instanceof SVGToken5E)) {
 				return [];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod"),
@@ -729,7 +726,7 @@ const defaultLanguage = {
 					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
 					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
 					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
-						if (token !== lastSelectedToken) {
+						if (!isValidToken(token)) {
 							return;
 						}
 						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
@@ -744,7 +741,7 @@ const defaultLanguage = {
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
 					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
-						if (token !== lastSelectedToken) {
+						if (!isValidToken(token)) {
 							return;
 						}
 						setShapechange(token);
@@ -755,7 +752,7 @@ const defaultLanguage = {
 						}
 						const newToken = shapechangeTokens[n];
 						return item(newToken["5e-shapechange-name"], () => {
-							if (token !== lastSelectedToken) {
+							if (!isValidToken(token)) {
 								return;
 							}
 							setShapechange(token, newToken);
@@ -956,14 +953,14 @@ if (userLevel === 1) {
 		]), true, undefined]
 	};
 	globals.outline.addEventListener("keypress", (e: KeyboardEvent) => {
-		if (lastSelectedToken !== null) {
-			const token = lastSelectedToken;
+		const {selected: {token}} = globals;
+		if (token instanceof SVGToken5E) {
 			if (e.key === 'h') {
 				const currHP = token.getData("5e-hp-current");
 				if (currHP !== null) {
 					shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
 						globals.outline.focus();
-						if (hp === null || token !== lastSelectedToken) {
+						if (hp === null || !isValidToken(token)) {
 							return;
 						}
 						const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
@@ -995,7 +992,6 @@ mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	lastInitiativeID = 0;
 	updateInitiative();
-	lastSelectedToken = null;
 });
 
 rpc.waitTokenSet().then(ts => {
@@ -1044,10 +1040,11 @@ combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative, 0));
 combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative, 0));
 combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative, 0));
 
+let lastSelectedToken: SVGToken5E | null = null;
+
 tokenSelectedReceive(() => {
 	if (lastSelectedToken) {
 		lastSelectedToken.unselect();
-		lastSelectedToken = null;
 	}
 	const {selected: {token}} = globals;
 	if (token instanceof SVGToken5E && !token.isPattern) {
