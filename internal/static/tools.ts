@@ -5,6 +5,7 @@ import {mapLoadedReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
 import defaultTool from './tools_default.js';
+import {shell, windows} from './windows.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent) => void;
@@ -83,6 +84,7 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 export default function (base: HTMLElement) {
 	tools.sort((a, b) => stringSort(a.name, b.name));
 	tools.unshift(defaultTool);
+	let windowed = false;
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
@@ -95,9 +97,17 @@ export default function (base: HTMLElement) {
 		selectedTool = t;
 		if (t.options) {
 			clearElement(options).appendChild(t.options);
-			toolOptions.style.removeProperty("display");
+			if (windowed) {
+				shell.appendChild(optionsWindow);
+			} else {
+				toolOptions.style.removeProperty("display");
+			}
 		} else {
-			toolOptions.style.setProperty("display", "none");
+			if (windowed) {
+				optionsWindow.remove();
+			} else {
+				toolOptions.style.setProperty("display", "none");
+			}
 		}
 		for (const c of list.childNodes as NodeListOf<HTMLElement>) {
 			c.classList.remove("selected")
@@ -107,7 +117,8 @@ export default function (base: HTMLElement) {
 		t.icon,
 		span(t.name)
 	      ]))),
-	      fc = list.firstChild as HTMLLIElement;
+	      fc = list.firstChild as HTMLLIElement,
+	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"]});
 	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
 	fc.click();
 	mapLoadedReceive(() => {
@@ -122,4 +133,30 @@ export default function (base: HTMLElement) {
 			selectedTool = defaultTool;
 		}
 	});
+	new MutationObserver(records => {
+		for (const r of records) {
+			for (const node of r.removedNodes) {
+				if (node === base) {
+					windowed = true;
+					optionsWindow.appendChild(options);
+					if (selectedTool.options) {
+						toolOptions.style.setProperty("display", "none");
+						shell.appendChild(optionsWindow);
+					}
+					return;
+				}
+			}
+			for (const node of r.addedNodes) {
+				if (node === base) {
+					windowed = false;
+					toolOptions.appendChild(options);
+					if (selectedTool.options) {
+						toolOptions.style.removeProperty("display");
+						optionsWindow.remove();
+					}
+					return;
+				}
+			}
+		}
+	}).observe(base.parentNode!, {"childList": true});
 }
