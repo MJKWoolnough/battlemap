@@ -51,6 +51,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitCharacterDataChange",  broadcastCharacterDataChange,  checkCharacterDataChange],
 				["waitTokenDataChange",      broadcastTokenDataChange,      checkTokenDataChange],
 				["waitMapChange",            broadcastMapItemChange,        checkMapDetails],
+				["waitMapStartChange",       broadcastMapStartChange,       checkMapStart],
 				["waitLayerAdd",             broadcastLayerAdd,             checkString],
 				["waitLayerFolderAdd",       broadcastLayerFolderAdd,       checkString],
 				["waitLayerMove",            broadcastLayerMove,            checkLayerMove],
@@ -137,11 +138,12 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "waitCurrentUserMap", ""],
 				["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
 
-				["newMap",           "maps.new",            "!",            checkIDName, "", ""],
-				["setMapDetails",    "maps.setMapDetails",  "!",            returnVoid,  "waitMapChange", ""],
-				["setLightColour",   "maps.setLightColour", "!",            returnVoid,  "waitMapLightChange", ""],
-				["setMapKeyData",    "maps.setData",       ["key", "data"], returnVoid,  "waitMapDataSet", ""],
-				["removeMapKeyData", "maps.removeData",     "!",            returnVoid,  "waitMapDataRemove", ""],
+				["newMap",           "maps.new",            "!",                 checkIDName, "", ""],
+				["setMapDetails",    "maps.setMapDetails",  "!",                 returnVoid,  "waitMapChange", ""],
+				["setMapStart",      "maps.setMapStart",   ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
+				["setLightColour",   "maps.setLightColour", "!",                 returnVoid,  "waitMapLightChange", ""],
+				["setMapKeyData",    "maps.setData",       ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
+				["removeMapKeyData", "maps.removeData",     "!",                 returnVoid,  "waitMapDataRemove", ""],
 
 				["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
 				["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
@@ -529,7 +531,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		}
 	}
       },
-      checksMapData: checkers = [[checkMapDetails, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
+      checksMapStart: checkers = [[checkObject, ""], [checkUint, "startX"], [checkUint, "startY"]],
+      checkMapStart = (data: any, name = "MapStart") => checker(data, name, checksMapStart),
+      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {

@@ -39,6 +39,7 @@ type RPCWaits = {
 	waitMapDataRemove:           () => Subscription<string>;
 	waitCharacterDataChange:     () => Subscription<CharacterDataChange>;
 	waitMapChange:               () => Subscription<MapDetails>;
+	waitMapStartChange:          () => Subscription<MapStart>;
 	waitLayerAdd:                () => Subscription<string>;
 	waitLayerFolderAdd:          () => Subscription<string>;
 	waitLayerMove:               () => Subscription<LayerMove>;
@@ -102,11 +103,12 @@ export type RPC = RPCWaits & {
 	setUserMap:    (id: Uint) => Promise<void>;
 	getMapData:    (id: Uint) => Promise<MapData>;
 
-	newMap:           (map: NewMap)             => Promise<IDName>;
-	setMapDetails:    (map: GridDetails)        => Promise<void>;
-	setLightColour:   (c: Colour)               => Promise<void>;
-	setMapKeyData:    (key: string, value: any) => Promise<void>;
-	removeMapKeyData: (key: string)             => Promise<void>;
+	newMap:           (map: NewMap)                => Promise<IDName>;
+	setMapDetails:    (map: GridDetails)           => Promise<void>;
+	setMapStart:      (startX: Uint, startY: Uint) => Promise<void>;
+	setLightColour:   (c: Colour)                  => Promise<void>;
+	setMapKeyData:    (key: string, value: any)    => Promise<void>;
+	removeMapKeyData: (key: string)                => Promise<void>;
 
 	signalPosition:     (pos: [Uint, Uint]) => Promise<void>;
 	signalMovePosition: (pos: [Uint, Uint]) => Promise<void>;
@@ -165,6 +167,8 @@ export type RPC = RPCWaits & {
 };
 
 export type MapData = LayerFolder & MapDetails & {
+	startX: Uint;
+	startY: Uint;
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
@@ -439,4 +443,9 @@ type IDPath = ID & {
 
 export type SVGAnimateBeginElement = SVGAnimateElement & {
 	beginElement: Function;
+}
+
+type MapStart = {
+	startX: Uint;
+	startY: Uint;
 }
