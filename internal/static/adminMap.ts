@@ -587,7 +587,7 @@ layersRPC: LayerRPC = {
 };
 
 export default function(base: HTMLElement) {
-	let tokenDragMode = 0;
+	let tokenDragMode = -1;
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
@@ -685,6 +685,7 @@ export default function(base: HTMLElement) {
 		document.body.removeEventListener("mousemove", tokenDrag);
 		document.body.removeEventListener("mouseup", tokenMouseUp);
 		globals.root.style.removeProperty("--outline-cursor");
+		tokenDragMode = -1;
 		const {layer, token} = globals.selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
 		      newX = Math.round(token.x),
@@ -726,6 +727,26 @@ export default function(base: HTMLElement) {
 	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
 		if (!token) {
+			return;
+		}
+		if (tokenDragMode > -1) {
+			if (e.key === "Escape") {
+				document.body.removeEventListener("mousemove", tokenDrag);
+				document.body.removeEventListener("mouseup", tokenMouseUp);
+				globals.root.style.removeProperty("--outline-cursor");
+				tokenDragMode = -1;
+				const {selected: {token}} = globals,
+				      {x, y, width, height, rotation} = tokenMousePos;
+				if (token) {
+					token.x = x;
+					token.y = y;
+					token.width = width;
+					token.rotation = rotation;
+					token.height = height;
+					token.updateNode();
+					createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": token.transformString(false)});
+				}
+			}
 			return;
 		}
 		if (e.key === "Escape") {
