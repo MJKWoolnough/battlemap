@@ -71,6 +71,31 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastMapItemChange, data, userAny)
 			return true
 		})
+	case "setMapStart":
+		var ms struct {
+			StartX uint64 `json:"startX"`
+			StartY uint64 `json:"startY"`
+		}
+		err := json.Unmarshal(data, &ms)
+		if err != nil {
+			return nil, err
+		}
+		if errr := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			if ms.StartX > mp.Width || ms.StartY > mp.Height {
+				err = ErrInvalidStart
+				return false
+			}
+			if ms.StartX == mp.StartX && ms.StartY == mp.StartY {
+				return false
+			}
+			mp.StartX = ms.StartX
+			mp.StartY = ms.StartY
+			m.socket.broadcastMapChange(cd, broadcastMapStartChange, data, userAdmin)
+			return true
+		}); errr != nil {
+			return nil, errr
+		}
+		return nil, err
 	case "setData":
 		var sd struct {
 			Key  string          `json:"key"`
@@ -812,4 +837,5 @@ var (
 	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
 	ErrInvalidLayerPath          = errors.New("invalid layer path")
 	ErrInvalidTokenPos           = errors.New("invalid token pos")
+	ErrInvalidStart              = errors.New("invalid start pos")
 )
