@@ -238,8 +238,8 @@ export class Folder {
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
-		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]}));
+		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]})),
+		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, [
 			h1(lang["FOLDER_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
