@@ -185,7 +185,11 @@ export default Object.freeze({
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		if (e.ctrlKey && isAdmin) {
-			rpc.signalMovePosition(pos);
+			if (e.altKey) {
+				rpc.setMapStart(pos[0], pos[1]);
+			} else {
+				rpc.signalMovePosition(pos);
+			}
 		} else {
 			rpc.signalPosition(pos);
 		}
