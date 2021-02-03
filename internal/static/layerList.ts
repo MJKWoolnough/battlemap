@@ -292,6 +292,11 @@ class LayerRoot extends Root {
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
+	const mousePos = {"clientX": 0, "clientY": 0};
+	window.addEventListener("mousemove", e => {
+		mousePos.clientX = e.clientX;
+		mousePos.clientY = e.clientY;
+	}, {"passive": true});
 	let loadFn = () => {
 		const list = new LayerRoot(globals.layerList, layersRPC),
 		      addKeyboard =  () => globals.root.addEventListener("keypress", (e: KeyboardEvent) => {
@@ -322,7 +327,12 @@ export default function(base: HTMLElement) {
 				});
 			}
 			if (sl) {
+				const {root} = globals,
+				      base = root.parentNode!;
+				root.dispatchEvent(new MouseEvent("mouseout", mousePos));
+				root.dispatchEvent(new MouseEvent("mouseleave", mousePos));
 				sl.show();
+				base.dispatchEvent(new MouseEvent("mouseover", mousePos));
 			}
 		      });
 		layersRPC.waitLayerSetVisible().then(path => {
