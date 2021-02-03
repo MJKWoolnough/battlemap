@@ -12,6 +12,7 @@ const (
 
 	broadcastMapDataSet
 	broadcastMapDataRemove
+	broadcastMapStartChange
 
 	broadcastImageItemAdd
 	broadcastAudioItemAdd
