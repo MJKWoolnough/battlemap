@@ -44,8 +44,14 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 };
 
 mapLoadedReceive(() => {
-	panZoom.x = 0;
-	panZoom.y = 0;
+	const {mapData: {startX, startY}} = globals;
+	if (startX === 0 && startY === 0) {
+		panZoom.x = 0;
+		panZoom.y = 0;
+	} else {
+		panZoom.x = (window.innerWidth >> 1) - globals.mapData.startX;
+		panZoom.y = (window.innerHeight >> 1) - globals.mapData.startY;
+	}
 	panZoom.zoom = 1;
 });
 

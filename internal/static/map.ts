@@ -535,7 +535,8 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 			path: "/"
 		} as SVGFolder;
 	      })(),
-	      root = globals.root = svg({"id": "map", "style": {"position": "absolute", "left": "0px", "top": "0px"}, "width": mapData.width, "height": mapData.height, "tabindex": -1}, [definitions.node, layerList.node]),
+	      {startX, startY} = mapData,
+	      root = globals.root = svg({"id": "map", "style": {"position": "absolute", "left": `${startX === 0 && startY === 0 ? 0 : (window.innerWidth >> 1) - startX}px`, "top": `${startX === 0 && startY === 0 ? 0 : (window.innerHeight >> 1) - startY}px`}, "width": mapData.width, "height": mapData.height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
