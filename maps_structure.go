@@ -11,18 +11,20 @@ import (
 )
 
 type levelMap struct {
-	Width      uint64                     `json:"width"`
-	Height     uint64                     `json:"height"`
-	StartX     uint64                     `json:"startX"`
-	StartY     uint64                     `json:"startY"`
-	GridType   uint8                      `json:"gridType"`
-	GridSize   uint64                     `json:"gridSize"`
-	GridStroke uint64                     `json:"gridStroke"`
-	GridColour colour                     `json:"gridColour"`
-	Light      colour                     `json:"lightColour"`
-	LightX     uint64                     `json:"lightX"`
-	LightY     uint64                     `json:"lightY"`
-	Data       map[string]json.RawMessage `json:"data"`
+	Width        uint64                     `json:"width"`
+	Height       uint64                     `json:"height"`
+	StartX       uint64                     `json:"startX"`
+	StartY       uint64                     `json:"startY"`
+	GridType     uint8                      `json:"gridType"`
+	GridSize     uint64                     `json:"gridSize"`
+	GridStroke   uint64                     `json:"gridStroke"`
+	GridColour   colour                     `json:"gridColour"`
+	GridDistance uint64                     `json:"gridDistance"`
+	GridDiagonal bool                       `json:"gridDiagonal"`
+	Light        colour                     `json:"lightColour"`
+	LightX       uint64                     `json:"lightX"`
+	LightY       uint64                     `json:"lightY"`
+	Data         map[string]json.RawMessage `json:"data"`
 	layer
 	layers                  map[string]struct{}
 	tokens                  map[uint64]layerToken
@@ -63,6 +65,8 @@ func (l *levelMap) writeJSON() {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"height\":"...), l.Height, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"startX\":"...), l.StartX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"startY\":"...), l.StartY, 10)
+	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridDistance\":"...), l.GridDistance, 10)
+	l.JSON = strconv.AppendBool(append(l.JSON, ",\"gridDiagonal\":"...), l.GridDiagonal)
 	l.JSON = appendNum(append(l.JSON, ",\"gridType\":"...), l.GridType)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridSize\":"...), l.GridSize, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridStroke\":"...), l.GridStroke, 10)
