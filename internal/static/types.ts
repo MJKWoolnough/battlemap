@@ -45,6 +45,8 @@ type RPCWaits = {
 	waitLayerMove:               () => Subscription<LayerMove>;
 	waitLayerRename:             () => Subscription<LayerRename>;
 	waitLayerRemove:             () => Subscription<string>;
+	waitGridDistanceChange:      () => Subscription<Uint>;
+	waitGridDiagonalChange:      () => Subscription<boolean>;
 	waitMapLightChange:          () => Subscription<Colour>;
 	waitLayerShow:               () => Subscription<string>;
 	waitLayerHide:               () => Subscription<string>;
@@ -106,6 +108,8 @@ export type RPC = RPCWaits & {
 	newMap:           (map: NewMap)                => Promise<IDName>;
 	setMapDetails:    (map: GridDetails)           => Promise<void>;
 	setMapStart:      (startX: Uint, startY: Uint) => Promise<void>;
+	setGridDistance:  (distance: Uint)             => Promise<void>;
+	setGridDiagonal:  (diagonal: boolean)          => Promise<void>;
 	setLightColour:   (c: Colour)                  => Promise<void>;
 	setMapKeyData:    (key: string, value: any)    => Promise<void>;
 	removeMapKeyData: (key: string)                => Promise<void>;
@@ -169,6 +173,8 @@ export type RPC = RPCWaits & {
 export type MapData = LayerFolder & MapDetails & {
 	startX: Uint;
 	startY: Uint;
+	gridDistance: Uint;
+	gridDiagonal: boolean;
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;

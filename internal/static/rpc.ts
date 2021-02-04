@@ -57,6 +57,8 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitLayerMove",            broadcastLayerMove,            checkLayerMove],
 				["waitLayerRename",          broadcastLayerRename,          checkLayerRename],
 				["waitLayerRemove",          broadcastLayerRemove,          checkString],
+				["waitGridDistanceChange",   broadcastGridDistanceChange,   checkUint],
+				["waitGridDiagonalChange",   broadcastGridDiagonalChange,   checkBoolean],
 				["waitMapLightChange",       broadcastMapLightChange,       checkColour],
 				["waitLayerShow",            broadcastLayerShow,            checkString],
 				["waitLayerHide",            broadcastLayerHide,            checkString],
@@ -138,12 +140,14 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "waitCurrentUserMap", ""],
 				["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
 
-				["newMap",           "maps.new",            "!",                 checkIDName, "", ""],
-				["setMapDetails",    "maps.setMapDetails",  "!",                 returnVoid,  "waitMapChange", ""],
-				["setMapStart",      "maps.setMapStart",   ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
-				["setLightColour",   "maps.setLightColour", "!",                 returnVoid,  "waitMapLightChange", ""],
-				["setMapKeyData",    "maps.setData",       ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
-				["removeMapKeyData", "maps.removeData",     "!",                 returnVoid,  "waitMapDataRemove", ""],
+				["newMap",           "maps.new",             "!",                 checkIDName, "", ""],
+				["setMapDetails",    "maps.setMapDetails",   "!",                 returnVoid,  "waitMapChange", ""],
+				["setMapStart",      "maps.setMapStart",    ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
+				["setGridDistance",  "maps.setGridDistance", "!",                 returnVoid,  "waitGridDistanceChange", ""],
+				["setGridDiagonal",  "maps.setGridDiagonal", "!",                 returnVoid,  "waitGridDiagonalChange", ""],
+				["setLightColour",   "maps.setLightColour",  "!",                 returnVoid,  "waitMapLightChange", ""],
+				["setMapKeyData",    "maps.setData",        ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
+				["removeMapKeyData", "maps.removeData",      "!",                 returnVoid,  "waitMapDataRemove", ""],
 
 				["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
 				["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
@@ -533,7 +537,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksMapStart: checkers = [[checkObject, ""], [checkUint, "startX"], [checkUint, "startY"]],
       checkMapStart = (data: any, name = "MapStart") => checker(data, name, checksMapStart),
-      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {
