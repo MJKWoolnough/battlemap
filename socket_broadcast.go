@@ -62,6 +62,8 @@ const (
 	broadcastLayerRename
 	broadcastLayerRemove
 
+	broadcastMapDistanceChange
+	broadcastMapDiagonalChange
 	broadcastMapLightChange
 
 	broadcastLayerShow
