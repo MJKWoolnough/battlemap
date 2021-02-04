@@ -62,6 +62,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			if mp.Width == md.Width && mp.Height == md.Height && mp.GridType == md.GridType && mp.GridSize == md.GridSize && mp.GridColour == md.GridColour && mp.GridStroke == md.GridStroke {
 				return false
 			}
+			if md.Width < mp.StartX {
+				mp.StartX = md.Width
+			}
+			if md.Height < mp.StartY {
+				mp.StartY = md.Height
+			}
 			mp.Width = md.Width
 			mp.Height = md.Height
 			mp.GridType = md.GridType
