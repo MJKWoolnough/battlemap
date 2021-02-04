@@ -44,13 +44,13 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 };
 
 mapLoadedReceive(() => {
-	const {mapData: {startX, startY}, root} = globals;
+	const {mapData: {startX, startY, width, height}, root} = globals;
 	if (startX === 0 && startY === 0) {
 		panZoom.x = 0;
 		panZoom.y = 0;
 	} else {
-		panZoom.x = (window.innerWidth >> 1) - globals.mapData.startX;
-		panZoom.y = (window.innerHeight >> 1) - globals.mapData.startY;
+		panZoom.x = Math.min(Math.max((window.innerWidth >> 1) - startX, window.innerWidth - width), 0);
+		panZoom.y = Math.min(Math.max((window.innerHeight >> 1) - startY, window.innerHeight - height), 0);
 	}
 	panZoom.zoom = 1;
 	createSVG(root, {"style": {"left": `${panZoom.x}px`, "top": `${panZoom.y}px`}});
