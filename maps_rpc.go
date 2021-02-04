@@ -125,6 +125,32 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastMapDataRemove, data, userAny)
 			return true
 		})
+	case "setGridDistance":
+		var md uint64
+		if err := json.Unmarshal(data, &md); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			if mp.GridDistance == md {
+				return false
+			}
+			mp.GridDistance = md
+			m.socket.broadcastMapChange(cd, broadcastGridDistanceChange, data, userAny)
+			return true
+		})
+	case "setGridDiagonal":
+		var md bool
+		if err := json.Unmarshal(data, &md); err != nil {
+			return nil, err
+		}
+		return nil, m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			if mp.GridDiagonal == md {
+				return false
+			}
+			mp.GridDiagonal = md
+			m.socket.broadcastMapChange(cd, broadcastGridDiagonalChange, data, userAny)
+			return true
+		})
 	case "setLightColour":
 		var c colour
 		if err := json.Unmarshal(data, &c); err != nil {
