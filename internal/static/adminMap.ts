@@ -8,7 +8,7 @@ import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
 import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, screen2Grid, SQRT3, deselectToken} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
-import {autosnap} from './settings.js';
+import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
@@ -602,7 +602,9 @@ export default function(base: HTMLElement) {
 			if (selectedToken.snap) {
 				[x, y] = snapTokenToGrid(x, y, width, height);
 			}
-			measureDistance(x + (width >> 1), y + (height >> 1));
+			if (measureTokenMove.value) {
+				measureDistance(x + (width >> 1), y + (height >> 1));
+			}
 			break;
 		case 1: {
 			rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI);
@@ -1000,7 +1002,7 @@ export default function(base: HTMLElement) {
 		tokenDragMode = n;
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
-		if (n === 0) {
+		if (n === 0 && measureTokenMove.value) {
 			const {selected: {token}} = globals;
 			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
