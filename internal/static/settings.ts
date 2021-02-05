@@ -10,7 +10,8 @@ export const autosnap = new BoolSetting("autosnap"),
 hideMenu = new BoolSetting("menuHide"),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
-invert = new BoolSetting("invert");
+invert = new BoolSetting("invert"),
+measureTokenMove = new BoolSetting("measureTokenMove");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
@@ -35,7 +36,12 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 				autosnap.set(this.checked);
 			}}),
 			label({"for": "autosnap"}, `${lang["AUTOSNAP"]}: `),
-			br()
+			br(),
+			input({"type": "checkbox", "id": "measureTokenMove", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
+				measureTokenMove.set(this.checked);
+			}}),
+			label({"for": "measureTokenMove"}, `${lang["MEASURE_TOKEN_MOVE"]}: `),
+			br(),
 		] : [],
 		label({"for": "scrollAmount"}, `${lang["SCROLL_AMOUNT"]}: `),
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
