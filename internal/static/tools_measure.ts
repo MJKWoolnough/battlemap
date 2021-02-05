@@ -40,6 +40,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
       lone = line({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square"}),
       ltwo = line({"stroke": "#000", "stroke-width": 6}),
       drawnLine = g([lone, ltwo, spot]),
+      coords = [NaN, NaN],
       showMarker = (root: SVGElement) => {
 	if (over) {
 		return;
@@ -47,17 +48,10 @@ const grid2Screen = (x: Uint, y: Uint) => {
 	over = true;
 	createSVG(root, {"style": {"cursor": "none"}}, marker);
 	let send = false;
-	const coords = [NaN, NaN],
-	      onmousedown = (e: MouseEvent) => {
+	const onmousedown = (e: MouseEvent) => {
 		if (e.button === 0) {
-			[coords[0], coords[1]] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			const l = {"x1": coords[0], "y1": coords[1], "x2": coords[0], "y2": coords[1]};
-			createSVG(lone, l);
-			createSVG(ltwo, l);
-			createSVG(spot, {"cx": coords[0], "cy": coords[1]});
-			root.insertBefore(drawnLine, marker);
-			createHTML(info, {"style": {"left": (e.clientX + 5) + "px", "top": (e.clientY + 5) + "px"}});
-			document.body.appendChild(info);
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			startMeasurement(x, y);
 		} else if (e.button === 2 && !isNaN(coords[0]) && !send) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
@@ -67,10 +61,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
 	      onmouseup = (e: MouseEvent) => {
 		switch (e.button) {
 		case 0:
-			coords[0] = NaN;
-			coords[1] = NaN;
-			drawnLine.remove();
-			info.remove();
+			stopMeasurement();
 		case 2:
 			if (send) {
 				rpc.broadcast({"type": broadcastKey, "data": []});
@@ -82,12 +73,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 		if (!isNaN(coords[0])) {
-			const size = globals.mapData.gridSize,
-			      l = {"x2": x, "y2": y},
-			      [sx, sy] = grid2Screen(x, y);
-			createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round((parseInt(cellValue.value) || size) * (diagonals.checked ? Math.hypot(x - coords[0], y - coords[1]) : Math.max(Math.abs(x - coords[0]), Math.abs(y - coords[1]))) / size));
-			createSVG(lone, l);
-			createSVG(ltwo, l);
+			measureDistance(x, y);
 			if (send) {
 				rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
 			}
@@ -98,10 +84,8 @@ const grid2Screen = (x: Uint, y: Uint) => {
 		document.body.removeEventListener("mouseup", onmouseup);
 		document.body.removeEventListener("mousemove", onmousemove);
 		document.body.removeEventListener("mouseleave", cleanup);
-		root.style.removeProperty("cursor");
-		marker.remove();
-		drawnLine.remove();
-		info.remove();
+		globals.root.style.removeProperty("cursor");
+		stopMeasurement();
 		over = false;
 		if (send) {
 			rpc.broadcast({"type": broadcastKey, "data": []});
@@ -117,6 +101,46 @@ const grid2Screen = (x: Uint, y: Uint) => {
 	e.preventDefault();
       },
       noopCleanup = () => {};
+
+export const startMeasurement = (x1: Uint, y1: Uint) => {
+	coords[0] = x1;
+	coords[1] = y1;
+	const l = {x1, y1, "x2": x1, "y2": y1},
+	      [sx, sy] = grid2Screen(x1, y1),
+	      {root} = globals;
+	createSVG(lone, l);
+	createSVG(ltwo, l);
+	createSVG(spot, {"cx": coords[0], "cy": coords[1]});
+	if (!drawnLine.parentNode) {
+		if (marker.parentNode) {
+			root.insertBefore(drawnLine, marker);
+		} else {
+			root.appendChild(drawnLine);
+		}
+	}
+	createHTML(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
+	if (!info.parentNode) {
+		document.body.appendChild(info);
+	}
+},
+measureDistance = (x2: Uint, y2: Uint) => {
+	if (isNaN(coords[0]) || isNaN(coords[1])) {
+		return;
+	}
+	const size = globals.mapData.gridSize,
+	      [x1, y1] = coords,
+	      l = {x1, y1, x2, y2},
+	      [sx, sy] = grid2Screen(x2, y2);
+	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round((parseInt(cellValue.value) || size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
+	createSVG(lone, l);
+	createSVG(ltwo, l);
+},
+stopMeasurement = () => {
+	drawnLine.remove();
+	info.remove();
+	coords[0] = NaN;
+	coords[1] = NaN;
+}
 
 let cleanup = noopCleanup;
 
@@ -167,23 +191,12 @@ inited.then(() => rpc.waitLogin().then(u => {
 				if (broadcast.data instanceof Array && broadcast.data.length === 4) {
 					const [x1, y1, x2, y2] = broadcast.data;
 					if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
-						const size = globals.mapData.gridSize,
-						      l = {x1, y1, x2, y2},
-						      [x, y] = grid2Screen(x2, y2);
-						createSVG(lone, l);
-						createSVG(ltwo, l);
-						createSVG(spot, {"cx": x1, "cy": y1});
-						globals.root.appendChild(drawnLine);
-						createSVG(marker, {"transform": `translate(${x2 - 10}, ${y2 - 10})`});
-						globals.root.appendChild(marker);
-						createHTML(info, {"style": {"left": `${x + 5}px`, "top": `${y + 5}px`}}, "" + Math.round((parseInt(cellValue.value) || size) * (diagonals.checked ? Math.hypot(x1 - x2, y1 - y2) : Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2))) / size));
-						document.body.appendChild(info);
+						startMeasurement(x1, y1);
+						measureDistance(x2, y2);
 						return;
 					}
 				}
-				drawnLine.remove();
-				marker.remove();
-				info.remove();
+				stopMeasurement();
 			}
 		});
 	}
