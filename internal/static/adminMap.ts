@@ -11,6 +11,7 @@ import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
+import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {mapLoadReceive, mapLoadedSend, tokenSelected, queue, labels} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
@@ -601,6 +602,7 @@ export default function(base: HTMLElement) {
 			if (selectedToken.snap) {
 				[x, y] = snapTokenToGrid(x, y, width, height);
 			}
+			measureDistance(x + (width >> 1), y + (height >> 1));
 			break;
 		case 1: {
 			rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI);
@@ -717,6 +719,7 @@ export default function(base: HTMLElement) {
 		if (changed) {
 			doTokenSet(ts);
 		}
+		stopMeasurement();
 	      },
 	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
@@ -740,6 +743,7 @@ export default function(base: HTMLElement) {
 					token.updateNode();
 					createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": token.transformString(false)});
 				}
+				stopMeasurement();
 			}
 			return;
 		}
@@ -996,6 +1000,10 @@ export default function(base: HTMLElement) {
 		tokenDragMode = n;
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
+		if (n === 0) {
+			const {selected: {token}} = globals;
+			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
+		}
 	      }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
