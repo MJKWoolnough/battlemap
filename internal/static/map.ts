@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFol
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {mapLoadedSend} from './misc.js';
+import {mapLoadedSend, tokenSelected} from './misc.js';
 import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
@@ -360,6 +360,12 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
+deselectToken = () => {
+	globals.selected.token = null;
+	globals.outline.style.setProperty("display", "none");
+	tokenSelected();
+	globals.root.focus();
+},
 point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		if (py >= y1 && py <= y2) {

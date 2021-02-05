@@ -1,7 +1,7 @@
 import {LayerRPC} from './types.js';
 import {svg, g, line, path, title} from './lib/svg.js';
-import {globals} from './map.js';
-import {doLayerShift, deselectToken} from './adminMap.js';
+import {globals, deselectToken} from './map.js';
+import {doLayerShift} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';
 import lang from './language.js';

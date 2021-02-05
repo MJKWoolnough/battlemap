@@ -6,7 +6,7 @@ import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, screen2Grid, SQRT3} from './map.js';
+import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, screen2Grid, SQRT3, deselectToken} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap} from './settings.js';
 import undo from './undo.js';
@@ -62,12 +62,6 @@ export const getToken = () => {
 		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity, tokenData};
 	}
 	return undefined;
-},
-deselectToken = () => {
-	globals.selected.token = null;
-	globals.outline.style.setProperty("display", "none");
-	tokenSelected();
-	globals.root.focus();
 },
 doMapChange = (details: MapDetails, sendRPC = true) => {
 	let oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour};
