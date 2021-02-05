@@ -11,7 +11,8 @@ hideMenu = new BoolSetting("menuHide"),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
 invert = new BoolSetting("invert"),
-measureTokenMove = new BoolSetting("measureTokenMove");
+measureTokenMove = new BoolSetting("measureTokenMove"),
+miniTools = new BoolSetting("miniTools");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
@@ -42,6 +43,11 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			}}),
 			label({"for": "measureTokenMove"}, `${lang["MEASURE_TOKEN_MOVE"]}: `),
 			br(),
+			input({"type": "checkbox", "id": "miniTools", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
+				miniTools.set(this.checked);
+			}}),
+			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `),
+			br()
 		] : [],
 		label({"for": "scrollAmount"}, `${lang["SCROLL_AMOUNT"]}: `),
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
