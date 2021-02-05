@@ -99,6 +99,7 @@ const defaultLanguage = {
 	"MAP_SQUARE_TYPE_SQUARE": "Square Tiles",
 	"MAP_SQUARE_WIDTH": "Width in Tiles",
 	"MEASURE_TOKEN_MOVE": "Automatically measure token moves",
+	"MINI_TOOLS": "Mini Tools Windows",
 	"MUSIC_ADD": "Add Music Pack",
 	"MUSIC_ADD_NAME": "Please enter a name for this new music pack",
 	"MUSIC_ENABLE": "Autoplay is disabled, please click here to enable",
