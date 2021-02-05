@@ -3,7 +3,6 @@ import {createHTML, br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {globals, screen2Grid} from './map.js';
-import {deselectToken, doMapDataSet} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {autosnap} from './settings.js';
 import {mapLoadedReceive, isUint} from './misc.js';
@@ -110,7 +109,6 @@ const grid2Screen = (x: Uint, y: Uint) => {
 		cleanup = noopCleanup;
 	};
 	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "onmouseleave": cleanup});
-	deselectToken();
       },
       disable = (e: MouseEvent) => {
 	if (e.button !== 0 && e.button !== 2) {
@@ -142,7 +140,12 @@ addTool({
 		showMarker(this);
 	},
 	"mapMouseDown": disable,
-	"tokenMouseOver": () => showMarker(globals.root),
+	"tokenMouseOver": function(this: SVGElement) {
+		const {root} = globals;
+		showMarker(root)
+		root.style.setProperty("--outline-cursor", "none");
+		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
+	},
 	"tokenMouseDown": disable,
 	"mapMouseWheel": defaultMouseWheel,
 	"tokenMouseContext": disable,
