@@ -187,9 +187,8 @@ export default Object.freeze({
 		if (e.ctrlKey && isAdmin) {
 			if (e.altKey) {
 				rpc.setMapStart(pos[0], pos[1]);
-			} else {
-				rpc.signalMovePosition(pos);
 			}
+			rpc.signalMovePosition(pos);
 		} else {
 			rpc.signalPosition(pos);
 		}
