@@ -204,6 +204,7 @@ const defaultLanguage = {
 	"UPLOAD_AUDIO": "Upload Sound",
 	"UPLOAD_IMAGES": "Upload Image",
 	"UPLOADING": "Uploading Files...",
+	"ZOOM_SLIDER_HIDE": "Hide Zoom Slider"
       },
       overDefault = (pack: PartialPack) => {
 	for (const s in defaultLanguage) {
