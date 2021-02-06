@@ -1,7 +1,7 @@
 import {Uint, SVGAnimateBeginElement} from './types.js';
 import {SVGToken} from './map.js';
 import {createSVG, svg, animate, circle, g, path, title} from './lib/svg.js';
-import {scrollAmount} from './settings.js';
+import {scrollAmount, zoomSlider} from './settings.js';
 import {globals, screen2Grid, deselectToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import lang from './language.js';
@@ -227,3 +227,8 @@ inited.then(() => {
 	});
 	rpc.waitSignalPosition().then(showSignal);
 });
+
+if (zoomSlider.value) {
+	document.body.classList.add("hideZoomSlider");
+}
+zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
