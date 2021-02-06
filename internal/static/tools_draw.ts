@@ -211,5 +211,6 @@ addTool({
 	},
 	"tokenMouseOver": () => showMarker(globals.root),
 	"tokenMouseContext": oncontext,
-	"mapMouseWheel": defaultMouseWheel
+	"mapMouseWheel": defaultMouseWheel,
+	"unset": () => marker.remove()
 });
