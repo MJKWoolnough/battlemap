@@ -86,6 +86,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
 		document.body.removeEventListener("mouseleave", cleanup);
 		globals.root.style.removeProperty("cursor");
 		stopMeasurement();
+		marker.remove();
 		over = false;
 		if (send) {
 			rpc.broadcast({"type": broadcastKey, "data": []});
