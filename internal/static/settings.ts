@@ -12,7 +12,8 @@ scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
 invert = new BoolSetting("invert"),
 measureTokenMove = new BoolSetting("measureTokenMove"),
-miniTools = new BoolSetting("miniTools");
+miniTools = new BoolSetting("miniTools"),
+zoomSlider = new BoolSetting("zoomSlider");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
@@ -49,6 +50,11 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `),
 			br()
 		] : [],
+		input({"type": "checkbox", "id": "hideZoomSlider", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
+			zoomSlider.set(this.checked);
+		}}),
+		label({"for": "hideZoomSlider"}, `${lang["ZOOM_SLIDER_HIDE"]}: `),
+		br(),
 		label({"for": "scrollAmount"}, `${lang["SCROLL_AMOUNT"]}: `),
 		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(parseInt(this.value));
