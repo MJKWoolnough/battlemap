@@ -38,11 +38,11 @@ span.colourButton {
 	display: none;
 }
 
-windows-window #toolList > ul svg + span {
+.miniTools windows-window #toolList > ul svg + span {
 	display: none;
 }
 
-windows-window #toolList > ul {
+.miniTools windows-window #toolList > ul {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
