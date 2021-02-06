@@ -6,6 +6,7 @@ import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
 import defaultTool from './tools_default.js';
 import {shell, windows} from './windows.js';
+import {miniTools} from './settings.js';
 
 type MouseFn = (this: SVGElement, e: MouseEvent) => void;
 type WheelFn = (this: SVGElement, e: WheelEvent) => void;
@@ -97,13 +98,13 @@ export default function (base: HTMLElement) {
 		selectedTool = t;
 		if (t.options) {
 			clearElement(options).appendChild(t.options);
-			if (windowed) {
+			if (windowed && miniTools.value) {
 				shell.appendChild(optionsWindow);
 			} else {
 				toolOptions.style.removeProperty("display");
 			}
 		} else {
-			if (windowed) {
+			if (windowed && miniTools.value) {
 				optionsWindow.remove();
 			} else {
 				toolOptions.style.setProperty("display", "none");
@@ -138,10 +139,12 @@ export default function (base: HTMLElement) {
 			for (const node of r.removedNodes) {
 				if (node === base) {
 					windowed = true;
-					optionsWindow.appendChild(options);
-					if (selectedTool.options) {
-						toolOptions.style.setProperty("display", "none");
-						shell.appendChild(optionsWindow);
+					if (miniTools.value) {
+						optionsWindow.appendChild(options);
+						if (selectedTool.options) {
+							toolOptions.style.setProperty("display", "none");
+							shell.appendChild(optionsWindow);
+						}
 					}
 					return;
 				}
@@ -149,14 +152,36 @@ export default function (base: HTMLElement) {
 			for (const node of r.addedNodes) {
 				if (node === base) {
 					windowed = false;
-					toolOptions.appendChild(options);
-					if (selectedTool.options) {
-						toolOptions.style.removeProperty("display");
-						optionsWindow.remove();
+					if (miniTools.value) {
+						toolOptions.appendChild(options);
+						if (selectedTool.options) {
+							toolOptions.style.removeProperty("display");
+							optionsWindow.remove();
+						}
 					}
 					return;
 				}
 			}
 		}
 	}).observe(base.parentNode!, {"childList": true});
+	miniTools.wait(on => {
+		document.body.classList.toggle("miniTools", on)
+		if (on) {
+			optionsWindow.appendChild(options);
+			if (selectedTool.options) {
+				toolOptions.style.setProperty("display", "none");
+				shell.appendChild(optionsWindow);
+			}
+		} else {
+			toolOptions.appendChild(options);
+			if (selectedTool.options) {
+				toolOptions.style.removeProperty("display");
+				optionsWindow.remove();
+			}
+		}
+		windowed = on;
+	});
+	if (miniTools.value) {
+		document.body.classList.add("miniTools");
+	}
 }
