@@ -1,14 +1,15 @@
 import {Uint, SVGAnimateBeginElement} from './types.js';
 import {SVGToken} from './map.js';
-import {createSVG, svg, animate, circle, g, path, title} from './lib/svg.js';
+import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {globals, screen2Grid, deselectToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
+import {shell} from './windows.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
-zoom = (root: SVGElement, delta: number, x: number, y: number) => {
+zoom = (root: SVGElement, delta: number, x: number, y: number, moveControl = true) => {
 	const width = parseInt(root.getAttribute("width") || "0") / 2,
 	      height = parseInt(root.getAttribute("height") || "0") / 2,
 	      oldZoom = panZoom.zoom;
@@ -25,6 +26,9 @@ zoom = (root: SVGElement, delta: number, x: number, y: number) => {
 	}
 	createSVG(globals.outline, {"--zoom": panZoom.zoom});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+	if (moveControl) {
+		zoomerControl.setAttribute("cy", Math.max(10, Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
+	}
 },
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	e.preventDefault();
@@ -53,6 +57,8 @@ mapLoadedReceive(() => {
 	}
 	panZoom.zoom = 1;
 	createSVG(root, {"style": {"left": `${panZoom.x}px`, "top": `${panZoom.y}px`}});
+	zoomerControl.setAttribute("cy", "60");
+	shell.appendChild(zoomer);
 });
 
 export default Object.freeze({
@@ -208,7 +214,39 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	globals.root.appendChild(signal);
 	signalAnim1.beginElement();
 	signalAnim2.beginElement();
-      };
+      },
+      zoomMove = (e: MouseEvent) => {
+	const v = Math.max(10, Math.min(110, e.clientY)),
+	      z = Math.pow(1.4, (v - 60) / 10);
+	zoomerControl.setAttribute("cy", v + "");
+	zoom(globals.root, z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
+      },
+      zoomMouseUp = (e: MouseEvent) => {
+	if (e.button !== 0) {
+		return;
+	}
+	window.removeEventListener("mousemove", zoomMove);
+	window.removeEventListener("mouseup", zoomMouseUp);
+	document.body.classList.remove("zooming");
+      },
+      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
+	if (e.button !== 0) {
+		return;
+	}
+	window.addEventListener("mousemove", zoomMove);
+	window.addEventListener("mouseup", zoomMouseUp);
+	document.body.classList.add("zooming");
+      }}),
+      zoomer = svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+	rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
+		if (e.button === 0) {
+			zoomMove(e);
+		}
+	}}),
+	path({"d": "", "stroke": "#000"}),
+	zoomerControl
+      ]),
+      l4 = Math.log(1.4);
 
 let isAdmin = false;
 
