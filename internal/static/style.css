@@ -126,6 +126,7 @@ html, body {
 	height: 20px;
 	transition: background 1s;
 	z-index: 9;
+	cursor: pointer;
 }
 
 windows-shell {
