@@ -1,6 +1,7 @@
 #toolList > ul {
 	list-style: none;
 	padding: 0;
+	margin-top: 0;
 }
 
 #toolList > ul > li img, #toolList > ul > li svg {
