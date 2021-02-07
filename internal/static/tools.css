@@ -60,6 +60,10 @@ span.colourButton {
 	fill: rgba(255, 255, 255, 0.2);
 }
 
+#zoomSlider rect, #zoomSlider circle {
+	transition: fill 0.5s;
+}
+
 #zoomSlider:hover rect, .zooming #zoomSlider rect {
 	fill: #fff;
 }
