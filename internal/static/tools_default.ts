@@ -220,7 +220,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	zoomerControl.setAttribute("cy", v + "");
 	zoom(globals.root, z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
       },
-      zoomWheel = (e: WheelEvent) => zoom(globals.root, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY),
+      zoomWheel = (e: WheelEvent) => zoom(globals.root, Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
       zoomMouseUp = (e: MouseEvent) => {
 	if (e.button !== 0) {
 		return;
