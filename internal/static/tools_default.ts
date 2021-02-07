@@ -58,7 +58,6 @@ mapLoadedReceive(() => {
 	panZoom.zoom = 1;
 	createSVG(root, {"style": {"left": `${panZoom.x}px`, "top": `${panZoom.y}px`}});
 	zoomerControl.setAttribute("cy", "60");
-	shell.appendChild(zoomer);
 });
 
 export default Object.freeze({
@@ -221,6 +220,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	zoomerControl.setAttribute("cy", v + "");
 	zoom(globals.root, z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
       },
+      zoomWheel = (e: WheelEvent) => zoom(globals.root, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY),
       zoomMouseUp = (e: MouseEvent) => {
 	if (e.button !== 0) {
 		return;
@@ -236,13 +236,13 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	window.addEventListener("mousemove", zoomMove);
 	window.addEventListener("mouseup", zoomMouseUp);
 	document.body.classList.add("zooming");
-      }}),
+      }, "onwheel": zoomWheel}),
       zoomer = svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
 	rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 		if (e.button === 0) {
 			zoomMove(e);
 		}
-	}}),
+	}, "onwheel": zoomWheel}),
 	path({"d": "", "stroke": "#000"}),
 	zoomerControl
       ]),
@@ -251,6 +251,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 let isAdmin = false;
 
 inited.then(() => {
+	shell.appendChild(zoomer);
 	rpc.waitLogin().then(level => {
 		isAdmin = level === 1;
 		if (!isAdmin) {
