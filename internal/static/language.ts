@@ -98,7 +98,7 @@ const defaultLanguage = {
 	"MAP_SQUARE_TYPE_HEX_V": "Hexagon Tiles - Vertical",
 	"MAP_SQUARE_TYPE_SQUARE": "Square Tiles",
 	"MAP_SQUARE_WIDTH": "Width in Tiles",
-	"MEASURE_TOKEN_MOVE": "Automatically measure token moves",
+	"MEASURE_TOKEN_MOVE": "Automatically Measure Token Moves",
 	"MINI_TOOLS": "Mini Tools Windows",
 	"MUSIC_ADD": "Add Music Pack",
 	"MUSIC_ADD_NAME": "Please enter a name for this new music pack",
