@@ -27,7 +27,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number, moveControl = tru
 	createSVG(globals.outline, {"--zoom": panZoom.zoom});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 	if (moveControl) {
-		zoomerControl.setAttribute("cy", Math.max(10, Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
+		zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
 	}
 },
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
@@ -216,7 +216,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
       },
       zoomMove = (e: MouseEvent) => {
 	const v = Math.max(10, Math.min(110, e.clientY)),
-	      z = Math.pow(1.4, (v - 60) / 10);
+	      z = Math.pow(1.4, (60 - v) / 10);
 	zoomerControl.setAttribute("cy", v + "");
 	zoom(globals.root, z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
       },
