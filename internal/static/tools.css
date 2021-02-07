@@ -72,6 +72,10 @@ span.colourButton {
 	fill: #f00;
 }
 
-#zoomSlider circle {
+#zoomSlider rect {
 	cursor: pointer;
+}
+
+#zoomSlider circle {
+	cursor: ns-resize;
 }
