@@ -104,8 +104,9 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      },
 	      tabs: HTMLLabelElement[] = [],
 	      o = Object.freeze({
-		"add": (title: string, contents: Node, pop = false, popIcon?: string) => {
-			const base = p.appendChild(div(contents)),
+		"add": (title: string, contents: Node, pop = false, popIcon?: SVGSVGElement) => {
+			const popIconString = popIcon ? popIcon.outerHTML : undefined,
+			      base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": pos === lastTab.value}), t),
 			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
@@ -139,7 +140,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": "min-width: 45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					shell.appendChild(autoFocus(windows({"window-icon": popIconString, "window-title": title, "resizable": "true", "style": "min-width: 45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
