@@ -9,8 +9,9 @@ import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
-zoom = (root: SVGElement, delta: number, x: number, y: number, moveControl = true) => {
-	const width = parseInt(root.getAttribute("width") || "0") / 2,
+zoom = (delta: number, x: number, y: number, moveControl = true) => {
+	const {root, outline} = globals,
+	      width = parseInt(root.getAttribute("width") || "0") / 2,
 	      height = parseInt(root.getAttribute("height") || "0") / 2,
 	      oldZoom = panZoom.zoom;
 	if (delta < 0) {
@@ -24,7 +25,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number, moveControl = tru
 		document.body.classList.toggle("dragging", true);
 		window.setTimeout(() => document.body.classList.remove("dragging"));
 	}
-	createSVG(globals.outline, {"--zoom": panZoom.zoom});
+	createSVG(outline, {"--zoom": panZoom.zoom});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 	if (moveControl) {
 		zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
@@ -33,7 +34,7 @@ zoom = (root: SVGElement, delta: number, x: number, y: number, moveControl = tru
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	e.preventDefault();
 	if (e.ctrlKey) {
-		zoom(this, Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
+		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
 		const deltaY = e.shiftKey ? 0 : -e.deltaY,
 		      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
@@ -218,9 +219,9 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 	const v = Math.max(10, Math.min(110, e.clientY)),
 	      z = Math.pow(1.4, (60 - v) / 10);
 	zoomerControl.setAttribute("cy", v + "");
-	zoom(globals.root, z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
+	zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
       },
-      zoomWheel = (e: WheelEvent) => zoom(globals.root, Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
+      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
       zoomMouseUp = (e: MouseEvent) => {
 	if (e.button !== 0) {
 		return;
