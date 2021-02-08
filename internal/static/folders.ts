@@ -123,6 +123,7 @@ export class Item {
 	getPath() {
 		return this.parent.getPath() + "/" + this.name;
 	}
+	delete() {}
 }
 
 export class DraggableItem extends Item {
@@ -138,12 +139,7 @@ export class DraggableItem extends Item {
 					document.body.appendChild(this.icon);
 				}
 			},
-			"onmouseout": () => {
-				if (this.icon.parentNode) {
-					document.body.removeChild(this.icon);
-				}
-				this.icon.style.removeProperty("transform");
-			},
+			"onmouseout": () => this.removeIcon(),
 			"ondragstart": (e: DragEvent) => {
 				const img = this.image;
 				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
@@ -156,6 +152,15 @@ export class DraggableItem extends Item {
 		});
 	}
 	dragName() {return ""}
+	delete() {
+		this.removeIcon();
+	}
+	removeIcon() {
+		if (this.icon.parentNode) {
+			document.body.removeChild(this.icon);
+		}
+		this.icon.style.removeProperty("transform");
+	}
 }
 
 export class Folder {
@@ -311,7 +316,9 @@ export class Folder {
 	removeItem(name: string) {
 		const index = this.children.findIndex(i => i.name === name && i instanceof Item);
 		if (index !== -1) {
-			return (this.children.splice(index, 1).pop() as Item).id;
+			const i = (this.children.splice(index, 1).pop() as Item);
+			i.delete();
+			return i.id;
 		}
 		return -1;
 	}
@@ -333,13 +340,20 @@ export class Folder {
 	removeFolder(name: string) {
 		const index = this.children.findIndex(f => f.name === name && f instanceof Folder);
 		if (index !== -1) {
-			return this.children.splice(index, 1).pop() as Folder;
+			const f = this.children.splice(index, 1).pop() as Folder;
+			f.delete();
+			return f;
 		}
 	}
 	getPath() {
 		const breadcrumbs = [];
 		for (let f: Folder | null = this; f; f = f.parent) breadcrumbs.push(f.name);
 		return breadcrumbs.reverse().join("/");
+	}
+	delete() {
+		for (const c of this.children) {
+			c.delete();
+		}
 	}
 }
 
