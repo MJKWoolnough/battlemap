@@ -442,29 +442,34 @@ func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
 }
 
 func (f *folders) copyItem(cd ConnData, data json.RawMessage) (interface{}, error) {
-	var in idName
-	if err := json.Unmarshal(data, &in); err != nil {
+	var ip struct {
+		ID   uint64 `json:"id"`
+		Path string `json:"path"`
+	}
+	if err := json.Unmarshal(data, &ip); err != nil {
 		return "", err
 	}
 	f.mu.Lock()
-	if _, ok := f.links[in.ID]; !ok {
+	if _, ok := f.links[ip.ID]; !ok {
 		f.mu.Unlock()
 		return "", ErrItemNotFound
 	}
-	parent, name, _ := f.getFolderItem(in.Name)
+	parent, name, _ := f.getFolderItem(ip.Path)
 	if parent == nil {
 		f.mu.Unlock()
 		return "", ErrFolderNotFound
 	}
 	if name == "" {
-		name = strconv.FormatUint(in.ID, 10)
+		name = strconv.FormatUint(ip.ID, 10)
 	}
-	newName := addItemTo(parent.Items, name, in.ID)
+	newName := addItemTo(parent.Items, name, ip.ID)
 	f.saveFolders()
 	f.mu.Unlock()
-	in.Name = in.Name[:len(in.Name)-len(name)] + newName
+	ip.Path = ip.Path[:len(ip.Path)-len(name)] + newName
+	data = append(appendString(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"oldID\":"...), ip.ID, 10), ",\"newID\":"...), ip.ID, 10), ",\"path\":"...), ip.Path), '}')
 	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemCopy), data, cd.ID)
-	return in, nil
+	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), ip.ID, 10), ",\"path\":"...), ip.Path), '}')
+	return data, nil
 }
 
 func (f *folders) getBroadcastID(base int) int {
