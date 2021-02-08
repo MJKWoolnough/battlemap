@@ -94,7 +94,7 @@ export class Item {
 			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.link(self.id, parents.value + newName.value).then(newPath => {
-					root.addItem(self.id, newPath);
+					root.linkItem(self.id, newPath);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
@@ -380,7 +380,7 @@ export class Root {
 		});
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
 		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
-		rpcFuncs.waitLinked().then(({id, name}) => this.addItem(id, name));
+		rpcFuncs.waitLinked().then(({id, name}) => this.linkItem(id, name));
 		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
 		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
@@ -418,6 +418,9 @@ export class Root {
 	}
 	moveItem(from: string, to: string) {
 		this.addItem(this.removeItem(from), to);
+	}
+	linkItem(id: Uint, name: string) {
+		this.addItem(id, name);
 	}
 	removeItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
