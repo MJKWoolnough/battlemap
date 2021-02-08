@@ -19,6 +19,10 @@ summary::-webkit-details-marker {
 	cursor: pointer;
 }
 
+.foldersItem:hover, .foldersFolder:hover {
+	background-color: #888;
+}
+
 .folders summary > .folderIcon {
 	width: 1em;
 	height: 1em;
