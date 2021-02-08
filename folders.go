@@ -461,7 +461,7 @@ func (f *folders) linkItem(cd ConnData, data json.RawMessage) (string, error) {
 	newName := addItemTo(parent.Items, name, link.ID)
 	f.saveFolders()
 	link.Name = link.Name[:len(link.Name)-len(name)] + newName
-	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemLink), data, cd.ID)
+	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemCopy), data, cd.ID)
 	return link.Name, nil
 }
 

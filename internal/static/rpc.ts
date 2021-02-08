@@ -4,7 +4,7 @@ import RPC from './lib/rpc_ws.js';
 import {shell} from './windows.js';
 import {isInt, isUint, queue} from './misc.js';
 
-const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemLink = -19, broadcastAudioItemLink = -20, broadcastCharacterItemLink = -21, broadcastMapItemLink = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastTokenDataChange = -37, broadcastCharacterDataRemove = -38, broadcastTokenDataRemove = -39, broadcastLayerAdd = -40, broadcastLayerFolderAdd = -41, broadcastLayerMove = -42, broadcastLayerRename = -43, broadcastLayerRemove = -44, broadcastGridDistanceChange = -45, broadcastGridDiagonalChange = -46, broadcastMapLightChange = -47, broadcastLayerShow = -48, broadcastLayerHide = -49, broadcastLayerMaskAdd = -50, broadcastLayerMaskChange = -51, broadcastLayerMaskRemove = -52, broadcastTokenAdd = -53, broadcastTokenRemove = -54, broadcastTokenMoveLayerPos = -55, broadcastTokenSet = -56, broadcastLayerShift = -57, broadcastLightShift = -58, broadcastTokenLightChange = -59, broadcastWallAdd = -60, broadcastWallRemove = -61, broadcastMusicPackAdd = -62, broadcastMusicPackRename = -63, broadcastMusicPackRemove = -64, broadcastMusicPackCopy = -65, broadcastMusicPackVolume = -66, broadcastMusicPackPlay = -67, broadcastMusicPackStop = -68, broadcastMusicPackStopAll = -69, broadcastMusicPackTrackAdd = -70, broadcastMusicPackTrackRemove = -71, broadcastMusicPackTrackVolume = -72, broadcastMusicPackTrackRepeat = -73, broadcastPluginChange = -74, broadcastPluginSettingChange = -75, broadcastSignalPosition = -76, broadcastSignalMovePosition = -77, broadcastAny = -78;
+const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastTokenDataChange = -37, broadcastCharacterDataRemove = -38, broadcastTokenDataRemove = -39, broadcastCharacterCopy = -40, broadcastLayerAdd = -41, broadcastLayerFolderAdd = -42, broadcastLayerMove = -43, broadcastLayerRename = -44, broadcastLayerRemove = -45, broadcastGridDistanceChange = -46, broadcastGridDiagonalChange = -47, broadcastMapLightChange = -48, broadcastLayerShow = -49, broadcastLayerHide = -50, broadcastLayerMaskAdd = -51, broadcastLayerMaskChange = -52, broadcastLayerMaskRemove = -53, broadcastTokenAdd = -54, broadcastTokenRemove = -55, broadcastTokenMoveLayerPos = -56, broadcastTokenSet = -57, broadcastLayerShift = -58, broadcastLightShift = -59, broadcastTokenLightChange = -60, broadcastWallAdd = -61, broadcastWallRemove = -62, broadcastMusicPackAdd = -63, broadcastMusicPackRename = -64, broadcastMusicPackRemove = -65, broadcastMusicPackCopy = -66, broadcastMusicPackVolume = -67, broadcastMusicPackPlay = -68, broadcastMusicPackStop = -69, broadcastMusicPackStopAll = -70, broadcastMusicPackTrackAdd = -71, broadcastMusicPackTrackRemove = -72, broadcastMusicPackTrackVolume = -73, broadcastMusicPackTrackRepeat = -74, broadcastPluginChange = -75, broadcastPluginSettingChange = -76, broadcastSignalPosition = -77, broadcastSignalMovePosition = -78, broadcastAny = -79;
 
 let initSend: () => void;
 
@@ -96,7 +96,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastImageItemAdd,      checkIDName],
 				["waitMoved",         broadcastImageItemMove,     checkFromTo],
 				["waitRemoved",       broadcastImageItemRemove,   checkString],
-				["waitLinked",        broadcastImageItemLink,     checkIDName],
+				["waitLinked",        broadcastImageItemCopy,     checkIDName],
 				["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastImageFolderRemove, checkString]
@@ -105,7 +105,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastAudioItemAdd,      checkIDName],
 				["waitMoved",         broadcastAudioItemMove,     checkFromTo],
 				["waitRemoved",       broadcastAudioItemRemove,   checkString],
-				["waitLinked",        broadcastAudioItemLink,     checkIDName],
+				["waitLinked",        broadcastAudioItemCopy,     checkIDName],
 				["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
@@ -114,7 +114,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
 				["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
 				["waitRemoved",       broadcastCharacterItemRemove,   checkString],
-				["waitLinked",        broadcastCharacterItemLink,     checkIDName],
+				["waitLinked",        broadcastCharacterItemCopy,     checkIDName],
 				["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
@@ -123,7 +123,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastMapItemAdd,      checkIDName],
 				["waitMoved",         broadcastMapItemMove,     checkFromTo],
 				["waitRemoved",       broadcastMapItemRemove,   checkString],
-				["waitLinked",        broadcastMapItemLink,     checkIDName],
+				["waitLinked",        broadcastMapItemCopy,     checkIDName],
 				["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
@@ -229,7 +229,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "characters.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "characters.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["link",         "characters.link",         ["id", "name"], checkString,      "waitLinked", "name"]
+				["link",         "characters.copy",         ["id", "name"], checkString,      "waitLinked", "name"]
 			],
 			"maps": [
 				["list",         "maps.list",         "",             checkFolderItems, "", ""],
@@ -618,4 +618,3 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       };
-

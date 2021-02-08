@@ -29,10 +29,10 @@ const (
 	broadcastCharacterItemRemove
 	broadcastMapItemRemove
 
-	broadcastImageItemLink
-	broadcastAudioItemLink
-	broadcastCharacterItemLink
-	broadcastMapItemLink
+	broadcastImageItemCopy
+	broadcastAudioItemCopy
+	broadcastCharacterItemCopy
+	broadcastMapItemCopy
 
 	broadcastImageFolderAdd
 	broadcastAudioFolderAdd
@@ -55,6 +55,8 @@ const (
 	broadcastTokenDataChange
 	broadcastCharacterDataRemove
 	broadcastTokenDataRemove
+
+	broadcastCharacterCopy
 
 	broadcastLayerAdd
 	broadcastLayerFolderAdd
