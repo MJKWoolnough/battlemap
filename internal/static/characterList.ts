@@ -11,12 +11,14 @@ import {rpc} from './rpc.js';
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		rpc.characterGet(id).then(d => {
-			characterData.set(id, d);
-			if (d["store-image-icon"]) {
-				this.setIcon(parseInt(d["store-image-icon"].data));
-			}
-		});
+		if (!characterData.has(id)) {
+			rpc.characterGet(id).then(d => {
+				characterData.set(id, d);
+				if (d["store-image-icon"]) {
+					this.setIcon(parseInt(d["store-image-icon"].data));
+				}
+			});
+		}
 		characters.set(id, this);
 	}
 	setIcon(id: Uint) {
@@ -37,6 +39,13 @@ class CharacterRoot extends Root {
 			characters.delete(id);
 		}
 		return id;
+	}
+	copyItem(oldID: Uint, newID: Uint, name: string) {
+		const c = characterData.get(oldID);
+		if (c) {
+			characterData.set(newID, JSON.parse(JSON.stringify(c)));
+			super.copyItem(oldID, newID, name);
+		}
 	}
 }
 
