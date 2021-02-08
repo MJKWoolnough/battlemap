@@ -874,14 +874,14 @@ export default function(base: HTMLElement) {
 					if (!(currToken instanceof SVGToken)) {
 						return;
 					}
-					doTokenSet({"id": currToken.id, "flip": currToken.flip});
+					doTokenSet({"id": currToken.id, "flip": !currToken.flip});
 					outline.focus();
 				}),
 				item(lang["CONTEXT_FLOP"], () => {
 					if (!(currToken instanceof SVGToken)) {
 						return;
 					}
-					doTokenSet({"id": currToken.id, "flop": currToken.flop = !currToken.flop});
+					doTokenSet({"id": currToken.id, "flop": !currToken.flop});
 					outline.focus();
 				}),
 				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
