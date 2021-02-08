@@ -343,7 +343,7 @@ export default function(base: Node) {
 					this.tracks.node,
 					div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 				]);
-				this.node = li([
+				this.node = li({"class": "foldersItem"}, [
 					this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 					this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name = name),
 					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
