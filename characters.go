@@ -115,6 +115,8 @@ func (c *charactersDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return nil, c.modify(cd, data)
 	case "get":
 		return c.get(cd, data)
+	case "copy":
+		return c.copy(cd, data)
 	default:
 		return c.folders.RPCData(cd, method, data)
 	}
@@ -238,6 +240,42 @@ func (c *charactersDir) get(cd ConnData, id json.RawMessage) (json.RawMessage, e
 		buf = append(buf, '}')
 	}
 	return buf, nil
+}
+
+func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage, error) {
+	var ip struct {
+		ID   json.RawMessage `json:"id"`
+		Path string          `json:"path"`
+	}
+	if err := json.Unmarshal(data, &ip); err != nil {
+		return nil, err
+	}
+	c.mu.Lock()
+	ms, ok := c.data[string(ip.ID)]
+	if !ok {
+		c.mu.Unlock()
+		return nil, keystore.ErrUnknownKey
+	}
+	d := make(characterData)
+	for key, val := range ms {
+		if f := c.isLinkKey(key); f != nil {
+			f.setHiddenLinkJSON(nil, val.Data)
+		}
+		d[key] = val
+	}
+	c.lastID++
+	kid := c.lastID
+	strID := strconv.FormatUint(kid, 10)
+	c.fileStore.Set(strID, d)
+	ip.Path = addItemTo(c.root.Items, ip.Path, kid)
+	c.links[kid] = 1
+	c.saveFolders()
+	c.data[strID] = d
+	c.mu.Unlock()
+	data = append(appendString(append(strconv.AppendUint(append(append(append(data[:0], "{\"oldID\":"...), ip.ID...), ",\"newID\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
+	c.socket.broadcastAdminChange(broadcastCharacterCopy, data, cd.ID)
+	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
+	return data, nil
 }
 
 // Errors
