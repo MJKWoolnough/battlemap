@@ -48,7 +48,7 @@ export class Item {
 		this.node = li({"class": "foldersItem"}, [
 			span(name, {"class": "item", "onclick": () => this.show()}),
 			rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
-			copy({"title": lang["ITEM_LINK_ADD"], "class": "itemLink", "onclick": () => this.link()}),
+			copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
 			remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
@@ -77,24 +77,24 @@ export class Item {
 			}})
 		]);
 	}
-	link() {
+	copy() {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      window = shell.appendChild(windows({"window-title": lang["ITEM_LINK_ADD"]})),
+		      window = shell.appendChild(windows({"window-title": lang["ITEM_COPY_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return createHTML(window, {"class": "linkItem"}, [
-			h1(lang["ITEM_LINK_ADD"]),
+		return createHTML(window, {"class": "copyItem"}, [
+			h1(lang["ITEM_COPY_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
-			labels(`${lang["ITEM_LINK_NEW"]}: `, parents),
+			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
 			newName,
 			br(),
-			button(lang["ITEM_LINK_ADD"], {"onclick": function(this: HTMLButtonElement) {
+			button(lang["ITEM_COPY_ADD"], {"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
-				loadingWindow(queue(() => root.rpcFuncs.link(self.id, parents.value + newName.value).then(newPath => {
-					root.linkItem(self.id, newPath);
+				loadingWindow(queue(() => root.rpcFuncs.copy(self.id, parents.value + newName.value).then(copied => {
+					root.copyItem(self.id, copied.id, copied.path);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
@@ -380,7 +380,7 @@ export class Root {
 		});
 		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
 		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
-		rpcFuncs.waitLinked().then(({id, name}) => this.linkItem(id, name));
+		rpcFuncs.waitCopied().then(({oldID, newID, path}) => this.copyItem(oldID, newID, path));
 		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
 		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
@@ -419,8 +419,8 @@ export class Root {
 	moveItem(from: string, to: string) {
 		this.addItem(this.removeItem(from), to);
 	}
-	linkItem(id: Uint, name: string) {
-		this.addItem(id, name);
+	copyItem(oldID: Uint, newID: Uint, path: string) {
+		this.addItem(newID, path);
 	}
 	removeItem(path: string) {
 		const [folder, name] = this.resolvePath(path);

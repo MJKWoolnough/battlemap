@@ -558,7 +558,7 @@ layersRPC: LayerRPC = {
 	"waitAdded": () => waitAdded[1],
 	"waitMoved": () => unusedWait,
 	"waitRemoved": () => waitRemoved[1],
-	"waitLinked": () => unusedWait,
+	"waitCopied": () => unusedWait,
 	"waitFolderAdded": () => waitFolderAdded[1],
 	"waitFolderMoved": () => unusedWait,
 	"waitFolderRemoved": () => waitFolderRemoved[1],
@@ -578,7 +578,7 @@ layersRPC: LayerRPC = {
 		undo.clear();
 		return removeS(path);
 	},
-	"link": invalidRPC
+	"copy": invalidRPC
 };
 
 export default function(base: HTMLElement) {

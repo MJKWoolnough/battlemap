@@ -96,7 +96,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastImageItemAdd,      checkIDName],
 				["waitMoved",         broadcastImageItemMove,     checkFromTo],
 				["waitRemoved",       broadcastImageItemRemove,   checkString],
-				["waitLinked",        broadcastImageItemCopy,     checkIDName],
+				["waitCopied",        broadcastImageItemCopy,     checkCopied],
 				["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastImageFolderRemove, checkString]
@@ -105,7 +105,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastAudioItemAdd,      checkIDName],
 				["waitMoved",         broadcastAudioItemMove,     checkFromTo],
 				["waitRemoved",       broadcastAudioItemRemove,   checkString],
-				["waitLinked",        broadcastAudioItemCopy,     checkIDName],
+				["waitCopied",        broadcastAudioItemCopy,     checkCopied],
 				["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
@@ -114,7 +114,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
 				["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
 				["waitRemoved",       broadcastCharacterItemRemove,   checkString],
-				["waitLinked",        broadcastCharacterItemCopy,     checkIDName],
+				["waitCopied",        broadcastCharacterItemCopy,     checkCopied],
 				["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
@@ -123,7 +123,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitAdded",         broadcastMapItemAdd,      checkIDName],
 				["waitMoved",         broadcastMapItemMove,     checkFromTo],
 				["waitRemoved",       broadcastMapItemRemove,   checkString],
-				["waitLinked",        broadcastMapItemCopy,     checkIDName],
+				["waitCopied",        broadcastMapItemCopy,     checkCopied],
 				["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
 				["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
 				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
@@ -211,7 +211,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "imageAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "imageAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["link",         "imageAssets.link",         ["id", "name"], checkString,      "waitLinked", "name"]
+				["copy",         "imageAssets.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
 			],
 			"audio": [
 				["list",         "audioAssets.list",         "",             checkFolderItems, "", ""],
@@ -220,7 +220,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "audioAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["link",         "audioAssets.link",         ["id", "name"], checkString,      "waitLinked", "name"]
+				["copy",         "audioAssets.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
 			],
 			"characters": [
 				["list",         "characters.list",         "",             checkFolderItems, "", ""],
@@ -229,7 +229,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "characters.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "characters.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["link",         "characters.copy",         ["id", "name"], checkString,      "waitLinked", "name"]
+				["copy",         "characters.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
 			],
 			"maps": [
 				["list",         "maps.list",         "",             checkFolderItems, "", ""],
@@ -238,7 +238,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "maps.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "maps.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["link",         "maps.link",         ["id", "name"], checkString,      "waitLinked", "name"]
+				["copy",         "maps.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
 			]
 		      },
 		      pseudoWait = () => new Subscription<any>(() => {}),
@@ -377,6 +377,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkIDPath = (data: any) => checker(data, "IDPath", checksIDPath),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
       checkFromTo = (data: any, name = "FromTo") => checker(data, name, checksFromTo),
+      checksCopied: checkers = [[checkObject, ""], [checkUint, "oldID"], [checkUint, "newID"], [checkString, "path"]],
+      checkCopied = (data: any) => checker(data, "Copied", checksCopied),
       checksLayerMove: checkers = [[checkID, ""], [checkString, "to"]],
       checkLayerMove = (data: any) => checker(data, "LayerMove", checksLayerMove),
       checksLayerRename: checkers = [[checkObject, ""], [checkString, "path"], [checkString, "name"]],

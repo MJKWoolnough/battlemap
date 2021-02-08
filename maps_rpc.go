@@ -851,7 +851,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return nil, ErrContainsCurrentlySelected
 			}
 		}
-	case "link":
+	case "copy":
 		return nil, ErrUnknownMethod
 	}
 	return m.folders.RPCData(cd, method, data)

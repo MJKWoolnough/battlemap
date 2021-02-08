@@ -287,8 +287,8 @@ func (f *folders) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, f.itemDelete(cd, data)
 		case "removeFolder":
 			return nil, f.folderDelete(cd, data)
-		case "link":
-			return f.linkItem(cd, data)
+		case "copy":
+			return f.copyItem(cd, data)
 		}
 	}
 	return nil, ErrUnknownMethod
@@ -441,28 +441,30 @@ func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
 	return nil
 }
 
-func (f *folders) linkItem(cd ConnData, data json.RawMessage) (string, error) {
-	var link idName
-	if err := json.Unmarshal(data, &link); err != nil {
+func (f *folders) copyItem(cd ConnData, data json.RawMessage) (interface{}, error) {
+	var in idName
+	if err := json.Unmarshal(data, &in); err != nil {
 		return "", err
 	}
 	f.mu.Lock()
-	defer f.mu.Unlock()
-	if _, ok := f.links[link.ID]; !ok {
+	if _, ok := f.links[in.ID]; !ok {
+		f.mu.Unlock()
 		return "", ErrItemNotFound
 	}
-	parent, name, _ := f.getFolderItem(link.Name)
+	parent, name, _ := f.getFolderItem(in.Name)
 	if parent == nil {
+		f.mu.Unlock()
 		return "", ErrFolderNotFound
 	}
 	if name == "" {
-		name = strconv.FormatUint(link.ID, 10)
+		name = strconv.FormatUint(in.ID, 10)
 	}
-	newName := addItemTo(parent.Items, name, link.ID)
+	newName := addItemTo(parent.Items, name, in.ID)
 	f.saveFolders()
-	link.Name = link.Name[:len(link.Name)-len(name)] + newName
+	f.mu.Unlock()
+	in.Name = in.Name[:len(in.Name)-len(name)] + newName
 	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageItemCopy), data, cd.ID)
-	return link.Name, nil
+	return in, nil
 }
 
 func (f *folders) getBroadcastID(base int) int {

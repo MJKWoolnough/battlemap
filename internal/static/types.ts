@@ -9,7 +9,7 @@ type FolderWaits = {
 	waitAdded:         () => Subscription<IDName[]>;
 	waitMoved:         () => Subscription<FromTo>;
 	waitRemoved:       () => Subscription<string>;
-	waitLinked:        () => Subscription<IDName>;
+	waitCopied:        () => Subscription<Copy>;
 	waitFolderAdded:   () => Subscription<string>;
 	waitFolderMoved:   () => Subscription<FromTo>;
 	waitFolderRemoved: () => Subscription<string>;
@@ -22,7 +22,7 @@ export type FolderRPC = FolderWaits & {
 	moveFolder:   (from: string, to: string) => Promise<string>;
 	remove:       (path: string)             => Promise<void>;
 	removeFolder: (path: string)             => Promise<void>;
-	link:         (id: Uint, name: string)   => Promise<string>;
+	copy:         (id: Uint, name: string)   => Promise<IDPath>;
 }
 
 export type LayerRPC = FolderRPC & {
@@ -454,4 +454,10 @@ export type SVGAnimateBeginElement = SVGAnimateElement & {
 type MapStart = {
 	startX: Uint;
 	startY: Uint;
+}
+
+type Copy = {
+	oldID: Uint;
+	newID: Uint;
+	path: string;
 }
