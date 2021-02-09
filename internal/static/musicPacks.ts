@@ -356,7 +356,7 @@ export default function(base: Node) {
 							});
 						}
 					})}),
-					copy({"title": lang["MUSIC_COPY"], "class": "itemLink", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
+					copy({"title": lang["MUSIC_COPY"], "class": "itemCopy", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 						if (name) {
 							rpc.musicPackCopy(this.name, name).then(name => {
 								musicList.push(new AdminPack(name, {
