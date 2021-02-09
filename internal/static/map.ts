@@ -33,13 +33,12 @@ class Defs {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, createSVG(t.node.cloneNode(false), {"transform": undefined})));
+		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"})));
 		return id;
 	}
 	remove(id: string) {
 		const node = this.node.removeChild(this.list[id]).firstChild as SVGImageElement;
 		delete(this.list[id]);
-		return node;
 	}
 	setGrid(grid: GridDetails) {
 		const old = this.list["grid"];
@@ -161,9 +160,10 @@ export class SVGToken extends SVGTransform {
 	}
 	updateNode() {
 		if (this.node instanceof SVGRectElement && !this.isPattern) {
-			this.node.replaceWith(this.node = globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1)));
+			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
+			this.node.replaceWith(this.node = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none"}));
 		} else if (this.node instanceof SVGImageElement && this.isPattern) {
-			this.node.replaceWith(this.node = rect({"class": "mapPattern", "width": this.width, "height": this.height, "transform": this.transformString(), "fill": `url(#${globals.definitions.add(this)})`}));
+			this.node.replaceWith(this.node = rect({"class": "mapPattern", "fill": `url(#${globals.definitions.add(this)})`}));
 		}
 		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
