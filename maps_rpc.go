@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"vimagination.zapto.org/keystore"
+	"vimagination.zapto.org/memio"
 )
 
 func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
@@ -852,9 +853,65 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 		}
 	case "copy":
-		return nil, ErrUnknownMethod
+		var (
+			ip struct {
+				ID   uint64 `json:"id"`
+				Path string `json:"path"`
+			}
+			errr error
+		)
+		if err := json.Unmarshal(data, &ip); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(ip.ID, func(mp *levelMap) bool {
+			p, name, _ := m.getFolderItem(ip.Path)
+			if p == nil {
+				errr = ErrFolderNotFound
+				return false
+			}
+			m.linkTokens(&mp.layer)
+			m.lastID++
+			mid := m.lastID
+			j := mp.JSON
+			m.Set(strconv.FormatUint(mid, 10), &j)
+			j = mp.JSON
+			l := new(levelMap)
+			l.JSON = make(memio.Buffer, 0, len(j))
+			l.ReadFrom(&j)
+			newName := addItemTo(p.Items, name, mid)
+			m.links[mid] = 1
+			m.maps[mid] = l
+			m.saveFolders()
+			ip.Path = ip.Path[:len(ip.Path)-len(name)] + newName
+			data = append(appendString(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"oldID\":"...), ip.ID, 10), ",\"newID\":"...), mid, 10), ",\"path\":"...), ip.Path), '}')
+			m.socket.broadcastAdminChange(broadcastMapItemCopy, data, cd.ID)
+			data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), mid, 10), ",\"path\":"...), ip.Path), '}')
+			return false
+		}); err != nil {
+			return nil, err
+		}
+		if errr != nil {
+			return nil, errr
+		}
+		return data, nil
 	}
 	return m.folders.RPCData(cd, method, data)
+}
+
+func (m *mapsDir) linkTokens(l *layer) {
+	for _, c := range l.Layers {
+		m.linkTokens(c)
+	}
+	for _, t := range l.Tokens {
+		if t.TokenType == tokenImage {
+			m.images.setHiddenLink(0, t.ID)
+		}
+		for key, value := range t.TokenData {
+			if f := m.isLinkKey(key); f != nil {
+				f.setHiddenLinkJSON(nil, value.Data)
+			}
+		}
+	}
 }
 
 func validTokenLayer(path string) bool {
