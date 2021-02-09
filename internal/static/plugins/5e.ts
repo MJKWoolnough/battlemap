@@ -134,6 +134,12 @@ class SVGToken5E extends SVGToken {
 		this.acValue.style.setProperty("font-size", `${size}px`);
 		this.hpValue.style.setProperty("font-size", `${size}px`);
 	}
+	cleanup() {
+		const node = this.node;
+		this.node = this.tokenNode;
+		super.cleanup();
+		this.node = node;
+	}
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
 	}
