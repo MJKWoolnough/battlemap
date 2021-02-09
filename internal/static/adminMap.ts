@@ -1095,11 +1095,11 @@ export default function(base: HTMLElement) {
 				break;
 			case 'x':
 			case 'c':
-				const t = getToken() as Token;
+				const t = globals.selected.token;
 				if (t) {
-					copiedToken = t;
-					if (e.key === 'x' && globals.selected.token) {
-						doTokenRemove(globals.selected.token.id);
+					copiedToken = JSON.parse(JSON.stringify(t));
+					if (e.key === 'x') {
+						doTokenRemove(t.id);
 					}
 				}
 				break;
@@ -1108,7 +1108,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-				doTokenAdd(globals.selected.layer.path, Object.assign({"id": 0, x, y}, copiedToken));
+				doTokenAdd(globals.selected.layer.path, Object.assign(copiedToken, {"id": 0, x, y}));
 			}
 		}
 	      },
