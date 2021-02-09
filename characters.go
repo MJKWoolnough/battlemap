@@ -133,6 +133,11 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 	if nameData.Data == nil {
 		nameData.Data = make(characterData)
 	}
+	for key, val := range nameData.Data {
+		if f := c.isLinkKey(key); f != nil {
+			f.setHiddenLinkJSON(nil, val.Data)
+		}
+	}
 	c.mu.Lock()
 	c.lastID++
 	kid := c.lastID
