@@ -44,7 +44,6 @@ class MapItem extends Item {
 			this.setUserMap();
 			rpc.setUserMap(id);
 		}}), this.node.firstChild);
-		this.node.removeChild(this.node.lastElementChild!.previousElementSibling!);
 	}
 	show() {
 		let thisMap: MapItem = this,
