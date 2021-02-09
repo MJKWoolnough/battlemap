@@ -122,6 +122,7 @@ class SVGToken5E extends SVGToken {
 		]);
 		window.setTimeout(this.setTextWidth.bind(this), 0);
 		this.updateConditions();
+		Object.defineProperties(this, nonEnumProps);
 	}
 	setTextWidth() {
 		const maxNameLength = this.width / 2,
@@ -366,6 +367,20 @@ const defaultLanguage = {
       },
       lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
       importName = (import.meta as MetaURL).url.split("/").pop()!,
+      nonEnum = {"enumerable": false},
+      nonEnumProps = {
+	"tokenNode": nonEnum,
+	"extra": nonEnum,
+	"hp": nonEnum,
+	"hpValue": nonEnum,
+	"hpBar": nonEnum,
+	"hpBack": nonEnum,
+	"name": nonEnum,
+	"ac": nonEnum,
+	"acValue": nonEnum,
+	"shield": nonEnum,
+	"conditions": nonEnum
+      },
       checkSettings = (data: any) => {
 	if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
 		return null;
