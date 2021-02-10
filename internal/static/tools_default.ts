@@ -244,7 +244,6 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 			zoomMove(e);
 		}
 	}, "onwheel": zoomWheel}),
-	path({"d": "", "stroke": "#000"}),
 	zoomerControl
       ]),
       l4 = Math.log(1.4);
