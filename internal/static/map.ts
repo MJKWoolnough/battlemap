@@ -2,7 +2,7 @@ import {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFol
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {mapLoadedSend, tokenSelected} from './misc.js';
+import {mapLoadedSend, tokenSelected, queue} from './misc.js';
 import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
@@ -562,8 +562,9 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 				if (isTokenImage(t) && t.tokenData) {
 					const cID = t.tokenData["store-character-id"];
 					if (loadChars && cID && typeof cID.data === "number" && !characterData.has(cID.data)) {
-						characterData.set(cID.data, {});
-						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
+						const c = cID.data;
+						characterData.set(c, {});
+						queue(() => rpc.characterGet(c).then(d => characterData.set(c, d)));
 					}
 				}
 			}
