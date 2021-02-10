@@ -7,7 +7,7 @@ import {addPlugin, userLevel, PluginType, getSettings} from '../plugins.js';
 import {item, menu, List} from '../lib/context.js';
 import {globals, SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
-import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels} from '../misc.js';
+import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue} from '../misc.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import mainLang, {language} from '../language.js';
 import {windows, WindowElement, shell} from '../windows.js';
@@ -1018,7 +1018,15 @@ addPlugin("5e", plugin);
 mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	lastInitiativeID = 0;
-	updateInitiative();
+	queue(async () => {
+		for (const t in globals.tokens) {
+			const tk = globals.tokens[t].token;
+			if (tk instanceof SVGToken5E) {
+				tk.updateData();
+			}
+		}
+		updateInitiative();
+	});
 });
 
 rpc.waitTokenSet().then(ts => {
