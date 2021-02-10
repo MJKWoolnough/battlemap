@@ -140,6 +140,12 @@ class SVGToken5E extends SVGToken {
 		super.cleanup();
 		this.node = node;
 	}
+	uncleanup() {
+		const node = this.node;
+		this.node = this.tokenNode;
+		super.uncleanup();
+		this.node = node;
+	}
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
 	}

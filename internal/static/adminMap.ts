@@ -370,6 +370,12 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			token.id = id;
 			globals.tokens[id] = {layer, token};
 		}));
+		if (token instanceof SVGToken) {
+			token.uncleanup();
+			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+				updateLight();
+			}
+		}
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_REMOVE"]);

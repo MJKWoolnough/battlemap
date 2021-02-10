@@ -155,6 +155,11 @@ export class SVGToken extends SVGTransform {
 			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
 		}
 	}
+	uncleanup() {
+		if (this.isPattern) {
+			this.node.setAttribute("fill", `url(#${globals.definitions.add(this)})`);
+		}
+	}
 	updateSource(source: Uint) {
 		(this.node instanceof SVGRectElement ? (globals.definitions.list[this.node.getAttribute("fill")!.slice(5, -1)]!.firstChild as SVGImageElement) : this.node).setAttribute("href", `images/${this.src = source}`);
 	}
