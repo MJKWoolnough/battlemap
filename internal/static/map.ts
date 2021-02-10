@@ -561,7 +561,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 				};
 				if (isTokenImage(t) && t.tokenData) {
 					const cID = t.tokenData["store-character-id"];
-					if (loadChars && cID && typeof t.tokenData.data === "number" && !characterData.has(cID.data)) {
+					if (loadChars && cID && typeof cID.data === "number" && !characterData.has(cID.data)) {
 						rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 					}
 				}
