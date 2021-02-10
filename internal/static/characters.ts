@@ -97,7 +97,7 @@ characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, Ke
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 		const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
 		      charData = characterData.get(tokenData.id)!;
-		changes["store-character-id"] = {"user": false, "data": tokenData.id};
+		changes["store-character-id"] = {"user": true, "data": tokenData.id};
 		clearElement(this).appendChild(img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTER_EDIT"], charData, true)}));
 		}
 	}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
