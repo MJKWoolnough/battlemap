@@ -1067,6 +1067,15 @@ combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative, 0));
 combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative, 0));
 combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative, 0));
 
+rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
+	for (const {token} of globals.tokens) {
+		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
+			token.updateData();
+		}
+	}
+	updateInitiative();
+}));
+
 let lastSelectedToken: SVGToken5E | null = null;
 
 tokenSelectedReceive(() => {
