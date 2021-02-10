@@ -1063,9 +1063,10 @@ rpc.waitPluginSetting().then(setting => {
 	}
 })
 
-combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative, 0));
-combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative, 0));
-combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative, 0));
+combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative));
+combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative));
+combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative));
+combinedRPC.waitTokenSet().then(() => setTimeout(updateInitiative));
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	for (const {token} of globals.tokens) {
