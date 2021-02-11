@@ -19,7 +19,7 @@ summary::-webkit-details-marker {
 	cursor: pointer;
 }
 
-.foldersItem:hover, .foldersFolder:hover {
+.foldersItem:hover, .foldersFolder > details summary:hover {
 	background-color: #888;
 }
 
