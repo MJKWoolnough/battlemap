@@ -700,27 +700,27 @@ export default function(base: HTMLElement) {
 		      ts: TokenSet = {"id": token.id};
 		let changed = false;
 		if (newX !== x) {
-			token.x = tokenMousePos.x;
+			token.x = x;
 			ts.x = newX;
 			changed = true;
 		}
 		if (newY !== y) {
-			token.y = tokenMousePos.y;
+			token.y = y;
 			ts.y = newY;
 			changed = true;
 		}
 		if (newWidth !== width) {
-			token.width = tokenMousePos.width;
+			token.width = width;
 			ts.width = newWidth;
 			changed = true;
 		}
 		if (newHeight !== height) {
-			token.height = tokenMousePos.height;
+			token.height = height;
 			ts.height = newHeight;
 			changed = true;
 		}
 		if (newRotation !== rotation) {
-			token.rotation = tokenMousePos.rotation;
+			token.rotation = rotation;
 			ts.rotation = newRotation;
 			changed = true;
 		}
