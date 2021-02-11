@@ -377,7 +377,7 @@ const defaultLanguage = {
       langs: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage
       },
-      lang = langs[Object.keys(langs).includes(language.value) ? language.value : "en-GB"],
+      lang = langs[language.value] ?? defaultLanguage,
       importName = (import.meta as MetaURL).url.split("/").pop()!,
       nonEnum = {"enumerable": false},
       nonEnumProps = {
