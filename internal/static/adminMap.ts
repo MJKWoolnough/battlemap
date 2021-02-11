@@ -674,11 +674,11 @@ export default function(base: HTMLElement) {
 			x = nx;
 			y = ny;
 		}}
-		selectedToken.x = x;
-		selectedToken.y = y;
-		selectedToken.width = width;
-		selectedToken.rotation = rotation;
-		selectedToken.height = height;
+		selectedToken.x = Math.round(x);
+		selectedToken.y = Math.round(y);
+		selectedToken.width = Math.round(width);
+		selectedToken.height = Math.round(height);
+		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
 		createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
 	      },
