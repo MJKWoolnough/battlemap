@@ -546,12 +546,12 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 			path: "/"
 		} as SVGFolder;
 	      })(),
-	      {startX, startY} = mapData,
-	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, "width": mapData.width, "height": mapData.height, "tabindex": -1}, [definitions.node, layerList.node]),
+	      {width, height, startX, startY, lightColour} = mapData,
+	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"style": "height: 100%", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(mapData.lightColour)}));
+	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {
