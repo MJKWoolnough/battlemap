@@ -22,7 +22,7 @@ export type FolderRPC = FolderWaits & {
 	moveFolder:   (from: string, to: string) => Promise<string>;
 	remove:       (path: string)             => Promise<void>;
 	removeFolder: (path: string)             => Promise<void>;
-	copy:         (id: Uint, name: string)   => Promise<IDPath>;
+	copy:         (id: Uint, path: string)   => Promise<IDPath>;
 }
 
 export type LayerRPC = FolderRPC & {

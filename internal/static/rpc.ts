@@ -211,7 +211,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "imageAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "imageAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "imageAssets.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
+				["copy",         "imageAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
 			],
 			"audio": [
 				["list",         "audioAssets.list",         "",             checkFolderItems, "", ""],
@@ -220,7 +220,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "audioAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "audioAssets.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
+				["copy",         "audioAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
 			],
 			"characters": [
 				["list",         "characters.list",         "",             checkFolderItems, "", ""],
@@ -229,7 +229,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "characters.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "characters.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "characters.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
+				["copy",         "characters.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
 			],
 			"maps": [
 				["list",         "maps.list",         "",             checkFolderItems, "", ""],
@@ -238,7 +238,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
 				["remove",       "maps.remove",       "!",            returnVoid,       "waitRemoved", ""],
 				["removeFolder", "maps.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "maps.copy",         ["id", "name"], checkIDPath,      "waitCopied", "name"]
+				["copy",         "maps.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
 			]
 		      },
 		      pseudoWait = () => new Subscription<any>(() => {}),
