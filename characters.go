@@ -256,6 +256,11 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 		return nil, err
 	}
 	c.mu.Lock()
+	p, name, _ := c.getFolderItem(ip.Path)
+	if p == nil {
+		c.mu.Unlock()
+		return nil, ErrFolderNotFound
+	}
 	ms, ok := c.data[string(ip.ID)]
 	if !ok {
 		c.mu.Unlock()
@@ -272,11 +277,12 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 	kid := c.lastID
 	strID := strconv.FormatUint(kid, 10)
 	c.fileStore.Set(strID, d)
-	ip.Path = addItemTo(c.root.Items, ip.Path, kid)
+	newName := addItemTo(p.Items, name, kid)
 	c.links[kid] = 1
 	c.saveFolders()
 	c.data[strID] = d
 	c.mu.Unlock()
+	ip.Path = ip.Path[:len(ip.Path)-len(name)] + newName
 	data = append(appendString(append(strconv.AppendUint(append(append(append(data[:0], "{\"oldID\":"...), ip.ID...), ",\"newID\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
 	c.socket.broadcastAdminChange(broadcastCharacterCopy, data, cd.ID)
 	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
