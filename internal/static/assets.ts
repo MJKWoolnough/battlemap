@@ -92,6 +92,7 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
 		const root = new Root(folderList, lang[fileType === "IMAGES" ? "TAB_IMAGES" : "TAB_AUDIO"], rpcFuncs, fileType === "IMAGES" ? ImageAsset : AudioAsset, fileType === "AUDIO" ? AudioFolder : Folder);
+		root.windowIcon = fileType === "IMAGES" ? imageIcon : audioIcon;
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets_", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
