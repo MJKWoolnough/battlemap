@@ -59,7 +59,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      window = shell.appendChild(windows({"window-title": lang["ITEM_MOVE"]})),
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, {"class": "renameItem"}, [
 			h1(lang["ITEM_MOVE"]),
@@ -83,7 +83,7 @@ export class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      window = shell.appendChild(windows({"window-title": lang["ITEM_COPY_ADD"]})),
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, {"class": "copyItem"}, [
 			h1(lang["ITEM_COPY_ADD"]),
@@ -105,7 +105,7 @@ export class Item {
 		const root = this.parent.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-title": lang["ITEM_REMOVE"]}));
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"]}));
 		return createHTML(window, {"class": "removeItem"}, [
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
@@ -243,7 +243,7 @@ export class Folder {
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
-		      window = shell.appendChild(windows({"window-title": lang["FOLDER_MOVE"]})),
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return createHTML(window, [
 			h1(lang["FOLDER_MOVE"]),
@@ -266,7 +266,7 @@ export class Folder {
 		const root = this.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-title": lang["FOLDER_REMOVE"]}));
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"]}));
 		return createHTML(window, {"class": "folderRemove"}, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
@@ -285,7 +285,7 @@ export class Folder {
 		e.preventDefault();
 		const root = this.root,
 		      path = this.getPath(),
-		      window = shell.appendChild(windows({"window-title": lang["FOLDER_ADD"]})),
+		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"]})),
 		      folderName = autoFocus(input({"id": "folderName_", "onkeypress": enterKey}));
 		return createHTML(window, {"class": "folderAdd"}, [
 			h1(lang["FOLDER_ADD"]),
@@ -364,6 +364,7 @@ export class Root {
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
+	windowIcon?: string;
 	node: HTMLElement;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
