@@ -8,13 +8,13 @@ export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": 
 colour2Hex = (c: Colour) => `#${c.r.toString(16).padStart(2, "0")}${c.g.toString(16).padStart(2, "0")}${c.b.toString(16).padStart(2, "0")}`,
 colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${(c.a / 255).toString()})`,
 noColour = Object.freeze({"r": 0, "g": 0, "b": 0, "a": 0}),
-colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour) => new Promise<Colour>((resolve, reject) => {
+colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const checkboard = div({"class": "checkboard"}),
 	      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
 	      updatePreview = () => preview.style.setProperty("background-color", colour2RGBA(hex2Colour(colourInput.value, parseInt(alphaInput.value)))),
 	      colourInput = input({"id": "colourPick_", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
 	      alphaInput = input({"id": "alphaPick_", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
-	      window = windows({"window-title": title, "class": "lightChange", "onexit": reject}, [
+	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onexit": reject}, [
 		h1(title),
 		checkboard,
 		labels(`${lang["COLOUR"]}: `, colourInput),
@@ -41,7 +41,7 @@ makeColourPicker = (() => {
 		}
 		return c;
 	};
-	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "") => {
+	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "", icon?: string) => {
 		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(w ?? shell, title, getColour()).then(c => setColour(sc(b, c)))});
 		sc(b, getColour());
 		return b;
