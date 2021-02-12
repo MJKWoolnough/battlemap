@@ -42,7 +42,7 @@ const dragFn = (e: MouseEvent) => {
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const root = self.parent!.root,
-	      window = shell.appendChild(windows({"window-title": lang["LAYER_RENAME"]})),
+	      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
 	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
@@ -168,7 +168,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth_"}),
 			      sqColour = input({"type": "color", "id": "mapSquareColour_", "value": colour2Hex(mapData.gridColour)}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth_"}),
-			      window = shell.appendChild(windows({"window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+			      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
 				br(),
@@ -289,6 +289,8 @@ class LayerRoot extends Root {
 	}
 }
 
+export const layerIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E';
+
 export default function(base: HTMLElement) {
 	base.appendChild(h1("No Map Selected"));
 	dragBase = base;
@@ -365,7 +367,7 @@ export default function(base: HTMLElement) {
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button("Add Layer", {"onclick": () => {
-				const window = shell.appendChild(windows({"window-title": "Add Layer"})),
+				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": "Add Layer"})),
 				      name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1(lang["LAYER_ADD"]),
