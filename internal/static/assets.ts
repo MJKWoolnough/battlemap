@@ -19,7 +19,7 @@ class ImageAsset extends DraggableItem {
 	}
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			img({"src": `/images/${this.id}`})
 		]))));
@@ -31,14 +31,14 @@ const audioAssets = new Map<Uint, [Pipe<string>, string]>();
 class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		this.image.setAttribute("src", 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="53" height="71" viewBox="0 0 53 71"%3E%3Cpath d="M12,56 s-5,-2 -10,5 s7,15 15,0 v-30 l30,-10 v30 s-5,-2 -10,5 s7,15 15,0 v-55 l-40,13 z m5,-29 l30,-10 v-5 l-30,10 v5 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" fill-rule="evenodd" /%3E%3C/svg%3E');
+		this.image.setAttribute("src", audioIcon);
 	}
 	dragName() {
 		return "audioasset";
 	}
 	show() {
 		const root = this.parent.root;
-		return createHTML(autoFocus(shell.appendChild(windows({"window-title": this.name, "class": "showAsset"}, [
+		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			audio({"src": `/audio/${this.id}`, "controls": "controls"})
 		]))));
@@ -83,7 +83,10 @@ export const audioAssetName = ((id: Uint, fn: (name: string) => void) => {
 	fn(asset[1]);
 	asset[0].receive(fn);
 	return () => asset![0].remove(fn);
-});
+}),
+imageIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="4" y="4" width="92" height="92" fill="%2344f" /%3E%3Ccircle cx="20" cy="20" r="12" fill="%23ff0" /%3E%3Cpath d="M50,65 l20,-20 a3,2 0,0,1 5,0 l20,20 v30 h-20 z" fill="%2305b" /%3E%3Cpath d="M3,70 l30,-30 a3,2 0,0,1 5,0 l55,55 h-90 z" fill="%23039" /%3E%3Crect x="3" y="3" width="94" height="94" stroke-width="6" rx="8" stroke="%23840" fill="none" /%3E%3C/svg%3E',
+audioIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="53" height="71" viewBox="0 0 53 71"%3E%3Cpath d="M12,56 s-5,-2 -10,5 s7,15 15,0 v-30 l30,-10 v30 s-5,-2 -10,5 s7,15 15,0 v-55 l-40,13 z m5,-29 l30,-10 v-5 l-30,10 v5 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" fill-rule="evenodd" /%3E%3C/svg%3E';
+
 
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
@@ -121,7 +124,7 @@ export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 					);
 					this.toggleAttribute("disabled", true);
 				      }})))),
-				      window = shell.appendChild(windows({"window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
+				      window = shell.appendChild(windows({"window-icon": fileType === "IMAGES" ? imageIcon : audioIcon, "window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
 			}}),
 			root.node
 		]);
