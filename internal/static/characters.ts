@@ -71,6 +71,7 @@ const allowedKey = (key: string, character: boolean) => {
       };
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
+characterIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E',
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => {
 	const i = img({"src": d["store-image-data"] ? `/images/${d["store-image-data"].data["src"]}` : undefined, "style": "max-width: 100%; max-height: 100%"});
 	return div({"class": "tokenSelector"}, [
@@ -166,7 +167,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 		}), w);
 	      },
 	      w = windows();
-	shell.appendChild(autoFocus(createHTML(w, {"window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	shell.appendChild(autoFocus(createHTML(w, {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
