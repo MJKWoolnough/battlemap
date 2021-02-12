@@ -67,14 +67,14 @@ class MapItem extends Item {
 	}
 	rename() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
+			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
 		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
+			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
 		} else {
 			return super.remove();
 		}
@@ -88,14 +88,14 @@ class MapItem extends Item {
 class MapFolder extends Folder {
 	rename(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
+			return shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
 		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
+			return shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
 		} else {
 			return super.remove(e);
 		}
@@ -140,6 +140,8 @@ class MapRoot extends Root {
 	}
 }
 
+export const mapIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" fill="none"%3E%3Cpath d="M30,1 L70,5 V99 L30,95" fill="%238f0" /%3E%3Cpath d="M30,50 h0.5 L69.5,43 H70 M40,48 L65,98 v0.5" stroke="%23ee0" stroke-width="3" /%3E%3Cpath d="M1,5 L30,1 70,5 99,1 M1,99 L30,95 70,99 99,95" stroke="%23eee" /%3E%3Cpath d="M30,1 L1,5 V99 L30,95 M70,5 L99,1 V95 L70,99" stroke="%23aaa" fill="%234a0" /%3E%3Cpath d="M2,20 Q10,20 30,15 V2 L2,6 Z M70,20 Q80,10 98,10 V2 L70,6 Z" fill="%2300a" /%3E%3Cpath d="M30,15 C50,10 50,30 70,20 V6 L30,2 Z" fill="%2300c" /%3E%3Cpath d="M2,70 h0.5 L29.2,50 H30 M70,43 h0.75 L97.5,30 H98" stroke="%23aa0" stroke-width="3" /%3E%3C/g%3E%3C/svg%3E';
+
 export default function(base: Node) {
 	const rpcFuncs = rpc["maps"];
 	Promise.all([
@@ -168,7 +170,8 @@ export default function(base: Node) {
 					m.show();
 				}
 			}
-		      }
+		      };
+		root.windowIcon = mapIcon;
 		rpc.waitCurrentUserMap().then(setUserMap);
 		let s = true;
 		if (selectedMap.value > 0) {
@@ -183,7 +186,7 @@ export default function(base: Node) {
 		}
 		createHTML(clearElement(base), {"id": "mapList"}, [
 			button(lang["MAP_NEW"], {"onclick": () => {
-				const window = shell.appendChild(windows({"window-title": lang["MAP_NEW"]})),
+				const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
 				      name = autoFocus(input({"type": "text", "id": "mapName_"})),
 				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth_"}),
 				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight_"}),
