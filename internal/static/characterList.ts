@@ -3,7 +3,7 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {edit as characterEdit, characterData} from './characters.js';
+import {edit as characterEdit, characterData, characterIcon} from './characters.js';
 import {labels} from './misc.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
@@ -55,10 +55,11 @@ export default function (base: Node) {
 	const rpcFuncs = rpc["characters"];
 	rpcFuncs.list().then(folderList => {
 		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character);
+		root.windowIcon = characterIcon;
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
-				const w = windows({"window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
+				const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
 				      name = autoFocus(input({"id": "characterName_"}));
 				shell.appendChild(createHTML(w, [
 					h1(lang["CHARACTER_NEW"]),
