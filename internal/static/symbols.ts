@@ -18,4 +18,3 @@ getSymbol = (id: string) => symbolMap.get(id),
 addFilter = (f: SVGFilterElement) => symbols.appendChild(f);
 
 export default symbols;
-
