@@ -4,6 +4,7 @@ import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
+import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
 import {WindowElement, shell} from './windows.js';
 import {rpc, handleError} from './rpc.js';
@@ -28,7 +29,12 @@ export type PluginType = {
 
 const plugins = new Map<string, PluginType>(),
       pluginList = new Map<string, Plugin>(),
-      filterSortPlugins = <K extends keyof PluginType>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, PluginType], b: [string, PluginType]) => a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
+      filterSortPlugins = <K extends keyof PluginType>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, PluginType], b: [string, PluginType]) => {
+	if (a[1][key]!.priority === b[1][key]!.priority) {
+		return stringSort(a[0], b[0]);
+	}
+	return a[1][key]!.priority - b[1][key]!.priority
+      }) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
 
 export const settings = () => {
 	if (pluginList.size === 0) {
