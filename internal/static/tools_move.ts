@@ -32,12 +32,23 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		}
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
+		document.body.removeEventListener("keydown", cancel)
 		selectedLayer.node.removeAttribute("transform");
 		doLayerShift(selectedLayer.path, dx, dy);
+	      },
+	      cancel = (e: KeyboardEvent) => {
+		if (e.key !== "Escape") {
+			return;
+		}
+		this.removeEventListener("mousemove", mover);
+		this.removeEventListener("mouseup", mouseUp);
+		document.body.removeEventListener("keydown", cancel)
+		selectedLayer.node.removeAttribute("transform");
 	      };
 	deselectToken();
 	this.addEventListener("mousemove", mover);
 	this.addEventListener("mouseup", mouseUp);
+	document.body.addEventListener("keydown", cancel);
       },
       mouseCursor = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
