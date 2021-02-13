@@ -29,7 +29,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
 		snap.click();
 	}
       },
-      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute; user-select: none;"}),
+      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
       marker = g([
               polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
               polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),

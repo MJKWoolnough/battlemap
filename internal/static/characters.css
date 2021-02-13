@@ -40,7 +40,6 @@
 .tokenSelector {
 	overflow: hidden;
 	display: inline-block;
-	user-select: none;
 	width: 200px;
 	height: 200px;
 	border: 1px solid #888;

@@ -17,6 +17,7 @@ html, body {
 	background-color: #fff;
 	margin: 0;
 	padding: 0;
+	user-select: none;
 }
 
 #panels {
@@ -71,7 +72,6 @@ html, body {
 	background: linear-gradient(to bottom, #ececec 50%, #d1d1d1 100%);
 	box-shadow: 0 3px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 #fff;
 	text-shadow: 0 1px #fff;
-	user-select: none;
 }
 
 #tabLabels > label:hover, .invert #tabLabels > label:focus {

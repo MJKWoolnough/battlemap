@@ -13,7 +13,6 @@
 
 .beingDragged {
 	position: absolute;
-	user-select: none;
 }
 
 .draggingSpecial .folders .folders .dragAfter, .draggingSpecial .folders .folders .dragBefore {

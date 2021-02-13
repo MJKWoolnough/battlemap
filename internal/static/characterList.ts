@@ -66,7 +66,7 @@ export default function (base: Node) {
 					labels(`${lang["CHARACTER_NAME"]}: `, name),
 					br(),
 					label(`${lang["CHARACTER_IMAGE"]}: `),
-					div({"style": "overflow: hidden; display: inline-block; user-select: none; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+					div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 						e.preventDefault();
 						if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
 							e.dataTransfer.dropEffect = "link";

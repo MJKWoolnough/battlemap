@@ -1,6 +1,5 @@
 .folders {
 	margin: 0;
-	user-select: none;
 }
 
 summary::-webkit-details-marker {
@@ -9,7 +8,6 @@ summary::-webkit-details-marker {
 
 .folders details summary {
 	list-style: none;
-	user-select: none;
 	outline: none;
 	cursor: pointer;
 	grid-template-columns: 1em auto 1em 1em 1em;
@@ -39,7 +37,6 @@ summary::-webkit-details-marker {
 }
 
 .addFolder, .renameFolder, .removeFolder, .itemRename, .itemCopy, .itemRemove {
-	user-select: none;
 	background-size: 1em;
 	background-position: bottom center;
 	background-repeat: no-repeat;
