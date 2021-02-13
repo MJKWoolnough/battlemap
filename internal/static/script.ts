@@ -176,7 +176,8 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 				}
 				return false;
 			});
-		}
+		},
+		get numTabs() {return tabs.length;}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	window.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -218,13 +219,15 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		settings(tabs.add(lang["TAB_SETTINGS"], div()), true);
 		loadMap(base.appendChild(div()));
 	} else {
-		lastTab.set(0);
 		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
 		loadUserMap(base.appendChild(div()));
 		userMusic();
+	}
+	if (tabs.numTabs > lastTab.value) {
+		tabs.selectFirst();
 	}
 	document.head.appendChild(style({"type": "text/css"}, tabs.css));
 	base.appendChild(tabs.html);
