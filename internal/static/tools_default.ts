@@ -31,6 +31,12 @@ zoom = (delta: number, x: number, y: number, moveControl = true) => {
 		zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
 	}
 },
+centreOnGrid = (x: Uint, y: Uint) => {
+	const {mapData: {width, height}} = globals;
+	panZoom.x = (window.innerWidth - width) / 2 - (x - width / 2) * panZoom.zoom;
+	panZoom.y = (window.innerHeight - height) / 2 - (y - height / 2) * panZoom.zoom;
+	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+},
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	e.preventDefault();
 	if (e.ctrlKey) {
@@ -256,10 +262,7 @@ inited.then(() => {
 		isAdmin = level === 1;
 		if (!isAdmin) {
 			rpc.waitSignalMovePosition().then(pos => {
-				const {mapData: {width, height}} = globals;
-				panZoom.x = (window.innerWidth - width) / 2 - (pos[0] - width / 2) * panZoom.zoom;
-				panZoom.y = (window.innerHeight - height) / 2 - (pos[1] - height / 2) * panZoom.zoom;
-				createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+				centreOnGrid(pos[0], pos[1]);
 				showSignal(pos);
 			});
 		}
