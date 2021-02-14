@@ -3,17 +3,17 @@ import {Int, Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, input, label, style} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
-import assets from './assets.js';
-import musicPacks, {userMusic} from './musicPacks.js';
-import mapList from './mapList.js';
-import layerList from './layerList.js';
+import assets, {imageIcon, audioIcon} from './assets.js';
+import musicPacks, {userMusic, musicIcon} from './musicPacks.js';
+import mapList, {mapIcon} from './mapList.js';
+import layerList, {layerIcon} from './layerList.js';
 import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {WindowElement, shell, desktop, windows} from './windows.js';
-import settings, {hideMenu, invert} from './settings.js';
-import tools from './tools.js';
-import characterStore from './characters.js';
+import settings, {hideMenu, invert, settingsIcon} from './settings.js';
+import tools, {toolsIcon} from './tools.js';
+import characterStore, {characterIcon} from './characters.js';
 import {isInt, isUint} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
@@ -104,7 +104,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      },
 	      tabs: HTMLLabelElement[] = [],
 	      o = Object.freeze({
-		"add": (title: string, contents: Node, pop = false, popIcon?: string) => {
+		"add": (title: string, contents: Node, pop: boolean, popIcon: string) => {
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": pos === lastTab.value}), t),
@@ -205,20 +205,20 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	characterStore();
 	document.body.classList.add(userLevel ? "isAdmin" : "isUser");
 	if (userLevel === 1) {
-		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true), "IMAGES");
-		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true), "AUDIO");
-		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading"), true));
-		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musicLoading"), true));
-		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps"), true));
-		layerList(tabs.add(lang["TAB_LAYERS"], div(), true));
-		tools(tabs.add(lang["TAB_TOOLS"], div(), true));
+		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true, imageIcon), "IMAGES");
+		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true, audioIcon), "AUDIO");
+		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading"), true, characterIcon));
+		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musicLoading"), true, musicIcon));
+		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps"), true, mapIcon));
+		layerList(tabs.add(lang["TAB_LAYERS"], div(), true, layerIcon));
+		tools(tabs.add(lang["TAB_TOOLS"], div(), true, toolsIcon));
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
-		settings(tabs.add(lang["TAB_SETTINGS"], div()), true);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon), true);
 		loadMap(base.appendChild(div()));
 	} else {
-		settings(tabs.add(lang["TAB_SETTINGS"], div()), false);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon), false);
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
