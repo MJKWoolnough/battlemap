@@ -137,6 +137,7 @@ const defaultLanguage = {
 	"SETTINGS_RESET_CONFIRM": "Are you sure that you wish to clear all settings? This cannot be undone",
 	"TAB_AUDIO": "Audio",
 	"TAB_CHARACTERS": "Characters",
+	"TAB_ICONS": "Show Tab Icons",
 	"TAB_IMAGES": "Images",
 	"TAB_LAYERS": "Layers",
 	"TAB_MAPS": "Maps",
