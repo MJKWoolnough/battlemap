@@ -121,7 +121,7 @@ if (userLevel === 1) {
 
 				}}, lang["GENERATE_STATISTICS"]),
 				output
-			]), true, undefined]
+			]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="10" y="60" width="20" height="39" rx="3" fill="%23f00" /%3E%3Crect x="40" y="40" width="20" height="59" rx="3" fill="%230f0" /%3E%3Crect x="70" y="20" width="20" height="79" rx="3" fill="%2300f" /%3E%3Cpath d="M2,2 V98 H98" stroke="%23888" fill="none" stroke-width="4" stroke-linecap="round" /%3E%3C/svg%3E']
 		}
 	});
 }
