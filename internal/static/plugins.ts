@@ -23,7 +23,7 @@ export type PluginType = {
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<SVGTokenConstructor>;
-	menuItem?: owp<[string, HTMLDivElement, boolean, SVGSVGElement | undefined]>;
+	menuItem?: owp<[string, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
 }
 
