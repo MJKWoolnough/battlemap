@@ -32,9 +32,11 @@ zoom = (delta: number, x: number, y: number, moveControl = true) => {
 	}
 },
 centreOnGrid = (x: Uint, y: Uint) => {
-	const {mapData: {width, height}} = globals;
-	panZoom.x = (window.innerWidth - width) / 2 - (x - width / 2) * panZoom.zoom;
-	panZoom.y = (window.innerHeight - height) / 2 - (y - height / 2) * panZoom.zoom;
+	const {mapData: {width, height}} = globals,
+	      iw = window.innerWidth - width,
+	      ih = window.innerHeight - height;
+	panZoom.x = Math.min(Math.max(iw / 2 - (x - width / 2) * panZoom.zoom, iw), 0);
+	panZoom.y = Math.min(Math.max(ih / 2 - (y - height / 2) * panZoom.zoom, ih), 0);
 	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
@@ -54,16 +56,9 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 };
 
 mapLoadedReceive(() => {
-	const {mapData: {startX, startY, width, height}, root} = globals;
-	if (startX === 0 && startY === 0) {
-		panZoom.x = 0;
-		panZoom.y = 0;
-	} else {
-		panZoom.x = Math.min(Math.max((window.innerWidth >> 1) - startX, window.innerWidth - width), 0);
-		panZoom.y = Math.min(Math.max((window.innerHeight >> 1) - startY, window.innerHeight - height), 0);
-	}
+	const {mapData: {startX, startY}} = globals;
 	panZoom.zoom = 1;
-	createSVG(root, {"style": {"left": `${panZoom.x}px`, "top": `${panZoom.y}px`}});
+	centreOnGrid(startX, startY);
 	zoomerControl.setAttribute("cy", "60");
 });
 
