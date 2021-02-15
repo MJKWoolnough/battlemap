@@ -171,7 +171,11 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		selectFirst() {
 			tabs.some(e => {
 				if (e.style.getPropertyValue("display") !== "none") {
-					e.control!.click();
+					if (e.control) {
+						e.control.click();
+					} else {
+						e.click();
+					}
 					return true;
 				}
 				return false;
