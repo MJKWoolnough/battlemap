@@ -21,10 +21,6 @@ zoom = (delta: number, x: number, y: number, moveControl = true) => {
 	}
 	panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 	panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-	if (!isAdmin) {
-		document.body.classList.toggle("dragging", true);
-		window.setTimeout(() => document.body.classList.remove("dragging"));
-	}
 	createSVG(outline, {"--zoom": panZoom.zoom});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 	if (moveControl) {
@@ -47,10 +43,6 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 		const deltaY = e.shiftKey ? 0 : -e.deltaY,
 		      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
 		      amount = scrollAmount.value || 100;
-		if (!isAdmin) {
-			document.body.classList.toggle("dragging", true);
-			window.setTimeout(() => document.body.classList.remove("dragging"));
-		}
 		createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
 };
@@ -257,6 +249,8 @@ inited.then(() => {
 		isAdmin = level === 1;
 		if (!isAdmin) {
 			rpc.waitSignalMovePosition().then(pos => {
+				document.body.classList.toggle("sliding", true);
+				window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
 				centreOnGrid(pos[0], pos[1]);
 				showSignal(pos);
 			});
