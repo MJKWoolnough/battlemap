@@ -1114,7 +1114,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-				doTokenAdd(globals.selected.layer.path, Object.assign(copiedToken, {"id": 0, x, y}));
+				doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
 			}
 		}
 	      },
