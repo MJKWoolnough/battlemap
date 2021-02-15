@@ -14,6 +14,7 @@ undoLimit = new IntSetting("undoLimit", "100"),
 invert = new BoolSetting("invert"),
 measureTokenMove = new BoolSetting("measureTokenMove"),
 miniTools = new BoolSetting("miniTools"),
+tabIcons = new BoolSetting("tabIcons"),
 zoomSlider = new BoolSetting("zoomSlider");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
@@ -33,6 +34,11 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			invert.set(v);
 			this.innerText = v ? lang["LIGHT_MODE"] : lang["DARK_MODE"];
 		}}, invert.value ? lang["LIGHT_MODE"] : lang["DARK_MODE"]),
+		br(),
+		input({"type": "checkbox", "id": "tabIcons", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
+			tabIcons.set(this.checked);
+		}}),
+		label({"for": "tabIcons"}, `${lang["TAB_ICONS"]}: `),
 		h1(lang["MAP_SETTINGS"]),
 		loggedIn ? [
 			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
