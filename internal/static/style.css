@@ -171,3 +171,17 @@ input[type="number"] {
 windows-desktop {
 	background-color: #000;
 }
+
+#tabLabels img {
+	width: 1em;
+	height: 1em;
+	display: none;
+}
+
+.tabIcons #tabLabels img {
+	display: inline;
+}
+
+.tabIcons #tabLabels span {
+	display: none;
+}

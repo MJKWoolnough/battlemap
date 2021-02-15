@@ -1,7 +1,7 @@
 import RPC, {handleError} from './rpc.js';
 import {Int, Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {div, h2, input, label, style} from './lib/html.js';
+import {div, h2, img, input, label, span, style} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
 import assets, {imageIcon, audioIcon} from './assets.js';
 import musicPacks, {userMusic, musicIcon} from './musicPacks.js';
@@ -11,7 +11,7 @@ import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {WindowElement, shell, desktop, windows} from './windows.js';
-import settings, {hideMenu, invert, settingsIcon} from './settings.js';
+import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import characterStore, {characterIcon} from './characters.js';
 import {isInt, isUint} from './misc.js';
@@ -128,7 +128,8 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				}
 				tabs[a].focus();
 			      }, "onclick": () => lastTab.set(pos)}, [
-				title,
+				img({"src": popIcon, title}),
+				span(title),
 				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
 					p.replaceChild(replaced, base);
@@ -198,6 +199,11 @@ createHTML(shell, {"snap": 50}, base);
 invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
 if (invert.value) {
 	document.documentElement.classList.add("invert");
+}
+
+tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
+if (tabIcons.value) {
+	document.documentElement.classList.add("tabIcons");
 }
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit()]).then(([userLevel]) => {
