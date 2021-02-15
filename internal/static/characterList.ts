@@ -15,9 +15,14 @@ class Character extends DraggableItem {
 			rpc.characterGet(id).then(d => {
 				characterData.set(id, d);
 				if (d["store-image-icon"]) {
-					this.setIcon(parseInt(d["store-image-icon"].data));
+					this.setIcon(d["store-image-icon"].data);
 				}
 			});
+		} else {
+			const d = characterData.get(id)!;
+			if (d["store-image-icon"]) {
+				this.setIcon(d["store-image-icon"].data);
+			}
 		}
 		characters.set(id, this);
 	}
