@@ -906,7 +906,7 @@ export default function(base: HTMLElement) {
 				      sq = globals.mapData.gridSize,
 				      {x, y, width, height, rotation} = currToken;
 				if (!snap) {
-					const [newX, newY] = snapTokenToGrid(Math.round(x / sq) * sq, Math.round(y / sq) * sq, width, height),
+					const [newX, newY] = snapTokenToGrid(x, y, width, height),
 					      newRotation = Math.round(rotation / 32) * 32 % 256;
 					if (x !== newX || y !== newY || rotation !== newRotation) {
 						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
