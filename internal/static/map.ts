@@ -293,6 +293,7 @@ const idNames: Record<string, Int> = {
 			}
 		};
 	} else {
+		node.setAttribute("id", `layer${layer.name}`);
 		layer.walls = [];
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
