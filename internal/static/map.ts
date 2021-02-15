@@ -437,6 +437,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	} else {
 		layer.node.classList.add("hiddenLayer");
 	}
+	layer.hidden = !visibility;
 	updateLight();
 },
 addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
