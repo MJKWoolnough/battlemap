@@ -576,7 +576,8 @@ const defaultLanguage = {
 	if (initiative) {
 		for (const i of initiative as IDInitiative[]) {
 			if (tokens[i.id]) {
-				const {layer, token} = tokens[i.id];
+				const {layer, token} = tokens[i.id],
+				      isHidden = hiddenLayers.has(layer.path);
 				if (!(token instanceof SVGToken5E)) {
 					continue;
 				}
@@ -589,7 +590,9 @@ const defaultLanguage = {
 					}
 					initiative = i;
 				}
-				addToInitiative(token, initiative, hiddenLayers.has(layer.path));
+				if (!isHidden || userLevel === 1) {
+					addToInitiative(token, initiative, isHidden);
+				}
 			}
 		}
 	}
