@@ -366,14 +366,36 @@ export class Root {
 	newFolder: FolderConstructor;
 	windowIcon?: string;
 	node: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
-		this.rpcFuncs = rpcFuncs;
 		this.fileType = fileType;
 		this.folder = undefined as any as Folder;    // INIT HACK
 		this.node = undefined as any as HTMLElement; // INIT HACK
-		Root.prototype.setRoot.call(this, rootFolder);
+		if (rpcFuncs) {
+			this.setRPCFuncs(rpcFuncs);
+			this.rpcFuncs = rpcFuncs;
+			Root.prototype.setRoot.call(this, rootFolder);
+		} else {
+			this.rpcFuncs = null as any as FolderRPC;
+		}
+	}
+	setRoot(rootFolder: FolderItems) {
+		if (!this.rpcFuncs) {
+			return;
+		}
+		this.folder = new this.newFolder(this, null, "", rootFolder);
+		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
+			this.fileType,
+			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
+			this.folder.node.firstChild!.lastChild!
+		]);
+	}
+	setRPCFuncs(rpcFuncs: FolderRPC) {
+		if (this.rpcFuncs) {
+			return;
+		}
+		this.rpcFuncs = rpcFuncs;
 		rpcFuncs.waitAdded().then(items => {
 			for (const {id, name} of items) {
 				this.addItem(id, name);
@@ -385,14 +407,6 @@ export class Root {
 		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
 		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
-	}
-	setRoot(rootFolder: FolderItems) {
-		this.folder = new this.newFolder(this, null, "", rootFolder);
-		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
-			this.fileType,
-			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
-			this.folder.node.firstChild!.lastChild!
-		]);
 	}
 	get root() {
 		return this;
