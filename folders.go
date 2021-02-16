@@ -135,23 +135,12 @@ func (f *folders) cleanup(cleanup func(uint64)) {
 func (f *folders) WriteTo(w io.Writer) (int64, error) {
 	lw := byteio.StickyLittleEndianWriter{Writer: w}
 	f.root.WriteToX(&lw)
-	lw.WriteUint64(uint64(len(f.links)))
-	for id, links := range f.links {
-		lw.WriteUint64(id)
-		lw.WriteUint64(links)
-	}
 	return lw.Count, lw.Err
 }
 
 func (f *folders) ReadFrom(r io.Reader) (int64, error) {
 	lr := byteio.StickyLittleEndianReader{Reader: r}
 	f.root.ReadFromX(&lr)
-	count := lr.ReadUint64()
-	for i := uint64(0); i < count; i++ {
-		id := lr.ReadUint64()
-		links := lr.ReadUint64()
-		f.links[id] = links
-	}
 	return lr.Count, lr.Err
 }
 
@@ -182,6 +171,8 @@ func (f *folders) processFolder(fd *folder) {
 	for name, is := range fd.Items {
 		if is == 0 || !f.Exists(strconv.FormatUint(is, 10)) {
 			delete(fd.Items, name)
+		} else {
+			f.setLink(is)
 		}
 		if is > f.lastID {
 			f.lastID = is
@@ -570,6 +561,8 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 func (f *folders) setLink(id uint64) {
 	if c, ok := f.links[id]; ok {
 		f.links[id] = c + 1
+	} else {
+		f.links[id] = 1
 	}
 }
 
