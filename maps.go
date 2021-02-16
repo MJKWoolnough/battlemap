@@ -40,6 +40,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		if err = m.Get(key, mp); err != nil {
 			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
+		m.linkTokens(mp)
 		m.maps[id] = mp
 	}
 	m.handler = http.FileServer(http.Dir(sp))
