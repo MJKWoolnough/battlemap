@@ -1086,11 +1086,6 @@ export default function(base: HTMLElement) {
 		}
 		[token.x, token.y] = screen2Grid(e.clientX, e.clientY);
 		if (token.snap) {
-			if (token.tokenData === 0) {
-				const sq = globals.mapData.gridSize;
-				token.width = Math.max(Math.round(token.width / sq) * sq, sq);
-				token.height = Math.max(Math.round(token.height / sq) * sq, sq);
-			}
 			[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 		}
 		doTokenAdd(globals.selected.layer.path, token);
