@@ -869,7 +869,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				errr = ErrFolderNotFound
 				return false
 			}
-			m.linkTokens(&mp.layer)
+			m.linkTokens(mp)
 			m.lastID++
 			mid := m.lastID
 			j := mp.JSON
@@ -898,13 +898,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 	return m.folders.RPCData(cd, method, data)
 }
 
-func (m *mapsDir) linkTokens(l *layer) {
-	for _, c := range l.Layers {
-		m.linkTokens(c)
-	}
-	for _, t := range l.Tokens {
-		if t.TokenType == tokenImage {
-			m.images.setHiddenLink(0, t.ID)
+func (m *mapsDir) linkTokens(mp *levelMap) {
+	for _, t := range mp.tokens {
+		if t.Source > 0 {
+			m.images.setHiddenLink(0, t.Source)
 		}
 		for key, value := range t.TokenData {
 			if f := m.isLinkKey(key); f != nil {
