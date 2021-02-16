@@ -5,9 +5,9 @@ import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
-import {rpc, inited} from './rpc.js';
+import {rpc, inited, handleError} from './rpc.js';
 import {WindowElement, windows, loadingWindow, shell} from './windows.js';
-import {audioAssetName} from './assets.js';
+import {audioAssetName, uploadAudio} from './assets.js';
 
 class Track {
 	id: Uint;
@@ -312,15 +312,44 @@ export default function(base: Node) {
 				}
 				this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 				this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
-					if (e.dataTransfer && e.dataTransfer.types.includes("audioasset") && this.currentTime === 0) {
-						e.preventDefault();
-						e.dataTransfer.dropEffect = "link";
+					if (e.dataTransfer && this.currentTime === 0) {
+						if (e.dataTransfer.types.includes("audioasset")) {
+							e.preventDefault();
+							e.dataTransfer.dropEffect = "link";
+						} else if (e.dataTransfer.types.includes("Files")) {
+							for (const a of e.dataTransfer.items) {
+								switch (a["type"]) {
+								case "application/ogg":
+								case "audio/mpeg":
+									break;
+								default:
+									return;
+								}
+							}
+							e.preventDefault();
+							e.dataTransfer.dropEffect = "copy";
+						}
 					}
 				}, "ondrop": (e: DragEvent) => {
-					if (e.dataTransfer!.types.includes("audioasset")) {
-						const id = JSON.parse(e.dataTransfer!.getData("audioasset")).id;
+					if (!e.dataTransfer) {
+						return;
+					}
+					if (e.dataTransfer.types.includes("audioasset")) {
+						const id = JSON.parse(e.dataTransfer.getData("audioasset")).id;
 						this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0}));
 						rpc.musicPackTrackAdd(this.name, [id]);
+					} else if (e.dataTransfer.types.includes("Files")) {
+						const f = new FormData();
+						for (const file of e.dataTransfer.files) {
+							f.append("asset", file);
+						}
+						uploadAudio(f, this.window).then(audio => {
+							for (const {id} of audio) {
+								this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0}));
+								rpc.musicPackTrackAdd(this.name, [id]);
+							}
+						}).catch(handleError);
+						e.preventDefault();
 					}
 				}}, [
 					this.titleNode = h1(name),
