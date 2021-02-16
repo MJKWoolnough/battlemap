@@ -91,6 +91,9 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 			return fmt.Errorf("error reading music pack %q: %w", packName, err)
 		}
 		m.packs[packName] = pack
+		for _, track := range pack.Tracks {
+			m.sounds.setLink(track.ID)
+		}
 	}
 	return nil
 }
