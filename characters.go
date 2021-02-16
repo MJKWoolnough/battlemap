@@ -102,6 +102,11 @@ func (c *charactersDir) Init(b *Battlemap) error {
 		if err := c.fileStore.Get(idStr, km); err != nil {
 			return err
 		}
+		for key, val := range km {
+			if f := c.isLinkKey(key); f != nil {
+				f.setHiddenLinkJSON(nil, val.Data)
+			}
+		}
 		c.data[idStr] = km
 	}
 	return nil
