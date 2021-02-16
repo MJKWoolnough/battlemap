@@ -1,7 +1,7 @@
 import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerFolder, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
-import {createHTML, br, button, input, h1} from './lib/html.js';
+import {createHTML, br, button, img, input, h1} from './lib/html.js';
 import {createSVG, g, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -15,6 +15,7 @@ import {startMeasurement, measureDistance, stopMeasurement} from './tools_measur
 import {mapLoadReceive, mapLoadedSend, tokenSelected, queue, labels} from './misc.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
+import {uploadImages} from './assets.js';
 import {tokenContext, tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -1014,18 +1015,61 @@ export default function(base: HTMLElement) {
 		}
 	      }}))),
 	      mapOnDragOver = (e: DragEvent) => {
-		if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
-			e.preventDefault();
-			e.dataTransfer.dropEffect = "link";
+		if (e.dataTransfer) {
+			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = "link";
+			} else if (e.dataTransfer.types.includes("Files")) {
+				for (const i of e.dataTransfer.items) {
+					if (i["kind"] !== "file") {
+						return;
+					}
+					switch (i["type"]) {
+					case "image/gif":
+					case "image/png":
+					case "image/jpeg":
+					case "image/webp":
+					case "video/apng":
+						break;
+					default:
+						return;
+					}
+				}
+				e.preventDefault();
+				e.dataTransfer.dropEffect = "copy";
+			}
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
-		if (globals.selected.layer === null) {
+		if (globals.selected.layer === null || !e.dataTransfer) {
+			return;
+		}
+		if (e.dataTransfer.types.includes("Files")) {
+			const f = new FormData(),
+			      [x, y] = screen2Grid(e.clientX, e.clientY),
+			      {selected: {layer}} = globals;
+			for (const file of e.dataTransfer.files) {
+				f.append("asset", file);
+			}
+			uploadImages(f).then(images => {
+				for (const image of images) {
+					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
+						if (globals.selected.layer === layer && this.width > 0 && this.height > 0) {
+							const token = {"id": 0, "src": image.id, x, y, "width": this.width, "height": this.height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+							if (token.snap) {
+								[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
+							}
+							doTokenAdd(layer.path, token);
+						}
+					}});
+				}
+			}).catch(handleError);
+			e.preventDefault();
 			return;
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-		if (e.dataTransfer!.types.includes("character")) {
-			const tD = JSON.parse(e.dataTransfer!.getData("character")),
+		if (e.dataTransfer.types.includes("character")) {
+			const tD = JSON.parse(e.dataTransfer.getData("character")),
 			      char = characterData.get(tD.id)!;
 			if (char["store-image-data"]) {
 				Object.assign(token, JSON.parse(JSON.stringify(char["store-image-data"].data)));
@@ -1034,8 +1078,8 @@ export default function(base: HTMLElement) {
 				token.width = tD.width;
 				token.height = tD.height;
 			}
-		} else {
-			const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+		} else if (e.dataTransfer.types.includes("imageasset")) {
+			const tokenData = JSON.parse(e.dataTransfer.getData("imageasset"));
 			token.src = tokenData.id;
 			token.width = tokenData.width;
 			token.height = tokenData.height;
