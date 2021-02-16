@@ -29,10 +29,11 @@ zoom = (delta: number, x: number, y: number, moveControl = true) => {
 },
 centreOnGrid = (x: Uint, y: Uint) => {
 	const {mapData: {width, height}} = globals,
-	      iw = window.innerWidth - width,
-	      ih = window.innerHeight - height;
-	panZoom.x = Math.min(Math.max(iw / 2 - (x - width / 2) * panZoom.zoom, iw), 0);
-	panZoom.y = Math.min(Math.max(ih / 2 - (y - height / 2) * panZoom.zoom, ih), 0);
+	      iw = window.innerWidth,
+	      ih = window.innerHeight,
+	      {zoom} = panZoom;
+	panZoom.x = Math.min(Math.max((iw - width) / 2 - (x - width / 2) * zoom, iw - width * (zoom + 1) / 2), width * (zoom - 1) / 2);
+	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
 	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
 defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
