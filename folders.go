@@ -80,45 +80,6 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
 	f.processFolder(f.root)
-	changed := false
-	for key, links := range f.links {
-		if links == 0 {
-			store.Remove(strconv.FormatUint(key, 10))
-			changed = true
-			delete(f.links, key)
-		}
-	}
-	keys := f.Keys()
-	var gft getFileType
-	for _, k := range keys {
-		if k == folderMetadata {
-			continue
-		}
-		f.Get(k, &gft)
-		if gft.Type != f.fileType {
-			continue
-		}
-		if !strings.HasPrefix(k, "0") {
-			n, err := strconv.ParseUint(k, 10, 64)
-			if err == nil {
-				if _, ok := f.links[n]; !ok {
-					addItemTo(f.root.Items, k, n)
-					f.links[n] = 1
-					changed = true
-				}
-				continue
-			}
-		}
-		if f.Rename(k, strconv.FormatUint(f.lastID, 10)) == nil {
-			f.lastID++
-			addItemTo(f.root.Items, k, f.lastID)
-			f.links[f.lastID] = 1
-			changed = true
-		}
-	}
-	if changed {
-		f.Set(folderMetadata, f)
-	}
 	return f.encodeJSON()
 }
 
