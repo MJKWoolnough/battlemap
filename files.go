@@ -32,8 +32,6 @@ func (f *filesDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (*filesDir) Cleanup() {}
-
 func (f *filesDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

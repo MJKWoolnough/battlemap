@@ -125,8 +125,6 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (*pluginsDir) Cleanup() {}
-
 func (p *pluginsDir) savePlugins() error {
 	p.updateJSON()
 	return p.config.Set("PluginsInfo", p.plugins)

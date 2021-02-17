@@ -50,8 +50,6 @@ func (m *masksDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (*masksDir) Cleanup() {}
-
 func (m *masksDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:

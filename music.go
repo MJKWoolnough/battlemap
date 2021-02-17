@@ -98,8 +98,6 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 	return nil
 }
 
-func (*musicPacksDir) Cleanup() {}
-
 func (m *musicPacksDir) getPack(name string, fn func(*musicPack) bool) error {
 	var err error
 	m.mu.Lock()
