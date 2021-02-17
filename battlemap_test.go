@@ -9,8 +9,6 @@ import (
 	"os"
 	"strings"
 	"testing"
-
-	"vimagination.zapto.org/httpdir"
 )
 
 var (
@@ -26,7 +24,7 @@ func TestMain(m *testing.M) {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
-			battlemap.initMux(http.Dir("./internal/static"))
+			battlemap.initMux(http.FileServer(http.Dir("./internal/static")))
 			mux := http.NewServeMux()
 			mux.Handle("/", &battlemap)
 			srv := httptest.NewUnstartedServer(mux)
@@ -48,7 +46,7 @@ func testMain(m *testing.M, dataDir string) int {
 		fmt.Fprintln(os.Stderr, err)
 		return 1
 	}
-	battlemap.initMux(httpdir.Default)
+	battlemap.initMux(index)
 	srv = httptest.NewServer(&battlemap)
 	r := m.Run()
 	srv.Close()

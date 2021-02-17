@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"golang.org/x/net/websocket"
-	"vimagination.zapto.org/httpdir"
-	"vimagination.zapto.org/httpgzip"
 )
 
 // Battlemap contains all of the data required for a battlemap system.
@@ -40,7 +38,7 @@ func New(path string, auth Auth) (*Battlemap, error) {
 	if err := b.initModules(path, auth); err != nil {
 		return nil, err
 	}
-	b.initMux(httpdir.Default)
+	b.initMux(index)
 	return b, nil
 }
 
@@ -87,7 +85,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	return nil
 }
 
-func (b *Battlemap) initMux(dir http.FileSystem) {
+func (b *Battlemap) initMux(index http.Handler) {
 	b.mux.Handle("/socket", websocket.Handler(b.socket.ServeConn))
 	for path, module := range map[string]http.Handler{
 		"/login/":   b.auth,
@@ -101,7 +99,7 @@ func (b *Battlemap) initMux(dir http.FileSystem) {
 		b.mux.Handle(path, http.StripPrefix(path, module))
 		b.mux.Handle(p, http.StripPrefix(p, module))
 	}
-	b.mux.Handle("/", httpgzip.FileServer(dir))
+	b.mux.Handle("/", index)
 }
 
 func (b *Battlemap) ServeHTTP(w http.ResponseWriter, r *http.Request) {
