@@ -447,7 +447,6 @@ func (f *folders) setHiddenLink(oldID, newID uint64) {
 	if oldID > 0 {
 		f.unlink(oldID)
 	}
-	f.saveFolders()
 	f.mu.Unlock()
 }
 
@@ -456,11 +455,8 @@ func (f *folders) setHiddenLinkJSON(oldIDs, newIDs json.RawMessage) {
 		return
 	}
 	f.mu.Lock()
-	c1 := f.processJSONLinks(newIDs, (*folders).setLink)
-	c2 := f.processJSONLinks(oldIDs, (*folders).unlink)
-	if c1 || c2 {
-		f.saveFolders()
-	}
+	f.processJSONLinks(newIDs, (*folders).setLink)
+	f.processJSONLinks(oldIDs, (*folders).unlink)
 	f.mu.Unlock()
 }
 
@@ -468,8 +464,7 @@ type tokenID struct {
 	Source uint64 `json:"src"`
 }
 
-func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64)) bool {
-	changed := false
+func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64)) {
 	if len(j) > 0 {
 		switch j[0] {
 		case '[':
@@ -483,7 +478,6 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 				if err := json.Unmarshal(j, &ids); err == nil {
 					for _, id := range ids {
 						fn(f, id.Source)
-						changed = true
 					}
 				}
 			}
@@ -496,14 +490,12 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 				if err := json.Unmarshal(j, &ids); err == nil {
 					for _, id := range ids {
 						fn(f, id)
-						changed = true
 					}
 				} else {
 					ids := make(map[string]tokenID)
 					if err := json.Unmarshal(j, &ids); err == nil {
 						for _, id := range ids {
 							fn(f, id.Source)
-							changed = true
 						}
 					}
 				}
@@ -512,11 +504,9 @@ func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64))
 			var id uint64
 			if err := json.Unmarshal(j, &id); err == nil {
 				fn(f, id)
-				changed = true
 			}
 		}
 	}
-	return changed
 }
 
 func (f *folders) setLink(id uint64) {
