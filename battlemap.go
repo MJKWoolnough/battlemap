@@ -59,30 +59,30 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	} else {
 		b.auth = a
 	}
-	mods := []struct {
+	for _, m := range [...]struct {
 		Name   string
 		Module interface {
 			Init(b *Battlemap) error
-			Cleanup()
 		}
 	}{
 		{"Socket", &b.socket},
-		{"Images", &b.images},
 		{"Sounds", &b.sounds},
 		{"MusicPacks", &b.musicPacks},
+		{"Images", &b.images},
 		{"Chars", &b.chars},
-		{"Maps", &b.maps},
 		{"Masks", &b.masks},
+		{"Maps", &b.maps},
 		{"Files", &b.files},
 		{"Plugins", &b.plugins},
-	}
-	for _, m := range mods {
+	} {
 		if err := m.Module.Init(b); err != nil {
 			return fmt.Errorf(moduleError, m.Name, err)
 		}
 	}
-	for _, cleanup := range mods {
-		cleanup.Module.Cleanup()
+	for _, cleanup := range [...]interface {
+		Cleanup()
+	}{&b.maps, &b.chars, &b.images, &b.musicPacks, &b.sounds} {
+		cleanup.Cleanup()
 	}
 	return nil
 }
