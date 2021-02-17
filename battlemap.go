@@ -81,7 +81,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	}
 	for _, cleanup := range [...]interface {
 		Cleanup()
-	}{&b.maps, &b.chars, &b.images, &b.musicPacks, &b.sounds} {
+	}{&b.maps, &b.chars, &b.images, &b.sounds} {
 		cleanup.Cleanup()
 	}
 	return nil
