@@ -65,8 +65,7 @@ type charactersDir struct {
 }
 
 func (c *charactersDir) Cleanup() {
-	c.folders.cleanup(func(id uint64) {
-		strID := strconv.FormatUint(id, 10)
+	c.folders.cleanup(func(_ uint64, strID string) {
 		ms, ok := c.data[strID]
 		if !ok {
 			return

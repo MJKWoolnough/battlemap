@@ -48,7 +48,7 @@ func (m *mapsDir) Init(b *Battlemap) error {
 }
 
 func (m *mapsDir) Cleanup() {
-	m.folders.cleanup(func(id uint64) {
+	m.folders.cleanup(func(id uint64, _ string) {
 		mp := m.maps[id]
 		if mp != nil {
 			delete(m.maps, id)

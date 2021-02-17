@@ -46,7 +46,7 @@ func (a *assetsDir) Init(b *Battlemap) error {
 }
 
 func (a *assetsDir) Cleanup() {
-	a.folders.cleanup(func(_ uint64) {})
+	a.folders.cleanup(func(_ uint64, _ string) {})
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {

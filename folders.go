@@ -83,12 +83,15 @@ func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
 	return f.encodeJSON()
 }
 
-func (f *folders) cleanup(cleanup func(uint64)) {
-	for id, links := range f.links {
-		if links == 0 {
-			delete(f.links, id)
-			cleanup(id)
-			f.Remove(strconv.FormatUint(id, 10))
+func (f *folders) cleanup(cleanup func(uint64, string)) {
+	for _, key := range f.Keys() {
+		id, err := strconv.ParseUint(key, 10, 64)
+		if err != nil {
+			continue
+		}
+		if num, ok := f.links[id]; !ok || num == 0 {
+			cleanup(id, key)
+			f.Remove(key)
 		}
 	}
 }
