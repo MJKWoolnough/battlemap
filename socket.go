@@ -22,7 +22,7 @@ type socket struct {
 	nextID ID
 }
 
-func (s *socket) Init(b *Battlemap) error {
+func (s *socket) Init(b *Battlemap, _ links) error {
 	s.Battlemap = b
 	s.conns = make(map[*conn]struct{})
 	return nil

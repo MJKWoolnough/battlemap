@@ -23,7 +23,7 @@ type masksDir struct {
 	nextID     uint64
 }
 
-func (m *masksDir) Init(b *Battlemap) error {
+func (m *masksDir) Init(b *Battlemap, _ links) error {
 	m.Battlemap = b
 	var location keystore.String
 	err := b.config.Get("MasksDir", &location)

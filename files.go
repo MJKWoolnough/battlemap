@@ -17,7 +17,7 @@ type filesDir struct {
 	http.Handler
 }
 
-func (f *filesDir) Init(b *Battlemap) error {
+func (f *filesDir) Init(b *Battlemap, _ links) error {
 	f.Battlemap = b
 	var (
 		location keystore.String
