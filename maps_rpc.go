@@ -422,14 +422,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
-			if newToken.Token.TokenType == tokenImage {
-				for key, data := range newToken.Token.TokenData {
-					if f := m.isLinkKey(key); f != nil {
-						f.setHiddenLinkJSON(nil, data.Data)
-					}
-				}
-				m.images.setHiddenLink(0, newToken.Token.Source)
-			}
 			if _, ok := mp.tokens[newToken.Token.ID]; ok || newToken.Token.ID == 0 {
 				mp.lastTokenID++
 				newToken.Token.ID = mp.lastTokenID
@@ -463,13 +455,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				userRemoves []string
 			)
 			for key, kd := range modifyToken.Setting {
-				if f := m.isLinkKey(key); f != nil {
-					if d, ok := tk.TokenData[key]; ok {
-						f.setHiddenLinkJSON(d.Data, kd.Data)
-					} else {
-						f.setHiddenLinkJSON(nil, kd.Data)
-					}
-				}
 				if kd.User {
 					if !first {
 						data = append(data, ',')
@@ -486,12 +471,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			data = append(data, "},\"removing\":["...)
 			first = true
 			for _, r := range modifyToken.Removing {
-				d, ok := tk.TokenData[r]
+				_, ok := tk.TokenData[r]
 				if !ok {
 					continue
-				}
-				if f := m.isLinkKey(r); f != nil {
-					f.setHiddenLinkJSON(d.Data, nil)
 				}
 				if tk.TokenData[r].User {
 					if !first {
@@ -524,7 +506,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenID, func(mp *levelMap, l *layer, tk *token) bool {
-			m.cleanupTokenRemove(mp, tk)
 			delete(mp.tokens, tokenID)
 			l.removeToken(tokenID)
 			m.socket.broadcastMapChange(cd, broadcastTokenRemove, data, userAny)
@@ -629,13 +610,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					data = append(data, ",\"tokenData\":{"...)
 					first := true
 					for key, kd := range setToken.TokenData {
-						if f := m.isLinkKey(key); f != nil {
-							if d, ok := tk.TokenData[key]; ok {
-								f.setHiddenLinkJSON(d.Data, kd.Data)
-							} else {
-								f.setHiddenLinkJSON(nil, kd.Data)
-							}
-						}
 						if kd.User {
 							if first {
 								first = false
@@ -654,9 +628,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					for _, r := range setToken.RemoveTokenData {
 						delete(setToken.TokenData, r)
 						if d, ok := tk.TokenData[r]; ok {
-							if f := m.isLinkKey(r); f != nil {
-								f.setHiddenLinkJSON(d.Data, nil)
-							}
 							if d.User {
 								userRemoves = append(userRemoves, r)
 							}
@@ -869,7 +840,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				errr = ErrFolderNotFound
 				return false
 			}
-			m.linkTokens(mp)
 			m.lastID++
 			mid := m.lastID
 			j := mp.JSON
@@ -879,7 +849,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			l.JSON = make(memio.Buffer, 0, len(j))
 			l.ReadFrom(&j)
 			newName := addItemTo(p.Items, name, mid)
-			m.links[mid] = 1
 			m.maps[mid] = l
 			m.saveFolders()
 			ip.Path = ip.Path[:len(ip.Path)-len(name)] + newName
@@ -896,19 +865,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		return data, nil
 	}
 	return m.folders.RPCData(cd, method, data)
-}
-
-func (m *mapsDir) linkTokens(mp *levelMap) {
-	for _, t := range mp.tokens {
-		if t.Source > 0 {
-			m.images.setHiddenLink(0, t.Source)
-		}
-		for key, value := range t.TokenData {
-			if f := m.isLinkKey(key); f != nil {
-				f.setHiddenLinkJSON(nil, value.Data)
-			}
-		}
-	}
 }
 
 func validTokenLayer(path string) bool {

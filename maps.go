@@ -20,7 +20,7 @@ type mapsDir struct {
 
 var zeroJSON = json.RawMessage{'0'}
 
-func (m *mapsDir) Init(b *Battlemap) error {
+func (m *mapsDir) Init(b *Battlemap, links links) error {
 	var location keystore.String
 	err := b.config.Get("MapsDir", &location)
 	if err != nil {
@@ -32,42 +32,33 @@ func (m *mapsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	m.folders.fileType = fileTypeMap
-	m.folders.Init(b, store)
-	m.maps = make(map[uint64]*levelMap, len(m.links))
-	for id := range m.links {
+	m.folders.Init(b, store, links.maps)
+	m.maps = make(map[uint64]*levelMap, len(links.maps))
+	for id := range links.maps {
 		key := strconv.FormatUint(id, 10)
 		mp := new(levelMap)
 		if err = m.Get(key, mp); err != nil {
 			return fmt.Errorf("error reading map data (%q): %w", key, err)
 		}
-		m.linkTokens(mp)
+		for key, value := range mp.Data {
+			if f := links.getLinkKey(key); f != nil {
+				f.setJSONLinks(value)
+			}
+		}
+		for _, t := range mp.tokens {
+			if t.Source > 0 {
+				links.images.setLink(t.Source)
+			}
+			for key, value := range t.TokenData {
+				if f := links.getLinkKey(key); f != nil {
+					f.setJSONLinks(value.Data)
+				}
+			}
+		}
 		m.maps[id] = mp
 	}
 	m.handler = http.FileServer(http.Dir(sp))
 	return nil
-}
-
-func (m *mapsDir) Cleanup() {
-	m.folders.cleanup(func(id uint64, _ string) {
-		mp := m.maps[id]
-		if mp != nil {
-			delete(m.maps, id)
-			for _, tk := range mp.tokens {
-				m.cleanupTokenRemove(mp, tk.token)
-			}
-		}
-	})
-}
-
-func (m *mapsDir) cleanupTokenRemove(mp *levelMap, tk *token) {
-	if tk.Source > 0 {
-		m.images.setHiddenLink(tk.Source, 0)
-	}
-	for key, data := range tk.TokenData {
-		if f := m.isLinkKey(key); f != nil {
-			f.setHiddenLinkJSON(data.Data, nil)
-		}
-	}
 }
 
 type mapDetails struct {
@@ -129,7 +120,6 @@ func (m *mapsDir) newMap(nm mapDetails, id ID) (json.RawMessage, error) {
 	}
 	name := addItemTo(m.folders.root.Items, nm.Name, mid)
 	m.maps[mid] = mp
-	m.links[mid] = 1
 	m.saveFolders()
 	m.mu.Unlock()
 	m.Set(strconv.FormatUint(mid, 10), mp)
