@@ -1,7 +1,6 @@
 package battlemap
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -67,30 +66,27 @@ type folders struct {
 	mu     sync.RWMutex
 	lastID uint64
 	root   *folder
-	links  map[uint64]uint64
 	json   memio.Buffer
 }
 
-func (f *folders) Init(b *Battlemap, store *keystore.FileStore) error {
+func (f *folders) Init(b *Battlemap, store *keystore.FileStore, l linkManager) error {
 	f.Battlemap = b
 	f.FileStore = store
 	f.root = newFolder()
-	f.links = make(map[uint64]uint64)
 	if err := f.Get(folderMetadata, f); err != nil && os.IsNotExist(err) {
 		return fmt.Errorf("error getting asset data: %w", err)
 	}
-	f.processFolder(f.root)
+	f.processFolder(f.root, l)
 	return f.encodeJSON()
 }
 
-func (f *folders) cleanup(cleanup func(uint64, string)) {
+func (f *folders) cleanup(l linkManager) {
 	for _, key := range f.Keys() {
 		id, err := strconv.ParseUint(key, 10, 64)
 		if err != nil {
 			continue
 		}
-		if num, ok := f.links[id]; !ok || num == 0 {
-			cleanup(id, key)
+		if _, ok := l[id]; !ok {
 			f.Remove(key)
 		}
 	}
@@ -128,15 +124,15 @@ func addFolderTo(folders map[string]*folder, name string, f *folder) string {
 	})
 }
 
-func (f *folders) processFolder(fd *folder) {
+func (f *folders) processFolder(fd *folder, l linkManager) {
 	for _, g := range fd.Folders {
-		f.processFolder(g)
+		f.processFolder(g, l)
 	}
 	for name, is := range fd.Items {
 		if is == 0 || !f.Exists(strconv.FormatUint(is, 10)) {
 			delete(fd.Items, name)
 		} else {
-			f.setLink(is)
+			l.setLink(is)
 		}
 		if is > f.lastID {
 			f.lastID = is
@@ -360,17 +356,8 @@ func (f *folders) itemDeleteString(item string) error {
 		return ErrItemNotFound
 	}
 	delete(parent.Items, oldName)
-	f.unlink(iid)
 	f.saveFolders()
 	return nil
-}
-
-func (f *folders) unlink(iid uint64) {
-	links := f.links[iid]
-	if links == 0 {
-		return
-	}
-	f.links[iid] = links - 1
 }
 
 func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
@@ -385,12 +372,6 @@ func (f *folders) folderDelete(cd ConnData, data json.RawMessage) error {
 		return ErrFolderNotFound
 	}
 	delete(parent.Folders, oldName)
-	walkFolders(fd, func(items map[string]uint64) bool {
-		for _, iid := range items {
-			f.unlink(iid)
-		}
-		return false
-	})
 	f.saveFolders()
 	f.socket.broadcastAdminChange(f.getBroadcastID(broadcastImageFolderRemove), data, cd.ID)
 	return nil
@@ -405,10 +386,6 @@ func (f *folders) copyItem(cd ConnData, data json.RawMessage) (interface{}, erro
 		return "", err
 	}
 	f.mu.Lock()
-	if _, ok := f.links[ip.ID]; !ok {
-		f.mu.Unlock()
-		return "", ErrItemNotFound
-	}
 	parent, name, _ := f.getFolderItem(ip.Path)
 	if parent == nil {
 		f.mu.Unlock()
@@ -437,98 +414,6 @@ func (f *folders) getBroadcastID(base int) int {
 		return base - 3
 	}
 	return base
-}
-
-func (f *folders) setHiddenLink(oldID, newID uint64) {
-	if oldID == newID {
-		return
-	}
-	f.mu.Lock()
-	if newID > 0 {
-		f.setLink(newID)
-	}
-	if oldID > 0 {
-		f.unlink(oldID)
-	}
-	f.mu.Unlock()
-}
-
-func (f *folders) setHiddenLinkJSON(oldIDs, newIDs json.RawMessage) {
-	if bytes.Equal(oldIDs, newIDs) {
-		return
-	}
-	f.mu.Lock()
-	f.processJSONLinks(newIDs, (*folders).setLink)
-	f.processJSONLinks(oldIDs, (*folders).unlink)
-	f.mu.Unlock()
-}
-
-type tokenID struct {
-	Source uint64 `json:"src"`
-}
-
-func (f *folders) processJSONLinks(j json.RawMessage, fn func(*folders, uint64)) {
-	if len(j) > 0 {
-		switch j[0] {
-		case '[':
-			var ids []uint64
-			if err := json.Unmarshal(j, &ids); err == nil {
-				for _, id := range ids {
-					fn(f, id)
-				}
-			} else {
-				var ids []tokenID
-				if err := json.Unmarshal(j, &ids); err == nil {
-					for _, id := range ids {
-						fn(f, id.Source)
-					}
-				}
-			}
-		case '{':
-			var id tokenID
-			if err := json.Unmarshal(j, &id); err == nil {
-				fn(f, id.Source)
-			} else {
-				ids := make(map[string]uint64)
-				if err := json.Unmarshal(j, &ids); err == nil {
-					for _, id := range ids {
-						fn(f, id)
-					}
-				} else {
-					ids := make(map[string]tokenID)
-					if err := json.Unmarshal(j, &ids); err == nil {
-						for _, id := range ids {
-							fn(f, id.Source)
-						}
-					}
-				}
-			}
-		default:
-			var id uint64
-			if err := json.Unmarshal(j, &id); err == nil {
-				fn(f, id)
-			}
-		}
-	}
-}
-
-func (f *folders) setLink(id uint64) {
-	if c, ok := f.links[id]; ok {
-		f.links[id] = c + 1
-	} else {
-		f.links[id] = 1
-	}
-}
-
-func (b *Battlemap) isLinkKey(key string) *folders {
-	if strings.HasPrefix(key, "store-image") {
-		return &b.images.folders
-	} else if strings.HasPrefix(key, "store-audio") {
-		return &b.sounds.folders
-	} else if strings.HasPrefix(key, "store-character") {
-		return &b.chars.folders
-	}
-	return nil
 }
 
 const folderMetadata = "folders"
