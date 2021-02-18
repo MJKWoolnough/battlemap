@@ -72,7 +72,7 @@ type musicPacksDir struct {
 	packs map[string]*musicPack
 }
 
-func (m *musicPacksDir) Init(b *Battlemap) error {
+func (m *musicPacksDir) Init(b *Battlemap, links links) error {
 	m.Battlemap = b
 	var location keystore.String
 	err := b.config.Get("MusicPacksDir", &location)
@@ -92,7 +92,7 @@ func (m *musicPacksDir) Init(b *Battlemap) error {
 		}
 		m.packs[packName] = pack
 		for _, track := range pack.Tracks {
-			m.sounds.setLink(track.ID)
+			links.audio.setLink(track.ID)
 		}
 	}
 	return nil
@@ -194,13 +194,10 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		m.mu.Lock()
-		mp, ok := m.packs[name]
+		_, ok := m.packs[name]
 		if !ok {
 			m.mu.Unlock()
 			return nil, ErrUnknownMusicPack
-		}
-		for _, t := range mp.Tracks {
-			m.sounds.setHiddenLink(t.ID, 0)
 		}
 		delete(m.packs, name)
 		m.fileStore.Remove(name)
@@ -322,7 +319,6 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}
 		if err := m.getPack(trackData.MusicPack, func(mp *musicPack) bool {
 			for _, t := range trackData.Tracks {
-				m.sounds.setHiddenLink(0, t)
 				mp.Tracks = append(mp.Tracks, musicTrack{ID: t, Volume: 255, Repeat: -1})
 			}
 			return true
@@ -340,7 +336,6 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			return nil, err
 		}
 		if err := m.getTrack(trackData.MusicPack, trackData.Track, func(mp *musicPack, mt *musicTrack) bool {
-			m.sounds.setHiddenLink(mt.ID, 0)
 			mp.Tracks = append(mp.Tracks[:trackData.Track], mp.Tracks[trackData.Track+1:]...)
 			return true
 		}); err != nil {
