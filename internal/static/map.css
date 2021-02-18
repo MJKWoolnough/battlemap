@@ -1,3 +1,8 @@
+#mapBase {
+	height: 100%;
+	overflow: hidden;
+}
+
 #map {
 	cursor: var(--outline-cursor);
 	background-color: #fff;
