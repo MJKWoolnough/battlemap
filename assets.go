@@ -19,16 +19,19 @@ type assetsDir struct {
 	handler http.Handler
 }
 
-func (a *assetsDir) Init(b *Battlemap) error {
+func (a *assetsDir) Init(b *Battlemap, links links) error {
 	var (
 		location keystore.String
 		locname  string
+		lm       linkManager
 	)
 	switch a.fileType {
 	case fileTypeImage:
 		locname = "ImageAssetsDir"
+		lm = links.images
 	case fileTypeAudio:
 		locname = "AudioAssetsDir"
+		lm = links.audio
 	default:
 		return ErrInvalidFileType
 	}
@@ -42,11 +45,16 @@ func (a *assetsDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
 	a.handler = http.FileServer(http.Dir(l))
-	return a.folders.Init(b, assetStore)
+	return a.folders.Init(b, assetStore, lm)
 }
 
-func (a *assetsDir) Cleanup() {
-	a.folders.cleanup(func(_ uint64, _ string) {})
+func (a *assetsDir) Cleanup(links links) {
+	switch a.fileType {
+	case fileTypeImage:
+		a.folders.cleanup(links.images)
+	case fileTypeAudio:
+		a.folders.cleanup(links.audio)
+	}
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -99,7 +107,6 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		a.mu.Lock()
 		a.lastID++
 		id := a.lastID
-		a.links[id] = 1
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
 		if err = a.Set(idStr, bufReaderWriterTo{gft.Buffer[:bufLen], p}); err != nil {
