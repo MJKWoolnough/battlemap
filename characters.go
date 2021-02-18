@@ -64,22 +64,11 @@ type charactersDir struct {
 	data map[string]characterData
 }
 
-func (c *charactersDir) Cleanup() {
-	c.folders.cleanup(func(_ uint64, strID string) {
-		ms, ok := c.data[strID]
-		if !ok {
-			return
-		}
-		for key, data := range ms {
-			if f := c.isLinkKey(key); f != nil {
-				f.setHiddenLinkJSON(data.Data, nil)
-			}
-		}
-		delete(c.data, strID)
-	})
+func (c *charactersDir) Cleanup(links links) {
+	c.folders.cleanup(links.chars)
 }
 
-func (c *charactersDir) Init(b *Battlemap) error {
+func (c *charactersDir) Init(b *Battlemap, links links) error {
 	var location keystore.String
 	err := b.config.Get("CharsDir", &location)
 	if err != nil {
@@ -91,19 +80,19 @@ func (c *charactersDir) Init(b *Battlemap) error {
 		return fmt.Errorf("error creating characters keystore: %w", err)
 	}
 	c.fileType = fileTypeCharacter
-	if err := c.folders.Init(b, c.fileStore); err != nil {
+	if err := c.folders.Init(b, c.fileStore, links.chars); err != nil {
 		return fmt.Errorf("error parsing characters keystore folders: %w", err)
 	}
 	c.data = make(map[string]characterData)
-	for id := range c.links {
+	for id := range links.chars {
 		idStr := strconv.FormatUint(id, 10)
 		km := make(characterData)
 		if err := c.fileStore.Get(idStr, km); err != nil {
 			return err
 		}
 		for key, val := range km {
-			if f := c.isLinkKey(key); f != nil {
-				f.setHiddenLinkJSON(nil, val.Data)
+			if f := links.getLinkKey(key); f != nil {
+				f.setJSONLinks(val.Data)
 			}
 		}
 		c.data[idStr] = km
@@ -137,16 +126,10 @@ func (c *charactersDir) create(cd ConnData, data json.RawMessage) (json.RawMessa
 	if nameData.Data == nil {
 		nameData.Data = make(characterData)
 	}
-	for key, val := range nameData.Data {
-		if f := c.isLinkKey(key); f != nil {
-			f.setHiddenLinkJSON(nil, val.Data)
-		}
-	}
 	c.mu.Lock()
 	c.lastID++
 	kid := c.lastID
 	nameData.Path = addItemTo(c.root.Items, nameData.Path, kid)
-	c.links[kid] = 1
 	c.saveFolders()
 	strID := strconv.FormatUint(kid, 10)
 	c.data[strID] = nameData.Data
@@ -185,13 +168,6 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 		} else if mv, ok := ms[key]; ok && mv.User {
 			userRemoves = append(userRemoves, key)
 		}
-		if f := c.isLinkKey(key); f != nil {
-			if oldVal, ok := ms[key]; ok {
-				f.setHiddenLinkJSON(oldVal.Data, val.Data)
-			} else {
-				f.setHiddenLinkJSON(nil, val.Data)
-			}
-		}
 		ms[key] = val
 	}
 	buf = append(buf, "},\"removing\":["...)
@@ -208,9 +184,6 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 				first = false
 			}
 			buf = appendString(buf, key)
-		}
-		if f := c.isLinkKey(key); f != nil {
-			f.setHiddenLinkJSON(val.Data, nil)
 		}
 		delete(ms, key)
 	}
@@ -272,9 +245,6 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 	}
 	d := make(characterData)
 	for key, val := range ms {
-		if f := c.isLinkKey(key); f != nil {
-			f.setHiddenLinkJSON(nil, val.Data)
-		}
 		d[key] = val
 	}
 	c.lastID++
@@ -282,7 +252,6 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 	strID := strconv.FormatUint(kid, 10)
 	c.fileStore.Set(strID, d)
 	newName := addItemTo(p.Items, name, kid)
-	c.links[kid] = 1
 	c.saveFolders()
 	c.data[strID] = d
 	c.mu.Unlock()
