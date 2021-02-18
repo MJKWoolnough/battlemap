@@ -49,7 +49,7 @@ type pluginsDir struct {
 	json json.RawMessage
 }
 
-func (p *pluginsDir) Init(b *Battlemap) error {
+func (p *pluginsDir) Init(b *Battlemap, links links) error {
 	var pd keystore.String
 	b.config.Get("PluginsDir", &pd)
 	if pd == "" {
@@ -78,8 +78,13 @@ func (p *pluginsDir) Init(b *Battlemap) error {
 	sort.Strings(fs)
 	p.json = append(p.json[:0], '[')
 	currPlugins := make(map[string]struct{}, len(p.plugins))
-	for p := range p.plugins {
+	for p, data := range p.plugins {
 		currPlugins[p] = struct{}{}
+		for key, value := range data.Data {
+			if f := links.getLinkKey(key); f != nil {
+				f.setJSONLinks(value)
+			}
+		}
 	}
 	for _, file := range fs {
 		if !strings.HasSuffix(file, ".js") {
@@ -167,13 +172,6 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		for key, value := range toSet.Data {
-			if f := p.isLinkKey(key); f != nil {
-				if d, ok := plugin.Data[key]; ok {
-					f.setHiddenLinkJSON(d, value)
-				} else {
-					f.setHiddenLinkJSON(nil, value)
-				}
-			}
 			if bytes.Equal(value, null) {
 				delete(plugin.Data, key)
 			} else {
