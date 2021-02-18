@@ -51,6 +51,8 @@ class MapItem extends Item {
 		const doIt = () => {
 			if (oldMap) {
 				setMap(this, oldMap, "mapCurrent", "hasMapCurrent");
+			} else {
+				this.node.classList.add("mapCurrent");
 			}
 			selectedCurrent = thisMap;
 			mapLoadSend(thisMap.id);
