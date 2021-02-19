@@ -156,7 +156,7 @@ windows-window {
 
 #panelHider:checked ~ #panels > #panelGrabber.menuHide:not(:hover) {
 	opacity: 0;
-	transition: opacity 2s 10s;
+	transition: background 1s, opacity 2s 10s;
 }
 
 #panelContainer > div {
