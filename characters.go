@@ -64,10 +64,6 @@ type charactersDir struct {
 	data map[string]characterData
 }
 
-func (c *charactersDir) Cleanup(links links) {
-	c.folders.cleanup(links.chars)
-}
-
 func (c *charactersDir) Init(b *Battlemap, links links) error {
 	var location keystore.String
 	err := b.config.Get("CharsDir", &location)

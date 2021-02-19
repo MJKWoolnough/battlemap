@@ -48,15 +48,6 @@ func (a *assetsDir) Init(b *Battlemap, links links) error {
 	return a.folders.Init(b, assetStore, lm)
 }
 
-func (a *assetsDir) Cleanup(links links) {
-	switch a.fileType {
-	case fileTypeImage:
-		a.folders.cleanup(links.images)
-	case fileTypeAudio:
-		a.folders.cleanup(links.audio)
-	}
-}
-
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet, http.MethodHead:
