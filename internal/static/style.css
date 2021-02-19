@@ -173,8 +173,9 @@ windows-desktop {
 }
 
 #tabLabels img {
-	width: 1em;
-	height: 1em;
+	padding-top:5px;
+	width: 1.5em;
+	height: 1.5em;
 	display: none;
 }
 
