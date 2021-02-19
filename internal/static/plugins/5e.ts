@@ -981,7 +981,7 @@ if (userLevel === 1) {
 				settings["store-image-shapechanges"] = tokens;
 				rpc.pluginSetting(importName, settings);
 			}}, mainLang["SAVE"])
-		]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;1;0" dur="5s" repeatCount="indefinite" /%3E%3Canimate attributeName="fill" values="%23f00;%2300f;%23f00" dur="5s" repeatCount="indefinite" /%3E%3C/rect%3E%3C/svg%3E']
+		]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E']
 	};
 	globals.outline.addEventListener("keypress", (e: KeyboardEvent) => {
 		const {selected: {token}} = globals;
