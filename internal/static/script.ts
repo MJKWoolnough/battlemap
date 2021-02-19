@@ -235,7 +235,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		loadUserMap(base.appendChild(div()));
 		userMusic();
 	}
-	if (tabs.numTabs > lastTab.value) {
+	if (tabs.numTabs >= lastTab.value) {
 		tabs.selectFirst();
 	}
 	document.head.appendChild(style({"type": "text/css"}, tabs.css));
