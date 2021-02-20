@@ -14,9 +14,9 @@ type assetSize = {
 	node: HTMLTableRowElement;
 }
 
-document.head.appendChild(style({"type": "text/css"}, "#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}"));
-
 if (userLevel === 1) {
+	document.head.appendChild(style({"type": "text/css"}, "#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}"));
+
 	const defaultLanguage = {
 		"GENERATE_STATISTICS": "Generate Statistics",
 		"ID": "ID",
