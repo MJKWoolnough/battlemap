@@ -24,7 +24,7 @@ import './tools_move.js';
 import help from './help.js';
 import pluginInit, {menuItems} from './plugins.js';
 import lang from './language.js';
-import {BoolSetting, IntSetting, JSONSetting} from './settings_types.js';
+import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './settings_types.js';
 
 type savedWindow = {
 	out: boolean;
@@ -37,7 +37,7 @@ type savedWindow = {
 declare const pageLoad: Promise<void>;
 
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "style": "stroke: currentColor"}))),
-      lastTab = new IntSetting("lastTab"),
+      lastTab = new StringSetting("lastTab"),
       tabs = (function() {
 	let n = 0, moved = false;
 	const panelShow = new BoolSetting("panelShow"),
@@ -102,32 +102,44 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		};
 		updateWindowData();
 	      },
-	      tabs: HTMLLabelElement[] = [],
+	      tabs: [string, HTMLLabelElement][] = [],
+	      selectFirst = () => {
+		for (const [_, t] of tabs) {
+			if (t.style.getPropertyValue("display") !== "none") {
+				if (t.control) {
+					t.control.click();
+				} else {
+					t.click();
+				}
+				return;
+			}
+		};
+	      },
 	      o = Object.freeze({
 		"add": (title: string, contents: Node, pop: boolean, popIcon: string) => {
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
-			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio", "checked": pos === lastTab.value}), t),
+			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, tl = tabs.length;
 				switch (e.key) {
 				case "ArrowLeft":
 					do {
 						a = (((a - 1) % tl) + tl) % tl;
-					} while (a !== pos && tabs[a].style.getPropertyValue("display") === "none");
+					} while (a !== pos && tabs[a][1].style.getPropertyValue("display") === "none");
 					break;
 				case "ArrowRight":
 					do {
 						a = (a + 1) % tl;
-					} while (a !== pos && tabs[a].style.getPropertyValue("display") === "none");
+					} while (a !== pos && tabs[a][1].style.getPropertyValue("display") === "none");
 					break;
 				case "Enter":
-					l.control!.click();
+					l.click();
 				default:
 					return;
 				}
-				tabs[a].focus();
-			      }, "onclick": () => lastTab.set(pos)}, [
+				tabs[a][1].focus();
+			      }, "onclick": () => lastTab.set(title)}, [
 				img({"src": popIcon, title}),
 				span(title),
 				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
@@ -149,11 +161,11 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
-						o.selectFirst()
+						selectFirst()
 					}
 				}}) : []
 			      ]));
-			tabs.push(l);
+			tabs.push([title, l]);
 			if (pop && windowData[title] && windowData[title]["out"]) {
 				window.setTimeout(() => (l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click")));
 			}
@@ -167,21 +179,20 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):after`).join(",")}{box-shadow: -2px 2px 0 var(--c)}
 `;
 		},
-		get html() {return createHTML(null, [c , h]);},
-		selectFirst() {
-			tabs.some(e => {
-				if (e.style.getPropertyValue("display") !== "none") {
-					if (e.control) {
-						e.control.click();
+	        setTab(title: string) {
+			for (const [t, tab] of tabs) {
+				if (t === title) {
+					if (tab.control) {
+						tab.control.click();
 					} else {
-						e.click();
+						tab.click();
 					}
-					return true;
+					return;
 				}
-				return false;
-			});
+			}
+			selectFirst();
 		},
-		get numTabs() {return tabs.length;}
+		get html() {return createHTML(null, [c , h]);}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	window.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -235,9 +246,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		loadUserMap(base.appendChild(div()));
 		userMusic();
 	}
-	if (tabs.numTabs >= lastTab.value) {
-		tabs.selectFirst();
-	}
+	tabs.setTab(lastTab.value);
 	document.head.appendChild(style({"type": "text/css"}, tabs.css));
 	base.appendChild(tabs.html);
 	clearElement(document.body).appendChild(shell);
