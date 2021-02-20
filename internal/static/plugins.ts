@@ -78,7 +78,7 @@ export const settings = () => {
 			br(),
 			save,
 		] : [],
-		filterSortPlugins("settings").map(([name, plugin]) => [h1(name), plugin["settings"].fn])
+		filterSortPlugins("settings").map(([name, plugin]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), plugin["settings"].fn])
 	];
 },
        characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
