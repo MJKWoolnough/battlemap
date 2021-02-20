@@ -74,7 +74,7 @@ html, body {
 	text-shadow: 0 1px #fff;
 }
 
-#tabLabels > label:hover, .invert #tabLabels > label:focus {
+#tabLabels > label:hover, #tabLabels > label:focus {
 	background : linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
 	cursor: pointer;
 	outline: none;
