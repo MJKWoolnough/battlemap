@@ -14,7 +14,7 @@ import {WindowElement, shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import characterStore, {characterIcon} from './characters.js';
-import {isInt, isUint} from './misc.js';
+import {isInt, isUint, setAdmin, setUser, isAdmin} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -221,11 +221,15 @@ if (tabIcons.value) {
 	document.documentElement.classList.add("tabIcons");
 }
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => Promise.all([rpc.waitLogin(), pluginInit()]).then(([userLevel]) => {
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
+	setAdmin(userLevel === 1);
+	setUser(userLevel === 0);
+}).then(pluginInit).then(() => {
 	rpc.ready();
 	characterStore();
-	document.body.classList.add(userLevel ? "isAdmin" : "isUser");
-	if (userLevel === 1) {
+	const admin = isAdmin();
+	document.body.classList.add(admin ? "isAdmin" : "isUser");
+	if (admin) {
 		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true, imageIcon), "IMAGES");
 		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true, audioIcon), "AUDIO");
 		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading"), true, characterIcon));
