@@ -1,8 +1,8 @@
 import {Uint} from '../types.js';
 import {SortNode} from '../lib/ordered.js';
 import {div} from '../lib/html.js';
-import {addPlugin, getSettings, userLevel} from '../plugins.js';
-import {isUint} from '../misc.js';
+import {addPlugin, getSettings} from '../plugins.js';
+import {isUint, isAdmin} from '../misc.js';
 import {rpc} from '../rpc.js';
 import {language} from '../language.js';
 
@@ -19,7 +19,7 @@ type Settings = {
 	}>;
 }
 
-if (userLevel === 1) {
+if (isAdmin()) {
 	const defaultLanguage = {
 		"MENU_TITLE": "Towns",
 		"PROFESSIONS_EDIT": "Edit Professions",

@@ -5,6 +5,7 @@ import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {stringSort} from './lib/ordered.js';
+import {isAdmin} from './misc.js';
 import lang from './language.js';
 import {WindowElement, shell} from './windows.js';
 import {rpc, handleError} from './rpc.js';
@@ -54,7 +55,7 @@ export const settings = () => {
 		(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
 	      }}, lang["SAVE"]);
 	return [
-		userLevel > 0 ? [
+		isAdmin() ? [
 			h1(lang["PLUGINS"]),
 			label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
 			select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
@@ -93,7 +94,7 @@ export const settings = () => {
        addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
        getSettings = (name: string) => pluginList.get(name)?.data,
        askReload = () => {
-	if (userLevel === 0) {
+	if (isAdmin()) {
 		window.location.reload();
 		return;
 	}
@@ -127,22 +128,17 @@ export const settings = () => {
        },
        menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
-export let userLevel: Uint;
-
 export default function() {
 	rpc.waitPluginChange().then(askReload);
-	return rpc.waitLogin().then(u => {
-		userLevel = u;
-		return rpc.listPlugins().then(plugins => {
-			const ls: Promise<void>[] = [];
-			for (const p in plugins) {
-				const plugin = plugins[p];
-				pluginList.set(p, plugin);
-				if (plugin.enabled) {
-					ls.push(import(`/plugins/${p}`));
-				}
+	return rpc.listPlugins().then(plugins => {
+		const ls: Promise<void>[] = [];
+		for (const p in plugins) {
+			const plugin = plugins[p];
+			pluginList.set(p, plugin);
+			if (plugin.enabled) {
+				ls.push(import(`/plugins/${p}`));
 			}
-			return Promise.all(ls);
-		});
+		}
+		return Promise.all(ls);
 	});
 }

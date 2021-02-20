@@ -4,8 +4,8 @@ import {SortNode} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, style, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {globals, SVGToken} from '../map.js';
-import {mapLoadReceive} from '../misc.js';
-import {addPlugin, userLevel} from '../plugins.js';
+import {mapLoadReceive, isAdmin} from '../misc.js';
+import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
 
 type assetSize = {
@@ -14,7 +14,7 @@ type assetSize = {
 	node: HTMLTableRowElement;
 }
 
-if (userLevel === 1) {
+if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}"));
 
 	const defaultLanguage = {
