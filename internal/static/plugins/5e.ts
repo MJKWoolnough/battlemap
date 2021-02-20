@@ -796,7 +796,7 @@ const defaultLanguage = {
 	},
 	"settings": {
 		"priority": 0,
-		"fn": () => div([
+		"fn": div([
 			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);

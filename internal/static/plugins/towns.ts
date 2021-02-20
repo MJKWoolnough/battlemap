@@ -23,7 +23,7 @@ if (userLevel === 1) {
 	addPlugin("towns", {
 		"settings": {
 			"priority": 0,
-			"fn": () => div()
+			"fn": div()
 		},
 		"menuItem": {
 			"priority": 0,
