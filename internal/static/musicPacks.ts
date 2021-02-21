@@ -6,7 +6,7 @@ import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
-import {WindowElement, windows, loadingWindow, shell} from './windows.js';
+import {WindowElement, windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
 
 class Track {
