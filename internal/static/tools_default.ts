@@ -1,14 +1,72 @@
-import {Uint, SVGAnimateBeginElement} from './types.js';
-import {SVGToken} from './map.js';
+import {Int, Uint, SVGAnimateBeginElement} from './types.js';
+import {SVGToken, SQRT3} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {globals, screen2Grid, deselectToken} from './map.js';
+import {globals, deselectToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
+screen2Grid = (() => {
+	const points: [number, number][] = [
+		[0, 1/6],
+		[0, 2/6],
+		[0, 3/6],
+		[0, 5/6],
+		[1/4, 1/12],
+		[1/4, 7/12],
+		[1/2, 0],
+		[1/2, 1/3],
+		[1/2, 2/3],
+		[1/2, 5/6],
+		[1/2, 1],
+		[3/4, 1/12],
+		[3/4, 7/12],
+		[1, 1/6],
+		[1, 2/6],
+		[1, 3/6],
+		[1, 5/6]
+	      ];
+	return (x: Uint, y: Uint, snap = false): [Int, Int] => {
+		const {mapData} = globals,
+		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
+		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
+		if (snap) {
+			const gridType = globals.mapData.gridType;
+			switch (gridType) {
+			case 1:
+			case 2: {
+				const size = globals.mapData.gridSize,
+				      o = 2 * Math.round(1.5 * size / SQRT3),
+				      w = gridType === 1 ? size : o,
+				      h = gridType === 2 ? size : o,
+				      px = sx / w,
+				      py = sy / h,
+				      dx = px % 1,
+				      dy = py % 1,
+				      first = gridType - 1,
+				      second = 1 - first;
+				let nearestPoint: [number, number] = [0, 0],
+				    nearest = Infinity;
+				for (const point of points) {
+					const d = Math.hypot(point[first] - dx, point[second] - dy);
+					if (d < nearest) {
+						nearest = d;
+						nearestPoint = point;
+					}
+				}
+				return [Math.round((Math.floor(px) + nearestPoint[first]) * w), Math.round((Math.floor(py) + nearestPoint[second]) * h)];
+			}
+			default:
+				const size = mapData.gridSize >> 1;
+				return [size * Math.round(sx / size), size * Math.round(sy / size)];
+			}
+		}
+		return [Math.round(sx), Math.round(sy)];
+	};
+})(),
 zoom = (delta: number, x: number, y: number, moveControl = true) => {
 	const {root, outline} = globals,
 	      width = parseInt(root.getAttribute("width") || "0") / 2,
