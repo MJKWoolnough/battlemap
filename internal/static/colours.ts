@@ -1,5 +1,5 @@
 import {Colour} from './types.js';
-import {br, button, div, h1, input, label} from './lib/html.js';
+import {br, button, div, h1, input} from './lib/html.js';
 import {ShellElement, WindowElement, windows, shell} from './windows.js';
 import {isUint, labels} from './misc.js';
 import lang from './language.js';
