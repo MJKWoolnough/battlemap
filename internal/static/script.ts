@@ -250,9 +250,9 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		loadUserMap(base.appendChild(div()));
 		userMusic();
 	}
-	tabs.setTab(lastTab.value);
 	document.head.appendChild(style({"type": "text/css"}, tabs.css));
 	base.appendChild(tabs.html);
+	window.setTimeout(() => tabs.setTab(lastTab.value));
 	clearElement(document.body).appendChild(shell);
 	shell.realignWindows();
 	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
