@@ -3,7 +3,7 @@ import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
 import {ShellElement, WindowElement, loadingWindow, windows, shell} from './windows.js';
-import {Root, Folder, DraggableItem, Item} from './folders.js';
+import {Root, Folder, DraggableItem} from './folders.js';
 import {labels} from './misc.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
