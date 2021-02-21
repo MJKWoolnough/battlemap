@@ -308,64 +308,6 @@ const idNames: Record<string, Int> = {
       };
 
 export const SQRT3 = Math.sqrt(3),
-screen2Grid = (() => {
-	const points: [number, number][] = [
-		[0, 1/6],
-		[0, 2/6],
-		[0, 3/6],
-		[0, 5/6],
-		[1/4, 1/12],
-		[1/4, 7/12],
-		[1/2, 0],
-		[1/2, 1/3],
-		[1/2, 2/3],
-		[1/2, 5/6],
-		[1/2, 1],
-		[3/4, 1/12],
-		[3/4, 7/12],
-		[1, 1/6],
-		[1, 2/6],
-		[1, 3/6],
-		[1, 5/6]
-	      ];
-	return (x: Uint, y: Uint, snap = false): [Int, Int] => {
-		const {mapData} = globals,
-		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
-		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
-		if (snap) {
-			const gridType = globals.mapData.gridType;
-			switch (gridType) {
-			case 1:
-			case 2: {
-				const size = globals.mapData.gridSize,
-				      o = 2 * Math.round(1.5 * size / SQRT3),
-				      w = gridType === 1 ? size : o,
-				      h = gridType === 2 ? size : o,
-				      px = sx / w,
-				      py = sy / h,
-				      dx = px % 1,
-				      dy = py % 1,
-				      first = gridType - 1,
-				      second = 1 - first;
-				let nearestPoint: [number, number] = [0, 0],
-				    nearest = Infinity;
-				for (const point of points) {
-					const d = Math.hypot(point[first] - dx, point[second] - dy);
-					if (d < nearest) {
-						nearest = d;
-						nearestPoint = point;
-					}
-				}
-				return [Math.round((Math.floor(px) + nearestPoint[first]) * w), Math.round((Math.floor(py) + nearestPoint[second]) * h)];
-			}
-			default:
-				const size = mapData.gridSize >> 1;
-				return [size * Math.round(sx / size), size * Math.round(sy / size)];
-			}
-		}
-		return [Math.round(sx), Math.round(sy)];
-	};
-})(),
 deselectToken = () => {
 	globals.selected.token = null;
 	globals.outline.style.setProperty("display", "none");
