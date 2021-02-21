@@ -3,7 +3,6 @@ import {SVGToken} from './map.js';
 import {Children} from './lib/dom.js';
 import {List} from './lib/context.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
-import {HTTPRequest} from './lib/conn.js';
 import {stringSort} from './lib/ordered.js';
 import {isAdmin} from './misc.js';
 import lang from './language.js';
