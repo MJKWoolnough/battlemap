@@ -5,10 +5,10 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {mapLoadedReceive} from './misc.js';
 import {colour2RGBA, makeColourPicker} from './colours.js';
-import {globals, SVGLayer, walkLayers, screen2Grid, point2Line, deselectToken} from './map.js';
+import {globals, SVGLayer, walkLayers, point2Line, deselectToken} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './adminMap.js';
 import {addTool} from './tools.js';
-import {defaultMouseWheel} from './tools_default.js';
+import {defaultMouseWheel, screen2Grid} from './tools_default.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
