@@ -75,7 +75,7 @@ type RPCWaits = {
 	waitMusicPackTrackVolume:    () => Subscription<MusicPackTrackVolume>;
 	waitMusicPackTrackRepeat:    () => Subscription<MusicPackTrackRepeat>;
 	waitPluginChange:            () => Subscription<void>;
-	waitPluginSetting:           () => Subscription<PluginSetting>;
+	waitPluginSetting:           () => Subscription<PluginDataChange>;
 	waitSignalPosition:          () => Subscription<[Uint, Uint]>;
 	waitSignalMovePosition:      () => Subscription<[Uint, Uint]>;
 	waitBroadcast:               () => Subscription<Broadcast>;
@@ -159,7 +159,7 @@ export type RPC = RPCWaits & {
 	listPlugins:   ()                                          => Promise<Record<string, Plugin>>;
 	enablePlugin:  (plugin: string)                            => Promise<void>;
 	disablePlugin: (plugin: string)                            => Promise<void>;
-	pluginSetting: (plugin: string, data: Record<string, any>) => Promise<void>;
+	pluginSetting: (id: string, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 
 	loggedIn:          ()                                         => Promise<boolean>;
 	loginRequirements: ()                                         => Promise<string>;
@@ -386,12 +386,13 @@ type LightChange = ID & TokenLight;
 
 export type Plugin = {
 	enabled: boolean;
-	data: Record<string, any>;
+	data: Record<string, KeystoreData>;
 }
 
-type PluginSetting = {
-	file: string;
-	data: Record<string, any>;
+type PluginDataChange = {
+	id: string;
+	setting: Record<string, KeystoreData>;
+	removing: string[];
 }
 
 type KeyData = {
