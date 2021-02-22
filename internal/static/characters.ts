@@ -8,7 +8,7 @@ import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';
-import {rpc} from './rpc.js';
+import {rpc, inited} from './rpc.js';
 import undo from './undo.js';
 import './folders.js';
 
@@ -211,8 +211,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 	      ])));
 }
 
-export default function () {
+inited.then(() => {
 	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
-
-};
+});
