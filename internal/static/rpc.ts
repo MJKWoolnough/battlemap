@@ -186,15 +186,15 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
 
 				["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
-				["characterModify", "characters.modify",    ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
+				["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
 				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
 
 				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
-				["listPlugins",   "plugins.list",    "",              checkPlugins, "", ""],
-				["enablePlugin",  "plugins.enable",  "!",             returnVoid,   "", ""],
-				["disablePlugin", "plugins.disable", "!",             returnVoid,   "", ""],
-				["pluginSetting", "plugins.set",    ["file", "data"], returnVoid,   "", ""],
+				["listPlugins",   "plugins.list",    "",                           checkPlugins, "", ""],
+				["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
+				["disablePlugin", "plugins.disable", "!",                          returnVoid,   "", ""],
+				["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
 
 				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean, "", ""],
 				["loginRequirements", "auth.requirements",    "",                            checkString,  "", ""],
@@ -602,7 +602,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksPluginSetting: checkers = [[checkObject, ""], [checkString, "name"], [checkObject, "data"]],
+      checksPluginSetting: checkers = [[checkKeystoreDataChange, ""], [checkString, "id"]],
       checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
       checkSignalPosition = (data: any) => {
 	checkArray(data, "SignalPosition");
