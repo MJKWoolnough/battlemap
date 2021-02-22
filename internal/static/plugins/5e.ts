@@ -79,8 +79,8 @@ type ShapechangeToken = InitialToken & {
 }
 
 type Settings5E = {
-	"shapechange-categories": ShapechangeCat[];
-	"store-image-shapechanges": ShapechangeToken[];
+	"shapechange-categories": KeystoreData<ShapechangeCat[]>;
+	"store-image-shapechanges": KeystoreData<ShapechangeToken[]>;
 }
 
 class SVGToken5E extends SVGToken {
@@ -394,20 +394,20 @@ const defaultLanguage = {
 	"shield": nonEnum,
 	"conditions": nonEnum
       },
-      checkSettings = (data: any) => {
+      checkSettings = (data: Settings5E) => {
 	if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
 		return null;
 	}
-	if (!(data["shapechange-categories"] instanceof Array)) {
+	if (!(data["shapechange-categories"].data instanceof Array)) {
 		console.log("shapechange-categories must be an Array");
 		return null;
 	}
-	if (!(data["store-image-shapechanges"] instanceof Array)) {
+	if (!(data["store-image-shapechanges"].data instanceof Array)) {
 		console.log("store-image-shapechanges must be an Array");
 		return null;
 	}
-	const numTokens = data["store-image-shapechanges"].length;
-	for (const c of data["shapechange-categories"]) {
+	const numTokens = data["store-image-shapechanges"].data.length;
+	for (const c of data["shapechange-categories"].data) {
 		if (typeof c !== "object") {
 			console.log("entry of shapechange-categories is not an object");
 			return null;
@@ -433,7 +433,7 @@ const defaultLanguage = {
 			c["images"].push(false);
 		}
 	}
-	for (const s of data["store-image-shapechanges"]) {
+	for (const s of data["store-image-shapechanges"].data) {
 		if (typeof s !== "object") {
 			console.log("entry of store-image-shapechanges must be an object");
 			return null;
@@ -457,10 +457,10 @@ const defaultLanguage = {
 	}
 	return data;
       },
-      settings = (checkSettings(getSettings(importName)) ?? {
-	      "shapechange-categories": [],
-	      "store-image-shapechanges": []
-      }) as Settings5E,
+      settings: Settings5E = checkSettings(getSettings(importName) as Settings5E) ?? {
+	      "shapechange-categories": {"user": false, "data": []},
+	      "store-image-shapechanges": {"user": false, "data": []}
+      },
       userVisibility = getSymbol("userVisibility")!,
       remove = getSymbol("remove")!,
       rename = getSymbol("rename")!,
@@ -749,7 +749,7 @@ const defaultLanguage = {
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod"),
 			      tokenConditions = token.getData("5e-conditions") ?? [],
-			      {"shapechange-categories": shapechangeCats, "store-image-shapechanges": shapechangeTokens} = settings,
+			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
 			      ctxList: List = [],
 			      mapData = globals.mapData as MapData5E;
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
@@ -826,8 +826,8 @@ const defaultLanguage = {
       };
 
 if (isAdmin()) {
-	const shapechangeCats = settings["shapechange-categories"].map(c => ({"name": c["name"], "images": c["images"].slice()})),
-	      shapechangeTokens = settings["store-image-shapechanges"].map(s => JSON.parse(JSON.stringify(s))),
+	const shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
+	      shapechangeTokens = settings["store-image-shapechanges"].data.map(s => JSON.parse(JSON.stringify(s))),
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
 		      t = th([
@@ -977,9 +977,9 @@ if (isAdmin()) {
 						cats.push({"name": cat["name"], "images": t});
 					}
 				}
-				settings["shapechange-categories"] = cats;
-				settings["store-image-shapechanges"] = tokens;
-				rpc.pluginSetting(importName, settings);
+				settings["shapechange-categories"] = {"user": false, "data": cats};
+				settings["store-image-shapechanges"] = {"user": false, "data": tokens};
+				rpc.pluginSetting(importName, settings, []);
 			}}, mainLang["SAVE"])
 		]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E']
 	};
@@ -1069,9 +1069,9 @@ combinedRPC.waitMapDataRemove().then(removed => {
 });
 
 rpc.waitPluginSetting().then(setting => {
-	if (setting["file"] === importName && checkSettings(setting["data"])) {
-		settings["shapechange-categories"] = setting["data"]["shapechange-categories"];
-		settings["store-image-shapechanges"] = setting["data"]["store-image-shapechanges"];
+	if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
+		settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
+		settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
 	}
 })
 
