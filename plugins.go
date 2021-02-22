@@ -1,18 +1,16 @@
 package battlemap
 
 import (
-	"bytes"
 	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"vimagination.zapto.org/httpdir"
 	"vimagination.zapto.org/httpgzip"
@@ -21,108 +19,118 @@ import (
 	"vimagination.zapto.org/rwcount"
 )
 
+const pluginConfigExt = ".config"
+
 type plugin struct {
-	Enabled bool                       `json:"enabled"`
-	Data    map[string]json.RawMessage `json:"data"`
+	Enabled bool                    `json:"enabled"`
+	Data    map[string]keystoreData `json:"data"`
 }
 
-type pluginData map[string]*plugin
-
-func (p pluginData) ReadFrom(r io.Reader) (int64, error) {
+func (p *plugin) ReadFrom(r io.Reader) (int64, error) {
 	var rc = rwcount.Reader{Reader: r}
 	err := json.NewDecoder(&rc).Decode(&p)
 	return rc.Count, err
 }
 
-func (p pluginData) WriteTo(w io.Writer) (int64, error) {
+func (p *plugin) WriteTo(w io.Writer) (int64, error) {
 	var wc = rwcount.Writer{Writer: w}
-	err := json.NewEncoder(&wc).Encode(p)
+	p.WriteToUser(&wc, true)
 	return wc.Count, err
+}
+
+var (
+	pluginStart     = []byte{'{', '"', 'e', 'n', 'a', 'b', 'l', 'e', 'd', '"', ':'}
+	pluginTrue      = []byte{'t', 'r', 'u', 'e'}
+	pluginFalse     = []byte{'f', 'a', 'l', 's', 'e'}
+	pluginMid       = []byte{',', '"', 'd', 'a', 't', 'a', '"', ':', '{'}
+	pluginComma     = []byte{','}
+	pluginDataStart = []byte{':', '{', '"', 'u', 's', 'e', 'r', '"', ':'}
+	pluginDataMid   = []byte{',', '"', 'd', 'a', 't', 'a', '"', ':'}
+	pluginEnd       = []byte{'}'}
+)
+
+func (p *plugin) WriteToUser(w io.Writer, isAdmin bool) {
+	w.Write(pluginStart)
+	if p.Enabled {
+		w.Write(pluginTrue)
+	} else {
+		w.Write(pluginFalse)
+	}
+	w.Write(pluginMid)
+	first := true
+	for key, val := range p.Data {
+		if isAdmin || val.User {
+			if first {
+				first = false
+			} else {
+				w.Write(pluginComma)
+			}
+			fmt.Fprintf(w, "%q", key) // need to replace with JSON specific code
+			w.Write(pluginDataStart)
+			if val.User {
+				w.Write(pluginTrue)
+			} else {
+				w.Write(pluginFalse)
+			}
+			w.Write(pluginDataMid)
+			w.Write(val.Data)
+			w.Write(pluginEnd)
+		}
+	}
+	w.Write(pluginEnd)
 }
 
 type pluginsDir struct {
 	*Battlemap
 	http.Handler
-	plugins pluginData
+	plugins map[string]*plugin
 
-	mu   sync.RWMutex
-	json json.RawMessage
+	*keystore.FileStore
+
+	mu       sync.RWMutex
+	json     json.RawMessage
+	userJSON json.RawMessage
 }
 
 func (p *pluginsDir) Init(b *Battlemap, links links) error {
 	var pd keystore.String
-	b.config.Get("PluginsDir", &pd)
-	if pd == "" {
-		return ErrInvalidPlugins
-	}
-	p.plugins = make(pluginData)
-	if err := b.config.Get("PluginsInfo", p.plugins); err != nil {
-		return err
+	err := b.config.Get("PluginsDir", &pd)
+	if err != nil {
+		return fmt.Errorf("error retrieving plugins location: %w", err)
 	}
 	base := filepath.Join(b.config.BaseDir, string(pd))
-	d, err := os.Open(base)
-	if os.IsNotExist(err) {
-		return nil
-	}
-	di, err := d.Stat()
+	p.FileStore, err = keystore.NewFileStore(base, base, keystore.NoMangle)
 	if err != nil {
-		return fmt.Errorf("error reading plugin directory stats: %w", err)
+		return fmt.Errorf("error creating plugins keystore: %w", err)
 	}
-	fs, err := d.Readdirnames(-1)
-	if err != nil {
-		return fmt.Errorf("error reading plugin directory: %w", err)
-	}
-	latest := di.ModTime()
-	hd := httpdir.New(latest)
+	p.plugins = make(map[string]*plugin)
+	hd := httpdir.New(time.Now())
 	g, _ := gzip.NewWriterLevel(nil, gzip.BestCompression)
-	sort.Strings(fs)
-	p.json = append(p.json[:0], '[')
-	currPlugins := make(map[string]struct{}, len(p.plugins))
-	for p, data := range p.plugins {
-		currPlugins[p] = struct{}{}
-		for key, value := range data.Data {
-			if f := links.getLinkKey(key); f != nil {
-				f.setJSONLinks(value)
-			}
-		}
-	}
-	for _, file := range fs {
+	for _, file := range p.FileStore.Keys() {
 		if !strings.HasSuffix(file, ".js") {
 			continue
 		}
-		f, err := os.Open(filepath.Join(base, file))
+		st, err := p.FileStore.Stat(file)
 		if err != nil {
-			return fmt.Errorf("error opening plugin file: %w", err)
+			return fmt.Errorf("error stat'ing plugin (%s): %w", file, err)
 		}
-		fi, err := f.Stat()
-		if err != nil {
-			f.Close()
-			return fmt.Errorf("error stat'ing plugin file: %w", err)
-		}
-		buf := make([]byte, fi.Size())
-		_, err = io.ReadFull(f, buf)
-		f.Close()
-		if err != nil {
-			continue
-		}
+		buf := make(memio.Buffer, 0, st.Size())
+		p.FileStore.Get(file, &buf)
 		var gBuf memio.Buffer
 		g.Reset(&gBuf)
 		g.Write(buf)
 		g.Close()
-		ft := fi.ModTime()
+		ft := st.ModTime()
 		hd.Create(file, httpdir.FileBytes(buf, ft))
 		hd.Create(file+".gz", httpdir.FileBytes(gBuf, ft))
-		if ft.After(latest) {
-			latest = ft
-		}
-		if _, ok := currPlugins[file]; ok {
-			delete(currPlugins, file)
+		s := file + pluginConfigExt
+		if p.FileStore.Exists(s) {
+			var plugin plugin
+			p.FileStore.Get(s, &plugin)
+			p.plugins[file] = &plugin
 		} else {
-			p.plugins[file] = &plugin{Data: make(map[string]json.RawMessage)}
+			p.plugins[file] = &plugin{Data: make(map[string]keystoreData)}
 		}
-	}
-	for pn := range currPlugins {
-		delete(p.plugins, pn)
 	}
 	p.Battlemap = b
 	p.Handler = httpgzip.FileServer(hd)
@@ -130,15 +138,26 @@ func (p *pluginsDir) Init(b *Battlemap, links links) error {
 	return nil
 }
 
-func (p *pluginsDir) savePlugins() error {
-	p.updateJSON()
-	return p.config.Set("PluginsInfo", p.plugins)
-}
-
 func (p *pluginsDir) updateJSON() {
-	var w memio.Buffer
-	json.NewEncoder(&w).Encode(p.plugins)
-	p.json = json.RawMessage(w)
+	wa := append(memio.Buffer(p.json[:0]), '{')
+	wu := append(memio.Buffer(p.userJSON[:0]), '{')
+	first := true
+	for id, plugin := range p.plugins {
+		if first {
+			first = false
+		} else {
+			wa = append(wa, ',')
+			wu = append(wu, ',')
+		}
+		wa = append(appendString(wa, id), ':')
+		wu = append(appendString(wu, id), ':')
+		plugin.WriteToUser(&wa, true)
+		plugin.WriteToUser(&wu, false)
+	}
+	wa = append(wa, '}')
+	wu = append(wu, '}')
+	p.json = json.RawMessage(wa)
+	p.userJSON = json.RawMessage(wu)
 }
 
 func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -156,32 +175,64 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		return j, nil
 	case "set":
 		var toSet struct {
-			Filename string                     `json:"file"`
-			Data     map[string]json.RawMessage `json:"data"`
+			ID       string                  `json:"id"`
+			Setting  map[string]keystoreData `json:"setting"`
+			Removing []string                `json:"removing"`
 		}
 		if err := json.Unmarshal(data, &toSet); err != nil {
 			return nil, err
 		}
-		if len(toSet.Data) == 0 {
+		if len(toSet.Setting) == 0 && len(toSet.Removing) == 0 {
 			return nil, nil
 		}
 		p.mu.Lock()
-		plugin, ok := p.plugins[toSet.Filename]
+		plugin, ok := p.plugins[toSet.ID]
 		if !ok {
 			p.mu.Unlock()
 			return nil, ErrUnknownPlugin
 		}
-		for key, value := range toSet.Data {
-			if bytes.Equal(value, null) {
-				delete(plugin.Data, key)
-			} else {
-				plugin.Data[key] = value
-
+		p.socket.broadcastAdminChange(broadcastPluginSettingChange, data, cd.ID)
+		buf := appendString(append(data[:0], "{\"ID\":"...), toSet.ID)
+		buf = append(buf, ",\"setting\":{"...)
+		var userRemoves []string
+		for key, val := range toSet.Setting {
+			if val.User {
+				buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
+			} else if mv, ok := plugin.Data[key]; ok && mv.User {
+				userRemoves = append(userRemoves, key)
 			}
+			plugin.Data[key] = val
 		}
-		p.savePlugins()
+		buf = append(buf, "},\"removing\":["...)
+		first := true
+		for _, key := range toSet.Removing {
+			val, ok := plugin.Data[key]
+			if !ok {
+				continue
+			}
+			if val.User {
+				if !first {
+					buf = append(buf, ',')
+				} else {
+					first = false
+				}
+				buf = appendString(buf, key)
+			}
+			delete(plugin.Data, key)
+		}
+		p.FileStore.Set(toSet.ID+pluginConfigExt, plugin)
+		for _, key := range userRemoves {
+			if !first {
+				buf = append(buf, ',')
+			} else {
+				first = false
+			}
+			buf = appendString(buf, key)
+		}
+		buf = append(buf, ']', '}')
 		cd.CurrentMap = 0
 		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, data, userAny)
+		p.updateJSON()
 		p.mu.Unlock()
 	case "enable", "disable":
 		var filename string
@@ -195,9 +246,10 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Enabled = method == "enable"
-		p.savePlugins()
+		p.FileStore.Set(filename+pluginConfigExt, plugin)
 		cd.CurrentMap = 0
 		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'}, userAny)
+		p.updateJSON()
 		p.mu.Unlock()
 	default:
 		return nil, ErrUnknownMethod
@@ -207,6 +259,5 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 
 // Errors
 var (
-	ErrInvalidPlugins = errors.New("invalid plugin location")
-	ErrUnknownPlugin  = errors.New("unknown plugin")
+	ErrUnknownPlugin = errors.New("unknown plugin")
 )
