@@ -13,7 +13,7 @@ import loadUserMap from './map.js';
 import {WindowElement, shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
-import characterStore, {characterIcon} from './characters.js';
+import {characterIcon} from './characters.js';
 import {isInt, isUint, setAdmin, setUser, isAdmin} from './misc.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
@@ -226,7 +226,6 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	setUser(userLevel === 0);
 }).then(pluginInit).then(() => {
 	rpc.ready();
-	characterStore();
 	const admin = isAdmin();
 	document.body.classList.add(admin ? "isAdmin" : "isUser");
 	if (admin) {
