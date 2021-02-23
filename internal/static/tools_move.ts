@@ -1,4 +1,3 @@
-import {LayerRPC} from './types.js';
 import {svg, g, line, path, title} from './lib/svg.js';
 import {globals, deselectToken} from './map.js';
 import {doLayerShift} from './adminMap.js';
