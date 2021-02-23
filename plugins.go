@@ -46,7 +46,7 @@ var (
 	pluginComma     = []byte{','}
 	pluginDataStart = []byte{':', '{', '"', 'u', 's', 'e', 'r', '"', ':'}
 	pluginDataMid   = []byte{',', '"', 'd', 'a', 't', 'a', '"', ':'}
-	pluginEnd       = []byte{'}'}
+	pluginEnd       = []byte{'}', '}'}
 )
 
 func (p *plugin) WriteToUser(w io.Writer, isAdmin bool) {
@@ -74,7 +74,7 @@ func (p *plugin) WriteToUser(w io.Writer, isAdmin bool) {
 			}
 			w.Write(pluginDataMid)
 			w.Write(val.Data)
-			w.Write(pluginEnd)
+			w.Write(pluginEnd[:1])
 		}
 	}
 	w.Write(pluginEnd)
