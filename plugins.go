@@ -40,6 +40,7 @@ func (p *plugin) WriteTo(w io.Writer) (int64, error) {
 
 var (
 	pluginStart     = []byte{'{', '"', 'e', 'n', 'a', 'b', 'l', 'e', 'd', '"', ':'}
+	pluginDisabled  = []byte{'{', '"', 'e', 'n', 'a', 'b', 'l', 'e', 'd', '"', ':', 'f', 'a', 'l', 's', 'e', ',', '"', 'd', 'a', 't', 'a', '"', ':', '{', '}', '}'}
 	pluginTrue      = []byte{'t', 'r', 'u', 'e'}
 	pluginFalse     = []byte{'f', 'a', 'l', 's', 'e'}
 	pluginMid       = []byte{',', '"', 'd', 'a', 't', 'a', '"', ':', '{'}
@@ -151,8 +152,13 @@ func (p *pluginsDir) updateJSON() {
 		}
 		wa = append(appendString(wa, id), ':')
 		wu = append(appendString(wu, id), ':')
-		plugin.WriteToUser(&wa, true)
-		plugin.WriteToUser(&wu, false)
+		if plugin.Enabled {
+			plugin.WriteToUser(&wa, true)
+			plugin.WriteToUser(&wu, false)
+		} else {
+			wa = append(wa, pluginDisabled...)
+			wu = append(wu, pluginDisabled...)
+		}
 	}
 	wa = append(wa, '}')
 	wu = append(wu, '}')
