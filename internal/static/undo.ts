@@ -1,10 +1,9 @@
-import {Int, Uint} from './types.js';
 import {undoLimit} from './settings.js';
 import {SortNode} from './lib/ordered.js';
 import {ul, li, h1} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
-import {isInt, isUint, queue} from './misc.js';
-import {WindowElement, windows, shell} from './windows.js';
+import {queue} from './misc.js';
+import {windows, shell} from './windows.js';
 import lang from './language.js';
 
 type Fn = () => Fn;
