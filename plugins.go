@@ -139,8 +139,8 @@ func (p *pluginsDir) Init(b *Battlemap, links links) error {
 }
 
 func (p *pluginsDir) updateJSON() {
-	wa := append(memio.Buffer(p.json[:0]), '{')
-	wu := append(memio.Buffer(p.userJSON[:0]), '{')
+	wa := append(memio.Buffer{}, '{')
+	wu := append(memio.Buffer{}, '{')
 	first := true
 	for id, plugin := range p.plugins {
 		if first {
@@ -169,8 +169,13 @@ var null = json.RawMessage{'n', 'u', 'l', 'l'}
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
 	case "list":
+		var j json.RawMessage
 		p.mu.RLock()
-		j := p.json
+		if cd.IsAdmin() {
+			j = p.json
+		} else {
+			j = p.userJSON
+		}
 		p.mu.RUnlock()
 		return j, nil
 	case "set":
