@@ -297,9 +297,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			for (const [name, broadcastID, checker] of waiters[k]) {
 				let fn: Function;
 				const waiter = new Subscription(success => fn = success);
-				arpc.await(broadcastID, true).then(checker).then(data => queue(async function() {
-					fn(data);
-				}));
+				arpc.await(broadcastID, true).then(checker).then(data => queue(async () => fn(data)));
 				rk[name] = () => waiter;
 				if (ik[name]) {
 					ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
