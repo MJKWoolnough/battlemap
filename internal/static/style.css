@@ -187,3 +187,7 @@ windows-desktop {
 .tabIcons #tabLabels span {
 	display: none;
 }
+
+.tabIcons #panelContainer > div {
+	height: calc(100vh - 40px);
+}
