@@ -35,7 +35,7 @@ func (p *plugin) ReadFrom(r io.Reader) (int64, error) {
 func (p *plugin) WriteTo(w io.Writer) (int64, error) {
 	var wc = rwcount.Writer{Writer: w}
 	p.WriteToUser(&wc, true)
-	return wc.Count, err
+	return wc.Count, wc.Err
 }
 
 var (
