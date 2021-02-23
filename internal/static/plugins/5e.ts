@@ -394,76 +394,6 @@ const defaultLanguage = {
 	"shield": nonEnum,
 	"conditions": nonEnum
       },
-      checkSettings = (data: Settings5E) => {
-	if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
-		return null;
-	}
-	if (!(data["shapechange-categories"].data instanceof Array)) {
-		console.log("shapechange-categories must be an Array");
-		return null;
-	}
-	if (!(data["store-image-shapechanges"].data instanceof Array)) {
-		console.log("store-image-shapechanges must be an Array");
-		return null;
-	}
-	const numTokens = data["store-image-shapechanges"].data.length;
-	for (const c of data["shapechange-categories"].data) {
-		if (typeof c !== "object") {
-			console.log("entry of shapechange-categories is not an object");
-			return null;
-		}
-		if (typeof c["name"] !== "string") {
-			console.log("shapechange-categories.name must be a string");
-			return null;
-		}
-		if (!(c["images"] instanceof Array)) {
-			console.log("shapechange-categories.images must be an array");
-			return null;
-		}
-		if (c["images"].length > numTokens) {
-			c["images"].splice(numTokens);
-		}
-		for (const b of c["images"]) {
-			if (typeof b !== "boolean") {
-				console.log("entry of shapechange-categories.images must be boolean");
-				return null;
-			}
-		}
-		while (c["images"].length < numTokens) {
-			c["images"].push(false);
-		}
-	}
-	for (const s of data["store-image-shapechanges"].data) {
-		if (typeof s !== "object") {
-			console.log("entry of store-image-shapechanges must be an object");
-			return null;
-		}
-		if (!isUint(s["src"])) {
-			console.log("store-image-shapechanges.src must be a Uint");
-			return null;
-		}
-		if (typeof s["5e-shapechange-name"] !== "string") {
-			console.log("store-image-shapechanges.5e-shapechange-name must be a string");
-			return null;
-		}
-		if (!isUint(s["width"]) || !isUint(s["height"])) {
-			console.log("store-image-shapechanges.width/height must be a Uint");
-			return null;
-		}
-		if (typeof s["flip"] !== "boolean" || typeof s["flop"] !== "boolean") {
-			console.log("store-image-shapechanges.flip/flop must be a boolean");
-			return null;
-		}
-	}
-	return data;
-      },
-      settings: Settings5E = checkSettings(getSettings(importName) as Settings5E) ?? {
-	      "shapechange-categories": {"user": false, "data": []},
-	      "store-image-shapechanges": {"user": false, "data": []}
-      },
-      userVisibility = getSymbol("userVisibility")!,
-      remove = getSymbol("remove")!,
-      rename = getSymbol("rename")!,
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
@@ -534,36 +464,6 @@ const defaultLanguage = {
 		} : undefined}, initiative.toString())
 	])
       }),
-      initChange = (token: SVGToken) => {
-	shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-		if (isValidToken(token) && initiative !== null) {
-			const init = parseInt(initiative);
-			if (isInt(init, -20, 40)) {
-				updateInitiative([token.id, init]);
-				saveInitiative();
-			}
-		}
-	});
-      },
-      initRemove = (token: SVGToken) => {
-	if (!isValidToken(token)) {
-		return;
-	}
-	updateInitiative([token.id, null]);
-	saveInitiative();
-      },
-      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-	if (!initiative) {
-		throw new Error("invalid initiative");
-	}
-	return parseInt(initiative);
-})).then(initiative => {
-	if (!isValidToken(token) || !isInt(initiative, -20, 40)) {
-		return;
-	}
-	updateInitiative([token.id, initiative]);
-	saveInitiative();
-      }).catch(() => {}),
       updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	initiativeList.splice(0, initiativeList.length);
@@ -617,183 +517,7 @@ const defaultLanguage = {
       } as Record<keyof typeof lang, [BoolSetting5E, BoolSetting5E]>,
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
-      asInitialToken = (t: InitialToken): InitialToken => {
-	const tokenData: InitialTokenData = {
-		"name": null,
-		"5e-ac": null,
-		"5e-hp-max": null,
-		"5e-hp-current": null
-	      },
-	      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
-	if (name) {
-		tokenData["name"] = {"user": name.user, "data": name.data};
-	}
-	if (ac) {
-		tokenData["5e-ac"] = {"user": ac.user, "data": ac.data};
-	}
-	if (hpMax) {
-		tokenData["5e-hp-max"] = {"user": hpMax.user, "data": hpMax.data};
-	}
-	if (hpCurrent) {
-		tokenData["5e-hp-max"] = {"user": hpCurrent.user, "data": hpCurrent.data};
-	}
-	return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
-      },
-      setShapechange = (t: SVGToken5E, n?: InitialToken) => {
-	const tk: TokenSet = {"id": t.id, "tokenData": {}, "removeTokenData": []};
-	if (!n) {
-		if (!t.tokenData["store-image-5e-initial-token"]) {
-			return;
-		}
-		n = t.tokenData["store-image-5e-initial-token"].data;
-		tk.removeTokenData!.push("store-image-5e-initial-token");
-	} else if (!t.tokenData["store-image-5e-initial-token"]) {
-		tk.tokenData!["store-image-5e-initial-token"] = {"user": false, "data": asInitialToken(t as InitialToken)};
-	}
-	tk.src = n.src;
-	tk.width = n.width;
-	tk.height = n.height;
-	tk.flip = n.flip;
-	tk.flop = n.flop;
-	for (const k in tk.tokenData) {
-		const v = tk.tokenData[k];
-		if (v) {
-			tk.tokenData![k] = {"user": v.user, "data": v.data};
-		} else {
-			tk.removeTokenData!.push(k);
-		}
-	}
-	doTokenSet(tk);
-	t.updateNode();
-	updateInitiative();
-	if (globals.selected.token === t) {
-		createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
-	}
-      },
       plugin: PluginType = {
-	"characterEdit": {
-		"priority": 0,
-		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
-			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
-				const cd = characterData.get(data["store-character-id"]["data"])!;
-				return (key: string) => data[key] ?? cd[key] ?? {};
-			})() : (key: string) => data[key] ?? {},
-			      name = getData("name"),
-			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-			      nameInput = input({"type": "text", "id": `edit_5e_name_`, "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_`, "checked": name["user"] !== false, "onchange": nameUpdate});
-			return [
-				labels(`${lang["NAME"]}: `, nameInput),
-				labels(userVisibility(), nameVisibility, false),
-				br(),
-				isCharacter ? [
-					label(`${mainLang["CHARACTER_IMAGE"]}: `),
-					iconSelector(data, changes),
-					br(),
-					label(`${mainLang["TOKEN"]}: `),
-					tokenSelector(w, data, changes, removes)
-				] : [
-					label(`${mainLang["CHARACTER"]}: `),
-					characterSelector(data, changes)
-				],
-				br(),
-				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "id": `edit_5e_initiative_`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
-					if (this.value === "") {
-						removes.add("5e-initiative-mod");
-					} else {
-						removes.delete("5e-initiative-mod");
-						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
-					}
-				}})),
-				br(),
-				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
-				}})),
-				br(),
-				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
-				}})),
-				br(),
-				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
-				}})),
-				br(),
-				button({"onclick": function(this: HTMLButtonElement) {
-					this.toggleAttribute("disabled", true);
-					const updateName = changes["name"];
-					save().finally(() => {
-						this.removeAttribute("disabled");
-						if (updateName && initiativeList.some(i => i.token.id === id)) {
-							updateInitiative();
-						}
-						if (!isCharacter) {
-							(globals.tokens[id].token as SVGToken5E).updateData();
-						} else {
-							for (const {token} of globals.tokens) {
-								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
-									token.updateData();
-								}
-							}
-						}
-					});
-				}}, mainLang["SAVE"])
-			];
-		}
-	},
-	"tokenContext": {
-		"priority": 0,
-		"fn": () => {
-			const {selected: {token}} = globals;
-			if (!(token instanceof SVGToken5E)) {
-				return [];
-			}
-			const initMod: number | null = token.getData("5e-initiative-mod"),
-			      tokenConditions = token.getData("5e-conditions") ?? [],
-			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
-			      ctxList: List = [],
-			      mapData = globals.mapData as MapData5E;
-			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
-				ctxList.push(
-					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
-					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
-					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
-						if (!isValidToken(token)) {
-							return;
-						}
-						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
-						data[n] = !data[n];
-						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-						token.updateData();
-					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
-				);
-			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => initAdd(token, initMod)));
-			}
-			if (shapechangeCats && shapechangeCats.length) {
-				ctxList.push(menu(lang["SHAPECHANGE"], [
-					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
-						if (!isValidToken(token)) {
-							return;
-						}
-						setShapechange(token);
-					}) : [],
-					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
-						if (!b) {
-							return [];
-						}
-						const newToken = shapechangeTokens[n];
-						return item(newToken["5e-shapechange-name"], () => {
-							if (!isValidToken(token)) {
-								return;
-							}
-							setShapechange(token, newToken);
-						});
-					})))
-				]));
-			}
-			return ctxList;
-		}
-	},
 	"settings": {
 		"priority": 0,
 		"fn": div([
@@ -826,8 +550,161 @@ const defaultLanguage = {
       };
 
 if (isAdmin()) {
-	const shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
+	const userVisibility = getSymbol("userVisibility")!,
+	      remove = getSymbol("remove")!,
+	      rename = getSymbol("rename")!,
+	      checkSettings = (data: Settings5E) => {
+		if (!data["shapechange-categories"] || !data["store-image-shapechanges"]) {
+			return null;
+		}
+		if (!(data["shapechange-categories"].data instanceof Array)) {
+			console.log("shapechange-categories must be an Array");
+			return null;
+		}
+		if (!(data["store-image-shapechanges"].data instanceof Array)) {
+			console.log("store-image-shapechanges must be an Array");
+			return null;
+		}
+		const numTokens = data["store-image-shapechanges"].data.length;
+		for (const c of data["shapechange-categories"].data) {
+			if (typeof c !== "object") {
+				console.log("entry of shapechange-categories is not an object");
+				return null;
+			}
+			if (typeof c["name"] !== "string") {
+				console.log("shapechange-categories.name must be a string");
+				return null;
+			}
+			if (!(c["images"] instanceof Array)) {
+				console.log("shapechange-categories.images must be an array");
+				return null;
+			}
+			if (c["images"].length > numTokens) {
+				c["images"].splice(numTokens);
+			}
+			for (const b of c["images"]) {
+				if (typeof b !== "boolean") {
+					console.log("entry of shapechange-categories.images must be boolean");
+					return null;
+				}
+			}
+			while (c["images"].length < numTokens) {
+				c["images"].push(false);
+			}
+		}
+		for (const s of data["store-image-shapechanges"].data) {
+			if (typeof s !== "object") {
+				console.log("entry of store-image-shapechanges must be an object");
+				return null;
+			}
+			if (!isUint(s["src"])) {
+				console.log("store-image-shapechanges.src must be a Uint");
+				return null;
+			}
+			if (typeof s["5e-shapechange-name"] !== "string") {
+				console.log("store-image-shapechanges.5e-shapechange-name must be a string");
+				return null;
+			}
+			if (!isUint(s["width"]) || !isUint(s["height"])) {
+				console.log("store-image-shapechanges.width/height must be a Uint");
+				return null;
+			}
+			if (typeof s["flip"] !== "boolean" || typeof s["flop"] !== "boolean") {
+				console.log("store-image-shapechanges.flip/flop must be a boolean");
+				return null;
+			}
+		}
+		return data;
+	      },
+	      settings: Settings5E = checkSettings(getSettings(importName) as Settings5E) ?? {
+		      "shapechange-categories": {"user": false, "data": []},
+		      "store-image-shapechanges": {"user": false, "data": []}
+	      },
+	      initChange = (token: SVGToken) => {
+		shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+			if (isValidToken(token) && initiative !== null) {
+				const init = parseInt(initiative);
+				if (isInt(init, -20, 40)) {
+					updateInitiative([token.id, init]);
+					saveInitiative();
+				}
+			}
+		});
+	      },
+	      initRemove = (token: SVGToken) => {
+		if (!isValidToken(token)) {
+			return;
+		}
+		updateInitiative([token.id, null]);
+		saveInitiative();
+	      },
+	      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+		if (!initiative) {
+			throw new Error("invalid initiative");
+		}
+		return parseInt(initiative);
+	})).then(initiative => {
+		if (!isValidToken(token) || !isInt(initiative, -20, 40)) {
+			return;
+		}
+		updateInitiative([token.id, initiative]);
+		saveInitiative();
+	      }).catch(() => {}),
+	      shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].data.map(s => JSON.parse(JSON.stringify(s))),
+	      asInitialToken = (t: InitialToken): InitialToken => {
+		const tokenData: InitialTokenData = {
+			"name": null,
+			"5e-ac": null,
+			"5e-hp-max": null,
+			"5e-hp-current": null
+		      },
+		      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
+		if (name) {
+			tokenData["name"] = {"user": name.user, "data": name.data};
+		}
+		if (ac) {
+			tokenData["5e-ac"] = {"user": ac.user, "data": ac.data};
+		}
+		if (hpMax) {
+			tokenData["5e-hp-max"] = {"user": hpMax.user, "data": hpMax.data};
+		}
+		if (hpCurrent) {
+			tokenData["5e-hp-max"] = {"user": hpCurrent.user, "data": hpCurrent.data};
+		}
+		return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
+	      },
+	      setShapechange = (t: SVGToken5E, n?: InitialToken) => {
+		const tk: TokenSet = {"id": t.id, "tokenData": {}, "removeTokenData": []};
+		if (!n) {
+			if (!t.tokenData["store-image-5e-initial-token"]) {
+				return;
+			}
+			n = t.tokenData["store-image-5e-initial-token"].data;
+			tk.removeTokenData!.push("store-image-5e-initial-token");
+		} else if (!t.tokenData["store-image-5e-initial-token"]) {
+			tk.tokenData!["store-image-5e-initial-token"] = {"user": false, "data": asInitialToken(t as InitialToken)};
+		}
+		tk.src = n.src;
+		tk.width = n.width;
+		tk.height = n.height;
+		tk.flip = n.flip;
+		tk.flop = n.flop;
+		for (const k in tk.tokenData) {
+			const v = tk.tokenData[k];
+			if (v) {
+				tk.tokenData![k] = {"user": v.user, "data": v.data};
+			} else {
+				tk.removeTokenData!.push(k);
+			}
+		}
+		doTokenSet(tk);
+		t.updateNode();
+		updateInitiative();
+		if (globals.selected.token === t) {
+			createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
+		}
+	      },
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
 		      t = th([
@@ -983,6 +860,129 @@ if (isAdmin()) {
 			}}, mainLang["SAVE"])
 		]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E']
 	};
+	plugin["characterEdit"] = {
+		"priority": 0,
+		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
+			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
+				const cd = characterData.get(data["store-character-id"]["data"])!;
+				return (key: string) => data[key] ?? cd[key] ?? {};
+			})() : (key: string) => data[key] ?? {},
+			      name = getData("name"),
+			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
+			      nameInput = input({"type": "text", "id": `edit_5e_name_`, "value": name["data"], "onchange": nameUpdate}),
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_`, "checked": name["user"] !== false, "onchange": nameUpdate});
+			return [
+				labels(`${lang["NAME"]}: `, nameInput),
+				labels(userVisibility(), nameVisibility, false),
+				br(),
+				isCharacter ? [
+					label(`${mainLang["CHARACTER_IMAGE"]}: `),
+					iconSelector(data, changes),
+					br(),
+					label(`${mainLang["TOKEN"]}: `),
+					tokenSelector(w, data, changes, removes)
+				] : [
+					label(`${mainLang["CHARACTER"]}: `),
+					characterSelector(data, changes)
+				],
+				br(),
+				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "id": `edit_5e_initiative_`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
+					if (this.value === "") {
+						removes.add("5e-initiative-mod");
+					} else {
+						removes.delete("5e-initiative-mod");
+						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
+					}
+				}})),
+				br(),
+				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
+				}})),
+				br(),
+				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
+				}})),
+				br(),
+				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
+				}})),
+				br(),
+				button({"onclick": function(this: HTMLButtonElement) {
+					this.toggleAttribute("disabled", true);
+					const updateName = changes["name"];
+					save().finally(() => {
+						this.removeAttribute("disabled");
+						if (updateName && initiativeList.some(i => i.token.id === id)) {
+							updateInitiative();
+						}
+						if (!isCharacter) {
+							(globals.tokens[id].token as SVGToken5E).updateData();
+						} else {
+							for (const {token} of globals.tokens) {
+								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
+									token.updateData();
+								}
+							}
+						}
+					});
+				}}, mainLang["SAVE"])
+			];
+		}
+	};
+	plugin["tokenContext"] = {
+		"priority": 0,
+		"fn": () => {
+			const {selected: {token}} = globals;
+			if (!(token instanceof SVGToken5E)) {
+				return [];
+			}
+			const initMod: number | null = token.getData("5e-initiative-mod"),
+			      tokenConditions = token.getData("5e-conditions") ?? [],
+			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
+			      ctxList: List = [],
+			      mapData = globals.mapData as MapData5E;
+			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+				ctxList.push(
+					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
+					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
+					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
+						if (!isValidToken(token)) {
+							return;
+						}
+						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
+						data[n] = !data[n];
+						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+						token.updateData();
+					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
+				);
+			} else {
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => initAdd(token, initMod)));
+			}
+			if (shapechangeCats && shapechangeCats.length) {
+				ctxList.push(menu(lang["SHAPECHANGE"], [
+					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
+						if (!isValidToken(token)) {
+							return;
+						}
+						setShapechange(token);
+					}) : [],
+					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
+						if (!b) {
+							return [];
+						}
+						const newToken = shapechangeTokens[n];
+						return item(newToken["5e-shapechange-name"], () => {
+							if (!isValidToken(token)) {
+								return;
+							}
+							setShapechange(token, newToken);
+						});
+					})))
+				]));
+			}
+			return ctxList;
+		}
+	};
 	globals.outline.addEventListener("keypress", (e: KeyboardEvent) => {
 		const {selected: {token}} = globals;
 		if (token instanceof SVGToken5E) {
@@ -1015,6 +1015,12 @@ if (isAdmin()) {
 			}
 		}
 	});
+	rpc.waitPluginSetting().then(setting => {
+		if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
+			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
+			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
+		}
+	})
 }
 
 addPlugin("5e", plugin);
@@ -1067,13 +1073,6 @@ combinedRPC.waitMapDataRemove().then(removed => {
 		initiativeWindow.remove();
 	}
 });
-
-rpc.waitPluginSetting().then(setting => {
-	if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
-		settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
-		settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
-	}
-})
 
 combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative));
 combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative));
