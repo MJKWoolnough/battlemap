@@ -457,8 +457,8 @@ export class Root {
 		if (f) {
 			const t = this.addFolder(to);
 			for (const c of f.children) {
-				f.parent = t;
-				t.children.push(f);
+				c.parent = t;
+				t.children.push(c);
 			}
 			return f;
 		}
