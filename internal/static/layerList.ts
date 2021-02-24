@@ -41,8 +41,7 @@ const dragFn = (e: MouseEvent) => {
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
-	const root = self.parent!.root,
-	      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
+	const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
 	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
@@ -159,7 +158,6 @@ class ItemLayer extends Item {
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
 	}
 	show() {
-		const rpcFuncs = (this.parent.root.rpcFuncs as LayerRPC);
 		if (this.id === -1) { // Grid
 			const {mapData} = globals,
 			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize), "id": "mapWidth_"}),

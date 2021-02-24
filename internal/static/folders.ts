@@ -34,8 +34,6 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
 	path({"d": "M31,27 h1 l5,-16 h-30 l-5,16", "style": "display: var(--folder-open, none)"})
       ])));
 
-let folderID = 0;
-
 export class Item {
 	id: Uint;
 	name: string;
@@ -57,7 +55,6 @@ export class Item {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
-		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
@@ -81,7 +78,6 @@ export class Item {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
-		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
@@ -241,7 +237,6 @@ export class Folder {
 		const root = this.root,
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
-		      paths: HTMLOptionElement[] = [],
 		      parents = select({"id": "folderName_"}, getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));

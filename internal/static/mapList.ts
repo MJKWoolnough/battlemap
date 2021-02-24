@@ -1,6 +1,6 @@
 import {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
-import {br, button, h1, h2, input, option, span, select} from './lib/html.js';
+import {br, button, h1, h2, input, option, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
 import {mapLoadSend, labels} from './misc.js';
 import {hex2Colour} from './colours.js';

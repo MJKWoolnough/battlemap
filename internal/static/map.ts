@@ -7,7 +7,6 @@ import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
-import {panZoom} from './tools_default.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
 
@@ -37,7 +36,7 @@ class Defs {
 		return id;
 	}
 	remove(id: string) {
-		const node = this.node.removeChild(this.list[id]).firstChild as SVGImageElement;
+		this.node.removeChild(this.list[id]).firstChild as SVGImageElement;
 		delete(this.list[id]);
 	}
 	setGrid(grid: GridDetails) {
@@ -298,14 +297,7 @@ const idNames: Record<string, Int> = {
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
       },
-      isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      getParentToken = (path: string, pos: Uint): [SVGLayer | null, SVGToken | SVGShape | null] => {
-	const parent = getLayer(path);
-	if (!parent || !isSVGLayer(parent)) {
-		return [null, null];
-	}
-	return [parent as SVGLayer, parent.tokens[pos] as SVGToken | SVGShape];
-      };
+      isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined;
 
 export const SQRT3 = Math.sqrt(3),
 deselectToken = () => {
@@ -490,7 +482,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 			path: "/"
 		} as SVGFolder;
 	      })(),
-	      {width, height, startX, startY, lightColour} = mapData,
+	      {width, height, lightColour} = mapData,
 	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
 	definitions.setGrid(mapData);

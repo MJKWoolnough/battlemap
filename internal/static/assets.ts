@@ -18,7 +18,6 @@ class ImageAsset extends DraggableItem {
 		return "imageasset";
 	}
 	show() {
-		const root = this.parent.root;
 		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			img({"src": `/images/${this.id}`})
@@ -35,7 +34,6 @@ class AudioAsset extends DraggableItem {
 		return "audioasset";
 	}
 	show() {
-		const root = this.parent.root;
 		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, [
 			h1(this.name),
 			audio({"src": `/audio/${this.id}`, "controls": "controls"})

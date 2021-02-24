@@ -99,9 +99,7 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	if (e.ctrlKey) {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
-		const deltaY = e.shiftKey ? 0 : -e.deltaY,
-		      deltaX = e.shiftKey ? -e.deltaY : -e.deltaX,
-		      amount = scrollAmount.value || 100;
+		const amount = scrollAmount.value || 100;
 		createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
 };

@@ -304,35 +304,11 @@ type ID = {
 type TokenAdd = {
 	path: string;
 	token: Token;
-};
-
-type TokenChange = ID & {
-	x: Int;
-	y: Int;
-	width: Uint;
-	height: Uint;
-	rotation: Byte;
 }
 
 export type TokenMoveLayerPos = ID & {
 	to: string;
 	newPos: Uint;
-}
-
-type TokenFlip = ID & {
-	flip: boolean;
-}
-
-type TokenFlop = ID & {
-	flop: boolean;
-}
-
-type TokenSnap = ID & {
-	snap: boolean;
-}
-
-type TokenSource = ID & {
-	src: string;
 }
 
 type LayerShift = {
@@ -350,17 +326,6 @@ type CharacterDataChange = {
 	id: Uint;
 	setting: Record<string, KeystoreData>;
 	removing: string[];
-}
-
-type TokenDataChange = {
-	id: Uint;
-	setting: Record<string, KeystoreData>;
-	removing: string[];
-}
-
-type KeystoreDataRemove = {
-	id: Uint;
-	keys: string[];
 }
 
 export type WallData = {

@@ -1,8 +1,8 @@
-import {Colour, FromTo, IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import {Colour, IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, img, input, h1} from './lib/html.js';
-import {createSVG, g, rect} from './lib/svg.js';
+import {createSVG, rect} from './lib/svg.js';
 import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
@@ -692,7 +692,7 @@ export default function(base: HTMLElement) {
 		document.body.removeEventListener("mouseup", tokenMouseUp);
 		globals.root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
-		const {layer, token} = globals.selected,
+		const {token} = globals.selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
 		      newX = Math.round(token.x),
 		      newY = Math.round(token.y),
@@ -905,7 +905,6 @@ export default function(base: HTMLElement) {
 			] : [],
 			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
 				const snap = currToken.snap,
-				      sq = globals.mapData.gridSize,
 				      {x, y, width, height, rotation} = currToken;
 				if (!snap) {
 					const [newX, newY] = snapTokenToGrid(x, y, width, height),
@@ -974,7 +973,6 @@ export default function(base: HTMLElement) {
 				if (!globals.tokens[currToken.id]) {
 					return;
 				}
-				const currLayer = globals.tokens[currToken.id].layer;
 				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))

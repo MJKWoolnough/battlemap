@@ -16,7 +16,6 @@ import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker
 import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
-import undo from '../undo.js';
 
 document.head.appendChild(style({"type": "text/css"}, "#initiative-window-5e svg{width:1.5em}#initiative-window-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em;cursor:pointer}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}.isUser #display-settings-5e thead,.isUser #display-settings-5e td:last-child{display:none}.tokenSelector5E,.tokenSelector5E>button,.tokenSelector5E>img{width:100px;height:100px}#shapechange-settings-5e td{text-align: center}#shapechange-settings-5e{border-collapse:collapse}#shapechange-settings-5e td label{font-size:2em}#shapechange-settings-5e th,#shapechange-settings-5e td:not(:first-child){border:1px solid currentColor}.token-initiative-5e:hover{background-color:#800;cursor:pointer}"));
 
@@ -62,8 +61,6 @@ type MapData5E = MapData & {
 		"5e-initiative"?: IDInitiative[];
 	}
 }
-
-type WindowData = [Int, Int, Uint, Uint];
 
 type MetaURL = {
 	url: string;
