@@ -218,6 +218,18 @@ const defaultLanguage = {
       languagePacks: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
 	"en": defaultLanguage,
+	"en-US": overDefault({
+		"COLOUR": "Color",
+		"COLOUR_UPDATE": "Update Color",
+		"LAYER_LIGHT_COLOUR": "Change Light Color",
+		"LIGHTING_COLOUR": "Light Color",
+		"LIGHTING_PICK_COLOUR": "Pick Token Lighting Color",
+		"MAP_SQUARE_COLOUR": "Tile Line Color",
+		"TOOL_DRAW_FILL_COLOUR": "Fill Color",
+		"TOOL_DRAW_STROKE_COLOUR": "Stroke Color",
+		"TOOL_LIGHT_COLOUR": "Wall Color",
+		"UNDO_LIGHT_COLOUR": "Map Light Color",
+	}),
       };
 
 export const languages: string[] = Object.keys(languagePacks),
