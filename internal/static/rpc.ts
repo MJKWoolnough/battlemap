@@ -42,7 +42,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 			"!": (args: IArguments) => args[0],
 			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
 		      },
-		      waiters: Record<string, [string, number, (data: any) => any][]> ={
+		      waiters: Record<string, [string, number, (data: any) => any][]> = {
 			"": [
 				["waitCurrentUserMap",       broadcastCurrentUserMap,       checkUint],
 				["waitCurrentUserMapData",   broadcastCurrentUserMapData,   checkMapData],
@@ -129,7 +129,7 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
 			]
 		      },
-		      endpoints: Record<string, [string, string, string | string[], (data: any) => any, string, string][]> ={
+		      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
 			"": [
 				["connID"     , "conn.connID"     , "", checkUint , "", ""],
 				["ready"      , "conn.ready"      , "", returnVoid, "", ""],
@@ -405,7 +405,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	return data;
       },
       checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
-      checkKeystoreData = (data: any, name = "KeystoreData", key = "") => {
+      checkKeystoreData = (data: any, name = "KeystoreData") => {
 	checkObject(data, name);
 	for (const key in data) {
 		checker(data[key], name, checksKeystoreData);

@@ -444,14 +444,14 @@ updateLight = () => {
 	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y)),
 	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`,
 	      wallPolygons: SVGPolygonElement[] = [];
-	walkLayers((l: SVGLayer, hidden: boolean) => {
+	walkLayers((l: SVGLayer) => {
 		for (const w of l.walls) {
 			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
-				return [];
+				return;
 			}
 			const d = point2Line(x, y, w.x1, w.y1, w.x2, w.y2);
 			if (d >= distance || d === 0) {
-				return [];
+				return;
 			}
 			const dm = distance;
 			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));

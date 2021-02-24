@@ -11,7 +11,7 @@ import {rpc, inited} from './rpc.js';
 
 let over = false;
 
-const grid2Screen = (x: Uint, y: Uint) => {
+const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {mapData: {width, height}} = globals;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
@@ -40,7 +40,7 @@ const grid2Screen = (x: Uint, y: Uint) => {
       lone = line({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square"}),
       ltwo = line({"stroke": "#000", "stroke-width": 6}),
       drawnLine = g([lone, ltwo, spot]),
-      coords = [NaN, NaN],
+      coords: [number, number] = [NaN, NaN],
       showMarker = (root: SVGElement) => {
 	if (over) {
 		return;

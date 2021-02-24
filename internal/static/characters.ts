@@ -72,7 +72,7 @@ const allowedKey = (key: string, character: boolean) => {
 
 export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
 characterIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E',
-tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>, removes: Set<string>) => {
+tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
 	const i = img({"src": d["store-image-data"] ? `/images/${d["store-image-data"].data["src"]}` : undefined, "style": "max-width: 100%; max-height: 100%"});
 	return div({"class": "tokenSelector"}, [
 		button({"onclick":() => (d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
@@ -183,7 +183,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			iconSelector(d, changes),
 			br(),
 			label(`${lang["TOKEN"]}: `),
-			tokenSelector(w, d, changes, removes)
+			tokenSelector(w, d, changes)
 		] : [
 			label(lang["CHARACTER"]),
 			characterSelector(d, changes)

@@ -1,6 +1,5 @@
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
-import {SVGToken} from './map.js';
 import {mapLoadedReceive} from './misc.js';
 import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
@@ -58,7 +57,7 @@ toolMapContext = function(this: SVGElement, e: MouseEvent) {
 		fn.call(this, e);
 	}
 },
-toolTokenWheel = function(this: SVGElement, e: WheelEvent, token: SVGToken) {
+toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
 	const fn = selectedTool.tokenMouseWheel;
 	if (fn) {
 		fn.call(this, e);

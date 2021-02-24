@@ -126,19 +126,19 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				case "ArrowLeft":
 					do {
 						a = (((a - 1) % tl) + tl) % tl;
-					} while (a !== pos && tabs[a][1].style.getPropertyValue("display") === "none");
+					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
 					break;
 				case "ArrowRight":
 					do {
 						a = (a + 1) % tl;
-					} while (a !== pos && tabs[a][1].style.getPropertyValue("display") === "none");
+					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
 					break;
 				case "Enter":
 					l.click();
 				default:
 					return;
 				}
-				tabs[a][1].focus();
+				tabs[a]![1].focus();
 			      }, "onclick": () => lastTab.set(title)}, [
 				img({"src": popIcon, title}),
 				span(title),

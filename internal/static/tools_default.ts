@@ -10,7 +10,7 @@ import {shell} from './windows.js';
 
 export const panZoom = {"x": 0, "y": 0, "zoom": 1},
 screen2Grid = (() => {
-	const points: [number, number][] = [
+	const points: readonly [number, number][] = [
 		[0, 1/6],
 		[0, 2/6],
 		[0, 3/6],
@@ -46,8 +46,8 @@ screen2Grid = (() => {
 				      py = sy / h,
 				      dx = px % 1,
 				      dy = py % 1,
-				      first = gridType - 1,
-				      second = 1 - first;
+				      first = gridType - 1 as 0 | 1,
+				      second = 1 - first as 0 | 1;
 				let nearestPoint: [number, number] = [0, 0],
 				    nearest = Infinity;
 				for (const point of points) {

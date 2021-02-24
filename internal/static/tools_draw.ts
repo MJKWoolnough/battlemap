@@ -142,7 +142,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	};
 	deselectToken();
-	createSVG(root, {onmousemove, "1onmouseleave": (e: MouseEvent) => {
+	createSVG(root, {onmousemove, "1onmouseleave": () => {
 		over = false;
 		root.removeEventListener("mousemove", onmousemove);
 		root.style.removeProperty("cursor");

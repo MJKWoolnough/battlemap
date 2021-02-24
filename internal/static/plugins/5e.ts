@@ -530,7 +530,7 @@ const defaultLanguage = {
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
 					td(`${lang[name as keyof typeof defaultLanguage]}: `),
-					settings.map((setting, n) => td(labels("", input({"type": "checkbox", "id": `5e-${name}_`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+					settings.map(setting => td(labels("", input({"type": "checkbox", "id": `5e-${name}_`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
 					}}), false))),
 				])))
@@ -874,7 +874,7 @@ if (isAdmin()) {
 					iconSelector(data, changes),
 					br(),
 					label(`${mainLang["TOKEN"]}: `),
-					tokenSelector(w, data, changes, removes)
+					tokenSelector(w, data, changes)
 				] : [
 					label(`${mainLang["CHARACTER"]}: `),
 					characterSelector(data, changes)

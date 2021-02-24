@@ -339,6 +339,7 @@ export class Folder {
 			f.delete();
 			return f;
 		}
+		return undefined;
 	}
 	getPath() {
 		const breadcrumbs = [];
@@ -418,6 +419,7 @@ export class Root {
 		if (folder) {
 			return folder.addItem(id, name);
 		}
+		return undefined;
 	}
 	getItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
@@ -429,7 +431,7 @@ export class Root {
 	moveItem(from: string, to: string) {
 		this.addItem(this.removeItem(from), to);
 	}
-	copyItem(oldID: Uint, newID: Uint, path: string) {
+	copyItem(_oldID: Uint, newID: Uint, path: string) {
 		this.addItem(newID, path);
 	}
 	removeItem(path: string) {
@@ -457,11 +459,13 @@ export class Root {
 			}
 			return f;
 		}
+		return undefined;
 	}
 	removeFolder(path: string) {
 		const [folder, name] = this.resolvePath(path);
 		if (folder) {
 			return folder.removeFolder(name);
 		}
+		return undefined;
 	}
 }
