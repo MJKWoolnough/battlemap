@@ -34,14 +34,14 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 	if (saveName) {
 		const settings = new WindowSettings(saveName, getWindowData(w)),
 		      save = () => settings.set(getWindowData(w));
-		createHTML(w, {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px", "onmoved": save, "onresized": save});
+		createHTML(w, {"style": {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px"}, "onmoved": save, "onresized": save});
 	} else if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--windows-height"))) {
 		w.style.setProperty("visibility", "hidden");
 		window.setTimeout(() => {
 			if (w.parentNode) {
 				const {offsetWidth: width, offsetHeight: height} = w,
 				      {offsetWidth: swidth, offsetHeight: sheight} = w.parentNode as ShellElement;
-				createHTML(w, {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"});
+				createHTML(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"}});
 			}
 			w.style.removeProperty("visibility");
 		});

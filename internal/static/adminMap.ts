@@ -330,7 +330,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (globals.selected.token === token) {
-			createSVG(globals.outline, {"--outline-width": token.width + "px", "--outline-height": token.height + "px", "transform": token.transformString(false)})
+			createSVG(globals.outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;
@@ -682,7 +682,7 @@ export default function(base: HTMLElement) {
 		selectedToken.height = Math.round(height);
 		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
-		createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": selectedToken!.transformString(false)});
+		createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken!.transformString(false)});
 	      },
 	      tokenMouseUp = (e: MouseEvent) => {
 		if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
@@ -751,7 +751,7 @@ export default function(base: HTMLElement) {
 					token.rotation = rotation;
 					token.height = height;
 					token.updateNode();
-					createSVG(globals.outline, {"--outline-width": width + "px", "--outline-height": height + "px", "transform": token.transformString(false)});
+					createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
 				}
 				stopMeasurement();
 			}

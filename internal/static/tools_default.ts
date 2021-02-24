@@ -79,7 +79,7 @@ zoom = (delta: number, x: number, y: number, moveControl = true) => {
 	}
 	panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 	panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-	createSVG(outline, {"--zoom": panZoom.zoom});
+	createSVG(outline, {"style": {"--zoom": panZoom.zoom}});
 	createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 	if (moveControl) {
 		zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");

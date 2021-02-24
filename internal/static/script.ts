@@ -86,7 +86,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			e.preventDefault();
 		}
 	      }}),
-	      h = div({"id": "panels", "--panel-width": `${panelWidth.value}px`}, [
+	      h = div({"id": "panels", "style": {"--panel-width": `${panelWidth.value}px`}}, [
 		m,
 		div({"id": "tabs"}, [t, p])
 	      ]),
@@ -152,7 +152,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					}
 					updateWindowData();
 					const {x, y, width, height} = windowData[title];
-					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": "min-width: 45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? null : width + "px", "--window-height": height === 0 ? null : height + "px", "onremove": () => {
+					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;

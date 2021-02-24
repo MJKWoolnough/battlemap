@@ -130,7 +130,7 @@ export class DraggableItem extends Item {
 		createHTML(this.node.firstChild!, {
 			"draggable": "true",
 			"onmousemove": (e: MouseEvent) => {
-				createHTML(this.icon, {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"});
+				createHTML(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}});
 				if (!this.icon.parentNode) {
 					document.body.appendChild(this.icon);
 				}

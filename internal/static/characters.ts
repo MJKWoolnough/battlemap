@@ -167,7 +167,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 		}), w);
 	      },
 	      w = windows();
-	shell.appendChild(autoFocus(createHTML(w, {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "--window-width": "auto", "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	shell.appendChild(autoFocus(createHTML(w, {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
