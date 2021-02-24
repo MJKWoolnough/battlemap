@@ -212,8 +212,8 @@ const defaultLanguage = {
 		if (!pack[s as keyof PartialPack]) {
 			pack[s as keyof PartialPack] = defaultLanguage[s as keyof PartialPack];
 		}
-		return pack;
 	}
+	return pack as typeof defaultLanguage;
       },
       languagePacks: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
