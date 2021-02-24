@@ -253,7 +253,7 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 	c.mu.Unlock()
 	ip.Path = ip.Path[:len(ip.Path)-len(name)] + newName
 	data = append(appendString(append(strconv.AppendUint(append(append(append(data[:0], "{\"oldID\":"...), ip.ID...), ",\"newID\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
-	c.socket.broadcastAdminChange(broadcastCharacterCopy, data, cd.ID)
+	c.socket.broadcastAdminChange(broadcastCharacterItemCopy, data, cd.ID)
 	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
 	return data, nil
 }
