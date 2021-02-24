@@ -53,10 +53,6 @@ const (
 
 	broadcastCharacterDataChange
 	broadcastTokenDataChange
-	broadcastCharacterDataRemove
-	broadcastTokenDataRemove
-
-	broadcastCharacterCopy
 
 	broadcastLayerAdd
 	broadcastLayerFolderAdd
