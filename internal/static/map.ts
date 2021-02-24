@@ -462,7 +462,7 @@ updateLight = () => {
 		wallPolygons
 	]);
 },
-mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
+mapView = (mapData: MapData, loadChars = false) => {
 	Object.assign(globals, {mapData, "tokens": [], "walls": []});
 	const definitions = globals.definitions = new Defs(),
 	      layerList = globals.layerList = (() => {
@@ -520,7 +520,7 @@ mapView = (oldBase: HTMLElement, mapData: MapData, loadChars = false) => {
 export default function(base: HTMLElement) {
 	rpc.waitCurrentUserMapData().then(mapData => {
 		const oldBase = base;
-		oldBase.replaceWith(base = mapView(base, mapData, true));
+		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
 	});
 	rpc.waitMapChange().then(setMapDetails),

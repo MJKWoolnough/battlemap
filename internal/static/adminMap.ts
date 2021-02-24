@@ -1160,7 +1160,7 @@ export default function(base: HTMLElement) {
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
-		oldBase.replaceWith(base = mapView(oldBase, mapData));
+		oldBase.replaceWith(base = mapView(mapData));
 		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onmousedown": mapOnMouseDown, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
