@@ -14,7 +14,7 @@ import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {screen2Grid} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, mapLoadReceive, mapLoadedSend, tokenSelected, queue, labels} from './misc.js';
+import {characterData, mapLoadReceive, mapLoadedSend, tokenSelected, queue, labels} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {panZoom} from './tools_default.js';
 import {uploadImages} from './assets.js';

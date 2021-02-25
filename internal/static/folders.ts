@@ -3,7 +3,7 @@ import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {enterKey, queue, labels} from './misc.js';
+import {enterKey, queue, labels} from './shared.js';
 import {SortNode, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';

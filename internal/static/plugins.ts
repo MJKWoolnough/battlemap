@@ -5,7 +5,7 @@ import type {List} from './lib/context.js';
 import type {WindowElement} from './windows.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {stringSort} from './lib/ordered.js';
-import {isAdmin} from './misc.js';
+import {isAdmin} from './shared.js';
 import lang from './language.js';
 import {shell} from './windows.js';
 import {rpc, handleError} from './rpc.js';

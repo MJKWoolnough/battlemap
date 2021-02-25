@@ -6,7 +6,7 @@ import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {globals, getLayer, deselectToken} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './adminMap.js';
-import {mapLoadedReceive, enterKey, queue, labels} from './misc.js';
+import {mapLoadedReceive, enterKey, queue, labels} from './shared.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';

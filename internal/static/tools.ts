@@ -1,6 +1,6 @@
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
-import {mapLoadedReceive} from './misc.js';
+import {mapLoadedReceive} from './shared.js';
 import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
 import defaultTool from './tools_default.js';

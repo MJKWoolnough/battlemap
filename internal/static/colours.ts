@@ -2,7 +2,7 @@ import type {Colour} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {br, button, div, h1, input} from './lib/html.js';
 import {windows, shell} from './windows.js';
-import {isUint, labels} from './misc.js';
+import {isUint, labels} from './shared.js';
 import lang from './language.js';
 
 export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": parseInt(hex.slice(1, 3), 16), "g": parseInt(hex.slice(3, 5), 16), "b": parseInt(hex.slice(5, 7), 16), a}),

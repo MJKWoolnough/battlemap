@@ -4,7 +4,7 @@ import {ShellElement, WindowElement} from './lib/windows.js';
 import {createHTML, div} from './lib/html.js';
 import {desktop, shell as ashell, windows as awindows} from './lib/windows.js';
 import {JSONSetting} from './settings_types.js';
-import {isInt, isUint} from './misc.js';
+import {isInt, isUint} from './shared.js';
 import lang from './language.js';
 
 export {ShellElement, WindowElement, desktop};

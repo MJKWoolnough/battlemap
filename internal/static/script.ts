@@ -15,7 +15,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {isInt, isUint, setAdmin, setUser, isAdmin} from './misc.js';
+import {isInt, isUint, setAdmin, setUser, isAdmin} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';

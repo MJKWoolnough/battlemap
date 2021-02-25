@@ -5,7 +5,7 @@ import {addTool} from './tools.js';
 import {globals} from './map.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {mapLoadedReceive, isUint} from './misc.js';
+import {mapLoadedReceive, isUint} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 

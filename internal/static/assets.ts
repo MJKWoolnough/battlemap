@@ -5,7 +5,7 @@ import {audio, button, div, form, h1, img, input, progress} from './lib/html.js'
 import {HTTPRequest} from './lib/conn.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {labels} from './misc.js';
+import {labels} from './shared.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
 import {rpc, handleError} from './rpc.js';
