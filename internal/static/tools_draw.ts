@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from '
 import {autosnap} from './settings.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
 import {deselectToken, globals} from './shared.js';
-import {doTokenAdd} from './adminMap.js';
+import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
 import {addTool} from './tools.js';

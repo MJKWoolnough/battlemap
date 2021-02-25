@@ -9,7 +9,7 @@ import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, walkLayers} from '../map.js';
-import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
+import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
 import {characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import {centreOnGrid} from '../tools_default.js';

@@ -5,7 +5,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {characterData, mapLoadedReceive, queue, labels} from './shared.js';
-import {getToken, doTokenSet} from './adminMap.js';
+import {getToken, doTokenSet} from './map_fns.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';

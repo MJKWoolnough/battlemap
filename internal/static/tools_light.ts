@@ -6,7 +6,7 @@ import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, s
 import {deselectToken, globals, mapLoadedReceive} from './shared.js';
 import {colour2RGBA, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line} from './map.js';
-import {doLightShift, doWallAdd, doWallRemove} from './adminMap.js';
+import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
