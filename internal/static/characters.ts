@@ -4,7 +4,7 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {mapLoadedReceive, queue, labels} from './misc.js';
+import {characterData, mapLoadedReceive, queue, labels} from './misc.js';
 import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
@@ -71,8 +71,7 @@ const allowedKey = (key: string, character: boolean) => {
 	return rpc.setToken(t);
       };
 
-export const characterData = new Map<Uint, Record<string, KeystoreData>>(),
-characterIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E',
+export const characterIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E',
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
 	const i = img({"src": d["store-image-data"] ? `/images/${d["store-image-data"].data["src"]}` : undefined, "style": "max-width: 100%; max-height: 100%"});
 	return div({"class": "tokenSelector"}, [

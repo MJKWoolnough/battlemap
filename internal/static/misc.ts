@@ -1,4 +1,4 @@
-import type {Int, Uint} from './types.js';
+import type {Int, Uint, KeystoreData} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import {Pipe, Requester} from './lib/inter.js';
 import {label} from './lib/html.js';
@@ -43,4 +43,5 @@ labels = (() => {
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];
 	};
-})();
+})(),
+characterData = new Map<Uint, Record<string, KeystoreData>>();

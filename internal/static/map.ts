@@ -2,10 +2,9 @@ import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, Lay
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {mapLoadedSend, tokenSelected, queue} from './misc.js';
+import {characterData, mapLoadedSend, tokenSelected, queue} from './misc.js';
 import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
-import {characterData} from './characters.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';

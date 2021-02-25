@@ -3,8 +3,8 @@ import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {edit as characterEdit, characterData, characterIcon} from './characters.js';
-import {labels} from './misc.js';
+import {edit as characterEdit, characterIcon} from './characters.js';
+import {characterData, labels} from './misc.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 

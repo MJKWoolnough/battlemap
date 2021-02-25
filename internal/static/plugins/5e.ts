@@ -10,13 +10,13 @@ import {addPlugin, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, globals, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
-import {mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../misc.js';
+import {characterData, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../misc.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import {centreOnGrid} from '../tools_default.js';
 import mainLang, {language} from '../language.js';
 import {windows, shell} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
-import {characterData, iconSelector, tokenSelector, characterSelector} from '../characters.js';
+import {iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
 
