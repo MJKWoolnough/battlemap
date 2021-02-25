@@ -1,8 +1,9 @@
-import {IDName, Uint, FolderItems} from './types.js';
+import type {IDName, Uint, FolderItems} from './types.js';
+import type {ShellElement, WindowElement} from './windows.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
-import {ShellElement, WindowElement, loadingWindow, windows, shell} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {labels} from './misc.js';
 import lang from './language.js';

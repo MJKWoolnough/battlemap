@@ -1,4 +1,4 @@
-import {Uint} from './types.js';
+import type {Uint} from './types.js';
 import {createHTML, br, div, input, label} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';

@@ -1,5 +1,6 @@
+import type {Int, Uint} from './types.js';
+import type {WindowElement} from './windows.js';
 import RPC, {handleError} from './rpc.js';
-import {Int, Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, img, input, label, span, style} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
@@ -10,7 +11,7 @@ import layerList, {layerIcon} from './layerList.js';
 import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
-import {WindowElement, shell, desktop, windows} from './windows.js';
+import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';

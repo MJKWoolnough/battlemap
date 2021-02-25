@@ -1,12 +1,13 @@
-import {Uint, KeystoreData, Plugin, TokenImage} from './types.js';
-import {SVGToken} from './map.js';
-import {Children} from './lib/dom.js';
-import {List} from './lib/context.js';
+import type {Uint, KeystoreData, Plugin, TokenImage} from './types.js';
+import type {SVGToken} from './map.js';
+import type {Children} from './lib/dom.js';
+import type {List} from './lib/context.js';
+import type {WindowElement} from './windows.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {stringSort} from './lib/ordered.js';
 import {isAdmin} from './misc.js';
 import lang from './language.js';
-import {WindowElement, shell} from './windows.js';
+import {shell} from './windows.js';
 import {rpc, handleError} from './rpc.js';
 
 type owp<T> = {

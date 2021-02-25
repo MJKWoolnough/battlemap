@@ -1,12 +1,13 @@
-import {Colour, IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import type {Colour, IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import type {SortNode} from './lib/ordered.js';
+import type {SVGLayer, SVGFolder} from './map.js';
 import {Subscription} from './lib/inter.js';
 import {autoFocus} from './lib/dom.js';
 import {createHTML, br, button, img, input, h1} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
-import {SortNode} from './lib/ordered.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
-import {SVGLayer, SVGFolder, SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, SQRT3, deselectToken} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGFolder, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, globals, mapView, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash, SQRT3, deselectToken} from './map.js';
 import {edit as tokenEdit, characterData} from './characters.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';

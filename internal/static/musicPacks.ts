@@ -1,4 +1,5 @@
-import {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './types.js';
+import type {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './types.js';
+import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
@@ -6,7 +7,7 @@ import lang from './language.js';
 import {SortNode, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
-import {WindowElement, windows, shell} from './windows.js';
+import {windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
 
 class Track {

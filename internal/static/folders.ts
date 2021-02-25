@@ -1,4 +1,4 @@
-import {Uint, FolderRPC, FolderItems} from './types.js';
+import type {Uint, FolderRPC, FolderItems} from './types.js';
 import {createHTML, autoFocus, clearElement} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';

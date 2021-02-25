@@ -1,4 +1,4 @@
-import {SVGAnimateBeginElement} from './types.js';
+import type {SVGAnimateBeginElement} from './types.js';
 import {clearElement, formatText} from './lib/dom.js';
 import {createHTML, div, h1, input, label} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';

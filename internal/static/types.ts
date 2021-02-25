@@ -1,4 +1,4 @@
-import {Subscription} from './lib/inter.js';
+import type {Subscription} from './lib/inter.js';
 
 // export type Int = number & { __int__: void };
 export type Int = number;

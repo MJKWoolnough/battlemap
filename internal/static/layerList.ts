@@ -1,9 +1,10 @@
-import {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
+import type {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
+import type {SVGLayer} from './map.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
-import {SVGLayer, globals, getLayer, deselectToken} from './map.js';
+import {globals, getLayer, deselectToken} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './adminMap.js';
 import {mapLoadedReceive, enterKey, queue, labels} from './misc.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';

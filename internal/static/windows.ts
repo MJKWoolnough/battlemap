@@ -1,7 +1,8 @@
-import {Int, Uint} from './types.js';
-import {DOMBind, Props, Children} from './lib/dom.js';
+import type {Int, Uint} from './types.js';
+import type {DOMBind, Props, Children} from './lib/dom.js';
+import {ShellElement, WindowElement} from './lib/windows.js';
 import {createHTML, div} from './lib/html.js';
-import {ShellElement, WindowElement, desktop, shell as ashell, windows as awindows} from './lib/windows.js';
+import {desktop, shell as ashell, windows as awindows} from './lib/windows.js';
 import {JSONSetting} from './settings_types.js';
 import {isInt, isUint} from './misc.js';
 import lang from './language.js';

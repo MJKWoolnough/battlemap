@@ -1,4 +1,4 @@
-import {Props} from './lib/dom.js';
+import type {Props} from './lib/dom.js';
 import {svg, title, use} from './lib/svg.js';
 
 const symbols = svg({"style": "width: 0"}),

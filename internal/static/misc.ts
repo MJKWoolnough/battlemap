@@ -1,6 +1,6 @@
-import {Int, Uint} from './types.js';
+import type {Int, Uint} from './types.js';
+import type {Children, Props} from './lib/dom.js';
 import {Pipe, Requester} from './lib/inter.js';
-import {Children, Props} from './lib/dom.js';
 import {label} from './lib/html.js';
 
 const pipeBind = <T>() => {

@@ -1,8 +1,9 @@
-import {Uint, KeystoreData} from './types.js';
+import type {Uint, KeystoreData} from './types.js';
+import type {WindowElement} from './windows.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
-import {WindowElement, loadingWindow, windows, shell} from './windows.js';
+import {loadingWindow, windows, shell} from './windows.js';
 import {mapLoadedReceive, queue, labels} from './misc.js';
 import {getToken, doTokenSet} from './adminMap.js';
 import {addSymbol, getSymbol} from './symbols.js';

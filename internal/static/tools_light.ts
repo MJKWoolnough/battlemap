@@ -1,4 +1,4 @@
-import {Colour, Int, Uint, Wall} from './types.js';
+import type {Colour, Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';

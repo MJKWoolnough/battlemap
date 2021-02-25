@@ -1,4 +1,4 @@
-import {Uint} from '../types.js';
+import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
 import {SortNode} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';

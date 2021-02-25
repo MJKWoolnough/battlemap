@@ -1,4 +1,4 @@
-import {Uint} from './types.js';
+import type {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, option, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';

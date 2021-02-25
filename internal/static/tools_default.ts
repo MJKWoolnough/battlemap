@@ -1,5 +1,6 @@
-import {Int, Uint, SVGAnimateBeginElement} from './types.js';
-import {SVGToken, SQRT3} from './map.js';
+import type {Int, Uint, SVGAnimateBeginElement} from './types.js';
+import type {SVGToken} from './map.js';
+import {SQRT3} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {globals, deselectToken} from './map.js';

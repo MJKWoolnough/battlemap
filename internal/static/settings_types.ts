@@ -1,4 +1,4 @@
-import {Int} from './types.js';
+import type {Int} from './types.js';
 import {Pipe} from './lib/inter.js';
 
 const pipes = new Map<Setting<any>, Pipe<any>>();

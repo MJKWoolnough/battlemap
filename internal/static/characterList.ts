@@ -1,4 +1,4 @@
-import {Uint} from './types.js';
+import type {Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {loadingWindow, windows, shell} from './windows.js';
