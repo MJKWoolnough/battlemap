@@ -1,5 +1,5 @@
 import {svg, g, line, path, title} from './lib/svg.js';
-import {globals, deselectToken} from './map.js';
+import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './adminMap.js';
 import {defaultMouseWheel, panZoom} from './tools_default.js';
 import {addTool} from './tools.js';

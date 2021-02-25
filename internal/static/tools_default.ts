@@ -1,10 +1,8 @@
 import type {Int, Uint, SVGAnimateBeginElement} from './types.js';
 import type {SVGToken} from './map.js';
-import {SQRT3} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {globals, deselectToken} from './map.js';
-import {mapLoadedReceive} from './shared.js';
+import {deselectToken, globals, mapLoadedReceive, SQRT3} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';

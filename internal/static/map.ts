@@ -2,7 +2,7 @@ import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, Lay
 import {SortNode} from './lib/ordered.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, mapLoadedSend, tokenSelected, queue} from './shared.js';
+import {characterData, globals, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {colour2RGBA} from './colours.js';
 import {div} from './lib/html.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -21,7 +21,7 @@ export type SVGFolder = LayerFolder & {
 	children: SortNode<SVGFolder | SVGLayer>;
 };
 
-class Defs {
+export class Defs {
 	node = defs();
 	list: Record<string, SVGPatternElement> = {};
 	lighting: Record<string, SVGFilterElement> = {};
@@ -298,14 +298,7 @@ const idNames: Record<string, Int> = {
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined;
 
-export const SQRT3 = Math.sqrt(3),
-deselectToken = () => {
-	globals.selected.token = null;
-	globals.outline.style.setProperty("display", "none");
-	tokenSelected();
-	globals.root.focus();
-},
-point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
+export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		if (py >= y1 && py <= y2) {
 			return Math.abs(px - x1);
@@ -409,25 +402,6 @@ setMapDetails = (details: MapDetails) => {
 setLightColour = (c: Colour) => {
 	((getLayer("/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c));
 	updateLight();
-},
-globals = {
-	"definitions": null,
-	"root": null,
-	"layerList": null,
-	"mapData": null,
-	"tokens": null,
-	"walls": null,
-	"selected": {},
-	"outline": g(),
-} as unknown as {
-	definitions: Defs;
-	root: SVGSVGElement;
-	layerList: SVGFolder;
-	mapData: MapData;
-	tokens: {layer: SVGLayer, token: SVGToken | SVGShape}[];
-	walls: {layer: SVGLayer, wall: Wall}[];
-	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
-	outline: SVGGElement;
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,

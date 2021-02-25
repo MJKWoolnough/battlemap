@@ -3,7 +3,7 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
-import {globals, deselectToken} from './map.js';
+import {deselectToken, globals} from './shared.js';
 import {doTokenAdd} from './adminMap.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';

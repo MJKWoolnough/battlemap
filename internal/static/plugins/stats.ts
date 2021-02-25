@@ -3,8 +3,8 @@ import {HTTPRequest} from '../lib/conn.js';
 import {SortNode} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, style, table, tbody, thead, th, tr, td} from '../lib/html.js';
-import {globals, SVGToken} from '../map.js';
-import {mapLoadReceive, isAdmin} from '../shared.js';
+import {SVGToken} from '../map.js';
+import {globals, mapLoadReceive, isAdmin} from '../shared.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
 

@@ -1,7 +1,9 @@
-import type {Int, Uint, KeystoreData} from './types.js';
+import type {Int, Uint, KeystoreData, MapData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
+import type {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe, Requester} from './lib/inter.js';
 import {label} from './lib/html.js';
+import {g} from './lib/svg.js';
 
 const pipeBind = <T>() => {
 	const p = new Pipe<T>();
@@ -44,4 +46,30 @@ labels = (() => {
 		return before ? [l, input] : [input, l];
 	};
 })(),
-characterData = new Map<Uint, Record<string, KeystoreData>>();
+characterData = new Map<Uint, Record<string, KeystoreData>>(),
+globals = {
+	"definitions": null,
+	"root": null,
+	"layerList": null,
+	"mapData": null,
+	"tokens": null,
+	"walls": null,
+	"selected": {},
+	"outline": g(),
+} as unknown as {
+	definitions: Defs;
+	root: SVGSVGElement;
+	layerList: SVGFolder;
+	mapData: MapData;
+	tokens: {layer: SVGLayer, token: SVGToken | SVGShape}[];
+	walls: {layer: SVGLayer, wall: Wall}[];
+	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
+	outline: SVGGElement;
+},
+deselectToken = () => {
+	globals.selected.token = null;
+	globals.outline.style.setProperty("display", "none");
+	tokenSelected();
+	globals.root.focus();
+},
+SQRT3 = Math.sqrt(3);

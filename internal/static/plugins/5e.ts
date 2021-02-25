@@ -8,9 +8,9 @@ import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix,
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
-import {SVGToken, globals, walkLayers} from '../map.js';
+import {SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../adminMap.js';
-import {characterData, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
+import {characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import {centreOnGrid} from '../tools_default.js';
 import mainLang, {language} from '../language.js';
