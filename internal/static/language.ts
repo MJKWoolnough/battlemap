@@ -1,9 +1,5 @@
 import {StringSetting} from './settings_types.js';
 
-type PartialPack = {
-	[K in keyof typeof defaultLanguage]?: string;
-}
-
 const defaultLanguage = {
 	"ARE_YOU_SURE": "Are you sure?",
 	"AUTH": "Authentication",
@@ -207,18 +203,18 @@ const defaultLanguage = {
 	"UPLOADING": "Uploading Files...",
 	"ZOOM_SLIDER_HIDE": "Hide Zoom Slider"
       },
-      overDefault = (pack: PartialPack) => {
-	for (const s in defaultLanguage) {
-		if (!pack[s as keyof PartialPack]) {
-			pack[s as keyof PartialPack] = defaultLanguage[s as keyof PartialPack];
+      overlayLang = <Pack extends Record<string, string> = typeof defaultLanguage>(pack: {[K in keyof Pack]?: string;}, base: Pack): Pack => {
+	for (const s in base) {
+		if (!pack[s as keyof Pack]) {
+			pack[s as keyof Pack] = base[s as keyof Pack];
 		}
 	}
-	return pack as typeof defaultLanguage;
+	return pack as Pack;
       },
       languagePacks: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
 	"en": defaultLanguage,
-	"en-US": overDefault({
+	"en-US": overlayLang({
 		"COLOUR": "Color",
 		"COLOUR_UPDATE": "Update Color",
 		"LAYER_LIGHT_COLOUR": "Change Light Color",
@@ -229,10 +225,11 @@ const defaultLanguage = {
 		"TOOL_DRAW_STROKE_COLOUR": "Stroke Color",
 		"TOOL_LIGHT_COLOUR": "Wall Color",
 		"UNDO_LIGHT_COLOUR": "Map Light Color",
-	}),
+	}, defaultLanguage),
       };
 
 export const languages: string[] = Object.keys(languagePacks),
 language = new StringSetting("language", navigator.language);
 
+export {overlayLang};
 export default Object.freeze(languagePacks[language.value] ?? defaultLanguage);
