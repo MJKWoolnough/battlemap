@@ -1,4 +1,4 @@
-import  type {RPC as RPCType, InternalWaits, KeystoreData} from './types.js';
+import  type {RPC as RPCType, InternalWaits, KeystoreData, Uint} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
 import {shell} from './windows.js';
@@ -244,7 +244,11 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 		      pseudoWait = () => new Subscription<any>(() => {}),
 		      waitLogin = arpc.await(broadcastIsAdmin).then(checkUint);
 
-		rpc.waitLogin = () => waitLogin;
+		rpc.waitLogin = () => {
+			initSend();
+			rpc.waitLogin = () => waitLogin;
+			return waitLogin;
+		};
 
 		for (const e in endpoints) {
 			const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
@@ -307,7 +311,6 @@ export default function (url: string): Promise<Readonly<RPCType>>{
 				}
 			}
 		}
-		initSend();
 		return Object.freeze(rpc);
 	});
 }
