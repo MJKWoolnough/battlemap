@@ -16,7 +16,7 @@ type FnDesc = {
 const undos = new SortNode<FnDesc>(ul()),
       redos = new SortNode<FnDesc>(ul()),
       showWindow = new BoolSetting("undo-window-show"),
-      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
+      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "600px"}, "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
 	h1(lang["UNDO_WINDOW_UNDOS"]),
 	undos.node,
 	h1(lang["UNDO_WINDOW_REDOS"]),
