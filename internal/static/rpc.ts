@@ -1,4 +1,4 @@
-import  type {RPC as RPCType, InternalWaits, KeystoreData, Uint} from './types.js';
+import  type {RPC as RPCType, InternalWaits, KeystoreData} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
 import {shell} from './windows.js';
