@@ -2,7 +2,7 @@ import type {Int, Uint, SVGAnimateBeginElement} from './types.js';
 import type {SVGToken} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {deselectToken, globals, mapLoadedReceive, SQRT3} from './shared.js';
+import {deselectToken, globals, mapLoadedReceive, SQRT3, isAdmin, isUser} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';
@@ -126,7 +126,7 @@ export default Object.freeze({
 				return;
 			}
 		}
-		if (!isAdmin) {
+		if (!isAdmin()) {
 			document.body.classList.toggle("dragging", true);
 		}
 		this.style.setProperty("--outline-cursor", "grabbing");
@@ -145,7 +145,7 @@ export default Object.freeze({
 			if (!moved) {
 				deselectToken();
 			}
-			if (!isAdmin) {
+			if (!isAdmin()) {
 				document.body.classList.remove("dragging");
 			}
 			this.style.removeProperty("--outline-cursor");
@@ -239,12 +239,12 @@ export default Object.freeze({
 	"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
-		if (e.ctrlKey && isAdmin) {
+		if (e.ctrlKey && isAdmin()) {
 			if (e.altKey) {
 				rpc.setMapStart(pos[0], pos[1]);
 			}
 			rpc.signalMovePosition(pos);
-		} else {
+		} else if (isUser()) {
 			rpc.signalPosition(pos);
 		}
 		e.preventDefault();
@@ -297,21 +297,16 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
       ]),
       l4 = Math.log(1.4);
 
-let isAdmin = false;
-
 inited.then(() => {
 	shell.appendChild(zoomer);
-	rpc.waitLogin().then(level => {
-		isAdmin = level === 1;
-		if (!isAdmin) {
-			rpc.waitSignalMovePosition().then(pos => {
-				document.body.classList.toggle("sliding", true);
-				window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
-				centreOnGrid(pos[0], pos[1]);
-				showSignal(pos);
-			});
-		}
-	});
+	if (!isUser()) {
+		rpc.waitSignalMovePosition().then(pos => {
+			document.body.classList.toggle("sliding", true);
+			window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
+			centreOnGrid(pos[0], pos[1]);
+			showSignal(pos);
+		});
+	}
 	rpc.waitSignalPosition().then(showSignal);
 });
 
