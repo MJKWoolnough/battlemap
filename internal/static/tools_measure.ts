@@ -4,7 +4,7 @@ import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.j
 import {addTool} from './tools.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {globals, mapLoadedReceive, isUint} from './shared.js';
+import {globals, mapLoadedReceive, isUint, isUser} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -182,10 +182,10 @@ mapLoadedReceive(() => {
 	diagonals.checked = globals.mapData.gridDiagonal;
 });
 
-inited.then(() => rpc.waitLogin().then(u => {
+inited.then(() => {
 	rpc.waitGridDistanceChange().then(distance => cellValue.value = distance + "");
 	rpc.waitGridDiagonalChange().then(diagonal => diagonals.checked = diagonal);
-	if (u === 0) {
+	if (isUser()) {
 		rpc.waitBroadcast().then(broadcast => {
 			if (broadcast.type === broadcastKey) {
 				if (broadcast.data instanceof Array && broadcast.data.length === 4) {
@@ -200,4 +200,4 @@ inited.then(() => rpc.waitLogin().then(u => {
 			}
 		});
 	}
-}));
+});
