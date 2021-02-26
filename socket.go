@@ -61,6 +61,7 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 // The RPC data method will receive all 'auth' methods called via RPC.
 type AuthConn interface {
 	IsAdmin() bool
+	IsUser() bool
 	RPCData(connData ConnData, method string, data json.RawMessage) (interface{}, error)
 }
 
@@ -128,6 +129,8 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		who := userAdmin
 		if cd.IsAdmin() {
 			who = userAny
+		} else if !cd.IsUser() {
+			break
 		}
 		c.socket.broadcastMapChange(cd, broadcastSignalPosition, data, who)
 		return nil, nil

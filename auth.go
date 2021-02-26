@@ -25,6 +25,7 @@ type Auth interface {
 	Auth(*http.Request) *http.Request
 	AuthConn(*websocket.Conn) AuthConn
 	IsAdmin(*http.Request) bool
+	IsUser(*http.Request) bool
 }
 
 type auth struct {
@@ -93,6 +94,10 @@ func (a *auth) IsAdmin(r *http.Request) bool {
 	isAdmin := bytes.Equal(rData, a.sessionData)
 	a.mu.RUnlock()
 	return isAdmin
+}
+
+func (a *auth) IsUser(r *http.Request) bool {
+	return !a.IsAdmin(r)
 }
 
 func (a *auth) Auth(r *http.Request) *http.Request { return r }
@@ -306,6 +311,10 @@ type authConn struct {
 
 func (a *authConn) IsAdmin() bool {
 	return atomic.LoadInt32(&a.admin) == 1
+}
+
+func (a *authConn) IsUser() bool {
+	return atomic.LoadInt32(&a.admin) != 1
 }
 
 func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
