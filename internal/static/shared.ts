@@ -73,3 +73,6 @@ deselectToken = () => {
 	globals.root.focus();
 },
 SQRT3 = Math.sqrt(3);
+
+setUser(false);
+setAdmin(false);
