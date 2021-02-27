@@ -4,7 +4,7 @@ import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js'
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {characterData, labels} from './shared.js';
+import {characterData, enterKey, labels} from './shared.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -65,7 +65,7 @@ export default function (base: Node) {
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
 				const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
-				      name = autoFocus(input({"id": "characterName_"}));
+				      name = autoFocus(input({"id": "characterName_", "onkeypress": enterKey}));
 				shell.appendChild(createHTML(w, [
 					h1(lang["CHARACTER_NEW"]),
 					labels(`${lang["CHARACTER_NAME"]}: `, name),
