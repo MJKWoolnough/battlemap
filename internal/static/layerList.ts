@@ -137,7 +137,7 @@ class ItemLayer extends Item {
 	hidden: boolean;
 	nameElem: HTMLSpanElement;
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
-		super(parent, id, name);
+		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		this.hidden = hidden;
 		this.nameElem = this.node.firstChild as HTMLSpanElement;
 		if (id < 0) {
