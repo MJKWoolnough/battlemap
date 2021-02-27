@@ -49,7 +49,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		}
 		for (const key in v) {
 			const kv = v[key];
-			if (typeof kv.out !== "boolean" || !isInt(kv.x) || !isInt(kv.y) || !isUint(kv.width) || !isUint(kv.height)) {
+			if (typeof kv !== "object" || typeof kv.out !== "boolean" || !isInt(kv.x) || !isInt(kv.y) || !isUint(kv.width) || !isUint(kv.height)) {
 				return false;
 			}
 		}
