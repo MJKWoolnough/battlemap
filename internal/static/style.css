@@ -146,6 +146,10 @@ windows-window {
 	outline: none;
 }
 
+windows-window > * {
+	padding: 0 1px;
+}
+
 .popout {
 	display: inline-block;
 	margin-left: 5px;
