@@ -1,5 +1,4 @@
-import type {Int, Uint} from './types.js';
-import type {WindowElement} from './windows.js';
+import type {WindowElement, WindowData} from './windows.js';
 import RPC, {rpc, handleError} from './rpc.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, img, input, label, span, style} from './lib/html.js';
@@ -11,11 +10,11 @@ import layerList, {layerIcon} from './layerList.js';
 import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
-import {shell, desktop, windows} from './windows.js';
+import {shell, desktop, windows, getWindowData, checkWindowData} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {isInt, isUint, isAdmin} from './shared.js';
+import {isAdmin} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -29,10 +28,7 @@ import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './settings_ty
 
 type savedWindow = {
 	out: boolean;
-	x: Int;
-	y: Int;
-	width: Uint;
-	height: Uint;
+	data: WindowData
 }
 
 declare const pageLoad: Promise<void>;
@@ -49,7 +45,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		}
 		for (const key in v) {
 			const kv = v[key];
-			if (typeof kv !== "object" || typeof kv.out !== "boolean" || !isInt(kv.x) || !isInt(kv.y) || !isUint(kv.width) || !isUint(kv.height)) {
+			if (typeof kv !== "object" || typeof kv.out !== "boolean" || !checkWindowData(kv.data)) {
 				return false;
 			}
 		}
@@ -96,10 +92,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 	      updateWindowDims = function (this: WindowElement) {
 		windowData[this.getAttribute("window-title") || ""] = {
 			"out": true,
-			"x": parseInt(this.style.getPropertyValue("--window-left") || "0"),
-			"y": parseInt(this.style.getPropertyValue("--window-top") || "0"),
-			"width": parseInt(this.style.getPropertyValue("--window-width") || "0"),
-			"height": parseInt(this.style.getPropertyValue("--window-height") || "0"),
+			"data": getWindowData(this)
 		};
 		updateWindowData();
 	      },
@@ -149,10 +142,10 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					if (windowData[title]) {
 						windowData[title]["out"] = true;
 					} else {
-						windowData[title] = {"out": true, "x": 20, "y": 20, "width": 0, "height": 0};
+						windowData[title] = {"out": true, "data": [20, 20, 0, 0]};
 					}
 					updateWindowData();
-					const {x, y, width, height} = windowData[title];
+					const [x, y, width, height] = windowData[title].data;
 					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
