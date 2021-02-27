@@ -94,7 +94,7 @@ export const settings = () => {
        addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
        getSettings = (name: string) => pluginList.get(name)?.data,
        askReload = () => {
-	if (isAdmin()) {
+	if (!isAdmin()) {
 		window.location.reload();
 		return;
 	}
