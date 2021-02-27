@@ -786,77 +786,75 @@ if (isAdmin()) {
 	      ]),
 	      rows: HTMLTableRowElement[] = [],
 	      tickers: HTMLTableCellElement[][] = [],
-	      ticks = tbody(shapechangeTokens.map(addToken));
-	plugin["menuItem"] = {
-		"priority": 0,
-		"fn": [lang["SHAPECHANGE_5E"], div([
-			h1(lang["SHAPECHANGE_TITLE"]),
-			button({"onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
-				if (!cat) {
+	      ticks = tbody(shapechangeTokens.map(addToken)),
+	      shapechangeSettings = windows({"window-icon": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E', "window-title": lang["SHAPECHANGE_TITLE"], "window-data": "shapechange-5e", "resizable": true}, div([
+		h1(lang["SHAPECHANGE_TITLE"]),
+		button({"onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
+			if (!cat) {
+				return;
+			}
+			const c = {
+				"name": cat,
+				"images": Array.from({"length": shapechangeTokens.length}, _ => false),
+			      },
+			      p = shapechangeCats.push(c) - 1;
+			cats.appendChild(addCat(c))
+			for (let i = 0; i < rows.length; i++) {
+				rows[i].appendChild(addTicker(i, p));
+			}
+		})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
+		button({"onclick": () => {
+			const t = getToken();
+			if (!t) {
+				shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
+				return;
+			}
+			const token = asInitialToken(t);
+			shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
+				if (!name) {
 					return;
 				}
-				const c = {
-					"name": cat,
-					"images": Array.from({"length": shapechangeTokens.length}, _ => false),
-				      },
-				      p = shapechangeCats.push(c) - 1;
-				cats.appendChild(addCat(c))
-				for (let i = 0; i < rows.length; i++) {
-					rows[i].appendChild(addTicker(i, p));
-				}
-			})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
-			button({"onclick": () => {
-				const t = getToken();
-				if (!t) {
-					shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
-					return;
-				}
-				const token = asInitialToken(t);
-				shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
-					if (!name) { 
-						return;
-					}
-					const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
-					ticks.appendChild(addToken(t, shapechangeTokens.length));
-					shapechangeTokens.push(t);
-					for (const cat of shapechangeCats) {
-						cat["images"].push(false);
-					}
-				});
-			}}, lang["SHAPECHANGE_TOKEN_ADD"]),
-			table({"id": "shapechange-settings-5e"}, [
-				thead(cats),
-				ticks
-			]),
-			button({"onclick": () => {
-				const cats: ShapechangeCat[] = [],
-				      tokens: ShapechangeToken[] = [],
-				      valid: boolean[] = [];
-				for (const t of shapechangeTokens) {
-					if (t["5e-shapechange-name"]) {
-						valid.push(true);
-						tokens.push(JSON.parse(JSON.stringify(t)));
-					} else {
-						valid.push(false);
-					}
-				}
+				const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
+				ticks.appendChild(addToken(t, shapechangeTokens.length));
+				shapechangeTokens.push(t);
 				for (const cat of shapechangeCats) {
-					if (cat["name"]) {
-						const t: boolean[] = [];
-						for (let i = 0; i < valid.length; i++) {
-							if (valid[i]) {
-								t.push(cat["images"][i]);
-							}
-						}
-						cats.push({"name": cat["name"], "images": t});
-					}
+					cat["images"].push(false);
 				}
-				settings["shapechange-categories"] = {"user": false, "data": cats};
-				settings["store-image-shapechanges"] = {"user": false, "data": tokens};
-				rpc.pluginSetting(importName, settings, []);
-			}}, mainLang["SAVE"])
-		]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E']
-	};
+			});
+		}}, lang["SHAPECHANGE_TOKEN_ADD"]),
+		table({"id": "shapechange-settings-5e"}, [
+			thead(cats),
+			ticks
+		]),
+		button({"onclick": () => {
+			const cats: ShapechangeCat[] = [],
+			      tokens: ShapechangeToken[] = [],
+			      valid: boolean[] = [];
+			for (const t of shapechangeTokens) {
+				if (t["5e-shapechange-name"]) {
+					valid.push(true);
+					tokens.push(JSON.parse(JSON.stringify(t)));
+				} else {
+					valid.push(false);
+				}
+			}
+			for (const cat of shapechangeCats) {
+				if (cat["name"]) {
+					const t: boolean[] = [];
+					for (let i = 0; i < valid.length; i++) {
+						if (valid[i]) {
+							t.push(cat["images"][i]);
+						}
+					}
+					cats.push({"name": cat["name"], "images": t});
+				}
+			}
+			settings["shapechange-categories"] = {"user": false, "data": cats};
+			settings["store-image-shapechanges"] = {"user": false, "data": tokens};
+			rpc.pluginSetting(importName, settings, []);
+		}}, mainLang["SAVE"])
+	      ]));
+	plugin["settings"]!.fn.appendChild(button({"onclick": () => shell.appendChild(shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
