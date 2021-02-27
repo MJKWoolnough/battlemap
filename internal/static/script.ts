@@ -1,6 +1,6 @@
 import type {Int, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
-import RPC, {handleError} from './rpc.js';
+import RPC, {rpc, handleError} from './rpc.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, img, input, label, span, style} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
@@ -15,7 +15,7 @@ import {shell, desktop, windows} from './windows.js';
 import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {isInt, isUint, setAdmin, setUser, isAdmin} from './shared.js';
+import {isInt, isUint, isAdmin} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -222,10 +222,7 @@ if (tabIcons.value) {
 	document.documentElement.classList.add("tabIcons");
 }
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(rpc => rpc.waitLogin().then(userLevel => {
-	setAdmin(userLevel === 1);
-	setUser(userLevel === 0);
-}).then(pluginInit).then(() => {
+pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(pluginInit).then(() => {
 	rpc.ready();
 	const admin = isAdmin();
 	document.body.classList.add(admin ? "isAdmin" : "isUser");
@@ -256,4 +253,4 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	clearElement(document.body).appendChild(shell);
 	shell.realignWindows();
 	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
-}))).catch(handleError);
+})).catch(handleError);

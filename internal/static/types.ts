@@ -89,8 +89,6 @@ export type InternalWaits = RPCWaits & {
 }
 
 export type RPC = RPCWaits & {
-	waitLogin: () => Promise<Uint>;
-
 	images:     FolderRPC,
 	audio:      FolderRPC,
 	characters: FolderRPC,
