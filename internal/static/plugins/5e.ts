@@ -402,7 +402,7 @@ const defaultLanguage = {
       },
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
-      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && !!globals.tokens[t.id],
+      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && globals.tokens.has(t.id),
       initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -472,8 +472,8 @@ const defaultLanguage = {
 	});
 	if (initiative) {
 		for (const i of initiative as IDInitiative[]) {
-			if (tokens[i.id]) {
-				const {layer, token} = tokens[i.id],
+			if (tokens.has(i.id)) {
+				const {layer, token} = tokens.get(i.id)!,
 				      isHidden = hiddenLayers.has(layer.path);
 				if (!(token instanceof SVGToken5E)) {
 					continue;
@@ -494,7 +494,7 @@ const defaultLanguage = {
 		}
 	}
 	if (change && change[1] !== null) {
-		const {token, layer} = tokens[change[0]];
+		const {token, layer} = tokens.get(change[0])!;
 		if (token instanceof SVGToken5E) {
 			addToInitiative(token, change[1], hiddenLayers.has(layer.path));
 		}
@@ -914,9 +914,9 @@ if (isAdmin()) {
 							updateInitiative();
 						}
 						if (!isCharacter) {
-							(globals.tokens[id].token as SVGToken5E).updateData();
+							(globals.tokens.get(id)!.token as SVGToken5E).updateData();
 						} else {
-							for (const {token} of globals.tokens) {
+							for (const [_, {token}] of globals.tokens) {
 								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 									token.updateData();
 								}
@@ -1030,8 +1030,7 @@ addPlugin("5e", plugin);
 mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	queue(async () => {
-		for (const t in globals.tokens) {
-			const tk = globals.tokens[t].token;
+		for (const [_, tk] of globals.tokens) {
 			if (tk instanceof SVGToken5E) {
 				tk.updateData();
 			}
@@ -1045,7 +1044,7 @@ rpc.waitTokenSet().then(ts => {
 	if (tokenData && (tokenData["5e-initiative"] || tokenData["name"] !== undefined) || removeTokenData && (removeTokenData.includes("5e-initiative") || removeTokenData.includes("name"))) {
 		setTimeout(() => {
 			updateInitiative();
-			(globals.tokens[ts.id].token as SVGToken5E).updateData();
+			(globals.tokens.get(ts.id)!.token as SVGToken5E).updateData();
 		}, 0);
 		return;
 	}
@@ -1056,7 +1055,7 @@ rpc.waitTokenSet().then(ts => {
 			case "5e-hp-max":
 			case "5e-hp-current":
 			case "5e-conditions":
-				setTimeout(() => (globals.tokens[ts.id].token as SVGToken5E).updateData(), 0);
+				setTimeout(() => (globals.tokens.get(ts.id)!.token as SVGToken5E).updateData(), 0);
 				return;
 			}
 		}
@@ -1081,7 +1080,7 @@ combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative));
 combinedRPC.waitTokenSet().then(() => setTimeout(updateInitiative));
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
-	for (const {token} of globals.tokens) {
+	for (const [_, {token}] of globals.tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 			token.updateData();
 		}

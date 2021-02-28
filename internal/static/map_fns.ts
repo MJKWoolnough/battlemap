@@ -196,7 +196,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
-		globals.tokens[id] = {layer, token};
+		globals.tokens.set(id, {layer, token});
 	      },
 	      doIt = (sendRPC = true) => {
 		if (sendRPC) {
@@ -208,7 +208,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		if (token === globals.selected.token) {
 			deselectToken();
 		}
-		delete globals.tokens[token.id];
+		globals.tokens.delete(token.id);
 		layer.tokens.pop();
 		queue(() => rpc.removeToken(token.id));
 		return doIt;
@@ -217,9 +217,9 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 	return addToken;
 },
 doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
-	let layer = globals.tokens[id].layer as SVGLayer,
+	let layer = globals.tokens.get(id)!.layer as SVGLayer,
 	    newParent = getLayer(to) as SVGLayer;
-	const token = globals.tokens[id].token;
+	const token = globals.tokens.get(id)!.token;
 	if (!layer || !token || !newParent || !isSVGLayer(newParent)) {
 		handleError("Invalid Token Move Layer/Pos");
 		return;
@@ -230,7 +230,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 	let currentPos = layer.tokens.findIndex(t => t === token);
 	const doIt = (sendRPC = true) => {
 		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
-		globals.tokens[id].layer = newParent;
+		globals.tokens.get(id)!.layer = newParent;
 		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 			updateLight();
 		}
@@ -247,7 +247,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_MOVE"]);
 },
 doTokenSet = (ts: TokenSet, sendRPC = true) => {
-	const {token} = globals.tokens[ts.id];
+	const {token} = globals.tokens.get(ts.id)!;
 	if (!token) {
 		handleError("Invalid token for token set");
 		return;
@@ -329,7 +329,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_SET"]);
 },
 doTokenRemove = (tk: Uint, sendRPC = true) => {
-	const {layer, token} = globals.tokens[tk];
+	const {layer, token} = globals.tokens.get(tk)!;
 	if (!token) {
 		handleError("invalid token for removal");
 		return;
@@ -340,7 +340,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			deselectToken();
 		}
 		layer.tokens.splice(pos, 1);
-		delete globals.tokens[tk];
+		globals.tokens.delete(tk);
 		if (token instanceof SVGToken) {
 			token.cleanup();
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
@@ -356,7 +356,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		layer.tokens.splice(pos, 0, token);
 		queue(() => rpc.addToken(layer.path, token).then(id => {
 			token.id = id;
-			globals.tokens[id] = {layer, token};
+			globals.tokens.set(id, {layer, token});
 		}));
 		if (token instanceof SVGToken) {
 			token.uncleanup();
@@ -473,7 +473,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_REMOVE"]);
 },
 doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
-	const {token} = globals.tokens[id];
+	const {token} = globals.tokens.get(id)!;
 	if (!token) {
 		handleError("invalid token for light change");
 		return;

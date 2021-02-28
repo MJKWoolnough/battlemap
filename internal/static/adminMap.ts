@@ -373,18 +373,18 @@ export default function(base: HTMLElement) {
 			}),
 			tokenPos < currLayer.tokens.length - 1 ? [
 				item(lang["CONTEXT_MOVE_TOP"], () => {
-					if (!globals.tokens[currToken.id]) {
+					if (!globals.tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens[currToken.id].layer;
+					const currLayer = globals.tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 					outline.focus();
 				}),
 				item(lang["CONTEXT_MOVE_UP"], () => {
-					if (!globals.tokens[currToken.id]) {
+					if (!globals.tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens[currToken.id].layer,
+					const currLayer = globals.tokens.get(currToken.id)!.layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 					outline.focus();
@@ -392,24 +392,24 @@ export default function(base: HTMLElement) {
 			] : [],
 			tokenPos > 0 ? [
 				item(lang["CONTEXT_MOVE_DOWN"], () => {
-					if (!globals.tokens[currToken.id]) {
+					if (!globals.tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens[currToken.id].layer,
+					const currLayer = globals.tokens.get(currToken.id)!.layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 				}),
 				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-					if (!globals.tokens[currToken.id]) {
+					if (!globals.tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens[currToken.id].layer;
+					const currLayer = globals.tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 					outline.focus();
 				})
 			] : [],
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
-				if (!globals.tokens[currToken.id]) {
+				if (!globals.tokens.has(currToken.id)) {
 					return;
 				}
 				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);

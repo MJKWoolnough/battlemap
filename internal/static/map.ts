@@ -436,7 +436,8 @@ updateLight = () => {
 	]);
 },
 mapView = (mapData: MapData, loadChars = false) => {
-	Object.assign(globals, {mapData, "tokens": [], "walls": []});
+	Object.assign(globals, {mapData, "walls": []});
+	globals.tokens.clear();
 	const definitions = globals.definitions = new Defs(),
 	      layerList = globals.layerList = (() => {
 		const node = g(),
@@ -464,10 +465,10 @@ mapView = (mapData: MapData, loadChars = false) => {
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {
-				globals.tokens[t.id] = {
+				globals.tokens.set(t.id, {
 					layer: l,
 					token: t
-				};
+				});
 				if (isTokenImage(t) && t.tokenData) {
 					const cID = t.tokenData["store-character-id"];
 					if (loadChars && cID && typeof cID.data === "number" && !characterData.has(cID.data)) {
@@ -524,24 +525,24 @@ export default function(base: HTMLElement) {
 			token = SVGShape.from(tk.token);
 		}
 		layer.tokens.push(token);
-		globals.tokens[token.id] = {layer, token};
+		globals.tokens.set(token.id, {layer, token});
 	}),
 	rpc.waitTokenMoveLayerPos().then(tm => {
-		const {layer, token} = globals.tokens[tm.id],
+		const {layer, token} = globals.tokens.get(tm.id)!,
 		      newParent = getLayer(tm.to);
 		if (layer && token && newParent && isSVGLayer(newParent)) {
 			if (tm.newPos > newParent.tokens.length) {
 				tm.newPos = newParent.tokens.length;
 			}
 			newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-			globals.tokens[tm.id].layer = newParent;
+			globals.tokens.get(tm.id)!.layer = newParent;
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 				updateLight();
 			}
 		}
 	}),
 	rpc.waitTokenSet().then(ts => {
-		const {token} = globals.tokens[ts.id];
+		const {token} = globals.tokens.get(ts.id)!;
 		if (!token) {
 			return;
 		}
@@ -577,7 +578,7 @@ export default function(base: HTMLElement) {
 		token.updateNode()
 	}),
 	rpc.waitTokenRemove().then(tk => {
-		const {layer, token} = globals.tokens[tk];
+		const {layer, token} = globals.tokens.get(tk)!;
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 		if (token instanceof SVGToken) {
 			token.cleanup();
@@ -624,7 +625,7 @@ export default function(base: HTMLElement) {
 		updateLight();
 	}),
 	rpc.waitTokenLightChange().then(lc => {
-		const {token} = globals.tokens[lc.id];
+		const {token} = globals.tokens.get(lc.id)!;
 		if (token instanceof SVGToken) {
 			token.lightColour = lc.lightColour;
 			token.lightIntensity = lc.lightIntensity;

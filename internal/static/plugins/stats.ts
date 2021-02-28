@@ -67,8 +67,7 @@ if (isAdmin()) {
 						}
 					}
 					let totalSize = 0;
-					for (const t in globals.tokens) {
-						const tk = globals.tokens[t].token;
+					for (const [_, tk] of globals.tokens) {
 						if (tk instanceof SVGToken) {
 							const id = tk.src;
 							if (done.has(id)) {
