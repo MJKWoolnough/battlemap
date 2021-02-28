@@ -5,7 +5,7 @@ import {windows, shell} from './windows.js';
 import {isUint, labels} from './shared.js';
 import lang from './language.js';
 
-export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": parseInt(hex.slice(1, 3), 16), "g": parseInt(hex.slice(3, 5), 16), "b": parseInt(hex.slice(5, 7), 16), a}),
+export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": parseInt(hex.slice(1, 3), 16) || 0, "g": parseInt(hex.slice(3, 5), 16) || 0, "b": parseInt(hex.slice(5, 7), 16) || 0, a}),
 colour2Hex = (c: Colour) => `#${c.r.toString(16).padStart(2, "0")}${c.g.toString(16).padStart(2, "0")}${c.b.toString(16).padStart(2, "0")}`,
 colour2RGBA = (c: Colour) => `rgba(${c.r.toString()}, ${c.g.toString()}, ${c.b.toString()}, ${(c.a / 255).toString()})`,
 noColour = Object.freeze({"r": 0, "g": 0, "b": 0, "a": 0}),
