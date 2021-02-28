@@ -24,9 +24,8 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 		br(),
 		button(lang["COLOUR_UPDATE"], {"onclick": function(this: HTMLButtonElement) {
 			this.toggleAttribute("disabled", true);
-			const colour = hex2Colour(colourInput.value, parseInt(alphaInput.value));
 			window.remove();
-			resolve(colour);
+			resolve(hex2Colour(colourInput.value, parseInt(alphaInput.value)));
 		}})
 	      ]);
 	parent.addWindow(window);
