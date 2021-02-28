@@ -299,7 +299,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 
 inited.then(() => {
 	shell.appendChild(zoomer);
-	if (!isUser()) {
+	if (!isAdmin()) {
 		rpc.waitSignalMovePosition().then(pos => {
 			document.body.classList.toggle("sliding", true);
 			window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
