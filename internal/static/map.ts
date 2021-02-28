@@ -436,8 +436,9 @@ updateLight = () => {
 	]);
 },
 mapView = (mapData: MapData, loadChars = false) => {
-	Object.assign(globals, {mapData, "walls": []});
+	globals.mapData = mapData;
 	globals.tokens.clear();
+	globals.walls.clear();
 	const definitions = globals.definitions = new Defs(),
 	      layerList = globals.layerList = (() => {
 		const node = g(),
@@ -479,10 +480,10 @@ mapView = (mapData: MapData, loadChars = false) => {
 				}
 			}
 			for (const w of l.walls) {
-				globals.walls[w.id] = {
+				globals.walls.set(w.id, {
 					layer: l,
 					wall: w
-				};
+				});
 			}
 		}
 		return false;
@@ -620,7 +621,7 @@ export default function(base: HTMLElement) {
 		updateLight();
 	}),
 	rpc.waitWallRemoved().then(wp => {
-		const {layer, wall} = globals.walls[wp];
+		const {layer, wall} = globals.walls.get(wp)!;
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
 	}),

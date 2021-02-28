@@ -53,7 +53,7 @@ globals = {
 	"layerList": null,
 	"mapData": null,
 	"tokens": new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
-	"walls": null,
+	"walls": new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 	"selected": {},
 	"outline": g(),
 } as unknown as {
@@ -62,7 +62,7 @@ globals = {
 	layerList: SVGFolder;
 	mapData: MapData;
 	tokens: Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>;
-	walls: {layer: SVGLayer, wall: Wall}[];
+	walls: Map<Uint, {layer: SVGLayer, wall: Wall}>;
 	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
 	outline: SVGGElement;
 },
