@@ -25,7 +25,11 @@ function depCheck {
 	return 1;
 }
 
-start="$(realpath "$1")";
+if [ -z "$1" ]; then
+	start="$(realpath "./script.js")";
+else
+	start="$(realpath "$1")";
+fi;
 
 if depCheck "$start" ""; then
 	echo "$start";
