@@ -335,6 +335,7 @@ export default function(base: HTMLElement) {
 					} else {
 						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
 					}
+					outline.focus();
 				}),
 			] : [],
 			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
@@ -349,11 +350,12 @@ export default function(base: HTMLElement) {
 				} else {
 					doTokenSet({"id": currToken.id, "snap": !snap});
 				}
+				outline.focus();
 			}),
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
 				const t = Date.now(),
-				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
+				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onexit": () => outline.focus()})),
 				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createHTML(null, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
@@ -376,6 +378,7 @@ export default function(base: HTMLElement) {
 					}
 					const currLayer = globals.tokens[currToken.id].layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
+					outline.focus();
 				}),
 				item(lang["CONTEXT_MOVE_UP"], () => {
 					if (!globals.tokens[currToken.id]) {
@@ -384,6 +387,7 @@ export default function(base: HTMLElement) {
 					const currLayer = globals.tokens[currToken.id].layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+					outline.focus();
 				})
 			] : [],
 			tokenPos > 0 ? [
@@ -401,6 +405,7 @@ export default function(base: HTMLElement) {
 					}
 					const currLayer = globals.tokens[currToken.id].layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
+					outline.focus();
 				})
 			] : [],
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
@@ -408,6 +413,7 @@ export default function(base: HTMLElement) {
 					return;
 				}
 				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
+				outline.focus();
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
