@@ -124,14 +124,7 @@ export default function (base: HTMLElement) {
 	fc.click();
 	mapLoadedReceive(() => {
 		if (selectedTool !== defaultTool) {
-			for (const c of list.childNodes as NodeListOf<HTMLElement>) {
-				c.classList.remove("selected");
-			}
-			fc.classList.add("selected");
-			if (selectedTool.unset) {
-				selectedTool.unset();
-			}
-			selectedTool = defaultTool;
+			fc.click();
 		}
 	});
 	new MutationObserver(records => {
