@@ -702,7 +702,9 @@ if (isAdmin()) {
 		}
 		doTokenSet(tk);
 		t.updateNode();
-		updateInitiative();
+		if (initTokens.has(tk.id)) {
+			updateInitiative();
+		}
 	      },
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
@@ -909,7 +911,7 @@ if (isAdmin()) {
 					const updateName = changes["name"];
 					save().finally(() => {
 						this.removeAttribute("disabled");
-						if (updateName && initiativeList.some(i => i.token.id === id)) {
+						if (updateName && initTokens.has(id)) {
 							updateInitiative();
 						}
 						if (!isCharacter) {
