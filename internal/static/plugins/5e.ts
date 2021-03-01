@@ -447,7 +447,7 @@ const defaultLanguage = {
 	token,
 	hidden,
 	initiative,
-	node: li({"style": hidden && isAdmin() ? "display: none" : undefined, "onmouseover": () => {
+	node: li({"style": hidden && !isAdmin() ? "display: none" : undefined, "onmouseover": () => {
 		if (token.node.parentNode) {
 			createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
 			token.node.parentNode.insertBefore(highlight, token.node);
