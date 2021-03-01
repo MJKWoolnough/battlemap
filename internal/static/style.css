@@ -182,6 +182,7 @@ windows-desktop {
 	width: 1.5em;
 	height: 1.5em;
 	display: none;
+	pointer-events: none;
 }
 
 .tabIcons #tabLabels img {
