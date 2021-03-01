@@ -23,23 +23,23 @@ export type SVGFolder = LayerFolder & {
 
 export class Defs {
 	node = defs();
-	list: Record<string, SVGPatternElement> = {};
-	lighting: Record<string, SVGFilterElement> = {};
+	list = new Map<string, SVGPatternElement>();
+	lighting = new Map<string, SVGFilterElement>();
 	add(t: SVGToken) {
 		let i = 0;
-		while (this.list[`Pattern_${i}`] !== undefined) {
+		while (this.list.has(`Pattern_${i}`)) {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list[id] = this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"})));
+		this.list.set(id, this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
 		return id;
 	}
 	remove(id: string) {
-		this.node.removeChild(this.list[id]).firstChild as SVGImageElement;
-		delete(this.list[id]);
+		this.node.removeChild(this.list.get(id)!).firstChild as SVGImageElement;
+		this.list.delete(id);
 	}
 	setGrid(grid: GridDetails) {
-		const old = this.list["grid"];
+		const old = this.list.get("grid");
 		if (old) {
 			this.node.removeChild(old);
 		}
@@ -48,28 +48,30 @@ export class Defs {
 			const w = grid.gridSize,
 			      h = 2 * w / SQRT3,
 			      maxH = 2 * Math.round(1.5 * w / SQRT3);
-			this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
+			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}; break;
 		case 2: {
 			const h = grid.gridSize,
 			      w = 2 * h / SQRT3,
 			      maxW = 2 * Math.round(1.5 * h / SQRT3);
-			this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
+			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}; break;
 		default:
-			this.list["grid"] = this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"})));
+			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}
 	}
 	getLighting(id: string) {
-		if (this.lighting[id]) {
-			return this.lighting[id];
+		if (this.lighting.has(id)) {
+			return this.lighting.get(id)!;
 		}
-		return this.lighting[id] = this.node.appendChild(filter({id}));
+		const f = this.node.appendChild(filter({id}));
+		this.lighting.set(id, f);
+		return f;
 	}
 	clearLighting() {
-		for (const key in this.lighting) {
-			this.lighting[key].remove();
-			delete this.lighting[key];
+		for (const [key, l] of this.lighting) {
+			l.remove();
+			this.lighting.delete(key);
 		}
 	}
 }
@@ -159,7 +161,7 @@ export class SVGToken extends SVGTransform {
 		}
 	}
 	updateSource(source: Uint) {
-		(this.node instanceof SVGRectElement ? (globals.definitions.list[this.node.getAttribute("fill")!.slice(5, -1)]!.firstChild as SVGImageElement) : this.node).setAttribute("href", `images/${this.src = source}`);
+		(this.node instanceof SVGRectElement ? (globals.definitions.list.get(this.node.getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this.node).setAttribute("href", `images/${this.src = source}`);
 	}
 	updateNode() {
 		if (this.node instanceof SVGRectElement && !this.isPattern) {
