@@ -442,7 +442,8 @@ const defaultLanguage = {
 	]) : [],
 	initiativeList.node
       ])),
-      addToInitiative = (token: SVGToken5E, initiative: Int, hidden: boolean) => initiativeList.push({
+      initTokens = new Set<Uint>(),
+      addToInitiative = (token: SVGToken5E, initiative: Int, hidden: boolean) => (initTokens.add(token.id), initiativeList.push({
 	token,
 	hidden,
 	initiative,
@@ -460,10 +461,11 @@ const defaultLanguage = {
 			highlight.remove();
 		} : undefined}, initiative.toString())
 	])
-      }),
+      })),
       updateInitiative = (change?: [Uint, Uint | null]) => {
 	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
 	initiativeList.splice(0, initiativeList.length);
+	initTokens.clear();
 	const hiddenLayers = new Set<string>();
 	walkLayers((l, isHidden) => {
 		if (isHidden) {
@@ -1074,18 +1076,30 @@ combinedRPC.waitMapDataRemove().then(removed => {
 	}
 });
 
-combinedRPC.waitTokenRemove().then(() => setTimeout(updateInitiative));
+combinedRPC.waitTokenRemove().then(id => {
+	if (initTokens.has(id)) {
+		setTimeout(updateInitiative);
+	}
+});
 combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative));
 combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative));
-combinedRPC.waitTokenSet().then(() => setTimeout(updateInitiative));
+combinedRPC.waitTokenSet().then(({id}) => {
+	if (initTokens.has(id)) {
+		setTimeout(updateInitiative);
+	}
+});
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
+	let ui = false;
 	for (const [_, {token}] of globals.tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 			token.updateData();
+			if (!ui && initTokens.has(token.id)) {
+				setTimeout(updateInitiative);
+				ui = true;
+			}
 		}
 	}
-	updateInitiative();
 }));
 
 let lastSelectedToken: SVGToken5E | null = null;
