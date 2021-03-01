@@ -1044,7 +1044,9 @@ rpc.waitTokenSet().then(ts => {
 	const {tokenData, removeTokenData} = ts;
 	if (tokenData && (tokenData["5e-initiative"] || tokenData["name"] !== undefined) || removeTokenData && (removeTokenData.includes("5e-initiative") || removeTokenData.includes("name"))) {
 		setTimeout(() => {
-			updateInitiative();
+			if (initTokens.has(ts.id)) {
+				updateInitiative();
+			}
 			(globals.tokens.get(ts.id)!.token as SVGToken5E).updateData();
 		}, 0);
 		return;
