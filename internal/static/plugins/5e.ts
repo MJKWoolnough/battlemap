@@ -703,9 +703,6 @@ if (isAdmin()) {
 		doTokenSet(tk);
 		t.updateNode();
 		updateInitiative();
-		if (globals.selected.token === t) {
-			createSVG(globals.outline, {"--outline-width": t.width + "px", "--outline-height": t.height + "px", "transform": t.transformString(false)})
-		}
 	      },
 	      addCat = (c: ShapechangeCat, pos = shapechangeCats.length - 1) => {
 		const name = span(c.name),
