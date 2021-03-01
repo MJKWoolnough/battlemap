@@ -300,9 +300,14 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 inited.then(() => {
 	shell.appendChild(zoomer);
 	if (!isAdmin()) {
+		let sliding = -1;
 		rpc.waitSignalMovePosition().then(pos => {
-			document.body.classList.toggle("sliding", true);
-			window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
+			if (sliding === -1) {
+				document.body.classList.toggle("sliding", true);
+			} else {
+				window.clearTimeout(sliding);
+			}
+			sliding = window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
 			centreOnGrid(pos[0], pos[1]);
 			showSignal(pos);
 		});
