@@ -15,7 +15,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      updatePreview = () => preview.style.setProperty("background-color", colour2RGBA(hex2Colour(colourInput.value, parseInt(alphaInput.value)))),
 	      colourInput = input({"id": "colourPick_", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
 	      alphaInput = input({"id": "alphaPick_", "type": "range", "min": "0", "max": "255", "step": "1","value": colour.a, "oninput": updatePreview}),
-	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onexit": reject}, [
+	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": reject}, [
 		h1(title),
 		checkboard,
 		labels(`${lang["COLOUR"]}: `, colourInput),

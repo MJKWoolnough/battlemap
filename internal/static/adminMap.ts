@@ -355,7 +355,7 @@ export default function(base: HTMLElement) {
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
 				const t = Date.now(),
-				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onexit": () => outline.focus()})),
+				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => outline.focus()})),
 				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createHTML(null, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
