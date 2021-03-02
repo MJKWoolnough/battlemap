@@ -100,6 +100,7 @@ export default function (base: HTMLElement) {
 			clearElement(options).appendChild(t.options);
 			if (windowed && miniTools.value) {
 				shell.appendChild(optionsWindow);
+				optionsWindow.focus();
 			} else {
 				toolOptions.style.removeProperty("display");
 			}
@@ -137,6 +138,7 @@ export default function (base: HTMLElement) {
 						if (selectedTool.options) {
 							toolOptions.style.setProperty("display", "none");
 							shell.appendChild(optionsWindow);
+							window.setTimeout(() => optionsWindow.focus());
 						}
 					}
 					return;
@@ -164,6 +166,7 @@ export default function (base: HTMLElement) {
 			if (selectedTool.options) {
 				toolOptions.style.setProperty("display", "none");
 				shell.appendChild(optionsWindow);
+				optionsWindow.focus();
 			}
 		} else {
 			toolOptions.appendChild(options);
