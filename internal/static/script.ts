@@ -114,7 +114,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
-			      l = t.appendChild(label({"tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
+			      l = t.appendChild(label({title, "tabindex": "-1", "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, tl = tabs.length;
 				switch (e.key) {
 				case "ArrowLeft":
@@ -134,7 +134,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				}
 				tabs[a]![1].focus();
 			      }, "onclick": () => lastTab.set(title)}, [
-				img({"src": popIcon, title}),
+				img({"src": popIcon}),
 				span(title),
 				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
