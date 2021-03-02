@@ -183,7 +183,7 @@ export type IDName = {
 	name: string;
 }
 
-export type FromTo = {
+type FromTo = {
 	from: string;
 	to:   string;
 }
@@ -303,7 +303,7 @@ type TokenAdd = {
 	token: Token;
 }
 
-export type TokenMoveLayerPos = ID & {
+type TokenMoveLayerPos = ID & {
 	to: string;
 	newPos: Uint;
 }
