@@ -42,6 +42,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 				createHTML(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"}});
 			}
 			w.style.removeProperty("visibility");
+			w.focus();
 		});
 	}
 	return w;
