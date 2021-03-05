@@ -31,6 +31,10 @@ html, body {
 	background-color: #fff;
 }
 
+.panelOnTop #panels {
+	z-index: 1;
+}
+
 #tabs > input, #panelContainer > div {
 	display: none;
 }

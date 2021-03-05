@@ -11,7 +11,7 @@ import characters from './characterList.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows, getWindowData, checkWindowData} from './windows.js';
-import settings, {hideMenu, invert, tabIcons, settingsIcon} from './settings.js';
+import settings, {hideMenu, invert, panelOnTop, settingsIcon, tabIcons} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
 import {isAdmin} from './shared.js';
@@ -213,6 +213,11 @@ if (invert.value) {
 tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
 if (tabIcons.value) {
 	document.documentElement.classList.add("tabIcons");
+}
+
+panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panelOnTop", p));
+if (panelOnTop.value) {
+	document.documentElement.classList.add("panelOnTop");
 }
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(pluginInit).then(() => {
