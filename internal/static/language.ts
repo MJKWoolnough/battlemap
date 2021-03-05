@@ -117,6 +117,7 @@ const defaultLanguage = {
 	"OLD_LOCATION": "Old Location",
 	"NEW_LOCATION": "New Location",
 	"PANEL_GRABBER": "Click to Show/Hide - Drag to Resize",
+	"PANEL_ON_TOP": "Show Side Panel above Windows",
 	"PLUGINS": "Plugins",
 	"PLUGIN_REFRESH": "Refresh Page?",
 	"PLUGIN_REFRESH_REQUEST": "Plugin settings have change and a page refresh is required to load changes. Refresh the page now?",
