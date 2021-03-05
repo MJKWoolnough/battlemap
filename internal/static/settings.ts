@@ -15,7 +15,8 @@ invert = new BoolSetting("invert"),
 measureTokenMove = new BoolSetting("measureTokenMove"),
 miniTools = new BoolSetting("miniTools"),
 tabIcons = new BoolSetting("tabIcons"),
-zoomSlider = new BoolSetting("zoomSlider");
+zoomSlider = new BoolSetting("zoomSlider"),
+panelOnTop = new BoolSetting("panelOnTop");
 
 export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
@@ -39,6 +40,11 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			tabIcons.set(this.checked);
 		}}),
 		label({"for": "tabIcons"}, `${lang["TAB_ICONS"]}: `),
+		br(),
+		input({"type": "checkbox", "id": "panelOnTop", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
+			panelOnTop.set(this.checked);
+		}}),
+		label({"for": "panelOnTop"}, `${lang["PANEL_ON_TOP"]}: `),
 		h1(lang["MAP_SETTINGS"]),
 		loggedIn ? [
 			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
