@@ -1,6 +1,6 @@
 import {undoLimit} from './settings.js';
 import {SortNode} from './lib/ordered.js';
-import {ul, li, h1} from './lib/html.js';
+import {button, h1, li, ul} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
 import {queue} from './shared.js';
 import {windows, shell} from './windows.js';
@@ -16,25 +16,7 @@ type FnDesc = {
 const undos = new SortNode<FnDesc>(ul()),
       redos = new SortNode<FnDesc>(ul()),
       showWindow = new BoolSetting("undo-window-show"),
-      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "600px"}, "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
-	h1(lang["UNDO_WINDOW_UNDOS"]),
-	undos.node,
-	h1(lang["UNDO_WINDOW_REDOS"]),
-	redos.node
-      ]);
-
-if (showWindow.value) {
-	shell.appendChild(w);
-}
-
-Object.defineProperty(window, "showUndoWindow", {
-	"value": () => {
-		showWindow.set(true);
-		shell.appendChild(w);
-	}
-});
-
-export default {
+      undoObj = {
 	"add": (fn: Fn, description: string) => {
 		queue(async () => {
 			redos.splice(0, redos.length);
@@ -75,4 +57,26 @@ export default {
 			}
 		});
 	}
+      },
+      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "600px"}, "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
+	button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
+	button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
+	h1(lang["UNDO_WINDOW_UNDOS"]),
+	undos.node,
+	h1(lang["UNDO_WINDOW_REDOS"]),
+	redos.node
+      ]);
+
+
+if (showWindow.value) {
+	shell.appendChild(w);
 }
+
+Object.defineProperty(window, "showUndoWindow", {
+	"value": () => {
+		showWindow.set(true);
+		shell.appendChild(w);
+	}
+});
+
+export default undoObj;
