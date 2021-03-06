@@ -548,7 +548,7 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	}}
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 },
-layersRPC: LayerRPC = {
+layersRPC: LayerRPC = Object.freeze({
 	"waitAdded": () => waitAdded[1],
 	"waitMoved": () => unusedWait,
 	"waitRemoved": () => waitRemoved[1],
@@ -573,4 +573,4 @@ layersRPC: LayerRPC = {
 		return removeS(path);
 	},
 	"copy": invalidRPC
-};
+});
