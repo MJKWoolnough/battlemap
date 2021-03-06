@@ -24,12 +24,12 @@ export type FolderRPC = FolderWaits & {
 	copy:         (id: Uint, path: string)   => Promise<IDPath>;
 }
 
-export type LayerRPC = FolderRPC & {
+export type LayerRPC = Readonly<FolderRPC & {
 	waitLayerSetVisible:     () => Subscription<string>;
 	waitLayerSetInvisible:   () => Subscription<string>;
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
-}
+}>
 
 type RPCWaits = {
 	waitCurrentUserMap:          () => Subscription<Uint>;
