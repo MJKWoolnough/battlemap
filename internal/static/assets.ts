@@ -19,10 +19,7 @@ class ImageAsset extends DraggableItem {
 		return "imageasset";
 	}
 	show() {
-		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, [
-			h1(this.name),
-			img({"src": `/images/${this.id}`})
-		]))));
+		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`})))));
 	}
 }
 
@@ -35,10 +32,7 @@ class AudioAsset extends DraggableItem {
 		return "audioasset";
 	}
 	show() {
-		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, [
-			h1(this.name),
-			audio({"src": `/audio/${this.id}`, "controls": "controls"})
-		]))));
+		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
 	}
 }
 
