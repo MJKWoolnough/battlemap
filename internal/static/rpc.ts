@@ -96,6 +96,7 @@ export default function (url: string): Promise<void>{
 				["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
 				["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
 				["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
+				["waitBroadcastWindow",      broadcastWindow,               checkBroadcastWindow],
 				["waitBroadcast",            broadcastAny,                  checkBroadcast]
 			],
 			"images": [
@@ -601,6 +602,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	checkUint(data[1], "SignalPosition.y");
 	return data;
       },
+      checksBroadcastWindow: checkers = [[checkID, ""], [checkUint, "module"], [checkString, "contents"]],
+      checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
