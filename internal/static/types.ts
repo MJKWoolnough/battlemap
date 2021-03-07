@@ -77,6 +77,7 @@ type RPCWaits = {
 	waitPluginSetting:           () => Subscription<PluginDataChange>;
 	waitSignalPosition:          () => Subscription<[Uint, Uint]>;
 	waitSignalMovePosition:      () => Subscription<[Uint, Uint]>;
+	waitBroadcastWindow:         () => Subscription<BroadcastWindow>;
 	waitBroadcast:               () => Subscription<Broadcast>;
 }
 
@@ -283,6 +284,12 @@ export type LayerFolder = FolderItems & {
 export type LayerMove = FromTo & {
 	position: Uint;
 }
+
+type BroadcastWindow = {
+	module: Uint;
+	id: Uint;
+	contents: string;
+};
 
 export type Broadcast = {
 	type: any;
