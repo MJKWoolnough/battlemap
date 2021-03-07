@@ -145,6 +145,12 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			c.socket.broadcastMapChange(cd, broadcastAny, data, userAny)
 			return nil, nil
 		}
+	case "broadcastWindow":
+		if cd.IsAdmin() {
+			cd.CurrentMap = 0
+			c.socket.broadcastMapChange(cd, broadcastWindow, data, userAny)
+			return nil, nil
+		}
 	default:
 		pos := strings.IndexByte(method, '.')
 		if pos <= 0 {
