@@ -23,6 +23,7 @@ import './tools_measure.js';
 import './tools_move.js';
 import help from './help.js';
 import pluginInit, {menuItems} from './plugins.js';
+import './messaging.js';
 import lang from './language.js';
 import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './settings_types.js';
 
