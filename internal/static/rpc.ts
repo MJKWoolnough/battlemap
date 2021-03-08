@@ -602,7 +602,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	checkUint(data[1], "SignalPosition.y");
 	return data;
       },
-      checksBroadcastWindow: checkers = [[checkID, ""], [checkUint, "module"], [checkString, "contents"]],
+      checksBroadcastWindow: checkers = [[checkID, ""], [checkString, "module"], [checkString, "contents"]],
       checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
       checkBroadcast = (data: any) => {
 	checkObject(data, "Broadcast");

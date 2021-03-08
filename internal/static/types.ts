@@ -286,7 +286,7 @@ export type LayerMove = FromTo & {
 }
 
 type BroadcastWindow = {
-	module: Uint;
+	module: string;
 	id: Uint;
 	contents: string;
 };
