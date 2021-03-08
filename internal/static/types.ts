@@ -165,7 +165,8 @@ export type RPC = RPCWaits & {
 	changePassword:    (oldPassword: string, newPassword: string) => Promise<string>;
 	logout:            ()                                         => Promise<void>;
 
-	broadcast:         (data: Broadcast) => Promise<void>;
+	broadcastWindow: (module: string, id: Uint, contents: string) => Promise<void>;
+	broadcast:       (data: Broadcast)                            => Promise<void>;
 };
 
 export type MapData = LayerFolder & MapDetails & {

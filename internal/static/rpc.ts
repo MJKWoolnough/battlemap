@@ -209,7 +209,8 @@ export default function (url: string): Promise<void>{
 				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString,  "", ""],
 				["logout",            "auth.logout",          "",                            returnVoid,   "", ""],
 
-				["broadcast", "broadcast", "!", returnVoid, "waitBroadcast", ""],
+				["broadcastWindow", "broadcastWindow", ["module", "id", "contents"], returnVoid, "waitBroadcastWindow", ""],
+				["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""],
 			],
 			"images": [
 				["list",         "imageAssets.list",         "",             checkFolderItems, "", ""],
