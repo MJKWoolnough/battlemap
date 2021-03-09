@@ -116,7 +116,7 @@ shareIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBo
 uploadImages = uploadAsset.bind(null, imageRoot, "images"),
 uploadAudio = uploadAsset.bind(null, audioRoot, "audio");
 
-register("imageAsset", () => [imageIcon, lang["TAB_IMAGES"]]);
+register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
