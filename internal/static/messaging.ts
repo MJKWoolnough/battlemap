@@ -18,6 +18,6 @@ inited.then(() => {
 			return;
 		}
 		const [icon, title] = modules.get(d.module)!(d.id);
-		shell.appendChild(windows({"window-title": title, "window-icon": icon}, bbcode(createHTML(null), tags, d.contents)));
+		shell.appendChild(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(createHTML(null), tags, d.contents)));
 	}
 )});
