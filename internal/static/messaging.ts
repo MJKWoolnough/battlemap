@@ -6,10 +6,10 @@ import {createHTML} from './lib/dom.js';
 import {shell, windows} from './windows.js';
 import {rpc, inited} from './rpc.js';
 
-const modules = new Map<string, (id: Uint) => [string, string]>(),
+const modules = new Map<string, [string, string] | ((id: Uint) => [string, string])>(),
       tags: Parsers = Object.assign({}, all);
 
-export const register = (module: string, fn: (id: Uint) => [string, string]) => modules.set(module, fn),
+export const register = (module: string, fn: [string, string] | ((id: Uint) => [string, string])) => modules.set(module, fn),
 registerTag = (tagName: string, fn: TagFn) => tags[tagName] = fn;
 
 inited.then(() => {
@@ -17,7 +17,8 @@ inited.then(() => {
 		if (!modules.has(d.module)) {
 			return;
 		}
-		const [icon, title] = modules.get(d.module)!(d.id);
+		const fn = modules.get(d.module)!,
+		      [icon, title] = fn instanceof Array ? fn : fn(d.id);
 		shell.appendChild(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(createHTML(null), tags, d.contents)));
 	}
 )});
