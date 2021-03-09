@@ -21,7 +21,7 @@ class ImageAsset extends DraggableItem {
 	}
 	show() {
 		const w = createHTML(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`})))));
-		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img]/images/${this.id}[/img]`), lang["SHARE"]);
+		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
 		return w;
 	}
 }
