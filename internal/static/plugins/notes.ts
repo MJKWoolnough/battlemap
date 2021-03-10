@@ -107,9 +107,28 @@ if (isAdmin()) {
 		},
 		"move":        (_from, to) => Promise.resolve(to),
 		"moveFolder":  (_from, to) => Promise.resolve(to),
-		"remove":       _path      => Promise.resolve(),
-		"removeFolder": _path      => Promise.resolve(),
-		"copy":        (id, path)  => Promise.resolve({id, path}),
+		"remove":       path       => {
+			const parts = path.split("/"),
+			      item = parts.pop()!;
+			let currPath = folders.data;
+			Loop:
+			for (const p of parts) {
+				currPath = currPath.folders[p];
+				if (!currPath) {
+					return Promise.reject("invalid path");
+				}
+			}
+			const id = currPath.items[item];
+			if (id === undefined) {
+				return Promise.reject("invalid item");
+			}
+			pages.delete(id);
+			delete currPath.items[item];
+			rpc.pluginSetting(importName, {"": folders}, [id + ""]);
+			return Promise.resolve();
+		},
+		"removeFolder": _path     => Promise.resolve(),
+		"copy":        (id, path) => Promise.resolve({id, path}),
 
 		"waitAdded": () => waitAdded[1],
 		"waitMoved": () => waitMoved[1],
