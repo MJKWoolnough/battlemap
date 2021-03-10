@@ -7,8 +7,11 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"vimagination.zapto.org/keystore"
 )
 
 var (
@@ -19,10 +22,16 @@ var (
 func TestMain(m *testing.M) {
 	for _, arg := range os.Args {
 		if strings.HasPrefix(arg, "-httptest.serve=") {
+			pluginTest := flag.Bool("plugintest", false, "disable cached plugins for easier testing")
 			flag.Parse()
 			if err := battlemap.initModules("./test/", nil); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
+			}
+			if *pluginTest {
+				var pd keystore.String
+				battlemap.config.Get("PluginsDir", &pd)
+				battlemap.plugins.Handler = http.FileServer(http.Dir(filepath.Join(battlemap.config.BaseDir, string(pd))))
 			}
 			battlemap.initMux(http.FileServer(http.Dir("./internal/static")))
 			mux := http.NewServeMux()
