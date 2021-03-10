@@ -1,12 +1,13 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {Folder} from '../folders.js';
 import {addPlugin, getSettings} from '../plugins.js';
-import {div} from '../lib/html.js';
+import {button, div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint} from '../shared.js';
 import {language} from '../language.js';
 import {Item, Root} from '../folders.js';
 import {rpc} from '../rpc.js';
+import {shell} from '../windows.js';
 
 type MetaURL = {
 	url: string;
@@ -30,7 +31,13 @@ if (isAdmin()) {
 	}
 	let lastID = 0;
 	const defaultLanguage = {
-		"MENU_TITLE": "Notes"
+		"MENU_TITLE": "Notes",
+		"NAME_EXISTS": "Note Exists",
+		"NAME_EXISTS_LONG": "A note with that name already exists",
+		"NAME_INVALID": "Invalid Name",
+		"NAME_INVALID_LONG": "Note names cannot contains the '/' (slash) character",
+		"NOTES_NEW": "New Note",
+		"NOTES_NEW_LONG": "Enter new note name",
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		      "en-GB": defaultLanguage
@@ -119,7 +126,23 @@ if (isAdmin()) {
 	addPlugin("notes", {
 		"menuItem": {
 			"priority": 0,
-			"fn": [lang["MENU_TITLE"], div(root.node), true, icon]
+			"fn": [lang["MENU_TITLE"], div([
+				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
+					if (!name) {
+						return;
+					} else if (name.includes("/")) {
+						shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
+						return;
+					} else if (root.getItem(`/${name}`)) {
+						shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
+						return;
+					}
+					root.addItem(++lastID, name);
+					settings[""].data.items[name] = lastID;
+					rpc.pluginSetting(importName, {"": settings[""], [lastID]: {"user": false, "data": ""}}, []);
+				})}, lang["NOTES_NEW"]),
+				root.node
+			]), true, icon]
 		}
 	});
 }
