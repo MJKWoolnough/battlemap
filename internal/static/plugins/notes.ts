@@ -107,7 +107,7 @@ if (isAdmin()) {
 		},
 		"move":        (_from, to) => Promise.resolve(to),
 		"moveFolder":  (_from, to) => Promise.resolve(to),
-		"remove":       path       => {
+		"remove": path => {
 			const parts = path.split("/"),
 			      item = parts.pop()!;
 			let currPath = folders.data;
@@ -127,7 +127,27 @@ if (isAdmin()) {
 			rpc.pluginSetting(importName, {"": folders}, [id + ""]);
 			return Promise.resolve();
 		},
-		"removeFolder": _path     => Promise.resolve(),
+		"removeFolder": path => {
+			const parts = path.split("/"),
+			      folder = parts.pop()!;
+			let currPath = folders.data;
+			Loop:
+			for (const p of parts) {
+				currPath = currPath.folders[p];
+				if (!currPath) {
+					return Promise.reject("invalid path");
+				}
+			}
+			const f = currPath.folders[folder];
+			if (!f) {
+				return Promise.reject("invalid folder");
+			} else if (Object.keys(f.folders).length !== 0 || Object.keys(f.items).length !== 0) {
+				return Promise.reject("cannot remove non-empty folder");
+			}
+			delete currPath.folders[folder];
+			rpc.pluginSetting(importName, {"": folders}, []);
+			return Promise.resolve()
+		},
 		"copy":        (id, path) => Promise.resolve({id, path}),
 
 		"waitAdded": () => waitAdded[1],
