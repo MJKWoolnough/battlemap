@@ -59,13 +59,13 @@ if (isAdmin()) {
 		return true;
 	      },
 	      checkSettings = (data: any) => {
-		if (!(data instanceof Object) || !(data[""] instanceof Object) || !isFolderItems(data[""])) {
+		if (!(data instanceof Object) || !(data[""] instanceof Object) || data[""].user !== false || !isFolderItems(data[""].data)) {
 			return defaultSettings
 		}
 		for (const k in data) {
 			if (k === "") {
 				continue;
-			} else if (typeof data[k] !== "string") {
+			} else if (!(data[k] instanceof Object) || data[k].user !== false || typeof data[k].data !== "string") {
 				return defaultSettings
 			}
 		}
