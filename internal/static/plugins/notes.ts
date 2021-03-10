@@ -1,7 +1,7 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {Folder} from '../folders.js';
 import {addPlugin, getSettings} from '../plugins.js';
-import {button, div} from '../lib/html.js';
+import {button, div, style} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint} from '../shared.js';
 import {language} from '../language.js';
@@ -29,6 +29,7 @@ if (isAdmin()) {
 			// code here
 		}
 	}
+	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding:0}"));
 	let lastID = 0;
 	const defaultLanguage = {
 		"MENU_TITLE": "Notes",
@@ -126,7 +127,7 @@ if (isAdmin()) {
 	addPlugin("notes", {
 		"menuItem": {
 			"priority": 0,
-			"fn": [lang["MENU_TITLE"], div([
+			"fn": [lang["MENU_TITLE"], div({"id": "pluginNotes"}, [
 				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
 					if (!name) {
 						return;
