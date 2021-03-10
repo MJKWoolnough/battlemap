@@ -28,6 +28,10 @@ if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding:0}"));
 	let lastID = 0;
 	const defaultLanguage = {
+		"ERROR_FOLDER_NOT_EMPTY": "Cannot remove a non-empty folder",
+		"ERROR_INVALID_FOLDER": "Invalid Folder",
+		"ERROR_INVALID_ITEM": "Invalid Item",
+		"ERROR_INVALID_PATH": "Invalid Path",
 		"MENU_TITLE": "Notes",
 		"NAME_EXISTS": "Note Exists",
 		"NAME_EXISTS_LONG": "A note with that name already exists",
@@ -115,12 +119,12 @@ if (isAdmin()) {
 			for (const p of parts) {
 				currPath = currPath.folders[p];
 				if (!currPath) {
-					return Promise.reject("invalid path");
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
 				}
 			}
 			const id = currPath.items[item];
 			if (id === undefined) {
-				return Promise.reject("invalid item");
+				return Promise.reject(lang["ERROR_INVALID_ITEM"]);
 			}
 			pages.delete(id);
 			delete currPath.items[item];
@@ -135,14 +139,14 @@ if (isAdmin()) {
 			for (const p of parts) {
 				currPath = currPath.folders[p];
 				if (!currPath) {
-					return Promise.reject("invalid path");
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
 				}
 			}
 			const f = currPath.folders[folder];
 			if (!f) {
-				return Promise.reject("invalid folder");
+				return Promise.reject(lang["ERROR_INVALID_FOLDER"]);
 			} else if (Object.keys(f.folders).length !== 0 || Object.keys(f.items).length !== 0) {
-				return Promise.reject("cannot remove non-empty folder");
+				return Promise.reject(lang["ERROR_FOLDER_NOT_EMPTY"]);
 			}
 			delete currPath.folders[folder];
 			rpc.pluginSetting(importName, {"": folders}, []);
