@@ -146,7 +146,38 @@ if (isAdmin()) {
 			rpc.pluginSetting(importName, {"": folders}, []);
 			return Promise.resolve(to)
 		},
-		"moveFolder": (_from, to) => Promise.resolve(to),
+		"moveFolder": (from, to) => {
+			const fromParts = from.split("/"),
+			      fromFolder = fromParts.pop()!,
+			      toParts = to.split("/"),
+			      toFolder = toParts.pop()!;
+			let fromPath = folders.data,
+			    toPath = folders.data;
+			FromLoop:
+			for (const p of fromParts) {
+				fromPath = fromPath.folders[p];
+				if (!fromPath) {
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				}
+			}
+			if (!fromPath.folders[fromFolder]) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
+			}
+			ToLoop:
+			for (const p of toParts) {
+				toPath = toPath.folders[p];
+				if (!toPath) {
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				}
+			}
+			if (toPath.folders[toFolder]) {
+				return Promise.reject(lang["NAME_EXISTS_LONG"]);
+			}
+			toPath.folders[toFolder] = fromPath.folders[fromFolder];
+			delete fromPath.folders[fromFolder];
+			rpc.pluginSetting(importName, {"": folders}, []);
+			return Promise.resolve(to)
+		},
 		"remove": path => {
 			const parts = path.split("/"),
 			      item = parts.pop()!;
