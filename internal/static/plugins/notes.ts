@@ -97,46 +97,40 @@ if (isAdmin()) {
 	      waitFolderAdded = subFn<string>(),
 	      unusedWait = new Subscription<any>(() => {}),
 	      folders = checkSettings(getSettings(importName)),
+	      getFolder = (path: string): [FolderItems | null, string] => {
+		const parts = path.split("/"),
+		      name = parts.pop()!;
+		let currPath = folders.data;
+		for (const p of parts) {
+			currPath = currPath.folders[p];
+			if (!currPath) {
+				return [null, name];
+			}
+		}
+		return [currPath, name];
+	      },
 	      root = new Root(folders.data, lang["MENU_TITLE"], {
 		"list": () => Promise.resolve(folders.data),
 		"createFolder": path => {
-			const parts = path.split("/");
-			let currPath = folders.data;
-			Loop:
-			for (const p of parts) {
-				if (!currPath.folders[p]) {
-					currPath = currPath.folders[p] = {"folders": {}, "items": {}};
-				} else {
-					currPath = currPath.folders[p];
-				}
+			const [currPath, folder] = getFolder(path);
+			if (!currPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
+			} else if (currPath.folders[folder]) {
+				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
+			currPath.folders[folder] = {"folders": {}, "items": {}};
 			rpc.pluginSetting(importName, {"": folders}, []);
 			return Promise.resolve(path)
 		},
 		"move": (from, to) => {
-			const fromParts = from.split("/"),
-			      fromItem = fromParts.pop()!,
-			      toParts = to.split("/"),
-			      toItem = toParts.pop()!;
-			let fromPath = folders.data,
-			    toPath = folders.data;
-			FromLoop:
-			for (const p of fromParts) {
-				fromPath = fromPath.folders[p];
-				if (!fromPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
+			const [fromPath, fromItem] = getFolder(from),
+			      [toPath, toItem] = getFolder(to);
+			if (!fromPath || !toPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const id = fromPath.items[fromItem];
 			if (id === undefined) {
 				return Promise.reject(lang["ERROR_INVALID_ITEM"]);
-			}
-			ToLoop:
-			for (const p of toParts) {
-				toPath = toPath.folders[p];
-				if (!toPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
 			}
 			if (toPath.items[toItem]) {
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
@@ -147,28 +141,13 @@ if (isAdmin()) {
 			return Promise.resolve(to)
 		},
 		"moveFolder": (from, to) => {
-			const fromParts = from.split("/"),
-			      fromFolder = fromParts.pop()!,
-			      toParts = to.split("/"),
-			      toFolder = toParts.pop()!;
-			let fromPath = folders.data,
-			    toPath = folders.data;
-			FromLoop:
-			for (const p of fromParts) {
-				fromPath = fromPath.folders[p];
-				if (!fromPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
+			const [fromPath, fromFolder] = getFolder(from),
+			      [toPath, toFolder] = getFolder(to);
+			if (!fromPath || !toPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			if (!fromPath.folders[fromFolder]) {
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
-			}
-			ToLoop:
-			for (const p of toParts) {
-				toPath = toPath.folders[p];
-				if (!toPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
 			}
 			if (toPath.folders[toFolder]) {
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
@@ -179,15 +158,9 @@ if (isAdmin()) {
 			return Promise.resolve(to)
 		},
 		"remove": path => {
-			const parts = path.split("/"),
-			      item = parts.pop()!;
-			let currPath = folders.data;
-			Loop:
-			for (const p of parts) {
-				currPath = currPath.folders[p];
-				if (!currPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
+			const [currPath, item] = getFolder(path);
+			if (!currPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const id = currPath.items[item];
 			if (id === undefined) {
@@ -199,15 +172,9 @@ if (isAdmin()) {
 			return Promise.resolve();
 		},
 		"removeFolder": path => {
-			const parts = path.split("/"),
-			      folder = parts.pop()!;
-			let currPath = folders.data;
-			Loop:
-			for (const p of parts) {
-				currPath = currPath.folders[p];
-				if (!currPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
+			const [currPath, folder] = getFolder(path);
+			if (!currPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const f = currPath.folders[folder];
 			if (!f) {
@@ -220,17 +187,10 @@ if (isAdmin()) {
 			return Promise.resolve()
 		},
 		"copy": (id, path) => {
-			const parts = path.split("/"),
-			      item = parts.pop()!;
-			let currPath = folders.data;
-			Loop:
-			for (const p of parts) {
-				currPath = currPath.folders[p];
-				if (!currPath) {
-					return Promise.reject(lang["ERROR_INVALID_PATH"]);
-				}
-			}
-			if (currPath.items[item]) {
+			const [currPath, item] = getFolder(path);
+			if (!currPath) {
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
+			} else if (currPath.items[item]) {
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			const newID = ++lastID,
