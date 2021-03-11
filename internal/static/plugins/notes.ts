@@ -34,6 +34,7 @@ if (isAdmin()) {
 				shell.appendChild(this.window);
 			} else {
 				this.window = shell.appendChild(windows({"windows-title": this.name, "windows-icon": icon, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
+				this.window.addControlButton(editIcon, () => {}, lang["NOTE_EDIT"]);
 			}
 		}
 	}
@@ -49,6 +50,7 @@ if (isAdmin()) {
 		"NAME_EXISTS_LONG": "A note with that name already exists",
 		"NAME_INVALID": "Invalid Name",
 		"NAME_INVALID_LONG": "Note names cannot contains the '/' (slash) character",
+		"NOTE_EDIT": "Edit Note",
 		"NOTES_NEW": "New Note",
 		"NOTES_NEW_LONG": "Enter new note name",
 	      },
@@ -58,6 +60,7 @@ if (isAdmin()) {
 	      lang = langs[language.value] ?? defaultLanguage,
 	      importName = (import.meta as MetaURL).url.split("/").pop()!,
 	      icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 96"%3E%3Crect x="60" y="6" width="24" height="90" fill="%23888" rx="10" /%3E%3Crect x="1" y="6" width="80" height="90" stroke="%23000" fill="%23fff" rx="10" /%3E%3Cg id="h"%3E%3Ccircle cx="16" cy="11" r="2" fill="%23333" /%3E%3Cellipse cx="15" cy="6" rx="3" ry="5" stroke="%23aaa" stroke-width="2" fill="none" stroke-dasharray="0 5 15" /%3E%3C/g%3E%3Cuse href="%23h" x="10" /%3E%3Cuse href="%23h" x="20" /%3E%3Cuse href="%23h" x="30" /%3E%3Cuse href="%23h" x="40" /%3E%3Cuse href="%23h" x="50" /%3E%3Cpath d="M11,25 h60 M11,40 h60 M11,55 h60 M11,70 h30" stroke="%23000" stroke-width="4" stroke-linecap="round" /%3E%3C/svg%3E',
+	      editIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E',
 	      pages = new Map<Uint, KeystoreData<Page>>(),
 	      defaultSettings = {"user": false, "data": {"folders": {}, "items": {}}} as KeystoreData<FolderItems>,
 	      isFolderItems = (data: any): data is FolderItems => {
