@@ -69,6 +69,7 @@ if (isAdmin()) {
 		}
 		return true;
 	      },
+	      isPage = (data: any): data is Page => data instanceof Object && typeof data["contents"] === "string",
 	      checkSettings = (data: any) => {
 		if (!(data instanceof Object) || !(data[""] instanceof Object) || data[""].user !== false || !isFolderItems(data[""].data)) {
 			return defaultSettings
@@ -78,7 +79,7 @@ if (isAdmin()) {
 				continue;
 			} else {
 				const id = parseInt(k);
-				if (isNaN(id) || !(data[k] instanceof Object) || data[k].user !== false || !(data[k].data instanceof Object) || typeof data[k].data.contents !== "string") {
+				if (isNaN(id) || !(data[k] instanceof Object) || data[k].user !== false || !isPage(data[k].data)) {
 					return defaultSettings
 				}
 				pages.set(id, data[k]);
@@ -95,12 +96,13 @@ if (isAdmin()) {
 	      waitMoved = subFn<{from: string; to: string}>(),
 	      waitRemoved = subFn<string>(),
 	      waitFolderAdded = subFn<string>(),
+	      waitFolderMoved = subFn<{from: string, to: string}>(),
+	      waitFolderRemoved = subFn<string>(),
 	      unusedWait = new Subscription<any>(() => {}),
 	      folders = checkSettings(getSettings(importName)),
-	      getFolder = (path: string): [FolderItems | null, string] => {
+	      getFolder = (path: string, currPath = folders.data): [FolderItems | null, string] => {
 		const parts = path.split("/"),
 		      name = parts.pop()!;
-		let currPath = folders.data;
 		for (const p of parts) {
 			currPath = currPath.folders[p];
 			if (!currPath) {
@@ -206,9 +208,38 @@ if (isAdmin()) {
 		"waitRemoved": () => waitRemoved[1],
 		"waitCopied": () => unusedWait,
 		"waitFolderAdded": () => waitFolderAdded[1],
-		"waitFolderMoved": () => unusedWait,
-		"waitFolderRemoved": () => unusedWait,
-	      }, NoteItem);
+		"waitFolderMoved": () => waitFolderMoved[1],
+		"waitFolderRemoved": () => waitFolderRemoved[1],
+	      }, NoteItem),
+	      compareFolderItems = (a: FolderItems, b: FolderItems, path: string, changes: Record<string, number>) => {
+		for (const f in a.folders) {
+			const fp = path + f + "/"
+			if (!b.folders[f]) {
+				changes[fp] = -1;
+			} else {
+				compareFolderItems(a.folders[f], b.folders[f], fp, changes);
+			}
+		}
+		for (const f in b.folders) {
+			if (!a.folders[f]) {
+				changes[path + f + "/"] = 0;
+			}
+		}
+		for (const i in a.items) {
+			if (!b.items[i]) {
+				changes[path + i] = -a.items[i];
+			} else if (a.items[i] !== b.items[i]) {
+				changes[""] = 1;
+			}
+		}
+		for (const i in b.items) {
+			if (!a.items[i]) {
+				changes[path + i] = b.items[i];
+			} else if (a.items[i] !== b.items[i]) {
+				changes[""] = 1;
+			}
+		}
+	      };
 	root.windowIcon = icon;
 	addPlugin("notes", {
 		"menuItem": {
@@ -230,6 +261,86 @@ if (isAdmin()) {
 				})}, lang["NOTES_NEW"]),
 				root.node
 			]), true, icon]
+		}
+	});
+	rpc.waitPluginSetting().then(({id, setting, removing}) => {
+		if (id !== importName) {
+			return;
+		}
+		for (const sid of removing) {
+			const id = parseInt(sid);
+			if (!isNaN(id)) {
+				pages.delete(id);
+			}
+		}
+		for (const key in setting) {
+			if (key === "") {
+				if (!isFolderItems(setting[""].data)) {
+					continue;
+				}
+				const changes: Record<string, number> = {};
+				compareFolderItems(folders.data, setting[""].data, "/", changes);
+				const ck = Object.keys(changes);
+				let full = false;
+				if (changes[""] || ck.length > 2) {
+					full = true;
+				} else if (ck.length === 1) {
+					if (changes[ck[0]] < 0) {
+						if (ck[0].endsWith("/")) {
+							waitFolderRemoved[0](ck[0]);
+						} else {
+							waitRemoved[0](ck[0]);
+						}
+					} else {
+						if (ck[0].endsWith("/")) {
+							waitFolderAdded[0](ck[0]);
+						} else {
+							waitAdded[0]([{"id": changes[ck[0]], "name": ck[0]}]);
+						}
+					}
+				} else if (ck.length === 2) {
+					if (ck[0].endsWith("/") === ck[1].endsWith("/")) {
+						if (ck[0].endsWith("/")) {
+							const c = {};
+							if (changes[ck[0]] < 0) {
+								compareFolderItems(getFolder(ck[0])[0]!, getFolder(ck[1], setting[""].data)[0]!, "/", c);
+							} else {
+								compareFolderItems(getFolder(ck[0], setting[""].data)[0]!, getFolder(ck[1])[0]!, "/", c);
+							}
+							if (Object.keys(c).length === 0) {
+								if (changes[ck[0]] < 0) {
+									waitFolderMoved[0]({"from": ck[0], "to": ck[1]});
+								} else {
+									waitFolderMoved[0]({"from": ck[1], "to": ck[0]});
+								}
+							} else {
+								full = true;
+							}
+						} else {
+							if (changes[ck[0]] + changes[ck[1]] === 0) {
+								if (changes[ck[0]] < 0) {
+									waitMoved[0]({"from": ck[0], "to": ck[1]});
+								} else {
+									waitMoved[0]({"from": ck[1], "to": ck[0]});
+								}
+							} else {
+								full = true;
+							}
+						}
+					} else {
+						full = true;
+					}
+				}
+				if (full) {
+					root.setRoot(setting[""].data);
+				}
+			} else {
+				const id = parseInt(key),
+				      data = setting[key];
+				if (!isNaN(id) && isPage(data.data)) {
+					pages.set(id, data);
+				}
+			}
 		}
 	});
 }
