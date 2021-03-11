@@ -98,8 +98,8 @@ if (isAdmin()) {
 	      unusedWait = new Subscription<any>(() => {}),
 	      folders = checkSettings(getSettings(importName)),
 	      root = new Root(folders.data, lang["MENU_TITLE"], {
-		"list":        ()          => Promise.resolve(folders.data),
-		"createFolder": path       => {
+		"list": () => Promise.resolve(folders.data),
+		"createFolder": path => {
 			const parts = path.split("/");
 			let currPath = folders.data;
 			Loop:
@@ -113,8 +113,40 @@ if (isAdmin()) {
 			rpc.pluginSetting(importName, {"": folders}, []);
 			return Promise.resolve(path)
 		},
-		"move":        (_from, to) => Promise.resolve(to),
-		"moveFolder":  (_from, to) => Promise.resolve(to),
+		"move": (from, to) => {
+			const fromParts = from.split("/"),
+			      fromItem = fromParts.pop()!,
+			      toParts = to.split("/"),
+			      toItem = toParts.pop()!;
+			let fromPath = folders.data,
+			    toPath = folders.data;
+			FromLoop:
+			for (const p of fromParts) {
+				fromPath = fromPath.folders[p];
+				if (!fromPath) {
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				}
+			}
+			const id = fromPath.items[fromItem];
+			if (id === undefined) {
+				return Promise.reject(lang["ERROR_INVALID_ITEM"]);
+			}
+			ToLoop:
+			for (const p of toParts) {
+				toPath = toPath.folders[p];
+				if (!toPath) {
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				}
+			}
+			if (toPath.items[toItem]) {
+				return Promise.reject(lang["NAME_EXISTS_LONG"]);
+			}
+			delete fromPath.items[fromItem];
+			toPath.items[toItem] = id;
+			rpc.pluginSetting(importName, {"": folders}, []);
+			return Promise.resolve(to)
+		},
+		"moveFolder": (_from, to) => Promise.resolve(to),
 		"remove": path => {
 			const parts = path.split("/"),
 			      item = parts.pop()!;
