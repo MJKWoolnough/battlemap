@@ -1,5 +1,6 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {Folder} from '../folders.js';
+import type {WindowElement} from '../windows.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {createHTML, button, div, style} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
@@ -21,6 +22,7 @@ type Page = {
 
 if (isAdmin()) {
 	class NoteItem extends Item {
+		window: WindowElement | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name);
 			if (id > lastID) {
@@ -28,7 +30,11 @@ if (isAdmin()) {
 			}
 		}
 		show() {
-			shell.appendChild(windows({"windows-title": this.name, "windows-icon": icon}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
+			if (this.window) {
+				shell.appendChild(this.window);
+			} else {
+				this.window = shell.appendChild(windows({"windows-title": this.name, "windows-icon": icon, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
+			}
 		}
 	}
 	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding:0}"));
