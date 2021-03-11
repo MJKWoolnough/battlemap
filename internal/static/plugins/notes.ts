@@ -156,7 +156,27 @@ if (isAdmin()) {
 			rpc.pluginSetting(importName, {"": folders}, []);
 			return Promise.resolve()
 		},
-		"copy":        (id, path) => Promise.resolve({id, path}),
+		"copy": (id, path) => {
+			const parts = path.split("/"),
+			      item = parts.pop()!;
+			let currPath = folders.data;
+			Loop:
+			for (const p of parts) {
+				currPath = currPath.folders[p];
+				if (!currPath) {
+					return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				}
+			}
+			if (currPath.items[item]) {
+				return Promise.reject(lang["NAME_EXISTS_LONG"]);
+			}
+			const newID = ++lastID,
+			      newPage = JSON.parse(JSON.stringify(pages.get(id)!));
+			currPath.items[item] = newID;
+			pages.set(id, newPage);
+			rpc.pluginSetting(importName, {"": folders, [id + ""]: newPage}, []);
+			return Promise.resolve({id, path})
+		},
 
 		"waitAdded": () => waitAdded[1],
 		"waitMoved": () => waitMoved[1],
