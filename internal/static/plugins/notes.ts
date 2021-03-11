@@ -1,13 +1,15 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {Folder} from '../folders.js';
 import {addPlugin, getSettings} from '../plugins.js';
-import {button, div, style} from '../lib/html.js';
+import {createHTML, button, div, style} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint} from '../shared.js';
 import {language} from '../language.js';
 import {Item, Root} from '../folders.js';
 import {rpc} from '../rpc.js';
-import {shell} from '../windows.js';
+import {shell, windows} from '../windows.js';
+import {all} from '../lib/bbcode_tags.js';
+import bbcode from '../lib/bbcode.js';
 
 type MetaURL = {
 	url: string;
@@ -26,7 +28,7 @@ if (isAdmin()) {
 			}
 		}
 		show() {
-			// code here
+			shell.appendChild(windows({"windows-title": this.name, "windows-icon": icon}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
 		}
 	}
 	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding:0}"));
