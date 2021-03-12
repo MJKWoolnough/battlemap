@@ -1,6 +1,7 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {addPlugin, getSettings} from '../plugins.js';
+import {clearElement} from '../lib/dom.js';
 import {createHTML, br, button, div, style, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint, labels} from '../shared.js';
@@ -28,12 +29,15 @@ if (isAdmin()) {
 			} else {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
 				this.window.addControlButton(editIcon, () => {
-					const contents = textarea({"id": "plugin-notes-bbcode"}, );
+					const contents = textarea({"id": "plugin-notes-bbcode"}, pages.get(this.id)?.data.contents ?? "");
 					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true}, [
 						labels(`${lang["NOTE"]}: `, contents),
 						br(),
 						button({"onclick": () => {
-
+							const data = {"user": false, "data": {"contents": contents.value}};
+							pages.set(this.id, data);
+							rpc.pluginSetting(importName, {[this.id+""]: data}, []);
+							clearElement(this.window!).appendChild(bbcode(createHTML(null), all, contents.value));
 						}}, lang["NOTE_SAVE"])
 					]))
 				}, lang["NOTE_EDIT"]);
