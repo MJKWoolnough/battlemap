@@ -90,10 +90,9 @@ if (isAdmin()) {
 				continue;
 			} else {
 				const id = parseInt(k);
-				if (isNaN(id) || !(data[k] instanceof Object) || data[k].user !== false || !isPage(data[k].data)) {
-					return defaultSettings
+				if (!isNaN(id) && data[k] instanceof Object && !data[k].user && isPage(data[k].data)) {
+					pages.set(id, data[k]);
 				}
-				pages.set(id, data[k]);
 			}
 		}
 		return data[""] as KeystoreData<FolderItems>;
