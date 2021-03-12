@@ -24,7 +24,7 @@ if (isAdmin()) {
 		window: WindowElement | null = null;
 		show() {
 			if (this.window) {
-				shell.appendChild(this.window);
+				this.window.focus();
 			} else {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
 				this.window.addControlButton(editIcon, () => this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "resizable": true}, [
