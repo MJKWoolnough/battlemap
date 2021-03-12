@@ -1,9 +1,9 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {addPlugin, getSettings} from '../plugins.js';
-import {createHTML, button, div, style} from '../lib/html.js';
+import {createHTML, br, button, div, style, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
-import {isAdmin, isUint} from '../shared.js';
+import {isAdmin, isUint, labels} from '../shared.js';
 import {language} from '../language.js';
 import {Item, Root} from '../folders.js';
 import {rpc} from '../rpc.js';
@@ -27,9 +27,16 @@ if (isAdmin()) {
 				this.window.focus();
 			} else {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
-				this.window.addControlButton(editIcon, () => this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "resizable": true}, [
+				this.window.addControlButton(editIcon, () => {
+					const contents = textarea({"id": "plugin-notes-bbcode"}, );
+					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true}, [
+						labels(`${lang["NOTE"]}: `, contents),
+						br(),
+						button({"onclick": () => {
 
-				])), lang["NOTE_EDIT"]);
+						}}, lang["NOTE_SAVE"])
+					]))
+				}, lang["NOTE_EDIT"]);
 			}
 		}
 	}
@@ -45,7 +52,9 @@ if (isAdmin()) {
 		"NAME_EXISTS_LONG": "A note with that name already exists",
 		"NAME_INVALID": "Invalid Name",
 		"NAME_INVALID_LONG": "Note names cannot contains the '/' (slash) character",
+		"NOTE": "Note",
 		"NOTE_EDIT": "Edit Note",
+		"NOTE_SAVE": "Save Note",
 		"NOTES_NEW": "New Note",
 		"NOTES_NEW_LONG": "Enter new note name",
 	      },
