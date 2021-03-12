@@ -2,7 +2,7 @@ import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
-import {createHTML, br, button, div, style, textarea} from '../lib/html.js';
+import {createHTML, br, button, div, input, style, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint, labels} from '../shared.js';
 import {language} from '../language.js';
@@ -17,6 +17,7 @@ type MetaURL = {
 }
 
 type Page = {
+	share: boolean;
 	contents: string;
 }
 
@@ -29,12 +30,16 @@ if (isAdmin()) {
 			} else {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
 				this.window.addControlButton(editIcon, () => {
-					const contents = textarea({"id": "plugin-notes-bbcode"}, pages.get(this.id)?.data.contents ?? "");
+					const page = pages.get(this.id),
+					      contents = textarea({"id": "plugin-notes-bbcode"}, page?.data.contents ?? ""),
+					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "value": page?.data.share ?? false});
 					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true}, [
 						labels(`${lang["NOTE"]}: `, contents),
 						br(),
+						labels(`${lang["NOTE_SHARE"]}: `, share, false),
+						br(),
 						button({"onclick": () => {
-							const data = {"user": false, "data": {"contents": contents.value}};
+							const data = {"user": false, "data": {"contents": contents.value, "share": share.checked}};
 							pages.set(this.id, data);
 							rpc.pluginSetting(importName, {[this.id+""]: data}, []);
 							clearElement(this.window!).appendChild(bbcode(createHTML(null), all, contents.value));
@@ -59,6 +64,7 @@ if (isAdmin()) {
 		"NOTE": "Note",
 		"NOTE_EDIT": "Edit Note",
 		"NOTE_SAVE": "Save Note",
+		"NOTE_SHARE": "Allow Note Sharing",
 		"NOTES_NEW": "New Note",
 		"NOTES_NEW_LONG": "Enter new note name",
 	      },
