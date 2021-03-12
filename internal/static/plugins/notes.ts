@@ -1,5 +1,4 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
-import type {Folder} from '../folders.js';
 import type {WindowElement} from '../windows.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {createHTML, button, div, style} from '../lib/html.js';
@@ -23,12 +22,6 @@ type Page = {
 if (isAdmin()) {
 	class NoteItem extends Item {
 		window: WindowElement | null = null;
-		constructor(parent: Folder, id: Uint, name: string) {
-			super(parent, id, name);
-			if (id > lastID) {
-				lastID = id;
-			}
-		}
 		show() {
 			if (this.window) {
 				shell.appendChild(this.window);
@@ -92,6 +85,9 @@ if (isAdmin()) {
 				const id = parseInt(k);
 				if (!isNaN(id) && data[k] instanceof Object && !data[k].user && isPage(data[k].data)) {
 					pages.set(id, data[k]);
+					if (id > lastID) {
+						lastID = id;
+					}
 				}
 			}
 		}
