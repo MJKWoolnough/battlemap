@@ -268,7 +268,7 @@ if (isAdmin()) {
 					}
 					root.addItem(++lastID, name);
 					folders.data.items[name] = lastID;
-					rpc.pluginSetting(importName, {"": folders, [lastID]: {"user": false, "data": ""}}, []);
+					rpc.pluginSetting(importName, {"": folders, [lastID]: {"user": false, "data": {"contents": ""}}}, []);
 				})}, lang["NOTES_NEW"]),
 				root.node
 			]), true, icon]
