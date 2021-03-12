@@ -26,8 +26,10 @@ if (isAdmin()) {
 			if (this.window) {
 				shell.appendChild(this.window);
 			} else {
-				this.window = shell.appendChild(windows({"windows-title": this.name, "windows-icon": icon, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
-				this.window.addControlButton(editIcon, () => {}, lang["NOTE_EDIT"]);
+				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
+				this.window.addControlButton(editIcon, () => this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "resizable": true}, [
+
+				])), lang["NOTE_EDIT"]);
 			}
 		}
 	}
