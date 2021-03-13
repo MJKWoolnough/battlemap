@@ -400,6 +400,7 @@ if (isAdmin()) {
 				if (full) {
 					root.setRoot(setting[""].data);
 				}
+				folders.data = setting[""].data;
 			} else {
 				const id = parseInt(key),
 				      data = setting[key];
