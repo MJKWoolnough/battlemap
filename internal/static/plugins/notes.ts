@@ -6,7 +6,7 @@ import {createHTML, br, button, div, input, style, textarea} from '../lib/html.j
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint, labels} from '../shared.js';
 import {language} from '../language.js';
-import {Item, Root} from '../folders.js';
+import {Folder, Item, Root} from '../folders.js';
 import {rpc} from '../rpc.js';
 import {shell, windows} from '../windows.js';
 import {all} from '../lib/bbcode_tags.js';
@@ -94,6 +94,19 @@ if (isAdmin()) {
 			}
 		}
 	}
+
+	class NoteFolder extends Folder {
+		removeItem(name: string) {
+			for (const c of this.children) {
+				if (c instanceof NoteItem && c.name === name && c.window) {
+					c.window.remove();
+					break;
+				}
+			}
+			return super.removeItem(name);
+		}
+	}
+
 	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding:0}"));
 	let lastID = 0;
 	const importName = (import.meta as MetaURL).url.split("/").pop()!,
@@ -260,7 +273,7 @@ if (isAdmin()) {
 		"waitFolderAdded": () => waitFolderAdded[1],
 		"waitFolderMoved": () => waitFolderMoved[1],
 		"waitFolderRemoved": () => waitFolderRemoved[1],
-	      }, NoteItem),
+	      }, NoteItem, NoteFolder),
 	      compareFolderItems = (a: FolderItems, b: FolderItems, path: string, changes: Record<string, number>) => {
 		for (const f in a.folders) {
 			const fp = path + f + "/"
