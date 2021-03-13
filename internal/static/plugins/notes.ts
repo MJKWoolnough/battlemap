@@ -7,7 +7,7 @@ import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint, labels} from '../shared.js';
 import {language} from '../language.js';
 import {Folder, Item, Root} from '../folders.js';
-import {rpc} from '../rpc.js';
+import {rpc, handleError} from '../rpc.js';
 import {shell, windows} from '../windows.js';
 import {all} from '../lib/bbcode_tags.js';
 import bbcode from '../lib/bbcode.js';
@@ -182,8 +182,10 @@ if (isAdmin()) {
 		"createFolder": path => {
 			const [currPath, folder] = getFolder(path);
 			if (!currPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			} else if (currPath.folders[folder]) {
+				handleError(lang["NAME_EXISTS_LONG"]);
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			currPath.folders[folder] = {"folders": {}, "items": {}};
@@ -194,13 +196,16 @@ if (isAdmin()) {
 			const [fromPath, fromItem] = getFolder(from),
 			      [toPath, toItem] = getFolder(to);
 			if (!fromPath || !toPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const id = fromPath.items[fromItem];
 			if (id === undefined) {
+				handleError(lang["ERROR_INVALID_ITEM"]);
 				return Promise.reject(lang["ERROR_INVALID_ITEM"]);
 			}
 			if (toPath.items[toItem]) {
+				handleError(lang["NAME_EXISTS_LONG"]);
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			delete fromPath.items[fromItem];
@@ -212,12 +217,15 @@ if (isAdmin()) {
 			const [fromPath, fromFolder] = getFolder(from),
 			      [toPath, toFolder] = getFolder(to);
 			if (!fromPath || !toPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			if (!fromPath.folders[fromFolder]) {
-				return Promise.reject(lang["ERROR_INVALID_PATH"]);
+				handleError(lang["ERROR_INVALID_FOLDER"]);
+				return Promise.reject(lang["ERROR_INVALID_FOLDER"]);
 			}
 			if (toPath.folders[toFolder]) {
+				handleError(lang["NAME_EXISTS_LONG"]);
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			toPath.folders[toFolder] = fromPath.folders[fromFolder];
@@ -228,10 +236,12 @@ if (isAdmin()) {
 		"remove": path => {
 			const [currPath, item] = getFolder(path);
 			if (!currPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const id = currPath.items[item];
 			if (id === undefined) {
+				handleError(lang["ERROR_INVALID_ITEM"]);
 				return Promise.reject(lang["ERROR_INVALID_ITEM"]);
 			}
 			pages.delete(id);
@@ -242,12 +252,15 @@ if (isAdmin()) {
 		"removeFolder": path => {
 			const [currPath, folder] = getFolder(path);
 			if (!currPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			}
 			const f = currPath.folders[folder];
 			if (!f) {
+				handleError(lang["ERROR_INVALID_FOLDER"]);
 				return Promise.reject(lang["ERROR_INVALID_FOLDER"]);
 			} else if (Object.keys(f.folders).length !== 0 || Object.keys(f.items).length !== 0) {
+				handleError(lang["ERROR_FOLDER_NOT_EMPTY"]);
 				return Promise.reject(lang["ERROR_FOLDER_NOT_EMPTY"]);
 			}
 			delete currPath.folders[folder];
@@ -257,8 +270,10 @@ if (isAdmin()) {
 		"copy": (id, path) => {
 			const [currPath, item] = getFolder(path);
 			if (!currPath) {
+				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
 			} else if (currPath.items[item]) {
+				handleError(lang["NAME_EXISTS_LONG"]);
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			const newID = ++lastID,
