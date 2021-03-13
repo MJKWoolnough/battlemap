@@ -177,6 +177,17 @@ if (isAdmin()) {
 		}
 		return [currPath, name];
 	      },
+	      cleanPath = (path: string) => {
+		const parts = path.split("/");
+		path = "";
+		for (const p of parts) {
+			if (!p) {
+				continue;
+			}
+			path += `/${p}`;
+		}
+		return path;
+	      },
 	      root = new Root(folders.data, lang["MENU_TITLE"], {
 		"list": () => Promise.resolve(folders.data),
 		"createFolder": path => {
@@ -214,6 +225,12 @@ if (isAdmin()) {
 			return Promise.resolve(to)
 		},
 		"moveFolder": (from, to) => {
+			from = cleanPath(from);
+			to = cleanPath(to);
+			if (to.startsWith(from)) {
+				handleError(lang["ERROR_INVALID_PATH"]);
+				return Promise.reject(lang["ERROR_INVALID_PATH"]);
+			}
 			const [fromPath, fromFolder] = getFolder(from),
 			      [toPath, toFolder] = getFolder(to);
 			if (!fromPath || !toPath) {
@@ -250,7 +267,7 @@ if (isAdmin()) {
 			return Promise.resolve();
 		},
 		"removeFolder": path => {
-			const [currPath, folder] = getFolder(path);
+			const [currPath, folder] = getFolder(cleanPath(path));
 			if (!currPath) {
 				handleError(lang["ERROR_INVALID_PATH"]);
 				return Promise.reject(lang["ERROR_INVALID_PATH"]);
