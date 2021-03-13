@@ -10,7 +10,8 @@ const modules = new Map<string, [string, string] | ((id: Uint) => [string, strin
       tags: Parsers = Object.assign({}, all);
 
 export const register = (module: string, fn: [string, string] | ((id: Uint) => [string, string])) => modules.set(module, fn),
-registerTag = (tagName: string, fn: TagFn) => tags[tagName] = fn;
+registerTag = (tagName: string, fn: TagFn) => tags[tagName] = fn,
+shareIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"%3E%3Ccircle cx="3" cy="10" r="3" /%3E%3Ccircle cx="17" cy="3" r="3" /%3E%3Ccircle cx="17" cy="17" r="3" /%3E%3Cpath d="M17,3 L3,10 17,17" stroke="%23000" fill="none" /%3E%3C/svg%3E';
 
 inited.then(() => {
 	rpc.waitBroadcastWindow().then(d => {
