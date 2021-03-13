@@ -167,6 +167,9 @@ if (isAdmin()) {
 		const parts = path.split("/"),
 		      name = parts.pop()!;
 		for (const p of parts) {
+			if (!p) {
+				continue;
+			}
 			currPath = currPath.folders[p];
 			if (!currPath) {
 				return [null, name];
