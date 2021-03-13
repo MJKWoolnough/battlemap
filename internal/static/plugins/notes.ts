@@ -60,7 +60,7 @@ if (isAdmin()) {
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id),
 					      contents = textarea({"id": "plugin-notes-bbcode"}, page?.data.contents ?? ""),
-					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "value": page?.data.share ?? false});
+					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page?.data.share ?? false});
 					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true}, [
 						labels(`${lang["NOTE"]}: `, contents),
 						br(),
