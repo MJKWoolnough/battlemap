@@ -30,11 +30,10 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			language.set(this.value);
 		}}, languages.map(l => option({"selected": l === language.value}, l))),
 		h1(lang["THEME"]),
-		button({"onclick": function(this: HTMLButtonElement) {
-			const v = !invert.value;
-			invert.set(v);
-			this.innerText = v ? lang["LIGHT_MODE"] : lang["DARK_MODE"];
-		}}, invert.value ? lang["LIGHT_MODE"] : lang["DARK_MODE"]),
+		input({"type": "checkbox", "id": "settingInvert", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
+			invert.set(this.checked);
+		}}),
+		label({"for": "settingInvert"}, `${lang["DARK_MODE"]}: `),
 		br(),
 		input({"type": "checkbox", "id": "tabIcons", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 			tabIcons.set(this.checked);
