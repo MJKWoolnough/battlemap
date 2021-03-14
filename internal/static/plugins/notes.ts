@@ -59,7 +59,22 @@ if (isAdmin()) {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, bbcode(createHTML(null), all, pages.get(this.id)?.data.contents || "")));
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id),
-					      contents = textarea({"id": "plugin-notes-bbcode"}, page?.data.contents ?? ""),
+					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
+						if (!e.dataTransfer) {
+							return;
+						}
+						if (e.dataTransfer.types.includes("imageasset")) {
+							e.preventDefault();
+							e.dataTransfer.dropEffect = "link";
+						}
+					      }, "ondrop": (e: DragEvent) => {
+						if (!e.dataTransfer) {
+							return;
+						}
+						if (e.dataTransfer.types.includes("imageasset")) {
+							contents.setRangeText(`[img]/images/${JSON.parse(e.dataTransfer.getData("imageasset")).id}[/img]`);
+						}
+					      }}, page?.data.contents ?? ""),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page?.data.share ?? false});
 					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, [
 						labels(`${lang["NOTE"]}: `, contents),
