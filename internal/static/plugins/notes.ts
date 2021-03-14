@@ -63,7 +63,7 @@ if (isAdmin()) {
 						if (!e.dataTransfer) {
 							return;
 						}
-						if (e.dataTransfer.types.includes("imageasset")) {
+						if (e.dataTransfer.types.includes("imageasset") || e.dataTransfer.types.includes("audioasset")) {
 							e.preventDefault();
 							e.dataTransfer.dropEffect = "link";
 						}
@@ -73,6 +73,8 @@ if (isAdmin()) {
 						}
 						if (e.dataTransfer.types.includes("imageasset")) {
 							contents.setRangeText(`[img]/images/${JSON.parse(e.dataTransfer.getData("imageasset")).id}[/img]`);
+						} else if (e.dataTransfer.types.includes("audioasset")) {
+							contents.setRangeText(`[audio]/audio/${JSON.parse(e.dataTransfer.getData("audioasset")).id}[/audio]`);
 						}
 					      }}, page?.data.contents ?? ""),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page?.data.share ?? false});
