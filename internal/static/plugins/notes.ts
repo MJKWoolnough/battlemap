@@ -72,7 +72,7 @@ if (isAdmin()) {
 						if (!e.dataTransfer) {
 							return;
 						}
-						if (e.dataTransfer.types.includes("imageasset") || e.dataTransfer.types.includes("audioasset")) {
+						if (e.dataTransfer.types.includes("imageasset") || e.dataTransfer.types.includes("audioasset") || e.dataTransfer.types.includes("pluginnote")) {
 							e.preventDefault();
 							e.dataTransfer.dropEffect = "link";
 						}
@@ -84,6 +84,11 @@ if (isAdmin()) {
 							contents.setRangeText(`[img]/images/${JSON.parse(e.dataTransfer.getData("imageasset")).id}[/img]`);
 						} else if (e.dataTransfer.types.includes("audioasset")) {
 							contents.setRangeText(`[audio]/audio/${JSON.parse(e.dataTransfer.getData("audioasset")).id}[/audio]`);
+						} else if (e.dataTransfer.types.includes("pluginnote")) {
+							const {selectionStart, selectionEnd} = contents,
+							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
+							      id = JSON.parse(e.dataTransfer.getData("pluginnote")).id;
+							contents.setRangeText(`[note=${id}]${selected || notes.get(id)?.name || ""}[/note]`);
 						}
 					      }}, page?.data.contents ?? ""),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page?.data.share ?? false});
