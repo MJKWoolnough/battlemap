@@ -483,4 +483,11 @@ if (isAdmin()) {
 		}
 	});
 	registerTag("note", allTags.note);
+} else {
+	registerTag("note", (n: Node, t: Tokeniser, p: Parsers) => {
+		const tk = t.next(true).value;
+		if (tk && isOpenTag(tk)) {
+			process(n, t, p, tk.tagName);
+		}
+	});
 }
