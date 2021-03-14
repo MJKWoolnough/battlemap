@@ -203,7 +203,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		p.socket.broadcastAdminChange(broadcastPluginSettingChange, data, cd.ID)
-		buf := appendString(append(data[:0], "{\"ID\":"...), toSet.ID)
+		buf := appendString(append(data[:0], "{\"id\":"...), toSet.ID)
 		buf = append(buf, ",\"setting\":{"...)
 		var userRemoves []string
 		for key, val := range toSet.Setting {
