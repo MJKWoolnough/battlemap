@@ -35,7 +35,9 @@ class AudioAsset extends DraggableItem {
 		return "audioasset";
 	}
 	show() {
-		return createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
+		const w = createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
+		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
+		return w;
 	}
 }
 
@@ -116,6 +118,7 @@ uploadImages = uploadAsset.bind(null, imageRoot, "images"),
 uploadAudio = uploadAsset.bind(null, audioRoot, "audio");
 
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
+register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
 export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
