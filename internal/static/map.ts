@@ -284,13 +284,7 @@ const idNames: Record<string, Int> = {
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			if (isTokenImage(t)) {
-				tokens.push(SVGToken.from(t));
-			} else if (isTokenDrawing(t)) {
-				tokens.push(SVGDrawing.from(t));
-			} else {
-				tokens.push(SVGShape.from(t));
-			}
+			tokens.push(isTokenImage(t) ? SVGToken.from(t) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
 		node.setAttribute("id", `layer${layer.name}`);
