@@ -5,9 +5,9 @@ import {Pipe, Requester} from './lib/inter.js';
 import {label} from './lib/html.js';
 import {g} from './lib/svg.js';
 
-const pipeBind = <T>() => {
+const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
 	const p = new Pipe<T>();
-	return {"send": (data: T) => p.send(data), "receive": (fn: (data: T) => void) => p.receive(fn)};
+	return [(data: T) => p.send(data), (fn: (data: T) => void) => p.receive(fn)];
       },
       requesterBind = <T, U extends any[] = any[]>() => {
 	const r = new Requester<T, U>();
@@ -24,9 +24,9 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 		}
 	}
 },
-{send: mapLoadSend, receive: mapLoadReceive} = pipeBind<Uint>(),
-{send: mapLoadedSend, receive: mapLoadedReceive} = pipeBind<boolean>(),
-{send: tokenSelected, receive: tokenSelectedReceive} = pipeBind<void>(),
+[mapLoadSend, mapLoadReceive] = pipeBind<Uint>(),
+[mapLoadedSend, mapLoadedReceive] = pipeBind<boolean>(),
+[tokenSelected, tokenSelectedReceive] = pipeBind<void>(),
 {responder: setUser, request: isUser} = requesterBind<boolean>(),
 {responder: setAdmin, request: isAdmin} = requesterBind<boolean>(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
