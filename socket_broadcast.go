@@ -179,8 +179,7 @@ func (s *socket) broadcastAdminChange(id int, data json.RawMessage, except ID) {
 	dat := buildBroadcast(id, data)
 	s.mu.RLock()
 	for c := range s.conns {
-		id := c.ID
-		if id > 0 && id != except {
+		if c.IsAdmin() && c.ID != except {
 			go c.rpc.SendData(dat)
 		}
 	}
