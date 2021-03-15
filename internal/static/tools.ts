@@ -121,44 +121,32 @@ export default function (base: HTMLElement) {
 	      ]))),
 	      fc = list.firstChild as HTMLLIElement,
 	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"]});
-	createHTML(clearElement(base), {"id": "toolList"}, [list, toolOptions]);
+	createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
+		windowed = true;
+		if (miniTools.value) {
+			optionsWindow.appendChild(options);
+			if (selectedTool.options) {
+				toolOptions.style.setProperty("display", "none");
+				shell.appendChild(optionsWindow);
+				window.setTimeout(() => optionsWindow.focus());
+			}
+		}
+	}, "onpopin": () => {
+		windowed = false;
+		if (miniTools.value) {
+			toolOptions.appendChild(options);
+			if (selectedTool.options) {
+				toolOptions.style.removeProperty("display");
+				optionsWindow.remove();
+			}
+		}
+	}}, [list, toolOptions]);
 	fc.click();
 	mapLoadedReceive(() => {
 		if (selectedTool !== defaultTool) {
 			fc.click();
 		}
 	});
-	new MutationObserver(records => {
-		for (const r of records) {
-			for (const node of r.removedNodes) {
-				if (node === base) {
-					windowed = true;
-					if (miniTools.value) {
-						optionsWindow.appendChild(options);
-						if (selectedTool.options) {
-							toolOptions.style.setProperty("display", "none");
-							shell.appendChild(optionsWindow);
-							window.setTimeout(() => optionsWindow.focus());
-						}
-					}
-					return;
-				}
-			}
-			for (const node of r.addedNodes) {
-				if (node === base) {
-					windowed = false;
-					if (miniTools.value) {
-						toolOptions.appendChild(options);
-						if (selectedTool.options) {
-							toolOptions.style.removeProperty("display");
-							optionsWindow.remove();
-						}
-					}
-					return;
-				}
-			}
-		}
-	}).observe(base.parentNode!, {"childList": true});
 	miniTools.wait(on => {
 		document.body.classList.toggle("miniTools", on)
 		if (on) {
