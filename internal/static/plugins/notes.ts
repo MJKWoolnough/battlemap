@@ -330,9 +330,9 @@ if (isAdmin()) {
 			const newID = ++lastID,
 			      newPage = JSON.parse(JSON.stringify(pages.get(id)!));
 			currPath.items[item] = newID;
-			pages.set(id, newPage);
-			rpc.pluginSetting(importName, {"": folders, [id + ""]: newPage}, []);
-			return Promise.resolve({id, path})
+			pages.set(newID, newPage);
+			rpc.pluginSetting(importName, {"": folders, [newID + ""]: newPage}, []);
+			return Promise.resolve({"id": newID, path})
 		},
 
 		"waitAdded": () => waitAdded[1],
