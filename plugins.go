@@ -242,7 +242,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		}
 		buf = append(buf, ']', '}')
 		cd.CurrentMap = 0
-		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, data, userAny)
+		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, buf, userAny)
 		p.updateJSON()
 		p.mu.Unlock()
 	case "enable", "disable":
