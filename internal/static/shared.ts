@@ -9,9 +9,9 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 	const p = new Pipe<T>();
 	return [(data: T) => p.send(data), (fn: (data: T) => void) => p.receive(fn)];
       },
-      requesterBind = <T, U extends any[] = any[]>() => {
+      requesterBind = <T, U extends any[] = any[]>(): [(fn: ((...data: U) => T) | T) => void, (...data: U) => T] => {
 	const r = new Requester<T, U>();
-	return {"request": (...data: U) => r.request(...data), "responder": (fn: ((...data: U) => T) | T) => r.responder(fn)};
+	return [(fn: ((...data: U) => T) | T) => r.responder(fn), (...data: U) => r.request(...data)];
       };
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
@@ -27,8 +27,8 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 [mapLoadSend, mapLoadReceive] = pipeBind<Uint>(),
 [mapLoadedSend, mapLoadedReceive] = pipeBind<boolean>(),
 [tokenSelected, tokenSelectedReceive] = pipeBind<void>(),
-{responder: setUser, request: isUser} = requesterBind<boolean>(),
-{responder: setAdmin, request: isAdmin} = requesterBind<boolean>(),
+[setUser, isUser] = requesterBind<boolean>(),
+[setAdmin, isAdmin] = requesterBind<boolean>(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 queue = (() => {
