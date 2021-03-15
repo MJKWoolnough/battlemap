@@ -206,11 +206,14 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 		buf := appendString(append(data[:0], "{\"id\":"...), toSet.ID)
 		buf = append(buf, ",\"setting\":{"...)
 		var userRemoves []string
+		send := false
 		for key, val := range toSet.Setting {
 			if val.User {
 				buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
+				send = true
 			} else if mv, ok := plugin.Data[key]; ok && mv.User {
 				userRemoves = append(userRemoves, key)
+				send = true
 			}
 			plugin.Data[key] = val
 		}
@@ -222,6 +225,7 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 				continue
 			}
 			if val.User {
+				send = true
 				if !first {
 					buf = append(buf, ',')
 				} else {
@@ -240,9 +244,11 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			}
 			buf = appendString(buf, key)
 		}
-		buf = append(buf, ']', '}')
-		cd.CurrentMap = 0
-		p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, buf, userAny)
+		if send {
+			buf = append(buf, ']', '}')
+			cd.CurrentMap = 0
+			p.socket.broadcastMapChange(cd, broadcastPluginSettingChange, buf, userNotAdmin)
+		}
 		p.updateJSON()
 		p.mu.Unlock()
 	case "enable", "disable":
