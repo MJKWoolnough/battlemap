@@ -152,12 +152,14 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
 						updateWindowData();
+						base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
 					}, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
 						selectFirst()
 					}
+					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false}));
 				}}) : []
 			      ]));
 			tabs.push([title, l]);
