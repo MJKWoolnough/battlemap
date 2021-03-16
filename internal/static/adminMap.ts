@@ -66,7 +66,7 @@ export default function(base: HTMLElement) {
 			      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
 			      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
 			      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
-			      min = selectedToken!.snap ? sq : 10;
+			      min = selectedToken.snap ? sq : 10;
 			let mDx = aDx * dirX,
 			    mDy = aDy * dirY;
 			if (dirX !== 0 && mDy < mDx * height / width || dirY === 0) {
@@ -116,7 +116,7 @@ export default function(base: HTMLElement) {
 		selectedToken.height = Math.round(height);
 		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
-		createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken!.transformString(false)});
+		createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
 	      },
 	      tokenMouseUp = (e: MouseEvent) => {
 		if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
