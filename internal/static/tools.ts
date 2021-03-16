@@ -149,6 +149,9 @@ export default function (base: HTMLElement) {
 	});
 	miniTools.wait(on => {
 		document.body.classList.toggle("miniTools", on)
+		if (!windowed) {
+			return;
+		}
 		if (on) {
 			optionsWindow.appendChild(options);
 			if (selectedTool.options) {
@@ -163,7 +166,6 @@ export default function (base: HTMLElement) {
 				optionsWindow.remove();
 			}
 		}
-		windowed = on;
 	});
 	if (miniTools.value) {
 		document.body.classList.add("miniTools");
