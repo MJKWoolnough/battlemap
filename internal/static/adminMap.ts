@@ -509,8 +509,10 @@ export default function(base: HTMLElement) {
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 		if (e.dataTransfer.types.includes("character")) {
 			const tD = JSON.parse(e.dataTransfer.getData("character")),
-			      char = characterData.get(tD.id)!;
-			if (char["store-image-data"]) {
+			      char = characterData.get(tD.id);
+			if (!char) {
+				return;
+			} else if (char["store-image-data"]) {
 				Object.assign(token, JSON.parse(JSON.stringify(char["store-image-data"].data)));
 			} else {
 				token.src = parseInt(char["store-image-icon"].data);
