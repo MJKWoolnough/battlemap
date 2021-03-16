@@ -15,7 +15,9 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	return [fn!, sub];
       },
       unusedWait = new Subscription<any>(() => {}),
-      invalidRPC = () => Promise.reject("invalid"),
+      unusedWaitFn = () => unusedWait,
+      invalidRPC = Promise.reject("invalid"),
+      invalidRPCFn = () => invalidRPC,
       removeS = (path: string) => {
 	checkSelectedLayer(path);
 	removeLayer(path);
@@ -550,9 +552,9 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 },
 layersRPC: LayerRPC = Object.freeze({
 	"waitAdded": () => waitAdded[1],
-	"waitMoved": () => unusedWait,
+	"waitMoved": unusedWaitFn,
 	"waitRemoved": () => waitRemoved[1],
-	"waitCopied": () => unusedWait,
+	"waitCopied": unusedWaitFn,
 	"waitFolderAdded": () => waitFolderAdded[1],
 	"waitFolderMoved": () => unusedWait,
 	"waitFolderRemoved": () => waitFolderRemoved[1],
@@ -560,10 +562,10 @@ layersRPC: LayerRPC = Object.freeze({
 	"waitLayerSetInvisible": () => waitLayerHide[1],
 	"waitLayerPositionChange": () => waitLayerPositionChange[1],
 	"waitLayerRename": () => waitLayerRename[1],
-	"list": invalidRPC,
+	"list": invalidRPCFn,
 	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
-	"move": invalidRPC,
-	"moveFolder": invalidRPC,
+	"move": invalidRPCFn,
+	"moveFolder": invalidRPCFn,
 	"remove": path => {
 		undo.clear();
 		return removeS(path);
@@ -572,5 +574,5 @@ layersRPC: LayerRPC = Object.freeze({
 		undo.clear();
 		return removeS(path);
 	},
-	"copy": invalidRPC
+	"copy": invalidRPCFn
 });
