@@ -165,7 +165,7 @@ export default function(base: HTMLElement) {
 		}
 		stopMeasurement();
 	      },
-	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": "-1", "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
+	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": -1, "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
 		if (!token) {
 			return;
