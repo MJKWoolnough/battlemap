@@ -44,6 +44,13 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			panelOnTop.set(this.checked);
 		}}),
 		label({"for": "panelOnTop"}, `${lang["PANEL_ON_TOP"]}: `),
+		loggedIn ? [
+			br(),
+			input({"type": "checkbox", "id": "miniTools", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
+				miniTools.set(this.checked);
+			}}),
+			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `)
+		] : [],
 		h1(lang["MAP_SETTINGS"]),
 		loggedIn ? [
 			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
@@ -56,11 +63,6 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 			}}),
 			label({"for": "measureTokenMove"}, `${lang["MEASURE_TOKEN_MOVE"]}: `),
 			br(),
-			input({"type": "checkbox", "id": "miniTools", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
-				miniTools.set(this.checked);
-			}}),
-			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `),
-			br()
 		] : [],
 		input({"type": "checkbox", "id": "hideZoomSlider", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 			zoomSlider.set(this.checked);
