@@ -146,20 +146,20 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 						windowData[title] = {"out": true, "data": [20, 20, 0, 0]};
 					}
 					updateWindowData();
-					const [x, y, width, height] = windowData[title].data;
-					shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
+					const [x, y, width, height] = windowData[title].data,
+					      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 						p.replaceChild(base, replaced);
 						l.style.removeProperty("display");
 						windowData[title]["out"] = false;
 						updateWindowData();
 						base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
-					}, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
+					      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
 					e.preventDefault();
 					l.style.setProperty("display", "none");
 					if (i.checked) {
 						selectFirst()
 					}
-					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false}));
+					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
 				}}) : []
 			      ]));
 			tabs.push([title, l]);
