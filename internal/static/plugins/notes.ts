@@ -199,14 +199,13 @@ if (isAdmin()) {
 	      folders = checkSettings(getSettings(importName)),
 	      getFolder = (path: string, currPath = folders.data): [FolderItems | null, string] => {
 		const parts = path.split("/"),
-		      name = parts.pop()!;
+		      name = parts.pop() || "";
 		for (const p of parts) {
-			if (!p) {
-				continue;
-			}
-			currPath = currPath.folders[p];
-			if (!currPath) {
-				return [null, name];
+			if (p) {
+				currPath = currPath.folders[p];
+				if (!currPath) {
+					return [null, name];
+				}
 			}
 		}
 		return [currPath, name];
