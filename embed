@@ -19,6 +19,12 @@ tmpFile="$(mktemp)";
 	tail -n5 index.html | tr -d '\n	';
 ) > "$tmpFile";
 
+if [ "$1" = "-size" ]; then
+	stat -c %s "$tmpFile";
+	rm -f "$tmpFile";
+	exit 0;
+fi;
+
 echo -e "package battlemap\n\nconst (\n	uncompressedSize = $(stat --format "%s" "$tmpFile")\n	indexUpdated     = $(date "+%s")\n)" > "index_size.go";
 
 zopfli --gzip --i1000 -c "$tmpFile" > index.gz;
