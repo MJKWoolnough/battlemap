@@ -407,12 +407,20 @@ export class Root {
 	get root() {
 		return this;
 	}
-	resolvePath(path: string): [Folder | undefined, string] {
+	resolvePath(path: string): [Folder | null, string] {
 		const breadcrumbs = path.split("/"),
-		      sub: string | undefined  = breadcrumbs.pop();
-		let folder: Folder | undefined = this.folder;
-		breadcrumbs.every(f => f == "" ? true : folder = folder!.getFolder(f));
-		return [folder, sub || ""];
+		      sub = breadcrumbs.pop() || "";
+		let folder: Folder = this.folder;
+		for (const b of breadcrumbs) {
+			if (b) {
+				const f = folder.getFolder(b);
+				if (!f) {
+					return [null, sub];
+				}
+				folder = f;
+			}
+		}
+		return [folder, sub];
 	}
 	addItem(id: Uint, path: string) {
 		const [folder, name] = this.resolvePath(path);
