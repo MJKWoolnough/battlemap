@@ -3,7 +3,7 @@ import type {WindowElement} from '../windows.js';
 import type {List} from '../lib/context.js';
 import type {PluginType} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
-import {br, button, div, h1, img, input, label, li, span, style, table, tbody, td, thead, th, tr, ul} from '../lib/html.js';
+import {br, button, div, h1, img, input, label, li, span, style, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
 import {addPlugin, getSettings} from '../plugins.js';
@@ -46,6 +46,7 @@ type TokenFields = {
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
+	"5e-notes"?: KeystoreData<string> | null;
 }
 
 type Token5E = SVGToken & {
@@ -347,6 +348,7 @@ const defaultLanguage = {
 	"INITIATIVE_PREV": "Previous",
 	"INITIATIVE_REMOVE": "Remove Initiative",
 	"NAME": "Character Name",
+	"NOTES": "Notes",
 	"SHAPECHANGE": "Shapechange",
 	"SHAPECHANGE_5E": "Shapechange (5E)",
 	"SHAPECHANGE_CHANGE": "Change to Selected Token",
@@ -868,8 +870,8 @@ if (isAdmin()) {
 			})() : (key: string) => data[key] ?? {},
 			      name = getData("name"),
 			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-			      nameInput = input({"type": "text", "id": `edit_5e_name_`, "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": `edit_5e_nameVisibility_`, "checked": name["user"] !== false, "onchange": nameUpdate});
+			      nameInput = input({"type": "text", "id": "edit_5e_name_", "value": name["data"], "onchange": nameUpdate}),
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": "edit_5e_nameVisibility_", "checked": name["user"] !== false, "onchange": nameUpdate});
 			return [
 				labels(`${lang["NAME"]}: `, nameInput),
 				labels(userVisibility(), nameVisibility, false),
@@ -894,17 +896,21 @@ if (isAdmin()) {
 					}
 				}})),
 				br(),
-				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": `edit_5e_ac_`, "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}})),
+				br(),
+				labels(`${lang["NOTES"]}: `, textarea({"id": "edit_5e_notes_", "rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
+					changes["5e-notes"] = {"user": false, "data": this.value};
+				}}, getData("5e-notes")["data"] ?? "")),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
@@ -1177,6 +1183,11 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 				err = "Character Data '5e-initiative-mod' must be an Int between -20 and 20";
 			}
 			break;
+		case "5e-notes":
+			if (typeof val !== "string") {
+				err = "Character Data '5e-notes' must be a string";
+			}
+			break;
 		}
 		if (err) {
 			delete data[key];
@@ -1229,6 +1240,11 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 				err = "Token Data 'store-image-5e-initial-token' width & height must be Uints";
 			} else if (typeof val["flip"] !== "boolean" || typeof val["flop"] !== "boolean") {
 				err = "Token Data 'store-image-5e-initial-token' flip & flop must be boolean";
+			}
+			break;
+		case "5e-notes":
+			if (typeof val !== "string") {
+				err = "Token Data '5e-notes' must be a string";
 			}
 			break;
 		}
