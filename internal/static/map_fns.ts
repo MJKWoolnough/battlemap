@@ -16,8 +16,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
       },
       unusedWait = new Subscription<any>(() => {}),
       unusedWaitFn = () => unusedWait,
-      invalidRPC = Promise.reject("invalid"),
-      invalidRPCFn = () => invalidRPC,
+      invalidRPC = () => Promise.reject("invalid"),
       removeS = (path: string) => {
 	checkSelectedLayer(path);
 	removeLayer(path);
@@ -562,10 +561,10 @@ layersRPC: LayerRPC = Object.freeze({
 	"waitLayerSetInvisible": () => waitLayerHide[1],
 	"waitLayerPositionChange": () => waitLayerPositionChange[1],
 	"waitLayerRename": () => waitLayerRename[1],
-	"list": invalidRPCFn,
+	"list": invalidRPC,
 	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
-	"move": invalidRPCFn,
-	"moveFolder": invalidRPCFn,
+	"move": invalidRPC,
+	"moveFolder": invalidRPC,
 	"remove": path => {
 		undo.clear();
 		return removeS(path);
@@ -574,5 +573,5 @@ layersRPC: LayerRPC = Object.freeze({
 		undo.clear();
 		return removeS(path);
 	},
-	"copy": invalidRPCFn
+	"copy": invalidRPC
 });
