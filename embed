@@ -9,7 +9,12 @@ tmpFile="$(mktemp)";
 
 (
 	cd "$data";
-	cp -f "$jslibJS/"*.js "lib/";
+	for lib in lib/*.js; do
+		source="$jslibJS/$(basename "$lib")";
+		if [ "$lib" -nt "$source" -o "$lib" -ot "$source" ]; then
+			cp -f --preserve=timestamps "$source" "$lib";
+		fi;
+	done;
 	head -n5 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
 	jslib -i "$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | $jslibHTML "lib/" | $jslibSVG "lib/" | terser -cm | tr -d '\n'; # --mangle-props <- TODO:test this
