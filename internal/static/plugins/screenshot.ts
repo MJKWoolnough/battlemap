@@ -1,34 +1,52 @@
-import {canvas, img} from '../lib/html.js';
+import {canvas} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {globals} from '../shared.js';
 
-const walkElements = (n: Element) => {
+const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 	const styles = window.getComputedStyle(n);
 	for (const s of styles) {
 		if (s === "display") {
 			if (styles.getPropertyValue(s) === "none") {
-				return "";
+				return;
 			}
 		}
 	}
-	let data = `<${n.nodeName}`;
-	for (const a of n.attributes) {
-		if (a.name === "href" && n.nodeName === "image") {
-			data += ` href="#${window.location.host}${a.value}"`;
-		} else {
-			data += ` ${a.name}=\"${a.value}\"`;
+	const id = n.getAttribute("id");
+	switch (n.nodeName) {
+	case "image":
+		ctx.setTransform((n as SVGImageElement).getCTM()!);
+		ctx.drawImage(n as SVGImageElement, 0, 0, parseInt(n.getAttribute("width")!), parseInt(n.getAttribute("height")!));
+		break;
+	case "rect":
+		if (n.getAttribute("fill")?.startsWith("url(#Pattern_")) {
+			const p = globals.definitions.list.get(n.getAttribute("fill")!.slice(5, -1));
+			if (p && p.firstChild instanceof SVGImageElement) {
+				const fs = ctx.fillStyle,
+				      width = parseInt(p.firstChild.getAttribute("width")!),
+				      height = parseInt(p.firstChild.getAttribute("height")!),
+				      oc = canvas({width, height});
+				oc.getContext("2d")!.drawImage(p.firstChild, 0, 0, width, height);
+				ctx.fillStyle = ctx.createPattern(oc, "repeat")!;
+				ctx.setTransform((n as SVGRectElement).getCTM()!);
+				ctx.fillRect(0, 0, parseInt(n.getAttribute("width")!), parseInt(n.getAttribute("height")!));
+				ctx.fillStyle = fs;
+			}
+			break;
 		}
-	}
-	if (n.children.length === 0) {
-		data += " />";
-	} else {
-		data += ">";
-		for (const c of n.children) {
-			data += walkElements(c);
+	case "polygon":
+	case "ellipse":
+		break;
+	case "g":
+		if (id === "layerGrid" || id === "layerLight") {
+
 		}
-		data += `</${n.nodeName}>`;
+		break;
+	case "defs":
+		return;
 	}
-	return data;
+	for (const c of n.children) {
+		walkElements(c, ctx);
+	}
 };
 
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -36,11 +54,9 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		const {root, mapData: {width, height}} = globals,
 		      c = canvas({width, height}),
 		      ctx = c.getContext("2d")!;
-		let data = "";
 		for (const c of root.children) {
-			data += walkElements(c);
+			walkElements(c, ctx);
 		}
-		ctx.drawImage(img({"crossorigin": "anonymous", "src": "data:image/svg+xml," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${data}</svg>`)}), 0, 0);
 		shell.appendChild(windows(c));
 		e.preventDefault();
 	}
