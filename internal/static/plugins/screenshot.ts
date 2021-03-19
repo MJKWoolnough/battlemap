@@ -16,17 +16,16 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix,
 	const id = n.getAttribute("id");
 	switch (n.nodeName) {
 	case "image":
-		p = p.then(() => {
+		return p.then(() => {
 			ctx.setTransform(ctm.multiply((n as SVGImageElement).getCTM()!));
 			ctx.drawImage(n as SVGImageElement, 0, 0, parseInt(n.getAttribute("width")!), parseInt(n.getAttribute("height")!));
 			ctx.resetTransform();
 		});
-		break;
 	case "rect":
 		if (n.getAttribute("fill")?.startsWith("url(#Pattern_")) {
 			const pattern = globals.definitions.list.get(n.getAttribute("fill")!.slice(5, -1))?.firstChild;
 			if (pattern && pattern instanceof SVGImageElement) {
-				p = p.then(() => {
+				return p.then(() => {
 					const fs = ctx.fillStyle,
 					      width = parseInt(pattern.getAttribute("width")!),
 					      height = parseInt(pattern.getAttribute("height")!),
@@ -43,33 +42,30 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix,
 		}
 	case "polygon":
 	case "ellipse":
-		p = p.then(() => new Promise(sfn => {
+		return p.then(() => new Promise<void>(sfn => {
 			const {width, height} = globals.mapData;
 			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${n.outerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 				ctx.drawImage(this, 0, 0);
 				sfn();
 			}});
 		}));
-		break;
 	case "g":
 		if (id === "layerGrid") {
-			p = p.then(() => new Promise(sfn => {
+			return p.then(() => new Promise<void>(sfn => {
 				const {width, height} = globals.mapData;
 				img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs>${globals.definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 					ctx.drawImage(this, 0, 0);
 					sfn();
 				}});
 			}));
-			return p;
 		} else if (id === "layerLight") {
-			p = p.then(() => {
+			return p.then(() => {
 				const {lightColour, width, height} = globals.mapData,
 				      fs = ctx.fillStyle;
 				ctx.fillStyle = colour2RGBA(lightColour);
 				ctx.fillRect(0, 0, width, height);
 				ctx.fillStyle = fs;
 			});
-			return p;
 		} else if (n.getAttribute("class") === "hiddenLayer") {
 			return p;
 		}
