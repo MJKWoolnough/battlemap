@@ -86,7 +86,7 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix,
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 	if (e.key === "PrintScreen") {
 		const {root, mapData: {width, height}} = globals,
-		      c = canvas({width, height}),
+		      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
 		      ctx = c.getContext("2d")!,
 		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse();
 		let p = Promise.resolve();
