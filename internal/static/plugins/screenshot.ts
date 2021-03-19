@@ -43,6 +43,13 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix,
 		}
 	case "polygon":
 	case "ellipse":
+		p = p.then(() => new Promise(sfn => {
+			const {width, height} = globals.mapData;
+			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">${n.outerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
+				ctx.drawImage(this, 0, 0);
+				sfn();
+			}});
+		}));
 		break;
 	case "g":
 		if (id === "layerGrid") {
