@@ -1,5 +1,6 @@
 import {canvas} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
+import {colour2RGBA} from '../colours.js';
 import {globals} from '../shared.js';
 
 const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
@@ -37,8 +38,15 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 	case "ellipse":
 		break;
 	case "g":
-		if (id === "layerGrid" || id === "layerLight") {
-
+		if (id === "layerGrid") {
+			return;
+		} else if (id === "layerLight") {
+			const {lightColour, width, height} = globals.mapData,
+			      fs = ctx.fillStyle;
+			ctx.fillStyle = colour2RGBA(lightColour);
+			ctx.fillRect(0, 0, width, height);
+			ctx.fillStyle = fs;
+			return;
 		}
 		break;
 	case "defs":
