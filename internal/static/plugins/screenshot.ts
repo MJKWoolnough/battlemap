@@ -17,6 +17,7 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 	case "image":
 		ctx.setTransform((n as SVGImageElement).getCTM()!);
 		ctx.drawImage(n as SVGImageElement, 0, 0, parseInt(n.getAttribute("width")!), parseInt(n.getAttribute("height")!));
+		ctx.resetTransform();
 		break;
 	case "rect":
 		if (n.getAttribute("fill")?.startsWith("url(#Pattern_")) {
@@ -30,6 +31,7 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 				ctx.fillStyle = ctx.createPattern(oc, "repeat")!;
 				ctx.setTransform((n as SVGRectElement).getCTM()!);
 				ctx.fillRect(0, 0, parseInt(n.getAttribute("width")!), parseInt(n.getAttribute("height")!));
+				ctx.resetTransform();
 				ctx.fillStyle = fs;
 			}
 			break;
@@ -41,7 +43,6 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 		if (id === "layerGrid") {
 			const {width, height} = globals.mapData;
 			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs>${globals.definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
-				ctx.resetTransform();
 				ctx.drawImage(this, 0, 0);
 			}});
 			return;
