@@ -1,4 +1,4 @@
-import {canvas} from '../lib/html.js';
+import {canvas, img} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
 import {globals} from '../shared.js';
@@ -39,6 +39,11 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D) => {
 		break;
 	case "g":
 		if (id === "layerGrid") {
+			const {width, height} = globals.mapData;
+			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs>${globals.definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
+				ctx.resetTransform();
+				ctx.drawImage(this, 0, 0);
+			}});
 			return;
 		} else if (id === "layerLight") {
 			const {lightColour, width, height} = globals.mapData,
