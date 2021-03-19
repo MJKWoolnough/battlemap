@@ -62,6 +62,8 @@ const walkElements = (n: Element, ctx: CanvasRenderingContext2D, p: Promise<void
 				ctx.fillStyle = fs;
 			});
 			return p;
+		} else if (n.getAttribute("class") === "hiddenLayer") {
+			return p;
 		}
 		break;
 	case "defs":
