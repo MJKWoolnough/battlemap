@@ -364,8 +364,8 @@ export default function(base: HTMLElement) {
 			}
 		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
-			button("Add Layer", {"onclick": () => {
-				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": "Add Layer"})),
+			button(lang["LAYER_ADD"], {"onclick": () => {
+				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
 				      name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1(lang["LAYER_ADD"]),
