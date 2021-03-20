@@ -87,7 +87,7 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		      ctx = c.getContext("2d")!,
 		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
 		      now = new Date(),
-		      title = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+		      title = `${now.getFullYear()}-${("0" + (now.getMonth()+1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${("0" + now.getHours()).slice(-2)}-${("0" + now.getMinutes()).slice(-2)}-${("0" + now.getSeconds()).slice(-2)}`;
 		let p = Promise.resolve();
 		for (const c of root.children) {
 			p = walkElements(c, ctx, ctm, p);
