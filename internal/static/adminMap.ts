@@ -311,7 +311,7 @@ export default function(base: HTMLElement) {
 		place(document.body, [e.clientX, e.clientY], [
 			tokenContext(),
 			isTokenImage(currToken) ? [
-				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, "Edit Token", currToken.tokenData, false)),
+				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
 				item(lang["CONTEXT_FLIP"], () => {
 					if (!(currToken instanceof SVGToken)) {
 						return;
