@@ -83,7 +83,7 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 	if (e.key === "PrintScreen") {
 		const {root, mapData: {width, height}} = globals,
-		      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
+		      c = canvas({width, height}),
 		      ctx = c.getContext("2d")!,
 		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
 		      now = new Date(),
@@ -92,7 +92,12 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		for (const c of root.children) {
 			p = walkElements(c, ctx, ctm, p);
 		}
-		p.then(() => shell.appendChild(windows({"window-icon": icon, "window-title": title}, c)));
+		p.then(() => c.toBlob(b => {
+			const src = URL.createObjectURL(b),
+			      i = img({"src": src, "style": "max-width: 100%; height: 100%", "1onload": () => {
+				shell.appendChild(windows({"window-icon": icon, "window-title": title}, i));
+			      }})
+		}));
 		e.preventDefault();
 	}
 });
