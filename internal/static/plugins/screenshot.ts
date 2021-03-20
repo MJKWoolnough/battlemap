@@ -85,12 +85,14 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		const {root, mapData: {width, height}} = globals,
 		      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
 		      ctx = c.getContext("2d")!,
-		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse();
+		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
+		      now = new Date(),
+		      title = `${now.getFullYear()}-${now.getMonth()+1}-${now.getDate()}_${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
 		let p = Promise.resolve();
 		for (const c of root.children) {
 			p = walkElements(c, ctx, ctm, p);
 		}
-		p.then(() => shell.appendChild(windows({"window-icon": icon}, c)));
+		p.then(() => shell.appendChild(windows({"window-icon": icon, "window-title": title}, c)));
 		e.preventDefault();
 	}
 });
