@@ -1,8 +1,11 @@
-import {a, canvas, img} from '../lib/html.js';
+import {a, div, canvas, img, input, label} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
 import {globals} from '../shared.js';
 import {panZoom} from '../tools_default.js';
+import {BoolSetting} from '../settings_types.js';
+import {addPlugin} from '../plugins.js';
+import {language} from '../language.js';
 
 const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cg stroke="%23000"%3E%3Crect x="2" y="2" width="96" height="96" stroke-width="4" stroke-dasharray="20 8" fill="%2388f" /%3E%3Cpath d="M10,40 v-15 q0,-2 2,-2 h75 q2,0 2,2 v17 z" fill="%23aaa" /%3E%3Cpath d="M10,40 v30 q0,2 2,2 h75 q2,0 2,-2 v-30 z m5,-17 v-3 q0,-2 2,-2 h12 q2,0 2,2 v3 z" fill="%23333" /%3E%3Ccircle cx="50" cy="50" r="18" fill="%23888" /%3E%3Ccircle cx="50" cy="50" r="12" fill="%23111" /%3E%3Crect x="70" y="36" width="15" height="8" rx="1" fill="%23cc0" /%3E%3C/g%3E%3Crect x="86" width="3" y="23.5" height="48" fill="rgba(0, 0, 0, 0.25)" /%3E%3Crect x="82" width="3" y="36" height="8" fill="rgba(0, 0, 0, 0.25)" /%3E%3C/svg%3E',
       walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix, p: Promise<void>) => {
@@ -78,7 +81,27 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 		p = walkElements(c, ctx, ctm, p);
 	}
 	return p;
-};
+      },
+      defaultLanguage = {
+	"DISABLE_PNG": "Disable Automatic PNG creation"
+      },
+      langs: Record<string, typeof defaultLanguage> = {
+	      "en-GB": defaultLanguage,
+      },
+      lang = langs[language.value] ?? defaultLanguage,
+      disablePNG = new BoolSetting("plugin-screenshot");
+
+addPlugin("screenshot", {
+	"settings": {
+		"priority": 0,
+		"fn": div([
+			input({"type": "checkbox", "id": "plugin-screenshot", "class": "settings_ticker", "checked": disablePNG.value, "onchange": function(this: HTMLInputElement) {
+				disablePNG.set(this.checked);
+			}}),
+			label({"for": "plugin-screenshot"}, `${lang["DISABLE_PNG"]}: `)
+		])
+	}
+});
 
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 	if (e.key === "PrintScreen") {
@@ -95,11 +118,13 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		p.then(() => {
 			const link = a({"download": `${title}.png`}, c),
 			      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
-			c.toBlob(b => {
-				const href = URL.createObjectURL(b);
-				link.setAttribute("href", href);
-				w.addEventListener("onremove", () => URL.revokeObjectURL(href));
-			});
+			if (!disablePNG.value) {
+				c.toBlob(b => {
+					const href = URL.createObjectURL(b);
+					link.setAttribute("href", href);
+					w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+				});
+			}
 		});
 		e.preventDefault();
 	}
