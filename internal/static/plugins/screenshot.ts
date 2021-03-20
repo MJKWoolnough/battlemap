@@ -95,7 +95,7 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		p.then(() => c.toBlob(b => {
 			const src = URL.createObjectURL(b),
 			      i = img({src, "style": "max-width: 100%; height: 100%", "1onload": () => {
-				shell.appendChild(windows({"window-icon": icon, "window-title": title}, a({"href": src, "download": `${title}.png`}, i)));
+				shell.appendChild(windows({"window-icon": icon, "window-title": title, "onremove": () => URL.revokeObjectURL(src)}, a({"href": src, "download": `${title}.png`}, i)));
 			      }})
 		}));
 		e.preventDefault();
