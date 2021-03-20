@@ -83,7 +83,7 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 	if (e.key === "PrintScreen") {
 		const {root, mapData: {width, height}} = globals,
-		      c = canvas({width, height}),
+		      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
 		      ctx = c.getContext("2d")!,
 		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
 		      now = new Date(),
@@ -92,12 +92,15 @@ document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 		for (const c of root.children) {
 			p = walkElements(c, ctx, ctm, p);
 		}
-		p.then(() => c.toBlob(b => {
-			const src = URL.createObjectURL(b),
-			      i = img({src, "style": "max-width: 100%; height: 100%", "1onload": () => {
-				shell.appendChild(windows({"window-icon": icon, "window-title": title, "onremove": () => URL.revokeObjectURL(src)}, a({"href": src, "download": `${title}.png`}, i)));
-			      }})
-		}));
+		p.then(() => {
+			const link = a({"download": `${title}.png`}, c),
+			      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
+			c.toBlob(b => {
+				const href = URL.createObjectURL(b);
+				link.setAttribute("href", href);
+				w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+			});
+		});
 		e.preventDefault();
 	}
 });
