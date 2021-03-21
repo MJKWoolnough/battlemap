@@ -313,6 +313,7 @@ export default function (url: string): Promise<void>{
 				}
 			}
 		}
+		arpc.await(-999).catch(handleError);
 		Object.freeze(rpc);
 		return inited;
 	});
