@@ -83,7 +83,7 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 	return p;
       },
       defaultLanguage = {
-	"DISABLE_PNG": "Disable Automatic PNG creation"
+	"ENABLE_PNG": "Automatic PNG creation"
       },
       langs: Record<string, typeof defaultLanguage> = {
 	      "en-GB": defaultLanguage,
@@ -95,10 +95,10 @@ addPlugin("screenshot", {
 	"settings": {
 		"priority": 0,
 		"fn": div([
-			input({"type": "checkbox", "id": "plugin-screenshot", "class": "settings_ticker", "checked": disablePNG.value, "onchange": function(this: HTMLInputElement) {
-				disablePNG.set(this.checked);
+			input({"type": "checkbox", "id": "plugin-screenshot", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
+				disablePNG.set(!this.checked);
 			}}),
-			label({"for": "plugin-screenshot"}, `${lang["DISABLE_PNG"]}: `)
+			label({"for": "plugin-screenshot"}, `${lang["ENABLE_PNG"]}: `)
 		])
 	}
 });
