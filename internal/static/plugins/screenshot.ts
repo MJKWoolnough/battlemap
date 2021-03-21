@@ -1,4 +1,4 @@
-import {a, div, canvas, img, input, label} from '../lib/html.js';
+import {a, br, div, canvas, img, input, label} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
 import {globals} from '../shared.js';
@@ -55,6 +55,9 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 		}));
 	case "g":
 		if (id === "layerGrid") {
+			if (hideGrid.value) {
+				return p;
+			}
 			return p.then(() => new Promise<void>(sfn => {
 				const {width, height} = globals.mapData;
 				img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><defs>${globals.definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
@@ -83,22 +86,29 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 	return p;
       },
       defaultLanguage = {
+	"ENABLE_GRID": "Show Grid on Screenshot",
 	"ENABLE_PNG": "Automatic PNG creation"
       },
       langs: Record<string, typeof defaultLanguage> = {
 	      "en-GB": defaultLanguage,
       },
       lang = langs[language.value] ?? defaultLanguage,
-      disablePNG = new BoolSetting("plugin-screenshot-png");
+      disablePNG = new BoolSetting("plugin-screenshot-png"),
+      hideGrid = new BoolSetting("plugin-screenshot-grid");
 
 addPlugin("screenshot", {
 	"settings": {
 		"priority": 0,
 		"fn": div([
-			input({"type": "checkbox", "id": "plugin-screenshot", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
+			input({"type": "checkbox", "id": "plugin-screenshot-grid", "class": "settings_ticker", "checked": !hideGrid.value, "onchange": function(this: HTMLInputElement) {
+				hideGrid.set(!this.checked);
+			}}),
+			label({"for": "plugin-screenshot-grid"}, `${lang["ENABLE_GRID"]}: `),
+			br(),
+			input({"type": "checkbox", "id": "plugin-screenshot-png", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
 				disablePNG.set(!this.checked);
 			}}),
-			label({"for": "plugin-screenshot"}, `${lang["ENABLE_PNG"]}: `)
+			label({"for": "plugin-screenshot-png"}, `${lang["ENABLE_PNG"]}: `)
 		])
 	}
 });
