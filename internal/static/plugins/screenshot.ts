@@ -89,7 +89,7 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
 	      "en-GB": defaultLanguage,
       },
       lang = langs[language.value] ?? defaultLanguage,
-      disablePNG = new BoolSetting("plugin-screenshot");
+      disablePNG = new BoolSetting("plugin-screenshot-png");
 
 addPlugin("screenshot", {
 	"settings": {
