@@ -32,7 +32,7 @@ addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => 
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
 handleError = (e: Error | string) => {
 	console.log(e);
-	shell.alert(lang["ERROR"], e instanceof Error ? e.message : typeof e  === "object" ? JSON.stringify(e) : e);
+	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
 inited = new Promise<void>(success => initSend = success);
 
