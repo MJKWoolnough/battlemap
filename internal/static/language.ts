@@ -146,6 +146,7 @@ const defaultLanguage = {
 	"TAB_SETTINGS": "Settings",
 	"TAB_TOOLS": "Tools",
 	"THEME": "Theme",
+	"TITLE": "Battlemap",
 	"TOKEN": "Token",
 	"TOKEN_REPLACE": "Replace Token?",
 	"TOKEN_REPLACE_CONFIRM": "Are you sure that you wish to replace the current token with the currently selected token?",
