@@ -1,4 +1,4 @@
-import {a, br, div, canvas, img, input, label} from '../lib/html.js';
+import {a, br, button, div, canvas, img, input, label} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
 import {globals} from '../shared.js';
@@ -87,14 +87,38 @@ const icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewB
       },
       defaultLanguage = {
 	"ENABLE_GRID": "Show Grid on Screenshot",
-	"ENABLE_PNG": "Automatic PNG creation"
+	"ENABLE_PNG": "Automatic PNG creation",
+	"SCREENSHOT_TAKE": "Take Screenshot"
       },
       langs: Record<string, typeof defaultLanguage> = {
 	      "en-GB": defaultLanguage,
       },
       lang = langs[language.value] ?? defaultLanguage,
       disablePNG = new BoolSetting("plugin-screenshot-png"),
-      hideGrid = new BoolSetting("plugin-screenshot-grid");
+      hideGrid = new BoolSetting("plugin-screenshot-grid"),
+      makeScreenshot = () => {
+	const {root, mapData: {width, height}} = globals,
+	      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
+	      ctx = c.getContext("2d")!,
+	      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
+	      now = new Date(),
+	      title = `${now.getFullYear()}-${("0" + (now.getMonth()+1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${("0" + now.getHours()).slice(-2)}-${("0" + now.getMinutes()).slice(-2)}-${("0" + now.getSeconds()).slice(-2)}`;
+	let p = Promise.resolve();
+	for (const c of root.children) {
+		p = walkElements(c, ctx, ctm, p);
+	}
+	p.then(() => {
+		const link = a({"download": `${title}.png`}, c),
+		      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
+		if (!disablePNG.value) {
+			c.toBlob(b => {
+				const href = URL.createObjectURL(b);
+				link.setAttribute("href", href);
+				w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+			});
+		}
+	});
+      };
 
 addPlugin("screenshot", {
 	"settings": {
@@ -108,34 +132,16 @@ addPlugin("screenshot", {
 			input({"type": "checkbox", "id": "plugin-screenshot-png", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
 				disablePNG.set(!this.checked);
 			}}),
-			label({"for": "plugin-screenshot-png"}, `${lang["ENABLE_PNG"]}: `)
+			label({"for": "plugin-screenshot-png"}, `${lang["ENABLE_PNG"]}: `),
+			br(),
+			button({"onclick": makeScreenshot}, lang["SCREENSHOT_TAKE"])
 		])
 	}
 });
 
 document.body.addEventListener("keydown", (e: KeyboardEvent) => {
 	if (e.key === "PrintScreen") {
-		const {root, mapData: {width, height}} = globals,
-		      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
-		      ctx = c.getContext("2d")!,
-		      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),
-		      now = new Date(),
-		      title = `${now.getFullYear()}-${("0" + (now.getMonth()+1)).slice(-2)}-${("0" + now.getDate()).slice(-2)}_${("0" + now.getHours()).slice(-2)}-${("0" + now.getMinutes()).slice(-2)}-${("0" + now.getSeconds()).slice(-2)}`;
-		let p = Promise.resolve();
-		for (const c of root.children) {
-			p = walkElements(c, ctx, ctm, p);
-		}
-		p.then(() => {
-			const link = a({"download": `${title}.png`}, c),
-			      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
-			if (!disablePNG.value) {
-				c.toBlob(b => {
-					const href = URL.createObjectURL(b);
-					link.setAttribute("href", href);
-					w.addEventListener("onremove", () => URL.revokeObjectURL(href));
-				});
-			}
-		});
+		makeScreenshot();
 		e.preventDefault();
 	}
 });
