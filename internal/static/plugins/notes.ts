@@ -6,7 +6,7 @@ import {clearElement} from '../lib/dom.js';
 import {createHTML, br, button, div, input, span, style, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isAdmin, isUint, labels} from '../shared.js';
-import {language} from '../language.js';
+import mainLang, {language} from '../language.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import {rpc, handleError} from '../rpc.js';
 import {shell, windows} from '../windows.js';
@@ -67,7 +67,7 @@ if (isAdmin()) {
 			} else {
 				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, bbcode(createHTML(null), allTags, pages.get(this.id)?.data.contents || "")));
 				this.window.addControlButton(editIcon, () => {
-					const page = pages.get(this.id),
+					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
 						if (!e.dataTransfer) {
 							return;
@@ -90,21 +90,31 @@ if (isAdmin()) {
 							      id = JSON.parse(e.dataTransfer.getData("pluginnote")).id;
 							contents.setRangeText(`[note=${id}]${selected || notes.get(id)?.name || ""}[/note]`);
 						}
-					      }}, page?.data.contents ?? ""),
-					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page?.data.share ?? false});
-					this.window!.addWindow(windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, [
+					      }}, page.data.contents),
+					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
+					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onclose": (e: Event) => {
+						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
+							e.preventDefault();
+							w.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
+								if (t) {
+									w.remove();
+								}
+							});
+						}
+					      }}, [
 						labels(`${lang["NOTE"]}: `, contents),
 						br(),
 						labels(`${lang["NOTE_SHARE"]}: `, share, false),
 						br(),
 						button({"onclick": () => {
-							const data = {"user": false, "data": {"contents": contents.value, "share": share.checked}};
-							pages.set(this.id, data);
-							rpc.pluginSetting(importName, {[this.id+""]: data}, []);
+							page.data = {"contents": contents.value, "share": share.checked};
+							pages.set(this.id, page);
+							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
 							clearElement(this.window!).appendChild(bbcode(createHTML(null), allTags, contents.value));
 							this.setShareButton();
 						}}, lang["NOTE_SAVE"])
-					]))
+					      ]);
+					this.window!.addWindow(w);
 				}, lang["NOTE_EDIT"]);
 				this.setShareButton();
 			}
