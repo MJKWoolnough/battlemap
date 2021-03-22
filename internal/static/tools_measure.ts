@@ -14,7 +14,6 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {mapData: {width, height}} = globals;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
-      broadcastKey = "TOOL_MEASURE",
       snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
       cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
@@ -53,7 +52,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 			startMeasurement(x, y);
 		} else if (e.button === 2 && !isNaN(coords[0]) && !send) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
+			rpc.signalMeasure([coords[0], coords[1], x, y]);
 			send = true;
 		}
 	      },
@@ -63,7 +62,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 			stopMeasurement();
 		case 2:
 			if (send) {
-				rpc.broadcast({"type": broadcastKey, "data": []});
+				rpc.signalMeasure(null);
 				send = false;
 			}
 		}
@@ -74,7 +73,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 		if (!isNaN(coords[0])) {
 			measureDistance(x, y);
 			if (send) {
-				rpc.broadcast({"type": broadcastKey, "data": [coords[0], coords[1], x, y]});
+				rpc.signalMeasure([coords[0], coords[1], x, y]);
 			}
 		}
 	      };
@@ -88,7 +87,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 		marker.remove();
 		over = false;
 		if (send) {
-			rpc.broadcast({"type": broadcastKey, "data": []});
+			rpc.signalMeasure(null);
 		}
 		cleanup = noopCleanup;
 	};
@@ -186,17 +185,16 @@ inited.then(() => {
 	rpc.waitGridDistanceChange().then(distance => cellValue.value = distance + "");
 	rpc.waitGridDiagonalChange().then(diagonal => diagonals.checked = diagonal);
 	if (!isAdmin()) {
-		rpc.waitBroadcast().then(broadcast => {
-			if (broadcast.type === broadcastKey) {
-				if (broadcast.data instanceof Array && broadcast.data.length === 4) {
-					const [x1, y1, x2, y2] = broadcast.data;
-					if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
-						startMeasurement(x1, y1);
-						measureDistance(x2, y2);
-						return;
-					}
-				}
+		rpc.waitSignalMeasure().then(data => {
+			if (!data) {
 				stopMeasurement();
+				return;
+			}
+			const [x1, y1, x2, y2] = data;
+			if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
+				startMeasurement(x1, y1);
+				measureDistance(x2, y2);
+				return;
 			}
 		});
 	}
