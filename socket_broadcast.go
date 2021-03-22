@@ -99,6 +99,7 @@ const (
 
 	broadcastWindow
 
+	broadcastSignalMeasure
 	broadcastSignalPosition
 	broadcastSignalMovePosition
 	broadcastAny
