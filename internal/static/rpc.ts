@@ -95,6 +95,7 @@ export default function (url: string): Promise<void>{
 				["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, checkMusicPackTrackRepeat],
 				["waitPluginChange",         broadcastPluginChange,         returnVoid],
 				["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
+				["waitSignalMeasure",        broadcastSignalMeasure,        checkSignalMeasure],
 				["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
 				["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
 				["waitBroadcastWindow",      broadcastWindow,               checkBroadcastWindow],
@@ -157,6 +158,7 @@ export default function (url: string): Promise<void>{
 				["setMapKeyData",    "maps.setData",        ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
 				["removeMapKeyData", "maps.removeData",      "!",                 returnVoid,  "waitMapDataRemove", ""],
 
+				["signalMeasure",      "maps.signalMeasure",      "!", returnVoid, "", ""],
 				["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
 				["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
 
@@ -596,6 +598,17 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksPluginSetting: checkers = [[checkKeystoreDataChange, ""], [checkString, "id"]],
       checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
+      checkSignalMeasure = (data: any) => {
+	checkArray(data, "SignalMeasure");
+	if (data.length !== 4) {
+		throw new TypeError("invalid SignalMeasure array, needs length 4");
+	}
+	checkUint(data[0], "SignalPosition.x1");
+	checkUint(data[1], "SignalPosition.y1");
+	checkUint(data[2], "SignalPosition.x2");
+	checkUint(data[3], "SignalPosition.y2");
+	return data;
+      },
       checkSignalPosition = (data: any) => {
 	checkArray(data, "SignalPosition");
 	if (data.length !== 2) {
