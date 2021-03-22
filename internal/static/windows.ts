@@ -25,7 +25,7 @@ export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowEleme
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => {
 	const w = createHTML(awindows({"hide-maximise": "true", "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
 		if (e.key === "Escape" && !this.hasAttribute("hide-close")) {
-			this.remove();
+			this.close();
 		}
 	}}), props, children),
 	      saveName = w.getAttribute("window-data");
