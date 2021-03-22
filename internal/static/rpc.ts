@@ -599,6 +599,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksPluginSetting: checkers = [[checkKeystoreDataChange, ""], [checkString, "id"]],
       checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
       checkSignalMeasure = (data: any) => {
+	if (data === null) {
+		return data;
+	}
 	checkArray(data, "SignalMeasure");
 	if (data.length !== 4) {
 		throw new TypeError("invalid SignalMeasure array, needs length 4");

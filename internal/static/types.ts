@@ -75,7 +75,7 @@ type RPCWaits = {
 	waitMusicPackTrackRepeat:    () => Subscription<MusicPackTrackRepeat>;
 	waitPluginChange:            () => Subscription<void>;
 	waitPluginSetting:           () => Subscription<PluginDataChange>;
-	waitSignalMeasure:           () => Subscription<[Uint, Uint, Uint, Uint]>;
+	waitSignalMeasure:           () => Subscription<[Uint, Uint, Uint, Uint] | null>;
 	waitSignalPosition:          () => Subscription<[Uint, Uint]>;
 	waitSignalMovePosition:      () => Subscription<[Uint, Uint]>;
 	waitBroadcastWindow:         () => Subscription<BroadcastWindow>;
@@ -113,9 +113,9 @@ export type RPC = RPCWaits & {
 	setMapKeyData:    (key: string, value: any)    => Promise<void>;
 	removeMapKeyData: (key: string)                => Promise<void>;
 
-	signalMeasure:      (pos: [Uint, Uint, Uint, Uint]) => Promise<void>;
-	signalPosition:     (pos: [Uint, Uint])             => Promise<void>;
-	signalMovePosition: (pos: [Uint, Uint])             => Promise<void>;
+	signalMeasure:      (pos: [Uint, Uint, Uint, Uint] | null) => Promise<void>;
+	signalPosition:     (pos: [Uint, Uint])                    => Promise<void>;
+	signalMovePosition: (pos: [Uint, Uint])                    => Promise<void>;
 
 	addLayer:         (name: string)                                                         => Promise<string>;
 	addLayerFolder:   (path: string)                                                         => Promise<string>;
