@@ -243,7 +243,6 @@ class BoolSetting5E extends BoolSetting {
 	constructor(name: string, fn: (value: boolean) => void) {
 		super(name);
 		this.wait(fn);
-		fn(this.value);
 	}
 }
 
