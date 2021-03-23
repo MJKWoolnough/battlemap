@@ -15,13 +15,16 @@ class Setting<T> {
 		this.value = v;
 		window.localStorage.setItem(this.name, s);
 		pipes.get(this)?.send(v);
+		return this;
 	}
 	remove() {
 		window.localStorage.removeItem(this.name);
+		return this;
 	}
 	wait(fn: (value: T) => void) {
 		fn(this.value);
 		pipes.get(this)?.receive(fn);
+		return this;
 	}
 }
 
@@ -37,6 +40,7 @@ export class BoolSetting extends Setting<boolean> {
 			window.localStorage.removeItem(this.name);
 		}
 		pipes.get(this)?.send(b);
+		return this;
 	}
 }
 
@@ -45,7 +49,7 @@ export class IntSetting extends Setting<Int> {
 		super(name, parseInt(window.localStorage.getItem(name) || starting));
 	}
 	set(i: Int) {
-		super.set(i, i.toString());
+		return super.set(i, i.toString());
 	}
 }
 
@@ -54,7 +58,7 @@ export class StringSetting extends Setting<string> {
 		super(name, window.localStorage.getItem(name) ?? starting);
 	}
 	set(s: string) {
-		super.set(s, s);
+		return super.set(s, s);
 	}
 }
 
@@ -72,6 +76,6 @@ export class JSONSetting<T> extends Setting<T> {
 		}
 	}
 	set(v: T) {
-		super.set(v, JSON.stringify(v));
+		return super.set(v, JSON.stringify(v));
 	}
 }
