@@ -212,19 +212,8 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 createHTML(shell, {"snap": 50}, base);
 
 invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
-if (invert.value) {
-	document.documentElement.classList.add("invert");
-}
-
 tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
-if (tabIcons.value) {
-	document.documentElement.classList.add("tabIcons");
-}
-
 panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panelOnTop", p));
-if (panelOnTop.value) {
-	document.documentElement.classList.add("panelOnTop");
-}
 
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(pluginInit).then(() => {
 	rpc.ready();
