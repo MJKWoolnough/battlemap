@@ -315,7 +315,4 @@ inited.then(() => {
 	rpc.waitSignalPosition().then(showSignal);
 });
 
-if (zoomSlider.value) {
-	document.body.classList.add("hideZoomSlider");
-}
 zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
