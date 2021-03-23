@@ -140,6 +140,7 @@ export class DraggableItem extends Item {
 				const img = this.image;
 				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
 					e.preventDefault();
+					return;
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
 				e.dataTransfer!.setData(this.dragName(), JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
