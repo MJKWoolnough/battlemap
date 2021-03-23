@@ -53,5 +53,6 @@ summary::-webkit-details-marker {
 	left: var(--icon-left, 0);
 	max-width: 100px;
 	max-height: 100px;
+	z-index: 2;
 }
 
