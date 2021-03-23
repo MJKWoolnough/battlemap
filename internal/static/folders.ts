@@ -123,7 +123,7 @@ export class Item {
 }
 
 export class DraggableItem extends Item {
-	image = img({"class": "imageIcon"});
+	image = img({"class": "imageIcon", "loading": "lazy"});
 	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
