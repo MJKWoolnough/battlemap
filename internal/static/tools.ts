@@ -167,7 +167,4 @@ export default function (base: HTMLElement) {
 			}
 		}
 	});
-	if (miniTools.value) {
-		document.body.classList.add("miniTools");
-	}
 }
