@@ -20,6 +20,7 @@ class Setting<T> {
 		window.localStorage.removeItem(this.name);
 	}
 	wait(fn: (value: T) => void) {
+		fn(this.value);
 		pipes.get(this)?.receive(fn);
 	}
 }
