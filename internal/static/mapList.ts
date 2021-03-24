@@ -217,12 +217,12 @@ export default function(base: Node) {
 						const sq = parseInt(sqWidth.value);
 						loadingWindow(rpc.newMap({
 							"name": name.value,
-							"width": parseInt(width.value) * sq,
-							"height": parseInt(height.value) * sq,
-							"gridType": parseInt(sqType.value),
+							"width": (parseInt(width.value) || 1) * sq,
+							"height": (parseInt(height.value) || 1) * sq,
+							"gridType": parseInt(sqType.value) ?? 0,
 							"gridSize": sq,
 							"gridColour": hex2Colour(sqColour.value),
-							"gridStroke": parseInt(sqLineWidth.value)
+							"gridStroke": parseInt(sqLineWidth.value) ?? 0
 						}), window).then(({id, name}) => {
 							root.addItem(id, name);
 							window.remove();
