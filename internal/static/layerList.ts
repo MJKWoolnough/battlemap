@@ -187,12 +187,12 @@ class ItemLayer extends Item {
 					loadingWindow(
 						queue(() => {
 							const details = {
-								"width": parseInt(width.value) * sq,
-								"height": parseInt(height.value) * sq,
-								"gridType": parseInt(sqType.value),
+								"width": (parseInt(width.value) || 1) * sq,
+								"height": (parseInt(height.value) || 1) * sq,
+								"gridType": parseInt(sqType.value) ?? 0,
 								"gridSize": sq,
 								"gridColour": hex2Colour(sqColour.value),
-								"gridStroke": parseInt(sqLineWidth.value)
+								"gridStroke": parseInt(sqLineWidth.value) ?? 0
 							      };
 							doMapChange(details, false);
 							return rpc.setMapDetails(details)
