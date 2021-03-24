@@ -239,13 +239,6 @@ class SVGToken5E extends SVGToken {
 
 }
 
-class BoolSetting5E extends BoolSetting {
-	constructor(name: string, fn: (value: boolean) => void) {
-		super(name);
-		this.wait(fn);
-	}
-}
-
 addSymbol("5e-shield", symbol({"viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})));
 addSymbol("5e-hp-back", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})));
 addSymbol("5e-hp", symbol({"viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})));
@@ -509,12 +502,12 @@ const defaultLanguage = {
 	}
       },
       displaySettings = {
-	"SHOW_HP": [new BoolSetting5E("5e-show-token-hp", b => document.body.classList.toggle("hide-token-hp-5e", !b)), new BoolSetting5E("5e-show-selected-hp", b => document.body.classList.toggle("hide-selected-hp-5e", !b))],
-	"SHOW_AC": [new BoolSetting5E("5e-show-token-ac", b => document.body.classList.toggle("hide-token-ac-5e", !b)), new BoolSetting5E("5e-show-selected-ac", b => document.body.classList.toggle("hide-selected-ac-5e", !b))],
-	"SHOW_NAMES": [new BoolSetting5E("5e-show-token-names", b => document.body.classList.toggle("hide-token-names-5e", !b)), new BoolSetting5E("5e-show-selected-names", b => document.body.classList.toggle("hide-selected-names-5e", !b))],
-	"HIDE_CONDITIONS": [new BoolSetting5E("5e-hide-token-conditions", b => document.body.classList.toggle("hide-token-conditions-5e", b)), new BoolSetting5E("5e-hide-selected-conditions", b => document.body.classList.toggle("hide-selected-conditions-5e", b))],
-	"DESATURATE_CONDITIONS": [new BoolSetting5E("5e-desaturate-token-conditions", b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting5E("5e-desaturate-selected-conditions", b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
-      } as Record<keyof typeof lang, [BoolSetting5E, BoolSetting5E]>,
+	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => document.body.classList.toggle("hide-token-hp-5e", !b)), new BoolSetting("5e-show-selected-hp").wait(b => document.body.classList.toggle("hide-selected-hp-5e", !b))],
+	"SHOW_AC": [new BoolSetting("5e-show-token-ac").wait(b => document.body.classList.toggle("hide-token-ac-5e", !b)), new BoolSetting("5e-show-selected-ac").wait(b => document.body.classList.toggle("hide-selected-ac-5e", !b))],
+	"SHOW_NAMES": [new BoolSetting("5e-show-token-names").wait(b => document.body.classList.toggle("hide-token-names-5e", !b)), new BoolSetting("5e-show-selected-names").wait(b => document.body.classList.toggle("hide-selected-names-5e", !b))],
+	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => document.body.classList.toggle("hide-token-conditions-5e", b)), new BoolSetting("5e-hide-selected-conditions").wait(b => document.body.classList.toggle("hide-selected-conditions-5e", b))],
+	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting("5e-desaturate-selected-conditions").wait(b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
+      } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
       highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       plugin: PluginType = {
