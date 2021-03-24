@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, option, select} from './lib/html.js';
 import {symbol, g, path, rect} from './lib/svg.js';
-import {mapLoadSend, labels} from './shared.js';
+import {checkInt, mapLoadSend, labels} from './shared.js';
 import {hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -193,7 +193,7 @@ export default function(base: Node) {
 				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapWidth_"}),
 				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30", "id": "mapHeight_"}),
 				      sqType = select({"id": "mapSquareType_"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
-				      sqWidth = input({"type": "number", "min": "1", "max": "500", "value": "100", "id": "mapSquareWidth_"}),
+				      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100", "id": "mapSquareWidth_"}),
 				      sqColour = input({"type": "color", "id": "mapSquareColour_"}),
 				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1", "id": "mapSquareLineWidth_"});
 				return createHTML(window, {"class": "mapAdd"}, [
@@ -214,15 +214,15 @@ export default function(base: Node) {
 					br(),
 					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
 						this.setAttribute("disabled", "disabled");
-						const sq = parseInt(sqWidth.value);
+						const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
 						loadingWindow(rpc.newMap({
 							"name": name.value,
-							"width": (parseInt(width.value) || 1) * sq,
-							"height": (parseInt(height.value) || 1) * sq,
-							"gridType": parseInt(sqType.value) ?? 0,
+							"width": checkInt(parseInt(width.value), 1, 1000, 1) * sq,
+							"height": checkInt(parseInt(height.value), 1, 1000, 1) * sq,
+							"gridType": checkInt(parseInt(sqType.value), 0, 2, 0),
 							"gridSize": sq,
 							"gridColour": hex2Colour(sqColour.value),
-							"gridStroke": parseInt(sqLineWidth.value) ?? 0
+							"gridStroke": checkInt(parseInt(sqLineWidth.value), 0, 10, 0)
 						}), window).then(({id, name}) => {
 							root.addItem(id, name);
 							window.remove();
