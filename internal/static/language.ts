@@ -86,6 +86,7 @@ const defaultLanguage = {
 	"MAP_EDIT": "Edit Map",
 	"MAP_NAME": "Map Name",
 	"MAP_NEW": "New Map",
+	"MAP_NONE_SELECTED": "No Map Selected",
 	"MAP_SET_USER": "Set User Map",
 	"MAP_SETTINGS": "Map Settings",
 	"MAP_SQUARE_COLOUR": "Tile Line Colour",
