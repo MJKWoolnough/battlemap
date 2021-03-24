@@ -6,7 +6,7 @@ import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {noSort} from './lib/ordered.js';
 import {getLayer} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './map_fns.js';
-import {deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
+import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -183,16 +183,16 @@ class ItemLayer extends Item {
 				br(),
 				button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
-					const sq = parseInt(sqWidth.value);
+					const sq = checkInt(parseInt(sqWidth.value), 10, 1000, 10);
 					loadingWindow(
 						queue(() => {
 							const details = {
-								"width": (parseInt(width.value) || 1) * sq,
-								"height": (parseInt(height.value) || 1) * sq,
-								"gridType": parseInt(sqType.value) ?? 0,
+								"width": checkInt(parseInt(width.value), 1, 1000, 1) * sq,
+								"height": checkInt(parseInt(height.value), 1, 1000, 1) * sq,
+								"gridType": checkInt(parseInt(sqType.value), 0, 2, 0),
 								"gridSize": sq,
 								"gridColour": hex2Colour(sqColour.value),
-								"gridStroke": parseInt(sqLineWidth.value) ?? 0
+								"gridStroke": checkInt(parseInt(sqLineWidth.value), 0, 10, 0)
 							      };
 							doMapChange(details, false);
 							return rpc.setMapDetails(details)
