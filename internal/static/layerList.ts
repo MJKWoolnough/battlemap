@@ -290,7 +290,7 @@ class LayerRoot extends Root {
 export const layerIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E';
 
 export default function(base: HTMLElement) {
-	base.appendChild(h1("No Map Selected"));
+	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
 	dragBase = base;
 	const mousePos = {"clientX": 0, "clientY": 0};
 	window.addEventListener("mousemove", e => {
