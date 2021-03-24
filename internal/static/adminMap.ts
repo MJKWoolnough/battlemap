@@ -14,7 +14,7 @@ import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {screen2Grid, panZoom} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, deselectToken, globals, mapLoadReceive, mapLoadedSend, tokenSelected, SQRT3, labels} from './shared.js';
+import {characterData, checkInt, deselectToken, globals, mapLoadReceive, mapLoadedSend, tokenSelected, SQRT3, labels} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {uploadImages} from './assets.js';
 import {tokenContext} from './plugins.js';
@@ -365,7 +365,7 @@ export default function(base: HTMLElement) {
 					br(),
 					button({"onclick": () => {
 						if (globals.selected.token === currToken) {
-							doTokenLightChange(currToken.id, c, parseInt(i.value) ?? 0);
+							doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
 						}
 						w.close();
 					}}, lang["SAVE"])
