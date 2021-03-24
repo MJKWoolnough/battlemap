@@ -365,7 +365,7 @@ export default function(base: HTMLElement) {
 					br(),
 					button({"onclick": () => {
 						if (globals.selected.token === currToken) {
-							doTokenLightChange(currToken.id, c, parseInt(i.value));
+							doTokenLightChange(currToken.id, c, parseInt(i.value) ?? 0);
 						}
 						w.close();
 					}}, lang["SAVE"])
