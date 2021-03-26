@@ -9,6 +9,7 @@ import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
 import {windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
+import {checkInt} from './shared.js';
 
 class Track {
 	id: Uint;
@@ -265,10 +266,10 @@ export default function(base: Node) {
 				this.node = li([
 					this.nameNode = span(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
-						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = parseInt(this.volumeNode.value));
+						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 						this.updateVolume();
 					}}),
-					this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.name, parent.tracks.findIndex(t => t === this), this.repeat = parseInt(this.repeatNode.value))}),
+					this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.name, parent.tracks.findIndex(t => t === this), this.repeat = checkInt(parseInt(this.repeatNode.value), -1))}),
 					remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
 						if (!d) {
 							return;
@@ -369,7 +370,7 @@ export default function(base: Node) {
 					stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => this.stop(true)}),
 					br(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": pack.volume, "onchange": () => {
-						rpc.musicPackSetVolume(this.name, this.volume = parseInt(this.volumeNode.value));
+						rpc.musicPackSetVolume(this.name, this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 						this.updateVolume();
 					}}),
 					this.tracks.node,
