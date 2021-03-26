@@ -2,7 +2,7 @@ import type {Int, Uint, SVGAnimateBeginElement} from './types.js';
 import type {SVGToken} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {deselectToken, globals, mapLoadedReceive, SQRT3, isAdmin, isUser} from './shared.js';
+import {checkInt, deselectToken, globals, mapLoadedReceive, SQRT3, isAdmin, isUser} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';
@@ -68,8 +68,8 @@ screen2Grid = (() => {
 })(),
 zoom = (delta: number, x: number, y: number, moveControl = true) => {
 	const {root, outline} = globals,
-	      width = parseInt(root.getAttribute("width") || "0") / 2,
-	      height = parseInt(root.getAttribute("height") || "0") / 2,
+	      width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
+	      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
 	      oldZoom = panZoom.zoom;
 	if (delta < 0) {
 		panZoom.zoom /= -delta;
