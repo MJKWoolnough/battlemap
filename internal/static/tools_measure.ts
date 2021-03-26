@@ -4,7 +4,7 @@ import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.j
 import {addTool} from './tools.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {globals, mapLoadedReceive, isUint, isAdmin} from './shared.js';
+import {checkInt, globals, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -130,7 +130,7 @@ measureDistance = (x2: Uint, y2: Uint) => {
 	      [x1, y1] = coords,
 	      l = {x1, y1, x2, y2},
 	      [sx, sy] = grid2Screen(x2, y2);
-	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round((parseInt(cellValue.value) || size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
+	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(checkInt(parseInt(cellValue.value), 0, Infinity, size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
 	createSVG(lone, l);
 	createSVG(ltwo, l);
 },
