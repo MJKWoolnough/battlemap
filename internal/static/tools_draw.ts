@@ -3,7 +3,7 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
-import {deselectToken, globals} from './shared.js';
+import {checkInt, deselectToken, globals} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
@@ -45,7 +45,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				      {layer: selectedLayer} = globals.selected,
 				      width = Math.abs(cx - x),
 				      height = Math.abs(cy - y),
-				      token = {"id": 0, "x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
+				      token = {"id": 0, "x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
 				if (selectedLayer) {
 					doTokenAdd(selectedLayer.path, token);
 				} else {
@@ -108,7 +108,7 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 				c.y -= minY;
 			}
 			const {layer: selectedLayer} = globals.selected,
-			      token = {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": parseInt(strokeWidth.value), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
+			      token = {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
 			if (selectedLayer) {
 				doTokenAdd(selectedLayer.path, token);
 			} else {
