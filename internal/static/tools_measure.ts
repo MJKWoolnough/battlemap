@@ -130,7 +130,7 @@ measureDistance = (x2: Uint, y2: Uint) => {
 	      [x1, y1] = coords,
 	      l = {x1, y1, x2, y2},
 	      [sx, sy] = grid2Screen(x2, y2);
-	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(checkInt(parseInt(cellValue.value), 0, Infinity, size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
+	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(checkInt(parseInt(cellValue.value), 1, Infinity, size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
 	createSVG(lone, l);
 	createSVG(ltwo, l);
 },
