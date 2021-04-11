@@ -78,6 +78,7 @@ const defaultLanguage = {
 	"LIGHTING_INTENSITY": "Light Intensity (Distance)",
 	"LIGHTING_PICK_COLOUR": "Pick Token Lighting Colour",
 	"LOADING": "Loading…",
+	"LOADING_MAP": "Loading Map",
 	"LOGIN": "Login",
 	"LOGOUT": "Logout",
 	"MAP_ADD": "Add Map",
