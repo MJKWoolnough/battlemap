@@ -1,10 +1,11 @@
 import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
 import {SortNode} from './lib/ordered.js';
+import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {characterData, globals, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {colour2RGBA} from './colours.js';
-import {div} from './lib/html.js';
+import {div, progress} from './lib/html.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
@@ -130,8 +131,11 @@ export class SVGToken extends SVGTransform {
 		throw new Error("use from");
 		super(token);
 	}
-	static from(token: TokenImage) {
-		const node = image(),
+	static from(token: TokenImage, wg?: WaitGroup) {
+		if (wg) {
+			wg.add();
+		}
+		const node = image(wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}),
 		      tc = tokenClass() ?? SVGToken,
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc.prototype);
 		createSVG(node, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
@@ -268,7 +272,7 @@ const idNames: Record<string, Int> = {
 	"Grid": -1,
 	"Light": -2,
       },
-      processLayers = (layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
+      processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
 	path += "/" + layer.name
 	const node = g();
 	if (layer.hidden) {
@@ -277,14 +281,14 @@ const idNames: Record<string, Int> = {
 	if (isLayerFolder(layer)) {
 		const children = new SortNode<SVGFolder | SVGLayer>(node);
 		for (const c of layer.children) {
-			children.push(processLayers(c, path));
+			children.push(processLayers(wg, c, path));
 		}
 		return Object.assign(layer, {node, children, path});
 	}
 	const tokens = new SortNode<SVGToken | SVGShape>(node);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			tokens.push(isTokenImage(t) ? SVGToken.from(t) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
+			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
 		node.setAttribute("id", `layer${layer.name}`);
@@ -363,7 +367,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	layer.hidden = !visibility;
 	updateLight();
 },
-addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers({"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
+addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
 	const l = getLayer(path)!;
 	l.name = name
@@ -375,7 +379,7 @@ removeLayer = (path: string) => {
 	(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
 },
-addLayer = (name: string) => (globals.layerList.children.push(processLayers({name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
+addLayer = (name: string) => (globals.layerList.children.push(processLayers(undefined, {name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(parentStr)!,
@@ -436,11 +440,12 @@ mapView = (mapData: MapData, loadChars = false) => {
 	globals.tokens.clear();
 	globals.walls.clear();
 	const definitions = globals.definitions = new Defs(),
+	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const node = g(),
 		children = new SortNode<SVGFolder | SVGLayer>(node);
 		for (const c of mapData.children) {
-			children.push(processLayers(c));
+			children.push(processLayers(wg, c));
 		}
 		return {
 			id: 0,
@@ -454,8 +459,12 @@ mapView = (mapData: MapData, loadChars = false) => {
 		} as SVGFolder;
 	      })(),
 	      {width, height, lightColour} = mapData,
+	      items = div(),
+	      percent = progress(),
+	      loader = div({"id": "mapLoading"}, div([percent, items])),
 	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
-	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, root);
+	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	wg.onComplete(() => loader.remove());
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
@@ -471,7 +480,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 					if (loadChars && cID && typeof cID.data === "number" && !characterData.has(cID.data)) {
 						const c = cID.data;
 						characterData.set(c, {});
-						queue(() => rpc.characterGet(c).then(d => characterData.set(c, d)));
+						wg.add();
+						queue(() => rpc.characterGet(c).then(d => characterData.set(c, d)).finally(() => wg.done()));
 					}
 				}
 			}
@@ -483,6 +493,12 @@ mapView = (mapData: MapData, loadChars = false) => {
 			}
 		}
 		return false;
+	});
+	wg.onUpdate(({waits, done, errors}) => {
+		const d = done + errors;
+		items.innerText = `${d} / ${waits}`;
+		percent.setAttribute("max", waits + "")
+		percent.setAttribute("value", d + "");
 	});
 	updateLight();
 	return base;
