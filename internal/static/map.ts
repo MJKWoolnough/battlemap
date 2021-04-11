@@ -9,6 +9,7 @@ import {div, progress} from './lib/html.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
+import lang from './language.js';
 
 export type SVGLayer = LayerTokens & {
 	node: SVGElement;
@@ -461,7 +462,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      {width, height, lightColour} = mapData,
 	      items = div(),
 	      percent = progress(),
-	      loader = div({"id": "mapLoading"}, div([percent, items])),
+	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
 	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), 1000));
