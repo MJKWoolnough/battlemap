@@ -73,3 +73,7 @@
 .invert #helpBack {
 	fill: #000;
 }
+
+.invert #mapLoading {
+	background-color: #000;
+}
