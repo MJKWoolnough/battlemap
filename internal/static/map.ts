@@ -464,7 +464,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      loader = div({"id": "mapLoading"}, div([percent, items])),
 	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
 	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
-	wg.onComplete(() => loader.remove());
+	wg.onComplete(() => setTimeout(() => loader.remove(), 1000));
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
 	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
