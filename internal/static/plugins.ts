@@ -19,6 +19,7 @@ interface SVGTokenConstructor {
 	new (token: TokenImage): SVGToken;
 }
 
+
 export type PluginType = {
 	settings?: owp<HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
@@ -37,7 +38,8 @@ const plugins = new Map<string, PluginType>(),
 	return a[1][key]!.priority - b[1][key]!.priority
       }) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
 
-export const settings = () => {
+export const pluginName = ({url}: {url: string}) => url.split("/").pop() ?? "",
+settings = () => {
 	if (pluginList.size === 0) {
 		return [];
 	}
