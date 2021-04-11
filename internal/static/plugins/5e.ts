@@ -6,7 +6,7 @@ import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, style, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
 import {SortNode, noSort} from '../lib/ordered.js';
-import {addPlugin, getSettings} from '../plugins.js';
+import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
@@ -64,10 +64,6 @@ type MapData5E = MapData & {
 	data: {
 		"5e-initiative"?: IDInitiative[];
 	}
-}
-
-type MetaURL = {
-	url: string;
 }
 
 type ShapechangeCat = {
@@ -370,7 +366,7 @@ const defaultLanguage = {
 	"en-GB": defaultLanguage
       },
       lang = langs[language.value] ?? defaultLanguage,
-      importName = (import.meta as MetaURL).url.split("/").pop()!,
+      importName = pluginName(import.meta),
       nonEnum = {"enumerable": false},
       nonEnumProps = {
 	"tokenNode": nonEnum,
