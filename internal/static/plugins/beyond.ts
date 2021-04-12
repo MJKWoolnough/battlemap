@@ -32,15 +32,18 @@ addPlugin(lang["PLUGIN_NAME"], {
 			button({"onclick": () => {
 				if (parseInt(beyondID.value) + "" === beyondID.value) {
 					processID(beyondID.value);
+					return;
 				} else {
-					const url = new URL(beyondID.value),
-					      urlMatch = url.pathname.match(urlReg);
-					if (urlMatch && parseInt(urlMatch[1]) + "" === urlMatch[1]) {
-						processID(urlMatch[1]);
-					} else {
-						(beyondWindow ?? shell).alert(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"], icon);
-					}
+					try {
+						const url = new URL(beyondID.value),
+						      urlMatch = url.pathname.match(urlReg);
+						if (urlMatch && parseInt(urlMatch[1]) + "" === urlMatch[1]) {
+							processID(urlMatch[1]);
+							return;
+						}
+					} catch {}
 				}
+				(beyondWindow ?? shell).alert(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"], icon);
 			}}, lang["BEYOND_LOAD"])
 		]), true, icon]
 	}
