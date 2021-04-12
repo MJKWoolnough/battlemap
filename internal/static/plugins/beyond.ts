@@ -1,8 +1,11 @@
-import {div} from '../lib/html.js';
+import {button, div, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
+import {enterKey} from '../shared.js';
 
 const defaultLanguage = {
+	"BEYOND_ID": "Beyond ID",
+	"BEYOND_LOAD": "Load Beyond Data",
 	"PLUGIN_NAME": "Beyond"
       },
       langs: Record<string, typeof defaultLanguage> = {
@@ -14,6 +17,10 @@ const defaultLanguage = {
 addPlugin(lang["PLUGIN_NAME"], {
 	"menuItem": {
 		"priority": 0,
-		"fn": [lang["PLUGIN_NAME"], div(), true, icon]
+		"fn": [lang["PLUGIN_NAME"], div([
+			label({"for": "plugin-beyond-id"}, `${lang["BEYOND_ID"]}: `),
+			input({"id": "plugin-beyond-id", "type": "text", "onkeypress": enterKey}),
+			button(lang["BEYOND_LOAD"])
+		]), true, icon]
 	}
 });
