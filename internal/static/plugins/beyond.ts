@@ -1,6 +1,6 @@
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
-import {a, br, button, div, input, label} from '../lib/html.js';
+import {a, br, button, div, h1, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
 import {enterKey} from '../shared.js';
@@ -64,6 +64,7 @@ const defaultLanguage = {
 								}
 								const checked: BeyondData = {"name": data["name"]};
 								beyondData.set(checked);
+								show(checked);
 							}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
 						}
 					}})
@@ -74,9 +75,15 @@ const defaultLanguage = {
 		}}, lang["BEYOND_LOAD"])
 	      ];
 	return () => createHTML(clearElement(baseDiv), contents);
-      })();
+      })(),
+      show = (data: BeyondData) => {
+	createHTML(clearElement(baseDiv), [
+		h1(data.name)
+	]);
+      };
 
 if (beyondData.value) {
+	show(beyondData.value);
 } else {
 	noData();
 }
