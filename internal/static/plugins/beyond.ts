@@ -26,7 +26,7 @@ const defaultLanguage = {
       baseDiv = div({"onpopout": (e: CustomEvent) => beyondWindow = e.detail, "onpopin": () => beyondWindow = null}),
       noData = (() => {
 	const beyondID = input({"id": "plugin-beyond-id", "type": "text", "onkeypress": enterKey}),
-	      urlReg = /\/character\/([0-9]+)(\/json)?$/,
+	      urlReg = /\/characters?\/([0-9]+)(\/json)?$/,
 	      contents = [
 		label({"for": "plugin-beyond-id"}, `${lang["BEYOND_ID"]}: `),
 		beyondID,
