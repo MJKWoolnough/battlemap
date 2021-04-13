@@ -1,6 +1,6 @@
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
-import {a, br, button, div, h1, input, label} from '../lib/html.js';
+import {a, button, div, h1, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
 import {enterKey} from '../shared.js';
@@ -20,7 +20,7 @@ const defaultLanguage = {
 	"BEYOND_INVALID_ID_LONG": "Unable to determine Beyond ID, please re-enter",
 	"BEYOND_LOAD": "Load Beyond Data",
 	"ERROR_INVALID_FILE": "Invalid Beyond JSON file",
-	"DELETE": "Delete Character",
+	"DELETE": "Remove Character Data",
 	"DOWNLOAD": "Download Beyond Data",
 	"PLUGIN_NAME": "Beyond",
 	"UPLOAD": "Upload Beyond Data"
@@ -40,42 +40,48 @@ const defaultLanguage = {
       handleError = (title: string, message: string) => (beyondWindow ?? shell).alert(title, message, icon),
       baseDiv = div({"onpopout": (e: CustomEvent) => beyondWindow = e.detail, "onpopin": () => beyondWindow = null}),
       noData = (() => {
-	const beyondID = input({"id": "plugin-beyond-id", "type": "text", "onkeypress": enterKey}),
-	      urlReg = /\/characters?\/([0-9]+)(\/json)?$/,
-	      contents = [
+	const beyondLink = a(lang["DOWNLOAD"]),
+	      beyondDownload = div([
+		      beyondLink,
+		      remove({"title": lang["DELETE"], "style": "width: 1em;height: 1em;cursor: pointer;", "onclick": () => beyondDownload.replaceWith(beyondEntry)})
+	      ]),
+	      beyondID = input({"id": "plugin-beyond-id", "type": "text", "onkeypress": enterKey}),
+	      beyondEntry = div([
 		label({"for": "plugin-beyond-id"}, `${lang["BEYOND_ID"]}: `),
 		beyondID,
 		button({"onclick": () => {
 			const urlMatch = beyondID.value.match(urlReg),
 			      id = parseInt(urlMatch ? beyondID.value = urlMatch[1] : beyondID.value);
 			if (id + "" === beyondID.value) {
-				createHTML(clearElement(baseDiv), [
-					a({"href": `https://www.dndbeyond.com/character/${id}/json`, "download": "beyond.json"}, lang["DOWNLOAD"]),
-					br(),
-					label({"for": "plugin-beyond-upload"}, lang["UPLOAD"]),
-					input({"id": "plugin-beyond-upload", "type": "file", "style": "display: none", "onchange": function(this: HTMLInputElement) {
-						if (!this.files || !this.files[0]) {
-							handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]);
-						} else {
-							this.files[0].text().then(d => {
-								const data = JSON.parse(d);
-								if (typeof data !== "object") {
-									throw -1;
-								}
-								if (typeof data["name"] !== "string") {
-									throw -2;
-								}
-								const checked: BeyondData = {"name": data["name"]};
-								beyondData.set(checked);
-								show(checked);
-							}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
-						}
-					}})
-				]);
+				beyondLink.setAttribute("href", `https://www.dndbeyond.com/character/${id}/json`);
+				beyondEntry.replaceWith(beyondDownload);
 			} else {
 				handleError(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"]);
 			}
-		}}, lang["BEYOND_LOAD"])
+		}}, lang["BEYOND_LOAD"]),
+	      ]),
+	      urlReg = /\/characters?\/([0-9]+)(\/json)?$/,
+	      contents = [
+		beyondEntry,
+		label({"for": "plugin-beyond-upload"}, lang["UPLOAD"]),
+		input({"id": "plugin-beyond-upload", "type": "file", "style": "display: none", "onchange": function(this: HTMLInputElement) {
+			if (!this.files || !this.files[0]) {
+				handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]);
+			} else {
+				this.files[0].text().then(d => {
+					const data = JSON.parse(d);
+					if (typeof data !== "object") {
+						throw -1;
+					}
+					if (typeof data["name"] !== "string") {
+						throw -2;
+					}
+					const checked: BeyondData = {"name": data["name"]};
+					beyondData.set(checked);
+					show(checked);
+				}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
+			}
+		}})
 	      ];
 	return () => createHTML(clearElement(baseDiv), contents);
       })(),
