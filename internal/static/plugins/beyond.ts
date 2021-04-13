@@ -45,7 +45,12 @@ const defaultLanguage = {
 						} else {
 							this.files[0].text().then(d => {
 								const data = JSON.parse(d);
-								console.log(data);
+								if (typeof data !== "object") {
+									throw -1;
+								}
+								if (typeof data["name"] !== "string") {
+									throw -2;
+								}
 							}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
 						}
 					}})
