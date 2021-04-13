@@ -22,6 +22,7 @@ const defaultLanguage = {
       idSetting = new IntSetting("plugin-beyond"),
       beyondID = input({"id": "plugin-beyond-id", "type": "text", "onkeypress": enterKey, "value": idSetting.value || ""}),
       urlReg = /\/character\/([0-9]+)(\/json)?$/,
+      handleError = (title: string, message: string) => (beyondWindow ?? shell).alert(title, message, icon),
       processID = (id: Uint) => {
 	idSetting.set(id);
       };
@@ -40,7 +41,7 @@ addPlugin(lang["PLUGIN_NAME"], {
 				if (id + "" === beyondID.value) {
 					processID(id);
 				} else {
-					(beyondWindow ?? shell).alert(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"], icon);
+					handleError(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"]);
 				}
 			}}, lang["BEYOND_LOAD"])
 		]), true, icon]
