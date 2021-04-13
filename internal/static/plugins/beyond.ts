@@ -2,7 +2,7 @@ import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
 import {a, br, button, div, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
-import {language} from '../language.js';
+import mainLang, {language} from '../language.js';
 import {enterKey} from '../shared.js';
 import {shell} from '../windows.js';
 
@@ -13,6 +13,7 @@ const defaultLanguage = {
 	"BEYOND_INVALID_ID": "Invalid ID",
 	"BEYOND_INVALID_ID_LONG": "Unable to determine Beyond ID, please re-enter",
 	"BEYOND_LOAD": "Load Beyond Data",
+	"ERROR_INVALID_FILE": "Invalid Beyond JSON file",
 	"DOWNLOAD": "Download Beyond Data",
 	"PLUGIN_NAME": "Beyond",
 	"UPLOAD": "Upload Beyond Data"
@@ -39,6 +40,14 @@ const defaultLanguage = {
 					br(),
 					label({"for": "plugin-beyond-upload"}, lang["UPLOAD"]),
 					input({"id": "plugin-beyond-upload", "type": "file", "style": "display: none", "onchange": function(this: HTMLInputElement) {
+						if (!this.files || !this.files[0]) {
+							handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]);
+						} else {
+							this.files[0].text().then(d => {
+								const data = JSON.parse(d);
+								console.log(data);
+							}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
+						}
 					}})
 				]);
 			} else {
