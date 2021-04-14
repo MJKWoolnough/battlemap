@@ -153,13 +153,37 @@ const defaultLanguage = {
 					if (!isUint(data["baseHitPoints"])) {
 						throw -4;
 					}
+					if (!(data["classes"] instanceof Array)) {
+						throw -5;
+					}
+					for (const c of data["classes"]) {
+						if (!isUint(c["level"], 20)) {
+							throw -6;
+						}
+						const def = c["definition"],
+						      subDef = c["subclassDefinition"];
+						if (typeof def !== "object" || typeof def["name"] !== "string") {
+							throw -7;
+						}
+						if (parsed.class !== "") {
+							parsed.class += ", ";
+						}
+						parsed.class += def["name"];
+						if (subDef === null) {
+							parsed.class += ` (${c["level"]})`;
+						} else if (typeof subDef !== "object" || typeof subDef["name"] !== "string") {
+							throw -8;
+						} else {
+							parsed.class += ` (${subDef["name"]}, ${c["level"]})`;
+						}
+					}
 					parsed.maxHP = data["baseHitPoints"];
 					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
-						throw -5;
+						throw -9;
 					}
 					for (let i = 0; i < 6; i++) {
 						if (typeof data["stats"][i] !== "object" || isUint(data["stats"][i]["value"], 20)) {
-							throw -6;
+							throw -10;
 						}
 						parsed["attrs"][attributes[i]] = data["stats"][i]["value"];
 					}
