@@ -15,15 +15,17 @@ type roll = {
 	adv: boolean;
 }
 
+type Attribute = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+
 type BeyondData = {
 	name: string;
 	class: string;
 	race: string;
 	level: Uint;
 	ac: [Uint, Uint];
-	attrs: Record<"str" | "dex" | "con" | "int" | "wis" | "cha", Uint>;
-	saves: Partial<Record<"str" | "dex" | "con" | "int" | "wis" | "cha" | "death", roll>>;
-	skills: Partial<Record<"acrobatics" | "animalHandling" | "arcana" | "athletics" | "deception" | "history" | "initiative" | "insight" | "intimidation" | "investigation" | "medicine" | "nature" | "perception" | "performance" | "persuasion" | "religion" | "sleightOfHand" | "stealth", roll>>;
+	attrs: Record<Attribute, Uint>;
+	saves: Partial<Record<Attribute | "DEATH", roll>>;
+	skills: Partial<Record<keyof typeof skills, roll>>;
 	passives: Partial<Record<"insight" | "investigation" | "perception", roll>>;
 	maxHP: Uint;
 	hitDice: [Uint, Uint][];
@@ -47,6 +49,34 @@ const defaultLanguage = {
 	"en-GB": defaultLanguage
       },
       lang = langs[language.value] ?? defaultLanguage,
+      attributes: Attribute[] = Object.freeze([
+	"STR",
+	"DEX",
+	"CON",
+	"INT",
+	"WIS",
+	"CHA"
+      ]),
+      skills = Object.freeze({
+	"ACROBATICS": 1,
+	"ANIMAL_HANDLING": 4,
+	"ARCANA": 3,
+	"ATHLETICS": 0,
+	"DECEPTION": 5,
+	"HISTORY": 3,
+	"INITIATIVE": 1,
+	"INSIGHT": 4,
+	"INTIMIDATION": 5,
+	"INVESTIGATION": 3,
+	"MEDICINE": 4,
+	"NATURE": 3,
+	"PERCEPTION": 5,
+	"PERFORMANCE": 5,
+	"PERSUASION": 5,
+	"RELIGION": 3,
+	"SLEIGHT_OF_HAND": 1,
+	"STEALTH": 1
+      }),
       remove = getSymbol("remove")!,
       icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 950 950"%3E%3Crect width="100%25" height="100%25" fill="%23000" /%3E%3Cpath d="M30,35 l78,81 v276 h-106 l107,137 v302 l-78,81 h553 c104,0 194,-18 257,-56 c63,-38 93,-92 93,-165 v-50 c-1,-42 -17,-80 -49,-112 c-33,-32 -77,-56 -134,-72 c23,-6 44,-15 63,-27 c20,-12 35,-24 48,-39 s23,-30 30,-47 c8,-15 11,-30 11,-45 v-29 c0,-35 -8,-68 -24,-96 c-17,-29 -39,-54 -69,-74 c-30,-21 -72,-36 -114 -48 c-42,-11 -89,-17 -140,-17 z M333,163 h141 c41,0 74,6 99,18 c26,12 38,25 38,68 v29 c0,26 -9,45 -29,60 c-20,15 -45,23 -78,23 h-171 z M333,558 h179 c33,0 62,8 89,23 c26,15 39,35 39,60 v42 c0,18 -3,33 -11,44 c-8,11 -17,20 -29,27 c-12,6 -26,11 -42,14 c-17,2 -33,3 -50,3 h-176 z" fill="%23f00" stroke="%23000" /%3E%3C/svg%3E',
       beyondData = new JSONSetting<BeyondData | null>("plugin-beyond", null, (data: any): data is BeyondData => {
@@ -95,12 +125,12 @@ const defaultLanguage = {
 						"level": 0,
 						"ac": [0, 0],
 						"attrs": {
-							"str": 0,
-							"dex": 0,
-							"con": 0,
-							"int": 0,
-							"wis": 0,
-							"cha": 0
+							"STR": 0,
+							"DEX": 0,
+							"CON": 0,
+							"INT": 0,
+							"WIS": 0,
+							"CHA": 0
 						},
 						"saves": {},
 						"skills": {},
