@@ -146,12 +146,16 @@ const defaultLanguage = {
 						throw -2;
 					}
 					parsed.name = data["name"];
-					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
+					if (!isUint(data["baseHitPoints"])) {
 						throw -3;
+					}
+					parsed.maxHP = data["baseHitPoints"];
+					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
+						throw -4;
 					}
 					for (let i = 0; i < 6; i++) {
 						if (typeof data["stats"][i] !== "object" || isUint(data["stats"][i]["value"], 20)) {
-							throw -4;
+							throw -5;
 						}
 						parsed["attrs"][attributes[i]] = data["stats"][i]["value"];
 					}
