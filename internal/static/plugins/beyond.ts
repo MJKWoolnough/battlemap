@@ -1,3 +1,4 @@
+import type {Int, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
 import {a, button, div, h1, input, label} from '../lib/html.js';
@@ -8,8 +9,63 @@ import {shell} from '../windows.js';
 import {JSONSetting} from '../settings_types.js';
 import {getSymbol} from '../symbols.js';
 
+type roll = {
+	prof: 0 | 0.5 | 1 | 2;
+	mod: Int;
+	adv: boolean;
+}
+
 type BeyondData = {
 	name: string;
+	class: string;
+	race: string;
+	level: Uint;
+	ac: [Uint, Uint];
+	attrs: {
+		str: Uint;
+		dex: Uint;
+		con: Uint;
+		int: Uint;
+		wis: Uint;
+		cha: Uint;
+	};
+	saves: {
+		str: roll;
+		dex: roll;
+		con: roll;
+		int: roll;
+		wis: roll;
+		cha: roll;
+		death: roll;
+	};
+	skills: {
+		acrobatics: roll;
+		animalHandling: roll;
+		arcana: roll;
+		athletics: roll;
+		deception: roll;
+		history: roll;
+		initiative: roll;
+		insight: roll;
+		intimidation: roll;
+		investigation: roll;
+		medicine: roll;
+		nature: roll;
+		perception: roll;
+		performance: roll;
+		persuasion: roll;
+		religion: roll;
+		sleightOfHand: roll;
+		stealth: roll;
+	};
+	passives: {
+		insight: roll;
+		investigation: roll;
+		perception: roll;
+	}
+	maxHP: Uint;
+	hitDice: [Uint, Uint][];
+	speed: Uint;
 }
 
 let beyondWindow: WindowElement | null = null;
