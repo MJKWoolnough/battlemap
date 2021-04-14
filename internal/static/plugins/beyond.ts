@@ -102,40 +102,9 @@ const defaultLanguage = {
 							"wis": 0,
 							"cha": 0
 						},
-						"saves": {
-							"str": {"prof": 0, "mod": 0, "adv": false},
-							"dex": {"prof": 0, "mod": 0, "adv": false},
-							"con": {"prof": 0, "mod": 0, "adv": false},
-							"int": {"prof": 0, "mod": 0, "adv": false},
-							"wis": {"prof": 0, "mod": 0, "adv": false},
-							"cha": {"prof": 0, "mod": 0, "adv": false},
-							"death": {"prof": 0, "mod": 0, "adv": false}
-						},
-						"skills": {
-							"acrobatics": {"prof": 0, "mod": 0, "adv": false},
-							"animalHandling": {"prof": 0, "mod": 0, "adv": false},
-							"arcana": {"prof": 0, "mod": 0, "adv": false},
-							"athletics": {"prof": 0, "mod": 0, "adv": false},
-							"deception": {"prof": 0, "mod": 0, "adv": false},
-							"history": {"prof": 0, "mod": 0, "adv": false},
-							"initiative": {"prof": 0, "mod": 0, "adv": false},
-							"insight": {"prof": 0, "mod": 0, "adv": false},
-							"intimidation": {"prof": 0, "mod": 0, "adv": false},
-							"investigation": {"prof": 0, "mod": 0, "adv": false},
-							"medicine": {"prof": 0, "mod": 0, "adv": false},
-							"nature": {"prof": 0, "mod": 0, "adv": false},
-							"perception": {"prof": 0, "mod": 0, "adv": false},
-							"performance": {"prof": 0, "mod": 0, "adv": false},
-							"persuasion": {"prof": 0, "mod": 0, "adv": false},
-							"religion": {"prof": 0, "mod": 0, "adv": false},
-							"sleightOfHand": {"prof": 0, "mod": 0, "adv": false},
-							"stealth": {"prof": 0, "mod": 0, "adv": false}
-						},
-						"passives": {
-							"insight": {"prof": 0, "mod": 0, "adv": false},
-							"investigation": {"prof": 0, "mod": 0, "adv": false},
-							"perception": {"prof": 0, "mod": 0, "adv": false},
-						},
+						"saves": {},
+						"skills": {},
+						"passives": {},
 						"maxHP": 0,
 						"hitDice": [],
 						"speed": 0
