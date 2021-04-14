@@ -49,7 +49,7 @@ const defaultLanguage = {
 	"en-GB": defaultLanguage
       },
       lang = langs[language.value] ?? defaultLanguage,
-      attributes: Attribute[] = Object.freeze([
+      attributes: Readonly<Attribute[]> = Object.freeze([
 	"STR",
 	"DEX",
 	"CON",
