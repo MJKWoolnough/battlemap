@@ -146,16 +146,20 @@ const defaultLanguage = {
 						throw -2;
 					}
 					parsed.name = data["name"];
-					if (!isUint(data["baseHitPoints"])) {
+					if (typeof data["race"] !== "object" || typeof data["race"]["fullName"] !== "string") {
 						throw -3;
+					}
+					parsed.race = data["race"]["fullName"];
+					if (!isUint(data["baseHitPoints"])) {
+						throw -4;
 					}
 					parsed.maxHP = data["baseHitPoints"];
 					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
-						throw -4;
+						throw -5;
 					}
 					for (let i = 0; i < 6; i++) {
 						if (typeof data["stats"][i] !== "object" || isUint(data["stats"][i]["value"], 20)) {
-							throw -5;
+							throw -6;
 						}
 						parsed["attrs"][attributes[i]] = data["stats"][i]["value"];
 					}
