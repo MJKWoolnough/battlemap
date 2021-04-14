@@ -4,7 +4,7 @@ import {clearElement, createHTML} from '../lib/dom.js';
 import {a, button, div, h1, input, label} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
-import {enterKey} from '../shared.js';
+import {enterKey, isUint} from '../shared.js';
 import {shell} from '../windows.js';
 import {JSONSetting} from '../settings_types.js';
 import {getSymbol} from '../symbols.js';
@@ -146,6 +146,15 @@ const defaultLanguage = {
 						throw -2;
 					}
 					parsed.name = data["name"];
+					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
+						throw -3;
+					}
+					for (let i = 0; i < 6; i++) {
+						if (typeof data["stats"][i] !== "object" || isUint(data["stats"][i]["value"], 20)) {
+							throw -4;
+						}
+						parsed["attrs"][attributes[i]] = data["stats"][i]["value"];
+					}
 					beyondData.set(parsed);
 					show(parsed);
 				}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
