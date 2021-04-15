@@ -160,6 +160,7 @@ const defaultLanguage = {
 						if (!isUint(c["level"], 20)) {
 							throw -6;
 						}
+						parsed.level  += c["level"];
 						const def = c["definition"],
 						      subDef = c["subclassDefinition"];
 						if (typeof def !== "object" || typeof def["name"] !== "string") {
