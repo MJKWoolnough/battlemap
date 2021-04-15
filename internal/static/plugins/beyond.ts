@@ -51,6 +51,13 @@ const defaultLanguage = {
 	"en-GB": defaultLanguage
       },
       lang = langs[language.value] ?? defaultLanguage,
+      speeds: Readonly<Speed[]> = Object.freeze([
+	"walk",
+	"fly",
+	"burrow",
+	"swim",
+	"climb"
+      ]),
       attributes: Readonly<Attribute[]> = Object.freeze([
 	"STR",
 	"DEX",
@@ -150,26 +157,33 @@ const defaultLanguage = {
 						throw -2;
 					}
 					parsed.name = name;
-					if (typeof race !== "object" || typeof race["fullName"] !== "string") {
+					if (typeof race !== "object" || typeof race["fullName"] !== "string" || typeof race["weightSpeeds"] !== "object" || typeof race["weightSpeeds"]["normal"] !== "object") {
 						throw -3;
 					}
 					parsed.race = race["fullName"];
+					for (const s of speeds) {
+						const speed = race["weightSpeeds"]["normal"][s];
+						if (!isUint(speed)) {
+							throw -4;
+						}
+						parsed.speed[s] = speed;
+					}
 					if (!isUint(baseHitPoints)) {
-						throw -4;
+						throw -5;
 					}
 					parsed.maxHP = data["baseHitPoints"];
 					if (!(classes instanceof Array)) {
-						throw -5;
+						throw -6;
 					}
 					for (const c of classes) {
 						if (!isUint(c["level"], 20)) {
-							throw -6;
+							throw -7;
 						}
 						parsed.level  += c["level"];
 						const def = c["definition"],
 						      subDef = c["subclassDefinition"];
 						if (typeof def !== "object" || typeof def["name"] !== "string" || !hitDice.includes(def["hitDice"])) {
-							throw -7;
+							throw -8;
 						}
 						if (parsed.class !== "") {
 							parsed.class += ", ";
@@ -179,17 +193,17 @@ const defaultLanguage = {
 						if (subDef === null) {
 							parsed.class += ` (${c["level"]})`;
 						} else if (typeof subDef !== "object" || typeof subDef["name"] !== "string") {
-							throw -8;
+							throw -9;
 						} else {
 							parsed.class += ` (${subDef["name"]}, ${c["level"]})`;
 						}
 					}
 					if (!(stats instanceof Array) || stats.length !== 6) {
-						throw -9;
+						throw -10;
 					}
 					for (let i = 0; i < 6; i++) {
 						if (typeof stats[i] !== "object" || isUint(stats[i]["value"], 20)) {
-							throw -10;
+							throw -11;
 						}
 						parsed["attrs"][attributes[i]] = stats[i]["value"];
 					}
