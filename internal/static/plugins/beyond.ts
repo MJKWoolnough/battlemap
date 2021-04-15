@@ -17,6 +17,8 @@ type roll = {
 
 type Attribute = "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
 
+type Speed = "walk" | "fly" | "burrow" | "swim" | "climb";
+
 type BeyondData = {
 	name: string;
 	class: string;
@@ -29,7 +31,7 @@ type BeyondData = {
 	passives: Partial<Record<"insight" | "investigation" | "perception", roll>>;
 	maxHP: Uint;
 	hitDice: [Uint, Uint][];
-	speed: Uint;
+	speed: Partial<Record<Speed, Uint>>;
 }
 
 let beyondWindow: WindowElement | null = null;
@@ -138,7 +140,7 @@ const defaultLanguage = {
 						"passives": {},
 						"maxHP": 0,
 						"hitDice": [],
-						"speed": 0
+						"speed": {}
 					      }
 					if (typeof data !== "object") {
 						throw -1;
