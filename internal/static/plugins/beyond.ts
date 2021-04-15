@@ -141,25 +141,27 @@ const defaultLanguage = {
 						"maxHP": 0,
 						"hitDice": [],
 						"speed": {}
-					      }
+					      },
+					      {name, race, baseHitPoints, classes, stats} = data;
 					if (typeof data !== "object") {
 						throw -1;
 					}
-					if (typeof data["name"] !== "string") {
+					if (typeof name !== "string") {
 						throw -2;
 					}
-					parsed.name = data["name"];
-					if (typeof data["race"] !== "object" || typeof data["race"]["fullName"] !== "string") {
+					parsed.name = name;
+					if (typeof race !== "object" || typeof race["fullName"] !== "string") {
 						throw -3;
 					}
-					parsed.race = data["race"]["fullName"];
-					if (!isUint(data["baseHitPoints"])) {
+					parsed.race = race["fullName"];
+					if (!isUint(baseHitPoints)) {
 						throw -4;
 					}
-					if (!(data["classes"] instanceof Array)) {
+					parsed.maxHP = data["baseHitPoints"];
+					if (!(classes instanceof Array)) {
 						throw -5;
 					}
-					for (const c of data["classes"]) {
+					for (const c of classes) {
 						if (!isUint(c["level"], 20)) {
 							throw -6;
 						}
@@ -182,15 +184,14 @@ const defaultLanguage = {
 							parsed.class += ` (${subDef["name"]}, ${c["level"]})`;
 						}
 					}
-					parsed.maxHP = data["baseHitPoints"];
-					if (!(data["stats"] instanceof Array) || data["stats"].length !== 6) {
+					if (!(stats instanceof Array) || stats.length !== 6) {
 						throw -9;
 					}
 					for (let i = 0; i < 6; i++) {
-						if (typeof data["stats"][i] !== "object" || isUint(data["stats"][i]["value"], 20)) {
+						if (typeof stats[i] !== "object" || isUint(stats[i]["value"], 20)) {
 							throw -10;
 						}
-						parsed["attrs"][attributes[i]] = data["stats"][i]["value"];
+						parsed["attrs"][attributes[i]] = stats[i]["value"];
 					}
 					beyondData.set(parsed);
 					show(parsed);
