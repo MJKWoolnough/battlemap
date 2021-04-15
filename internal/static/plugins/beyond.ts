@@ -21,6 +21,7 @@ type Speed = "walk" | "fly" | "burrow" | "swim" | "climb";
 
 type BeyondData = {
 	name: string;
+	gender: string;
 	class: string;
 	race: string;
 	level: Uint;
@@ -170,6 +171,7 @@ const defaultLanguage = {
 					const data = JSON.parse(d),
 					      parsed: BeyondData = {
 						"name": "",
+						"gender": "",
 						"class": "",
 						"race": "",
 						"level": 0,
