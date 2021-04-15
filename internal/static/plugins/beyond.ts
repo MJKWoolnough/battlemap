@@ -32,6 +32,7 @@ type BeyondData = {
 	maxHP: Uint;
 	hitDice: [Uint, Uint][];
 	speed: Partial<Record<Speed, Uint>>;
+	languages: string[];
 }
 
 let beyondWindow: WindowElement | null = null;
@@ -147,7 +148,8 @@ const defaultLanguage = {
 						"passives": {},
 						"maxHP": 0,
 						"hitDice": [],
-						"speed": {}
+						"speed": {},
+						"languages": []
 					      },
 					      {name, race, baseHitPoints, classes, stats} = data;
 					if (typeof data !== "object") {
