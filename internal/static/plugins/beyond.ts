@@ -192,14 +192,15 @@ const defaultLanguage = {
 						"speed": {},
 						"languages": []
 					      },
-					      {name, race, baseHitPoints, classes, stats} = data;
+					      {name, gender, race, baseHitPoints, classes, stats} = data;
 					if (typeof data !== "object") {
 						throw -1;
 					}
-					if (typeof name !== "string") {
+					if (typeof name !== "string" || typeof gender !== "string") {
 						throw -2;
 					}
 					parsed.name = name;
+					parsed.gender = gender;
 					if (typeof race !== "object" || typeof race["fullName"] !== "string" || typeof race["weightSpeeds"] !== "object" || typeof race["weightSpeeds"]["normal"] !== "object") {
 						throw -3;
 					}
