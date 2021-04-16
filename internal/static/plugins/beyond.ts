@@ -291,6 +291,16 @@ const defaultLanguage = {
 										parsed.skills[prof] = {"prof": 1, "mod": 0, "adv": false};
 									}
 								}
+								break;
+							case "language":
+								const lang = mod["friendlySubtypeName"];
+								if (typeof lang !== "string") {
+									throw -16;
+								}
+								if (!parsed.languages.includes(lang)) {
+									parsed.languages.push(lang);
+								}
+								break;
 							}
 						}
 				}
