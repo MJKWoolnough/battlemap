@@ -192,7 +192,7 @@ const defaultLanguage = {
 						"speed": {},
 						"languages": []
 					      },
-					      {name, gender, race, baseHitPoints, classes, stats} = data;
+					      {name, gender, race, baseHitPoints, classes, stats, modifiers} = data;
 					if (typeof data !== "object") {
 						throw -1;
 					}
@@ -262,6 +262,32 @@ const defaultLanguage = {
 						}
 						parsed["attrs"][attributes[i]] = stats[i]["value"];
 					}
+					if (typeof modifiers !== "object") {
+						throw -12
+					}
+					for (const mtype of ["race", "class", "background", "item", "feat"]) {
+						if (!(modifiers[mtype] instanceof Array)) {
+							throw -13;
+						}
+						for (const mod of modifiers[mtype]) {
+							if (typeof mod !== "object") {
+								throw -14;
+							}
+							switch (mod["type"]) {
+							case "proficiency":
+								if (mod["isGranted"] !== true) {
+									continue;
+								}
+								const prof = mod["subType"];
+								if (typeof prof !== "string") {
+									throw -15;
+								}
+								if (skills[prof as keyof typeof skills]) {
+									parsed.skills[prof as keyof typeof skills] = {"prof": 1, "mod": 0, "adv": false};
+								}
+							}
+						}
+				}
 					beyondData.set(parsed);
 					show(parsed);
 				}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
