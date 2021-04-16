@@ -278,12 +278,12 @@ const defaultLanguage = {
 								if (mod["isGranted"] !== true) {
 									continue;
 								}
-								const prof = mod["subType"];
+								const prof = mod["subType"] as keyof typeof skills;
 								if (typeof prof !== "string") {
 									throw -15;
 								}
-								if (skills[prof as keyof typeof skills]) {
-									parsed.skills[prof as keyof typeof skills] = {"prof": 1, "mod": 0, "adv": false};
+								if (skills[prof]) {
+									parsed.skills[prof] = {"prof": 1, "mod": 0, "adv": false};
 								}
 							}
 						}
