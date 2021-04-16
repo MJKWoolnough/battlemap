@@ -252,6 +252,7 @@ const defaultLanguage = {
 							parsed.class += ` (${subDef["name"]}, ${c["level"]})`;
 						}
 					}
+					parsed.hitDice.sort(([a], [b]) => a - b);
 					if (!(stats instanceof Array) || stats.length !== 6) {
 						throw -10;
 					}
