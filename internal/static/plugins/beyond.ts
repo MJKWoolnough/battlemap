@@ -232,7 +232,17 @@ const defaultLanguage = {
 						if (parsed.class !== "") {
 							parsed.class += ", ";
 						}
-						parsed.hitDice.push([def["hitDice"], c["level"]]);
+						let added = false;
+						for (const hitDie of parsed.hitDice) {
+							if (hitDie[0] === def["hitDice"]) {
+								hitDie[1] += c["level"];
+								added = true;
+								break;
+							}
+						}
+						if (!added) {
+							parsed.hitDice.push([def["hitDice"], c["level"]]);
+						}
 						parsed.class += def["name"];
 						if (subDef === null) {
 							parsed.class += ` (${c["level"]})`;
