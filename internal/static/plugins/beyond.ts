@@ -283,7 +283,13 @@ const defaultLanguage = {
 									throw -15;
 								}
 								if (skills[prof]) {
-									parsed.skills[prof] = {"prof": 1, "mod": 0, "adv": false};
+									if (parsed.skills[prof]) {
+										if (parsed.skills[prof]!.prof < 1) {
+											parsed.skills[prof]!.prof = 1;
+										}
+									} else {
+										parsed.skills[prof] = {"prof": 1, "mod": 0, "adv": false};
+									}
 								}
 							}
 						}
