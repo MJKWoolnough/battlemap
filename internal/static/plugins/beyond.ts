@@ -68,6 +68,14 @@ const defaultLanguage = {
 	"WIS",
 	"CHA"
       ]),
+      bonusAttrs2Attrs: Readonly<Record<string, Attribute>> = {
+	"strength-score": "STR",
+	"dexterity-score": "DEX",
+	"constitution-score": "CON",
+	"intelligence-score": "INT",
+	"wisdom-score": "WIS",
+	"charisma-score": "CHA",
+      },
       skills = Object.freeze({
 	"acrobatics": 1,
 	"animal-handling": 4,
@@ -301,6 +309,15 @@ const defaultLanguage = {
 									parsed.languages.push(lang);
 								}
 								break;
+							case "bonus":
+								const bonus = mod["subType"];
+								if (typeof bonus !== "string" || !isInt(mod["value"])) {
+									throw -17;
+								}
+								const bonusAttr = bonusAttrs2Attrs[bonus];
+								if (bonusAttr) {
+									parsed.attrs[bonusAttr] += mod["value"];
+								}
 							}
 						}
 				}
