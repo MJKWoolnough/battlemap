@@ -341,7 +341,10 @@ const defaultLanguage = {
 					}
 					beyondData.set(parsed);
 					show(parsed);
-				}).catch(() => handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]));
+				}).catch(n => {
+					handleError(mainLang["ERROR"], lang["ERROR_INVALID_FILE"]);
+					console.log(n);
+				});
 			}
 		}})
 	      ];
