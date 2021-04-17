@@ -1,7 +1,7 @@
 import type {Int, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
-import {a, br, button, div, h1, h2, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
+import {a, br, button, div, h1, h2, h3, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
 import {enterKey, isInt, isUint} from '../shared.js';
@@ -46,6 +46,12 @@ const defaultLanguage = {
 	"ERROR_INVALID_FILE": "Invalid Beyond JSON file",
 	"DELETE": "Remove Character Data",
 	"DOWNLOAD": "Download Beyond Data",
+	"GUI_ATTRIBUTES": "Attributes",
+	"GUI_HITDICE": "Hit Dice",
+	"GUI_HP": "HP",
+	"GUI_LANGUAGES": "Languages",
+	"GUI_SAVING_THROWS": "Saving Throws",
+	"GUI_SKILLS": "Skills",
 	"PLUGIN_NAME": "Beyond",
 	"UPLOAD": "Upload Beyond Data"
       },
@@ -367,20 +373,26 @@ const defaultLanguage = {
 			", ",
 			data.class
 		]),
+		h3(lang["GUI_HP"]),
 		div(data.maxHP + ""),
+		h3(lang["GUI_HITDICE"]),
 		div(data.hitDice.map(([val, num]) => `${num}d${val}`)),
+		h3(lang["GUI_ATTRIBUTES"]),
 		table([
 			thead(tr(attributes.map(a => th(a)))),
 			tbody(tr(attributes.map(a => td(data.attrs[a] + ""))))
 		]),
+		h3(lang["GUI_SAVING_THROWS"]),
 		table([
 			thead(tr(attributes.map(a => th(a)))),
 			tbody(tr(attributes.map(a => td(Math.floor(data.attrs[a as Attribute]/2) - 5 + (data.saves[a]?.prof ?? 0) * prof + ""))))
 		]),
+		h3(lang["GUI_SKILLS"]),
 		table(tbody(Object.keys(skills).filter(s => s !== "death").map(s => tr([
 			th(s),
 			td(Math.floor((data.skills[s as keyof typeof skills]?.prof ?? 0) * prof) + "")
 		])))),
+		h3(lang["GUI_LANGUAGES"]),
 		div(data.languages.map((l, n) => [n > 0 ? br(): [], l]))
 	]);
       };
