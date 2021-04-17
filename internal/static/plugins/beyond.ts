@@ -1,7 +1,7 @@
 import type {Int, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
-import {a, button, div, h1, input, label} from '../lib/html.js';
+import {a, br, button, div, h1, h2, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
 import {enterKey, isInt, isUint} from '../shared.js';
@@ -351,6 +351,7 @@ const defaultLanguage = {
 	return () => createHTML(clearElement(baseDiv), contents);
       })(),
       show = (data: BeyondData) => {
+	const prof = Math.ceil(data.level/4)+1;
 	createHTML(clearElement(baseDiv), [
 		h1([
 			data.name,
@@ -358,7 +359,29 @@ const defaultLanguage = {
 				beyondData.remove();
 				noData();
 			}})
-		])
+		]),
+		h2([
+			data.gender,
+			" ",
+			data.race,
+			", ",
+			data.class
+		]),
+		div(data.maxHP + ""),
+		div(data.hitDice.map(([val, num]) => `${num}d${val}`)),
+		table([
+			thead(tr(attributes.map(a => th(a)))),
+			tbody(tr(attributes.map(a => td(data.attrs[a] + ""))))
+		]),
+		table([
+			thead(tr(attributes.map(a => th(a)))),
+			tbody(tr(attributes.map(a => td(Math.floor(data.attrs[a as Attribute]/2) - 5 + (data.saves[a]?.prof ?? 0) * prof + ""))))
+		]),
+		table(tbody(Object.keys(skills).filter(s => s !== "death").map(s => tr([
+			th(s),
+			td(Math.floor((data.skills[s as keyof typeof skills]?.prof ?? 0) * prof) + "")
+		])))),
+		div(data.languages.map((l, n) => [n > 0 ? br(): [], l]))
 	]);
       };
 
