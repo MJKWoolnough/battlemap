@@ -273,7 +273,7 @@ const defaultLanguage = {
 						throw -10;
 					}
 					for (let i = 0; i < 6; i++) {
-						if (typeof stats[i] !== "object" || isUint(stats[i]["value"], 20)) {
+						if (typeof stats[i] !== "object" || !isUint(stats[i]["value"], 20)) {
 							throw -11;
 						}
 						parsed["attrs"][attributes[i]] = stats[i]["value"];
