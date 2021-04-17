@@ -331,6 +331,10 @@ const defaultLanguage = {
 								const bonusAttr = bonusAttrs2Attrs[bonus];
 								if (bonusAttr) {
 									parsed.attrs[bonusAttr] += mod["value"];
+								} else if (bonus === "speed") {
+									for (const speed in parsed.speed) {
+										parsed.speed[speed as Speed]! += mod["value"];
+									}
 								}
 							}
 						}
