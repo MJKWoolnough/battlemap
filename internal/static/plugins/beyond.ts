@@ -76,6 +76,14 @@ const defaultLanguage = {
 	"wisdom-score": "WIS",
 	"charisma-score": "CHA",
       },
+      saves2Attrs: Readonly<Record<string, Attribute>> = {
+	"strength-saving-throws": "STR",
+	"dexterity-saving-throws": "DEX",
+	"constitution-saving-throws": "CON",
+	"intelligence-saving-throws": "INT",
+	"wisdom-saving-throws": "WIS",
+	"charisma-saving-throws": "CHA",
+      },
       skills = Object.freeze({
 	"acrobatics": 1,
 	"animal-handling": 4,
@@ -297,6 +305,15 @@ const defaultLanguage = {
 										}
 									} else {
 										parsed.skills[prof] = {"prof": 1, "mod": 0, "adv": false};
+									}
+								} else if (saves2Attrs[prof]) {
+									const attr = saves2Attrs[prof];
+									if (parsed.saves[attr]) {
+										if (parsed.saves[attr]!.prof < 1) {
+											parsed.saves[attr]!.prof = 1;
+										}
+									} else {
+										parsed.saves[attr] = {"prof": 1, "mod": 0, "adv": false};
 									}
 								}
 								break;
