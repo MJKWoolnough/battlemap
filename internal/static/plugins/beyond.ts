@@ -289,9 +289,6 @@ const defaultLanguage = {
 							if (typeof mod !== "object") {
 								throw -14;
 							}
-							if (mod["isGranted"] !== true) {
-								continue;
-							}
 							switch (mod["type"]) {
 							case "proficiency":
 								const prof = mod["subType"] as keyof typeof skills;
