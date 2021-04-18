@@ -407,7 +407,7 @@ const defaultLanguage = {
 		h3(lang["GUI_SKILLS"]),
 		table(tbody((Object.keys(skills) as (keyof typeof skills)[]).filter(s => s !== "initiative").map(s => tr([
 			th(lang["SKILL_" + s as keyof typeof lang]),
-			td(Math.floor((data.skills[s]?.prof ?? 0) * prof) + "")
+			td(Math.floor(Math.floor(data.attrs[attributes[skills[s]]]/2) - 5 + (data.skills[s]?.prof ?? 0) * prof) + "")
 		])))),
 		h3(lang["GUI_LANGUAGES"]),
 		div(data.languages.map((l, n) => [n > 0 ? br(): [], l]))
