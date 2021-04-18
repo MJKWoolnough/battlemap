@@ -73,6 +73,7 @@ const defaultLanguage = {
 	"GUI_HP": "HP",
 	"GUI_INITIATIVE": "Initiative",
 	"GUI_LANGUAGES": "Languages",
+	"GUI_PROF": "Proficiency",
 	"GUI_SAVING_THROWS": "Saving Throws",
 	"GUI_SKILLS": "Skills",
 	"SKILL_acrobatics": "Acrobatics",
@@ -420,6 +421,8 @@ const defaultLanguage = {
 			", ",
 			data.class
 		]),
+		h3(lang["GUI_PROF"]),
+		div(formatMod(prof)),
 		h3(lang["GUI_HP"]),
 		div(data.maxHP + ""),
 		h3(lang["GUI_INITIATIVE"]),
