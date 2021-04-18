@@ -373,6 +373,7 @@ const defaultLanguage = {
 	      ];
 	return () => createHTML(clearElement(baseDiv), contents);
       })(),
+      formatMod = (n: Int) => (n > 0 ? "+" : "") + n,
       show = (data: BeyondData) => {
 	const prof = Math.ceil(data.level/4)+1;
 	createHTML(clearElement(baseDiv), [
@@ -397,17 +398,17 @@ const defaultLanguage = {
 		h3(lang["GUI_ATTRIBUTES"]),
 		table([
 			thead(tr(attributes.map(a => th(a)))),
-			tbody(tr(attributes.map(a => td(`${data.attrs[a]} (${Math.floor(data.attrs[a as Attribute]/2) - 5})`))))
+			tbody(tr(attributes.map(a => td(`${data.attrs[a]} (${formatMod(Math.floor(data.attrs[a as Attribute]/2) - 5)})`))))
 		]),
 		h3(lang["GUI_SAVING_THROWS"]),
 		table([
 			thead(tr(attributes.map(a => th(a)))),
-			tbody(tr(attributes.map(a => td(Math.floor(data.attrs[a as Attribute]/2) - 5 + (data.saves[a]?.prof ?? 0) * prof + ""))))
+			tbody(tr(attributes.map(a => td(formatMod(Math.floor(data.attrs[a as Attribute]/2) - 5 + (data.saves[a]?.prof ?? 0) * prof)))))
 		]),
 		h3(lang["GUI_SKILLS"]),
 		table(tbody((Object.keys(skills) as (keyof typeof skills)[]).filter(s => s !== "initiative").map(s => tr([
 			th(lang["SKILL_" + s as keyof typeof lang]),
-			td(Math.floor(Math.floor(data.attrs[attributes[skills[s]]]/2) - 5 + (data.skills[s]?.prof ?? 0) * prof) + "")
+			td(formatMod(Math.floor(Math.floor(data.attrs[attributes[skills[s]]]/2) - 5 + (data.skills[s]?.prof ?? 0) * prof)))
 		])))),
 		h3(lang["GUI_LANGUAGES"]),
 		div(data.languages.map((l, n) => [n > 0 ? br(): [], l]))
