@@ -397,7 +397,7 @@ const defaultLanguage = {
 		h3(lang["GUI_ATTRIBUTES"]),
 		table([
 			thead(tr(attributes.map(a => th(a)))),
-			tbody(tr(attributes.map(a => td(data.attrs[a] + ""))))
+			tbody(tr(attributes.map(a => td(`${data.attrs[a]} (${Math.floor(data.attrs[a as Attribute]/2) - 5})`))))
 		]),
 		h3(lang["GUI_SAVING_THROWS"]),
 		table([
