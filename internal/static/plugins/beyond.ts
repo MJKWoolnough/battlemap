@@ -10,6 +10,14 @@ import {JSONSetting} from '../settings_types.js';
 import {getSymbol} from '../symbols.js';
 
 document.head.appendChild(style({"type": "text/css"}, `
+#skills-beyond th {
+	text-align: right;
+}
+
+#attrs-beyond td, #saves-beyond td , #skills-beyond td {
+	text-align: center;
+}
+
 .skill-prof-beyond-joat > th {
 	border-right: 2px dashed #000;
 }
@@ -416,17 +424,17 @@ const defaultLanguage = {
 		h3(lang["GUI_HITDICE"]),
 		div(data.hitDice.map(([val, num]) => `${num}d${val}`)),
 		h3(lang["GUI_ATTRIBUTES"]),
-		table([
+		table({"id": "attrs-beyond"}, [
 			thead(tr(attributes.map(a => th(a)))),
 			tbody(tr(attributes.map(a => td(`${data.attrs[a]} (${formatMod(Math.floor(data.attrs[a as Attribute]/2) - 5)})`))))
 		]),
 		h3(lang["GUI_SAVING_THROWS"]),
-		table([
+		table({"id": "saves-beyond"}, [
 			thead(tr(attributes.map(a => th(a)))),
 			tbody(tr(attributes.map(a => td(formatMod(Math.floor(data.attrs[a as Attribute]/2) - 5 + (data.saves[a]?.prof ?? 0) * prof)))))
 		]),
 		h3(lang["GUI_SKILLS"]),
-		table(tbody((Object.keys(skills) as (keyof typeof skills)[]).filter(s => s !== "initiative").map(s => tr({"class": `skill-prof-beyond-${profs[(data.skills[s]?.prof ?? 0)]}`}, [
+		table({"id": "skills-beyond"}, tbody((Object.keys(skills) as (keyof typeof skills)[]).filter(s => s !== "initiative").map(s => tr({"class": `skill-prof-beyond-${profs[(data.skills[s]?.prof ?? 0)]}`}, [
 			th(lang["SKILL_" + s as keyof typeof lang]),
 			td(formatMod(Math.floor(Math.floor(data.attrs[attributes[skills[s]]]/2) - 5 + (data.skills[s]?.prof ?? 0) * prof)))
 		])))),
