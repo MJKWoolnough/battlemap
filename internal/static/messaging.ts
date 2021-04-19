@@ -2,7 +2,6 @@ import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
-import {createHTML} from './lib/dom.js';
 import {shell, windows} from './windows.js';
 import {rpc, inited} from './rpc.js';
 
@@ -20,6 +19,6 @@ inited.then(() => {
 		}
 		const fn = modules.get(d.module)!,
 		      [icon, title] = fn instanceof Array ? fn : fn(d.id);
-		shell.appendChild(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(createHTML(null), tags, d.contents)));
+		shell.appendChild(bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
 	}
 )});
