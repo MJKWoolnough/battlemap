@@ -77,6 +77,7 @@ const defaultLanguage = {
 	"GUI_SAVING_THROWS": "Saving Throws",
 	"GUI_SKILLS": "Skills",
 	"GUI_SPEED": "Speed",
+	"GUI_SPEED_WALK": "Speed",
 	"SKILL_acrobatics": "Acrobatics",
 	"SKILL_animal-handling": "Animal Handling",
 	"SKILL_arcana": "Arcana",
@@ -425,7 +426,10 @@ const defaultLanguage = {
 		h3(lang["GUI_PROF"]),
 		div(formatMod(prof)),
 		h3(lang["GUI_SPEED"]),
-		div((data.speed["walk"] ?? 30) + "ft"),
+		div([
+			`${lang["GUI_SPEED_WALK"]}: `,
+			(data.speed["walk"] ?? 30) + "ft"
+		]),
 		h3(lang["GUI_HP"]),
 		div(data.maxHP + ""),
 		h3(lang["GUI_INITIATIVE"]),
