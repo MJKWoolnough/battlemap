@@ -1,6 +1,6 @@
 import type {WindowElement, WindowData} from './windows.js';
 import RPC, {rpc, handleError} from './rpc.js';
-import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, img, input, label, span, style} from './lib/html.js';
 import {symbol, path, circle, animateTransform} from './lib/svg.js';
 import assets, {imageIcon, audioIcon} from './assets.js';
@@ -192,7 +192,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			}
 			selectFirst();
 		},
-		get html() {return createHTML(null, [c , h]);}
+		get html() {return createDocumentFragment([c , h]);}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	window.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -206,7 +206,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	});
 	return o;
       }()),
-      spinner = (id: string) => createHTML(null, [h2({"id": id}, lang["LOADING"]), loading({"style": "width: 64px"})]),
+      spinner = (id: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), loading({"style": "width: 64px"})]),
       base = desktop(symbols);
 
 createHTML(shell, {"snap": 50}, base);
