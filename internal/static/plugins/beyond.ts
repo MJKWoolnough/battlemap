@@ -78,6 +78,10 @@ const defaultLanguage = {
 	"GUI_SKILLS": "Skills",
 	"GUI_SPEED": "Speed",
 	"GUI_SPEED_WALK": "Speed",
+	"GUI_SPEED_fly": "Speed",
+	"GUI_SPEED_burrow": "Burrowing Speed",
+	"GUI_SPEED_swim": "Swimming Speed",
+	"GUI_SPEED_climb": "Climbing Speed",
 	"SKILL_acrobatics": "Acrobatics",
 	"SKILL_animal-handling": "Animal Handling",
 	"SKILL_arcana": "Arcana",
@@ -428,7 +432,8 @@ const defaultLanguage = {
 		h3(lang["GUI_SPEED"]),
 		div([
 			`${lang["GUI_SPEED_WALK"]}: `,
-			(data.speed["walk"] ?? 30) + "ft"
+			(data.speed["walk"] ?? 30) + "ft",
+			Object.keys(data.speed).filter(s => s != "walk").map(s => [lang["GUI_SPEED_" + s as keyof typeof lang], data.speed[s as Speed] + "ft"])
 		]),
 		h3(lang["GUI_HP"]),
 		div(data.maxHP + ""),
