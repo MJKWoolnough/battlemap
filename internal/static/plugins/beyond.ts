@@ -429,7 +429,7 @@ const defaultLanguage = {
 		h3(lang["GUI_HP"]),
 		div(data.maxHP + ""),
 		h3(lang["GUI_INITIATIVE"]),
-		div(formatMod(Math.floor(Math.floor(data.attrs["DEX"]/2) - 5 + (data.skills["initiative"]?.prof ?? 0) * prof))),
+		div(formatMod(Math.floor(data.attrs["DEX"]/2) - 5 + (data.skills["initiative"]?.prof ?? 0) * prof)),
 		h3(lang["GUI_HITDICE"]),
 		div(data.hitDice.map(([val, num]) => `${num}d${val}`)),
 		h3(lang["GUI_ATTRIBUTES"]),
