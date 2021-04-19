@@ -930,27 +930,31 @@ if (isAdmin()) {
 				return [];
 			}
 			const initMod: number | null = token.getData("5e-initiative-mod"),
-			      tokenConditions = token.getData("5e-conditions") ?? [],
+			      tokenConditions: boolean[] = token.getData("5e-conditions") ?? [],
 			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
 			      ctxList: List = [],
 			      mapData = globals.mapData as MapData5E;
+			let showConditions = tokenConditions.some(a => a);
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
 					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
-					menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
-						if (!isValidToken(token)) {
-							return;
-						}
-						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
-						data[n] = !data[n];
-						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-						token.updateData();
-						globals.outline.focus();
-					}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"})
 				);
+				showConditions = true;
 			} else {
 				ctxList.push(item(lang["INITIATIVE_ADD"], () => initAdd(token, initMod)));
+			}
+			if (showConditions) {
+				ctxList.push(menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
+					if (!isValidToken(token)) {
+						return;
+					}
+					const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
+					data[n] = !data[n];
+					doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+					token.updateData();
+					globals.outline.focus();
+				}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"}));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
