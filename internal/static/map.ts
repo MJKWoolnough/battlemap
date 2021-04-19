@@ -501,6 +501,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 		percent.setAttribute("max", waits + "")
 		percent.setAttribute("value", d + "");
 	});
+	wg.add();
+	wg.done();
 	updateLight();
 	return base;
 };
