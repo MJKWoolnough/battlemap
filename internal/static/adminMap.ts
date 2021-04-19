@@ -1,7 +1,7 @@
 import type {TokenSet, Token} from './types.js';
 import type {SortNode} from './lib/ordered.js';
 import type {SVGLayer, SVGFolder} from './map.js';
-import {autoFocus} from './lib/dom.js';
+import {autoFocus, createDocumentFragment} from './lib/dom.js';
 import {createHTML, br, button, img, input, h1} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -357,7 +357,7 @@ export default function(base: HTMLElement) {
 				const t = Date.now(),
 				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => outline.focus()})),
 				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-				w.appendChild(createHTML(null, [
+				w.appendChild(createDocumentFragment([
 					h1(lang["CONTEXT_SET_LIGHTING"]),
 					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
 					br(),
