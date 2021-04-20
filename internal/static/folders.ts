@@ -166,6 +166,7 @@ export class Folder {
 	node: HTMLElement;
 	children: SortNode<Folder | Item>;
 	root: Root;
+	remover: SVGSymbolElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
@@ -178,7 +179,7 @@ export class Folder {
 					span(name),
 					rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
 					newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
-					remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
+					this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
 				this.children.node,
 			])
@@ -384,8 +385,8 @@ export class Root {
 		this.folder = new this.newFolder(this, null, "", rootFolder);
 		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
 			this.fileType,
-			this.folder.node.firstChild!.firstChild!.lastChild!.previousSibling!,
-			this.folder.node.firstChild!.lastChild!
+			this.folder.remover,
+			this.folder.children.node
 		]);
 	}
 	setRPCFuncs(rpcFuncs: FolderRPC) {
