@@ -141,11 +141,9 @@ class ItemLayer extends Item {
 		this.hidden = hidden;
 		this.nameElem = this.node.firstChild as HTMLSpanElement;
 		if (id < 0) {
-			this.node.removeChild(this.node.lastChild!);
-			this.node.removeChild(this.node.lastChild!);
-			this.node.removeChild(this.node.lastChild!);
+			clearElement(this.node).appendChild(span(name, {"class": "item", "onclick": () => this.show()}));
 		} else {
-			this.node.removeChild(this.node.lastChild!.previousSibling!);
+			this.copier.remove();
 			if (selectedLayer === undefined) {
 				this.show();
 			}
