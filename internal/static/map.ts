@@ -532,7 +532,7 @@ export default function(base: HTMLElement) {
 		if (isTokenImage(tk.token)) {
 			token = SVGToken.from(tk.token);
 			const cID = tk.token.tokenData["store-character-id"];
-			if (tk.token.tokenData && cID && typeof cID.data === "number") {
+			if (cID && typeof cID.data === "number") {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 			}
 		} else if (isTokenDrawing(tk.token)) {
