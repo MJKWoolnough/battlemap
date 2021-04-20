@@ -95,7 +95,6 @@ export type RPC = RPCWaits & {
 	characters: FolderRPC,
 	maps:       FolderRPC,
 
-	connID:      () => Promise<Uint>;
 	ready:       () => Promise<void>;
 	currentTime: () => Promise<Uint>;
 
