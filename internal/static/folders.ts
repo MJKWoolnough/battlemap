@@ -392,7 +392,7 @@ export class Root {
 		this.folder = new this.newFolder(this, null, "", rootFolder);
 		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
 			this.fileType,
-			this.folder.remover,
+			this.folder.newer,
 			this.folder.children.node
 		]);
 	}
