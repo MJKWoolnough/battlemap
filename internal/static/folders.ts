@@ -39,6 +39,7 @@ export class Item {
 	name: string;
 	parent: Folder;
 	node: HTMLElement;
+	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
 	copier: SVGSymbolElement;
 	remover: SVGSymbolElement;
@@ -47,7 +48,7 @@ export class Item {
 		this.name = name;
 		this.parent = parent;
 		this.node = li({"class": "foldersItem"}, [
-			span(name, {"class": "item", "onclick": () => this.show()}),
+			this.nameElem = span(name, {"class": "item", "onclick": () => this.show()}),
 			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
 			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
 			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
@@ -169,6 +170,7 @@ export class Folder {
 	node: HTMLElement;
 	children: SortNode<Folder | Item>;
 	root: Root;
+	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
 	newer: SVGSymbolElement;
 	remover: SVGSymbolElement;
@@ -181,7 +183,7 @@ export class Folder {
 			details([
 				summary([
 					folder({"class": "folderIcon"}),
-					span(name),
+					this.nameElem = span(name),
 					this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
 					this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
 					this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
