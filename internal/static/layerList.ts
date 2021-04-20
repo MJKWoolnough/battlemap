@@ -327,12 +327,11 @@ export default function(base: HTMLElement) {
 				});
 			}
 			if (sl) {
-				const {root} = globals,
-				      base = root.parentNode!;
+				const {root} = globals;
 				root.dispatchEvent(new MouseEvent("mouseout", mousePos));
 				root.dispatchEvent(new MouseEvent("mouseleave", mousePos));
 				sl.show();
-				base.dispatchEvent(new MouseEvent("mouseover", mousePos));
+				root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mousePos));
 			}
 		      });
 		layersRPC.waitLayerSetVisible().then(path => {
