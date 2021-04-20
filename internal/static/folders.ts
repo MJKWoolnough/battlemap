@@ -39,15 +39,18 @@ export class Item {
 	name: string;
 	parent: Folder;
 	node: HTMLElement;
+	renamer: SVGSymbolElement;
+	copier: SVGSymbolElement;
+	remover: SVGSymbolElement;
 	constructor(parent: Folder, id: Uint, name: string) {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
 		this.node = li({"class": "foldersItem"}, [
 			span(name, {"class": "item", "onclick": () => this.show()}),
-			rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
-			copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
-			remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
+			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
+			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
+			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
 	show() {}
@@ -166,6 +169,8 @@ export class Folder {
 	node: HTMLElement;
 	children: SortNode<Folder | Item>;
 	root: Root;
+	renamer: SVGSymbolElement;
+	newer: SVGSymbolElement;
 	remover: SVGSymbolElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
@@ -177,8 +182,8 @@ export class Folder {
 				summary([
 					folder({"class": "folderIcon"}),
 					span(name),
-					rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
-					newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
+					this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
+					this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
 					this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
 				this.children.node,
