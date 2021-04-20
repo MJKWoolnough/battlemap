@@ -1,4 +1,4 @@
-import  type {RPC as RPCType, InternalWaits, KeystoreData} from './types.js';
+import  type {RPC as RPCType, InternalWaits, KeystoreData, Uint} from './types.js';
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
 import {shell} from './windows.js';
@@ -7,7 +7,7 @@ import lang from './language.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastTokenDataChange = -37, broadcastLayerAdd = -38, broadcastLayerFolderAdd = -39, broadcastLayerMove = -40, broadcastLayerRename = -41, broadcastLayerRemove = -42, broadcastGridDistanceChange = -43, broadcastGridDiagonalChange = -44, broadcastMapLightChange = -45, broadcastLayerShow = -46, broadcastLayerHide = -47, broadcastLayerMaskAdd = -48, broadcastLayerMaskChange = -49, broadcastLayerMaskRemove = -50, broadcastTokenAdd = -51, broadcastTokenRemove = -52, broadcastTokenMoveLayerPos = -53, broadcastTokenSet = -54, broadcastLayerShift = -55, broadcastLightShift = -56, broadcastTokenLightChange = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastMusicPackAdd = -60, broadcastMusicPackRename = -61, broadcastMusicPackRemove = -62, broadcastMusicPackCopy = -63, broadcastMusicPackVolume = -64, broadcastMusicPackPlay = -65, broadcastMusicPackStop = -66, broadcastMusicPackStopAll = -67, broadcastMusicPackTrackAdd = -68, broadcastMusicPackTrackRemove = -69, broadcastMusicPackTrackVolume = -70, broadcastMusicPackTrackRepeat = -71, broadcastPluginChange = -72, broadcastPluginSettingChange = -73, broadcastWindow = -74, broadcastSignalMeasure = -75, broadcastSignalPosition = -76, broadcastSignalMovePosition = -77, broadcastAny = -78;
 
-let initSend: () => void;
+let initSend: () => void, connIDSet: (id: Uint) => void;
 
 export const internal = {
 	"images":     {},
@@ -34,7 +34,8 @@ handleError = (e: Error | string) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
-inited = new Promise<void>(success => initSend = success);
+inited = new Promise<void>(success => initSend = success),
+connID = new Promise<Uint>(success => connIDSet = success);
 
 export default function (url: string): Promise<void>{
 	return RPC(url, 1.1).then(arpc => {
@@ -43,6 +44,7 @@ export default function (url: string): Promise<void>{
 			setUser(userLevel === 0);
 			initSend();
 		});
+		arpc.request("conn.connID").then(checkUint).then(connIDSet);
 
 		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 			"": () => {},
@@ -140,7 +142,6 @@ export default function (url: string): Promise<void>{
 		      },
 		      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
 			"": [
-				["connID"     , "conn.connID"     , "", checkUint , "", ""],
 				["ready"      , "conn.ready"      , "", returnVoid, "", ""],
 				["currentTime", "conn.currentTime", "", checkUint,  "", ""],
 
