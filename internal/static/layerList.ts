@@ -256,7 +256,7 @@ class FolderLayer extends Folder {
 				}
 				dragStart(this, e);
 			});
-			this.node.appendChild(div(Array.from(this.node.childNodes)));
+			this.node.append(div(this.node.childNodes));
 		}
 	}
 	get sorter() {
