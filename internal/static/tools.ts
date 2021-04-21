@@ -85,7 +85,8 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 export default function (base: HTMLElement) {
 	tools.sort((a, b) => stringSort(a.name, b.name));
 	tools.unshift(defaultTool);
-	let windowed = false;
+	let windowed = false,
+	    selected: HTMLLIElement | null = null;
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
@@ -111,10 +112,9 @@ export default function (base: HTMLElement) {
 				toolOptions.style.setProperty("display", "none");
 			}
 		}
-		for (const c of list.childNodes as NodeListOf<HTMLElement>) {
-			c.classList.remove("selected")
-		}
+		selected?.classList.remove("selected")
 		this.classList.add("selected");
+		selected = this;
 	      }}, [
 		t.icon,
 		span(t.name)
