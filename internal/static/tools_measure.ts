@@ -69,7 +69,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	      },
 	      onmousemove = (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+		createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 		if (!isNaN(coords[0])) {
 			measureDistance(x, y);
 			if (send) {
