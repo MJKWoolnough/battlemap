@@ -118,29 +118,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
-			      l = t.appendChild(label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
-				let a = pos, tl = tabs.length;
-				switch (e.key) {
-				case "ArrowLeft":
-					do {
-						a = (((a - 1) % tl) + tl) % tl;
-					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
-					break;
-				case "ArrowRight":
-					do {
-						a = (a + 1) % tl;
-					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
-					break;
-				case "Enter":
-					l.click();
-				default:
-					return;
-				}
-				tabs[a]![1].focus();
-			      }, "onclick": () => lastTab.set(title)}, [
-				img({"src": popIcon}),
-				span(title),
-				pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
+			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
 					p.replaceChild(replaced, base);
 					if (windowData[title]) {
@@ -163,11 +141,34 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 						selectFirst()
 					}
 					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
-				}}) : []
+			      }}) : null,
+			      l = t.appendChild(label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
+				let a = pos, tl = tabs.length;
+				switch (e.key) {
+				case "ArrowLeft":
+					do {
+						a = (((a - 1) % tl) + tl) % tl;
+					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
+					break;
+				case "ArrowRight":
+					do {
+						a = (a + 1) % tl;
+					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
+					break;
+				case "Enter":
+					l.click();
+				default:
+					return;
+				}
+				tabs[a]![1].focus();
+			      }, "onclick": () => lastTab.set(title)}, [
+				img({"src": popIcon}),
+				span(title),
+				popper ? popper : []
 			      ]));
 			tabs.push([title, l]);
-			if (pop && windowData[title] && windowData[title]["out"]) {
-				window.setTimeout(() => (l.lastChild as SVGSVGElement).dispatchEvent(new MouseEvent("click")));
+			if (popper && windowData[title] && windowData[title]["out"]) {
+				window.setTimeout(() => popper.dispatchEvent(new MouseEvent("click")));
 			}
 			return base;
 		},
