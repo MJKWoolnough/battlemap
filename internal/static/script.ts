@@ -87,9 +87,10 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 			e.preventDefault();
 		}
 	      }}),
+	      tc = div({"id": "tabs"}, [t, p]),
 	      h = div({"id": "panels", "style": {"--panel-width": `${panelWidth.value}px`}}, [
 		m,
-		div({"id": "tabs"}, [t, p])
+		tc
 	      ]),
 	      windowData: Record<string, savedWindow> = windowSettings.value,
 	      updateWindowData = () => windowSettings.set(windowData),
@@ -117,7 +118,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		"add": (title: string, contents: Node, pop: boolean, popIcon: string) => {
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
-			      i = h.lastChild!.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
+			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
 					p.replaceChild(replaced, base);
