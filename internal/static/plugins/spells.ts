@@ -31,7 +31,13 @@ if (isAdmin()) {
 		circleEffect.setAttribute("viewBox", vb);
 		coneEffect.setAttribute("viewBox", vb);
 		cubeEffect.setAttribute("viewBox", vb);
-	      }});
+	      }}),
+	      setEffect = (effect: SVGSVGElement) => {
+		if (selectedEffect !== effect && selectedEffect.parentNode) {
+			selectedEffect.replaceWith(effect);
+		}
+		selectedEffect = effect;
+	      };
 	let selectedEffect = circleEffect;
 	addTool({
 		"name": lang["TITLE"],
@@ -47,13 +53,13 @@ if (isAdmin()) {
 		]),
 		"options": div([
 			label({"for": "plugin-spell-type-circle"}, `${lang["SPELL_TYPE_CIRCLE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true, "onclick": () => selectedEffect = circleEffect}),
+			input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true, "onclick": () => setEffect(circleEffect)}),
 			br(),
 			label({"for": "plugin-spell-type-cone"}, `${lang["SPELL_TYPE_CONE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type", "onclick": () => selectedEffect = coneEffect}),
+			input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type", "onclick": () => setEffect(coneEffect)}),
 			br(),
 			label({"for": "plugin-spell-type-cube"}, `${lang["SPELL_TYPE_CUBE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type", "onclick": () => selectedEffect = cubeEffect}),
+			input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type", "onclick": () => setEffect(cubeEffect)}),
 			br(),
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
 			size
