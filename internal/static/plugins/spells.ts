@@ -1,6 +1,7 @@
+import type {Uint} from '../types.js';
 import {br, div, input, label} from '../lib/html.js';
-import {svg, g, path, title, use} from '../lib/svg.js';
-import {isAdmin} from '../shared.js';
+import {svg, circle, g, path, rect, title, use} from '../lib/svg.js';
+import {checkInt, isAdmin} from '../shared.js';
 import {addTool} from '../tools.js';
 import {language} from '../language.js';
 
@@ -17,10 +18,21 @@ if (isAdmin()) {
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
 	      sparkID = "plugin-spell-spark",
+	      conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
+	      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)"}, circle({"cx": "50%", "cy": "50%", "r": "50%"})),
+	      conePath = path({"d": conePathStr(10)}),
+	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)"}, conePath),
+	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)"}, rect({"with": "100%", "height": "100%"})),
 	      circleSpell = input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true}),
 	      coneSpell = input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type"}),
 	      cubeSpell = input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type"}),
-	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10});
+	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => {
+		const s = checkInt(parseInt(size.value), 1, 1000, 10),
+		      vb = `0 0 ${s} ${s}`;
+		circleEffect.setAttribute("viewBox", vb);
+		coneEffect.setAttribute("viewBox", vb);
+		cubeEffect.setAttribute("viewBox", vb);
+	      }});
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
