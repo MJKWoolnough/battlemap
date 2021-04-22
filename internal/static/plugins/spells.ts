@@ -23,9 +23,6 @@ if (isAdmin()) {
 	      conePath = path({"d": conePathStr(10)}),
 	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)"}, conePath),
 	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)"}, rect({"with": "100%", "height": "100%"})),
-	      circleSpell = input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true}),
-	      coneSpell = input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type"}),
-	      cubeSpell = input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type"}),
 	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => {
 		const s = checkInt(parseInt(size.value), 1, 1000, 10),
 		      vb = `0 0 ${s} ${s}`;
@@ -33,6 +30,7 @@ if (isAdmin()) {
 		coneEffect.setAttribute("viewBox", vb);
 		cubeEffect.setAttribute("viewBox", vb);
 	      }});
+	let selectedEffect = circleEffect;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -47,13 +45,13 @@ if (isAdmin()) {
 		]),
 		"options": div([
 			label({"for": "plugin-spell-type-circle"}, `${lang["SPELL_TYPE_CIRCLE"]}: `),
-			circleSpell,
+			input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true, "onclick": () => selectedEffect = circleEffect}),
 			br(),
 			label({"for": "plugin-spell-type-cone"}, `${lang["SPELL_TYPE_CONE"]}: `),
-			coneSpell,
+			input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type", "onclick": () => selectedEffect = coneEffect}),
 			br(),
 			label({"for": "plugin-spell-type-cube"}, `${lang["SPELL_TYPE_CUBE"]}: `),
-			cubeSpell,
+			input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type", "onclick": () => selectedEffect = cubeEffect}),
 			br(),
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
 			size
