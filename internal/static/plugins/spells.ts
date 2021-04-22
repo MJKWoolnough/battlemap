@@ -30,6 +30,7 @@ if (isAdmin()) {
 		      vb = `0 0 ${s} ${s}`;
 		circleEffect.setAttribute("viewBox", vb);
 		coneEffect.setAttribute("viewBox", vb);
+		conePath.setAttribute("d", conePathStr(s));
 		cubeEffect.setAttribute("viewBox", vb);
 	      }}),
 	      setEffect = (effect: SVGSVGElement) => {
