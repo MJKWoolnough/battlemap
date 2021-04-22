@@ -3,6 +3,8 @@ import {br, div, input, label} from '../lib/html.js';
 import {svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {checkInt, isAdmin} from '../shared.js';
 import {addTool} from '../tools.js';
+import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
+import {autosnap} from '../settings.js';
 import {language} from '../language.js';
 
 if (isAdmin()) {
@@ -56,5 +58,20 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
 			size
 		]),
+		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value),
+			      mousemove = (e: MouseEvent) => {
+				const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value);
+				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			      },
+			      mouseout = () => {
+				this.removeEventListener("mousemove", mousemove);
+			      };
+			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			this.appendChild(selectedEffect);
+			this.addEventListener("mousemove", mousemove);
+			this.addEventListener("mouseout", mouseout, {"once": true});
+		},
+		"mapMouseWheel": defaultMouseWheel
 	});
 }
