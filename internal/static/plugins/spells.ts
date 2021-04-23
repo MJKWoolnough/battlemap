@@ -24,7 +24,7 @@ if (isAdmin()) {
 	      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10}, circle({"cx": "50%", "cy": "50%", "r": "50%"})),
 	      conePath = path({"d": conePathStr(10)}),
 	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10}, conePath),
-	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10}, rect({"with": "100%", "height": "100%"})),
+	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10}, rect({"width": "100%", "height": "100%"})),
 	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => {
 		const s = checkInt(parseInt(size.value), 1, 1000, 10),
 		      params = {"viewBox": `0 0 ${s} ${s}`, "width": s, "height": s};
