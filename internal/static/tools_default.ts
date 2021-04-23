@@ -2,7 +2,7 @@ import type {Int, Uint, SVGAnimateBeginElement} from './types.js';
 import type {SVGToken} from './map.js';
 import {createSVG, svg, animate, circle, g, path, rect, title} from './lib/svg.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {checkInt, deselectToken, globals, mapLoadedReceive, SQRT3, isAdmin, isUser} from './shared.js';
+import {checkInt, deselectToken, globals, mapLoadedReceive, SQRT3, isAdmin} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 import {shell} from './windows.js';
@@ -244,7 +244,7 @@ export default Object.freeze({
 				rpc.setMapStart(pos[0], pos[1]);
 			}
 			rpc.signalMovePosition(pos);
-		} else if (isUser()) {
+		} else {
 			rpc.signalPosition(pos);
 		}
 		e.preventDefault();
