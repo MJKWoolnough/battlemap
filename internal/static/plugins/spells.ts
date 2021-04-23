@@ -6,6 +6,7 @@ import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
 import {language} from '../language.js';
+import defaultTool from '../tools_default.js';
 
 if (isAdmin()) {
 	const defaultLanguage = {
@@ -79,8 +80,13 @@ if (isAdmin()) {
 			this.appendChild(selectedEffect);
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mouseout", mouseout, {"once": true});
+			defaultTool.mapMouseOver.call(this, e);
 		},
-		"mapMouseWheel": defaultMouseWheel
+		"mapMouseWheel": defaultMouseWheel,
+		"mapMouseContext": (e: Event) => e.preventDefault(),
+		"mapMouseDown": defaultTool.mapMouseDown,
+		"tokenMouseDown": (e: Event) => e.preventDefault(),
+		"tokenMouseContext": (e: Event) => e.preventDefault()
 	});
 	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
 }
