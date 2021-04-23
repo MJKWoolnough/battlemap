@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {br, div, input, label} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {checkInt, isAdmin} from '../shared.js';
+import {checkInt, globals, isAdmin} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
@@ -26,7 +26,8 @@ if (isAdmin()) {
 	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, conePath),
 	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, rect({"width": "100%", "height": "100%"})),
 	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => {
-		const s = checkInt(parseInt(size.value), 1, 1000, 10),
+		const {gridSize, gridDistance} = globals.mapData,
+		      s = gridSize * checkInt(parseInt(size.value), 1, 1000, 10) / gridDistance,
 		      params = {"viewBox": `0 0 ${s} ${s}`, "width": s, "height": s};
 		createSVG(circleEffect, params);
 		createSVG(coneEffect, params);
