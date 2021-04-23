@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {br, div, input, label} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {checkInt, globals, isAdmin} from '../shared.js';
+import {checkInt, globals, isAdmin, mapLoadedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
@@ -82,4 +82,5 @@ if (isAdmin()) {
 		},
 		"mapMouseWheel": defaultMouseWheel
 	});
+	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
 }
