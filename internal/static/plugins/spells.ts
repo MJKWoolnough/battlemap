@@ -67,9 +67,9 @@ if (isAdmin()) {
 			size
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value),
+			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey),
 			      mousemove = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value);
+				const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			      },
 			      mouseout = () => {
