@@ -21,7 +21,7 @@ if (isAdmin()) {
 	      lang = langs[language.value] ?? defaultLanguage,
 	      sparkID = "plugin-spell-spark",
 	      conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
-	      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, circle({"cx": "50%", "cy": "50%", "r": "50%"})),
+	      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, circle({"r": "50%"})),
 	      conePath = path({"d": conePathStr(10)}),
 	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, conePath),
 	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible"}, rect({"width": "100%", "height": "100%"})),
