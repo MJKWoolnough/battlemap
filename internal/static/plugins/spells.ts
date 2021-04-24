@@ -1,12 +1,29 @@
 import type {Uint} from '../types.js';
 import {br, div, input, label} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {checkInt, globals, isAdmin, mapLoadedReceive} from '../shared.js';
+import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
 import {language} from '../language.js';
 import defaultTool from '../tools_default.js';
+import {rpc} from '../rpc.js';
+
+const sparkID = "plugin-spell-spark",
+      conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
+      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, circle({"r": "50%"})),
+      conePath = path({"d": conePathStr(10)}),
+      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, conePath),
+      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, rect({"x": "-50%", "y": "-50%", "width": "100%", "height": "100%"})),
+      setSize = (size: Uint) => {
+	const {gridSize, gridDistance} = globals.mapData,
+	      s = gridSize * size / gridDistance,
+	      params = {"viewBox": `0 0 ${s} ${s}`, "width": s, "height": s};
+	createSVG(circleEffect, params);
+	createSVG(coneEffect, params);
+	conePath.setAttribute("d", conePathStr(s));
+	createSVG(cubeEffect, params);
+      };
 
 if (isAdmin()) {
 	const defaultLanguage = {
@@ -20,21 +37,7 @@ if (isAdmin()) {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      sparkID = "plugin-spell-spark",
-	      conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
-	      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, circle({"r": "50%"})),
-	      conePath = path({"d": conePathStr(10)}),
-	      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, conePath),
-	      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, rect({"x": "-50%", "y": "-50%", "width": "100%", "height": "100%"})),
-	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => {
-		const {gridSize, gridDistance} = globals.mapData,
-		      s = gridSize * checkInt(parseInt(size.value), 1, 1000, 10) / gridDistance,
-		      params = {"viewBox": `0 0 ${s} ${s}`, "width": s, "height": s};
-		createSVG(circleEffect, params);
-		createSVG(coneEffect, params);
-		conePath.setAttribute("d", conePathStr(s));
-		createSVG(cubeEffect, params);
-	      }}),
+	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => setSize(checkInt(parseInt(size.value), 1, 1000, 10))}),
 	      setEffect = (effect: SVGSVGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
@@ -83,10 +86,63 @@ if (isAdmin()) {
 			defaultTool.mapMouseOver.call(this, e);
 		},
 		"mapMouseWheel": defaultMouseWheel,
-		"mapMouseContext": (e: Event) => e.preventDefault(),
+		"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
+			e.preventDefault();
+			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey),
+			      cancel = (e: MouseEvent) => {
+				if (e.button !== 2) {
+					return;
+				}
+				rpc.broadcast({
+					"type": "plugin-spells",
+					"data": null
+				});
+				this.removeEventListener("mouseup", cancel);
+			     };
+			rpc.broadcast({
+				"type": "plugin-spells",
+				"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
+			});
+			this.addEventListener("mouseup", cancel);
+		},
 		"mapMouseDown": defaultTool.mapMouseDown,
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
 	});
 	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
+} else {
+	let lastEffect: SVGSVGElement | null = null;
+	rpc.waitBroadcast().then(({type, data}) => {
+		if (type !== "plugin-spells") {
+			return;
+		}
+		if (data === null) {
+			lastEffect?.remove()
+			lastEffect = null;
+			return;
+		}
+		if (!(data instanceof Array) || data.length !== 4) {
+			console.log("plugin spells: broadcast data must be an array with length 4");
+		}
+		const [effect, size, x, y] = data;
+		if (!isUint(effect, 3)) {
+			console.log("plugin spells: invalid type");
+		}
+		if (!isInt(size, 1, 1000)) {
+			console.log("plugin spells: invalid size");
+		}
+		if (!isInt(x) || !isInt(y)) {
+			console.log("plugin spells: invalid coords");
+		}
+		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : cubeEffect;
+		if (lastEffect && lastEffect !== selectedEffect) {
+			lastEffect.remove();
+		}
+		lastEffect = selectedEffect;
+		if (!selectedEffect.parentNode) {
+			globals.root.appendChild(selectedEffect);
+		}
+		setSize(size);
+		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+	});
 }
