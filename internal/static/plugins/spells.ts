@@ -47,7 +47,8 @@ if (isAdmin()) {
 		selectedEffect = effect;
 	      };
 	let selectedEffect = circleEffect,
-	    overrideClick = false;
+	    overrideClick = false,
+	    over = false;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -74,6 +75,10 @@ if (isAdmin()) {
 			size
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
+			if (over) {
+				return;
+			}
+			over = true;
 			let send = false,
 			    rotate = false,
 			    rotation = 0,
@@ -139,6 +144,7 @@ if (isAdmin()) {
 				this.removeEventListener("mousedown", mousedown);
 				this.removeEventListener("mouseup", mouseup);
 				selectedEffect?.remove();
+				over = false;
 			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			this.appendChild(selectedEffect);
