@@ -46,7 +46,8 @@ if (isAdmin()) {
 		}
 		selectedEffect = effect;
 	      };
-	let selectedEffect = circleEffect;
+	let selectedEffect = circleEffect,
+	    overrideClick = false;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -74,8 +75,16 @@ if (isAdmin()) {
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 			let send = false,
+			    rotate = false,
+			    rotation = 0,
 			    [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 			const mousemove = (e: MouseEvent) => {
+				if (rotate) {
+					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+					rotation = 180 * Math.atan2(py - y, px - x) / Math.PI;
+					cubeRect.setAttribute("transform", `rotate(${rotation})`);
+					return;
+				}
 				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				if (send) {
@@ -86,6 +95,12 @@ if (isAdmin()) {
 				}
 			      },
 			      mousedown = (e: MouseEvent) => {
+				if (e.button === 0 && selectedEffect === cubeEffect) {
+					rotate = true;
+					overrideClick = true;
+					this.addEventListener("mouseup", mouseupRotate);
+					e.preventDefault();
+				}
 				if (e.button !== 2) {
 					return;
 				}
@@ -95,6 +110,12 @@ if (isAdmin()) {
 					"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
 				});
 				this.addEventListener("mouseup", mouseup);
+			      },
+			      mouseupRotate = (e: MouseEvent) => {
+				if (e.button === 0 && rotate) {
+					rotate = false;
+					overrideClick = false;
+				}
 			      },
 			      mouseup = (e: MouseEvent) => {
 				if (e.button !== 2) {
@@ -123,12 +144,18 @@ if (isAdmin()) {
 			this.appendChild(selectedEffect);
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mousedown", mousedown);
+			this.addEventListener("mousedown", mousedown);
 			this.addEventListener("mouseleave", mouseout, {"once": true});
 			defaultTool.mapMouseOver.call(this, e);
 		},
 		"mapMouseWheel": defaultMouseWheel,
 		"mapMouseContext": (e: Event) => e.preventDefault(),
-		"mapMouseDown": defaultTool.mapMouseDown,
+		"mapMouseDown": function (this: SVGElement, e: MouseEvent) {
+			if (overrideClick) {
+				return;
+			}
+			defaultTool.mapMouseDown.call(this, e)
+		},
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
 	});
