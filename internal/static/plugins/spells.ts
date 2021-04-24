@@ -86,8 +86,12 @@ if (isAdmin()) {
 			const mousemove = (e: MouseEvent) => {
 				if (rotate) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
-					rotation = 180 * Math.atan2(py - y, px - x) / Math.PI;
+					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
 					cubeRect.setAttribute("transform", `rotate(${rotation})`);
+					rpc.broadcast({
+						"type": "plugin-spells-rotate",
+						"data": rotation
+					});
 					return;
 				}
 				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
@@ -95,7 +99,7 @@ if (isAdmin()) {
 				if (send) {
 					rpc.broadcast({
 						"type": "plugin-spells",
-						"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
+						"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y, rotation]
 					});
 				}
 			      },
@@ -112,7 +116,7 @@ if (isAdmin()) {
 				send = true;
 				rpc.broadcast({
 					"type": "plugin-spells",
-					"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
+					"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y, rotation]
 				});
 				this.addEventListener("mouseup", mouseup);
 			      },
@@ -169,6 +173,13 @@ if (isAdmin()) {
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
+		if (type === "plugin-spells-rotate") {
+			if (!isInt(data)) {
+				console.log("plugin spells rotate: data must be int");
+				return;
+			}
+			cubeRect.setAttribute("transform", `rotate(${data})`);
+		}
 		if (type !== "plugin-spells") {
 			return;
 		}
@@ -183,12 +194,15 @@ if (isAdmin()) {
 		const [effect, size, x, y] = data;
 		if (!isUint(effect, 3)) {
 			console.log("plugin spells: invalid type");
+			return;
 		}
 		if (!isInt(size, 1, 1000)) {
 			console.log("plugin spells: invalid size");
+			return;
 		}
 		if (!isInt(x) || !isInt(y)) {
 			console.log("plugin spells: invalid coords");
+			return;
 		}
 		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : cubeEffect;
 		if (lastEffect && lastEffect !== selectedEffect) {
