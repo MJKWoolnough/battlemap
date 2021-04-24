@@ -117,6 +117,7 @@ if (isAdmin()) {
 				this.removeEventListener("mousemove", mousemove);
 				this.removeEventListener("mousedown", mousedown);
 				this.removeEventListener("mouseup", mouseup);
+				selectedEffect?.remove();
 			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			this.appendChild(selectedEffect);
