@@ -73,40 +73,60 @@ if (isAdmin()) {
 			size
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
+			let send = false;
 			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey),
 			      mousemove = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+				if (send) {
+					rpc.broadcast({
+						"type": "plugin-spells",
+						"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
+					});
+				}
 			      },
-			      mouseout = () => {
-				this.removeEventListener("mousemove", mousemove);
-			      };
-			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
-			this.appendChild(selectedEffect);
-			this.addEventListener("mousemove", mousemove);
-			this.addEventListener("mouseout", mouseout, {"once": true});
-			defaultTool.mapMouseOver.call(this, e);
-		},
-		"mapMouseWheel": defaultMouseWheel,
-		"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
-			e.preventDefault();
-			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey),
-			      cancel = (e: MouseEvent) => {
+			      mousedown = (e: MouseEvent) => {
 				if (e.button !== 2) {
 					return;
 				}
+				send = true;
+				rpc.broadcast({
+					"type": "plugin-spells",
+					"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
+				});
+				this.addEventListener("mouseup", mouseup);
+			      },
+			      mouseup = (e: MouseEvent) => {
+				if (e.button !== 2) {
+					return;
+				}
+				send = false;
 				rpc.broadcast({
 					"type": "plugin-spells",
 					"data": null
 				});
-				this.removeEventListener("mouseup", cancel);
-			     };
-			rpc.broadcast({
-				"type": "plugin-spells",
-				"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y]
-			});
-			this.addEventListener("mouseup", cancel);
+				this.removeEventListener("mouseup", mouseup);
+			      },
+			      mouseout = () => {
+				if (send) {
+					rpc.broadcast({
+						"type": "plugin-spells",
+						"data": null
+					});
+				}
+				this.removeEventListener("mousemove", mousemove);
+				this.removeEventListener("mousedown", mousedown);
+				this.removeEventListener("mouseup", mouseup);
+			      };
+			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			this.appendChild(selectedEffect);
+			this.addEventListener("mousemove", mousemove);
+			this.addEventListener("mousedown", mousedown);
+			this.addEventListener("mouseout", mouseout, {"once": true});
+			defaultTool.mapMouseOver.call(this, e);
 		},
+		"mapMouseWheel": defaultMouseWheel,
+		"mapMouseContext": (e: Event) => e.preventDefault(),
 		"mapMouseDown": defaultTool.mapMouseDown,
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
