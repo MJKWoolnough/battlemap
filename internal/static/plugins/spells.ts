@@ -123,7 +123,7 @@ if (isAdmin()) {
 			this.appendChild(selectedEffect);
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mousedown", mousedown);
-			this.addEventListener("mouseout", mouseout, {"once": true});
+			this.addEventListener("mouseleave", mouseout, {"once": true});
 			defaultTool.mapMouseOver.call(this, e);
 		},
 		"mapMouseWheel": defaultMouseWheel,
