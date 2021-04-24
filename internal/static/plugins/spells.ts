@@ -73,10 +73,10 @@ if (isAdmin()) {
 			size
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-			let send = false;
-			const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey),
-			      mousemove = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+			let send = false,
+			    [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+			const mousemove = (e: MouseEvent) => {
+				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				if (send) {
 					rpc.broadcast({
