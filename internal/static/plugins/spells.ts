@@ -11,18 +11,19 @@ import {rpc} from '../rpc.js';
 
 const sparkID = "plugin-spell-spark",
       conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
-      circleEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, circle({"r": "50%"})),
+      circleCircle = circle(),
+      circleEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, circleCircle),
       conePath = path({"d": conePathStr(10)}),
-      coneEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, conePath),
-      cubeEffect = svg({"viewBox": "0 0 10 10", "stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "width": 10, "height": 10, "style": "overflow: visible; pointer-events: none;"}, rect({"x": "-50%", "y": "-50%", "width": "100%", "height": "100%"})),
+      coneEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, conePath),
+      cubeRect = rect(),
+      cubeEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, cubeRect),
       setSize = (size: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
 	      s = gridSize * size / gridDistance,
-	      params = {"viewBox": `0 0 ${s} ${s}`, "width": s, "height": s};
-	createSVG(circleEffect, params);
-	createSVG(coneEffect, params);
+	      sh = s >> 1;
+	circleCircle.setAttribute("r", s + "")
 	conePath.setAttribute("d", conePathStr(s));
-	createSVG(cubeEffect, params);
+	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
       };
 
 if (isAdmin()) {
@@ -38,7 +39,7 @@ if (isAdmin()) {
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
 	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => setSize(checkInt(parseInt(size.value), 1, 1000, 10))}),
-	      setEffect = (effect: SVGSVGElement) => {
+	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
 		}
@@ -111,7 +112,7 @@ if (isAdmin()) {
 	});
 	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
 } else {
-	let lastEffect: SVGSVGElement | null = null;
+	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
 		if (type !== "plugin-spells") {
 			return;
