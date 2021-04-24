@@ -10,13 +10,14 @@ import defaultTool from '../tools_default.js';
 import {rpc} from '../rpc.js';
 
 const sparkID = "plugin-spell-spark",
+      effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
       conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
       circleCircle = circle(),
-      circleEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, circleCircle),
+      circleEffect = g(effectParams, circleCircle),
       conePath = path({"d": conePathStr(10)}),
-      coneEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, conePath),
+      coneEffect = g(effectParams, conePath),
       cubeRect = rect(),
-      cubeEffect = g({"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"}, cubeRect),
+      cubeEffect = g(effectParams, cubeRect),
       setSize = (size: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
 	      s = gridSize * size / gridDistance,
