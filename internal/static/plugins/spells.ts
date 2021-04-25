@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import {br, div, input, label} from '../lib/html.js';
+import {br, div, input, label, style} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
@@ -32,6 +32,7 @@ const sparkID = "plugin-spell-spark",
       };
 
 if (isAdmin()) {
+	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-width,#plugin-spell-type-line:not(:checked)~#plugin-spell-width-label{display:none}"));
 	const defaultLanguage = {
 		"SPELL_SIZE": "Spell Size",
 		"SPELL_TYPE_CIRCLE": "Circle Spell",
@@ -105,8 +106,8 @@ if (isAdmin()) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}}),
 			br(),
-			label({"for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
-			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": 10, "onchange": function (this: HTMLInputElement) {
+			label({"id": "plugin-spell-width-label", "for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
+			input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": 10, "onchange": function (this: HTMLInputElement) {
 				setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 			}}),
 		]),
