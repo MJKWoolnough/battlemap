@@ -45,10 +45,15 @@ if (isAdmin()) {
 			selectedEffect.replaceWith(effect);
 		}
 		selectedEffect = effect;
-	      };
+	      },
+	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), 1, x, y, rotation]}),
+	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null});
 	let selectedEffect = circleEffect,
 	    overrideClick = false,
-	    over = false;
+	    over = false,
+	    x = 0,
+	    y = 0,
+	    rotation = 0;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -79,28 +84,21 @@ if (isAdmin()) {
 				return;
 			}
 			over = true;
+			[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 			let send = false,
-			    rotate = false,
-			    rotation = 0,
-			    [x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+			    rotate = false;
 			const mousemove = (e: MouseEvent) => {
 				if (rotate) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
-					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
+					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI) % 360;
 					cubeRect.setAttribute("transform", `rotate(${rotation})`);
-					rpc.broadcast({
-						"type": "plugin-spells-rotate",
-						"data": rotation
-					});
+					sendEffect();
 					return;
 				}
 				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				if (send) {
-					rpc.broadcast({
-						"type": "plugin-spells",
-						"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y, rotation]
-					});
+					sendEffect();
 				}
 			      },
 			      mousedown = (e: MouseEvent) => {
@@ -114,10 +112,7 @@ if (isAdmin()) {
 					return;
 				}
 				send = true;
-				rpc.broadcast({
-					"type": "plugin-spells",
-					"data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), x, y, rotation]
-				});
+				sendEffect();
 				this.addEventListener("mouseup", mouseup);
 			      },
 			      mouseupRotate = (e: MouseEvent) => {
@@ -131,18 +126,12 @@ if (isAdmin()) {
 					return;
 				}
 				send = false;
-				rpc.broadcast({
-					"type": "plugin-spells",
-					"data": null
-				});
+				cancelEffect();
 				this.removeEventListener("mouseup", mouseup);
 			      },
 			      mouseout = () => {
 				if (send) {
-					rpc.broadcast({
-						"type": "plugin-spells",
-						"data": null
-					});
+					cancelEffect();
 				}
 				this.removeEventListener("mousemove", mousemove);
 				this.removeEventListener("mousedown", mousedown);
@@ -173,13 +162,6 @@ if (isAdmin()) {
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
-		if (type === "plugin-spells-rotate") {
-			if (!isInt(data)) {
-				console.log("plugin spells rotate: data must be int");
-				return;
-			}
-			cubeRect.setAttribute("transform", `rotate(${data})`);
-		}
 		if (type !== "plugin-spells") {
 			return;
 		}
@@ -188,10 +170,11 @@ if (isAdmin()) {
 			lastEffect = null;
 			return;
 		}
-		if (!(data instanceof Array) || data.length !== 4) {
-			console.log("plugin spells: broadcast data must be an array with length 4");
+		if (!(data instanceof Array) || data.length !== 6) {
+			console.log("plugin spells: broadcast data must be an array with length 6");
+			return;
 		}
-		const [effect, size, x, y] = data;
+		const [effect, size, width, x, y, rotation] = data;
 		if (!isUint(effect, 3)) {
 			console.log("plugin spells: invalid type");
 			return;
@@ -200,8 +183,16 @@ if (isAdmin()) {
 			console.log("plugin spells: invalid size");
 			return;
 		}
+		if (!isInt(width, 1, 1000)) {
+			console.log("plugin spells: invalid width");
+			return;
+		}
 		if (!isInt(x) || !isInt(y)) {
 			console.log("plugin spells: invalid coords");
+			return;
+		}
+		if (!isUint(rotation, 360)) {
+			console.log("plugin spells: invalid rotation");
 			return;
 		}
 		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : cubeEffect;
@@ -214,5 +205,8 @@ if (isAdmin()) {
 		}
 		setSize(size);
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+		if (selectedEffect === cubeEffect) {
+			cubeRect.setAttribute("transform", `rotate(${rotation})`);
+		}
 	});
 }
