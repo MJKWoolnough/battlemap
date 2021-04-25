@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {br, div, input, label} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive} from '../shared.js';
+import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
@@ -53,6 +53,11 @@ if (isAdmin()) {
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
+			if (!coneEffect.parentNode) {
+				globals.root.appendChild(coneEffect);
+			}
+		} else {
+			coneEffect.remove();
 		}
 	      };
 	let selectedEffect = circleEffect,
@@ -122,7 +127,7 @@ if (isAdmin()) {
 					this.addEventListener("mouseup", mouseupRotate);
 					e.preventDefault();
 				}
-				if (e.button !== 2) {
+				if (e.button !== 2 || !selectedEffect.parentNode) {
 					return;
 				}
 				send = true;
@@ -153,7 +158,9 @@ if (isAdmin()) {
 				over = false;
 			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
-			this.appendChild(selectedEffect);
+			if (selectedEffect !== coneEffect) {
+				this.appendChild(selectedEffect);
+			}
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mousedown", mousedown);
 			this.addEventListener("mousedown", mousedown);
@@ -167,14 +174,16 @@ if (isAdmin()) {
 				return;
 			}
 			defaultTool.mapMouseDown.call(this, e)
-			if (selectedEffect === coneEffect) {
-				setTokenCentre();
-			}
 		},
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
 	});
 	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
+	tokenSelectedReceive(() => {
+		if (over && selectedEffect === coneEffect) {
+			setTokenCentre()
+		}
+	});
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
