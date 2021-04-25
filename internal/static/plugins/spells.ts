@@ -92,11 +92,10 @@ if (isAdmin()) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI) % 360;
 					cubeRect.setAttribute("transform", `rotate(${rotation})`);
-					sendEffect();
-					return;
+				} else {
+					[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				}
-				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
-				selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				if (send) {
 					sendEffect();
 				}
