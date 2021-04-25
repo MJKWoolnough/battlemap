@@ -47,7 +47,14 @@ if (isAdmin()) {
 		selectedEffect = effect;
 	      },
 	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), 1, x, y, rotation]}),
-	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null});
+	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
+	      setTokenCentre = () => {
+		const {selected: {token}} = globals;
+		if (token) {
+			x = Math.round(token.x + token.width / 2);
+			y = Math.round(token.y + token.height / 2);
+		}
+	      };
 	let selectedEffect = circleEffect,
 	    overrideClick = false,
 	    over = false,
@@ -84,11 +91,15 @@ if (isAdmin()) {
 				return;
 			}
 			over = true;
-			[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+			if (selectedEffect === coneEffect) {
+				setTokenCentre();
+			} else {
+				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+			}
 			let send = false,
 			    rotate = false;
 			const mousemove = (e: MouseEvent) => {
-				if (rotate) {
+				if (rotate || selectedEffect === coneEffect) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
 					while (rotation > 360) {
@@ -97,7 +108,7 @@ if (isAdmin()) {
 					while (rotation < 0) {
 						rotation += 360;
 					}
-					cubeRect.setAttribute("transform", `rotate(${rotation})`);
+					(selectedEffect === cubeEffect ? cubeRect : conePath).setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
@@ -159,6 +170,9 @@ if (isAdmin()) {
 				return;
 			}
 			defaultTool.mapMouseDown.call(this, e)
+			if (selectedEffect === coneEffect) {
+				setTokenCentre();
+			}
 		},
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
@@ -212,6 +226,8 @@ if (isAdmin()) {
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 		if (selectedEffect === cubeEffect) {
 			cubeRect.setAttribute("transform", `rotate(${rotation})`);
+		} else if (selectedEffect === coneEffect) {
+			conePath.setAttribute("transform", `rotate(${rotation})`);
 		}
 	});
 }
