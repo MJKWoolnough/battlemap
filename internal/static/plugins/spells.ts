@@ -18,13 +18,17 @@ const sparkID = "plugin-spell-spark",
       coneEffect = g(effectParams, conePath),
       cubeRect = rect(),
       cubeEffect = g(effectParams, cubeRect),
-      setSize = (size: Uint) => {
+      lineRect = rect(),
+      lineEffect = g(effectParams, lineRect),
+      setSize = (size: Uint, width: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
 	      s = gridSize * size / gridDistance,
-	      sh = s >> 1;
+	      sh = s >> 1,
+	      w = gridSize * width / gridDistance;
 	circleCircle.setAttribute("r", s + "")
 	conePath.setAttribute("d", conePathStr(s));
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
+	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
       };
 
 if (isAdmin()) {
@@ -33,38 +37,44 @@ if (isAdmin()) {
 		"SPELL_TYPE_CIRCLE": "Circle Spell",
 		"SPELL_TYPE_CONE": "Cone Spell",
 		"SPELL_TYPE_CUBE": "Cube Spell",
+		"SPELL_TYPE_LINE": "Line Spell",
+		"SPELL_WIDTH": "Spell Width",
 		"TITLE": "Spell Effects",
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      size = input({"type": "number", "id": "plugin-spell-size", "min": 0, "value": 10, "onchange": () => setSize(checkInt(parseInt(size.value), 1, 1000, 10))}),
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
 		}
 		selectedEffect = effect;
 	      },
-	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : 2, parseInt(size.value), 1, x, y, rotation]}),
+	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : 3, size, width, x, y, rotation]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
 	      setTokenCentre = () => {
 		const {selected: {token}} = globals;
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
-			if (!coneEffect.parentNode) {
+			if (selectedEffect === coneEffect && !coneEffect.parentNode) {
 				globals.root.appendChild(coneEffect);
+			} else if (selectedEffect === lineEffect && !lineEffect.parentNode) {
+				globals.root.appendChild(lineEffect);
 			}
 		} else {
 			coneEffect.remove();
+			lineEffect.remove();
 		}
 	      };
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
 	    y = 0,
-	    rotation = 0;
+	    rotation = 0,
+	    size = 10,
+	    width = 5;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -87,15 +97,25 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-type-cube"}, `${lang["SPELL_TYPE_CUBE"]}: `),
 			input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type", "onclick": () => setEffect(cubeEffect)}),
 			br(),
+			label({"for": "plugin-spell-type-line"}, `${lang["SPELL_TYPE_LINE"]}: `),
+			input({"type": "radio", "id": "plugin-spell-type-line", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}),
+			br(),
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
-			size
+			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": 10, "onchange": function (this: HTMLInputElement) {
+				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
+			}}),
+			br(),
+			label({"for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
+			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": 10, "onchange": function (this: HTMLInputElement) {
+				setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
+			}}),
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 			if (over) {
 				return;
 			}
 			over = true;
-			if (selectedEffect === coneEffect) {
+			if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 				setTokenCentre();
 			} else {
 				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
@@ -103,7 +123,7 @@ if (isAdmin()) {
 			let send = false,
 			    rotate = false;
 			const mousemove = (e: MouseEvent) => {
-				if (rotate || selectedEffect === coneEffect) {
+				if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
 					while (rotation > 360) {
@@ -112,7 +132,7 @@ if (isAdmin()) {
 					while (rotation < 0) {
 						rotation += 360;
 					}
-					(selectedEffect === cubeEffect ? cubeRect : conePath).setAttribute("transform", `rotate(${rotation})`);
+					(selectedEffect === cubeEffect ? cubeRect : selectedEffect === coneEffect ? conePath : lineRect).setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
 					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
@@ -158,7 +178,7 @@ if (isAdmin()) {
 				over = false;
 			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
-			if (selectedEffect !== coneEffect) {
+			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
 				this.appendChild(selectedEffect);
 			}
 			this.addEventListener("mousemove", mousemove);
@@ -178,9 +198,9 @@ if (isAdmin()) {
 		"tokenMouseDown": (e: Event) => e.preventDefault(),
 		"tokenMouseContext": (e: Event) => e.preventDefault()
 	});
-	mapLoadedReceive(() => size.dispatchEvent(new CustomEvent("change")));
+	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {
-		if (over && selectedEffect === coneEffect) {
+		if (over && (selectedEffect === coneEffect || selectedEffect === lineEffect)) {
 			setTokenCentre()
 		}
 	});
@@ -200,7 +220,7 @@ if (isAdmin()) {
 			return;
 		}
 		const [effect, size, width, x, y, rotation] = data;
-		if (!isUint(effect, 3)) {
+		if (!isUint(effect, 4)) {
 			console.log("plugin spells: invalid type");
 			return;
 		}
@@ -220,7 +240,7 @@ if (isAdmin()) {
 			console.log("plugin spells: invalid rotation");
 			return;
 		}
-		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : cubeEffect;
+		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : effect === 2 ? cubeEffect : lineEffect;
 		if (lastEffect && lastEffect !== selectedEffect) {
 			lastEffect.remove();
 		}
@@ -228,12 +248,14 @@ if (isAdmin()) {
 		if (!selectedEffect.parentNode) {
 			globals.root.appendChild(selectedEffect);
 		}
-		setSize(size);
+		setSize(size, width);
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 		if (selectedEffect === cubeEffect) {
 			cubeRect.setAttribute("transform", `rotate(${rotation})`);
 		} else if (selectedEffect === coneEffect) {
 			conePath.setAttribute("transform", `rotate(${rotation})`);
+		} else if (selectedEffect === lineEffect) {
+			lineRect.setAttribute("transform", `rotate(${rotation})`);
 		}
 	});
 }
