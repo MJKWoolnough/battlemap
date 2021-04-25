@@ -90,7 +90,13 @@ if (isAdmin()) {
 			const mousemove = (e: MouseEvent) => {
 				if (rotate) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
-					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI) % 360;
+					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
+					while (rotation > 360) {
+						rotation -= 360;
+					}
+					while (rotation < 0) {
+						rotation += 360;
+					}
 					cubeRect.setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
