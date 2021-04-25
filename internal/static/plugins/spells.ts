@@ -56,7 +56,6 @@ if (isAdmin()) {
 		}
 	      };
 	let selectedEffect = circleEffect,
-	    overrideClick = false,
 	    over = false,
 	    x = 0,
 	    y = 0,
@@ -120,7 +119,6 @@ if (isAdmin()) {
 			      mousedown = (e: MouseEvent) => {
 				if (e.button === 0 && selectedEffect === cubeEffect) {
 					rotate = true;
-					overrideClick = true;
 					this.addEventListener("mouseup", mouseupRotate);
 					e.preventDefault();
 				}
@@ -134,7 +132,6 @@ if (isAdmin()) {
 			      mouseupRotate = (e: MouseEvent) => {
 				if (e.button === 0 && rotate) {
 					rotate = false;
-					overrideClick = false;
 				}
 			      },
 			      mouseup = (e: MouseEvent) => {
@@ -166,7 +163,7 @@ if (isAdmin()) {
 		"mapMouseWheel": defaultMouseWheel,
 		"mapMouseContext": (e: Event) => e.preventDefault(),
 		"mapMouseDown": function (this: SVGElement, e: MouseEvent) {
-			if (overrideClick) {
+			if (selectedEffect === cubeEffect) {
 				return;
 			}
 			defaultTool.mapMouseDown.call(this, e)
