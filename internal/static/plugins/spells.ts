@@ -11,7 +11,7 @@ import {rpc} from '../rpc.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
-      conePathStr = (n: Uint) => `M${n / 2},${n} L0,0 q${n/2},-${n * 0.425} ${n},0 z`,
+      conePathStr = (n: Uint) => `M0,0 L${n},-${n/2} q${n * 0.425},${n/2} 0,${n} z`,
       circleCircle = circle(),
       circleEffect = g(effectParams, circleCircle),
       conePath = path({"d": conePathStr(10)}),
