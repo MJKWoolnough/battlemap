@@ -80,7 +80,7 @@ if (isAdmin()) {
 	    x = 0,
 	    y = 0,
 	    rotation = 0,
-	    size = 10,
+	    size = 20,
 	    width = 5;
 	addTool({
 		"name": lang["TITLE"],
@@ -111,12 +111,12 @@ if (isAdmin()) {
 			snap,
 			br(),
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
-			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": 20, "onchange": function (this: HTMLInputElement) {
+			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}}),
 			br(),
 			label({"id": "plugin-spell-width-label", "for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
-			input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": 5, "onchange": function (this: HTMLInputElement) {
+			input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 				setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 			}}),
 		]),
