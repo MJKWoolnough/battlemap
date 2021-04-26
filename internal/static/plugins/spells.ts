@@ -5,7 +5,7 @@ import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, tokenSelect
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
-import {language} from '../language.js';
+import mainLang, {language} from '../language.js';
 import defaultTool from '../tools_default.js';
 import {rpc} from '../rpc.js';
 
@@ -68,6 +68,12 @@ if (isAdmin()) {
 			coneEffect.remove();
 			lineEffect.remove();
 		}
+	      },
+	      snap = input({"id": "plugin-spells-snap", "type": "checkbox", "checked": autosnap.value}),
+	      shiftSnap = (e: KeyboardEvent) => {
+		if (e.key === "Shift") {
+			snap.click();
+		}
 	      };
 	let selectedEffect = circleEffect,
 	    over = false,
@@ -101,6 +107,9 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-type-line"}, `${lang["SPELL_TYPE_LINE"]}: `),
 			input({"type": "radio", "id": "plugin-spell-type-line", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}),
 			br(),
+			label({"for": "plugin-spell-snap"}, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
+			snap,
+			br(),
 			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
 			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": 20, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
@@ -119,13 +128,13 @@ if (isAdmin()) {
 			if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 				setTokenCentre();
 			} else {
-				[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+				[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			}
 			let send = false,
 			    rotate = false;
 			const mousemove = (e: MouseEvent) => {
 				if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
-					const [px, py] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+					const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
 					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
 					while (rotation > 360) {
 						rotation -= 360;
@@ -135,7 +144,7 @@ if (isAdmin()) {
 					}
 					(selectedEffect === cubeEffect ? cubeRect : selectedEffect === coneEffect ? conePath : lineRect).setAttribute("transform", `rotate(${rotation})`);
 				} else {
-					[x, y] = screen2Grid(e.clientX, e.clientY, autosnap.value !== e.shiftKey);
+					[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 				}
 				if (send) {
@@ -205,6 +214,8 @@ if (isAdmin()) {
 			setTokenCentre()
 		}
 	});
+	window.addEventListener("keydown", shiftSnap);
+	window.addEventListener("keyup", shiftSnap);
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
