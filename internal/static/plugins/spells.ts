@@ -74,7 +74,8 @@ if (isAdmin()) {
 		if (e.key === "Shift") {
 			snap.click();
 		}
-	      };
+	      },
+	      disabled = (e: Event) => e.preventDefault();
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
@@ -198,15 +199,15 @@ if (isAdmin()) {
 			defaultTool.mapMouseOver.call(this, e);
 		},
 		"mapMouseWheel": defaultMouseWheel,
-		"mapMouseContext": (e: Event) => e.preventDefault(),
+		"mapMouseContext": disabled,
 		"mapMouseDown": function (this: SVGElement, e: MouseEvent) {
 			if (selectedEffect === cubeEffect) {
 				return;
 			}
 			defaultTool.mapMouseDown.call(this, e)
 		},
-		"tokenMouseDown": (e: Event) => e.preventDefault(),
-		"tokenMouseContext": (e: Event) => e.preventDefault()
+		"tokenMouseDown": disabled,
+		"tokenMouseContext": disabled
 	});
 	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {
