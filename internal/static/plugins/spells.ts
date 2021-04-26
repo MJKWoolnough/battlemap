@@ -59,12 +59,9 @@ if (isAdmin()) {
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
-			if (selectedEffect === coneEffect && !coneEffect.parentNode) {
-				coneEffect.setAttribute("transform", `translate(${x}, ${y})`);
-				globals.root.appendChild(coneEffect);
-			} else if (selectedEffect === lineEffect && !lineEffect.parentNode) {
-				lineEffect.setAttribute("transform", `translate(${x}, ${y})`);
-				globals.root.appendChild(lineEffect);
+			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			if (!selectedEffect.parentNode) {
+				globals.root.appendChild(selectedEffect);
 			}
 		} else {
 			coneEffect.remove();
