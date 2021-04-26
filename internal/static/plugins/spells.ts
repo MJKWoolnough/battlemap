@@ -200,7 +200,11 @@ if (isAdmin()) {
 		"mapMouseWheel": defaultMouseWheel,
 		"mapMouseContext": disabled,
 		"mapMouseDown": defaultTool.mapMouseDown,
-		"tokenMouseDown": disabled,
+		"tokenMouseDown": function(this: SVGElement, e: MouseEvent) {
+			if (this.previousSibling || !e.shiftKey) {
+				e.preventDefault();
+			}
+		},
 		"tokenMouseContext": disabled
 	});
 	mapLoadedReceive(() => setSize(size, width));
