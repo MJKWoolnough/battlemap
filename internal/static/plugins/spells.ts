@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import {br, div, input, label, style} from '../lib/html.js';
+import {br, div, input, label, option, select, style} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
@@ -29,11 +29,20 @@ const sparkID = "plugin-spell-spark",
 	conePath.setAttribute("d", conePathStr(s));
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
-      };
+      },
+      types: [string, string][] = [
+	["#f00", "rgba(255, 0, 0, 0.5)"],
+	["#fff", "rgba(255, 255, 255, 0.5)"],
+	["#0f0", "rgba(0, 255, 0, 0.5)"],
+	["#00f", "rgba(0, 0, 255, 0.5)"],
+	["#000", "rgba(0, 0, 0, 0.5)"],
+	["#ff0", "rgba(255, 255, 0, 0.5)"]
+      ];
 
 if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-width,#plugin-spell-type-line:not(:checked)~#plugin-spell-width-label{display:none}"));
 	const defaultLanguage = {
+		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
 		"SPELL_TYPE_CIRCLE": "Circle Spell",
 		"SPELL_TYPE_CONE": "Cone Spell",
@@ -41,6 +50,12 @@ if (isAdmin()) {
 		"SPELL_TYPE_LINE": "Line Spell",
 		"SPELL_WIDTH": "Spell Width",
 		"TITLE": "Spell Effects",
+		"TYPE_0": "Fire",
+		"TYPE_1": "Ice",
+		"TYPE_2": "Acid",
+		"TYPE_3": "Water",
+		"TYPE_4": "Necrotic",
+		"TYPE_5": "Lightning",
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
@@ -52,7 +67,7 @@ if (isAdmin()) {
 		}
 		selectedEffect = effect;
 	      },
-	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : 3, size, width, x, y, rotation]}),
+	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : 3, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
 	      setTokenCentre = () => {
 		const {selected: {token}} = globals;
@@ -81,7 +96,8 @@ if (isAdmin()) {
 	    y = 0,
 	    rotation = 0,
 	    size = 20,
-	    width = 5;
+	    width = 5,
+	    damageType = 0;
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -95,6 +111,15 @@ if (isAdmin()) {
 			]),
 		]),
 		"options": div([
+			label({"for": "plugin-spell-damage-type"}, `${lang["DAMAGE_TYPE"]}: `),
+			select({"id": "plugin-spell-damage-type", "onchange": function(this: HTMLSelectElement) {
+				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
+				for (const effect of [circleEffect, coneEffect, cubeEffect, lineEffect]) {
+					effect.setAttribute("stroke", types[damageType][0]);
+					effect.setAttribute("fill", types[damageType][1]);
+				}
+			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang]))),
+			br(),
 			label({"for": "plugin-spell-type-circle"}, `${lang["SPELL_TYPE_CIRCLE"]}: `),
 			input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true, "onclick": () => setEffect(circleEffect)}),
 			br(),
@@ -226,11 +251,11 @@ if (isAdmin()) {
 			lastEffect = null;
 			return;
 		}
-		if (!(data instanceof Array) || data.length !== 6) {
-			console.log("plugin spells: broadcast data must be an array with length 6");
+		if (!(data instanceof Array) || data.length !== 7) {
+			console.log("plugin spells: broadcast data must be an array with length 7");
 			return;
 		}
-		const [effect, size, width, x, y, rotation] = data;
+		const [effect, size, width, x, y, rotation, damageType] = data;
 		if (!isUint(effect, 4)) {
 			console.log("plugin spells: invalid type");
 			return;
@@ -251,6 +276,10 @@ if (isAdmin()) {
 			console.log("plugin spells: invalid rotation");
 			return;
 		}
+		if (!isUint(damageType, types.length - 1)) {
+			console.log("plugin spells: invalid damage type");
+			return;
+		}
 		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : effect === 2 ? cubeEffect : lineEffect;
 		if (lastEffect && lastEffect !== selectedEffect) {
 			lastEffect.remove();
@@ -261,6 +290,8 @@ if (isAdmin()) {
 		}
 		setSize(size, width);
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+		selectedEffect.setAttribute("stroke", types[damageType][0]);
+		selectedEffect.setAttribute("fill", types[damageType][1]);
 		if (selectedEffect === cubeEffect) {
 			cubeRect.setAttribute("transform", `rotate(${rotation})`);
 		} else if (selectedEffect === coneEffect) {
