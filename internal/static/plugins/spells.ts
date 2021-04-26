@@ -82,7 +82,7 @@ if (isAdmin()) {
 	    rotation = 0,
 	    size = 20,
 	    width = 5;
-	addTool({
+	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
 			title(lang["TITLE"]),
@@ -206,7 +206,7 @@ if (isAdmin()) {
 			}
 		},
 		"tokenMouseContext": disabled
-	});
+	}));
 	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {
 		if (over && (selectedEffect === coneEffect || selectedEffect === lineEffect)) {
