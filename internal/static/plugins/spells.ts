@@ -200,12 +200,7 @@ if (isAdmin()) {
 		},
 		"mapMouseWheel": defaultMouseWheel,
 		"mapMouseContext": disabled,
-		"mapMouseDown": function (this: SVGElement, e: MouseEvent) {
-			if (selectedEffect === cubeEffect) {
-				return;
-			}
-			defaultTool.mapMouseDown.call(this, e)
-		},
+		"mapMouseDown": defaultTool.mapMouseDown,
 		"tokenMouseDown": disabled,
 		"tokenMouseContext": disabled
 	});
