@@ -8,6 +8,7 @@ import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import defaultTool from '../tools_default.js';
 import {rpc} from '../rpc.js';
+import {hex2Colour, colour2RGBA} from '../colours.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
@@ -30,14 +31,7 @@ const sparkID = "plugin-spell-spark",
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = [
-	["#f00", "rgba(255, 0, 0, 0.5)"],
-	["#fff", "rgba(255, 255, 255, 0.5)"],
-	["#0f0", "rgba(0, 255, 0, 0.5)"],
-	["#00f", "rgba(0, 0, 255, 0.5)"],
-	["#000", "rgba(0, 0, 0, 0.5)"],
-	["#ff0", "rgba(255, 255, 0, 0.5)"]
-      ];
+      types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
 if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-width,#plugin-spell-type-line:not(:checked)~#plugin-spell-width-label{display:none}"));
