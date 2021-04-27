@@ -222,7 +222,6 @@ if (isAdmin()) {
 			}
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mousedown", mousedown);
-			this.addEventListener("mousedown", mousedown);
 			this.addEventListener("mouseleave", mouseout, {"once": true});
 			defaultTool.mapMouseOver.call(this, e);
 		},
