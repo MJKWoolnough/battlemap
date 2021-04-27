@@ -59,13 +59,14 @@ if (isAdmin()) {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
+	      effectList = [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect],
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
 		}
 		selectedEffect = effect;
 	      },
-	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : selectedEffect === lineEffect ? 3 : 4, size, width, x, y, rotation, damageType]}),
+	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [effectList.indexOf(selectedEffect) ?? 0, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
 	      setTokenCentre = () => {
 		const {selected: {token}} = globals;
@@ -112,7 +113,7 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-damage-type"}, `${lang["DAMAGE_TYPE"]}: `),
 			select({"id": "plugin-spell-damage-type", "onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
-				for (const effect of [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect]) {
+				for (const effect of effectList) {
 					effect.setAttribute("stroke", types[damageType][0]);
 					effect.setAttribute("fill", types[damageType][1]);
 				}
