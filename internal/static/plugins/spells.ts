@@ -21,6 +21,8 @@ const sparkID = "plugin-spell-spark",
       cubeEffect = g(effectParams, cubeRect),
       lineRect = rect(),
       lineEffect = g(effectParams, lineRect),
+      wallRect = rect(),
+      wallEffect = g(effectParams, wallRect),
       setSize = (size: Uint, width: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
 	      s = gridSize * size / gridDistance,
@@ -30,11 +32,12 @@ const sparkID = "plugin-spell-spark",
 	conePath.setAttribute("d", conePathStr(s));
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
+	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
       types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
 if (isAdmin()) {
-	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-width,#plugin-spell-type-line:not(:checked)~#plugin-spell-width-label{display:none}"));
+	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}"));
 	const defaultLanguage = {
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
@@ -42,6 +45,7 @@ if (isAdmin()) {
 		"SPELL_TYPE_CONE": "Cone Spell",
 		"SPELL_TYPE_CUBE": "Cube Spell",
 		"SPELL_TYPE_LINE": "Line Spell",
+		"SPELL_TYPE_WALL": "Wall Spell",
 		"SPELL_WIDTH": "Spell Width",
 		"TITLE": "Spell Effects",
 		"TYPE_0": "Fire",
@@ -61,7 +65,7 @@ if (isAdmin()) {
 		}
 		selectedEffect = effect;
 	      },
-	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : 3, size, width, x, y, rotation, damageType]}),
+	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [selectedEffect === circleEffect ? 0 : selectedEffect === coneEffect ? 1 : selectedEffect === cubeEffect ? 2 : selectedEffect === lineEffect ? 3 : 4, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
 	      setTokenCentre = () => {
 		const {selected: {token}} = globals;
@@ -108,7 +112,7 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-damage-type"}, `${lang["DAMAGE_TYPE"]}: `),
 			select({"id": "plugin-spell-damage-type", "onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
-				for (const effect of [circleEffect, coneEffect, cubeEffect, lineEffect]) {
+				for (const effect of [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect]) {
 					effect.setAttribute("stroke", types[damageType][0]);
 					effect.setAttribute("fill", types[damageType][1]);
 				}
@@ -126,6 +130,9 @@ if (isAdmin()) {
 			label({"for": "plugin-spell-type-line"}, `${lang["SPELL_TYPE_LINE"]}: `),
 			input({"type": "radio", "id": "plugin-spell-type-line", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}),
 			br(),
+			label({"for": "plugin-spell-type-wall"}, `${lang["SPELL_TYPE_WALL"]}: `),
+			input({"type": "radio", "id": "plugin-spell-type-wall", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}),
+			br(),
 			label({"for": "plugin-spell-snap"}, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			snap,
 			br(),
@@ -133,11 +140,12 @@ if (isAdmin()) {
 			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}}),
-			br(),
-			label({"id": "plugin-spell-width-label", "for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
-			input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
-				setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
-			}}),
+			div([
+				label({"id": "plugin-spell-width-label", "for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
+				input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
+					setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
+				}})
+			])
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 			if (over) {
@@ -161,7 +169,7 @@ if (isAdmin()) {
 					while (rotation < 0) {
 						rotation += 360;
 					}
-					(selectedEffect === cubeEffect ? cubeRect : selectedEffect === coneEffect ? conePath : lineRect).setAttribute("transform", `rotate(${rotation})`);
+					(selectedEffect === cubeEffect ? cubeRect : selectedEffect === coneEffect ? conePath : selectedEffect === lineEffect ? lineRect : wallRect).setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
@@ -171,7 +179,7 @@ if (isAdmin()) {
 				}
 			      },
 			      mousedown = (e: MouseEvent) => {
-				if (e.button === 0 && selectedEffect === cubeEffect) {
+				if (e.button === 0 && (selectedEffect === cubeEffect || selectedEffect === wallEffect)) {
 					rotate = true;
 					this.addEventListener("mouseup", mouseupRotate);
 					e.preventDefault();
@@ -250,7 +258,7 @@ if (isAdmin()) {
 			return;
 		}
 		const [effect, size, width, x, y, rotation, damageType] = data;
-		if (!isUint(effect, 4)) {
+		if (!isUint(effect, 5)) {
 			console.log("plugin spells: invalid type");
 			return;
 		}
@@ -274,7 +282,7 @@ if (isAdmin()) {
 			console.log("plugin spells: invalid damage type");
 			return;
 		}
-		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : effect === 2 ? cubeEffect : lineEffect;
+		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : effect === 2 ? cubeEffect : effect === 3 ? lineEffect : wallEffect;
 		if (lastEffect && lastEffect !== selectedEffect) {
 			lastEffect.remove();
 		}
@@ -292,6 +300,8 @@ if (isAdmin()) {
 			conePath.setAttribute("transform", `rotate(${rotation})`);
 		} else if (selectedEffect === lineEffect) {
 			lineRect.setAttribute("transform", `rotate(${rotation})`);
+		} else if (selectedEffect === wallEffect) {
+			wallRect.setAttribute("transform", `rotate(${rotation})`);
 		}
 	});
 }
