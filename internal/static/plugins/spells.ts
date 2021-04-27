@@ -265,21 +265,21 @@ if (isAdmin()) {
 		}
 		const [effect, size, width, x, y, rotation, damageType] = data;
 		for (const [a, log] of [
-			[isUint(effect, 5), "invalid type"],
+			[isUint(effect, effectList.length - 1), "invalid type"],
 			[isInt(size, 1, 1000), "invalid size"],
 			[isInt(width, 1, 1000), "invalid width"],
 			[isInt(x) && isInt(y), "invalid coords"],
 			[isUint(rotation, 360), "invalid rotation"],
 			[isUint(damageType, types.length - 1), "invalid damage type"]
 		]) {
-			if (a) {
+			if (!a) {
 				console.log("plugin spells: " + log);
 				return;
 			}
 		}
 		const selectedEffect = effectList[effect];
-		if (lastEffect && lastEffect !== selectedEffect) {
-			lastEffect.remove();
+		if (lastEffect !== selectedEffect) {
+			lastEffect?.remove();
 			globals.root.appendChild(selectedEffect);
 		}
 		lastEffect = selectedEffect;
