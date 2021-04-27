@@ -23,6 +23,7 @@ const sparkID = "plugin-spell-spark",
       lineEffect = g(effectParams, lineRect),
       wallRect = rect(),
       wallEffect = g(effectParams, wallRect),
+      effectList = [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect],
       rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]),
       setSize = (size: Uint, width: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
@@ -60,7 +61,6 @@ if (isAdmin()) {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      effectList = [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect],
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
@@ -284,7 +284,7 @@ if (isAdmin()) {
 			console.log("plugin spells: invalid damage type");
 			return;
 		}
-		const selectedEffect = effect === 0 ? circleEffect : effect === 1 ? coneEffect : effect === 2 ? cubeEffect : effect === 3 ? lineEffect : wallEffect;
+		const selectedEffect = effectList[effect];
 		if (lastEffect && lastEffect !== selectedEffect) {
 			lastEffect.remove();
 		}
