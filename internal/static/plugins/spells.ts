@@ -244,6 +244,7 @@ if (isAdmin()) {
 	window.addEventListener("keyup", shiftSnap);
 } else {
 	let lastEffect: SVGGElement | null = null;
+	const rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]);
 	rpc.waitBroadcast().then(({type, data}) => {
 		if (type !== "plugin-spells") {
 			return;
@@ -294,14 +295,6 @@ if (isAdmin()) {
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 		selectedEffect.setAttribute("stroke", types[damageType][0]);
 		selectedEffect.setAttribute("fill", types[damageType][1]);
-		if (selectedEffect === cubeEffect) {
-			cubeRect.setAttribute("transform", `rotate(${rotation})`);
-		} else if (selectedEffect === coneEffect) {
-			conePath.setAttribute("transform", `rotate(${rotation})`);
-		} else if (selectedEffect === lineEffect) {
-			lineRect.setAttribute("transform", `rotate(${rotation})`);
-		} else if (selectedEffect === wallEffect) {
-			wallRect.setAttribute("transform", `rotate(${rotation})`);
-		}
+		rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
 	});
 }
