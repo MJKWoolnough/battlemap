@@ -227,7 +227,12 @@ if (isAdmin()) {
 		},
 		"mapMouseWheel": defaultMouseWheel,
 		"mapMouseContext": disabled,
-		"mapMouseDown": defaultTool.mapMouseDown,
+		"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+			if (selectedEffect === cubeEffect || selectedEffect === wallEffect) {
+				return;
+			}
+			defaultTool.mapMouseDown.call(this, e);
+		},
 		"tokenMouseDown": function(this: SVGElement, e: MouseEvent) {
 			if (this.previousSibling || !e.shiftKey) {
 				e.preventDefault();
