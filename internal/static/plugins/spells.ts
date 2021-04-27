@@ -23,6 +23,7 @@ const sparkID = "plugin-spell-spark",
       lineEffect = g(effectParams, lineRect),
       wallRect = rect(),
       wallEffect = g(effectParams, wallRect),
+      rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]),
       setSize = (size: Uint, width: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
 	      s = gridSize * size / gridDistance,
@@ -170,7 +171,7 @@ if (isAdmin()) {
 					while (rotation < 0) {
 						rotation += 360;
 					}
-					(selectedEffect === cubeEffect ? cubeRect : selectedEffect === coneEffect ? conePath : selectedEffect === lineEffect ? lineRect : wallRect).setAttribute("transform", `rotate(${rotation})`);
+					rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
@@ -245,7 +246,6 @@ if (isAdmin()) {
 	window.addEventListener("keyup", shiftSnap);
 } else {
 	let lastEffect: SVGGElement | null = null;
-	const rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]);
 	rpc.waitBroadcast().then(({type, data}) => {
 		if (type !== "plugin-spells") {
 			return;
