@@ -276,11 +276,9 @@ if (isAdmin()) {
 		const selectedEffect = effectList[effect];
 		if (lastEffect && lastEffect !== selectedEffect) {
 			lastEffect.remove();
-		}
-		lastEffect = selectedEffect;
-		if (!selectedEffect.parentNode) {
 			globals.root.appendChild(selectedEffect);
 		}
+		lastEffect = selectedEffect;
 		setSize(size, width);
 		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 		selectedEffect.setAttribute("stroke", types[damageType][0]);
