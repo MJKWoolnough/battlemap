@@ -191,6 +191,7 @@ if (isAdmin()) {
 			      mouseupRotate = (e: MouseEvent) => {
 				if (e.button === 0 && rotate) {
 					rotate = false;
+					this.removeEventListener("mouseup", mouseupRotate);
 				}
 			      },
 			      mouseup = (e: MouseEvent) => {
