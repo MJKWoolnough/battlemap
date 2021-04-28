@@ -13,7 +13,6 @@ import {doTokenAdd} from '../map_fns.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
-      conePathStr = (n: Uint) => `M0,0 L${n},-${n/2} q${n * 0.425},${n/2} 0,${n} z`,
       circleCircle = circle(),
       circleEffect = g(effectParams, circleCircle),
       conePath = path(),
@@ -32,7 +31,7 @@ const sparkID = "plugin-spell-spark",
 	      sh = s >> 1,
 	      w = gridSize * width / gridDistance;
 	circleCircle.setAttribute("r", s + "")
-	conePath.setAttribute("d", conePathStr(s));
+	conePath.setAttribute("d", `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`);
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
