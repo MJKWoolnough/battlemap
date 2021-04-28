@@ -8,7 +8,8 @@ import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import defaultTool from '../tools_default.js';
 import {rpc} from '../rpc.js';
-import {hex2Colour, colour2RGBA} from '../colours.js';
+import {colour2RGBA, hex2Colour, noColour} from '../colours.js';
+import {doTokenAdd} from '../map_fns.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
@@ -213,8 +214,28 @@ if (isAdmin()) {
 				this.removeEventListener("mousemove", mousemove);
 				this.removeEventListener("mousedown", mousedown);
 				this.removeEventListener("mouseup", mouseup);
+				this.removeEventListener("keydown", keydown);
 				selectedEffect?.remove();
 				over = false;
+			      },
+			      keydown = (e: KeyboardEvent) => {
+				if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
+					return;
+				}
+				let r = Math.floor(256 * rotation / 360);
+				while (r >= 256) {
+					r -= 256;
+				}
+				while (r < 0) {
+					r += 256;
+				}
+				const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
+				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
+				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
+				      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": r, "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};
+				if (layer) {
+					doTokenAdd(layer.path, token);
+				}
 			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
@@ -222,6 +243,7 @@ if (isAdmin()) {
 			}
 			this.addEventListener("mousemove", mousemove);
 			this.addEventListener("mousedown", mousedown);
+			this.addEventListener("keydown", keydown);
 			this.addEventListener("mouseleave", mouseout, {"once": true});
 			defaultTool.mapMouseOver.call(this, e);
 		},
