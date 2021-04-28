@@ -14,7 +14,7 @@ import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {screen2Grid, panZoom} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, globals, mapLoadReceive, mapLoadedSend, tokenSelected, SQRT3, labels} from './shared.js';
+import {characterData, checkInt, deselectToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {uploadImages} from './assets.js';
 import {tokenContext} from './plugins.js';
@@ -49,10 +49,7 @@ export default function(base: HTMLElement) {
 			}
 			break;
 		case 1: {
-			rotation = Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI);
-			while (rotation < 0) {
-				rotation += 256;
-			}
+			rotation = mod(Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI), 256);
 			if (selectedToken.snap) {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
@@ -215,10 +212,7 @@ export default function(base: HTMLElement) {
 				if (e.shiftKey) {
 					const {mapData: {gridType}} = globals,
 					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
-					rotation = Math.round(rotation - deg);
-					while (rotation < 0) {
-						rotation += 256;
-					}
+					rotation = mod(Math.round(rotation - deg), 256);
 					e.preventDefault();
 				} else {
 					x -= h;
@@ -228,10 +222,7 @@ export default function(base: HTMLElement) {
 				if (e.shiftKey) {
 					const {mapData: {gridType}} = globals,
 					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
-					rotation = Math.round(rotation + deg);
-					while (rotation > 255) {
-						rotation -= 256;
-					}
+					rotation = mod(Math.round(rotation + deg), 256);
 					e.preventDefault();
 				} else {
 					x += h;
@@ -272,10 +263,7 @@ export default function(base: HTMLElement) {
 			break;
 		case "ArrowLeft":
 			if (e.shiftKey) {
-				token.rotation--;
-				while (token.rotation < 0) {
-					token.rotation += 256;
-				}
+				token.rotation = mod(token.rotation - 1, 256);
 				e.preventDefault();
 			} else {
 				token.x--;
@@ -283,10 +271,7 @@ export default function(base: HTMLElement) {
 			break;
 		case "ArrowRight":
 			if (e.shiftKey) {
-				token.rotation++;
-				while (token.rotation > 255) {
-					token.rotation -= 256;
-				}
+				token.rotation = mod(token.rotation + 1, 256);
 				e.preventDefault();
 			} else {
 				token.x++;
