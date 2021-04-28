@@ -37,7 +37,16 @@ const sparkID = "plugin-spell-spark",
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
+      types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]),
+      mod = (n: Uint, m: Uint) => {
+	while (n >= m) {
+		n -= m;
+	}
+	while (n < 0) {
+		n += m;
+	}
+	return n;
+      };
 
 if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}"));
@@ -165,13 +174,7 @@ if (isAdmin()) {
 			const mousemove = (e: MouseEvent) => {
 				if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 					const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
-					rotation = Math.round(180 * Math.atan2(py - y, px - x) / Math.PI);
-					while (rotation > 360) {
-						rotation -= 360;
-					}
-					while (rotation < 0) {
-						rotation += 360;
-					}
+					rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
 					rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
 				} else {
 					[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -222,13 +225,7 @@ if (isAdmin()) {
 				if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 					return;
 				}
-				let r = Math.floor(256 * rotation / 360);
-				while (r >= 256) {
-					r -= 256;
-				}
-				while (r < 0) {
-					r += 256;
-				}
+				let r = mod(Math.floor(256 * rotation / 360), 256);
 				const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
 				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
