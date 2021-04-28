@@ -216,11 +216,10 @@ if (isAdmin()) {
 				if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 					return;
 				}
-				let r = mod(Math.floor(256 * rotation / 360), 256);
 				const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
 				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
-				      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": r, "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};
+				      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};
 				if (layer) {
 					doTokenAdd(layer.path, token);
 				}
