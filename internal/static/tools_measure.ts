@@ -139,7 +139,7 @@ stopMeasurement = () => {
 	info.remove();
 	coords[0] = NaN;
 	coords[1] = NaN;
-}
+};
 
 let cleanup = noopCleanup;
 
