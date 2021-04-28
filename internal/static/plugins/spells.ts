@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {br, div, input, label, option, select, style} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, tokenSelectedReceive} from '../shared.js';
+import {checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
@@ -37,16 +37,7 @@ const sparkID = "plugin-spell-spark",
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]),
-      mod = (n: Uint, m: Uint) => {
-	while (n >= m) {
-		n -= m;
-	}
-	while (n < 0) {
-		n += m;
-	}
-	return n;
-      };
+      types: [string, string][] = ["#ff0000", "#ffffff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
 if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}"));
