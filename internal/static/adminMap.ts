@@ -7,7 +7,7 @@ import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
 import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, removeLayer, mapView, isTokenImage, walkLayers} from './map.js';
-import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {edit as tokenEdit} from './characters.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
@@ -568,7 +568,7 @@ export default function(base: HTMLElement) {
 		selectToken(newToken);
 	      },
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
-		globals.selected.layer = globals.tokens.get(newToken.id)!.layer;
+		setLayer(globals.tokens.get(newToken.id)!.layer);
 		globals.selected.token = newToken;
 		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": undefined, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
 		window.setTimeout(() => outline.setAttribute("style", `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`)); // TODO: Remove once Firefox bug is fixed!
