@@ -540,13 +540,23 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		const {layer} = globals.selected;
-		if (!layer || e.button !== 0 || e.ctrlKey) {
+		if (!layer || e.button !== 0 || (e.ctrlKey && !e.shiftKey)) {
 			return;
 		}
 		let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-		for (const t of layer.tokens as (SVGToken | SVGShape)[]) {
-			if (t.at(e.clientX, e.clientY)) {
-				newToken = t;
+		if (e.ctrlKey) {
+			walkLayers(l => {
+				for (const t of l.tokens as (SVGToken | SVGShape)[]) {
+					if (t.at(e.clientX, e.clientY)) {
+						newToken = t;
+					}
+				}
+			});
+		} else {
+			for (const t of layer.tokens as (SVGToken | SVGShape)[]) {
+				if (t.at(e.clientX, e.clientY)) {
+					newToken = t;
+				}
 			}
 		}
 		if (!newToken) {
