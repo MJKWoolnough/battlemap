@@ -6,7 +6,7 @@ import {createHTML, br, button, img, input, h1} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, removeLayer, mapView, isTokenImage, walkLayers} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, removeLayer, mapView, isTokenImage} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {edit as tokenEdit} from './characters.js';
 import {autosnap, measureTokenMove} from './settings.js';
@@ -414,31 +414,13 @@ export default function(base: HTMLElement) {
 				return;
 			}
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			if (e.ctrlKey) {
-				let found = false;
-				walkLayers(l => {
-					if (found) {
-						return;
+			for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+				if (tk === token) {
+					if (newToken)  {
+						break;
 					}
-					for (const tk of l.tokens as (SVGToken | SVGShape)[]) {
-						if (tk === token) {
-							if (newToken) {
-								break;
-							}
-						} else if (tk.at(e.clientX, e.clientY)) {
-							newToken = tk;
-						}
-					}
-				});
-			} else {
-				for (const tk of layer.tokens as (SVGToken | SVGShape)[]) {
-					if (tk === token) {
-						if (newToken)  {
-							break;
-						}
-					} else if (tk.at(e.clientX, e.clientY)) {
-						newToken = tk;
-					}
+				} else if (tk.at(e.clientX, e.clientY)) {
+					newToken = tk;
 				}
 			}
 			if (newToken) {
@@ -534,6 +516,15 @@ export default function(base: HTMLElement) {
 		}
 		doTokenAdd(globals.selected.layer.path, token);
 	      },
+	      allTokens = function* (folder: SVGFolder = globals.layerList): Iterable<SVGToken | SVGShape> {
+		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
+			if (isSVGLayer(e)) {
+				yield* e.tokens;
+			} else {
+				yield* allTokens(e);
+			}
+		}
+	      },
 	      mapOnMouseDown = (e: MouseEvent) => {
 		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
 		if (e.defaultPrevented) {
@@ -544,19 +535,9 @@ export default function(base: HTMLElement) {
 			return;
 		}
 		let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-		if (e.ctrlKey) {
-			walkLayers(l => {
-				for (const t of l.tokens as (SVGToken | SVGShape)[]) {
-					if (t.at(e.clientX, e.clientY)) {
-						newToken = t;
-					}
-				}
-			});
-		} else {
-			for (const t of layer.tokens as (SVGToken | SVGShape)[]) {
-				if (t.at(e.clientX, e.clientY)) {
-					newToken = t;
-				}
+		for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+			if (t.at(e.clientX, e.clientY)) {
+				newToken = t;
 			}
 		}
 		if (!newToken) {
