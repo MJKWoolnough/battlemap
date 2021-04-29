@@ -53,6 +53,7 @@ waitLayerShow = subFn<string>(),
 waitLayerHide = subFn<string>(),
 waitLayerPositionChange = subFn<LayerMove>(),
 waitLayerRename = subFn<LayerRename>(),
+waitLayerSelect = subFn<string>(),
 doMapChange = (details: MapDetails, sendRPC = true) => {
 	let oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour};
 	const doIt = (sendRPC = true) => {
@@ -561,6 +562,7 @@ layersRPC: LayerRPC = Object.freeze({
 	"waitLayerSetInvisible": () => waitLayerHide[1],
 	"waitLayerPositionChange": () => waitLayerPositionChange[1],
 	"waitLayerRename": () => waitLayerRename[1],
+	"waitLayerSelect": () => waitLayerSelect[1],
 	"list": invalidRPC,
 	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 	"move": invalidRPC,

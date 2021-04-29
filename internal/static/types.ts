@@ -29,6 +29,7 @@ export type LayerRPC = Readonly<FolderRPC & {
 	waitLayerSetInvisible:   () => Subscription<string>;
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
+	waitLayerSelect:         () => Subscription<string>;
 }>
 
 type RPCWaits = {
