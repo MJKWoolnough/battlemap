@@ -6,7 +6,7 @@ import {createHTML, br, button, img, input, h1} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {windows, shell} from './windows.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, removeLayer, mapView, isTokenImage} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, removeLayer, mapView, isTokenImage, walkLayers} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {edit as tokenEdit} from './characters.js';
 import {autosnap, measureTokenMove} from './settings.js';
@@ -404,7 +404,7 @@ export default function(base: HTMLElement) {
 		]);
 	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 		toolTokenMouseDown.call(this, e);
-		if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || !globals.selected.token) {
+		if (e.defaultPrevented || e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
 			return;
 		}
 		e.stopImmediatePropagation();
@@ -414,13 +414,31 @@ export default function(base: HTMLElement) {
 				return;
 			}
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			for (const tk of layer.tokens as (SVGToken | SVGShape)[]) {
-				if (tk === token) {
-					if (newToken)  {
-						break;
+			if (e.ctrlKey) {
+				let found = false;
+				walkLayers(l => {
+					if (found) {
+						return;
 					}
-				} else if (tk.at(e.clientX, e.clientY)) {
-					newToken = tk;
+					for (const tk of l.tokens as (SVGToken | SVGShape)[]) {
+						if (tk === token) {
+							if (newToken) {
+								break;
+							}
+						} else if (tk.at(e.clientX, e.clientY)) {
+							newToken = tk;
+						}
+					}
+				});
+			} else {
+				for (const tk of layer.tokens as (SVGToken | SVGShape)[]) {
+					if (tk === token) {
+						if (newToken)  {
+							break;
+						}
+					} else if (tk.at(e.clientX, e.clientY)) {
+						newToken = tk;
+					}
 				}
 			}
 			if (newToken) {
