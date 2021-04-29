@@ -358,6 +358,12 @@ export default function(base: HTMLElement) {
 				l.nameElem.innerText = lr.name;
 			}
 		});
+		layersRPC.waitLayerSelect().then(path => {
+			const l = list.getLayer(path);
+			if (l instanceof ItemLayer) {
+				l.show();
+			}
+		});
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button(lang["LAYER_ADD"], {"onclick": () => {
 				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
