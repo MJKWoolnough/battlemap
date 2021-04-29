@@ -44,6 +44,7 @@ checkSelectedLayer = (path: string) => {
 		}
 	}
 },
+setLayer = (l: SVGLayer) => waitLayerSelect[0]((globals.selected.layer = l).path),
 tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
 waitAdded = subFn<IDName[]>(),
 waitRemoved = subFn<string>(),
