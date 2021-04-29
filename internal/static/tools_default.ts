@@ -114,7 +114,7 @@ export default Object.freeze({
 	"name": lang["TOOL_DEFAULT"],
 	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "style": "stroke: currentColor", "stroke-width": 2})]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		if (e.button !== 0 && e.button !== 1) {
+		if (e.button !== 0 && e.button !== 1 || e.shiftKey) {
 			return;
 		}
 		const {outline} = globals;
@@ -162,7 +162,8 @@ export default Object.freeze({
 		const {selected: {layer: selectedLayer}, outline} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
 		      currentlyOverToken = overOutline || selectedLayer && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
-		if (e.ctrlKey) {
+		let ctrl = e.ctrlKey;
+		if (ctrl && !e.shiftKey) {
 			document.body.style.setProperty("--outline-cursor", "grab");
 		} else if (!overOutline) {
 			if (currentlyOverToken) {
@@ -187,7 +188,7 @@ export default Object.freeze({
 					}
 				      },
 				      mouseMove = (e: MouseEvent) => {
-					if (!e.ctrlKey && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+					if (!ctrl && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
 						if (!overToken) {
 							overToken = true;
 							document.body.style.setProperty("--outline-cursor", "pointer");
@@ -216,16 +217,22 @@ export default Object.freeze({
 				if (e.key === "Control") {
 					document.body.style.removeProperty("--outline-cursor");
 					window.removeEventListener("keyup", keyUp);
+					ctrl = false;
+				} else if (ctrl && e.key === "Shift") {
+					document.body.style.setProperty("--outline-cursor", "grab");
 				}
 			      },
 			      keyDown = (e: KeyboardEvent) => {
-				if (e.key === "Control") {
+				if (e.key === "Control" && !e.shiftKey) {
 					document.body.style.setProperty("--outline-cursor", "grab");
 					window.addEventListener("keyup", keyUp);
+					ctrl = true;
+				} else if (ctrl && e.key === "Shift") {
+					document.body.style.removeProperty("--outline-cursor");
 				}
 			      };
 			window.addEventListener("keydown", keyDown);
-			if (e.ctrlKey) {
+			if (ctrl || e.shiftKey) {
 				window.addEventListener("keyup", keyUp);
 			}
 			this.addEventListener("mouseout", () => {
