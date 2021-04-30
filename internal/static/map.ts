@@ -389,7 +389,6 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 		const l = (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop();
 		l.path = to + "/" + l.name;
 		toParent.children.splice(pos, 0, l);
-
 	}
 	updateLight();
 },
