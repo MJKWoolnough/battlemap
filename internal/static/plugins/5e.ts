@@ -13,7 +13,7 @@ import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js
 import {characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import {centreOnGrid} from '../tools_default.js';
-import mainLang, {language} from '../language.js';
+import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {iconSelector, tokenSelector, characterSelector} from '../characters.js';
@@ -363,7 +363,13 @@ const defaultLanguage = {
 	"TOKENS_UNSELECTED": "Unselected",
       },
       langs: Record<string, typeof defaultLanguage> = {
-	"en-GB": defaultLanguage
+	"en-GB": defaultLanguage,
+	"en-US": overlayLang({
+		"ARMOUR_CLASS": "Armor Class",
+		"DESATURATE_CONDITIONS": "Grayscale Conditions",
+		"HIGHLIGHT_COLOUR": "Token Highlight Color",
+		"SHOW_AC": "Show Token Armor Class",
+	}, defaultLanguage)
       },
       lang = langs[language.value] ?? defaultLanguage,
       importName = pluginName(import.meta),
