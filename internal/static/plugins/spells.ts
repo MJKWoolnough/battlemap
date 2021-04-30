@@ -36,7 +36,7 @@ const sparkID = "plugin-spell-spark",
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#000000", "#ffff00"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
+      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
 if (isAdmin()) {
 	document.head.appendChild(style({"type": "text/css"}, "#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}"));
@@ -54,8 +54,10 @@ if (isAdmin()) {
 		"TYPE_1": "Ice",
 		"TYPE_2": "Acid",
 		"TYPE_3": "Water",
-		"TYPE_4": "Necrotic",
-		"TYPE_5": "Lightning",
+		"TYPE_4": "Steam",
+		"TYPE_5": "Necrotic",
+		"TYPE_6": "Lightning",
+		"TYPE_7": "Earth",
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
