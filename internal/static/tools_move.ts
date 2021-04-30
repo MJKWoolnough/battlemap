@@ -1,8 +1,10 @@
 import {svg, g, line, path, title} from './lib/svg.js';
 import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './map_fns.js';
-import {defaultMouseWheel, panZoom} from './tools_default.js';
+import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {addTool} from './tools.js';
+import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
+import {measureTokenMove} from './settings.js';
 import lang from './language.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent) {
@@ -15,6 +17,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		return;
 	}
 	const snap = selectedLayer.tokens.some(t => t.snap),
+	      measure = measureTokenMove.value,
 	      sq = snap ? globals.mapData.gridSize : 1,
 	      mover = (e: MouseEvent) => {
 		dx = (e.clientX - ox) / panZoom.zoom;
@@ -24,6 +27,10 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 			dy = Math.round(dy / sq) * sq;
 		}
 		selectedLayer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
+		if (measure) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+			measureDistance(x, y);
+		}
 	      },
 	      mouseUp = (e: MouseEvent) => {
 		if (e.button !== 0) {
@@ -34,16 +41,26 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		document.body.removeEventListener("keydown", cancel)
 		selectedLayer.node.removeAttribute("transform");
 		doLayerShift(selectedLayer.path, dx, dy);
+		if (measure) {
+			stopMeasurement();
+		}
 	      },
 	      cancel = (e: KeyboardEvent) => {
 		if (e.key !== "Escape") {
 			return;
+		}
+		if (measure) {
+			stopMeasurement();
 		}
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
 		document.body.removeEventListener("keydown", cancel)
 		selectedLayer.node.removeAttribute("transform");
 	      };
+	if (measure) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+		startMeasurement(x, y);
+	}
 	deselectToken();
 	this.addEventListener("mousemove", mover);
 	this.addEventListener("mouseup", mouseUp);
