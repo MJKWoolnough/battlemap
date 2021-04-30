@@ -4,31 +4,26 @@ import {doLayerShift} from './map_fns.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {addTool} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {measureTokenMove} from './settings.js';
+import {autosnap, measureTokenMove} from './settings.js';
 import lang from './language.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	e.stopPropagation();
-	const ox = e.clientX, oy = e.clientY;
-	let dx = 0, dy = 0;
 	const {selected: {layer: selectedLayer}} = globals;
 	if (!selectedLayer) {
 		return;
 	}
+	let dx = 0, dy = 0;
 	const snap = selectedLayer.tokens.some(t => t.snap),
+	      [ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value),
 	      measure = measureTokenMove.value,
-	      sq = snap ? globals.mapData.gridSize : 1,
 	      mover = (e: MouseEvent) => {
-		dx = (e.clientX - ox) / panZoom.zoom;
-		dy = (e.clientY - oy) / panZoom.zoom;
-		if (snap) {
-			dx = Math.round(dx / sq) * sq;
-			dy = Math.round(dy / sq) * sq;
-		}
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+		dx = (x - ox) / panZoom.zoom;
+		dy = (y - oy) / panZoom.zoom;
 		selectedLayer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
 		if (measure) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
 			measureDistance(x, y);
 		}
 	      },
@@ -58,8 +53,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		selectedLayer.node.removeAttribute("transform");
 	      };
 	if (measure) {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
-		startMeasurement(x, y);
+		startMeasurement(ox, oy);
 	}
 	deselectToken();
 	this.addEventListener("mousemove", mover);
