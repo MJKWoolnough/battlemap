@@ -89,7 +89,7 @@ export default function (base: HTMLElement) {
 	    selected: HTMLLIElement | null = null;
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
-	      list = ul(tools.map(t => li({"onclick": function(this: HTMLLIElement) {
+	      list: HTMLLIElement[] = tools.map(t => li({"onclick": function(this: HTMLLIElement) {
 		if (selectedTool.unset) {
 			selectedTool.unset();
 		}
@@ -118,8 +118,8 @@ export default function (base: HTMLElement) {
 	      }}, [
 		t.icon,
 		span(t.name)
-	      ]))),
-	      fc = list.firstChild as HTMLLIElement,
+	      ])),
+	      fc = list[0],
 	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"]});
 	createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
 		windowed = true;
@@ -140,7 +140,7 @@ export default function (base: HTMLElement) {
 				optionsWindow.remove();
 			}
 		}
-	}}, [list, toolOptions]);
+	}}, [ul(list), toolOptions]);
 	fc.click();
 	mapLoadedReceive(() => {
 		if (selectedTool !== defaultTool) {
