@@ -165,7 +165,9 @@ doLayerMove = (from: string, to: string, position: Uint, sendRPC = true) => {
 				return rpc.moveLayer(data.from, data.to, data.position);
 			});
 		}
-		[to, from] = [from, to];
+		const [fromParent, fromName] = splitAfterLastSlash(from);
+		from = to + "/" + fromName;
+		to = fromParent;
 		[oldPos, position] = [position, oldPos];
 		return doIt;
 	      };
