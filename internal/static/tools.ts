@@ -167,4 +167,28 @@ export default function (base: HTMLElement) {
 			}
 		}
 	});
+	document.body.addEventListener("keydown", (e: KeyboardEvent) => {
+		if (e.key === "(") {
+			for (let i = 0; i < tools.length; i++) {
+				if (tools[i] === selectedTool) {
+					if (i === 0) {
+						i = tools.length;
+					}
+					list[i-1].click();
+					break;
+				}
+			}
+		} else if (e.key === ")") {
+			for (let i = 0; i < tools.length; i++) {
+				if (tools[i] === selectedTool) {
+					i++;
+					if (i === tools.length) {
+						i = 0;
+					}
+					list[i].click();
+					break;
+				}
+			}
+		}
+	});
 }
