@@ -14,7 +14,7 @@ import {shell, desktop, windows, getWindowData, checkWindowData} from './windows
 import settings, {hideMenu, invert, panelOnTop, settingsIcon, tabIcons} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {isAdmin} from './shared.js';
+import {isAdmin, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -144,16 +144,13 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
 			      }}) : null,
 			      l = t.appendChild(label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
-				let a = pos, tl = tabs.length;
+				let a = pos, n = 1;
 				switch (e.key) {
 				case "ArrowLeft":
-					do {
-						a = (((a - 1) % tl) + tl) % tl;
-					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
-					break;
+					n = -1;
 				case "ArrowRight":
 					do {
-						a = (a + 1) % tl;
+						a = mod(a + n, tabs.length);
 					} while (a !== pos && tabs[a]![1].style.getPropertyValue("display") === "none");
 					break;
 				case "Enter":
