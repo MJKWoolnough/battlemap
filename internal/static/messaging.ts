@@ -20,5 +20,5 @@ inited.then(() => {
 		const fn = modules.get(d.module)!,
 		      [icon, title] = fn instanceof Array ? fn : fn(d.id);
 		shell.appendChild(bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
-	}
-)});
+	});
+});
