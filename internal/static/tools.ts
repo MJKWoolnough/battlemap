@@ -1,6 +1,6 @@
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
-import {mapLoadedReceive} from './shared.js';
+import {mapLoadedReceive, mod} from './shared.js';
 import {stringSort} from './lib/ordered.js';
 import lang from './language.js';
 import defaultTool from './tools_default.js';
@@ -168,24 +168,11 @@ export default function (base: HTMLElement) {
 		}
 	});
 	document.body.addEventListener("keydown", (e: KeyboardEvent) => {
-		if (e.key === "(") {
+		const n = e.key === "(" ? -1 : e.key === ")" ? 1 : 0;
+		if (n !== 0) {
 			for (let i = 0; i < tools.length; i++) {
 				if (tools[i] === selectedTool) {
-					if (i === 0) {
-						i = tools.length;
-					}
-					list[i-1].click();
-					break;
-				}
-			}
-		} else if (e.key === ")") {
-			for (let i = 0; i < tools.length; i++) {
-				if (tools[i] === selectedTool) {
-					i++;
-					if (i === tools.length) {
-						i = 0;
-					}
-					list[i].click();
+					list[mod(i + n, tools.length)].click();
 					break;
 				}
 			}
