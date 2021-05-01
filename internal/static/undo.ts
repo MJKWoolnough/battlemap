@@ -67,7 +67,6 @@ const undos = new SortNode<FnDesc>(ul()),
 	redos.node
       ]);
 
-
 if (showWindow.value) {
 	shell.appendChild(w);
 }
