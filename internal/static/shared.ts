@@ -2,7 +2,7 @@ import type {Int, Uint, KeystoreData, MapData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe, Requester} from './lib/inter.js';
-import {label} from './lib/html.js';
+import {label, style} from './lib/html.js';
 import {g} from './lib/svg.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
@@ -56,6 +56,7 @@ labels = (() => {
 		return before ? [l, input] : [input, l];
 	};
 })(),
+addCSS = (css: string) => document.head.append(style({"type": "text/css"}, css)),
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
 globals = {
 	"definitions": null,
