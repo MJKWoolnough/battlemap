@@ -24,8 +24,8 @@ const undos = new SortNode<FnDesc>(ul()),
 				undos.splice(0, undos.length);
 				return;
 			}
-			while (undoLimit.value !== -1 && undos.length >= undoLimit.value) {
-				undos.shift();
+			if (undoLimit.value !== -1 && undos.length >= undoLimit.value) {
+				undos.splice(0, undos.length - undoLimit.value);
 			}
 			undos.push({
 				fn,
