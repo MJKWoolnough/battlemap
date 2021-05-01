@@ -2,9 +2,9 @@ import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
 import {SortNode} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
-import {createHTML, button, div, h2, img, style, table, tbody, thead, th, tr, td} from '../lib/html.js';
+import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
-import {globals, mapLoadReceive, isAdmin} from '../shared.js';
+import {addCSS, globals, mapLoadReceive, isAdmin} from '../shared.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
 
@@ -15,7 +15,7 @@ type assetSize = {
 }
 
 if (isAdmin()) {
-	document.head.appendChild(style({"type": "text/css"}, "#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}"));
+	addCSS("#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}");
 
 	const defaultLanguage = {
 		"GENERATE_STATISTICS": "Generate Statistics",

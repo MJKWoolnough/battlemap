@@ -1,15 +1,15 @@
 import type {Int, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import {clearElement, createHTML} from '../lib/dom.js';
-import {a, br, button, div, h1, h2, h3, input, label, style, table, tbody, td, th, thead, tr} from '../lib/html.js';
+import {a, br, button, div, h1, h2, h3, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {addPlugin} from '../plugins.js';
 import mainLang, {language} from '../language.js';
-import {enterKey, isInt, isUint} from '../shared.js';
+import {addCSS, enterKey, isInt, isUint} from '../shared.js';
 import {shell} from '../windows.js';
 import {JSONSetting} from '../settings_types.js';
 import {getSymbol} from '../symbols.js';
 
-document.head.appendChild(style({"type": "text/css"}, `
+addCSS(`
 #skills-beyond th {
 	text-align: right;
 }
@@ -29,7 +29,7 @@ document.head.appendChild(style({"type": "text/css"}, `
 .skill-prof-beyond-exp > th {
 	border-right: 5px double #000;
 }
-`));
+`);
 
 type roll = {
 	prof: 0 | 0.5 | 1 | 2;

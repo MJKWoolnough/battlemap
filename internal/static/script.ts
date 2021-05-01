@@ -14,7 +14,7 @@ import {shell, desktop, windows, getWindowData, checkWindowData} from './windows
 import settings, {hideMenu, invert, panelOnTop, settingsIcon, tabIcons} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {isAdmin, mod} from './shared.js';
+import {addCSS, isAdmin, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import './tools_draw.js';
 import './tools_light.js';
@@ -239,7 +239,7 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		loadUserMap(base.appendChild(div()));
 		userMusic();
 	}
-	document.head.appendChild(style({"type": "text/css"}, tabs.css));
+	addCSS(tabs.css);
 	base.appendChild(tabs.html);
 	window.setTimeout(() => tabs.setTab(lastTab.value));
 	clearElement(document.body).appendChild(shell);

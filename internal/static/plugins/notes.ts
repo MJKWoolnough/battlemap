@@ -3,9 +3,9 @@ import type {WindowElement} from '../windows.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
-import {createHTML, br, button, div, input, span, style, textarea} from '../lib/html.js';
+import {createHTML, br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
-import {isAdmin, isUint, labels} from '../shared.js';
+import {addCSS, isAdmin, isUint, labels} from '../shared.js';
 import mainLang, {language} from '../language.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import {rpc, handleError} from '../rpc.js';
@@ -146,7 +146,7 @@ if (isAdmin()) {
 		}
 	}
 
-	document.head.appendChild(style({"type": "text/css"}, "#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}"));
+	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
 	let lastID = 0;
 	const importName = pluginName(import.meta),
 	      editIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E',
