@@ -154,7 +154,8 @@ doLayerMove = (from: string, to: string, position: Uint, sendRPC = true) => {
 		handleError("Invalid layer move");
 		return;
 	}
-	let oldPos = parent.children.indexOf(layer);
+	let [fromParent, name] = splitAfterLastSlash(from),
+	    oldPos = parent.children.indexOf(layer);
 	const doIt = (sendRPC = true) => {
 		deselectToken();
 		moveLayer(from, to, position);
@@ -165,9 +166,8 @@ doLayerMove = (from: string, to: string, position: Uint, sendRPC = true) => {
 				return rpc.moveLayer(data.from, data.to, data.position);
 			});
 		}
-		const [fromParent, fromName] = splitAfterLastSlash(from);
-		from = to + "/" + fromName;
-		to = fromParent;
+		[to, fromParent] = [fromParent, to];
+		from = fromParent + "/" + name;
 		[oldPos, position] = [position, oldPos];
 		return doIt;
 	      };
