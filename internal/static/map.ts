@@ -297,7 +297,8 @@ const idNames: Record<string, Int> = {
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
       },
-      isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined;
+      isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
@@ -327,7 +328,6 @@ splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
-walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
 walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = globals.layerList, hidden = false) => {
 	for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 		if (isSVGLayer(e)) {
