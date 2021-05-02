@@ -1,7 +1,7 @@
 import type {WindowElement, WindowData} from './windows.js';
 import RPC, {rpc, handleError} from './rpc.js';
 import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
-import {div, h2, img, input, label, span, style} from './lib/html.js';
+import {div, h2, img, input, label, span} from './lib/html.js';
 import {symbol, path, circle, animateTransform} from './lib/svg.js';
 import assets, {imageIcon, audioIcon} from './assets.js';
 import musicPacks, {userMusic, musicIcon} from './musicPacks.js';
