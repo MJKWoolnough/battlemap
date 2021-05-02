@@ -1,5 +1,4 @@
-import {HTTPRequest} from './lib/conn.js';
-import {createHTML, button, br, h1, input, label, select, option} from './lib/html.js';
+import {createHTML, button, br, form, h1, input, label, select, option} from './lib/html.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
@@ -23,7 +22,7 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
-		loggedIn ? button({"onclick": () => HTTPRequest("login/logout").then(() => window.location.reload())}, lang["LOGOUT"]) : button({"onclick": () => HTTPRequest("login/login").then(() => window.location.reload())}, lang["LOGIN"]),
+		loggedIn ? form({"action": loggedIn ? "login/logout" : "login/login"}, input({"type": "submit", "value": loggedIn ? lang["LOGOUT"] : lang["LOGIN"]})) : [],
 		br(),
 		h1(lang["LANGUAGE"]),
 		label({"for": "language_select"}, `${lang["SELECT_LANGUAGE"]}: `),
