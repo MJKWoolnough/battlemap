@@ -148,7 +148,10 @@ func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
 	return int64(n) + m, err
 }
 
-const invalidFilenameChars = "\x00\r\n\\/"
+const (
+	invalidFilenameChars = "\x00\r\n\\/"
+	contentType          = "Content-Type"
+)
 
 // Errors
 var (

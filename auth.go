@@ -3,18 +3,14 @@ package battlemap
 import (
 	"bytes"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"hash"
 	"io"
 	"net/http"
-	"sync"
 	"sync/atomic"
 	"time"
 
 	"golang.org/x/net/websocket"
-	"vimagination.zapto.org/httpaccept"
 	"vimagination.zapto.org/memio"
 	"vimagination.zapto.org/sessions"
 )
@@ -30,28 +26,12 @@ type Auth interface {
 
 type auth struct {
 	*Battlemap
-	store *sessions.CookieStore
-
-	mu                                  sync.RWMutex
-	passwordSalt, password, sessionData memio.Buffer
+	store       *sessions.CookieStore
+	sessionData memio.Buffer
 }
 
 func (a *auth) Init(b *Battlemap) error {
 	var save bool
-
-	salt := make(memio.Buffer, 0, 16)
-	password := make(memio.Buffer, 0, sha256.Size)
-	b.config.Get("passwordSalt", &salt)
-	b.config.Get("password", &password)
-	if len(salt) == 0 {
-		salt = salt[:16]
-		rand.Read(salt)
-		password = hashPass(password, salt)
-		save = true
-	} else if len(password) == 0 {
-		password = hashPass(nil, salt)
-	}
-
 	sessionKey := make(memio.Buffer, 0, 16)
 	b.config.Get("sessionKey", &sessionKey)
 	if len(sessionKey) != 16 {
@@ -71,15 +51,11 @@ func (a *auth) Init(b *Battlemap) error {
 	if err != nil {
 		return fmt.Errorf("error creating Cookie Store: %w", err)
 	}
-	a.passwordSalt = salt
-	a.password = password
 	a.sessionData = sessionData
 	if save {
 		if err = b.config.SetAll(map[string]io.WriterTo{
-			"passwordSalt": &salt,
-			"password":     &password,
-			"sessionKey":   &sessionKey,
-			"sessionData":  &sessionData,
+			"sessionKey":  &sessionKey,
+			"sessionData": &sessionData,
 		}); err != nil {
 			return fmt.Errorf("error setting auth config: %w", err)
 		}
@@ -90,9 +66,7 @@ func (a *auth) Init(b *Battlemap) error {
 
 func (a *auth) IsAdmin(r *http.Request) bool {
 	rData := a.store.Get(r)
-	a.mu.RLock()
 	isAdmin := bytes.Equal(rData, a.sessionData)
-	a.mu.RUnlock()
 	return isAdmin
 }
 
@@ -104,183 +78,20 @@ func (a *auth) Auth(r *http.Request) *http.Request { return r }
 
 func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
 	a.store.Set(w, nil)
-	var at acceptType
-	httpaccept.HandleAccept(r, &at)
-	switch at {
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		io.WriteString(w, "{\"admin\": false}")
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		io.WriteString(w, "<admin>false</admin>")
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		io.WriteString(w, "logged out")
-	case "form":
-		w.Header().Set(contentType, "application/x-www-form-urlencoded")
-		io.WriteString(w, "admin=false")
-	}
-}
-
-func (a *auth) UpdatePassword(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-	if !a.IsAdmin(r) {
-		http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-		return
-	}
-	r.ParseForm()
-	password := r.PostFormValue(passwordField)
-	confirm := r.PostFormValue("confirmPassword")
-	var at acceptType
-	httpaccept.HandleAccept(r, &at)
-	if password != confirm {
-		w.WriteHeader(http.StatusBadRequest)
-		switch at {
-		case "json":
-			w.Header().Set(contentType, "application/json")
-			io.WriteString(w, "{\"updated\": false}")
-		case "xml":
-			w.Header().Set(contentType, "text/xml")
-			io.WriteString(w, "<updated>false</login>")
-		case "txt":
-			w.Header().Set(contentType, "text/plain")
-			io.WriteString(w, "passwords don't match")
-		case "form":
-			w.Header().Set(contentType, "application/x-www-form-urlencoded")
-			io.WriteString(w, "updated=false")
-		}
-		return
-	}
-	a.store.Set(w, a.UpdatePasswordGetData(password, SocketIDFromRequest(r)))
-	switch at {
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		io.WriteString(w, "{\"updated\": true}")
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		io.WriteString(w, "<updated>true</login>")
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		io.WriteString(w, "password updated")
-	case "form":
-		w.Header().Set(contentType, "application/x-www-form-urlencoded")
-		io.WriteString(w, "<updated>true</login>")
-	default:
-		http.Redirect(w, r, "/", http.StatusSeeOther)
-	}
-}
-
-func (a *auth) UpdatePasswordGetData(newPassword string, id ID) []byte {
-	a.mu.Lock()
-	a.password = hashPass([]byte(newPassword), a.passwordSalt)
-	password := a.password
-	rand.Read(a.sessionData)
-	data := a.sessionData
-	a.mu.Unlock()
-	d := data
-	a.config.SetAll(map[string]io.WriterTo{
-		"password":    &password,
-		"sessionData": &d,
-	})
-	a.socket.KickAdmins(id)
-	return data
+	http.Redirect(w, r, "../", http.StatusFound)
 }
 
 func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	var password string
-	if _, ok := r.PostForm[passwordField]; ok {
-		password = r.PostFormValue(passwordField)
-	} else {
-		_, password, _ = r.BasicAuth()
-	}
-	var at acceptType
-	httpaccept.HandleAccept(r, &at)
-	if sessionData := a.login(password); len(sessionData) > 0 {
-		a.store.Set(w, sessionData)
-		switch at {
-		case "json":
-			w.Header().Set(contentType, "application/json")
-			io.WriteString(w, "{\"admin\": true}")
-		case "xml":
-			w.Header().Set(contentType, "text/xml")
-			io.WriteString(w, "<admin>true</admin>")
-		case "txt":
-			w.Header().Set(contentType, "text/plain")
-			io.WriteString(w, "logged in")
-		case "form":
-			w.Header().Set(contentType, "application/x-www-form-urlencoded")
-			io.WriteString(w, "admin=true")
-		default:
-			http.Redirect(w, r, "/", http.StatusSeeOther)
-		}
-		return
-	}
-	w.Header().Set("WWW-Authenticate", "Basic realm=\"Battlemap\"")
-	var content string
-	switch at {
-	case "json":
-		w.Header().Set(contentType, "application/json")
-		content = "{\"admin\": false}"
-	case "xml":
-		w.Header().Set(contentType, "text/xml")
-		content = "<admin>false</admin>"
-	case "txt":
-		w.Header().Set(contentType, "text/plain")
-		content = "logged out"
-	case "form":
-		w.Header().Set(contentType, "application/x-www-form-urlencoded")
-		content = "admin=false"
-	}
-	w.WriteHeader(http.StatusUnauthorized)
-	io.WriteString(w, content)
-}
-
-func (a *auth) LoggedIn(w http.ResponseWriter, r *http.Request) {
-	if a.IsAdmin(r) {
-		a.mu.RLock()
-		sessionData := a.sessionData
-		a.mu.RUnlock()
-		a.store.Set(w, sessionData)
-		io.WriteString(w, "true")
-	} else {
-		io.WriteString(w, "false")
-	}
-}
-
-func (a *auth) login(password string) []byte {
-	var toRet []byte
-	a.mu.RLock()
-	if bytes.Equal(a.password, hashPass([]byte(password), a.passwordSalt)) {
-		toRet = a.sessionData
-	}
-	a.mu.RUnlock()
-	return toRet
-}
-
-func (a *auth) LoginGetData(password string) string {
-	sessionData := a.login(password)
-	if len(sessionData) == 0 {
-		return ""
-	}
-	pw := make([]string, 0, 1)
-	a.store.Set(psuedoHeaders{"Set-Cookie": pw}, sessionData)
-	return pw[0]
+	a.store.Set(w, a.sessionData)
+	http.Redirect(w, r, "../", http.StatusFound)
 }
 
 func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "update":
-		a.UpdatePassword(w, r)
 	case "logout":
 		a.Logout(w, r)
 	case "login":
 		a.Login(w, r)
-	case "loggedin":
-		a.LoggedIn(w, r)
 	default:
 		http.NotFound(w, r)
 	}
@@ -322,85 +133,12 @@ func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) 
 		switch submethod {
 		case "loggedIn":
 			return true, nil
-		case "logout":
-			atomic.StoreInt32(&a.admin, 0)
-			return nil, nil
-		case "changePassword":
-			var ndata struct {
-				Old string `json:"oldPassword"`
-				New string `json:"newPassword"`
-			}
-			json.Unmarshal(data, &ndata)
-			if a.login(ndata.Old) == nil {
-				return nil, ErrInvalidPassword
-			}
-			return a.UpdatePasswordGetData(ndata.New, cd.ID), nil
 		}
 	} else {
 		switch submethod {
 		case "loggedIn":
 			return false, nil
-		case "login":
-			var password string
-			json.Unmarshal(data, &password)
-			sessionData := a.LoginGetData(password)
-			if len(sessionData) == 0 {
-				return nil, ErrInvalidPassword
-			}
-			atomic.StoreInt32(&a.admin, 1)
-			return sessionData, nil
-		case "requirements":
-			return req, nil
 		}
 	}
 	return nil, ErrUnknownMethod
 }
-
-var req = json.RawMessage("[\"password\"]")
-
-type psuedoHeaders http.Header
-
-func (psuedoHeaders) Write([]byte) (int, error) { return 0, nil }
-func (psuedoHeaders) WriteHeader(int)           {}
-func (p psuedoHeaders) Header() http.Header     { return http.Header(p) }
-
-var hashPool = sync.Pool{
-	New: func() interface{} {
-		return sha256.New()
-	},
-}
-
-func hashPass(password, salt []byte) []byte {
-	h := hashPool.Get().(hash.Hash)
-	h.Write(password)
-	h.Write(salt)
-	res := h.Sum(make([]byte, 0, sha256.Size))
-	h.Reset()
-	hashPool.Put(h)
-	return res
-}
-
-type acceptType string
-
-func (a *acceptType) Handle(m httpaccept.Mime) bool {
-	if m.Match("text/plain") {
-		*a = "txt"
-		return true
-	} else if m.Match("text/xml") {
-		*a = "xml"
-		return true
-	} else if m.Match("application/json") || m.Match("text/json") || m.Match("text/x-json") {
-		*a = "json"
-		return true
-	} else if m.Match("application/x-www-form-urlencoded") {
-		*a = "form"
-		return true
-	}
-	return false
-}
-
-const (
-	passwordField = "password"
-	contentType   = "Content-Type"
-	jsonType      = "application/json"
-)
