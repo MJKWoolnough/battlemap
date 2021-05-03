@@ -95,9 +95,7 @@ var (
 )
 
 func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
-	c := &authConn{
-		auth: a,
-	}
+	c := &authConn{}
 	if a.IsAdmin(w.Request()) {
 		w.Write(loggedIn)
 		atomic.StoreInt32(&c.admin, 1)
@@ -108,7 +106,6 @@ func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
 }
 
 type authConn struct {
-	*auth
 	admin int32
 }
 
