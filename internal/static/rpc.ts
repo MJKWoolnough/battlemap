@@ -40,8 +40,8 @@ connID = new Promise<Uint>(success => connIDSet = success);
 export default function (url: string): Promise<void>{
 	return RPC(url, 1.1).then(arpc => {
 		arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
-			setAdmin(userLevel === 1);
-			setUser(userLevel === 0);
+			setAdmin(userLevel === 2);
+			setUser(userLevel === 1);
 			initSend();
 		});
 		arpc.request("conn.connID").then(checkUint).then(connIDSet);
