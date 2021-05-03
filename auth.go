@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"sync/atomic"
 	"time"
 
 	"golang.org/x/net/websocket"
@@ -95,29 +94,25 @@ var (
 )
 
 func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
-	c := &authConn{}
 	if a.IsAdmin(w.Request()) {
 		w.Write(loggedIn)
-		atomic.StoreInt32(&c.admin, 1)
-	} else {
-		w.Write(loggedOut)
+		return authConn(true)
 	}
-	return c
+	w.Write(loggedOut)
+	return authConn(false)
 }
 
-type authConn struct {
-	admin int32
+type authConn bool
+
+func (a authConn) IsAdmin() bool {
+	return bool(a)
 }
 
-func (a *authConn) IsAdmin() bool {
-	return atomic.LoadInt32(&a.admin) == 1
+func (a authConn) IsUser() bool {
+	return bool(a)
 }
 
-func (a *authConn) IsUser() bool {
-	return atomic.LoadInt32(&a.admin) != 1
-}
-
-func (a *authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
+func (a authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
 	if a.IsAdmin() {
 		switch submethod {
 		case "loggedIn":
