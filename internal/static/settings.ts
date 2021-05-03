@@ -22,7 +22,7 @@ export default function (base: HTMLElement, loggedIn: boolean) {
 	createHTML(base, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
-		loggedIn ? form({"action": loggedIn ? "login/logout" : "login/login"}, input({"type": "submit", "value": loggedIn ? lang["LOGOUT"] : lang["LOGIN"]})) : [],
+		form({"action": loggedIn ? "login/logout" : "login/login"}, input({"type": "submit", "value": loggedIn ? lang["LOGOUT"] : lang["LOGIN"]})),
 		br(),
 		h1(lang["LANGUAGE"]),
 		label({"for": "language_select"}, `${lang["SELECT_LANGUAGE"]}: `),
