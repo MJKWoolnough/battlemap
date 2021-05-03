@@ -22,6 +22,13 @@ type Auth interface {
 	IsUser(*http.Request) bool
 }
 
+// AuthConn is the interface required to be implemented for a custom Auth
+// module to handle websocket RPC connections.
+type AuthConn interface {
+	IsAdmin() bool
+	IsUser() bool
+}
+
 type auth struct {
 	*Battlemap
 	store       *sessions.CookieStore

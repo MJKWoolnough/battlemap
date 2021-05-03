@@ -55,15 +55,6 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 	s.mu.Unlock()
 }
 
-// AuthConn is the interface required to be implemented for a custom Auth
-// module to handle websocket RPC connections.
-//
-// The RPC data method will receive all 'auth' methods called via RPC.
-type AuthConn interface {
-	IsAdmin() bool
-	IsUser() bool
-}
-
 type conn struct {
 	*Battlemap
 	rpc *jsonrpc.Server
