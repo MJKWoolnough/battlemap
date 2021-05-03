@@ -76,25 +76,17 @@ func (a *auth) IsUser(r *http.Request) bool {
 
 func (a *auth) Auth(r *http.Request) *http.Request { return r }
 
-func (a *auth) Logout(w http.ResponseWriter, r *http.Request) {
-	a.store.Set(w, nil)
-	http.Redirect(w, r, "../", http.StatusFound)
-}
-
-func (a *auth) Login(w http.ResponseWriter, r *http.Request) {
-	a.store.Set(w, a.sessionData)
-	http.Redirect(w, r, "../", http.StatusFound)
-}
-
 func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "logout":
-		a.Logout(w, r)
+		a.store.Set(w, nil)
 	case "login":
-		a.Login(w, r)
+		a.store.Set(w, a.sessionData)
 	default:
 		http.NotFound(w, r)
+		return
 	}
+	http.Redirect(w, r, "../", http.StatusFound)
 }
 
 var (
