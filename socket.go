@@ -62,7 +62,6 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 type AuthConn interface {
 	IsAdmin() bool
 	IsUser() bool
-	RPCData(connData ConnData, method string, data json.RawMessage) (interface{}, error)
 }
 
 type conn struct {

@@ -3,7 +3,6 @@ package battlemap
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -110,19 +109,4 @@ func (a authConn) IsAdmin() bool {
 
 func (a authConn) IsUser() bool {
 	return bool(a)
-}
-
-func (a authConn) RPCData(cd ConnData, submethod string, data json.RawMessage) (interface{}, error) {
-	if a.IsAdmin() {
-		switch submethod {
-		case "loggedIn":
-			return true, nil
-		}
-	} else {
-		switch submethod {
-		case "loggedIn":
-			return false, nil
-		}
-	}
-	return nil, ErrUnknownMethod
 }
