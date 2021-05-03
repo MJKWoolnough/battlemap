@@ -34,7 +34,6 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 		c  conn
 	)
 	s.config.Get("currentUserMap", &cu)
-	a := s.auth.AuthConn(wconn)
 	s.mu.Lock()
 	s.nextID++
 	id := s.nextID
@@ -46,7 +45,7 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 		ConnData: ConnData{
 			CurrentMap: uint64(cu),
 			ID:         id,
-			AuthConn:   a,
+			userState:  s.authConn(wconn),
 		},
 	}
 	c.rpc.Handle()
@@ -58,7 +57,6 @@ func (s *socket) ServeConn(wconn *websocket.Conn) {
 type conn struct {
 	*Battlemap
 	rpc *jsonrpc.Server
-
 	ConnData
 }
 
@@ -77,14 +75,14 @@ func SocketIDFromRequest(r *http.Request) ID {
 type ConnData struct {
 	CurrentMap uint64
 	ID         ID
-	AuthConn
+	userState
 }
 
 func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, error) {
 	cd := ConnData{
 		CurrentMap: atomic.LoadUint64(&c.CurrentMap),
 		ID:         ID(atomic.LoadUint64((*uint64)(&c.ID))),
-		AuthConn:   c.AuthConn,
+		userState:  c.userState,
 	}
 	switch method {
 	case "conn.connID":
@@ -150,9 +148,6 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		pos := strings.IndexByte(method, '.')
 		if pos <= 0 {
 			return nil, ErrUnknownMethod
-		}
-		if method[:pos] == "auth" {
-			return cd.RPCData(cd, method[pos+1:], data)
 		}
 		submethod := method[pos+1:]
 		method = method[:pos]

@@ -17,16 +17,24 @@ import (
 type Auth interface {
 	http.Handler
 	Auth(*http.Request) *http.Request
-	AuthConn(*websocket.Conn) AuthConn
 	IsAdmin(*http.Request) bool
 	IsUser(*http.Request) bool
 }
 
-// AuthConn is the interface required to be implemented for a custom Auth
-// module to handle websocket RPC connections.
-type AuthConn interface {
-	IsAdmin() bool
-	IsUser() bool
+type userState uint8
+
+const (
+	userStateNone userState = iota
+	userStateUser
+	userStateAdmin
+)
+
+func (u userState) IsAdmin() bool {
+	return u == userStateAdmin
+}
+
+func (u userState) IsUser() bool {
+	return u == userStateUser
 }
 
 type auth struct {
@@ -95,25 +103,20 @@ func (a *auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 var (
-	loggedOut = []byte("{\"id\": -1, \"result\": 0}")
-	loggedIn  = []byte("{\"id\": -1, \"result\": 1}")
+	loggedOut     = []byte("{\"id\": -1, \"result\": 0}")
+	loggedInUser  = []byte("{\"id\": -1, \"result\": 1}")
+	loggedInAdmin = []byte("{\"id\": -1, \"result\": 2}")
 )
 
-func (a *auth) AuthConn(w *websocket.Conn) AuthConn {
-	if a.IsAdmin(w.Request()) {
-		w.Write(loggedIn)
-		return authConn(true)
+func (b *Battlemap) authConn(w *websocket.Conn) userState {
+	r := w.Request()
+	if b.auth.IsAdmin(r) {
+		w.Write(loggedInAdmin)
+		return userStateAdmin
+	} else if b.auth.IsUser(r) {
+		w.Write(loggedInUser)
+		return userStateUser
 	}
 	w.Write(loggedOut)
-	return authConn(false)
-}
-
-type authConn bool
-
-func (a authConn) IsAdmin() bool {
-	return bool(a)
-}
-
-func (a authConn) IsUser() bool {
-	return bool(a)
+	return userStateNone
 }
