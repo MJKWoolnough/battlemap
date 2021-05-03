@@ -207,12 +207,6 @@ export default function (url: string): Promise<void>{
 				["disablePlugin", "plugins.disable", "!",                          returnVoid,   "", ""],
 				["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
 
-				["loggedIn",          "auth.loggedIn",        "",                            checkBoolean, "", ""],
-				["loginRequirements", "auth.requirements",    "",                            checkString,  "", ""],
-				["login",             "auth.login",           "!",                           checkString,  "", ""],
-				["changePassword",    "auth.changePassword", ["oldPassword", "newPassword"], checkString,  "", ""],
-				["logout",            "auth.logout",          "",                            returnVoid,   "", ""],
-
 				["broadcastWindow", "broadcastWindow", ["module", "id", "contents"], returnVoid, "waitBroadcastWindow", ""],
 				["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""],
 			],

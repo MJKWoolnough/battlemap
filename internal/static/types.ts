@@ -161,12 +161,6 @@ export type RPC = RPCWaits & {
 	disablePlugin: (plugin: string)                            => Promise<void>;
 	pluginSetting: (id: string, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 
-	loggedIn:          ()                                         => Promise<boolean>;
-	loginRequirements: ()                                         => Promise<string>;
-	login:             (data: object)                             => Promise<string>;
-	changePassword:    (oldPassword: string, newPassword: string) => Promise<string>;
-	logout:            ()                                         => Promise<void>;
-
 	broadcastWindow: (module: string, id: Uint, contents: string) => Promise<void>;
 	broadcast:       (data: Broadcast)                            => Promise<void>;
 };
