@@ -22,8 +22,8 @@ const dragFn = (e: MouseEvent) => {
 		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
-	draggedName!.style.setProperty("top", e.clientY + 1 + "px");
-	draggedName!.style.setProperty("left", e.clientX + dragOffset + "px");
+	draggedName.style.setProperty("top", e.clientY + 1 + "px");
+	draggedName.style.setProperty("left", e.clientX + dragOffset + "px");
       },
       dropFn = (e: MouseEvent) => {
 	if (e.button !== 0) {
@@ -101,7 +101,7 @@ const dragFn = (e: MouseEvent) => {
 	}
 	dragOffset = l.nameElem.offsetLeft - e.clientX;
 	for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
-		dragOffset += e.offsetLeft!;
+		dragOffset += e.offsetLeft;
 	}
 	dragging = l;
 	document.body.addEventListener("mousemove", dragFn);
