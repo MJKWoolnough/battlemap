@@ -168,6 +168,9 @@ export default function (base: HTMLElement) {
 		}
 	});
 	document.body.addEventListener("keydown", (e: KeyboardEvent) => {
+		if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
+			return;
+		}
 		const n = e.key === "(" ? -1 : e.key === ")" ? 1 : 0;
 		if (n !== 0) {
 			for (let i = 0; i < tools.length; i++) {
