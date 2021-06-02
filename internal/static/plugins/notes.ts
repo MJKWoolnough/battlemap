@@ -3,7 +3,7 @@ import type {WindowElement} from '../windows.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
-import {createHTML, br, button, div, input, span, textarea} from '../lib/html.js';
+import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {addCSS, isAdmin, isUint, labels} from '../shared.js';
 import mainLang, {language} from '../language.js';
@@ -106,7 +106,7 @@ if (isAdmin()) {
 							page.data = {"contents": contents.value, "share": share.checked};
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							clearElement(this.window!).appendChild(bbcode(createHTML(null), allTags, contents.value));
+							clearElement(this.window!).appendChild(bbcode(div({"class": "plugin-notes"}), allTags, contents.value));
 							this.setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);
