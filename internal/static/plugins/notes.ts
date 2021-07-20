@@ -45,7 +45,7 @@ const defaultLanguage = {
 
 register("plugin-notes", [icon, lang["NOTE"]]);
 
-if (isAdmin()) {
+if (isAdmin) {
 	class NoteItem extends DraggableItem {
 		window: WindowElement | null = null;
 		share: (() => void) | null = null;

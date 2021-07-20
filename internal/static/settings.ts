@@ -44,7 +44,7 @@ export default (base: HTMLElement, loggedIn: boolean) => {
 			panelOnTop.set(this.checked);
 		}}),
 		label({"for": "panelOnTop"}, `${lang["PANEL_ON_TOP"]}: `),
-		isAdmin() ? [
+		isAdmin ? [
 			br(),
 			input({"type": "checkbox", "id": "miniTools", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 				miniTools.set(this.checked);
@@ -52,7 +52,7 @@ export default (base: HTMLElement, loggedIn: boolean) => {
 			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `)
 		] : [],
 		h1(lang["MAP_SETTINGS"]),
-		isAdmin() ? [
+		isAdmin ? [
 			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
 			}}),
@@ -74,7 +74,7 @@ export default (base: HTMLElement, loggedIn: boolean) => {
 			scrollAmount.set(checkInt(parseInt(this.value)) );
 		}}),
 		br(),
-		isAdmin() ? [
+		isAdmin ? [
 			label({"for": "undoLimit"}, `${lang["UNDO_LIMIT"]}: `),
 			input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
 				undoLimit.set(checkInt(parseInt(this.value), -1));

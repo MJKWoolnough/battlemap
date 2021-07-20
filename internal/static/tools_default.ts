@@ -126,7 +126,7 @@ export default Object.freeze({
 				return;
 			}
 		}
-		if (!isAdmin()) {
+		if (!isAdmin) {
 			document.body.classList.toggle("dragging", true);
 		}
 		this.style.setProperty("--outline-cursor", "grabbing");
@@ -145,7 +145,7 @@ export default Object.freeze({
 			if (!moved) {
 				deselectToken();
 			}
-			if (!isAdmin()) {
+			if (!isAdmin) {
 				document.body.classList.remove("dragging");
 			}
 			this.style.removeProperty("--outline-cursor");
@@ -246,7 +246,7 @@ export default Object.freeze({
 	"mapMouseContext": function(this: SVGElement, e: MouseEvent) {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
-		if (e.ctrlKey && isAdmin()) {
+		if (e.ctrlKey && isAdmin) {
 			if (e.altKey) {
 				rpc.setMapStart(pos[0], pos[1]);
 			}
@@ -306,7 +306,7 @@ const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"
 
 inited.then(() => {
 	shell.appendChild(zoomer);
-	if (!isAdmin()) {
+	if (!isAdmin) {
 		let sliding = -1;
 		rpc.waitSignalMovePosition().then(pos => {
 			if (sliding === -1) {

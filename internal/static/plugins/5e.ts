@@ -411,7 +411,7 @@ const defaultLanguage = {
 	}
       },
       initiativeWindow = windows({"window-icon": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E', "window-title": lang["INITIATIVE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px"}, "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
-	isAdmin() ? div({"id": "initiative-ordering-5e"}, [
+	isAdmin ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
 			initiativeList.sort(noSort);
@@ -443,7 +443,7 @@ const defaultLanguage = {
 	token,
 	hidden,
 	initiative,
-	node: li({"style": hidden && !isAdmin() ? "display: none" : undefined, "onmouseover": () => {
+	node: li({"style": hidden && !isAdmin ? "display: none" : undefined, "onmouseover": () => {
 		if (token.node.parentNode) {
 			createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
 			token.node.parentNode.insertBefore(highlight, token.node);
@@ -451,7 +451,7 @@ const defaultLanguage = {
 	}, "onmouseleave": () => highlight.remove()}, [
 		img({"src": `/images/${token.src}`, "onclick": () => centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1))}),
 		span(token.getData("name") ?? ""),
-		span({"class": isAdmin() ? "token-initiative-5e" : undefined, "onclick": isAdmin() ? () => {
+		span({"class": isAdmin ? "token-initiative-5e" : undefined, "onclick": isAdmin ? () => {
 			updateInitiative([token.id, null]);
 			saveInitiative();
 			highlight.remove();
@@ -485,7 +485,7 @@ const defaultLanguage = {
 					}
 					initiative = i;
 				}
-				if (!isHidden || isAdmin()) {
+				if (!isHidden || isAdmin) {
 					addToInitiative(token, initiative, isHidden);
 				}
 			}
@@ -544,7 +544,7 @@ const defaultLanguage = {
 	}
       };
 
-if (isAdmin()) {
+if (isAdmin) {
 	const userVisibility = getSymbol("userVisibility")!,
 	      remove = getSymbol("remove")!,
 	      rename = getSymbol("rename")!,

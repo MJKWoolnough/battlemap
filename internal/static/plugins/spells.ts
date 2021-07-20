@@ -38,7 +38,7 @@ const sparkID = "plugin-spell-spark",
       },
       types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
-if (isAdmin()) {
+if (isAdmin) {
 	addCSS("#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}");
 	const defaultLanguage = {
 		"DAMAGE_TYPE": "Damage Type",

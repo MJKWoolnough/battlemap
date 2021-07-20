@@ -184,7 +184,7 @@ mapLoadedReceive(() => {
 inited.then(() => {
 	rpc.waitGridDistanceChange().then(distance => cellValue.value = distance + "");
 	rpc.waitGridDiagonalChange().then(diagonal => diagonals.checked = diagonal);
-	if (!isAdmin()) {
+	if (!isAdmin) {
 		rpc.waitSignalMeasure().then(data => {
 			if (!data) {
 				stopMeasurement();

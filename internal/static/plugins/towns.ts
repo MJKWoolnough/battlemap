@@ -30,7 +30,7 @@ type Settings = {
 	}>;
 }
 
-if (isAdmin()) {
+if (isAdmin) {
 	const defaultLanguage = {
 		"MENU_TITLE": "Towns",
 		"MONEY": "Wealth",

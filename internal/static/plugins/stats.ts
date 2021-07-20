@@ -14,7 +14,7 @@ type assetSize = {
 	node: HTMLTableRowElement;
 }
 
-if (isAdmin()) {
+if (isAdmin) {
 	addCSS("#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}");
 
 	const defaultLanguage = {

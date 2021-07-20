@@ -57,7 +57,7 @@ settings = () => {
 		(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
 	      }}, lang["SAVE"]);
 	return [
-		isAdmin() ? [
+		isAdmin ? [
 			h1(lang["PLUGINS"]),
 			label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
 			select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
@@ -96,7 +96,7 @@ settings = () => {
        addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
        getSettings = (name: string) => pluginList.get(name)?.data,
        askReload = () => {
-	if (!isAdmin()) {
+	if (!isAdmin) {
 		window.location.reload();
 		return;
 	}

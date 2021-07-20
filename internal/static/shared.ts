@@ -1,17 +1,13 @@
 import type {Int, Uint, KeystoreData, MapData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
-import {Pipe, Requester} from './lib/inter.js';
+import {Pipe} from './lib/inter.js';
 import {label, style} from './lib/html.js';
 import {g} from './lib/svg.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
 	const p = new Pipe<T>();
 	return [(data: T) => p.send(data), (fn: (data: T) => void) => p.receive(fn)];
-      },
-      requesterBind = <T, U extends any[] = any[]>(): [(fn: ((...data: U) => T) | T) => void, (...data: U) => T] => {
-	const r = new Requester<T, U>();
-	return [(fn: ((...data: U) => T) | T) => r.responder(fn), (...data: U) => r.request(...data)];
       };
 
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
@@ -27,8 +23,8 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 [mapLoadSend, mapLoadReceive] = pipeBind<Uint>(),
 [mapLoadedSend, mapLoadedReceive] = pipeBind<boolean>(),
 [tokenSelected, tokenSelectedReceive] = pipeBind<void>(),
-[setUser, isUser] = requesterBind<boolean>(),
-[setAdmin, isAdmin] = requesterBind<boolean>(),
+setUser = (v: boolean) => isUser = v,
+setAdmin = (v: boolean) => isAdmin = v,
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 checkInt = (n: number, min = -Infinity, max = Infinity, def = 0) => isInt(n, min, max) ? n : def,
@@ -85,5 +81,4 @@ deselectToken = () => {
 },
 SQRT3 = Math.sqrt(3);
 
-setUser(false);
-setAdmin(false);
+export let isUser = false, isAdmin = false;
