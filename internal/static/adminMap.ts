@@ -23,7 +23,7 @@ import lang from './language.js';
 
 let copiedToken: Token | null = null;
 
-export default function(base: HTMLElement) {
+export default (base: HTMLElement) => {
 	let tokenDragMode = -1;
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      tokenDrag = (e: MouseEvent) => {

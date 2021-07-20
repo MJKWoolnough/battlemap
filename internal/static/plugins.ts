@@ -130,7 +130,7 @@ settings = () => {
        },
        menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
-export default function() {
+export default () => {
 	rpc.waitPluginChange().then(askReload);
 	return rpc.listPlugins().then(plugins => {
 		const ls: Promise<void>[] = [];

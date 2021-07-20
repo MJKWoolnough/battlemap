@@ -506,7 +506,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	return base;
 };
 
-export default function(base: HTMLElement) {
+export default (base: HTMLElement) => {
 	rpc.waitCurrentUserMapData().then(mapData => {
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData, true));

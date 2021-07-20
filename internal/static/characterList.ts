@@ -56,7 +56,7 @@ class CharacterRoot extends Root {
 
 const characters = new Map<Uint, Character>();
 
-export default function (base: Node) {
+export default (base: Node) => {
 	const rpcFuncs = rpc["characters"];
 	rpcFuncs.list().then(folderList => {
 		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character);

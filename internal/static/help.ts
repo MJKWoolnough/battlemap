@@ -135,7 +135,7 @@ const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
       },
       help = windows({"window-title": lang["HELP"], "maximised": true});
 
-export default function () {
+export default () => {
 	if (!help.parentNode) {
 		shell.appendChild(createHTML(clearElement(help), div({"id": "help"}, [
 			h1(lang["HELP"]),

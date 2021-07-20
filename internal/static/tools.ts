@@ -82,7 +82,7 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	}
 };
 
-export default function (base: HTMLElement) {
+export default (base: HTMLElement) => {
 	tools.sort((a, b) => stringSort(a.name, b.name));
 	tools.unshift(defaultTool);
 	let windowed = false,

@@ -120,7 +120,7 @@ uploadAudio = uploadAsset.bind(null, audioRoot, "audio");
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
-export default function (base: Node, fileType: "IMAGES" | "AUDIO") {
+export default (base: Node, fileType: "IMAGES" | "AUDIO") => {
 	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
 	rpcFuncs.list().then(folderList => {
 		const root = fileType === "IMAGES" ? imageRoot : audioRoot;

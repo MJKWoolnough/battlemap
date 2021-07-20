@@ -37,7 +37,7 @@ handleError = (e: Error | string) => {
 inited = new Promise<void>(success => initSend = success),
 connID = new Promise<Uint>(success => connIDSet = success);
 
-export default function (url: string): Promise<void>{
+export default (url: string): Promise<void> => {
 	return RPC(url, 1.1).then(arpc => {
 		arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
 			setAdmin(userLevel === 2);

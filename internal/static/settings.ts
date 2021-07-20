@@ -18,7 +18,7 @@ tabIcons = new BoolSetting("tabIcons"),
 zoomSlider = new BoolSetting("zoomSlider"),
 panelOnTop = new BoolSetting("panelOnTop");
 
-export default function (base: HTMLElement, loggedIn: boolean) {
+export default (base: HTMLElement, loggedIn: boolean) => {
 	createHTML(base, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
