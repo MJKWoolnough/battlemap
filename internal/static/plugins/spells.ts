@@ -27,9 +27,9 @@ const sparkID = "plugin-spell-spark",
       rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]),
       setSize = (size: Uint, width: Uint) => {
 	const {gridSize, gridDistance} = globals.mapData,
-	      s = gridSize * size / gridDistance,
+	      s = gridSize * size / (gridDistance || 1),
 	      sh = s >> 1,
-	      w = gridSize * width / gridDistance;
+	      w = gridSize * width / (gridDistance || 1);
 	circleCircle.setAttribute("r", s + "")
 	conePath.setAttribute("d", `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`);
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
