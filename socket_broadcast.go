@@ -138,16 +138,21 @@ func buildBroadcast(id int, data json.RawMessage) []byte {
 }
 
 func (s *socket) SetCurrentUserMap(currentUserMap uint64, data, mData json.RawMessage, except ID) {
-	dat := buildBroadcast(broadcastCurrentUserMap, data)
-	mdat := buildBroadcast(broadcastCurrentUserMapData, mData)
 	s.mu.RLock()
+	var dat, mdat json.RawMessage
 	for c := range s.conns {
 		id := c.ID
 		if c.IsAdmin() {
 			if except != id {
+				if len(dat) == 0 {
+					dat = buildBroadcast(broadcastCurrentUserMap, data)
+				}
 				go c.rpc.SendData(dat)
 			}
 		} else {
+			if len(mdat) == 0 {
+				mdat = buildBroadcast(broadcastCurrentUserMapData, mData)
+			}
 			atomic.StoreUint64(&c.CurrentMap, currentUserMap)
 			go c.rpc.SendData(mdat)
 		}
@@ -164,12 +169,14 @@ const (
 )
 
 func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage, user userStatus) {
-	dat := buildBroadcast(id, data)
 	s.mu.RLock()
+	var dat json.RawMessage
 	for c := range s.conns {
-		id := c.ID
 		currentMap := atomic.LoadUint64(&c.CurrentMap)
-		if id != cd.ID && (currentMap == cd.CurrentMap || cd.CurrentMap == 0) && (user == userAny || ((user == userAdmin) && c.IsAdmin()) || ((user == userNotAdmin) && !c.IsAdmin())) {
+		if c.ID != cd.ID && (currentMap == cd.CurrentMap || cd.CurrentMap == 0) && (user == userAny || ((user == userAdmin) && c.IsAdmin()) || ((user == userNotAdmin) && !c.IsAdmin())) {
+			if len(dat) == 0 {
+				dat = buildBroadcast(id, data)
+			}
 			go c.rpc.SendData(dat)
 		}
 	}
@@ -177,10 +184,13 @@ func (s *socket) broadcastMapChange(cd ConnData, id int, data json.RawMessage, u
 }
 
 func (s *socket) broadcastAdminChange(id int, data json.RawMessage, except ID) {
-	dat := buildBroadcast(id, data)
 	s.mu.RLock()
+	var dat json.RawMessage
 	for c := range s.conns {
 		if c.IsAdmin() && c.ID != except {
+			if len(dat) == 0 {
+				dat = buildBroadcast(id, data)
+			}
 			go c.rpc.SendData(dat)
 		}
 	}
