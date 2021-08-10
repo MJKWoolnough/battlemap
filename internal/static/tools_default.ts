@@ -314,7 +314,10 @@ inited.then(() => {
 			} else {
 				window.clearTimeout(sliding);
 			}
-			sliding = window.setTimeout(() => document.body.classList.remove("sliding"), 1000);
+			sliding = window.setTimeout(() => {
+				document.body.classList.remove("sliding")
+				sliding = -1;
+			}, 1000);
 			centreOnGrid(pos[0], pos[1]);
 			showSignal(pos);
 		});
