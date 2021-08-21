@@ -4,7 +4,7 @@ import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
-import {SortNode, stringSort, noSort} from './lib/ordered.js';
+import {SortNode, node, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
 import {windows, shell} from './windows.js';
@@ -255,7 +255,7 @@ export const musicIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/200
 export default (base: Node) => {
 	audioEnabled().then(rpc.musicPackList).then(list => {
 		class AdminTrack extends Track {
-			node: HTMLLIElement;
+			[node]: HTMLLIElement;
 			nameNode: HTMLSpanElement;
 			volumeNode: HTMLInputElement;
 			repeatNode: HTMLInputElement;
@@ -263,7 +263,7 @@ export default (base: Node) => {
 			repeatWait: Int = -1;
 			constructor(parent: AdminPack, track: MusicTrack) {
 				super(parent, track);
-				this.node = li([
+				this[node] = li([
 					this.nameNode = span(),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
 						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
@@ -296,7 +296,7 @@ export default (base: Node) => {
 			tracks: SortNode<AdminTrack>;
 			name: string;
 			currentTime: Uint = 0;
-			node: HTMLLIElement;
+			[node]: HTMLLIElement;
 			nameNode: HTMLSpanElement;
 			titleNode: HTMLElement;
 			volumeNode: HTMLInputElement;
@@ -373,10 +373,10 @@ export default (base: Node) => {
 						rpc.musicPackSetVolume(this.name, this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 						this.updateVolume();
 					}}),
-					this.tracks.node,
+					this.tracks[node],
 					div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 				]);
-				this.node = li({"class": "foldersItem"}, [
+				this[node] = li({"class": "foldersItem"}, [
 					this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 					this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name = name),
 					rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
@@ -490,7 +490,7 @@ export default (base: Node) => {
 					rpc.musicPackAdd(name).then(name => musicList.push(new AdminPack(name, newPack())));
 				}
 			})}),
-			musicList.node
+			musicList[node]
 		]);
 		rpc.waitMusicPackAdd().then(name => musicList.push(new AdminPack(name, newPack())));
 		rpc.waitMusicPackRename().then(ft => {

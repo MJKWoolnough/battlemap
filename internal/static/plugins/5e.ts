@@ -5,7 +5,7 @@ import type {PluginType} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
-import {SortNode, noSort} from '../lib/ordered.js';
+import {SortNode, node, noSort} from '../lib/ordered.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, walkLayers} from '../map.js';
@@ -57,7 +57,7 @@ type Initiative = {
 	token: Token5E;
 	initiative: Uint;
 	hidden: boolean;
-	node: HTMLLIElement;
+	[node]: HTMLLIElement;
 }
 
 type MapData5E = MapData & {
@@ -102,8 +102,8 @@ class SVGToken5E extends SVGToken {
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
 		      ac: Uint | null = this.getData("5e-ac"),
 		      size = Math.min(this.width, this.height) / 4
-		this.node = g([
-			this.tokenNode = this.node,
+		this[node] = g([
+			this.tokenNode = this[node],
 			this.extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 				this.hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 					this.hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
@@ -133,16 +133,16 @@ class SVGToken5E extends SVGToken {
 		this.hpValue.style.setProperty("font-size", `${size}px`);
 	}
 	cleanup() {
-		const node = this.node;
-		this.node = this.tokenNode;
+		const n = this[node];
+		this[node] = this.tokenNode;
 		super.cleanup();
-		this.node = node;
+		this[node] = n;
 	}
 	uncleanup() {
-		const node = this.node;
-		this.node = this.tokenNode;
+		const n = this[node];
+		this[node] = this.tokenNode;
 		super.uncleanup();
-		this.node = node;
+		this[node] = n;
 	}
 	at(x: Int, y: Int) {
 		return super.at(x, y, this.tokenNode);
@@ -152,22 +152,22 @@ class SVGToken5E extends SVGToken {
 	}
 	unselect() {
 		if (!this.isPattern) {
-			this.node.appendChild(this.extra);
+			this[node].appendChild(this.extra);
 		}
 	}
 	updateSource(source: Uint) {
-		const node = this.node;
-		this.node = this.tokenNode;
+		const n = this[node];
+		this[node] = this.tokenNode;
 		super.updateSource(source);
-		this.node = node;
+		this[node] = n;
 	}
 	updateNode() {
-		const node = this.node,
+		const n = this[node],
 		      wasPattern = this.tokenNode instanceof SVGRectElement;
-		this.node = this.tokenNode;
+		this[node] = this.tokenNode;
 		super.updateNode();
-		this.tokenNode = this.node;
-		this.node = node;
+		this.tokenNode = this[node];
+		this[node] = n;
 		if (this.isPattern) {
 			if (!wasPattern) {
 				this.extra.remove();
@@ -176,7 +176,7 @@ class SVGToken5E extends SVGToken {
 			if (globals.selected.token === this) {
 				globals.outline.insertAdjacentElement("beforebegin", this.extra);
 			}
-			this.node.replaceWith(this.node = g([this.tokenNode, this.extra]));
+			this[node].replaceWith(this[node] = g([this.tokenNode, this.extra]));
 		}
 		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
 		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
@@ -436,17 +436,17 @@ const defaultLanguage = {
 			}
 		}}, initNext)
 	]) : [],
-	initiativeList.node
+	initiativeList[node]
       ])),
       initTokens = new Set<Uint>(),
       addToInitiative = (token: SVGToken5E, initiative: Int, hidden: boolean) => (initTokens.add(token.id), initiativeList.push({
 	token,
 	hidden,
 	initiative,
-	node: li({"style": hidden && !isAdmin ? "display: none" : undefined, "onmouseover": () => {
-		if (token.node.parentNode) {
+	[node]: li({"style": hidden && !isAdmin ? "display: none" : undefined, "onmouseover": () => {
+		if (token[node].parentNode) {
 			createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
-			token.node.parentNode.insertBefore(highlight, token.node);
+			token[node].parentNode!.insertBefore(highlight, token[node]);
 		}
 	}, "onmouseleave": () => highlight.remove()}, [
 		img({"src": `/images/${token.src}`, "onclick": () => centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1))}),

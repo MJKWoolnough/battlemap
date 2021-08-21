@@ -1,5 +1,5 @@
 import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
-import {SortNode} from './lib/ordered.js';
+import {SortNode, node} from './lib/ordered.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
@@ -12,19 +12,19 @@ import {tokenClass} from './plugins.js';
 import lang from './language.js';
 
 export type SVGLayer = LayerTokens & {
-	node: SVGElement;
+	[node]: SVGElement;
 	path: string;
 	tokens: SortNode<SVGToken | SVGShape>;
 };
 
 export type SVGFolder = LayerFolder & {
-	node: SVGElement;
+	[node]: SVGElement;
 	path: string;
 	children: SortNode<SVGFolder | SVGLayer>;
 };
 
 export class Defs {
-	node = defs();
+	[node] = defs();
 	list = new Map<string, SVGPatternElement>();
 	lighting = new Map<string, SVGFilterElement>();
 	add(t: SVGToken) {
@@ -33,40 +33,40 @@ export class Defs {
 			i++;
 		}
 		const id = `Pattern_${i}`;
-		this.list.set(id, this.node.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
+		this.list.set(id, this[node].appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
 		return id;
 	}
 	remove(id: string) {
-		this.node.removeChild(this.list.get(id)!).firstChild as SVGImageElement;
+		this[node].removeChild(this.list.get(id)!).firstChild as SVGImageElement;
 		this.list.delete(id);
 	}
 	setGrid(grid: GridDetails) {
 		const old = this.list.get("grid");
 		if (old) {
-			this.node.removeChild(old);
+			this[node].removeChild(old);
 		}
 		switch (grid.gridType) {
 		case 1: {
 			const w = grid.gridSize,
 			      h = 2 * w / SQRT3,
 			      maxH = 2 * Math.round(1.5 * w / SQRT3);
-			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}; break;
 		case 2: {
 			const h = grid.gridSize,
 			      w = 2 * h / SQRT3,
 			      maxW = 2 * Math.round(1.5 * h / SQRT3);
-			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}; break;
 		default:
-			this.list.set("grid", this.node.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 		}
 	}
 	getLighting(id: string) {
 		if (this.lighting.has(id)) {
 			return this.lighting.get(id)!;
 		}
-		const f = this.node.appendChild(filter({id}));
+		const f = this[node].appendChild(filter({id}));
 		this.lighting.set(id, f);
 		return f;
 	}
@@ -99,8 +99,8 @@ class SVGTransform {
 		this.lightColour = token.lightColour;
 		this.lightIntensity = token.lightIntensity;
 	}
-	at(x: Int, y: Int, node: SVGGraphicsElement) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(node.getScreenCTM()!.inverse());
+	at(x: Int, y: Int, n: SVGGraphicsElement) {
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(n.getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	transformString(scale = true) {
@@ -119,7 +119,7 @@ class SVGTransform {
 }
 
 export class SVGToken extends SVGTransform {
-	node: SVGGraphicsElement;
+	[node]: SVGGraphicsElement;
 	src: Uint;
 	stroke: Colour;
 	strokeWidth: Uint;
@@ -136,11 +136,11 @@ export class SVGToken extends SVGTransform {
 		if (wg) {
 			wg.add();
 		}
-		const node = image(wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}),
+		const n = image(wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}),
 		      tc = tokenClass() ?? SVGToken,
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {node}), tc.prototype);
-		createSVG(node, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
-		Object.defineProperty(svgToken, "node", {"enumerable": false});
+		      svgToken = Object.setPrototypeOf(Object.assign(token, {[node]: n}), tc.prototype);
+		createSVG(n, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
+		Object.defineProperty(svgToken, node, {"enumerable": false});
 		if (svgToken.init instanceof Function) {
 			svgToken.init();
 		}
@@ -149,33 +149,33 @@ export class SVGToken extends SVGTransform {
 		}
 		return svgToken;
 	}
-	at(x: Int, y: Int, node = this.node) {
-		return super.at(x, y, node);
+	at(x: Int, y: Int, n = this[node]) {
+		return super.at(x, y, n);
 	}
 	get isPattern() {
 		return this.patternWidth > 0;
 	}
 	cleanup() {
 		if (this.isPattern) {
-			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
+			globals.definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
 		}
 	}
 	uncleanup() {
 		if (this.isPattern) {
-			this.node.setAttribute("fill", `url(#${globals.definitions.add(this)})`);
+			this[node].setAttribute("fill", `url(#${globals.definitions.add(this)})`);
 		}
 	}
 	updateSource(source: Uint) {
-		(this.node instanceof SVGRectElement ? (globals.definitions.list.get(this.node.getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this.node).setAttribute("href", `images/${this.src = source}`);
+		(this[node] instanceof SVGRectElement ? (globals.definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this[node]).setAttribute("href", `images/${this.src = source}`);
 	}
 	updateNode() {
-		if (this.node instanceof SVGRectElement && !this.isPattern) {
-			globals.definitions.remove(this.node.getAttribute("fill")!.slice(5, -1));
-			this.node.replaceWith(this.node = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none"}));
-		} else if (this.node instanceof SVGImageElement && this.isPattern) {
-			this.node.replaceWith(this.node = rect({"class": "mapPattern", "fill": `url(#${globals.definitions.add(this)})`}));
+		if (this[node] instanceof SVGRectElement && !this.isPattern) {
+			globals.definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
+			this[node].replaceWith(this[node] = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none"}));
+		} else if (this[node] instanceof SVGImageElement && this.isPattern) {
+			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${globals.definitions.add(this)})`}));
 		}
-		createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		createSVG(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
 	getData(key: string) {
 		if (this.tokenData[key]) {
@@ -191,7 +191,7 @@ export class SVGToken extends SVGTransform {
 }
 
 export class SVGShape extends SVGTransform {
-	node: SVGRectElement | SVGEllipseElement;
+	[node]: SVGRectElement | SVGEllipseElement;
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
@@ -202,22 +202,22 @@ export class SVGShape extends SVGTransform {
 		super(token);
 	}
 	static from(token: TokenShape) {
-		let node: SVGGraphicsElement;
+		let n: SVGGraphicsElement;
 		if (!(token as any).isEllipse) {
 			(token as any).isEllipse = false;
-			node = rect({"width": token.width, "height": token.height});
+			n = rect({"width": token.width, "height": token.height});
 		} else {
 			const rx = token.width / 2,
 			      ry = token.height / 2;
-			node = ellipse({"cx": rx, "cy": ry, rx, ry});
+			n = ellipse({"cx": rx, "cy": ry, rx, ry});
 		}
-		const svgShape = Object.setPrototypeOf(Object.assign(token, {node}), SVGShape.prototype);
-		createSVG(node, {"class": "mapShape", "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
-		Object.defineProperty(svgShape, "node", {"enumerable": false});
+		const svgShape = Object.setPrototypeOf(Object.assign(token, {[node]: n}), SVGShape.prototype);
+		createSVG(n, {"class": "mapShape", "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
+		Object.defineProperty(svgShape, node, {"enumerable": false});
 		return svgShape;
 	}
 	at(x: Int, y: Int) {
-		return super.at(x, y, this.node);
+		return super.at(x, y, this[node]);
 	}
 	get isPattern() {
 		return false;
@@ -226,9 +226,9 @@ export class SVGShape extends SVGTransform {
 		if (this.isEllipse) {
 			const rx = this.width / 2,
 			      ry = this.height / 2;
-			createSVG(this.node, {"cx": rx, "cy": ry, rx, ry, "transform": this.transformString()});
+			createSVG(this[node], {"cx": rx, "cy": ry, rx, ry, "transform": this.transformString()});
 		} else {
-			createSVG(this.node, {"width": this.width, "height": this.height, "transform": this.transformString()});
+			createSVG(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
 		}
 	}
 }
@@ -255,16 +255,16 @@ export class SVGDrawing extends SVGShape {
 		}
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight,
-		      node = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
-		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {node, oWidth, oHeight}), SVGDrawing.prototype);
-		node.setAttribute("transform", svgDrawing.transformString());
-		Object.defineProperty(svgDrawing, "node", {"enumerable": false});
+		      n = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
+		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {[node]: n, oWidth, oHeight}), SVGDrawing.prototype);
+		n.setAttribute("transform", svgDrawing.transformString());
+		Object.defineProperty(svgDrawing, node, {"enumerable": false});
 		return svgDrawing;
 	}
 	updateNode() {
 		const xr = this.width / this.oWidth,
 		      yr = this.height / this.oHeight;
-		createSVG(this.node, {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
+		createSVG(this[node], {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
 	}
 }
 
@@ -275,27 +275,27 @@ const idNames: Record<string, Int> = {
       },
       processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
 	path += "/" + layer.name
-	const node = g();
+	const n = g();
 	if (layer.hidden) {
-		node.classList.add("hiddenLayer");
+		n.classList.add("hiddenLayer");
 	}
 	if (isLayerFolder(layer)) {
-		const children = new SortNode<SVGFolder | SVGLayer>(node);
+		const children = new SortNode<SVGFolder | SVGLayer>(n);
 		for (const c of layer.children) {
 			children.push(processLayers(wg, c, path));
 		}
-		return Object.assign(layer, {node, children, path});
+		return Object.assign(layer, {[node]: n, children, path});
 	}
-	const tokens = new SortNode<SVGToken | SVGShape>(node);
+	const tokens = new SortNode<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
 			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
-		node.setAttribute("id", `layer${layer.name}`);
+		n.setAttribute("id", `layer${layer.name}`);
 		layer.walls = [];
 	}
-	return Object.assign(layer, {id: idNames[layer.name] ?? 1, node, path, tokens});
+	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
@@ -361,9 +361,9 @@ getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null]
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(path)!;
 	if (visibility) {
-		layer.node.classList.remove("hiddenLayer");
+		layer[node].classList.remove("hiddenLayer");
 	} else {
-		layer.node.classList.add("hiddenLayer");
+		layer[node].classList.add("hiddenLayer");
 	}
 	layer.hidden = !visibility;
 	updateLight();
@@ -400,7 +400,7 @@ setMapDetails = (details: MapDetails) => {
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	((getLayer("/Light") as SVGLayer).node.firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c));
+	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c));
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
@@ -430,7 +430,7 @@ updateLight = () => {
 			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));
 		};
 	});
-	createSVG(clearElement(getLayer("/Light")!.node), [
+	createSVG(clearElement(getLayer("/Light")![node]), [
 		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
 		wallPolygons
 	]);
@@ -442,8 +442,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 	const definitions = globals.definitions = new Defs(),
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
-		const node = g(),
-		children = new SortNode<SVGFolder | SVGLayer>(node);
+		const n = g(),
+		children = new SortNode<SVGFolder | SVGLayer>(n);
 		for (const c of mapData.children) {
 			children.push(processLayers(wg, c));
 		}
@@ -451,7 +451,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 			id: 0,
 			name: "",
 			hidden: false,
-			node,
+			[node]: n,
 			children,
 			folders: {},
 			items: {},
@@ -462,12 +462,12 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      items = div(),
 	      percent = progress(),
 	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
-	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions.node, layerList.node]),
+	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions[node], layerList[node]]),
 	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), 1000));
 	definitions.setGrid(mapData);
-	(getLayer("/Grid") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	(getLayer("/Light") as SVGLayer).node.appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
+	(getLayer("/Grid") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+	(getLayer("/Light") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {

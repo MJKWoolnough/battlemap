@@ -3,7 +3,7 @@ import type {SVGLayer} from './map.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
-import {noSort} from './lib/ordered.js';
+import {node, noSort} from './lib/ordered.js';
 import {getLayer} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './map_fns.js';
 import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
@@ -18,7 +18,7 @@ let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | un
 
 const dragFn = (e: MouseEvent) => {
 	if (!draggedName) {
-		dragging!.node.classList.add("dragged");
+		dragging![node].classList.add("dragged");
 		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
@@ -29,7 +29,7 @@ const dragFn = (e: MouseEvent) => {
 	if (e.button !== 0) {
 		return;
 	}
-	dragging!.node.classList.remove("dragged");
+	dragging![node].classList.remove("dragged");
 	dragging = undefined;
 	if (draggedName) {
 		document.body.removeChild(draggedName!);
@@ -115,7 +115,7 @@ const dragFn = (e: MouseEvent) => {
 	])
       ])),
       showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
-	const visible = !l.node.classList.toggle("layerHidden");
+	const visible = !l[node].classList.toggle("layerHidden");
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
       }),
       walkLayers = (f: FolderLayer, fn: (l: ItemLayer) => boolean) => {
@@ -139,7 +139,7 @@ class ItemLayer extends Item {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		this.hidden = hidden;
 		if (id < 0) {
-			clearElement(this.node).appendChild(this.nameElem);
+			clearElement(this[node]).appendChild(this.nameElem);
 		} else {
 			this.copier.remove();
 			if (selectedLayer === undefined) {
@@ -147,11 +147,11 @@ class ItemLayer extends Item {
 			}
 		}
 		if (hidden) {
-			this.node.classList.add("layerHidden");
+			this[node].classList.add("layerHidden");
 		}
-		this.node.insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
-		this.node.appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
-		this.node.appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
+		this[node].insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
+		this[node].appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
+		this[node].appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
 	}
 	show() {
@@ -203,9 +203,9 @@ class ItemLayer extends Item {
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], globals.mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
 			if (selectedLayer) {
-				selectedLayer.node.classList.remove("selectedLayer");
+				selectedLayer[node].classList.remove("selectedLayer");
 			}
-			this.node.classList.add("selectedLayer");
+			this[node].classList.add("selectedLayer");
 			selectedLayer = this;
 			deselectToken();
 			globals.selected.layer = getLayer(this.getPath()) as SVGLayer;
@@ -225,10 +225,10 @@ class FolderLayer extends Folder {
 		super(root, parent, name, {folders: {}, items: {}});
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
-		this.open = this.node.firstChild as HTMLDetailsElement;
+		this.open = this[node].firstChild as HTMLDetailsElement;
 		this.nameElem = this.open.firstChild!.firstChild as HTMLSpanElement;
 		if (hidden) {
-			this.node.classList.add("layerHidden");
+			this[node].classList.add("layerHidden");
 		}
 		if (lf.id === undefined) {
 			lf.id = 1;
@@ -240,7 +240,7 @@ class FolderLayer extends Folder {
 			}
 		}
 		if (lf.id > 0) {
-			this.node.classList.add("layerFolder");
+			this[node].classList.add("layerFolder");
 			const fc = this.open.firstChild as HTMLElement;
 			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
 				showHideLayer(this);
@@ -256,7 +256,7 @@ class FolderLayer extends Folder {
 				}
 				dragStart(this, e);
 			});
-			this.node.append(div(this.node.childNodes));
+			this[node].append(div(this[node].childNodes));
 		}
 	}
 	get sorter() {
@@ -333,13 +333,13 @@ export default (base: HTMLElement) => {
 		layersRPC.waitLayerSetVisible().then(path => {
 			const l = list.getLayer(path);
 			if (l) {
-				l.node.classList.remove("layerHidden");
+				l[node].classList.remove("layerHidden");
 			}
 		});
 		layersRPC.waitLayerSetInvisible().then(path => {
 			const l = list.getLayer(path);
 			if (l) {
-				l.node.classList.add("layerHidden");
+				l[node].classList.add("layerHidden");
 			}
 		});
 		layersRPC.waitLayerPositionChange().then(ml => {
@@ -383,7 +383,7 @@ export default (base: HTMLElement) => {
 					}})
 				]);
 			}}),
-			list.node
+			list[node]
 		]);
 		addKeyboard();
 		loadFn = () => {

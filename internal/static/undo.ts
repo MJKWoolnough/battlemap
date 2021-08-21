@@ -1,5 +1,5 @@
 import {undoLimit} from './settings.js';
-import {SortNode} from './lib/ordered.js';
+import {SortNode, node} from './lib/ordered.js';
 import {button, h1, li, ul} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
 import {queue} from './shared.js';
@@ -10,7 +10,7 @@ type Fn = () => Fn;
 
 type FnDesc = {
 	fn: Fn
-	node: HTMLLIElement;
+	[node]: HTMLLIElement;
 };
 
 const undos = new SortNode<FnDesc>(ul()),
@@ -29,7 +29,7 @@ const undos = new SortNode<FnDesc>(ul()),
 			}
 			undos.push({
 				fn,
-				"node": li(description),
+				[node]: li(description),
 			});
 		});
 	},
@@ -62,9 +62,9 @@ const undos = new SortNode<FnDesc>(ul()),
 	button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
 	button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
 	h1(lang["UNDO_WINDOW_UNDOS"]),
-	undos.node,
+	undos[node],
 	h1(lang["UNDO_WINDOW_REDOS"]),
-	redos.node
+	redos[node]
       ]);
 
 if (showWindow.value) {

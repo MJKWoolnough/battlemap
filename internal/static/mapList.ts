@@ -1,6 +1,7 @@
 import type {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, h1, h2, input, option, select} from './lib/html.js';
+import {node} from './lib/ordered.js';
 import {symbol, g, path, rect} from './lib/svg.js';
 import {checkInt, mapLoadSend, labels} from './shared.js';
 import {hex2Colour} from './colours.js';
@@ -14,15 +15,15 @@ import undo from './undo.js';
 
 const setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {
 	if (selected) {
-		selected.node.classList.remove(selectedClass);
+		selected[node].classList.remove(selectedClass);
 		for (let curr: Folder | null = selected.parent; curr; curr = curr.parent) {
-			curr.node.classList.remove(containsClass);
+			curr[node].classList.remove(containsClass);
 		}
 	}
 	if (mapItem) {
-		mapItem.node.classList.add(selectedClass);
+		mapItem[node].classList.add(selectedClass);
 		for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
-			curr.node.classList.add(containsClass);
+			curr[node].classList.add(containsClass);
 		}
 	}
       },
@@ -39,11 +40,11 @@ let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 class MapItem extends Item {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		this.node.classList.add("mapItem");
-		this.node.insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
+		this[node].classList.add("mapItem");
+		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id);
-		}}), this.node.firstChild);
+		}}), this[node].firstChild);
 	}
 	show() {
 		let thisMap: MapItem = this,
@@ -52,7 +53,7 @@ class MapItem extends Item {
 			if (oldMap) {
 				setMap(this, oldMap, "mapCurrent", "hasMapCurrent");
 			} else {
-				this.node.classList.add("mapCurrent");
+				this[node].classList.add("mapCurrent");
 			}
 			selectedCurrent = thisMap;
 			mapLoadSend(thisMap.id);
@@ -68,14 +69,14 @@ class MapItem extends Item {
 		}
 	}
 	rename() {
-		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
+		if (this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser")) {
 			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
 		} else {
 			return super.rename();
 		}
 	}
 	remove() {
-		if (this.node.classList.contains("mapCurrent") || this.node.classList.contains("mapUser")) {
+		if (this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser")) {
 			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
 		} else {
 			return super.remove();
@@ -89,14 +90,14 @@ class MapItem extends Item {
 
 class MapFolder extends Folder {
 	rename(e: Event) {
-		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
+		if (this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser")) {
 			return shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
 		} else {
 			return super.rename(e);
 		}
 	}
 	remove(e: Event) {
-		if (this.node.classList.contains("hasMapCurrent") || this.node.classList.contains("hasMapUser")) {
+		if (this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser")) {
 			return shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
 		} else {
 			return super.remove(e);
@@ -123,7 +124,7 @@ class MapRoot extends Root {
 	}
 	moveFolder(from: string, to: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f.node.classList.contains("hasMapCurrent")) {
+		if (f && f[node].classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
 			const t = super.moveFolder(from, to);
 			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
@@ -134,7 +135,7 @@ class MapRoot extends Root {
 	}
 	removeFolder(from: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f.node.classList.contains("hasMapCurrent")) {
+		if (f && f[node].classList.contains("hasMapCurrent")) {
 			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
 			mapLoadSend(0);
 		}
@@ -231,7 +232,7 @@ export default (base: Node) => {
 					}})
 				])
 			}}),
-			root.node
+			root[node]
 		]);
 	});
 }

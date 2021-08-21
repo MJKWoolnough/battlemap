@@ -3,6 +3,7 @@ import type {ShellElement, WindowElement} from './windows.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {HTTPRequest} from './lib/conn.js';
+import {node} from './lib/ordered.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {labels} from './shared.js';
@@ -138,7 +139,7 @@ export default (base: Node, fileType: "IMAGES" | "AUDIO") => {
 				      }})))),
 				      window = shell.appendChild(windows({"window-icon": fileType === "IMAGES" ? imageIcon : audioIcon, "window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
 			}}),
-			root.node
+			root[node]
 		]);
 	});
 };

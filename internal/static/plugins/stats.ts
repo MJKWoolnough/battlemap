@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
-import {SortNode} from '../lib/ordered.js';
+import {SortNode, node} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
@@ -11,7 +11,7 @@ import {language} from '../language.js';
 type assetSize = {
 	id: Uint;
 	size: Uint;
-	node: HTMLTableRowElement;
+	[node]: HTMLTableRowElement;
 }
 
 if (isAdmin) {
@@ -80,7 +80,7 @@ if (isAdmin) {
 								tb.push({
 									id,
 									size,
-									node: tr([
+									[node]: tr([
 										td(id + ""),
 										td(img({"src": `/images/${id}`})),
 										td(formatNumber.format(size))
@@ -91,7 +91,7 @@ if (isAdmin) {
 								      o = {
 									id,
 									size: 0,
-									node: tr([
+									[node]: tr([
 										td(id + ""),
 										td(img({"src": `/images/${id}`})),
 										sizeTD
@@ -114,7 +114,7 @@ if (isAdmin) {
 						createHTML(total, `${lang["TOTAL_SIZE"]}: ${formatNumber.format(totalSize)}`),
 						table({"id": "statistics-table"}, [
 							head,
-							tb.node
+							tb[node]
 						])
 					]);
 

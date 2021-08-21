@@ -4,7 +4,7 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {enterKey, queue, labels} from './shared.js';
-import {SortNode, stringSort} from './lib/ordered.js';
+import {SortNode, node, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
 
@@ -38,7 +38,7 @@ export class Item {
 	id: Uint;
 	name: string;
 	parent: Folder;
-	node: HTMLElement;
+	[node]: HTMLElement;
 	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
 	copier: SVGSymbolElement;
@@ -47,7 +47,7 @@ export class Item {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		this.node = li({"class": "foldersItem"}, [
+		this[node] = li({"class": "foldersItem"}, [
 			this.nameElem = span(name, {"class": "item", "onclick": () => this.show()}),
 			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
 			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
@@ -131,7 +131,7 @@ export class DraggableItem extends Item {
 	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		createHTML(this.node.firstChild!, {
+		createHTML(this[node].firstChild!, {
 			"draggable": "true",
 			"onmousemove": (e: MouseEvent) => {
 				createHTML(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}});
@@ -167,7 +167,7 @@ export class DraggableItem extends Item {
 export class Folder {
 	parent: Folder | null;
 	name: string;
-	node: HTMLElement;
+	[node]: HTMLElement;
 	children: SortNode<Folder | Item>;
 	root: Root;
 	nameElem: HTMLSpanElement;
@@ -179,7 +179,7 @@ export class Folder {
 		this.parent = parent;
 		this.children = new SortNode<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
-		this.node = li({"class": "foldersFolder"}, [
+		this[node] = li({"class": "foldersFolder"}, [
 			details([
 				summary([
 					folder({"class": "folderIcon"}),
@@ -188,7 +188,7 @@ export class Folder {
 					this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
 					this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
 				]),
-				this.children.node,
+				this.children[node],
 			])
 		]);
 		for (const name in children.folders) {
@@ -370,13 +370,13 @@ export class Root {
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	windowIcon?: string;
-	node: HTMLElement;
+	[node]: HTMLElement;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.fileType = fileType;
 		this.folder = undefined as any as Folder;    // INIT HACK
-		this.node = undefined as any as HTMLElement; // INIT HACK
+		this[node] = undefined as any as HTMLElement; // INIT HACK
 		if (rpcFuncs) {
 			this.setRPCFuncs(rpcFuncs);
 			this.rpcFuncs = rpcFuncs;
@@ -390,10 +390,10 @@ export class Root {
 			return;
 		}
 		this.folder = new this.newFolder(this, null, "", rootFolder);
-		createHTML(this.node ? clearElement(this.node) : this.node = div(), [
+		createHTML(this[node] ? clearElement(this[node]) : this[node] = div(), [
 			this.fileType,
 			this.folder.newer,
-			this.folder.children.node
+			this.folder.children[node]
 		]);
 	}
 	setRPCFuncs(rpcFuncs: FolderRPC) {

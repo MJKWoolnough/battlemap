@@ -1,4 +1,5 @@
 import {svg, g, line, path, title} from './lib/svg.js';
+import {node} from './lib/ordered.js';
 import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './map_fns.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
@@ -22,7 +23,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
 		dx = (x - ox) / panZoom.zoom;
 		dy = (y - oy) / panZoom.zoom;
-		selectedLayer.node.setAttribute("transform", `translate(${dx}, ${dy})`);
+		selectedLayer[node].setAttribute("transform", `translate(${dx}, ${dy})`);
 		if (measure) {
 			measureDistance(x, y);
 		}
@@ -34,7 +35,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
 		document.body.removeEventListener("keydown", cancel)
-		selectedLayer.node.removeAttribute("transform");
+		selectedLayer[node].removeAttribute("transform");
 		doLayerShift(selectedLayer.path, dx, dy);
 		if (measure) {
 			stopMeasurement();
@@ -50,7 +51,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 		this.removeEventListener("mousemove", mover);
 		this.removeEventListener("mouseup", mouseUp);
 		document.body.removeEventListener("keydown", cancel)
-		selectedLayer.node.removeAttribute("transform");
+		selectedLayer[node].removeAttribute("transform");
 	      };
 	if (measure) {
 		startMeasurement(ox, oy);

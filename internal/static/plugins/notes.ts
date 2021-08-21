@@ -1,16 +1,17 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
-import {addPlugin, getSettings, pluginName} from '../plugins.js';
+import {node} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
+import {all} from '../lib/bbcode_tags.js';
+import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCSS, isAdmin, isUint, labels} from '../shared.js';
 import mainLang, {language} from '../language.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import {rpc, handleError} from '../rpc.js';
 import {shell, windows} from '../windows.js';
-import {all} from '../lib/bbcode_tags.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
 
@@ -411,7 +412,7 @@ if (isAdmin) {
 					folders.data.items[name] = lastID;
 					rpc.pluginSetting(importName, {"": folders, [lastID]: {"user": false, "data": {"contents": ""}}}, []);
 				})}, lang["NOTES_NEW"]),
-				root.node
+				root[node]
 			]), true, icon]
 		}
 	});
