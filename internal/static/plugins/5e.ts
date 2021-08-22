@@ -5,7 +5,7 @@ import type {PluginType} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
-import {SortNode, node, noSort} from '../lib/ordered.js';
+import {NodeArray, node, noSort} from '../lib/ordered.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, walkLayers} from '../map.js';
@@ -399,7 +399,7 @@ const defaultLanguage = {
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
       isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && globals.tokens.has(t.id),
-      initiativeList = new SortNode<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
+      initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
 		doMapDataRemove("5e-initiative");

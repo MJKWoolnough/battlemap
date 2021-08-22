@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-//import {SortNode} from '../lib/ordered.js';
+//import {NodeArray} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {addPlugin, getSettings} from '../plugins.js';

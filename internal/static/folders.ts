@@ -4,7 +4,7 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {enterKey, queue, labels} from './shared.js';
-import {SortNode, node, stringSort} from './lib/ordered.js';
+import {NodeArray, node, stringSort} from './lib/ordered.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
 
@@ -168,7 +168,7 @@ export class Folder {
 	parent: Folder | null;
 	name: string;
 	[node]: HTMLElement;
-	children: SortNode<Folder | Item>;
+	children: NodeArray<Folder | Item>;
 	root: Root;
 	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
@@ -177,7 +177,7 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new SortNode<Folder>(ul({"class": "folders"}), this.sorter);
+		this.children = new NodeArray<Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
 		this[node] = li({"class": "foldersFolder"}, [
 			details([

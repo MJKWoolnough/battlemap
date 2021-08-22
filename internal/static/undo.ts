@@ -1,5 +1,5 @@
 import {undoLimit} from './settings.js';
-import {SortNode, node} from './lib/ordered.js';
+import {NodeArray, node} from './lib/ordered.js';
 import {button, h1, li, ul} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
 import {queue} from './shared.js';
@@ -13,8 +13,8 @@ type FnDesc = {
 	[node]: HTMLLIElement;
 };
 
-const undos = new SortNode<FnDesc>(ul()),
-      redos = new SortNode<FnDesc>(ul()),
+const undos = new NodeArray<FnDesc>(ul()),
+      redos = new NodeArray<FnDesc>(ul()),
       showWindow = new BoolSetting("undo-window-show"),
       undoObj = {
 	"add": (fn: Fn, description: string) => {

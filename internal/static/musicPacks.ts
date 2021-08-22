@@ -4,7 +4,7 @@ import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
-import {SortNode, node, stringSort, noSort} from './lib/ordered.js';
+import {NodeArray, node, stringSort, noSort} from './lib/ordered.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
 import {windows, shell} from './windows.js';
@@ -293,7 +293,7 @@ export default (base: Node) => {
 			}
 		}
 		class AdminPack extends Pack {
-			tracks: SortNode<AdminTrack>;
+			tracks: NodeArray<AdminTrack>;
 			name: string;
 			currentTime: Uint = 0;
 			[node]: HTMLLIElement;
@@ -308,7 +308,7 @@ export default (base: Node) => {
 			window: WindowElement;
 			constructor(name: string, pack: MusicPack) {
 				super(pack);
-				this.tracks = new SortNode<AdminTrack>(ul({"class": "musicTrackList"}), noSort);
+				this.tracks = new NodeArray<AdminTrack>(ul({"class": "musicTrackList"}), noSort);
 				for (const track of pack.tracks) {
 					this.tracks.push(new AdminTrack(this, track));
 				}
@@ -462,7 +462,7 @@ export default (base: Node) => {
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
 		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
-		      musicList = new SortNode<AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
+		      musicList = new NodeArray<AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
 				return stringSort(a.name, b.name);

@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
-import {SortNode, node} from '../lib/ordered.js';
+import {NodeArray, node} from '../lib/ordered.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
@@ -34,7 +34,7 @@ if (isAdmin) {
 	      sortID = (a: assetSize, b: assetSize) => a.id - b.id,
 	      sortSize = (a: assetSize, b: assetSize) => b.size - a.size,
 	      output = div(),
-	      tb = new SortNode<assetSize>(tbody()),
+	      tb = new NodeArray<assetSize>(tbody()),
 	      head = thead(tr([
 		th({"onclick": () => tb.sort(sortID)}, lang["ID"]),
 		th(lang["IMAGE"]),

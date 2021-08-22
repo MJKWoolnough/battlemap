@@ -1,5 +1,5 @@
 import type {TokenSet, Token} from './types.js';
-import type {SortNode} from './lib/ordered.js';
+import type {NodeArray} from './lib/ordered.js';
 import type {SVGLayer, SVGFolder} from './map.js';
 import {autoFocus, createDocumentFragment} from './lib/dom.js';
 import {createHTML, br, button, img, input, h1} from './lib/html.js';
@@ -25,7 +25,7 @@ let copiedToken: Token | null = null;
 
 export default (base: HTMLElement) => {
 	let tokenDragMode = -1;
-	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as SortNode<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),

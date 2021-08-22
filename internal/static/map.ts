@@ -1,5 +1,5 @@
 import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
-import {SortNode, node} from './lib/ordered.js';
+import {NodeArray, node} from './lib/ordered.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
@@ -14,13 +14,13 @@ import lang from './language.js';
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
 	path: string;
-	tokens: SortNode<SVGToken | SVGShape>;
+	tokens: NodeArray<SVGToken | SVGShape>;
 };
 
 export type SVGFolder = LayerFolder & {
 	[node]: SVGElement;
 	path: string;
-	children: SortNode<SVGFolder | SVGLayer>;
+	children: NodeArray<SVGFolder | SVGLayer>;
 };
 
 export class Defs {
@@ -280,13 +280,13 @@ const idNames: Record<string, Int> = {
 		n.classList.add("hiddenLayer");
 	}
 	if (isLayerFolder(layer)) {
-		const children = new SortNode<SVGFolder | SVGLayer>(n);
+		const children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of layer.children) {
 			children.push(processLayers(wg, c, path));
 		}
 		return Object.assign(layer, {[node]: n, children, path});
 	}
-	const tokens = new SortNode<SVGToken | SVGShape>(n);
+	const tokens = new NodeArray<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
 			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
@@ -298,7 +298,7 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as SortNode<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
@@ -343,7 +343,7 @@ getLayer = (path: string, layer: SVGFolder | SVGLayer = globals.layerList) => pa
 	if (!isSVGFolder(layer)) {
 		return false;
 	}
-	const a = (layer.children as SortNode<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
+	const a = (layer.children as NodeArray<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
 	if (a) {
 		layer = a;
 		return true;
@@ -377,7 +377,7 @@ renameLayer = (path: string, name: string) => {
 },
 removeLayer = (path: string) => {
 	const [fromParent, layer] = getParentLayer(path);
-	(fromParent!.children as SortNode<any>).filterRemove(e => Object.is(e, layer));
+	(fromParent!.children as NodeArray<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
 },
 addLayer = (name: string) => (globals.layerList.children.push(processLayers(undefined, {name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
@@ -386,7 +386,7 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	      fromParent = getLayer(parentStr)!,
 	      toParent = getLayer(to) as SVGFolder;
 	if (isSVGFolder(fromParent)) {
-		const l = (fromParent.children as SortNode<any>).filterRemove(e => e.name === nameStr).pop();
+		const l = (fromParent.children as NodeArray<any>).filterRemove(e => e.name === nameStr).pop();
 		l.path = to + "/" + l.name;
 		toParent.children.splice(pos, 0, l);
 	}
@@ -443,7 +443,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const n = g(),
-		children = new SortNode<SVGFolder | SVGLayer>(n);
+		children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of mapData.children) {
 			children.push(processLayers(wg, c));
 		}
