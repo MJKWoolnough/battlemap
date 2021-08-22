@@ -1,7 +1,7 @@
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
 import {mapLoadedReceive, mod} from './shared.js';
-import {stringSort} from './lib/ordered.js';
+import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import defaultTool from './tools_default.js';
 import {shell, windows} from './windows.js';

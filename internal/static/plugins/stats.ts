@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
-import {NodeArray, node} from '../lib/ordered.js';
+import {NodeArray, node} from '../lib/nodes.js';
 import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';

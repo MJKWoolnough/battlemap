@@ -5,7 +5,7 @@ import type {PluginType} from '../plugins.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
-import {NodeArray, node, noSort} from '../lib/ordered.js';
+import {NodeArray, node, noSort} from '../lib/nodes.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, walkLayers} from '../map.js';

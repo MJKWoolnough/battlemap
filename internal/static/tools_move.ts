@@ -1,5 +1,5 @@
 import {svg, g, line, path, title} from './lib/svg.js';
-import {node} from './lib/ordered.js';
+import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './map_fns.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';

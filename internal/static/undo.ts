@@ -1,5 +1,5 @@
 import {undoLimit} from './settings.js';
-import {NodeArray, node} from './lib/ordered.js';
+import {NodeArray, node} from './lib/nodes.js';
 import {button, h1, li, ul} from './lib/html.js';
 import {BoolSetting} from './settings_types.js';
 import {queue} from './shared.js';

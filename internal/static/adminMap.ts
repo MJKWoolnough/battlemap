@@ -1,5 +1,5 @@
 import type {TokenSet, Token} from './types.js';
-import type {NodeArray} from './lib/ordered.js';
+import type {NodeArray} from './lib/nodes.js';
 import type {SVGLayer, SVGFolder} from './map.js';
 import {autoFocus, createDocumentFragment} from './lib/dom.js';
 import {createHTML, br, button, img, input, h1} from './lib/html.js';

@@ -3,7 +3,7 @@ import type {SVGLayer} from './map.js';
 import {createHTML, clearElement, autoFocus} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
-import {node, noSort} from './lib/ordered.js';
+import {node, noSort} from './lib/nodes.js';
 import {getLayer} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './map_fns.js';
 import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';

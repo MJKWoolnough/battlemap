@@ -4,7 +4,7 @@ import type {Children} from './lib/dom.js';
 import type {List} from './lib/context.js';
 import type {WindowElement} from './windows.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
-import {stringSort} from './lib/ordered.js';
+import {stringSort} from './lib/nodes.js';
 import {isAdmin} from './shared.js';
 import lang from './language.js';
 import {shell} from './windows.js';

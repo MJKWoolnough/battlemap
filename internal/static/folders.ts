@@ -4,7 +4,7 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {enterKey, queue, labels} from './shared.js';
-import {NodeArray, node, stringSort} from './lib/ordered.js';
+import {NodeArray, node, stringSort} from './lib/nodes.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
 

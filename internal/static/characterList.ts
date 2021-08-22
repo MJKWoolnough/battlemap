@@ -1,7 +1,7 @@
 import type {Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {node} from './lib/ordered.js';
+import {node} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';

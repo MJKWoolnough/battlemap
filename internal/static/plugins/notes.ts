@@ -1,7 +1,7 @@
 import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
-import {node} from '../lib/ordered.js';
+import {node} from '../lib/nodes.js';
 import {clearElement} from '../lib/dom.js';
 import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';

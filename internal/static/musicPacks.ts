@@ -4,7 +4,7 @@ import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
-import {NodeArray, node, stringSort, noSort} from './lib/ordered.js';
+import {NodeArray, node, stringSort, noSort} from './lib/nodes.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
 import {windows, shell} from './windows.js';
