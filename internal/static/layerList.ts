@@ -64,9 +64,7 @@ const dragFn = (e: MouseEvent) => {
 	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
 		return;
 	}
-	if (l.parent !== dragging!.parent) {
-		dragging!.parent!.children.delete(dragging!.name);
-	}
+	dragging!.parent!.children.delete(dragging!.name);
 	const oldPath = dragging!.getPath();
 	let pos = 0,
 	    newPath: string;
