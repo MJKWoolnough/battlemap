@@ -64,33 +64,29 @@ const dragFn = (e: MouseEvent) => {
 	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
 		return;
 	}
-	const currPos = dragging!.parent!.children.indexOf(dragging!),
-	      oldPath = dragging!.getPath();
-	let pos: Uint,
-	    newPath: string;
-	if (dragging!.id >= 0 && beforeAfter && isFolder(l) && l.open.open) {
-		pos = 0;
-		dragging!.parent!.children.splice(currPos, 1);
-		l.children.unshift(dragging!);
-		newPath = l.getPath();
-		dragging!.parent = l;
-	} else {
-		pos = l.parent!.children.indexOf(l) + (beforeAfter ? 1 : 0);
-		if (l.parent === dragging!.parent) {
-			pos -= pos > currPos ? 1 : 0;
-			if (pos === currPos) {
-				return;
-			}
-			l.parent!.children.splice(currPos, 1);
-			l.parent!.children.splice(pos, 0, dragging!);
-		} else {
-			dragging!.parent!.children.splice(currPos, 1);
-			l.parent!.children.splice(pos, 0, dragging!);
-			dragging!.parent = l.parent;
-		}
-		newPath = (l.parent as FolderLayer).getPath();
+	if (l.parent !== dragging!.parent) {
+		dragging!.parent!.children.delete(dragging!.name);
 	}
-	loadingWindow(queue(() => (doLayerMove(oldPath, newPath + "/", pos, false), rpc.moveLayer(oldPath, newPath + "/", pos))), shell);
+	const oldPath = dragging!.getPath();
+	let pos = 0,
+	    newPath: string;
+	if (dragging!.id >= 0 && isFolder(l) && beforeAfter && l.open.open) {
+		if (l.children.size === 0) {
+			l.children.set(dragging!.name, dragging!);
+		} else {
+			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0));
+		}
+		newPath = l.getPath() + "/";
+	} else {
+		if (beforeAfter) {
+			l.parent!.children.insertAfter(dragging!.name, dragging!, l.name);
+		} else {
+			l.parent!.children.insertBefore(dragging!.name, dragging!, l.name);
+		}
+		newPath = l.parent!.getPath() + "/";
+		pos = l.parent!.children.position(dragging!.name);
+	}
+	loadingWindow(queue(() => (doLayerMove(oldPath, newPath, pos, false), rpc.moveLayer(oldPath, newPath, pos))), shell);
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 	if (dragging || e.button !== 0) {
@@ -236,7 +232,7 @@ class FolderLayer extends Folder {
 		this.id = lf.id;
 		if (lf.children) {
 			for (const c of lf.children) {
-				this.children.push(isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
+				this.children.set(c.name, isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
 			}
 		}
 		if (lf.id > 0) {
@@ -279,7 +275,7 @@ class LayerRoot extends Root {
 		if (!sub) {
 			return folder as FolderLayer;
 		}
-		return folder.children.filter(c => c.name === sub).pop() as FolderLayer | ItemLayer;
+		return folder.children.get(sub) as FolderLayer | ItemLayer;
 	}
 }
 
@@ -348,8 +344,12 @@ export default (base: HTMLElement) => {
 			if (!l || !(np instanceof FolderLayer)) {
 				return;
 			}
-			l.parent!.children.filterRemove(i => i === l);
-			np.children.splice(ml.position, 0, l);
+			l.parent!.children.delete(l.name);
+			if (ml.position === np.children.size) {
+				np.children.set(l.name, l);
+			} else {
+				np.children.insertBefore(l.name, l, np.children.keyAt(ml.position));
+			}
 		});
 		layersRPC.waitLayerRename().then(lr => {
 			const l = list.getLayer(lr.path);

@@ -153,14 +153,14 @@ export default (base: Node) => {
 	]).then(([folderList, userMap]) => {
 		const root = new MapRoot(folderList, lang["TAB_MAPS"], rpcFuncs, MapItem, MapFolder),
 		      findMap = (folder: Folder, id: Uint): MapItem | undefined => {
-			const m = folder.items.find(i => i.id === id);
-			if (m) {
-				return m as MapItem;
-			}
-			for (const f of folder.folders) {
-				const m = findMap(f, id);
-				if (m) {
-					return m;
+			for (const [, item] of folder.children) {
+				if (item instanceof Folder) {
+					const m = findMap(item, id);
+					if (m) {
+						return m;
+					}
+				} else if (item.id === id) {
+					return item as MapItem;
 				}
 			}
 			return undefined;

@@ -4,7 +4,7 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {symbol, g, path} from './lib/svg.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {enterKey, queue, labels} from './shared.js';
-import {NodeArray, node, stringSort} from './lib/nodes.js';
+import {NodeMap, node, stringSort} from './lib/nodes.js';
 import {addSymbol} from './symbols.js';
 import lang from './language.js';
 
@@ -23,7 +23,7 @@ type Sorter = (a: Item | Folder, b: Item | Folder) => number;
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
-      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...folder.folders.flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),
+      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/"))),
       rename = addSymbol("rename", symbol({"viewBox": "0 0 30 20"}, path({"d": "M1,5 v10 h28 v-10 Z M17,1 h10 m-5,0 V19 m-5,0 h10", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"}))),
       copy = addSymbol("copy", symbol({"viewBox": "0 0 34, 37"}, path({"d": "M14,6 h-13 v30 h21 v-22 z v8 h8 M12,6 v-5 h13 l8,8 v22 h-11 m11,-22 h-8 v-8 M6,20 h11 m-11,5 h11 m-11,5 h11", "style": "stroke: currentColor", "fill": "none"}))),
       remove = addSymbol("remove", symbol({"viewBox": "0 0 32 34"}, path({"d": "M10,5 v-3 q0,-1 1,-1 h10 q1,0 1,1 v3 m8,0 h-28 q-1,0 -1,1 v2 q0,1 1,1 h28 q1,0 1,-1 v-2 q0,-1 -1,-1 m-2,4 v22 q0,2 -2,2 h-20 q-2,0 -2,-2 v-22 m2,3 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1 m7.5,0 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1 m7.5,0 v18 q0,1 1,1 h3 q1,0 1,-1 v-18 q0,-1 -1,-1 h-3 q-1,0 -1,1", "style": "stroke: currentColor", "fill": "none"}))),
@@ -168,7 +168,7 @@ export class Folder {
 	parent: Folder | null;
 	name: string;
 	[node]: HTMLElement;
-	children: NodeArray<Folder | Item>;
+	children: NodeMap<string, Folder | Item>;
 	root: Root;
 	nameElem: HTMLSpanElement;
 	renamer: SVGSymbolElement;
@@ -177,7 +177,7 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new NodeArray<Folder>(ul({"class": "folders"}), this.sorter);
+		this.children = new NodeMap<string, Folder>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
 		this[node] = li({"class": "foldersFolder"}, [
 			details([
@@ -192,10 +192,10 @@ export class Folder {
 			])
 		]);
 		for (const name in children.folders) {
-			this.children.push(new this.root.newFolder(root, this, name, children.folders[name]));
+			this.children.set(name, new this.root.newFolder(root, this, name, children.folders[name]));
 		}
 		for (const name in children.items) {
-			this.children.push(new this.root.newItem(this, children.items[name], name));
+			this.children.set(name, new this.root.newItem(this, children.items[name], name));
 		}
 	}
 	get folderSorter() {
@@ -234,12 +234,6 @@ export class Folder {
 			sorts.set(fs, new WeakMap<ItemSorter, Sorter>([[is, fn]]));
 		}
 		return fn;
-	}
-	get folders() {
-		return this.children.filter(c => c instanceof Folder) as Folder[];
-	}
-	get items() {
-		return this.children.filter(c => c instanceof Item) as Item[];
 	}
 	rename(e: Event) {
 		e.preventDefault();
@@ -311,18 +305,17 @@ export class Folder {
 			return item;
 		}
 		const newItem = new this.root.newItem(this, id, name);
-		this.children.push(newItem);
+		this.children.set(name, newItem);
 		return newItem;
 	}
 	getItem(name: string) {
-		return this.items.filter(i => i.name === name).pop();
+		return this.children.get(name) as (Item | undefined);
 	}
 	removeItem(name: string) {
-		const index = this.children.findIndex(i => i.name === name && i instanceof Item);
-		if (index !== -1) {
-			const i = (this.children.splice(index, 1).pop() as Item);
-			i.delete();
-			return i.id;
+		const old = this.children.get(name) as Item;
+		if (old) {
+			this.children.delete(name);
+			return old.id;
 		}
 		return -1;
 	}
@@ -335,18 +328,17 @@ export class Folder {
 			return existing;
 		}
 		const f = new this.root.newFolder(this.root, this, name, {folders: {}, items: {}});
-		this.children.push(f);
+		this.children.set(name, f);
 		return f;
 	}
 	getFolder(name: string) {
-		return this.folders.filter(f => f.name === name).pop();
+		return this.children.get(name) as Folder | undefined;
 	}
 	removeFolder(name: string) {
-		const index = this.children.findIndex(f => f.name === name && f instanceof Folder);
-		if (index !== -1) {
-			const f = this.children.splice(index, 1).pop() as Folder;
-			f.delete();
-			return f;
+		const old = this.children.get(name) as Folder;
+		if (old) {
+			this.children.delete(name);
+			return old;
 		}
 		return undefined;
 	}
@@ -356,9 +348,7 @@ export class Folder {
 		return breadcrumbs.reverse().join("/");
 	}
 	delete() {
-		for (const c of this.children) {
-			c.delete();
-		}
+		this.children.clear();
 	}
 }
 
@@ -470,9 +460,9 @@ export class Root {
 		const f = this.removeFolder(from);
 		if (f) {
 			const t = this.addFolder(to);
-			for (const c of f.children) {
+			for (const [name, c] of f.children) {
 				c.parent = t;
-				t.children.push(c);
+				t.children.set(name, c);
 			}
 			return f;
 		}
