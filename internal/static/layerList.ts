@@ -75,6 +75,7 @@ const dragFn = (e: MouseEvent) => {
 			l.children.set(dragging!.name, dragging!);
 		} else {
 			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0));
+			pos = l.children.position(dragging!.name);
 		}
 		newPath = l.getPath() + "/";
 		dragging!.parent = l;
