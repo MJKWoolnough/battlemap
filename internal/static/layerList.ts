@@ -347,7 +347,8 @@ export default (base: HTMLElement) => {
 				return;
 			}
 			l.parent!.children.delete(l.name);
-			if (ml.position === np.children.size) {
+			l.parent = np;
+			if (ml.position >= np.children.size) {
 				np.children.set(l.name, l);
 			} else {
 				np.children.insertBefore(l.name, l, np.children.keyAt(ml.position));
