@@ -77,6 +77,7 @@ const dragFn = (e: MouseEvent) => {
 			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0));
 		}
 		newPath = l.getPath() + "/";
+		dragging!.parent = l;
 	} else {
 		if (beforeAfter) {
 			l.parent!.children.insertAfter(dragging!.name, dragging!, l.name);
@@ -85,6 +86,7 @@ const dragFn = (e: MouseEvent) => {
 		}
 		newPath = l.parent!.getPath() + "/";
 		pos = l.parent!.children.position(dragging!.name);
+		dragging!.parent = l.parent!;
 	}
 	loadingWindow(queue(() => (doLayerMove(oldPath, newPath, pos, false), rpc.moveLayer(oldPath, newPath, pos))), shell);
       },
