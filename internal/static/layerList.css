@@ -15,11 +15,11 @@
 	position: absolute;
 }
 
-.draggingSpecial .folders .folders .dragAfter, .draggingSpecial .folders .folders .dragBefore {
+.draggingSpecial .folders .folders :is(.dragAfter, .dragBefore) {
 	display: none;
 }
 
-.dragging .dragAfter, .dragging .dragBefore {
+.dragging :is(.dragAfter, .dragBefore) {
 	display: block;
 	height: calc(50% - 1px);
 	position: absolute;

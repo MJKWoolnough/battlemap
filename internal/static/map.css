@@ -88,19 +88,19 @@
 	y: calc(var(--outline-height) - 5px / var(--zoom, 1));
 }
 
-.cursor_0 rect:nth-child(3), .cursor_0 rect:nth-child(10), .cursor_1 rect:nth-child(6), .cursor_1 rect:nth-child(7), .cursor_2 rect:nth-child(5), .cursor_2 rect:nth-child(8), .cursor_3 rect:nth-child(4), .cursor_3 rect:nth-child(9) {
+.cursor_0 :is(rect:nth-child(3), rect:nth-child(10)), .cursor_1 :is(rect:nth-child(6), rect:nth-child(7)), .cursor_2 :is(rect:nth-child(5), rect:nth-child(8)), .cursor_3 :is(rect:nth-child(4), rect:nth-child(9)) {
 	cursor: var(--outline-cursor, nwse-resize);
 }
 
-.cursor_0 rect:nth-child(4), .cursor_0 rect:nth-child(9), .cursor_1 rect:nth-child(3), .cursor_1 rect:nth-child(10), .cursor_2 rect:nth-child(6), .cursor_2 rect:nth-child(7), .cursor_3 rect:nth-child(5), .cursor_3 rect:nth-child(8) {
+.cursor_0 :is(rect:nth-child(4), rect:nth-child(9)), .cursor_1 :is(rect:nth-child(3), rect:nth-child(10)), .cursor_2 :is(rect:nth-child(6), rect:nth-child(7)), .cursor_3 :is(rect:nth-child(5), rect:nth-child(8)) {
 	cursor: var(--outline-cursor, ns-resize);
 }
 
-.cursor_0 rect:nth-child(5), .cursor_0 rect:nth-child(8), .cursor_1 rect:nth-child(4), .cursor_1 rect:nth-child(9), .cursor_2 rect:nth-child(3), .cursor_2 rect:nth-child(10), .cursor_3 rect:nth-child(6), .cursor_3 rect:nth-child(7) {
+.cursor_0 :is(rect:nth-child(5), rect:nth-child(8)), .cursor_1 :is(rect:nth-child(4), rect:nth-child(9)), .cursor_2 :is(rect:nth-child(3), rect:nth-child(10)), .cursor_3 :is(rect:nth-child(6), rect:nth-child(7)) {
 	cursor: var(--outline-cursor, nesw-resize);
 }
 
-.cursor_0 rect:nth-child(6), .cursor_0 rect:nth-child(7), .cursor_1 rect:nth-child(5), .cursor_1 rect:nth-child(8), .cursor_2 rect:nth-child(4), .cursor_2 rect:nth-child(9), .cursor_3 rect:nth-child(3), .cursor_3 rect:nth-child(10) {
+.cursor_0 :is(rect:nth-child(6), rect:nth-child(7)), .cursor_1 :is(rect:nth-child(5), rect:nth-child(8)), .cursor_2 :is(rect:nth-child(4), rect:nth-child(9)), .cursor_3 :is(rect:nth-child(3), rect:nth-child(10)) {
 	cursor: var(--outline-cursor, ew-resize);
 }
 
@@ -112,7 +112,7 @@
 	display: none;
 }
 
-.isUser .mapToken, .isUser .mapShape, .isUser .mapDrawing {
+.isUser :is(.mapToken, .mapShape, .mapDrawing) {
 	transition-property: transform, width, height;
 	transition-duration: 1s;
 	transition-timing-function: ease;

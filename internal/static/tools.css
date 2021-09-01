@@ -4,7 +4,7 @@
 	margin-top: 0;
 }
 
-#toolList > ul > li img, #toolList > ul > li svg {
+#toolList > ul > li :is(img, svg) {
 	width: 2em;
 	height: 2em;
 	padding-right: 3px;
@@ -20,11 +20,11 @@
 	background-color: #888;
 }
 
-.zoomOver svg, .zoomOver #outline rect {
+.zoomOver :is(svg, #outline rect) {
 	cursor: zoom-in !important;
 }
 
-.zoomOver.zoomOut svg, .zoomOver.zoomOut #outline rect {
+.zoomOver.zoomOut :is(svg, rect) {
 	cursor: zoom-out !important;
 }
 
@@ -60,7 +60,7 @@ span.colourButton {
 	fill: rgba(255, 255, 255, 0.2);
 }
 
-#zoomSlider rect, #zoomSlider circle {
+#zoomSlider :is(rect, circle) {
 	transition: fill 0.5s;
 }
 
