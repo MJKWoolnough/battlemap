@@ -5,7 +5,7 @@ const symbols = svg({"style": "width: 0"}),
       symbolMap = new Map<string, (props?: Props) => SVGSVGElement>();
 
 export const addSymbol = (id: string, s: SVGSymbolElement) => {
-	s.setAttribute("id", id)
+	s.setAttribute("id", id);
 	symbols.appendChild(s);
 	const fn = (props: Props = {}) => svg(props, [
 		typeof props["title"] === "string" ? title(props["title"]) : [],
