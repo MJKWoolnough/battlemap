@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
 //import {NodeArray} from '../lib/nodes.js';
-import {clearElement} from '../lib/dom.js';
+import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {shell, windows} from '../windows.js';
@@ -61,7 +61,7 @@ if (isAdmin) {
 	      },
 	      data = checkSettings(getSettings(importName)),
 	      //working = JSON.parse(JSON.stringify(data)),
-	      icon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 75"%3E%3Cg id="h"%3E%3Cpath d="M30,50 v-30 l20,-15 l20,15 v30 h-15 v-15 a1,1 0,0,0 -10,0 v15 z" fill="%23ec5" stroke="%23000" /%3E%3Cpolyline points="28,20 30,20 50,4 70,20 72,20" stroke="%23940" fill="none" stroke-width="6"/%3E%3C/g%3E%3Cuse href="%23h" transform="translate(-28, 25)" /%3E%3Cuse href="%23h" transform="translate(28, 25)" /%3E%3C/svg%3E',
+	      icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 75"%3E%3Cg id="h"%3E%3Cpath d="M30,50 v-30 l20,-15 l20,15 v30 h-15 v-15 a1,1 0,0,0 -10,0 v15 z" fill="%23ec5" stroke="%23000" /%3E%3Cpolyline points="28,20 30,20 50,4 70,20 72,20" stroke="%23940" fill="none" stroke-width="6"/%3E%3C/g%3E%3Cuse href="%23h" transform="translate(-28, 25)" /%3E%3Cuse href="%23h" transform="translate(28, 25)" /%3E%3C/svg%3E`,
 	      remove = getSymbol("remove")!,
 	      speciesWindow = windows({"window-data": "towns-species", "window-title": lang["SPECIES_EDIT"], "window-icon": icon, "resizable": true}, [
 

@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
 import {NodeArray, node} from '../lib/nodes.js';
-import {clearElement} from '../lib/dom.js';
+import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
 import {addCSS, globals, mapLoadReceive, isAdmin} from '../shared.js';
@@ -120,7 +120,7 @@ if (isAdmin) {
 
 				}}, lang["GENERATE_STATISTICS"]),
 				output
-			]), true, 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect x="12" y="60" width="20" height="39" rx="3" fill="%23f00" /%3E%3Crect x="42" y="40" width="20" height="59" rx="3" fill="%230f0" /%3E%3Crect x="72" y="20" width="20" height="79" rx="3" fill="%2300f" /%3E%3Cpath d="M4,4 V96 H96" stroke="%23888" fill="none" stroke-width="8" stroke-linecap="round" /%3E%3C/svg%3E']
+			]), true, `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Crect x="12" y="60" width="20" height="39" rx="3" fill="%23f00" /%3E%3Crect x="42" y="40" width="20" height="59" rx="3" fill="%230f0" /%3E%3Crect x="72" y="20" width="20" height="79" rx="3" fill="%2300f" /%3E%3Cpath d="M4,4 V96 H96" stroke="%23888" fill="none" stroke-width="8" stroke-linecap="round" /%3E%3C/svg%3E`]
 		}
 	});
 }

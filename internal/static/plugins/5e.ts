@@ -2,7 +2,7 @@ import type {KeystoreData, Uint, Int, MapData, Colour, TokenImage, TokenSet} fro
 import type {WindowElement} from '../windows.js';
 import type {List} from '../lib/context.js';
 import type {PluginType} from '../plugins.js';
-import {clearElement} from '../lib/dom.js';
+import {clearElement, svgNS} from '../lib/dom.js';
 import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
 import {NodeArray, node, noSort} from '../lib/nodes.js';
@@ -410,7 +410,7 @@ const defaultLanguage = {
 		})));
 	}
       },
-      initiativeWindow = windows({"window-icon": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E', "window-title": lang["INITIATIVE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px"}, "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
+      initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px"}, "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
 	isAdmin ? div({"id": "initiative-ordering-5e"}, [
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
@@ -787,7 +787,7 @@ if (isAdmin) {
 	      rows: HTMLTableRowElement[] = [],
 	      tickers: HTMLTableCellElement[][] = [],
 	      ticks = tbody(shapechangeTokens.map(addToken)),
-	      shapechangeSettings = windows({"window-icon": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E', "window-title": lang["SHAPECHANGE_TITLE"], "window-data": "shapechange-5e", "resizable": true}, div([
+	      shapechangeSettings = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E`, "window-title": lang["SHAPECHANGE_TITLE"], "window-data": "shapechange-5e", "resizable": true}, div([
 		h1(lang["SHAPECHANGE_TITLE"]),
 		button({"onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
 			if (!cat) {

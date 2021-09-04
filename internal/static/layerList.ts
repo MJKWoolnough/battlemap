@@ -1,6 +1,6 @@
 import type {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './types.js';
 import type {SVGLayer} from './map.js';
-import {createHTML, clearElement, autoFocus} from './lib/dom.js';
+import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
@@ -280,7 +280,7 @@ class LayerRoot extends Root {
 	}
 }
 
-export const layerIcon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E';
+export const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`;
 
 export default (base: HTMLElement) => {
 	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
