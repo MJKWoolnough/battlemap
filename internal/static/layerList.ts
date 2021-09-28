@@ -72,7 +72,7 @@ const dragFn = (e: MouseEvent) => {
 		if (l.children.size === 0) {
 			l.children.set(dragging!.name, dragging!);
 		} else {
-			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0));
+			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0)!);
 			pos = l.children.position(dragging!.name);
 		}
 		newPath = l.getPath() + "/";
@@ -350,7 +350,7 @@ export default (base: HTMLElement) => {
 			if (ml.position >= np.children.size) {
 				np.children.set(l.name, l);
 			} else {
-				np.children.insertBefore(l.name, l, np.children.keyAt(ml.position));
+				np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
 			}
 		});
 		layersRPC.waitLayerRename().then(lr => {
