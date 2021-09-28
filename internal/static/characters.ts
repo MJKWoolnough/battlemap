@@ -1,8 +1,9 @@
 import type {Uint, KeystoreData} from './types.js';
 import type {WindowElement} from './windows.js';
 import {autoFocus, clearElement, svgNS} from './lib/dom.js';
-import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
+import {createHTML, br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {symbol, g, path} from './lib/svg.js';
+import {NodeMap, node, noSort} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {characterData, mapLoadedReceive, queue, labels} from './shared.js';
 import {getToken, doTokenSet} from './map_fns.js';
@@ -73,22 +74,45 @@ const allowedKey = (key: string, character: boolean) => {
 
 export const characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
-	const i = img({"src": d["store-image-data"] ? `/images/${d["store-image-data"].data["src"]}` : undefined, "style": "max-width: 100%; max-height: 100%"});
-	return div({"class": "tokenSelector"}, [
-		button({"onclick":() => (d["store-image-data"] || changes["store-image-data"] ? w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]) : Promise.resolve(true)).then(proceed => {
-			if (!proceed) {
-				return;
-			}
+	const makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
+		const i = img({"src": `/images/${tk["src"]}`});
+		return [
+			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
+				if (!proceed) {
+					return;
+				}
+				const data = getToken();
+				if (!data) {
+					w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+					return;
+				}
+				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+				i.setAttribute("src", `/images/${data["src"]}`);
+			})}, lang["TOKEN_USE_SELECTED"]),
+			i,
+			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
+				if (proceed) {
+					tokens.delete(n);
+					changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+				}
+			})})
+		];
+	})())}, tk),
+	tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)]));
+	let nextID = tokens.size;
+	return [
+		tokens[node],
+		button({"onclick": () => {
 			const data = getToken();
 			if (!data) {
 				w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
 				return;
 			}
-			changes["store-image-data"] = {"user": false, data};
-			i.setAttribute("src", `/images/${data["src"]}`);
-		})}, lang["TOKEN_USE_SELECTED"]),
-		i
-	]);
+			tokens.set(nextID, makeToken(nextID, data));
+			nextID++;
+			changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+		}}, "Add Token")
+	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer && e.dataTransfer.getData("character")) {
