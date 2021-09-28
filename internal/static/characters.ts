@@ -190,8 +190,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			removes.clear();
 		}), w);
 	      },
-	      w = windows();
-	shell.appendChild(autoFocus(createHTML(w, {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	      w = windows( {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
@@ -200,7 +199,8 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 				}
 			});
 		}
-	      }}, characterEdit(w, id, d, character, changes, removes, save) || [
+	      }});
+	shell.appendChild(autoFocus(createHTML(w, characterEdit(w, id, d, character, changes, removes, save) || [
 		h1(name),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
@@ -232,7 +232,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			this.toggleAttribute("disabled", true);
 			save().finally(() => this.removeAttribute("disabled"));
 		}}, lang["SAVE"])
-	      ])));
+	])));
 }
 
 inited.then(() => {
