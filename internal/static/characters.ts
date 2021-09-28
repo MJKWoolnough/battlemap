@@ -200,7 +200,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			});
 		}
 	      }});
-	shell.appendChild(autoFocus(createHTML(w, characterEdit(w, id, d, character, changes, removes, save) || [
+	shell.appendChild(autoFocus(createHTML(w, div(characterEdit(w, id, d, character, changes, removes, save) || [
 		h1(name),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
@@ -232,7 +232,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 			this.toggleAttribute("disabled", true);
 			save().finally(() => this.removeAttribute("disabled"));
 		}}, lang["SAVE"])
-	])));
+	]))));
 }
 
 inited.then(() => {
