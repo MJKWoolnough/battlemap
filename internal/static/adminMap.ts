@@ -498,7 +498,7 @@ export default (base: HTMLElement) => {
 			if (!char) {
 				return;
 			} else if (char["store-image-data"]) {
-				Object.assign(token, JSON.parse(JSON.stringify(char["store-image-data"].data)));
+				Object.assign(token, JSON.parse(JSON.stringify(char["store-image-data"].data instanceof Array ? char["store-image-data"].data[0] : char["store-image-data"])));
 			} else {
 				token.src = parseInt(char["store-image-icon"].data);
 				token.width = tD.width;
