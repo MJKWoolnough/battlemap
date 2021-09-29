@@ -100,8 +100,8 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 				}
 			})})
 		];
-	})())}, tk),
-	tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)]));
+	      })())}, tk),
+	      tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)]));
 	let nextID = tokens.size;
 	return [
 		tokens[node],
