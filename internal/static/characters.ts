@@ -111,7 +111,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 			tokens.set(nextID, makeToken(nextID, data));
 			nextID++;
 			changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-		}}, "Add Token")
+		}}, lang["TOKEN_ADD"])
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
