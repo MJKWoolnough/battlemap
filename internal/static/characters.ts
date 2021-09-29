@@ -5,7 +5,7 @@ import {createHTML, br, button, div, h1, img, input, label, li, ul} from './lib/
 import {symbol, g, path} from './lib/svg.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {characterData, mapLoadedReceive, queue, labels} from './shared.js';
+import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
 import {getToken, doTokenSet} from './map_fns.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
@@ -42,6 +42,9 @@ const allowedKey = (key: string, character: boolean) => {
 	const char = characterData.get(id)!,
 	      doIt = (sendRPC = true) => {
 		Object.assign(char, changes);
+		if (changes["store-image-data"]) {
+			resetCharacterTokens(char);
+		}
 		for (const r of removes) {
 			delete char[r];
 		}
