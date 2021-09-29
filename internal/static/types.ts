@@ -262,6 +262,19 @@ export type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & {
 	removeTokenData?: string[];
 }
 
+export type CharacterToken = TokenLight & {
+	src: Uint;
+	width: Uint;
+	height: Uint;
+	patternWidth: Uint;
+	patternHeight: Uint;
+	rotation: Byte;
+	flip: boolean;
+	flop: boolean;
+	snap: boolean;
+	tokenData: Record<string, KeystoreData>;
+};
+
 export type LayerTokens = {
 	id: Uint;
 	name: string;
