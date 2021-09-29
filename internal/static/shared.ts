@@ -1,4 +1,4 @@
-import type {Int, Uint, KeystoreData, MapData, Wall} from './types.js';
+import type {Int, Uint, CharacterToken, KeystoreData, MapData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
@@ -54,6 +54,27 @@ labels = (() => {
 })(),
 addCSS = (css: string) => document.head.append(style({"type": "text/css"}, css)),
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
+[getCharacterToken, resetCharacterTokens] = (() => {
+	const tokensSymbol = Symbol("tokens");
+	return [
+		(data: Record<string, KeystoreData>) => {
+			let list = (data as any)[tokensSymbol] as CharacterToken[];
+			if (list === undefined || list.length === 0) {
+				const tokens = data["store-image-data"];
+				if (tokens) {
+					if (tokens.data instanceof Array) {
+						(data as any)[tokensSymbol] = list = Array.from(tokens.data);
+						list.reverse();
+					} else {
+						return tokens.data as CharacterToken;
+					}
+				}
+			}
+			return list.pop();
+		},
+		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
+	];
+})(),
 globals = {
 	"definitions": null,
 	"root": null,
