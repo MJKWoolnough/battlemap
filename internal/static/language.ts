@@ -150,6 +150,7 @@ const defaultLanguage = {
 	"THEME": "Theme",
 	"TITLE": "Battlemap",
 	"TOKEN": "Token",
+	"TOKEN_ADD": "Add Token",
 	"TOKEN_REMOVE": "Remove Token?",
 	"TOKEN_REMOVE_CONFIRM": "Are you sure that you wish to remove this token?",
 	"TOKEN_REPLACE": "Replace Token?",
