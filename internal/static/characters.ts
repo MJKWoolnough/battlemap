@@ -14,7 +14,7 @@ import {rpc, inited} from './rpc.js';
 import undo from './undo.js';
 import './folders.js';
 
-let lastMapChanged = 0;
+let lastMapChanged = 0, n = 0;
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
@@ -41,7 +41,7 @@ const allowedKey = (key: string, character: boolean) => {
 	const char = characterData.get(id)!,
 	      doIt = (sendRPC = true) => {
 		Object.assign(char, changes);
-		if (changes["store-image-data"]) {
+		if (changes["store-image-data"] || changes["tokens_order"]) {
 			resetCharacterTokens(char);
 		}
 		for (const r of removes) {
@@ -113,7 +113,11 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 			tokens.set(nextID, makeToken(nextID, data));
 			nextID++;
 			changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-		}}, lang["TOKEN_ADD"])
+		}}, lang["TOKEN_ADD"]),
+		br(),
+		label(`${lang["TOKEN_ORDER"]}: `),
+		labels(`${lang["TOKEN_ORDER_NORMAL"]}: `, input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), false),
+		labels(`${lang["TOKEN_ORDER_SHUFFLE"]}: `, input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), false),
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
