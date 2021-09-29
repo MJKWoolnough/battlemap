@@ -14,7 +14,7 @@ import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {screen2Grid, panZoom} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {uploadImages} from './assets.js';
 import {tokenContext} from './plugins.js';
@@ -497,12 +497,15 @@ export default (base: HTMLElement) => {
 			      char = characterData.get(tD.id);
 			if (!char) {
 				return;
-			} else if (char["store-image-data"]) {
-				Object.assign(token, JSON.parse(JSON.stringify(char["store-image-data"].data instanceof Array ? char["store-image-data"].data[0] : char["store-image-data"])));
 			} else {
-				token.src = parseInt(char["store-image-icon"].data);
-				token.width = tD.width;
-				token.height = tD.height;
+				const ct = getCharacterToken(char);
+				if (ct) {
+					Object.assign(token, JSON.parse(JSON.stringify(ct)));
+				} else {
+					token.src = parseInt(char["store-image-icon"].data);
+					token.width = tD.width;
+					token.height = tD.height;
+				}
 			}
 		} else if (e.dataTransfer.types.includes("imageasset")) {
 			const tokenData = JSON.parse(e.dataTransfer.getData("imageasset"));
