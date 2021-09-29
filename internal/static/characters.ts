@@ -14,8 +14,7 @@ import {rpc, inited} from './rpc.js';
 import undo from './undo.js';
 import './folders.js';
 
-let n = 0,
-    lastMapChanged = 0;
+let lastMapChanged = 0;
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
@@ -140,22 +139,20 @@ iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, Keystor
 		clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
-	n++;
-	let row = 0;
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
-		const data = input({"id": `character_${n}_${row}_`, "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
+		const data = input({"id": "character_", "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 		      }}),
-		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": `character_${n}_${row}_user_`, "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
+		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": "character_user_", "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
 		      }});
 		return [
 			labels(k, data),
 			labels(userVisible(), visibility, false, {}),
-			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "id": `character_${n}_${row}_remove_`, "onchange": function(this: HTMLInputElement) {
+			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "id": "character_remove_", "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
 					data.toggleAttribute("disabled", true);
