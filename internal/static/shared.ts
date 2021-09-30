@@ -64,7 +64,14 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 				if (tokens) {
 					if (tokens.data instanceof Array) {
 						(data as any)[tokensSymbol] = list = Array.from(tokens.data);
-						list.reverse();
+						if (data?.["tokens_order"].data) {
+							for (let p = list.length - 1; p >= 0; p--) {
+								const r = Math.floor(Math.random() * list.length);
+								[list[p], list[r]] = [list[r], list[p]];
+							}
+						} else {
+							list.reverse();
+						}
 					} else {
 						return tokens.data as CharacterToken;
 					}
