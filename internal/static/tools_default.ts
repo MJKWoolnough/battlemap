@@ -110,127 +110,6 @@ defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
 		const amount = scrollAmount.value || 100;
 		createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
-},
-defaultTokenMouseContext = (e: MouseEvent) => {
-	if (!isAdmin) {
-		return;
-	}
-	e.preventDefault();
-	e.stopPropagation();
-	const {layer: currLayer, token: currToken} = globals.selected;
-	if (!currLayer || !currToken) {
-		return;
-	}
-	const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-	place(document.body, [e.clientX, e.clientY], [
-		tokenContext(),
-		isTokenImage(currToken) ? [
-			item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
-			item(lang["CONTEXT_FLIP"], () => {
-				if (!(currToken instanceof SVGToken)) {
-					return;
-				}
-				doTokenSet({"id": currToken.id, "flip": !currToken.flip});
-				globals.outline.focus();
-			}),
-			item(lang["CONTEXT_FLOP"], () => {
-				if (!(currToken instanceof SVGToken)) {
-					return;
-				}
-				doTokenSet({"id": currToken.id, "flop": !currToken.flop});
-				globals.outline.focus();
-			}),
-			item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-				if (!(currToken instanceof SVGToken)) {
-					return;
-				}
-				if (!currToken.isPattern) {
-					doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-				} else {
-					doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-				}
-				globals.outline.focus();
-			}),
-		] : [],
-		item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
-			const snap = currToken.snap,
-			      {x, y, width, height, rotation} = currToken;
-			if (!snap) {
-				const [newX, newY] = snapTokenToGrid(x, y, width, height),
-				      newRotation = Math.round(rotation / 32) * 32 % 256;
-				if (x !== newX || y !== newY || rotation !== newRotation) {
-					doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
-				}
-			} else {
-				doTokenSet({"id": currToken.id, "snap": !snap});
-			}
-			globals.outline.focus();
-		}),
-		item(lang["CONTEXT_SET_LIGHTING"], () => {
-			let c = currToken.lightColour;
-			const t = Date.now(),
-			      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => globals.outline.focus()})),
-			      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-			w.appendChild(createDocumentFragment([
-				h1(lang["CONTEXT_SET_LIGHTING"]),
-				labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
-				br(),
-				labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
-				br(),
-				button({"onclick": () => {
-					if (globals.selected.token === currToken) {
-						doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
-					}
-					w.close();
-				}}, lang["SAVE"])
-			]));
-		}),
-		tokenPos < currLayer.tokens.length - 1 ? [
-			item(lang["CONTEXT_MOVE_TOP"], () => {
-				if (!globals.tokens.has(currToken.id)) {
-					return;
-				}
-				const currLayer = globals.tokens.get(currToken.id)!.layer;
-				doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
-				globals.outline.focus();
-			}),
-			item(lang["CONTEXT_MOVE_UP"], () => {
-				if (!globals.tokens.has(currToken.id)) {
-					return;
-				}
-				const currLayer = globals.tokens.get(currToken.id)!.layer,
-				      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-				doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-				globals.outline.focus();
-			})
-		] : [],
-		tokenPos > 0 ? [
-			item(lang["CONTEXT_MOVE_DOWN"], () => {
-				if (!globals.tokens.has(currToken.id)) {
-					return;
-				}
-				const currLayer = globals.tokens.get(currToken.id)!.layer,
-				      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-				doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-			}),
-			item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-				if (!globals.tokens.has(currToken.id)) {
-					return;
-				}
-				const currLayer = globals.tokens.get(currToken.id)!.layer;
-				doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
-				globals.outline.focus();
-			})
-		] : [],
-		menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
-			if (!globals.tokens.has(currToken.id)) {
-				return;
-			}
-			doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
-			globals.outline.focus();
-		}, currLayer.name)),
-		item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
-	]);
 };
 
 mapLoadedReceive(() => {
@@ -386,7 +265,127 @@ export default Object.freeze({
 		}
 		e.preventDefault();
 	},
-	"tokenMouseContext": defaultTokenMouseContext
+	"tokenMouseContext": (e: MouseEvent) => {
+		if (!isAdmin) {
+			return;
+		}
+		e.preventDefault();
+		e.stopPropagation();
+		const {layer: currLayer, token: currToken} = globals.selected;
+		if (!currLayer || !currToken) {
+			return;
+		}
+		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+		place(document.body, [e.clientX, e.clientY], [
+			tokenContext(),
+			isTokenImage(currToken) ? [
+				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
+				item(lang["CONTEXT_FLIP"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					doTokenSet({"id": currToken.id, "flip": !currToken.flip});
+					globals.outline.focus();
+				}),
+				item(lang["CONTEXT_FLOP"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					doTokenSet({"id": currToken.id, "flop": !currToken.flop});
+					globals.outline.focus();
+				}),
+				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
+					if (!(currToken instanceof SVGToken)) {
+						return;
+					}
+					if (!currToken.isPattern) {
+						doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+					} else {
+						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+					}
+					globals.outline.focus();
+				}),
+			] : [],
+			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
+				const snap = currToken.snap,
+				      {x, y, width, height, rotation} = currToken;
+				if (!snap) {
+					const [newX, newY] = snapTokenToGrid(x, y, width, height),
+					      newRotation = Math.round(rotation / 32) * 32 % 256;
+					if (x !== newX || y !== newY || rotation !== newRotation) {
+						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
+					}
+				} else {
+					doTokenSet({"id": currToken.id, "snap": !snap});
+				}
+				globals.outline.focus();
+			}),
+			item(lang["CONTEXT_SET_LIGHTING"], () => {
+				let c = currToken.lightColour;
+				const t = Date.now(),
+				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => globals.outline.focus()})),
+				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+				w.appendChild(createDocumentFragment([
+					h1(lang["CONTEXT_SET_LIGHTING"]),
+					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
+					br(),
+					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
+					br(),
+					button({"onclick": () => {
+						if (globals.selected.token === currToken) {
+							doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
+						}
+						w.close();
+					}}, lang["SAVE"])
+				]));
+			}),
+			tokenPos < currLayer.tokens.length - 1 ? [
+				item(lang["CONTEXT_MOVE_TOP"], () => {
+					if (!globals.tokens.has(currToken.id)) {
+						return;
+					}
+					const currLayer = globals.tokens.get(currToken.id)!.layer;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
+					globals.outline.focus();
+				}),
+				item(lang["CONTEXT_MOVE_UP"], () => {
+					if (!globals.tokens.has(currToken.id)) {
+						return;
+					}
+					const currLayer = globals.tokens.get(currToken.id)!.layer,
+					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+					globals.outline.focus();
+				})
+			] : [],
+			tokenPos > 0 ? [
+				item(lang["CONTEXT_MOVE_DOWN"], () => {
+					if (!globals.tokens.has(currToken.id)) {
+						return;
+					}
+					const currLayer = globals.tokens.get(currToken.id)!.layer,
+					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+				}),
+				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
+					if (!globals.tokens.has(currToken.id)) {
+						return;
+					}
+					const currLayer = globals.tokens.get(currToken.id)!.layer;
+					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
+					globals.outline.focus();
+				})
+			] : [],
+			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
+				if (!globals.tokens.has(currToken.id)) {
+					return;
+				}
+				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
+				globals.outline.focus();
+			}, currLayer.name)),
+			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
+		]);
+	}
 });
 
 const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
