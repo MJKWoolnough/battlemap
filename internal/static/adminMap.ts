@@ -1,25 +1,21 @@
 import type {TokenSet, Token} from './types.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGLayer, SVGFolder} from './map.js';
-import {autoFocus, createDocumentFragment} from './lib/dom.js';
-import {createHTML, br, button, img, input, h1} from './lib/html.js';
+import {autoFocus} from './lib/dom.js';
+import {createHTML, img} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
-import place, {item, menu, List} from './lib/context.js';
-import {windows, shell} from './windows.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, removeLayer, mapView, isTokenImage} from './map.js';
+import {item, menu, List} from './lib/context.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, removeLayer, mapView} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
-import {edit as tokenEdit} from './characters.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {screen2Grid, panZoom} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
-import {makeColourPicker, noColour} from './colours.js';
+import {characterData, deselectToken, getCharacterToken, globals, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
+import {noColour} from './colours.js';
 import {uploadImages} from './assets.js';
-import {tokenContext} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
-import lang from './language.js';
 
 let copiedToken: Token | null = null;
 
@@ -282,127 +278,7 @@ export default (base: HTMLElement) => {
 		}
 		token.updateNode();
 		outline.setAttribute("transform", token.transformString(false));
-	      }, "oncontextmenu": function (this: SVGGElement, e: MouseEvent) {
-		toolTokenContext.call(this, e);
-		if (e.defaultPrevented) {
-			return;
-		}
-		e.preventDefault();
-		const {layer: currLayer, token: currToken} = globals.selected;
-		if (!currLayer || !currToken) {
-			return;
-		}
-		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-		place(document.body, [e.clientX, e.clientY], [
-			tokenContext(),
-			isTokenImage(currToken) ? [
-				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
-				item(lang["CONTEXT_FLIP"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
-					}
-					doTokenSet({"id": currToken.id, "flip": !currToken.flip});
-					outline.focus();
-				}),
-				item(lang["CONTEXT_FLOP"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
-					}
-					doTokenSet({"id": currToken.id, "flop": !currToken.flop});
-					outline.focus();
-				}),
-				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
-					}
-					if (!currToken.isPattern) {
-						doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-					} else {
-						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-					}
-					outline.focus();
-				}),
-			] : [],
-			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
-				const snap = currToken.snap,
-				      {x, y, width, height, rotation} = currToken;
-				if (!snap) {
-					const [newX, newY] = snapTokenToGrid(x, y, width, height),
-					      newRotation = Math.round(rotation / 32) * 32 % 256;
-					if (x !== newX || y !== newY || rotation !== newRotation) {
-						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
-					}
-				} else {
-					doTokenSet({"id": currToken.id, "snap": !snap});
-				}
-				outline.focus();
-			}),
-			item(lang["CONTEXT_SET_LIGHTING"], () => {
-				let c = currToken.lightColour;
-				const t = Date.now(),
-				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => outline.focus()})),
-				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-				w.appendChild(createDocumentFragment([
-					h1(lang["CONTEXT_SET_LIGHTING"]),
-					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
-					br(),
-					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
-					br(),
-					button({"onclick": () => {
-						if (globals.selected.token === currToken) {
-							doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
-						}
-						w.close();
-					}}, lang["SAVE"])
-				]));
-			}),
-			tokenPos < currLayer.tokens.length - 1 ? [
-				item(lang["CONTEXT_MOVE_TOP"], () => {
-					if (!globals.tokens.has(currToken.id)) {
-						return;
-					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
-					outline.focus();
-				}),
-				item(lang["CONTEXT_MOVE_UP"], () => {
-					if (!globals.tokens.has(currToken.id)) {
-						return;
-					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer,
-					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-					outline.focus();
-				})
-			] : [],
-			tokenPos > 0 ? [
-				item(lang["CONTEXT_MOVE_DOWN"], () => {
-					if (!globals.tokens.has(currToken.id)) {
-						return;
-					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer,
-					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-				}),
-				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-					if (!globals.tokens.has(currToken.id)) {
-						return;
-					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
-					outline.focus();
-				})
-			] : [],
-			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
-				if (!globals.tokens.has(currToken.id)) {
-					return;
-				}
-				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
-				outline.focus();
-			}, currLayer.name)),
-			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
-		]);
-	}, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
+	      }, "oncontextmenu": toolTokenContext, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
 		toolTokenMouseDown.call(this, e);
 		if (e.defaultPrevented || e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
 			return;
