@@ -183,6 +183,7 @@ const defaultLanguage = {
 	"TOOL_MEASURE_DIAGONALS": "Measure Diagonals",
 	"TOOL_MEASURE_SNAP": "Snap to Grid",
 	"TOOL_MOVE": "Move All",
+	"TOOL_MULTIPLACE": "Multi-Place",
 	"TOOL_ZOOM": "Zoom",
 	"TOOL_ZOOM_IN": "Zoom In",
 	"TOOL_ZOOM_OUT": "Zoom Out",
