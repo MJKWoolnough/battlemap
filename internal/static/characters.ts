@@ -23,6 +23,7 @@ const allowedKey = (key: string, character: boolean) => {
 	case "store-image-icon":
 	case "store-token-id":
 	case "store-image-data":
+	case "tokens_order":
 		return !character;
 	}
 	return true;
