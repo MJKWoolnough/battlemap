@@ -266,9 +266,6 @@ export default Object.freeze({
 		e.preventDefault();
 	},
 	"tokenMouseContext": (e: MouseEvent) => {
-		if (!isAdmin) {
-			return;
-		}
 		e.preventDefault();
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = globals.selected;
