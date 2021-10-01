@@ -1,10 +1,10 @@
 import type {Uint} from './types.js';
-import {createHTML, br, div, input, label} from './lib/html.js';
+import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {autosnap} from './settings.js';
-import {checkInt, globals, mapLoadedReceive, isUint, isAdmin} from './shared.js';
+import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -14,14 +14,14 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {mapData: {width, height}} = globals;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
-      snap = input({"id": "measureSnap", "type": "checkbox", "checked": autosnap.value}),
-      cellValue = input({"id": "measureCell", "type": "number", "value": 1, "min": 0, "onchange": () => {
+      snap = input({"type": "checkbox", "checked": autosnap.value}),
+      cellValue = input({"type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
 	if (isUint(v)) {
 		rpc.setGridDistance(v);
 	}
       }}),
-      diagonals = input({"id": "measureDiagonals", "type": "checkbox", "checked": true, "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
+      diagonals = input({"type": "checkbox", "checked": true, "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -150,14 +150,11 @@ addTool({
 	"name": lang["TOOL_MEASURE"],
 	"icon": svg({"viewBox": "0 0 50 50"}, [title(lang["TOOL_MEASURE"]), path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})]),
 	"options": div([
-		label({"for": "measureSnap"}, `${lang["TOOL_MEASURE_SNAP"]}: `),
-		snap,
+		labels(`${lang["TOOL_MEASURE_SNAP"]}: `, snap),
 		br(),
-		label({"for": "measureDiagonals"}, `${lang["TOOL_MEASURE_DIAGONALS"]}: `),
-		diagonals,
+		labels(`${lang["TOOL_MEASURE_DIAGONALS"]}: `, diagonals),
 		br(),
-		label({"for": "measureCell"}, `${lang["TOOL_MEASURE_CELL"]}: `),
-		cellValue
+		labels(`${lang["TOOL_MEASURE_CELL"]}: `, cellValue)
 	]),
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);

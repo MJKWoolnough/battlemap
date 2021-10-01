@@ -3,7 +3,7 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
-import {checkInt, deselectToken, globals} from './shared.js';
+import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
@@ -149,10 +149,10 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		marker.remove();
 	}});
       },
-      rectangle = input({"id": "drawRectangle", "name": "drawShape", "type": "radio", "checked": true}),
-      circle = input({"id": "drawEllipse", "type": "radio", "name": "drawShape"}),
-      poly = input({"id": "drawPoly", "type": "radio", "name": "drawShape"}),
-      snap = input({"id": "drawSnap", "type": "checkbox", "checked": autosnap.value}),
+      rectangle = input({"name": "drawShape", "type": "radio", "checked": true}),
+      circle = input({"type": "radio", "name": "drawShape"}),
+      poly = input({"type": "radio", "name": "drawShape"}),
+      snap = input({"type": "checkbox", "checked": autosnap.value}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -174,25 +174,20 @@ addTool({
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),
 	"options": div([
-		label({"for": "drawRectangle"}, `${lang["TOOL_DRAW_RECT"]}: `),
-		rectangle,
+		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle),
 		br(),
-		label({"for": "drawEllipse"}, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
-		circle,
+		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle),
 		br(),
-		label({"for": "drawPoly"}, `${lang["TOOL_DRAW_POLYGON"]}: `),
-		poly,
+		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly),
 		br(),
-		label({"for": "drawSnap"}, `${lang["TOOL_DRAW_SNAP"]}: `),
-		snap,
+		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap),
 		br(),
-		label({"for": "strokeWidth"}, `${lang["TOOL_DRAW_STROKE_WIDTH"]}: `),
-		strokeWidth,
+		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
-		label({"for": "strokeColour"}, `${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
+		label(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
 		br(),
-		label({"for": "fillColour"}, `${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
+		label(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {

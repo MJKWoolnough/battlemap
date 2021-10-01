@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
-import {deselectToken, globals, mapLoadedReceive} from './shared.js';
+import {deselectToken, globals, labels, mapLoadedReceive} from './shared.js';
 import {colour2RGBA, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
@@ -12,8 +12,8 @@ import {defaultMouseWheel, screen2Grid} from './tools_default.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
-const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "checked": true}),
-      wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
+const sunTool = input({"type": "radio", "name": "lightTool", "checked": true}),
+      wallTool = input({"type": "radio", "name": "lightTool"}),
       lightMarker = g([
 	      defs(radialGradient({"id": "lightMGrad"}, [
 		      stop({"offset": "30%", "stop-color": "currentColor"}),
@@ -184,14 +184,11 @@ addTool({
 		])
 	]),
 	"options": div([
-		label({"for": "sunTool"}, `${lang["TOOL_LIGHT_SUN"]}: `),
-		sunTool,
+		labels(`${lang["TOOL_LIGHT_SUN"]}: `, sunTool),
 		br(),
-		label({"for": "wallTool"}, `${lang["TOOL_LIGHT_WALL"]}: `),
-		wallTool,
+		labels(`${lang["TOOL_LIGHT_WALL"]}: `, wallTool),
 		br(),
-		label({"for": "deleteWallTool"}, `${lang["TOOL_LIGHT_REMOVE"]}: `),
-		input({"id": "deleteWallTool", "name": "lightTool", "type": "radio"}),
+		labels(`${lang["TOOL_LIGHT_REMOVE"]}: `, input({"name": "lightTool", "type": "radio"})),
 		div({"id": "wallToolOptions"}, [
 			label(`${lang["TOOL_LIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_LIGHT_COLOUR"], () => wallColour, (c: Colour) => wallColour = c, "wallColour")),

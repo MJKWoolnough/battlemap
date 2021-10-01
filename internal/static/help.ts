@@ -1,18 +1,19 @@
 import type {SVGAnimateBeginElement} from './types.js';
 import {clearElement, formatText} from './lib/dom.js';
-import {createHTML, div, h1, input, label} from './lib/html.js';
+import {createHTML, div, h1, input} from './lib/html.js';
 import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
+import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
 import lang from './language.js';
 
 const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),
-      mapDrag = input({"id": "helpMapDrag", "type": "radio", "name": "helpInstruction", "checked": true}),
-      mapZoom = input({"id": "helpMapZoom", "type": "radio", "name": "helpInstruction"}),
-      mapScroll = input({"id": "helpMapScroll", "type": "radio", "name": "helpInstruction"}),
-      mapSignal = input({"id": "helpMapSignal", "type": "radio", "name": "helpInstruction"}),
-      panelOpen = input({"id": "helpPanelOpen", "type": "radio", "name": "helpInstruction"}),
-      panelResize = input({"id": "helpPanelResize", "type": "radio", "name": "helpInstruction"}),
+      mapDrag = input({"type": "radio", "name": "helpInstruction", "checked": true}),
+      mapZoom = input({"type": "radio", "name": "helpInstruction"}),
+      mapScroll = input({"type": "radio", "name": "helpInstruction"}),
+      mapSignal = input({"type": "radio", "name": "helpInstruction"}),
+      panelOpen = input({"type": "radio", "name": "helpInstruction"}),
+      panelResize = input({"type": "radio", "name": "helpInstruction"}),
       createDemo = () => {
 	const startNextDemo = () => {
 		if (mapDrag.checked) {
@@ -141,18 +142,12 @@ export default () => {
 			h1(lang["HELP"]),
 			createDemo(),
 			div({"id": "helpDemos"}, [
-				mapDrag,
-				label({"for": "helpMapDrag"}, lang["HELP_MAP_DRAG"]),
-				mapZoom,
-				label({"for": "helpMapZoom"}, lang["HELP_MAP_ZOOM"]),
-				mapScroll,
-				label({"for": "helpMapScroll"}, lang["HELP_MAP_SCROLL"]),
-				mapSignal,
-				label({"for": "helpMapSignal"}, lang["HELP_MAP_SIGNAL"]),
-				panelOpen,
-				label({"for": "helpPanelOpen"}, lang["HELP_PANEL_OPEN"]),
-				panelResize,
-				label({"for": "helpPanelResize"}, lang["HELP_PANEL_RESIZE"]),
+				labels(lang["HELP_MAP_DRAG"], mapDrag, false),
+				labels(lang["HELP_MAP_ZOOM"], mapZoom, false),
+				labels(lang["HELP_MAP_SCROLL"], mapScroll, false),
+				labels(lang["HELP_MAP_SIGNAL"], mapSignal, false),
+				labels(lang["HELP_PANEL_OPEN"], panelOpen, false),
+				labels(lang["HELP_PANEL_RESIZE"], panelResize, false),
 				div(formatText(lang["HELP_DEMO_DRAG"])),
 				div(formatText(lang["HELP_DEMO_ZOOM"])),
 				div(formatText(lang["HELP_DEMO_SCROLL"])),

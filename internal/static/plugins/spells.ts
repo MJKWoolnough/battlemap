@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
-import {br, div, input, label, option, select} from '../lib/html.js';
+import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {addCSS, checkInt, globals, isAdmin, isInt, isUint, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
+import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
 import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
@@ -39,7 +39,7 @@ const sparkID = "plugin-spell-spark",
       types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622"].map(c => [c, colour2RGBA(hex2Colour(c, 128))]);
 
 if (isAdmin) {
-	addCSS("#plugin-spell-type-line:not(:checked)~#plugin-spell-type-wall:not(:checked)~div{display:none}");
+	addCSS(".plugin-spell-nowidth:not(:checked)~.plugin-spell-nowidth:not(:checked)~div{display:none}");
 	const defaultLanguage = {
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
@@ -85,7 +85,7 @@ if (isAdmin) {
 			lineEffect.remove();
 		}
 	      },
-	      snap = input({"id": "plugin-spells-snap", "type": "checkbox", "checked": autosnap.value}),
+	      snap = input({"type": "checkbox", "checked": autosnap.value}),
 	      shiftSnap = (e: KeyboardEvent) => {
 		if (e.key === "Shift") {
 			snap.click();
@@ -113,42 +113,33 @@ if (isAdmin) {
 			]),
 		]),
 		"options": div([
-			label({"for": "plugin-spell-damage-type"}, `${lang["DAMAGE_TYPE"]}: `),
-			select({"id": "plugin-spell-damage-type", "onchange": function(this: HTMLSelectElement) {
+			labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
 				for (const effect of effectList) {
 					effect.setAttribute("stroke", types[damageType][0]);
 					effect.setAttribute("fill", types[damageType][1]);
 				}
-			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang]))),
+			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
 			br(),
-			label({"for": "plugin-spell-type-circle"}, `${lang["SPELL_TYPE_CIRCLE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-circle", "name": "plugin-spell-type", "checked": true, "onclick": () => setEffect(circleEffect)}),
+			labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "onclick": () => setEffect(circleEffect)})),
 			br(),
-			label({"for": "plugin-spell-type-cone"}, `${lang["SPELL_TYPE_CONE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-cone", "name": "plugin-spell-type", "onclick": () => setEffect(coneEffect)}),
+			labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "onclick": () => setEffect(coneEffect)})),
 			br(),
-			label({"for": "plugin-spell-type-cube"}, `${lang["SPELL_TYPE_CUBE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-cube", "name": "plugin-spell-type", "onclick": () => setEffect(cubeEffect)}),
+			labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "onclick": () => setEffect(cubeEffect)})),
 			br(),
-			label({"for": "plugin-spell-type-line"}, `${lang["SPELL_TYPE_LINE"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-line", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}),
+			labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)})),
 			br(),
-			label({"for": "plugin-spell-type-wall"}, `${lang["SPELL_TYPE_WALL"]}: `),
-			input({"type": "radio", "id": "plugin-spell-type-wall", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}),
+			labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)})),
 			br(),
-			label({"for": "plugin-spell-snap"}, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
-			snap,
+			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap),
 			br(),
-			label({"for": "plugin-spell-size"}, `${lang["SPELL_SIZE"]}: `),
-			input({"type": "number", "id": "plugin-spell-size", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
+			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
-			}}),
+			}})),
 			div([
-				label({"id": "plugin-spell-width-label", "for": "plugin-spell-width"}, `${lang["SPELL_WIDTH"]}: `),
-				input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
+				labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 					setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
-				}})
+				}}))
 			])
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {

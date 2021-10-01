@@ -1,11 +1,11 @@
 import {svgNS} from './lib/dom.js';
-import {createHTML, button, br, form, h1, input, label, select, option} from './lib/html.js';
+import {createHTML, button, br, form, h1, input, select, option} from './lib/html.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
 import help from './help.js';
 import {shell} from './windows.js';
-import {checkInt, isAdmin} from './shared.js';
+import {checkInt, isAdmin, labels} from './shared.js';
 
 export const settingsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg fill="none"%3E%3Ccircle cx="50" cy="50" r="35" stroke="%23ccc" stroke-width="10" fill="none" /%3E%3Ccircle cx="50" cy="50" r="5" stroke="%23ccc" stroke-width="2" fill="none" /%3E%3C/g%3E%3Cpath id="settings-spoke" d="M35,15 l5,-15 h20 l5,15" fill="%23ccc" /%3E%3Cuse href="%23settings-spoke" transform="rotate(60, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(120, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(180, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(240, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(300, 50, 50)" /%3E%3Cpath d="M21.5,33.5 L46,47.5 M50,81 L50,55 M78.5,33.5 L54,47.5" stroke="%23ccc" stroke-width="2" /%3E%3C/svg%3E`,
 autosnap = new BoolSetting("autosnap"),
@@ -26,66 +26,55 @@ export default (base: HTMLElement, loggedIn: boolean) => {
 		form({"action": loggedIn ? "login/logout" : "login/login"}, input({"type": "submit", "value": loggedIn ? lang["LOGOUT"] : lang["LOGIN"]})),
 		br(),
 		h1(lang["LANGUAGE"]),
-		label({"for": "language_select"}, `${lang["SELECT_LANGUAGE"]}: `),
-		select({"id": "language_select", "onchange": function(this: HTMLSelectElement) {
+		labels(`${lang["SELECT_LANGUAGE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 			language.set(this.value);
-		}}, languages.map(l => option({"selected": l === language.value}, l))),
+		}}, languages.map(l => option({"selected": l === language.value}, l)))),
 		h1(lang["THEME"]),
-		input({"type": "checkbox", "id": "settingInvert", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["DARK_MODE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
 			invert.set(this.checked);
-		}}),
-		label({"for": "settingInvert"}, `${lang["DARK_MODE"]}: `),
+		}}), false),
 		br(),
-		input({"type": "checkbox", "id": "tabIcons", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["TAB_ICONS"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 			tabIcons.set(this.checked);
-		}}),
-		label({"for": "tabIcons"}, `${lang["TAB_ICONS"]}: `),
+		}}), false),
 		br(),
-		input({"type": "checkbox", "id": "panelOnTop", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["PANEL_ON_TOP"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 			panelOnTop.set(this.checked);
-		}}),
-		label({"for": "panelOnTop"}, `${lang["PANEL_ON_TOP"]}: `),
+		}}), false),
 		isAdmin ? [
 			br(),
-			input({"type": "checkbox", "id": "miniTools", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["MINI_TOOLS"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 				miniTools.set(this.checked);
-			}}),
-			label({"for": "miniTools"}, `${lang["MINI_TOOLS"]}: `)
+			}}), false)
 		] : [],
 		h1(lang["MAP_SETTINGS"]),
 		isAdmin ? [
-			input({"type": "checkbox", "id": "autosnap", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["AUTOSNAP"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
-			}}),
-			label({"for": "autosnap"}, `${lang["AUTOSNAP"]}: `),
+			}}), false),
 			br(),
-			input({"type": "checkbox", "id": "measureTokenMove", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["MEASURE_TOKEN_MOVE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
 				measureTokenMove.set(this.checked);
-			}}),
-			label({"for": "measureTokenMove"}, `${lang["MEASURE_TOKEN_MOVE"]}: `),
+			}}), false),
 			br(),
 		] : [],
-		input({"type": "checkbox", "id": "hideZoomSlider", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["ZOOM_SLIDER_HIDE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 			zoomSlider.set(this.checked);
-		}}),
-		label({"for": "hideZoomSlider"}, `${lang["ZOOM_SLIDER_HIDE"]}: `),
+		}}), false),
 		br(),
-		label({"for": "scrollAmount"}, `${lang["SCROLL_AMOUNT"]}: `),
-		input({"id": "scrollAmount", "type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(checkInt(parseInt(this.value)) );
-		}}),
+		}})),
 		br(),
 		isAdmin ? [
-			label({"for": "undoLimit"}, `${lang["UNDO_LIMIT"]}: `),
-			input({"id": "undoLimit", "type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
 				undoLimit.set(checkInt(parseInt(this.value), -1));
-			}}),
+			}})),
 			br()
 		] : [],
-		input({"type": "checkbox", "id": "menuHide", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+		labels(`${lang["HIDE_MENU"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
-		}}),
-		label({"for": "menuHide"}, `${lang["HIDE_MENU"]}: `),
+		}}), false),
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),
 		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {

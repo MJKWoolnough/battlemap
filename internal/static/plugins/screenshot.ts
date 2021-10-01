@@ -1,8 +1,8 @@
 import {svgNS} from '../lib/dom.js';
-import {a, br, button, div, canvas, img, input, label} from '../lib/html.js';
+import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
-import {globals} from '../shared.js';
+import {globals, labels} from '../shared.js';
 import {panZoom} from '../tools_default.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
@@ -125,15 +125,13 @@ addPlugin("screenshot", {
 	"settings": {
 		"priority": 0,
 		"fn": div([
-			input({"type": "checkbox", "id": "plugin-screenshot-grid", "class": "settings_ticker", "checked": !hideGrid.value, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["ENABLE_GRID"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": !hideGrid.value, "onchange": function(this: HTMLInputElement) {
 				hideGrid.set(!this.checked);
-			}}),
-			label({"for": "plugin-screenshot-grid"}, `${lang["ENABLE_GRID"]}: `),
+			}}), false),
 			br(),
-			input({"type": "checkbox", "id": "plugin-screenshot-png", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["ENABLE_PNG"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
 				disablePNG.set(!this.checked);
-			}}),
-			label({"for": "plugin-screenshot-png"}, `${lang["ENABLE_PNG"]}: `),
+			}}), false),
 			br(),
 			button({"onclick": makeScreenshot}, lang["SCREENSHOT_TAKE"])
 		])
