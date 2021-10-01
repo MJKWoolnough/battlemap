@@ -163,7 +163,7 @@ class Pack {
 }
 
 const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
-      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "style": "fill: currentColor"}))),
+      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "fill": "currentColor"}))),
       newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (getPack: (name: string) => (Pack | undefined)) => {
 	rpc.waitMusicPackVolume().then(pv => {
@@ -357,7 +357,7 @@ export default (base: Node) => {
 					this.titleNode = h1(name),
 					svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 						this.playPauseTitle,
-						this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
+						this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 						rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 							if (this.playTime === 0) {
 								this.play(now(), true);
@@ -461,7 +461,7 @@ export default (base: Node) => {
 		const rename = getSymbol("rename")!,
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
-		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "style": "fill: currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
+		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
 		      musicList = new NodeArray<AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {

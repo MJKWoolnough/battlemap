@@ -5,8 +5,8 @@ import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pa
 import {shell, windows} from './windows.js';
 import lang from './language.js';
 
-const settingsOutline = path({"style": "stroke: currentColor", "fill": "none"}),
-      settingsText = text({"x": 22, "y": 17, "style": "fill: currentColor"}, lang["TAB_SETTINGS"]),
+const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
+      settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),
       mapDrag = input({"id": "helpMapDrag", "type": "radio", "name": "helpInstruction", "checked": true}),
       mapZoom = input({"id": "helpMapZoom", "type": "radio", "name": "helpInstruction"}),
       mapScroll = input({"id": "helpMapScroll", "type": "radio", "name": "helpInstruction"}),

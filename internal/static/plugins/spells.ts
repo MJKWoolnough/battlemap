@@ -104,7 +104,7 @@ if (isAdmin) {
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
 			title(lang["TITLE"]),
-			g({"style": "fill: currentColor; stroke: currentColor"}, [
+			g({"fill": "currentColor", "stroke": "currentColor"}, [
 				path({"d": "M60,35 v70 h-20 v-100 h20 v30 h-20 v-30 h20", "fill-rule": "evenodd", "transform": "rotate(-45, 50, 50)"}),
 				path({"d": "M50,10 q0,10 10,10 q-10,0 -10,10 q0,-10 -10,-10 q10,0 10,-10", "id": sparkID}),
 				use({"href": `#${sparkID}`, "transform": "translate(5, 0) scale(1.5)"}),

@@ -387,10 +387,10 @@ const defaultLanguage = {
 	"shield": nonEnum,
 	"conditions": nonEnum
       },
-      initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "style": "fill: currentColor"})),
-      initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "style": "fill: currentColor"})),
-      initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "style": "fill: currentColor"})),
-      initPrev = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,0 0,1 2,2", "style": "fill: currentColor"})),
+      initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "fill": "currentColor"})),
+      initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "fill": "currentColor"})),
+      initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "fill": "currentColor"})),
+      initPrev = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,0 0,1 2,2", "fill": "currentColor"})),
       conditions = (Object.keys(lang) as (keyof typeof lang)[]).filter(k => k.startsWith("CONDITION_")),
       checkInt = (s: string, min: Int, max: Int, def: Int) => {
 	const n = parseInt(s);

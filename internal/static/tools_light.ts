@@ -16,8 +16,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "id": "sunTool", "c
       wallTool = input({"type": "radio", "name": "lightTool", "id": "wallTool"}),
       lightMarker = g([
 	      defs(radialGradient({"id": "lightMGrad"}, [
-		      stop({"offset": "30%", "style": "stop-color: currentColor"}),
-		      stop({"offset": "100%", "style": "stop-color: currentColor; stop-opacity: 0"})
+		      stop({"offset": "30%", "stop-color": "currentColor"}),
+		      stop({"offset": "100%", "stop-color": "currentColor", "stop-opacity": 0})
 	      ])),
 	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightMGrad)", "stroke": "#888", "stroke-width": 3})
       ]),
@@ -176,7 +176,7 @@ addTool({
 	"name": lang["TOOL_LIGHT"],
 	"icon": svg({"viewBox": "0 0 44 75"}, [
 		title(lang["TOOL_LIGHT"]),
-		g({"style": "stroke: currentColor", "fill": "none", "stroke-linejoin": "round"}, [
+		g({"stroke": "currentColor", "fill": "none", "stroke-linejoin": "round"}, [
 			path({"d": "M12,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2}),
 			path({"id": "c", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4", "stroke-width": 1}),
 			use({"href": "#c", "y": 4}),
