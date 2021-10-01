@@ -156,7 +156,7 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 		      }});
 		return [
 			labels(k, data),
-			labels(userVisible(), visibility, false, {}),
+			labels(userVisible(), visibility, false),
 			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
