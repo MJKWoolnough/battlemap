@@ -43,7 +43,7 @@ const dragFn = (e: MouseEvent) => {
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
-	      newName = autoFocus(input({"type": "text", "id": "renameLayer_", "value": self.name, "onkeypress": enterKey}));
+	      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey}));
 	return createHTML(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
@@ -154,12 +154,12 @@ class ItemLayer extends Item {
 	show() {
 		if (this.id === -1) { // Grid
 			const {mapData} = globals,
-			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize), "id": "mapWidth_"}),
-			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize), "id": "mapHeight_"}),
-			      sqType = select({"id": "mapSquareType_"}, [lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
-			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize, "id": "mapSquareWidth_"}),
-			      sqColour = input({"type": "color", "id": "mapSquareColour_", "value": colour2Hex(mapData.gridColour)}),
-			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke, "id": "mapSquareLineWidth_"}),
+			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize)}),
+			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize)}),
+			      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
+			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize}),
+			      sqColour = input({"type": "color", "value": colour2Hex(mapData.gridColour)}),
+			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke}),
 			      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
@@ -369,7 +369,7 @@ export default (base: HTMLElement) => {
 		createHTML(clearElement(base), {"id": "layerList"}, [
 			button(lang["LAYER_ADD"], {"onclick": () => {
 				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
-				      name = autoFocus(input({"id": "layerName_", "onkeypress": enterKey}));
+				      name = autoFocus(input({"onkeypress": enterKey}));
 				createHTML(window, {"id": "layerAdd"}, [
 					h1(lang["LAYER_ADD"]),
 					labels(lang["LAYER_NAME"], name),

@@ -130,7 +130,7 @@ export default (base: Node, fileType: "IMAGES" | "AUDIO") => {
 		root.windowIcon = fileType === "IMAGES" ? imageIcon : audioIcon;
 		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
 			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
-				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "id": "addAssets_", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 					uploadAsset(root, fileType.toLowerCase(), new FormData(f), window)
 					.then(() => window.remove())
 					.catch(handleError)

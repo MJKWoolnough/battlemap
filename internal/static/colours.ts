@@ -14,8 +14,8 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	const checkboard = div({"class": "checkboard"}),
 	      preview = checkboard.appendChild(div({"style": `background-color: ${colour2RGBA(colour)}`})),
 	      updatePreview = () => preview.style.setProperty("background-color", colour2RGBA(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)))),
-	      colourInput = input({"id": "colourPick_", "type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
-	      alphaInput = input({"id": "alphaPick_", "type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
+	      colourInput = input({"type": "color", "value": colour2Hex(colour), "onchange": updatePreview}),
+	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": reject}, [
 		h1(title),
 		checkboard,
@@ -42,8 +42,8 @@ makeColourPicker = (() => {
 		}
 		return c;
 	};
-	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, id = "", icon?: string) => {
-		const b = button({"style": "width: 50px; height: 50px", id, "onclick": () => colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c)))});
+	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
+		const b = button({"style": "width: 50px; height: 50px", "onclick": () => colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c)))});
 		sc(b, getColour());
 		return b;
 	};

@@ -42,12 +42,9 @@ queue = (() => {
 	return (fn: () => Promise<any>) => p = p.finally(fn);
 })(),
 labels = (() => {
-	const ids = new Map<string, Uint>();
+	let next = 0;
 	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Props = {}) => {
-		const id = input.getAttribute("id") || "ID_",
-		      num = (ids.get(id) || 0) + 1;
-		ids.set(id, num);
-		input.setAttribute("id", props["for"] = id + num);
+		input.setAttribute("id", props["for"] = `ID_${next++}`);
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];
 	};

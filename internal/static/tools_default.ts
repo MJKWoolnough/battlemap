@@ -319,12 +319,11 @@ export default Object.freeze({
 			}),
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
-				const t = Date.now(),
-				      w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => globals.outline.focus()})),
-				      i = input({"id": `tokenIntensity_${t}_`, "type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => globals.outline.focus()})),
+				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createDocumentFragment([
 					h1(lang["CONTEXT_SET_LIGHTING"]),
-					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d, `tokenLighting_${t}`)),
+					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
 					br(),
 					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
 					br(),

@@ -66,7 +66,7 @@ export default (base: Node) => {
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
 				let icon = 0;
 				const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
-				      name = autoFocus(input({"id": "characterName_", "onkeypress": enterKey}));
+				      name = autoFocus(input({"onkeypress": enterKey}));
 				shell.appendChild(createHTML(w, [
 					h1(lang["CHARACTER_NEW"]),
 					labels(`${lang["CHARACTER_NAME"]}: `, name),

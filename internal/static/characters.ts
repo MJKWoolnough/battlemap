@@ -148,16 +148,16 @@ edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, charac
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
 	      adder = (k: string) => {
-		const data = input({"id": "character_", "value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
+		const data = input({"value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
 		      }}),
-		      visibility = input({"type": "checkbox", "class": "userVisibility", "id": "character_user_", "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
+		      visibility = input({"type": "checkbox", "class": "userVisibility", "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
 			changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
 		      }});
 		return [
 			labels(k, data),
 			labels(userVisible(), visibility, false, {}),
-			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "id": "character_remove_", "onchange": function(this: HTMLInputElement) {
+			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
 				if (this.checked) {
 					removes.add(k);
 					data.toggleAttribute("disabled", true);

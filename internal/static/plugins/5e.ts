@@ -531,7 +531,7 @@ const defaultLanguage = {
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
 					td(`${lang[name as keyof typeof defaultLanguage]}: `),
-					settings.map(setting => td(labels("", input({"type": "checkbox", "id": `5e-${name}_`, "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+					settings.map(setting => td(labels("", input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
 					}}), false))),
 				])))
@@ -864,8 +864,8 @@ if (isAdmin) {
 			})() : (key: string) => data[key] ?? {},
 			      name = getData("name"),
 			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-			      nameInput = input({"type": "text", "id": "edit_5e_name_", "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "id": "edit_5e_nameVisibility_", "checked": name["user"] !== false, "onchange": nameUpdate});
+			      nameInput = input({"type": "text", "value": name["data"], "onchange": nameUpdate}),
+			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": name["user"] !== false, "onchange": nameUpdate});
 			return [
 				labels(`${lang["NAME"]}: `, nameInput),
 				labels(userVisibility(), nameVisibility, false),
@@ -881,7 +881,7 @@ if (isAdmin) {
 					characterSelector(data, changes)
 				],
 				br(),
-				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "id": `edit_5e_initiative_`, "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
 					if (this.value === "") {
 						removes.add("5e-initiative-mod");
 					} else {
@@ -890,19 +890,19 @@ if (isAdmin) {
 					}
 				}})),
 				br(),
-				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "id": "edit_5e_ac_", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(`${lang["NOTES"]}: `, textarea({"id": "edit_5e_notes_", "rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
+				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
 				}}, getData("5e-notes")["data"] ?? "")),
 				br(),
