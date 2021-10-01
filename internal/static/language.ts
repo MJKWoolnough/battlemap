@@ -219,8 +219,8 @@ const defaultLanguage = {
       },
       overlayLang = <Pack extends Record<string, string> = typeof defaultLanguage>(pack: {[K in keyof Pack]?: string;}, base: Pack): Pack => {
 	for (const s in base) {
-		if (!pack[s as keyof Pack]) {
-			pack[s as keyof Pack] = base[s as keyof Pack];
+		if (!pack[s]) {
+			pack[s] = base[s];
 		}
 	}
 	return pack as Pack;
