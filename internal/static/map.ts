@@ -24,9 +24,12 @@ export type SVGFolder = LayerFolder & {
 };
 
 export class Defs {
-	[node] = defs();
+	[node]: SVGElement;
 	list = new Map<string, SVGPatternElement>();
 	lighting = new Map<string, SVGFilterElement>();
+	constructor() {
+		this[node] = defs();
+	}
 	add(t: SVGToken) {
 		let i = 0;
 		while (this.list.has(`Pattern_${i}`)) {
