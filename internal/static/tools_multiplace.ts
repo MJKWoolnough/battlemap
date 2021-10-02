@@ -1,15 +1,23 @@
-import type {CharacterToken} from './types.js';
+import type {Token, Uint} from './types.js';
 import {button, div, img, label} from './lib/html.js';
 import {svg, circle, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {getToken} from './map_fns.js';
+import {autosnap} from './settings.js';
+import {noColour} from './colours.js';
 import lang from './language.js';
 
 const i = img(),
-      cursor = img();
+      cursor = img(),
+      setImg = (id: Uint) => {
+	const url =`/images/${id}`;
+	i.setAttribute("src", url);
+	cursor.setAttribute("src", url);
+      },
+      fullToken = (tk: Partial<Token>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
 
-let token: (() => CharacterToken) | undefined;
+let token: (() => Token) | null = null;
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -29,10 +37,8 @@ addTool({
 				if (!data) {
 					return;
 				}
-				token = () => data;
-				const url = `/images/${data["src"]}`;
-				i.setAttribute("src", url);
-				cursor.setAttribute("src", url);
+				token = () => fullToken(JSON.parse(JSON.stringify(data)));
+				setImg(data["src"]);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
 		])
