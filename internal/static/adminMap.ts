@@ -374,7 +374,7 @@ export default (base: HTMLElement) => {
 			if (char) {
 				const ct = getCharacterToken(char);
 				if (ct) {
-					Object.assign(token, JSON.parse(JSON.stringify(ct)));
+					Object.assign(token, ct);
 				} else {
 					token.src = parseInt(char["store-image-icon"].data);
 					token.width = tD.width;
