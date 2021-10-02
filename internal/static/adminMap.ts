@@ -371,9 +371,7 @@ export default (base: HTMLElement) => {
 		if (e.dataTransfer.types.includes("character")) {
 			const tD = JSON.parse(e.dataTransfer.getData("character")),
 			      char = characterData.get(tD.id);
-			if (!char) {
-				return;
-			} else {
+			if (char) {
 				const ct = getCharacterToken(char);
 				if (ct) {
 					Object.assign(token, JSON.parse(JSON.stringify(ct)));
