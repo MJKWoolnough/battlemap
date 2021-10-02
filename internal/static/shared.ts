@@ -54,7 +54,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {
 	const tokensSymbol = Symbol("tokens");
 	return [
-		(data: Record<string, KeystoreData>): CharacterToken | null => {
+		(data: Record<string, KeystoreData>) => {
 			let list = (data as any)[tokensSymbol] as CharacterToken[];
 			if (list === undefined || list.length === 0) {
 				const tokens = data["store-image-data"];
@@ -81,7 +81,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 			return null;
 		},
 		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
-	];
+	] as [(data: Record<string, KeystoreData>) => CharacterToken | null, (data: Record<string, KeystoreData>) => void];
 })(),
 globals = {
 	"definitions": null,
