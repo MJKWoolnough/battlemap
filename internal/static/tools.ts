@@ -120,7 +120,7 @@ export default (base: HTMLElement) => {
 		span(t.name)
 	      ])),
 	      fc = list[0],
-	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"]});
+	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
 	createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
 		windowed = true;
 		if (miniTools.value) {
