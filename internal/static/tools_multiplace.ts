@@ -9,7 +9,7 @@ import lang from './language.js';
 const i = img(),
       cursor = img();
 
-let token: CharacterToken | undefined;
+let token: (() => CharacterToken) | undefined;
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -29,7 +29,7 @@ addTool({
 				if (!data) {
 					return;
 				}
-				token = data;
+				token = () => data;
 				const url = `/images/${data["src"]}`;
 				i.setAttribute("src", url);
 				cursor.setAttribute("src", url);
