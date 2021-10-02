@@ -54,7 +54,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {
 	const tokensSymbol = Symbol("tokens");
 	return [
-		(data: Record<string, KeystoreData>) => {
+		(data: Record<string, KeystoreData>): CharacterToken | null => {
 			let list = (data as any)[tokensSymbol] as CharacterToken[];
 			if (list === undefined || list.length === 0) {
 				const tokens = data["store-image-data"];
@@ -70,11 +70,15 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 							list.reverse();
 						}
 					} else {
-						return JSON.parse(JSON.stringify(tokens.data)) as CharacterToken;
+						return JSON.parse(JSON.stringify(tokens.data));
 					}
 				}
 			}
-			return list.pop();
+			const tk = list.pop();
+			if (tk) {
+				return JSON.parse(JSON.stringify(tk));
+			}
+			return null;
 		},
 		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
 	];
