@@ -70,7 +70,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 							list.reverse();
 						}
 					} else {
-						return tokens.data as CharacterToken;
+						return JSON.parse(JSON.stringify(tokens.data)) as CharacterToken;
 					}
 				}
 			}
