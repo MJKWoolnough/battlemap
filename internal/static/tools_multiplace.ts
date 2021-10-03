@@ -1,4 +1,4 @@
-import type {Token, Uint} from './types.js';
+import type {TokenImage, Uint} from './types.js';
 import {button, div, img, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
@@ -11,14 +11,19 @@ import lang from './language.js';
 
 const i = img(),
       cursor = image(),
-      setImg = (id: Uint, width: Uint = 100, height: Uint = 100) => {
+      setCursor = () => {
+	token = setToken!();
+	createSVG(cursor, {"src": token.src, "width": token.width, "height": token.height});
+      },
+      setImg = (id: Uint) => {
 	const src =`/images/${id}`;
 	i.setAttribute("src", src);
-	createSVG(cursor, {src, width, height});
+	setCursor();
       },
-      fullToken = (tk: Partial<Token>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
+      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
 
-let token: (() => Token) | null = null;
+let setToken: (() => TokenImage) | null = null,
+    token: TokenImage | null = null;
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -38,8 +43,8 @@ addTool({
 				if (!data) {
 					return;
 				}
-				token = () => fullToken(JSON.parse(JSON.stringify(data)));
-				setImg(data["src"], data.width, data.height);
+				setToken = () => fullToken(JSON.parse(JSON.stringify(data)));
+				setImg(data["src"]);
 			}, "ondragover": (e: DragEvent) => {
 				if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 					e.preventDefault();
@@ -53,20 +58,20 @@ addTool({
 					const tD = JSON.parse(e.dataTransfer.getData("character")),
 					      char = characterData.get(tD.id);
 					if (char) {
-						setImg(parseInt(char["store-image-icon"].data));
-						token = () => {
+						setToken = () => {
 							const ct = getCharacterToken(char);
 							if (ct) {
 								return fullToken(ct);
 							}
 							return fullToken({"src": char["store-image-icon"].data});
 						}
+						setImg(parseInt(char["store-image-icon"].data));
 						return;
 					}
 				}
 				const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
 				      tk = {src, width, height};
-				token = () => fullToken(tk);
+				setToken = () => fullToken(tk);
 				setImg(src);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
