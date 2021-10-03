@@ -3,6 +3,7 @@ import {button, div, img, label} from './lib/html.js';
 import {svg, circle, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
+import {characterData, getCharacterToken} from './shared.js';
 import {getToken} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -18,6 +19,7 @@ const i = img(),
       fullToken = (tk: Partial<Token>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
 
 let token: (() => Token) | null = null;
+
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -39,6 +41,30 @@ addTool({
 				}
 				token = () => fullToken(JSON.parse(JSON.stringify(data)));
 				setImg(data["src"]);
+			}, "ondragover": (e: DragEvent) => {
+				if (e.dataTransfer && e.dataTransfer.types.includes("character")) {
+					e.preventDefault();
+					e.dataTransfer.dropEffect = "link";
+				}
+			}, "ondrop": (e: DragEvent) => {
+				if (!e.dataTransfer) {
+					return;
+				}
+				if (e.dataTransfer.types.includes("character")) {
+					const tD = JSON.parse(e.dataTransfer.getData("character")),
+					      char = characterData.get(tD.id);
+					if (char) {
+						setImg(parseInt(char["store-image-icon"].data));
+						token = () => {
+							const ct = getCharacterToken(char);
+							if (ct) {
+								return fullToken(ct);
+							}
+							return fullToken({"src": char["store-image-icon"].data});
+						}
+						return;
+					}
+				}
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
 		])
