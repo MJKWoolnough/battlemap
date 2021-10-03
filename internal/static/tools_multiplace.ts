@@ -13,7 +13,7 @@ const i = img(),
       cursor = image(),
       setCursor = () => {
 	token = setToken!();
-	createSVG(cursor, {"src": token.src, "width": token.width, "height": token.height});
+	createSVG(cursor, {"src": token.src, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`});
       },
       setImg = (id: Uint) => {
 	const src =`/images/${id}`;
