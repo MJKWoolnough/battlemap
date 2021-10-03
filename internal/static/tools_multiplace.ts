@@ -3,7 +3,7 @@ import {button, div, img, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
-import {characterData, getCharacterToken} from './shared.js';
+import {characterData, deselectToken, getCharacterToken} from './shared.js';
 import {getToken} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -77,5 +77,6 @@ addTool({
 			i
 		])
 	]),
+	"set": deselectToken,
 	"mapMouseWheel": defaultMouseWheel
 });
