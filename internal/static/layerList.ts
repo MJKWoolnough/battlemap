@@ -116,7 +116,7 @@ const dragFn = (e: MouseEvent) => {
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
       }),
       walkLayers = (f: FolderLayer, fn: (l: ItemLayer) => boolean) => {
-	for (const c of f.children) {
+	for (const [, c] of f.children) {
 		if (c instanceof FolderLayer) {
 			if (walkLayers(c, fn)) {
 				return true;
