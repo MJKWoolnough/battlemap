@@ -1,6 +1,6 @@
 import type {Token, Uint} from './types.js';
 import {button, div, img, label} from './lib/html.js';
-import {svg, circle, path, title} from './lib/svg.js';
+import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel} from './tools_default.js';
 import {characterData, getCharacterToken} from './shared.js';
@@ -10,16 +10,15 @@ import {noColour} from './colours.js';
 import lang from './language.js';
 
 const i = img(),
-      cursor = img(),
-      setImg = (id: Uint) => {
-	const url =`/images/${id}`;
-	i.setAttribute("src", url);
-	cursor.setAttribute("src", url);
+      cursor = image(),
+      setImg = (id: Uint, width: Uint = 100, height: Uint = 100) => {
+	const src =`/images/${id}`;
+	i.setAttribute("src", src);
+	createSVG(cursor, {src, width, height});
       },
       fullToken = (tk: Partial<Token>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
 
 let token: (() => Token) | null = null;
-
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -40,7 +39,7 @@ addTool({
 					return;
 				}
 				token = () => fullToken(JSON.parse(JSON.stringify(data)));
-				setImg(data["src"]);
+				setImg(data["src"], data.width, data.height);
 			}, "ondragover": (e: DragEvent) => {
 				if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 					e.preventDefault();
@@ -68,6 +67,7 @@ addTool({
 				const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
 				      tk = {src, width, height};
 				token = () => fullToken(tk);
+				setImg(src);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
 		])
