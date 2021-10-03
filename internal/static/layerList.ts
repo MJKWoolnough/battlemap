@@ -5,7 +5,7 @@ import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
 import {getLayer} from './map.js';
-import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC} from './map_fns.js';
+import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
 import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
@@ -205,7 +205,7 @@ class ItemLayer extends Item {
 			this[node].classList.add("selectedLayer");
 			selectedLayer = this;
 			deselectToken();
-			globals.selected.layer = getLayer(this.getPath()) as SVGLayer;
+			setLayer(globals.selected.layer = getLayer(this.getPath()) as SVGLayer);
 		}
 	}
 	rename() {
@@ -362,7 +362,7 @@ export default (base: HTMLElement) => {
 		});
 		layersRPC.waitLayerSelect().then(path => {
 			const l = list.getLayer(path);
-			if (l instanceof ItemLayer) {
+			if (l !== selectedLayer && l instanceof ItemLayer) {
 				l.show();
 			}
 		});
