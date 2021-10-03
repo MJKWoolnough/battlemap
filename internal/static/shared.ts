@@ -81,7 +81,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 			return null;
 		},
 		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
-	] as [(data: Record<string, KeystoreData>) => CharacterToken | null, (data: Record<string, KeystoreData>) => void];
+	] as const;
 })(),
 globals = {
 	"definitions": null,
