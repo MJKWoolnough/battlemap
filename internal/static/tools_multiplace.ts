@@ -42,7 +42,7 @@ addTool({
 				token = () => fullToken(JSON.parse(JSON.stringify(data)));
 				setImg(data["src"]);
 			}, "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer && e.dataTransfer.types.includes("character")) {
+				if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 					e.preventDefault();
 					e.dataTransfer.dropEffect = "link";
 				}
@@ -65,6 +65,9 @@ addTool({
 						return;
 					}
 				}
+				const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
+				      tk = {src, width, height};
+				token = () => fullToken(tk);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
 		])
