@@ -79,7 +79,7 @@ addTool({
 		])
 	]),
 	"mapMouseOver": (e: MouseEvent) => {
-		if (e.target instanceof HTMLDivElement || cursor.parentNode) {
+		if (e.target instanceof HTMLDivElement || cursor.parentNode || !token) {
 			return;
 		}
 		const {layer} = globals.selected,
@@ -87,7 +87,7 @@ addTool({
 			const [x, y] = screen2Grid(e.clientX, e.clientY);
 			createSVG(cursor, {x, y});
 		      };
-		if (!layer || !token) {
+		if (!layer) {
 			return;
 		}
 		onmousemove(e);
