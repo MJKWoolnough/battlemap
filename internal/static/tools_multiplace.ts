@@ -80,20 +80,20 @@ addTool({
 	]),
 	"mapMouseOver": (e: MouseEvent) => {
 		const {layer} = globals.selected,
-		      mousemove = (e: MouseEvent) => {
+		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY);
 			createSVG(cursor, {x, y});
 		      };
-		if (!layer) {
+		if (!layer || !token) {
 			return;
 		}
-		mousemove(e);
+		onmousemove(e);
 		layer[node].appendChild(cursor);
-		globals.root.addEventListener("mousemove", mousemove)
-		globals.root.addEventListener("mouseleave", () => {
+		createSVG(globals.root, {onmousemove, "1onmouseleave": () => {
 			cursor.remove();
-			globals.root.removeEventListener("mousemove", mousemove);
-		}, {"once": true})
+			globals.root.style.removeProperty("cursor");
+			globals.root.removeEventListener("mousemove", onmousemove);
+		}, "style": {"cursor": "none"}})
 	},
 	"mapMouseWheel": defaultMouseWheel
 });
