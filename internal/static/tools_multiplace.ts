@@ -79,6 +79,9 @@ addTool({
 		])
 	]),
 	"mapMouseOver": (e: MouseEvent) => {
+		if (e.target instanceof HTMLDivElement || cursor.parentNode) {
+			return;
+		}
 		const {layer} = globals.selected,
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY);
