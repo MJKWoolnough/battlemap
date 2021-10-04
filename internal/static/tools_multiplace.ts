@@ -5,7 +5,7 @@ import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
 import {characterData, getCharacterToken, globals} from './shared.js';
-import {getToken} from './map_fns.js';
+import {getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
@@ -96,4 +96,11 @@ addTool({
 		}, {"once": true})
 	},
 	"mapMouseWheel": defaultMouseWheel
+});
+
+layersRPC.waitLayerSelect().then(() => {
+	const {layer} = globals.selected;
+	if (cursor.parentNode && layer) {
+		layer[node].appendChild(cursor);
+	}
 });
