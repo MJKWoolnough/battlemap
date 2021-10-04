@@ -1,9 +1,10 @@
 import type {TokenImage, Uint} from './types.js';
 import {button, div, img, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
+import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
-import {defaultMouseWheel} from './tools_default.js';
-import {characterData, deselectToken, getCharacterToken} from './shared.js';
+import {defaultMouseWheel, screen2Grid} from './tools_default.js';
+import {characterData, deselectToken, getCharacterToken, globals} from './shared.js';
 import {getToken} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -77,6 +78,23 @@ addTool({
 			i
 		])
 	]),
+	"mapMouseOver": (e: MouseEvent) => {
+		const {layer} = globals.selected,
+		      mousemove = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY);
+			createSVG(cursor, {x, y});
+		      };
+		if (!layer) {
+			return;
+		}
+		mousemove(e);
+		layer[node].appendChild(cursor);
+		globals.root.addEventListener("mousemove", mousemove)
+		globals.root.addEventListener("mouseleave", () => {
+			cursor.remove();
+			globals.root.removeEventListener("mousemove", mousemove);
+		}, {"once": true})
+	},
 	"set": deselectToken,
 	"mapMouseWheel": defaultMouseWheel
 });
