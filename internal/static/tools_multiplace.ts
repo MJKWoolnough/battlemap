@@ -14,7 +14,7 @@ const i = img(),
       cursor = image(),
       setCursor = () => {
 	token = setToken!();
-	createSVG(cursor, {"href": `/images/${token.src}`, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`, "opacity": 0.5});
+	createSVG(cursor, {"href": `/images/${token.src}`, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`, "opacity": 0.5, "preserveAspectRatio": "none"});
       },
       setImg = (id: Uint) => {
 	const src =`/images/${id}`;
