@@ -11,10 +11,10 @@ import {noColour} from './colours.js';
 import lang from './language.js';
 
 const i = img(),
-      cursor = image(),
+      cursor = image({"opacity": 0.5, "preserveAspectRatio": "none"}),
       setCursor = () => {
 	token = setToken!();
-	createSVG(cursor, {"href": `/images/${token.src}`, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`, "opacity": 0.5, "preserveAspectRatio": "none"});
+	createSVG(cursor, {"href": `/images/${token.src}`, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`});
       },
       setImg = (id: Uint) => {
 	const src =`/images/${id}`;
