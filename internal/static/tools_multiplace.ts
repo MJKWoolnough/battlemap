@@ -4,7 +4,7 @@ import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
-import {characterData, deselectToken, getCharacterToken, globals} from './shared.js';
+import {characterData, getCharacterToken, globals} from './shared.js';
 import {getToken} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -95,6 +95,5 @@ addTool({
 			globals.root.removeEventListener("mousemove", mousemove);
 		}, {"once": true})
 	},
-	"set": deselectToken,
 	"mapMouseWheel": defaultMouseWheel
 });
