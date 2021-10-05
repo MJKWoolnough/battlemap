@@ -105,17 +105,21 @@ addTool({
 			cursor!.x = x - width / 2;
 			cursor!.y = y - height / 2;
 			cursor!.updateNode();
+		      },
+		      onmouseleave = (e: Event) => {
+			if (e.isTrusted) {
+				cursor![node].remove();
+				globals.root.style.removeProperty("cursor");
+				globals.root.removeEventListener("mouseleave", onmouseleave);
+				globals.root.removeEventListener("mousemove", onmousemove);
+			}
 		      };
 		if (!layer) {
 			return;
 		}
 		onmousemove(e);
 		layer[node].appendChild(cursor[node]);
-		createSVG(globals.root, {onmousemove, "1onmouseleave": () => {
-			cursor![node].remove();
-			globals.root.style.removeProperty("cursor");
-			globals.root.removeEventListener("mousemove", onmousemove);
-		}, "style": {"cursor": "none"}})
+		createSVG(globals.root, {onmousemove, onmouseleave, "style": {"cursor": "none"}})
 	},
 	"set": () => {
 		if (!mode.checked) {
