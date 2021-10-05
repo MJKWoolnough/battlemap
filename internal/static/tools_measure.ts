@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
-import {defaultMouseWheel, panZoom, screen2Grid} from './tools_default.js';
+import {defaultMapMouseWheel, panZoom, screen2Grid} from './tools_default.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import lang from './language.js';
@@ -167,7 +167,7 @@ addTool({
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 	},
 	"tokenMouseDown": disable,
-	"mapMouseWheel": defaultMouseWheel,
+	"mapMouseWheel": defaultMapMouseWheel,
 	"tokenMouseContext": disable,
 	"mapMouseContext": disable,
 	"unset": () => cleanup()

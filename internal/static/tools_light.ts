@@ -8,7 +8,7 @@ import {colour2RGBA, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
-import {defaultMouseWheel, screen2Grid} from './tools_default.js';
+import {defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
@@ -196,7 +196,7 @@ addTool({
 	]),
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
-	"mapMouseWheel": defaultMouseWheel,
+	"mapMouseWheel": defaultMapMouseWheel,
 	"set": () => {
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,

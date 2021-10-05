@@ -3,7 +3,7 @@ import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
 import {addTool} from '../tools.js';
-import {defaultMouseWheel, screen2Grid} from '../tools_default.js';
+import {defaultMapMouseWheel, screen2Grid} from '../tools_default.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import defaultTool from '../tools_default.js';
@@ -227,7 +227,7 @@ if (isAdmin) {
 			this.addEventListener("mouseleave", mouseout, {"once": true});
 			defaultTool.mapMouseOver.call(this, e);
 		},
-		"mapMouseWheel": defaultMouseWheel,
+		"mapMouseWheel": defaultMapMouseWheel,
 		"mapMouseContext": disabled,
 		"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 			if (selectedEffect === cubeEffect || selectedEffect === wallEffect) {

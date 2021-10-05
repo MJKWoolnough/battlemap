@@ -102,7 +102,7 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
 	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
-defaultMouseWheel = function(this: SVGElement, e: WheelEvent) {
+defaultMapMouseWheel = function(this: SVGElement, e: WheelEvent) {
 	e.preventDefault();
 	if (e.ctrlKey) {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
@@ -383,7 +383,7 @@ export default Object.freeze({
 	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
 	"mapMouseDown": defaultMapMouseDown,
 	"mapMouseOver": defaultMapMouseOver,
-	"mapMouseWheel": defaultMouseWheel,
+	"mapMouseWheel": defaultMapMouseWheel,
 	"mapMouseContext": defaultMapMouseContext,
 	"tokenMouseContext": defaultTokenMouseContext
 });

@@ -3,7 +3,7 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
-import {defaultMouseWheel, screen2Grid} from './tools_default.js';
+import {defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {characterData, getCharacterToken, globals, labels} from './shared.js';
 import {getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
@@ -101,7 +101,7 @@ addTool({
 			globals.root.removeEventListener("mousemove", onmousemove);
 		}, "style": {"cursor": "none"}})
 	},
-	"mapMouseWheel": defaultMouseWheel
+	"mapMouseWheel": defaultMapMouseWheel
 });
 
 layersRPC.waitLayerSelect().then(() => {

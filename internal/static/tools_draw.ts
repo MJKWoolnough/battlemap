@@ -2,7 +2,7 @@ import type {Colour, Coords, Uint} from './types.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
-import {defaultMouseWheel, screen2Grid} from './tools_default.js';
+import {defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
@@ -206,6 +206,6 @@ addTool({
 	},
 	"tokenMouseOver": () => showMarker(globals.root),
 	"tokenMouseContext": oncontext,
-	"mapMouseWheel": defaultMouseWheel,
+	"mapMouseWheel": defaultMapMouseWheel,
 	"unset": () => marker.remove()
 });
