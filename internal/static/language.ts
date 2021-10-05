@@ -184,6 +184,7 @@ const defaultLanguage = {
 	"TOOL_MEASURE_SNAP": "Snap to Grid",
 	"TOOL_MOVE": "Move All",
 	"TOOL_MULTIPLACE": "Multi-Place",
+	"TOOL_MULTIPLACE_MODE": "Grab Mode",
 	"UNDO_CHARACTER": "Character change",
 	"UNDO_LAYER_ADD": "Add Layer",
 	"UNDO_LAYER_FOLDER_ADD": "Add Layer Folder",
