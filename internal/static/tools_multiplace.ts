@@ -10,7 +10,11 @@ import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
 
-const mode = input({"type": "checkbox", "class": "settings_ticker"}),
+const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
+	if (!this.checked) {
+		deselectToken();
+	}
+      }}),
       i = img(),
       cursor = image({"opacity": 0.5, "preserveAspectRatio": "none"}),
       setCursor = () => {
