@@ -1,10 +1,11 @@
 import type {TokenImage, Uint} from './types.js';
 import {br, button, div, img, input, label} from './lib/html.js';
-import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
+import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {defaultMapMouseDown, defaultMapMouseOver, defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
+import {SVGToken} from './map.js';
 import {getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -16,11 +17,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       }}),
       i = img(),
-      cursor = image({"opacity": 0.5, "preserveAspectRatio": "none"}),
-      setCursor = () => {
-	token = setToken!();
-	createSVG(cursor, {"href": `/images/${token.src}`, "width": token.width, "height": token.height, "transform": `translate(-${token.width/2}, -${token.height/2})`});
-      },
+      setCursor = () => (cursor = SVGToken.from(token = setToken!()))[node].setAttribute("opacity", "0.5"),
       setImg = (id: Uint) => {
 	const src =`/images/${id}`;
 	i.setAttribute("src", src);
@@ -29,7 +26,8 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
 
 let setToken: (() => TokenImage) | null = null,
-    token: TokenImage | null = null;
+    token: TokenImage | null = null,
+    cursor: SVGToken | null = null;
 
 addTool({
 	"name": lang["TOOL_MULTIPLACE"],
@@ -97,21 +95,24 @@ addTool({
 			defaultMapMouseOver.call(this, e);
 			return;
 		}
-		if (e.target instanceof HTMLDivElement || cursor.parentNode || !token) {
+		if (e.target instanceof HTMLDivElement || !cursor || cursor[node].parentNode || !token) {
 			return;
 		}
 		const {layer} = globals.selected,
+		      {width, height} = token,
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY);
-			createSVG(cursor, {x, y});
+			cursor!.x = x - width / 2;
+			cursor!.y = y - height / 2;
+			cursor!.updateNode();
 		      };
 		if (!layer) {
 			return;
 		}
 		onmousemove(e);
-		layer[node].appendChild(cursor);
+		layer[node].appendChild(cursor[node]);
 		createSVG(globals.root, {onmousemove, "1onmouseleave": () => {
-			cursor.remove();
+			cursor![node].remove();
 			globals.root.style.removeProperty("cursor");
 			globals.root.removeEventListener("mousemove", onmousemove);
 		}, "style": {"cursor": "none"}})
@@ -126,7 +127,7 @@ addTool({
 
 layersRPC.waitLayerSelect().then(() => {
 	const {layer} = globals.selected;
-	if (cursor.parentNode && layer) {
-		layer[node].appendChild(cursor);
+	if (cursor && cursor[node].parentNode && layer) {
+		layer[node].appendChild(cursor[node]);
 	}
 });
