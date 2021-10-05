@@ -108,6 +108,7 @@ addTool({
 		      onmouseleave = (e: Event) => {
 			if (e.isTrusted) {
 				cursor![node].remove();
+				cursor!.cleanup();
 				globals.root.style.removeProperty("cursor");
 				globals.root.removeEventListener("mouseleave", onmouseleave);
 				globals.root.removeEventListener("mousemove", onmousemove);
