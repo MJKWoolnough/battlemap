@@ -3,8 +3,8 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
-import {defaultMapMouseWheel, screen2Grid} from './tools_default.js';
-import {characterData, getCharacterToken, globals, labels} from './shared.js';
+import {defaultMapMouseDown, defaultMapMouseOver, defaultMapMouseWheel, screen2Grid} from './tools_default.js';
+import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
@@ -81,7 +81,18 @@ addTool({
 			i
 		])
 	]),
-	"mapMouseOver": (e: MouseEvent) => {
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+		if (mode.checked) {
+			defaultMapMouseDown.call(this, e);
+			return;
+		}
+		e.preventDefault();
+	},
+	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
+		if (mode.checked) {
+			defaultMapMouseOver.call(this, e);
+			return;
+		}
 		if (e.target instanceof HTMLDivElement || cursor.parentNode || !token) {
 			return;
 		}
@@ -100,6 +111,11 @@ addTool({
 			globals.root.style.removeProperty("cursor");
 			globals.root.removeEventListener("mousemove", onmousemove);
 		}, "style": {"cursor": "none"}})
+	},
+	"set": () => {
+		if (!mode.checked) {
+			deselectToken();
+		}
 	},
 	"mapMouseWheel": defaultMapMouseWheel
 });
