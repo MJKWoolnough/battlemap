@@ -19,8 +19,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       i = img(),
       setCursor = () => (cursor = SVGToken.from(token = setToken!()))[node].setAttribute("opacity", "0.5"),
       setImg = (id: Uint) => {
-	const src =`/images/${id}`;
-	i.setAttribute("src", src);
+	i.setAttribute("src", `/images/${id}`);
 	setCursor();
       },
       fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": 100, "height": 100, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
