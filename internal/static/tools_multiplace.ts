@@ -1,16 +1,17 @@
 import type {TokenImage, Uint} from './types.js';
-import {button, div, img, label} from './lib/html.js';
+import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, image, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {defaultMouseWheel, screen2Grid} from './tools_default.js';
-import {characterData, getCharacterToken, globals} from './shared.js';
+import {characterData, getCharacterToken, globals, labels} from './shared.js';
 import {getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
 
-const i = img(),
+const mode = input({"type": "checkbox", "class": "settings_ticker"}),
+      i = img(),
       cursor = image({"opacity": 0.5, "preserveAspectRatio": "none"}),
       setCursor = () => {
 	token = setToken!();
@@ -37,6 +38,8 @@ addTool({
 		path({"d": "M98,39 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h49 s10,0 10,-10 z M84,28 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3 M71,15 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3", "stroke-width": 4})
 	]),
 	"options": div({"style": {"overflow": "hidden"}}, [
+		labels(`${lang["TOOL_MULTIPLACE_MODE"]}: `, mode, false),
+		br(),
 		label(`${lang["TOKEN"]}: `),
 		div({"class": "tokenSelector"}, [
 			button({"onclick": () => {
