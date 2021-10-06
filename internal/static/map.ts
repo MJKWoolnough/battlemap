@@ -3,12 +3,14 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, globals, isAdmin, mapLoadedSend, SQRT3, queue} from './shared.js';
+import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
+import {zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
-import defaultTool, {centreOnGrid, panZoom, screen2Grid} from './tools_default.js';
+import defaultTool from './tools_default.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
-import {rpc} from './rpc.js';
+import {shell} from './windows.js';
+import {rpc, inited} from './rpc.js';
 import {tokenClass} from './plugins.js';
 import lang from './language.js';
 
@@ -453,6 +455,128 @@ showSignal = (() => {
 		signalAnim2.beginElement();
 	};
 })(),
+panZoom = {"x": 0, "y": 0, "zoom": 1},
+screen2Grid = (() => {
+	const points: readonly [number, number][] = [
+		[0, 1/6],
+		[0, 2/6],
+		[0, 3/6],
+		[0, 5/6],
+		[1/4, 1/12],
+		[1/4, 7/12],
+		[1/2, 0],
+		[1/2, 1/3],
+		[1/2, 2/3],
+		[1/2, 5/6],
+		[1/2, 1],
+		[3/4, 1/12],
+		[3/4, 7/12],
+		[1, 1/6],
+		[1, 2/6],
+		[1, 3/6],
+		[1, 5/6]
+	      ];
+	return (x: Uint, y: Uint, snap = false): [Int, Int] => {
+		const {mapData} = globals,
+		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
+		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
+		if (snap) {
+			const gridType = globals.mapData.gridType;
+			switch (gridType) {
+			case 1:
+			case 2: {
+				const size = globals.mapData.gridSize,
+				      o = 2 * Math.round(1.5 * size / SQRT3),
+				      w = gridType === 1 ? size : o,
+				      h = gridType === 2 ? size : o,
+				      px = sx / w,
+				      py = sy / h,
+				      dx = px % 1,
+				      dy = py % 1,
+				      first = gridType - 1 as 0 | 1,
+				      second = 1 - first as 0 | 1;
+				let nearestPoint: [number, number] = [0, 0],
+				    nearest = Infinity;
+				for (const point of points) {
+					const d = Math.hypot(point[first] - dx, point[second] - dy);
+					if (d < nearest) {
+						nearest = d;
+						nearestPoint = point;
+					}
+				}
+				return [Math.round((Math.floor(px) + nearestPoint[first]) * w), Math.round((Math.floor(py) + nearestPoint[second]) * h)];
+			}
+			default:
+				const size = mapData.gridSize >> 1;
+				return [size * Math.round(sx / size), size * Math.round(sy / size)];
+			}
+		}
+		return [Math.round(sx), Math.round(sy)];
+	};
+})(),
+zoom = (() => {
+	const zoomMove = (e: MouseEvent) => {
+		const v = Math.max(10, Math.min(110, e.clientY)),
+		      z = Math.pow(1.4, (60 - v) / 10);
+		zoomerControl.setAttribute("cy", v + "");
+		zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
+	      },
+	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
+	      zoomMouseUp = (e: MouseEvent) => {
+		if (e.button !== 0) {
+			return;
+		}
+		window.removeEventListener("mousemove", zoomMove);
+		window.removeEventListener("mouseup", zoomMouseUp);
+		document.body.classList.remove("zooming");
+	      },
+	      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
+		if (e.button !== 0) {
+			return;
+		}
+		window.addEventListener("mousemove", zoomMove);
+		window.addEventListener("mouseup", zoomMouseUp);
+		document.body.classList.add("zooming");
+	      }, "onwheel": zoomWheel}),
+	      l4 = Math.log(1.4)
+	inited.then(() => shell.appendChild(svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
+			if (e.button === 0) {
+				zoomMove(e);
+			}
+		}, "onwheel": zoomWheel}),
+		zoomerControl
+	])));
+	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
+	mapLoadedReceive(() => zoomerControl.setAttribute("cy", "60"));
+	return (delta: number, x: number, y: number, moveControl = true) => {
+		const {root, outline} = globals,
+		      width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
+		      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
+		      oldZoom = panZoom.zoom;
+		if (delta < 0) {
+			panZoom.zoom /= -delta;
+		} else if (delta > 0) {
+			panZoom.zoom *= delta;
+		}
+		panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
+		panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
+		createSVG(outline, {"style": {"--zoom": panZoom.zoom}});
+		createSVG(root, {"transform": `scale(${panZoom.zoom})`,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		if (moveControl) {
+			zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
+		}
+	};
+})(),
+centreOnGrid = (x: Uint, y: Uint) => {
+	const {mapData: {width, height}} = globals,
+	      iw = window.innerWidth,
+	      ih = window.innerHeight,
+	      {zoom} = panZoom;
+	panZoom.x = Math.min(Math.max((iw - width) / 2 - (x - width / 2) * zoom, iw - width * (zoom + 1) / 2), width * (zoom - 1) / 2);
+	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
+	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+},
 mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	globals.tokens.clear();
@@ -476,7 +600,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 			path: "/"
 		} as SVGFolder;
 	      })(),
-	      {width, height, lightColour} = mapData,
+	      {width, height, lightColour, startX, startY} = mapData,
 	      items = div(),
 	      percent = progress(),
 	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
@@ -521,6 +645,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 	wg.add();
 	wg.done();
 	updateLight();
+	panZoom.zoom = 1;
+	centreOnGrid(startX, startY);
 	return base;
 };
 
