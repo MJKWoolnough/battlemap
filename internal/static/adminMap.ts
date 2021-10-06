@@ -10,7 +10,7 @@ import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLa
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
 import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {screen2Grid, panZoom} from './tools_default.js';
+import defaultTool, {screen2Grid, panZoom} from './tools_default.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {characterData, deselectToken, getCharacterToken, globals, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
 import {noColour} from './colours.js';
@@ -480,6 +480,45 @@ export default (base: HTMLElement) => {
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
 	}));
+	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
+		if (e.button !== 0 && e.button !== 1 || e.shiftKey) {
+			return;
+		}
+		const {outline} = globals;
+		if (!e.ctrlKey && e.button !== 1) {
+			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
+				document.body.style.removeProperty("--outline-cursor");
+				return;
+			} else if (e.target && (e.target as ChildNode).parentNode === outline) {
+				return;
+			}
+		}
+		this.style.setProperty("--outline-cursor", "grabbing");
+		let mX = e.clientX,
+		    mY = e.clientY,
+		    moved = false;
+		const viewDrag = (e: MouseEvent) => {
+			moved = true;
+			panZoom.x += e.clientX - mX;
+			panZoom.y += e.clientY - mY;
+			createSVG(this, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+			mX = e.clientX;
+			mY = e.clientY;
+		      },
+		      stop = () => {
+			if (!moved) {
+				deselectToken();
+			}
+			this.style.removeProperty("--outline-cursor");
+			this.removeEventListener("mousemove", viewDrag);
+			this.removeEventListener("mouseup", stop);
+			this.removeEventListener("mouseleave", stop);
+		      };
+		this.addEventListener("mousemove", viewDrag);
+		this.addEventListener("mouseup", stop);
+		this.addEventListener("mouseleave", stop)
+		e.preventDefault();
+	}
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
