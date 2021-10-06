@@ -7,7 +7,7 @@ import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {edit as tokenEdit} from './characters.js';
 import {tokenContext} from './plugins.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView, showSignal} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
@@ -725,6 +725,19 @@ export default (base: HTMLElement) => {
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
 	};
+	defaultTool.mapMouseContext = (e: MouseEvent) => {
+		const pos = screen2Grid(e.clientX, e.clientY);
+		showSignal(pos);
+		if (e.ctrlKey) {
+			if (e.altKey) {
+				rpc.setMapStart(pos[0], pos[1]);
+			}
+			rpc.signalMovePosition(pos);
+		} else {
+			rpc.signalPosition(pos);
+		}
+	};
+	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
