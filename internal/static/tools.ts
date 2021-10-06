@@ -34,51 +34,45 @@ toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E
 let selectedTool: Tool = defaultTool;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.tokenMouseDown;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.tokenMouseDown === undefined || selectedTool.tokenMouseDown.call(this, e)) {
+		defaultTool.tokenMouseDown.call(this, e);
 	}
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.mapMouseDown;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.mapMouseDown === undefined || selectedTool.mapMouseDown.call(this, e)) {
+		defaultTool.mapMouseDown.call(this, e);
 	}
 },
 toolTokenContext = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.tokenMouseContext;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.tokenMouseContext === undefined || selectedTool.tokenMouseContext.call(this, e)) {
+		defaultTool.tokenMouseContext.call(this, e);
 	}
+	e.preventDefault();
 },
 toolMapContext = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.mapMouseContext;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.mapMouseContext === undefined || selectedTool.mapMouseContext.call(this, e)) {
+		defaultTool.mapMouseContext.call(this, e);
 	}
+	e.preventDefault();
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
-	const fn = selectedTool.tokenMouseWheel;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.tokenMouseWheel === undefined || selectedTool.tokenMouseWheel.call(this, e)) {
+		defaultTool.tokenMouseWheel.call(this, e);
 	}
 },
 toolMapWheel = function(this: SVGElement, e: WheelEvent) {
-	const fn = selectedTool.mapMouseWheel;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.mapMouseWheel === undefined || selectedTool.mapMouseWheel.call(this, e)) {
+		defaultTool.tokenMouseWheel.call(this, e);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.tokenMouseOver;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.tokenMouseOver === undefined || selectedTool.tokenMouseOver.call(this, e)) {
+		defaultTool.tokenMouseOver.call(this, e);
 	}
 },
 toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
-	const fn = selectedTool.mapMouseOver;
-	if (fn) {
-		fn.call(this, e);
+	if (selectedTool.mapMouseOver === undefined || selectedTool.mapMouseOver.call(this, e)) {
+		defaultTool.mapMouseOver.call(this, e);
 	}
 };
 
