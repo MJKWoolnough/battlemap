@@ -11,6 +11,11 @@
 
 .isUser #map {
 	overflow: hidden;
+	cursor: grab;
+}
+
+.isUser.dragging #map {
+	cursor: grabbing;
 }
 
 #map > g:not(#outline) {
