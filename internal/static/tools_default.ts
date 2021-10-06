@@ -102,13 +102,13 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
 	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
-defaultMapMouseWheel = function(this: SVGElement, e: WheelEvent) {
+defaultMapMouseWheel = (e: WheelEvent) => {
 	e.preventDefault();
 	if (e.ctrlKey) {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
 		const amount = scrollAmount.value || 100;
-		createSVG(this, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
+		createSVG(globals.root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
 },
 defaultMapMouseDown = function(this: SVGElement, e: MouseEvent) {
@@ -379,7 +379,6 @@ mapLoadedReceive(() => {
 });
 
 const noMouseFn = function (this: SVGElement, _: MouseEvent) {},
-      noWheelFn = function (this: SVGElement, _: WheelEvent) {},
       makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
       signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
@@ -433,8 +432,8 @@ export default {
 	"mapMouseDown": noMouseFn,
 	"tokenMouseContext": noMouseFn,
 	"mapMouseContext": noMouseFn,
-	"tokenMouseWheel": noWheelFn,
-	"mapMouseWheel": noWheelFn,
+	"tokenMouseWheel": defaultMapMouseWheel,
+	"mapMouseWheel": defaultMapMouseWheel,
 	"tokenMouseOver": noMouseFn,
 	"mapMouseOver": noMouseFn
 };
