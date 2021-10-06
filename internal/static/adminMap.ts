@@ -519,6 +519,91 @@ export default (base: HTMLElement) => {
 		this.addEventListener("mouseleave", stop)
 		e.preventDefault();
 	}
+	defaultTool.mapMouseOver = (e: MouseEvent) => {
+		const {selected: {layer: selectedLayer}, outline} = globals,
+		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
+		      currentlyOverToken = overOutline || selectedLayer && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY)),
+		      {root} = globals;
+		let ctrl = e.ctrlKey;
+		if (ctrl && !e.shiftKey) {
+			document.body.style.setProperty("--outline-cursor", "grab");
+		} else if (!overOutline) {
+			if (currentlyOverToken) {
+				document.body.style.setProperty("--outline-cursor", "pointer");
+			} else {
+				document.body.style.setProperty("--outline-cursor", "grab");
+			}
+		}
+		if (!overOutline) {
+			if (selectedLayer) {
+				let overToken = currentlyOverToken;
+				const keyUp = (e: KeyboardEvent) => {
+					if (e.key === "Control" && overToken) {
+						document.body.style.setProperty("--outline-cursor", "pointer");
+						window.removeEventListener("keyup", keyUp);
+					}
+				      },
+				      keyDown = (e: KeyboardEvent) => {
+					if (e.key === "Control" && overToken) {
+						document.body.style.setProperty("--outline-cursor", "grab");
+						window.addEventListener("keyup", keyUp);
+					}
+				      },
+				      mouseMove = (e: MouseEvent) => {
+					if (!ctrl && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+						if (!overToken) {
+							overToken = true;
+							document.body.style.setProperty("--outline-cursor", "pointer");
+						}
+					} else if (overToken) {
+						document.body.style.setProperty("--outline-cursor", "grab");
+						overToken = false;
+					}
+				};
+				root.addEventListener("mousemove", mouseMove);
+				window.addEventListener("keydown", keyDown);
+				if (currentlyOverToken) {
+					window.addEventListener("keyup", keyUp);
+				}
+				root.addEventListener("mouseout", () => {
+					document.body.style.removeProperty("--outline-cursor");
+					window.removeEventListener("keydown", keyDown);
+					window.removeEventListener("keyup", keyUp);
+					root.removeEventListener("mousemove", mouseMove);
+				}, {"once": true})
+			} else {
+				root.addEventListener("mouseout", () => document.body.style.removeProperty("--outline-cursor"), {"once": true})
+			}
+		} else {
+			const keyUp = (e: KeyboardEvent) => {
+				if (e.key === "Control") {
+					document.body.style.removeProperty("--outline-cursor");
+					window.removeEventListener("keyup", keyUp);
+					ctrl = false;
+				} else if (ctrl && e.key === "Shift") {
+					document.body.style.setProperty("--outline-cursor", "grab");
+				}
+			      },
+			      keyDown = (e: KeyboardEvent) => {
+				if (e.key === "Control" && !e.shiftKey) {
+					document.body.style.setProperty("--outline-cursor", "grab");
+					window.addEventListener("keyup", keyUp);
+					ctrl = true;
+				} else if (ctrl && e.key === "Shift") {
+					document.body.style.removeProperty("--outline-cursor");
+				}
+			      };
+			window.addEventListener("keydown", keyDown);
+			if (ctrl || e.shiftKey) {
+				window.addEventListener("keyup", keyUp);
+			}
+			root.addEventListener("mouseout", () => {
+				document.body.style.removeProperty("--outline-cursor");
+				window.removeEventListener("keydown", keyDown);
+				window.removeEventListener("keyup", keyUp);
+			}, {"once": true})
+		}
+	};
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
