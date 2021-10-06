@@ -3,7 +3,7 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
-import {defaultMapMouseDown, defaultMapMouseOver, defaultMapMouseWheel, screen2Grid} from './tools_default.js';
+import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
@@ -82,11 +82,10 @@ addTool({
 			i
 		])
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent): boolean | void {
 		const {layer} = globals.selected;
 		if (mode.checked || !token || !cursor || !layer) {
-			defaultMapMouseDown.call(this, e);
-			return;
+			return true;
 		}
 		e.preventDefault();
 		cursor[node].remove();
@@ -96,10 +95,9 @@ addTool({
 		setCursor();
 		globals.selected.layer![node].appendChild(cursor[node]);
 	},
-	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
+	"mapMouseOver": function (this: SVGElement, e: MouseEvent): boolean | void {
 		if (mode.checked) {
-			defaultMapMouseOver.call(this, e);
-			return;
+			return true;
 		}
 		if (e.target instanceof HTMLDivElement || !cursor || cursor[node].parentNode || !token) {
 			return;
@@ -130,8 +128,7 @@ addTool({
 		if (!mode.checked) {
 			deselectToken();
 		}
-	},
-	"mapMouseWheel": defaultMapMouseWheel
+	}
 });
 
 layersRPC.waitLayerSelect().then(() => {

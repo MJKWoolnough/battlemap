@@ -8,11 +8,10 @@ import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix,
 import {NodeArray, node, noSort} from '../lib/nodes.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
-import {SVGToken, walkLayers} from '../map.js';
+import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
 import {addCSS, characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
-import {centreOnGrid} from '../tools_default.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';

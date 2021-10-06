@@ -2,7 +2,7 @@ import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './map_fns.js';
-import {defaultMapMouseWheel, panZoom, screen2Grid} from './tools_default.js';
+import {panZoom, screen2Grid} from './map.js';
 import {addTool} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
@@ -81,5 +81,4 @@ addTool({
 	"tokenMouseOver": mouseCursor,
 	"mapMouseDown": startDrag,
 	"tokenMouseDown": startDrag,
-	"mapMouseWheel": defaultMapMouseWheel
 });

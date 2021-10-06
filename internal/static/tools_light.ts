@@ -5,10 +5,9 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {deselectToken, globals, labels, mapLoadedReceive} from './shared.js';
 import {colour2RGBA, makeColourPicker} from './colours.js';
-import {SVGLayer, walkLayers, point2Line} from './map.js';
+import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
-import {defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
@@ -196,7 +195,6 @@ addTool({
 	]),
 	"mapMouseOver": mouseOver,
 	"mapMouseDown": mouseDown,
-	"mapMouseWheel": defaultMapMouseWheel,
 	"set": () => {
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,

@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
-import {defaultMapMouseWheel, panZoom, screen2Grid} from './tools_default.js';
+import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import lang from './language.js';
@@ -97,7 +97,6 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	if (e.button !== 0 && e.button !== 2) {
 		return;
 	}
-	e.preventDefault();
       },
       noopCleanup = () => {};
 
@@ -167,7 +166,6 @@ addTool({
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 	},
 	"tokenMouseDown": disable,
-	"mapMouseWheel": defaultMapMouseWheel,
 	"tokenMouseContext": disable,
 	"mapMouseContext": disable,
 	"unset": () => cleanup()

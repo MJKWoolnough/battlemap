@@ -3,7 +3,7 @@ import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {colour2RGBA} from '../colours.js';
 import {globals, labels} from '../shared.js';
-import {panZoom} from '../tools_default.js';
+import {panZoom} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
