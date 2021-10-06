@@ -6,7 +6,7 @@ import {addTool} from './tools.js';
 import {defaultMapMouseDown, defaultMapMouseOver, defaultMapMouseWheel, screen2Grid} from './tools_default.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
-import {getToken, layersRPC} from './map_fns.js';
+import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
@@ -83,11 +83,18 @@ addTool({
 		])
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		if (mode.checked) {
+		const {layer} = globals.selected;
+		if (mode.checked || !token || !cursor || !layer) {
 			defaultMapMouseDown.call(this, e);
 			return;
 		}
 		e.preventDefault();
+		cursor[node].remove();
+		token.x = cursor.x;
+		token.y = cursor.y;
+		doTokenAdd(layer.path, token);
+		setCursor();
+		globals.selected.layer![node].appendChild(cursor[node]);
 	},
 	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
 		if (mode.checked) {
