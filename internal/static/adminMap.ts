@@ -1,4 +1,4 @@
-import type {TokenSet, Token} from './types.js';
+import type {TokenSet, Token, Uint} from './types.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGLayer, SVGFolder} from './map.js';
 import {autoFocus, createDocumentFragment} from './lib/dom.js';
@@ -282,42 +282,7 @@ export default (base: HTMLElement) => {
 		}
 		token.updateNode();
 		outline.setAttribute("transform", token.transformString(false));
-	      }, "oncontextmenu": toolTokenContext, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) {
-		toolTokenMouseDown.call(this, e);
-		if (e.defaultPrevented || e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
-			return;
-		}
-		e.stopImmediatePropagation();
-		if (n === 0 && e.shiftKey) {
-			const {layer, token} = globals.selected;
-			if (!layer) {
-				return;
-			}
-			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
-				if (tk === token) {
-					if (newToken)  {
-						break;
-					}
-				} else if (tk.at(e.clientX, e.clientY)) {
-					newToken = tk;
-				}
-			}
-			if (newToken) {
-				selectToken(newToken);
-			}
-			return;
-		}
-		document.body.addEventListener("mousemove", tokenDrag);
-		document.body.addEventListener("mouseup", tokenMouseUp);
-		tokenDragMode = n;
-		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
-		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
-		if (n === 0 && measureTokenMove.value) {
-			const {selected: {token}} = globals;
-			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
-		}
-	      }}))),
+	      }, "oncontextmenu": toolTokenContext, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
@@ -606,6 +571,41 @@ export default (base: HTMLElement) => {
 				window.removeEventListener("keydown", keyDown);
 				window.removeEventListener("keyup", keyUp);
 			}, {"once": true})
+		}
+	};
+	defaultTool.tokenMouseDown = (e: MouseEvent, n: Uint) => {
+		if (e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
+			return;
+		}
+		e.preventDefault();
+		if (n === 0 && e.shiftKey) {
+			const {layer, token} = globals.selected;
+			if (!layer) {
+				return;
+			}
+			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
+			for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+				if (tk === token) {
+					if (newToken)  {
+						break;
+					}
+				} else if (tk.at(e.clientX, e.clientY)) {
+					newToken = tk;
+				}
+			}
+			if (newToken) {
+				selectToken(newToken);
+			}
+			return;
+		}
+		document.body.addEventListener("mousemove", tokenDrag);
+		document.body.addEventListener("mouseup", tokenMouseUp);
+		tokenDragMode = n;
+		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
+		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
+		if (n === 0 && measureTokenMove.value) {
+			const {selected: {token}} = globals;
+			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
 	};
 	defaultTool.tokenMouseContext = (e: MouseEvent) => {
