@@ -608,7 +608,7 @@ export default (base: HTMLElement) => {
 			}, {"once": true})
 		}
 	};
-	defaultTool.mapMouseContext = (e: MouseEvent) => {
+	defaultTool.tokenMouseContext = (e: MouseEvent) => {
 		e.preventDefault();
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = globals.selected;
