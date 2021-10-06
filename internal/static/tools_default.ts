@@ -378,17 +378,9 @@ mapLoadedReceive(() => {
 	zoomerControl.setAttribute("cy", "60");
 });
 
-export default Object.freeze({
-	"name": lang["TOOL_DEFAULT"],
-	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
-	"mapMouseDown": defaultMapMouseDown,
-	"mapMouseOver": defaultMapMouseOver,
-	"mapMouseWheel": defaultMapMouseWheel,
-	"mapMouseContext": defaultMapMouseContext,
-	"tokenMouseContext": defaultTokenMouseContext
-});
-
-const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+const noMouseFn = function (this: SVGElement, _: MouseEvent) {},
+      noWheelFn = function (this: SVGElement, _: WheelEvent) {},
+      makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
       signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
       signal = g([
@@ -433,6 +425,19 @@ const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disable
 	zoomerControl
       ]),
       l4 = Math.log(1.4);
+
+export default {
+	"name": lang["TOOL_DEFAULT"],
+	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
+	"tokenMouseDown": noMouseFn,
+	"mapMouseDown": noMouseFn,
+	"tokenMouseContext": noMouseFn,
+	"mapMouseContext": noMouseFn,
+	"tokenMouseWheel": noWheelFn,
+	"mapMouseWheel": noWheelFn,
+	"tokenMouseOver": noMouseFn,
+	"mapMouseOver": noMouseFn
+};
 
 inited.then(() => {
 	shell.appendChild(zoomer);
