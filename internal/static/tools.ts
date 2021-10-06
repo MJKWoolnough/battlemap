@@ -1,3 +1,4 @@
+import type {Uint} from './types.js';
 import {createHTML, clearElement, svgNS} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
 import {mapLoadedReceive, mod} from './shared.js';
@@ -16,7 +17,7 @@ type Tool = {
 	set?: () => void;
 	unset?: () => void;
 	options?: HTMLDivElement;
-	tokenMouseDown?: MouseFn;
+	tokenMouseDown?: (this: SVGElement, e: MouseEvent, n: Uint) => void;
 	mapMouseDown?: MouseFn;
 	tokenMouseContext?: MouseFn;
 	mapMouseContext?: MouseFn;
@@ -33,9 +34,9 @@ toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E
 
 let selectedTool: Tool = defaultTool;
 
-export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent) {
-	if (selectedTool.tokenMouseDown === undefined || selectedTool.tokenMouseDown.call(this, e)) {
-		defaultTool.tokenMouseDown.call(this, e);
+export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, n: Uint = 0) {
+	if (selectedTool.tokenMouseDown === undefined || selectedTool.tokenMouseDown.call(this, e, n)) {
+		defaultTool.tokenMouseDown.call(this, e, n);
 	}
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {

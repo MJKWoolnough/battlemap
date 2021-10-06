@@ -1,3 +1,4 @@
+import type {Uint} from './types.js';
 import {createSVG, svg, path, title} from './lib/svg.js';
 import {scrollAmount} from './settings.js';
 import {globals} from './shared.js';
@@ -18,7 +19,7 @@ const defaultMapMouseWheel = (e: WheelEvent) => {
 export default {
 	"name": lang["TOOL_DEFAULT"],
 	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
-	"tokenMouseDown": noMouseFn,
+	"tokenMouseDown": function (this: SVGElement, _e: MouseEvent, _n: Uint) {},
 	"mapMouseDown": noMouseFn,
 	"tokenMouseContext": noMouseFn,
 	"mapMouseContext": noMouseFn,
