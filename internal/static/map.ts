@@ -6,6 +6,7 @@ import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect
 import {characterData, globals, isAdmin, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
+import defaultTool, {panZoom} from './tools_default.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
@@ -515,6 +516,32 @@ export default (base: HTMLElement) => {
 		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
 	});
+	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
+		if (e.button !== 0 && e.button !== 1) {
+			return;
+		}
+		document.body.classList.toggle("dragging", true);
+		let mX = e.clientX,
+		    mY = e.clientY;
+		const button = e.button,
+		      viewDrag = (e: MouseEvent) => {
+			createSVG(this, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
+			mX = e.clientX;
+			mY = e.clientY;
+		      },
+		      stop = (e: MouseEvent) => {
+			if (e.button !== button) {
+				return;
+			}
+			document.body.classList.remove("dragging");
+			this.removeEventListener("mousemove", viewDrag);
+			this.removeEventListener("mouseup", stop);
+			this.removeEventListener("mouseleave", stop);
+		      };
+		this.addEventListener("mousemove", viewDrag);
+		this.addEventListener("mouseup", stop);
+		this.addEventListener("mouseleave", stop);
+	};
 	rpc.waitMapChange().then(setMapDetails),
 	rpc.waitMapLightChange().then(setLightColour),
 	rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
