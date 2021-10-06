@@ -107,9 +107,7 @@ addTool({
 		const {layer} = globals.selected,
 		      {width, height} = token,
 		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY);
-			cursor!.x = x - width / 2;
-			cursor!.y = y - height / 2;
+			[cursor!.x, cursor!.y] = screen2Grid(e.clientX - width / 2, e.clientY - height / 2, token!.snap);
 			cursor!.updateNode();
 		      },
 		      onmouseleave = (e: Event) => {
