@@ -516,16 +516,16 @@ export default (base: HTMLElement) => {
 		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
 	});
-	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
+	defaultTool.mapMouseDown = (e: MouseEvent) => {
 		if (e.button !== 0 && e.button !== 1) {
 			return;
 		}
-		document.body.classList.toggle("dragging", true);
 		let mX = e.clientX,
 		    mY = e.clientY;
 		const button = e.button,
+		      {root} = globals,
 		      viewDrag = (e: MouseEvent) => {
-			createSVG(this, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
+			createSVG(root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
 			mX = e.clientX;
 			mY = e.clientY;
 		      },
@@ -534,13 +534,14 @@ export default (base: HTMLElement) => {
 				return;
 			}
 			document.body.classList.remove("dragging");
-			this.removeEventListener("mousemove", viewDrag);
-			this.removeEventListener("mouseup", stop);
-			this.removeEventListener("mouseleave", stop);
+			root.removeEventListener("mousemove", viewDrag);
+			root.removeEventListener("mouseup", stop);
+			root.removeEventListener("mouseleave", stop);
 		      };
-		this.addEventListener("mousemove", viewDrag);
-		this.addEventListener("mouseup", stop);
-		this.addEventListener("mouseleave", stop);
+		document.body.classList.toggle("dragging", true);
+		root.addEventListener("mousemove", viewDrag);
+		root.addEventListener("mouseup", stop);
+		root.addEventListener("mouseleave", stop);
 	};
 	rpc.waitMapChange().then(setMapDetails),
 	rpc.waitMapLightChange().then(setLightColour),
