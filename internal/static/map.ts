@@ -1,12 +1,12 @@
-import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, TokenSet} from './types.js';
+import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
+import {createSVG, animate, circle, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {characterData, globals, isAdmin, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
-import defaultTool, {panZoom} from './tools_default.js';
+import defaultTool, {centreOnGrid, panZoom, screen2Grid} from './tools_default.js';
 import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {rpc} from './rpc.js';
 import {tokenClass} from './plugins.js';
@@ -439,6 +439,20 @@ updateLight = () => {
 		wallPolygons
 	]);
 },
+showSignal = (() => {
+	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
+	      signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
+	      signal = g([
+		circle({"cx": 50, "cy": 50, "stroke": "#f00", "stroke-width": 8, "fill": "none"}, signalAnim1),
+		circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, signalAnim2)
+	      ]);
+	return (pos: [Uint, Uint]) => {
+		signal.setAttribute("transform", `translate(${pos[0] - 50}, ${pos[1] - 50})`);
+		globals.root.appendChild(signal);
+		signalAnim1.beginElement();
+		signalAnim2.beginElement();
+	};
+})(),
 mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	globals.tokens.clear();
@@ -543,6 +557,26 @@ export default (base: HTMLElement) => {
 		root.addEventListener("mouseup", stop);
 		root.addEventListener("mouseleave", stop);
 	};
+	defaultTool.mapMouseContext = (e: MouseEvent) => {
+		const pos = screen2Grid(e.clientX, e.clientY);
+		showSignal(pos);
+		rpc.signalPosition(pos);
+	};
+	let sliding = -1;
+	rpc.waitSignalMovePosition().then(pos => {
+		if (sliding === -1) {
+			document.body.classList.toggle("sliding", true);
+		} else {
+			window.clearTimeout(sliding);
+		}
+		sliding = window.setTimeout(() => {
+			document.body.classList.remove("sliding")
+			sliding = -1;
+		}, 1000);
+		centreOnGrid(pos[0], pos[1]);
+		showSignal(pos);
+	});
+	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(setMapDetails),
 	rpc.waitMapLightChange().then(setLightColour),
 	rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
