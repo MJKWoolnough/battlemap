@@ -371,29 +371,6 @@ export default (base: HTMLElement) => {
 			}
 		}
 	      },
-	      mapOnMouseDown = (e: MouseEvent) => {
-		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
-		if (e.defaultPrevented) {
-			return;
-		}
-		const {layer} = globals.selected;
-		if (!layer || e.button !== 0 || (e.ctrlKey && !e.shiftKey)) {
-			return;
-		}
-		let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-		for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
-			if (t.at(e.clientX, e.clientY)) {
-				newToken = t;
-			}
-		}
-		if (!newToken) {
-			if (!e.ctrlKey) {
-				deselectToken();
-			}
-			return;
-		}
-		selectToken(newToken);
-	      },
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(globals.tokens.get(newToken.id)!.layer);
 		globals.selected.token = newToken;
@@ -444,17 +421,34 @@ export default (base: HTMLElement) => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
-		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onmousedown": mapOnMouseDown, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
+		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
 	}));
 	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
-		if (e.button !== 0 && e.button !== 1 || e.shiftKey) {
+		if (e.button !== 0 && e.button !== 1 || (e.target as HTMLElement)?.parentNode === outline) {
 			return;
 		}
-		const {outline} = globals;
+		e.preventDefault();
+		if (e.button === 0) {
+			[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
+		}
+		const {layer} = globals.selected;
+		if (layer && e.button === 0 && (!e.ctrlKey || e.shiftKey)) {
+			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
+			for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+				if (t.at(e.clientX, e.clientY)) {
+					newToken = t;
+				}
+			}
+			if (newToken) {
+				selectToken(newToken);
+				return;
+			}
+		}
 		if (!e.ctrlKey && e.button !== 1) {
+			const {outline} = globals;
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
 				document.body.style.removeProperty("--outline-cursor");
 				return;
@@ -475,7 +469,7 @@ export default (base: HTMLElement) => {
 			mY = e.clientY;
 		      },
 		      stop = () => {
-			if (!moved) {
+			if (!moved && !e.ctrlKey) {
 				deselectToken();
 			}
 			this.style.removeProperty("--outline-cursor");
@@ -486,7 +480,6 @@ export default (base: HTMLElement) => {
 		this.addEventListener("mousemove", viewDrag);
 		this.addEventListener("mouseup", stop);
 		this.addEventListener("mouseleave", stop)
-		e.preventDefault();
 	}
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
 		const {selected: {layer: selectedLayer}, outline} = globals,
