@@ -84,8 +84,11 @@ addTool(Object.freeze({
 	]),
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent): boolean | void {
 		const {layer} = globals.selected;
-		if (mode.checked || !token || !cursor || !layer) {
+		if (mode.checked || !token || !cursor || !layer || e.button === 1) {
 			return true;
+		}
+		if (e.button !== 0) {
+			return;
 		}
 		e.preventDefault();
 		cursor[node].remove();
