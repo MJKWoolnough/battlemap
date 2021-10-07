@@ -67,7 +67,7 @@ toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
 },
 toolMapWheel = function(this: SVGElement, e: WheelEvent) {
 	if (selectedTool.mapMouseWheel === undefined || selectedTool.mapMouseWheel.call(this, e)) {
-		defaultTool.tokenMouseWheel?.call(this, e);
+		defaultTool.mapMouseWheel?.call(this, e);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
