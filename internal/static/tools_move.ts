@@ -65,7 +65,8 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	this.style.setProperty("cursor", "move");
 	this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
-      };
+      },
+      disable = () => {};
 
 addTool({
 	"name": lang["TOOL_MOVE"],
@@ -81,4 +82,6 @@ addTool({
 	"tokenMouseOver": mouseCursor,
 	"mapMouseDown": startDrag,
 	"tokenMouseDown": startDrag,
+	"mapMouseContext": disable,
+	"tokenMouseContext": disable
 });
