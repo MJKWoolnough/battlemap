@@ -8,9 +8,13 @@ import {startMeasurement, measureDistance, stopMeasurement} from './tools_measur
 import {autosnap, measureTokenMove} from './settings.js';
 import lang from './language.js';
 
-const startDrag = function(this: SVGElement, e: MouseEvent) {
-	e.preventDefault();
-	e.stopPropagation();
+const startDrag = function(this: SVGElement, e: MouseEvent): boolean | void {
+	if (e.button === 1) {
+		return true;
+	}
+	if (e.button !== 0) {
+		return;
+	}
 	const {selected: {layer: selectedLayer}} = globals;
 	if (!selectedLayer) {
 		return;
