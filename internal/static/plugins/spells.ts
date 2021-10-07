@@ -6,7 +6,6 @@ import {addTool} from '../tools.js';
 import {screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
-import defaultTool from '../tools_default.js';
 import {rpc} from '../rpc.js';
 import {colour2RGBA, hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
@@ -225,7 +224,7 @@ if (isAdmin) {
 			this.addEventListener("mousedown", mousedown);
 			this.addEventListener("keydown", keydown);
 			this.addEventListener("mouseleave", mouseout, {"once": true});
-			defaultTool.mapMouseOver.call(this, e);
+			return true;
 		},
 		"mapMouseContext": disabled,
 		"mapMouseDown": () => {
