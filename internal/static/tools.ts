@@ -1,10 +1,10 @@
 import type {Uint} from './types.js';
 import {createHTML, clearElement, svgNS} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
+import {path, svg, title} from './lib/svg.js';
 import {mapLoadedReceive, mod} from './shared.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
-import defaultTool from './tools_default.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
 
@@ -27,9 +27,23 @@ type Tool = {
 	mapMouseOver?: MouseFn;
 };
 
-const tools: Tool[] = [];
+const tools: Tool[] = [],
+      noMouseFn = function (this: SVGElement, _: MouseEvent) {},
+      noWheelFn = function (this: SVGElement, _: WheelEvent) {};
 
-export const addTool = (t: Tool) => tools.push(t),
+export const defaultTool = {
+	"name": lang["TOOL_DEFAULT"],
+	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
+	"tokenMouseDown": function (this: SVGElement, _e: MouseEvent, _n: Uint) {},
+	"mapMouseDown": noMouseFn,
+	"tokenMouseContext": noMouseFn,
+	"mapMouseContext": noMouseFn,
+	"tokenMouseWheel": noWheelFn,
+	"mapMouseWheel": noWheelFn,
+	"tokenMouseOver": noMouseFn,
+	"mapMouseOver": noMouseFn
+},
+addTool = (t: Tool) => tools.push(t),
 toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="3"%3E%3Cpath d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="%23dde" stroke="%23000" transform="rotate(45, 50, 50)" /%3E%3Cg transform="rotate(315, 50, 50)"%3E%3Cpath d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="%23eee" stroke="%23000" /%3E%3Cpath d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="%23dd0" stroke="%23000" stroke-linejoin="round" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
 
 let selectedTool: Tool = defaultTool;

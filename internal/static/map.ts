@@ -7,8 +7,7 @@ import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSe
 import {scrollAmount, zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
-import defaultTool from './tools_default.js';
-import {toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
+import {defaultTool, toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
 import {rpc, inited} from './rpc.js';
 import {tokenClass} from './plugins.js';

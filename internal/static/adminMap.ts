@@ -11,8 +11,7 @@ import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTok
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
-import {toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import defaultTool from './tools_default.js';
+import {defaultTool, toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
