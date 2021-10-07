@@ -4,7 +4,7 @@ import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
-import {zoomSlider} from './settings.js';
+import {scrollAmount, zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
 import defaultTool from './tools_default.js';
@@ -648,6 +648,16 @@ mapView = (mapData: MapData, loadChars = false) => {
 	panZoom.zoom = 1;
 	centreOnGrid(startX, startY);
 	return base;
+};
+
+defaultTool.mapMouseWheel = (e: WheelEvent) => {
+	e.preventDefault();
+	if (e.ctrlKey) {
+		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
+	} else {
+		const amount = scrollAmount.value || 100;
+		createSVG(globals.root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
+	}
 };
 
 export default (base: HTMLElement) => {

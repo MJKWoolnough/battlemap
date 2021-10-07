@@ -1,20 +1,9 @@
 import type {Uint} from './types.js';
-import {createSVG, svg, path, title} from './lib/svg.js';
-import {scrollAmount} from './settings.js';
-import {globals} from './shared.js';
-import {panZoom, zoom} from './map.js';
+import {svg, path, title} from './lib/svg.js';
 import lang from './language.js';
 
-const defaultMapMouseWheel = (e: WheelEvent) => {
-	e.preventDefault();
-	if (e.ctrlKey) {
-		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
-	} else {
-		const amount = scrollAmount.value || 100;
-		createSVG(globals.root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
-	}
-      },
-      noMouseFn = function (this: SVGElement, _: MouseEvent) {};
+const noMouseFn = function (this: SVGElement, _: MouseEvent) {},
+      noWheelFn = function (this: SVGElement, _: WheelEvent) {};
 
 export default {
 	"name": lang["TOOL_DEFAULT"],
@@ -23,8 +12,8 @@ export default {
 	"mapMouseDown": noMouseFn,
 	"tokenMouseContext": noMouseFn,
 	"mapMouseContext": noMouseFn,
-	"tokenMouseWheel": defaultMapMouseWheel,
-	"mapMouseWheel": defaultMapMouseWheel,
+	"tokenMouseWheel": noWheelFn,
+	"mapMouseWheel": noWheelFn,
 	"tokenMouseOver": noMouseFn,
 	"mapMouseOver": noMouseFn
 };
