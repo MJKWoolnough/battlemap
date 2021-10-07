@@ -27,21 +27,11 @@ type Tool = {
 	mapMouseOver?: MouseFn;
 };
 
-const tools: Tool[] = [],
-      noMouseFn = function (this: SVGElement, _: MouseEvent) {},
-      noWheelFn = function (this: SVGElement, _: WheelEvent) {};
+const tools: Tool[] = [];
 
-export const defaultTool = {
+export const defaultTool: Tool = {
 	"name": lang["TOOL_DEFAULT"],
 	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
-	"tokenMouseDown": function (this: SVGElement, _e: MouseEvent, _n: Uint) {},
-	"mapMouseDown": noMouseFn,
-	"tokenMouseContext": noMouseFn,
-	"mapMouseContext": noMouseFn,
-	"tokenMouseWheel": noWheelFn,
-	"mapMouseWheel": noWheelFn,
-	"tokenMouseOver": noMouseFn,
-	"mapMouseOver": noMouseFn
 },
 addTool = (t: Tool) => tools.push(t),
 toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="3"%3E%3Cpath d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="%23dde" stroke="%23000" transform="rotate(45, 50, 50)" /%3E%3Cg transform="rotate(315, 50, 50)"%3E%3Cpath d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="%23eee" stroke="%23000" /%3E%3Cpath d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="%23dd0" stroke="%23000" stroke-linejoin="round" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
@@ -50,44 +40,44 @@ let selectedTool: Tool = defaultTool;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, n: Uint = 0) {
 	if (selectedTool.tokenMouseDown === undefined || selectedTool.tokenMouseDown.call(this, e, n)) {
-		defaultTool.tokenMouseDown.call(this, e, n);
+		defaultTool.tokenMouseDown?.call(this, e, n);
 	}
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
 	if (selectedTool.mapMouseDown === undefined || selectedTool.mapMouseDown.call(this, e)) {
-		defaultTool.mapMouseDown.call(this, e);
+		defaultTool.mapMouseDown?.call(this, e);
 	}
 },
 toolTokenContext = function(this: SVGElement, e: MouseEvent) {
 	if (selectedTool.tokenMouseContext === undefined || selectedTool.tokenMouseContext.call(this, e)) {
-		defaultTool.tokenMouseContext.call(this, e);
+		defaultTool.tokenMouseContext?.call(this, e);
 	}
 	e.preventDefault();
 },
 toolMapContext = function(this: SVGElement, e: MouseEvent) {
 	if (selectedTool.mapMouseContext === undefined || selectedTool.mapMouseContext.call(this, e)) {
-		defaultTool.mapMouseContext.call(this, e);
+		defaultTool.mapMouseContext?.call(this, e);
 	}
 	e.preventDefault();
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
 	if (selectedTool.tokenMouseWheel === undefined || selectedTool.tokenMouseWheel.call(this, e)) {
-		defaultTool.tokenMouseWheel.call(this, e);
+		defaultTool.tokenMouseWheel?.call(this, e);
 	}
 },
 toolMapWheel = function(this: SVGElement, e: WheelEvent) {
 	if (selectedTool.mapMouseWheel === undefined || selectedTool.mapMouseWheel.call(this, e)) {
-		defaultTool.tokenMouseWheel.call(this, e);
+		defaultTool.tokenMouseWheel?.call(this, e);
 	}
 },
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
 	if (selectedTool.tokenMouseOver === undefined || selectedTool.tokenMouseOver.call(this, e)) {
-		defaultTool.tokenMouseOver.call(this, e);
+		defaultTool.tokenMouseOver?.call(this, e);
 	}
 },
 toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	if (selectedTool.mapMouseOver === undefined || selectedTool.mapMouseOver.call(this, e)) {
-		defaultTool.mapMouseOver.call(this, e);
+		defaultTool.mapMouseOver?.call(this, e);
 	}
 };
 
