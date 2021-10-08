@@ -602,6 +602,9 @@ export default (base: HTMLElement) => {
 		return false;
 	};
 	defaultTool.tokenMouse2 = (e: MouseEvent) => {
+		if (e.ctrlKey) {
+			return false;
+		}
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = globals.selected;
 		if (!currLayer || !currToken) {
