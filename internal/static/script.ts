@@ -218,7 +218,7 @@ panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panel
 pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(pluginInit).then(() => {
 	rpc.ready();
 	const admin = isAdmin;
-	document.body.classList.add(admin ? "isAdmin" : "isUser");
+	createHTML(document.body, {"class": [admin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
 	if (admin) {
 		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true, imageIcon), "IMAGES");
 		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true, audioIcon), "AUDIO");
