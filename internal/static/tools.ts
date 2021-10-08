@@ -42,7 +42,6 @@ toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E
 let selectedTool = defaultTool;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, n: Uint = 0) {
-	console.log(1);
 	e.preventDefault();
 	if (e.button === 0 && (selectedTool.tokenMouse0 === undefined || selectedTool.tokenMouse0.call(this, e, n))) {
 		defaultTool.tokenMouse0?.call(this, e, n);
@@ -65,7 +64,6 @@ toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
 	}
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
-	console.log(2, e.button);
 	e.preventDefault();
 	if (e.button === 0 && (selectedTool.mapMouse0 === undefined || selectedTool.mapMouse0.call(this, e))) {
 		defaultTool.mapMouse0?.call(this, e);
