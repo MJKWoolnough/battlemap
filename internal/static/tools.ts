@@ -8,6 +8,7 @@ import lang from './language.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
 
+type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;
 type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
 type WheelFn = (this: SVGElement, e: WheelEvent) => boolean;
 
@@ -17,13 +18,15 @@ type Tool = {
 	set?: () => void;
 	unset?: () => void;
 	options?: HTMLDivElement;
-	tokenMouseDown?: (this: SVGElement, e: MouseEvent, n: Uint) => void;
-	mapMouseDown?: MouseFn;
-	tokenMouseContext?: MouseFn;
-	mapMouseContext?: MouseFn;
+	tokenMouse0?: TokenMouseFn;
+	tokenMouse1?: TokenMouseFn;
+	tokenMouse2?: TokenMouseFn;
 	tokenMouseWheel?: WheelFn;
-	mapMouseWheel?: WheelFn;
 	tokenMouseOver?: MouseFn;
+	mapMouse0?: MouseFn;
+	mapMouse1?: MouseFn;
+	mapMouse2?: MouseFn;
+	mapMouseWheel?: WheelFn;
 	mapMouseOver?: MouseFn;
 };
 
@@ -39,43 +42,47 @@ toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E
 let selectedTool = defaultTool;
 
 export const toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, n: Uint = 0) {
-	if (selectedTool.tokenMouseDown === undefined || selectedTool.tokenMouseDown.call(this, e, n)) {
-		defaultTool.tokenMouseDown?.call(this, e, n);
-	}
-},
-toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
-	if (selectedTool.mapMouseDown === undefined || selectedTool.mapMouseDown.call(this, e)) {
-		defaultTool.mapMouseDown?.call(this, e);
-	}
-},
-toolTokenContext = function(this: SVGElement, e: MouseEvent) {
-	if (selectedTool.tokenMouseContext === undefined || selectedTool.tokenMouseContext.call(this, e)) {
-		defaultTool.tokenMouseContext?.call(this, e);
-	}
+	console.log(1);
 	e.preventDefault();
-},
-toolMapContext = function(this: SVGElement, e: MouseEvent) {
-	if (selectedTool.mapMouseContext === undefined || selectedTool.mapMouseContext.call(this, e)) {
-		defaultTool.mapMouseContext?.call(this, e);
+	if (e.button === 0 && (selectedTool.tokenMouse0 === undefined || selectedTool.tokenMouse0.call(this, e, n))) {
+		defaultTool.tokenMouse0?.call(this, e, n);
+	} else if (e.button === 1 && (selectedTool.tokenMouse1 === undefined || selectedTool.tokenMouse1.call(this, e, n))) {
+		defaultTool.tokenMouse1?.call(this, e, n);
+	} else if (e.button === 2 && (selectedTool.tokenMouse2 === undefined || selectedTool.tokenMouse2.call(this, e, n))) {
+		defaultTool.tokenMouse2?.call(this, e, n);
 	}
-	e.preventDefault();
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
+	e.preventDefault();
 	if (selectedTool.tokenMouseWheel === undefined || selectedTool.tokenMouseWheel.call(this, e)) {
 		defaultTool.tokenMouseWheel?.call(this, e);
 	}
 },
-toolMapWheel = function(this: SVGElement, e: WheelEvent) {
-	if (selectedTool.mapMouseWheel === undefined || selectedTool.mapMouseWheel.call(this, e)) {
-		defaultTool.mapMouseWheel?.call(this, e);
-	}
-},
 toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
+	e.preventDefault();
 	if (selectedTool.tokenMouseOver === undefined || selectedTool.tokenMouseOver.call(this, e)) {
 		defaultTool.tokenMouseOver?.call(this, e);
 	}
 },
+toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
+	console.log(2, e.button);
+	e.preventDefault();
+	if (e.button === 0 && (selectedTool.mapMouse0 === undefined || selectedTool.mapMouse0.call(this, e))) {
+		defaultTool.mapMouse0?.call(this, e);
+	} else if (e.button === 1 && (selectedTool.mapMouse1 === undefined || selectedTool.mapMouse1.call(this, e))) {
+		defaultTool.mapMouse1?.call(this, e);
+	} else if (e.button === 2 && (selectedTool.mapMouse2 === undefined || selectedTool.mapMouse2.call(this, e))) {
+		defaultTool.mapMouse2?.call(this, e);
+	}
+},
+toolMapWheel = function(this: SVGElement, e: WheelEvent) {
+	e.preventDefault();
+	if (selectedTool.mapMouseWheel === undefined || selectedTool.mapMouseWheel.call(this, e)) {
+		defaultTool.mapMouseWheel?.call(this, e);
+	}
+},
 toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
+	e.preventDefault();
 	if (selectedTool.mapMouseOver === undefined || selectedTool.mapMouseOver.call(this, e)) {
 		defaultTool.mapMouseOver?.call(this, e);
 	}

@@ -226,20 +226,20 @@ if (isAdmin) {
 			this.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
 		},
-		"mapMouseContext": disabled,
-		"mapMouseDown": () => {
+		"mapMouse0": () => {
 			if (selectedEffect === cubeEffect || selectedEffect === wallEffect) {
 				return false;
 			}
 			return true;
 		},
-		"tokenMouseDown": function(this: SVGElement, e: MouseEvent) {
+		"mapMouse2": disabled,
+		"tokenMouse0": function(this: SVGElement, e: MouseEvent) {
 			if (this.previousSibling || !e.shiftKey) {
 				return false;
 			}
 			return true;
 		},
-		"tokenMouseContext": disabled
+		"tokenMouse2": disabled
 	}));
 	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {

@@ -190,29 +190,23 @@ addTool({
 		label(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
-		if (e.button === 0) {
-			draw(this, e);
-			return false;
-		}
-		return true;
+	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
+		draw(this, e);
+		return false;
 	},
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
 		return false;
 	},
-	"mapMouseContext": oncontext,
-	"tokenMouseDown": (e: MouseEvent) => {
-		if (e.button === 0) {
-			draw(globals.root, e);
-			return false;
-		}
-		return true;
+	"mapMouse2": oncontext,
+	"tokenMouse0": (e: MouseEvent) => {
+		draw(globals.root, e);
+		return false;
 	},
 	"tokenMouseOver": () => {
 		showMarker(globals.root);
 		return false;
 	},
-	"tokenMouseContext": oncontext,
+	"tokenMouse2": oncontext,
 	"unset": () => marker.remove()
 });

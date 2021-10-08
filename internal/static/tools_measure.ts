@@ -155,7 +155,6 @@ addTool({
 		showMarker(this);
 		return false;
 	},
-	"mapMouseDown": disable,
 	"tokenMouseOver": function(this: SVGElement) {
 		const {root} = globals;
 		showMarker(root)
@@ -163,9 +162,10 @@ addTool({
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 		return false;
 	},
-	"tokenMouseDown": disable,
-	"tokenMouseContext": disable,
-	"mapMouseContext": disable,
+	"tokenMouse0": disable,
+	"tokenMouse2": disable,
+	"mapMouse0": disable,
+	"mapMouse2": disable,
 	"unset": () => cleanup()
 });
 

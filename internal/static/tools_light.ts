@@ -74,10 +74,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true}),
 	return false;
       },
       mouseDown = function(this: SVGElement, e: MouseEvent) {
-	e.preventDefault();
-	if (e.button !== 0) {
-		return true;
-	}
 	if (sunTool.checked) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 		doLightShift(x, y);
@@ -196,7 +192,7 @@ addTool({
 		])
 	]),
 	"mapMouseOver": mouseOver,
-	"mapMouseDown": mouseDown,
+	"mapMouse0": mouseDown,
 	"set": () => {
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,

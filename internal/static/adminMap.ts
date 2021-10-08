@@ -11,7 +11,7 @@ import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTok
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
-import {defaultTool, toolTokenMouseDown, toolTokenContext, toolTokenWheel, toolTokenMouseOver} from './tools.js';
+import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
@@ -281,7 +281,7 @@ export default (base: HTMLElement) => {
 		}
 		token.updateNode();
 		outline.setAttribute("transform", token.transformString(false));
-	      }, "oncontextmenu": toolTokenContext, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
+	      }, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
@@ -425,11 +425,10 @@ export default (base: HTMLElement) => {
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
 	}));
-	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
+	defaultTool.mapMouse0 = defaultTool.mapMouse1 = function (this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0 && e.button !== 1 || (e.target as HTMLElement)?.parentNode === outline) {
 			return false;
 		}
-		e.preventDefault();
 		if (e.button === 0) {
 			[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
 		}
@@ -567,15 +566,14 @@ export default (base: HTMLElement) => {
 		}
 		return false;
 	};
-	defaultTool.tokenMouseDown = (e: MouseEvent, n: Uint) => {
-		if (e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
-			return;
+	defaultTool.tokenMouse0 = (e: MouseEvent, n: Uint) => {
+		if ((e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
+			return false;
 		}
-		e.preventDefault();
 		if (n === 0 && e.shiftKey) {
 			const {layer, token} = globals.selected;
 			if (!layer) {
-				return;
+				return false;
 			}
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
 			for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
@@ -590,7 +588,7 @@ export default (base: HTMLElement) => {
 			if (newToken) {
 				selectToken(newToken);
 			}
-			return;
+			return false;
 		}
 		document.body.addEventListener("mousemove", tokenDrag);
 		document.body.addEventListener("mouseup", tokenMouseUp);
@@ -601,9 +599,9 @@ export default (base: HTMLElement) => {
 			const {selected: {token}} = globals;
 			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
+		return false;
 	};
-	defaultTool.tokenMouseContext = (e: MouseEvent) => {
-		e.preventDefault();
+	defaultTool.tokenMouse2 = (e: MouseEvent) => {
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = globals.selected;
 		if (!currLayer || !currToken) {
@@ -720,7 +718,7 @@ export default (base: HTMLElement) => {
 		]);
 		return false;
 	};
-	defaultTool.mapMouseContext = (e: MouseEvent) => {
+	defaultTool.mapMouse2 = (e: MouseEvent) => {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		if (e.ctrlKey) {

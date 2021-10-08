@@ -9,11 +9,8 @@ import {autosnap, measureTokenMove} from './settings.js';
 import lang from './language.js';
 
 const startDrag = function(this: SVGElement, e: MouseEvent) {
-	if (e.button === 1) {
-		return true;
-	}
 	const {selected: {layer: selectedLayer}} = globals;
-	if (e.button === 0 && selectedLayer) {
+	if (selectedLayer) {
 		let dx = 0, dy = 0;
 		const snap = selectedLayer.tokens.some(t => t.snap),
 		      [ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value),
@@ -80,10 +77,10 @@ addTool({
 		]),
 		path({"d": "M11,0 L6,5 L16,5 Z M0,11 L5,6 L 5,16 Z M11,22 L6,17 L16,17 Z M22,11 L17,16 L17,6 Z"})
 	]),
-	"mapMouseOver": mouseCursor,
 	"tokenMouseOver": mouseCursor,
-	"mapMouseDown": startDrag,
-	"tokenMouseDown": startDrag,
-	"mapMouseContext": disable,
-	"tokenMouseContext": disable
+	"tokenMouse0": startDrag,
+	"tokenMouse2": disable,
+	"mapMouse0": startDrag,
+	"mapMouse2": disable,
+	"mapMouseOver": mouseCursor
 });

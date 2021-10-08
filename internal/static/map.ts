@@ -7,7 +7,7 @@ import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSe
 import {scrollAmount, zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
-import {defaultTool, toolMapMouseDown, toolMapContext, toolMapWheel, toolMapMouseOver} from './tools.js';
+import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
 import {rpc, inited} from './rpc.js';
 import {tokenClass} from './plugins.js';
@@ -604,7 +604,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      percent = progress(),
 	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
 	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions[node], layerList[node]]),
-	      base = div({"id": "mapBase", "Conmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "oncontextmenu": (e: MouseEvent) => toolMapContext.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -665,10 +665,8 @@ export default (base: HTMLElement) => {
 		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
 	});
-	defaultTool.mapMouseDown = (e: MouseEvent) => {
-		if (e.button !== 0 && e.button !== 1) {
-			return false;
-		}
+	defaultTool.mapMouse0 = defaultTool.mapMouse1 = (e: MouseEvent) => {
+		console.log(3);
 		let mX = e.clientX,
 		    mY = e.clientY;
 		const button = e.button,
@@ -693,7 +691,7 @@ export default (base: HTMLElement) => {
 		root.addEventListener("mouseleave", stop);
 		return false;
 	};
-	defaultTool.mapMouseContext = (e: MouseEvent) => {
+	defaultTool.mapMouse2 = (e: MouseEvent) => {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		rpc.signalPosition(pos);
