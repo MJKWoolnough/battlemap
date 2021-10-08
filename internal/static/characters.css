@@ -45,6 +45,9 @@
 .tokenSelector {
 	overflow: hidden;
 	position: relative;
+}
+
+div.tokenSelector {
 	width: 200px;
 	height: 200px;
 }
