@@ -426,7 +426,7 @@ export default (base: HTMLElement) => {
 		mapLoadedSend(true);
 	}));
 	defaultTool.mapMouse0 = defaultTool.mapMouse1 = function (this: SVGElement, e: MouseEvent) {
-		if (e.button !== 0 && e.button !== 1 || (e.target as HTMLElement)?.parentNode === outline) {
+		if (e.button !== 0 && e.button !== 1 || (e.target as HTMLElement)?.parentNode === outline && e.button !== 1) {
 			return false;
 		}
 		if (e.button === 0) {
