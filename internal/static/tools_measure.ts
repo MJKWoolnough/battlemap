@@ -93,11 +93,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	};
 	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "onmouseleave": cleanup});
       },
-      disable = (e: MouseEvent) => {
-	if (e.button !== 0 && e.button !== 2) {
-		return;
-	}
-      },
+      disable = (e: MouseEvent) => e.button !== 0 && e.button !== 2,
       noopCleanup = () => {};
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
@@ -157,6 +153,7 @@ addTool({
 	]),
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
+		return false;
 	},
 	"mapMouseDown": disable,
 	"tokenMouseOver": function(this: SVGElement) {
@@ -164,6 +161,7 @@ addTool({
 		showMarker(root)
 		root.style.setProperty("--outline-cursor", "none");
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
+		return false;
 	},
 	"tokenMouseDown": disable,
 	"tokenMouseContext": disable,

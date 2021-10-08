@@ -8,69 +8,67 @@ import {startMeasurement, measureDistance, stopMeasurement} from './tools_measur
 import {autosnap, measureTokenMove} from './settings.js';
 import lang from './language.js';
 
-const startDrag = function(this: SVGElement, e: MouseEvent): boolean | void {
+const startDrag = function(this: SVGElement, e: MouseEvent) {
 	if (e.button === 1) {
 		return true;
 	}
-	if (e.button !== 0) {
-		return;
-	}
 	const {selected: {layer: selectedLayer}} = globals;
-	if (!selectedLayer) {
-		return;
+	if (e.button === 0 && selectedLayer) {
+		let dx = 0, dy = 0;
+		const snap = selectedLayer.tokens.some(t => t.snap),
+		      [ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value),
+		      measure = measureTokenMove.value,
+		      mover = (e: MouseEvent) => {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+			dx = (x - ox) / panZoom.zoom;
+			dy = (y - oy) / panZoom.zoom;
+			selectedLayer[node].setAttribute("transform", `translate(${dx}, ${dy})`);
+			if (measure) {
+				measureDistance(x, y);
+			}
+		      },
+		      mouseUp = (e: MouseEvent) => {
+			if (e.button !== 0) {
+				return;
+			}
+			this.removeEventListener("mousemove", mover);
+			this.removeEventListener("mouseup", mouseUp);
+			document.body.removeEventListener("keydown", cancel)
+			selectedLayer[node].removeAttribute("transform");
+			doLayerShift(selectedLayer.path, dx, dy);
+			if (measure) {
+				stopMeasurement();
+			}
+		      },
+		      cancel = (e: KeyboardEvent) => {
+			if (e.key !== "Escape") {
+				return;
+			}
+			if (measure) {
+				stopMeasurement();
+			}
+			this.removeEventListener("mousemove", mover);
+			this.removeEventListener("mouseup", mouseUp);
+			document.body.removeEventListener("keydown", cancel)
+			selectedLayer[node].removeAttribute("transform");
+		      };
+		if (measure) {
+			startMeasurement(ox, oy);
+		}
+		deselectToken();
+		this.addEventListener("mousemove", mover);
+		this.addEventListener("mouseup", mouseUp);
+		document.body.addEventListener("keydown", cancel);
 	}
-	let dx = 0, dy = 0;
-	const snap = selectedLayer.tokens.some(t => t.snap),
-	      [ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value),
-	      measure = measureTokenMove.value,
-	      mover = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
-		dx = (x - ox) / panZoom.zoom;
-		dy = (y - oy) / panZoom.zoom;
-		selectedLayer[node].setAttribute("transform", `translate(${dx}, ${dy})`);
-		if (measure) {
-			measureDistance(x, y);
-		}
-	      },
-	      mouseUp = (e: MouseEvent) => {
-		if (e.button !== 0) {
-			return;
-		}
-		this.removeEventListener("mousemove", mover);
-		this.removeEventListener("mouseup", mouseUp);
-		document.body.removeEventListener("keydown", cancel)
-		selectedLayer[node].removeAttribute("transform");
-		doLayerShift(selectedLayer.path, dx, dy);
-		if (measure) {
-			stopMeasurement();
-		}
-	      },
-	      cancel = (e: KeyboardEvent) => {
-		if (e.key !== "Escape") {
-			return;
-		}
-		if (measure) {
-			stopMeasurement();
-		}
-		this.removeEventListener("mousemove", mover);
-		this.removeEventListener("mouseup", mouseUp);
-		document.body.removeEventListener("keydown", cancel)
-		selectedLayer[node].removeAttribute("transform");
-	      };
-	if (measure) {
-		startMeasurement(ox, oy);
-	}
-	deselectToken();
-	this.addEventListener("mousemove", mover);
-	this.addEventListener("mouseup", mouseUp);
-	document.body.addEventListener("keydown", cancel);
+	return false;
       },
       mouseCursor = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	this.style.setProperty("cursor", "move");
 	this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
+	return false;
       },
-      disable = () => {};
+      disable = () => false;
 
 addTool({
 	"name": lang["TOOL_MOVE"],

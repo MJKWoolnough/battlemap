@@ -90,7 +90,7 @@ if (isAdmin) {
 			snap.click();
 		}
 	      },
-	      disabled = (e: Event) => e.preventDefault();
+	      disabled = () => false;
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
@@ -143,7 +143,7 @@ if (isAdmin) {
 		]),
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 			if (over) {
-				return;
+				return false;
 			}
 			over = true;
 			if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
@@ -229,7 +229,7 @@ if (isAdmin) {
 		"mapMouseContext": disabled,
 		"mapMouseDown": () => {
 			if (selectedEffect === cubeEffect || selectedEffect === wallEffect) {
-				return;
+				return false;
 			}
 			return true;
 		},

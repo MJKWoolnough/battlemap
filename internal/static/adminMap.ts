@@ -427,7 +427,7 @@ export default (base: HTMLElement) => {
 	}));
 	defaultTool.mapMouseDown = function (this: SVGElement, e: MouseEvent) {
 		if (e.button !== 0 && e.button !== 1 || (e.target as HTMLElement)?.parentNode === outline) {
-			return;
+			return false;
 		}
 		e.preventDefault();
 		if (e.button === 0) {
@@ -443,16 +443,16 @@ export default (base: HTMLElement) => {
 			}
 			if (newToken) {
 				selectToken(newToken);
-				return;
+				return false;
 			}
 		}
 		if (!e.ctrlKey && e.button !== 1) {
 			const {outline} = globals;
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
 				document.body.style.removeProperty("--outline-cursor");
-				return;
+				return false;
 			} else if (e.target && (e.target as ChildNode).parentNode === outline) {
-				return;
+				return false;
 			}
 		}
 		this.style.setProperty("--outline-cursor", "grabbing");
@@ -479,6 +479,7 @@ export default (base: HTMLElement) => {
 		this.addEventListener("mousemove", viewDrag);
 		this.addEventListener("mouseup", stop);
 		this.addEventListener("mouseleave", stop)
+		return false
 	}
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
 		const {selected: {layer: selectedLayer}, outline} = globals,
@@ -564,6 +565,7 @@ export default (base: HTMLElement) => {
 				window.removeEventListener("keyup", keyUp);
 			}, {"once": true})
 		}
+		return false;
 	};
 	defaultTool.tokenMouseDown = (e: MouseEvent, n: Uint) => {
 		if (e.button !== 0 || (e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
@@ -605,7 +607,7 @@ export default (base: HTMLElement) => {
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = globals.selected;
 		if (!currLayer || !currToken) {
-			return;
+			return false;
 		}
 		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
 		place(document.body, [e.clientX, e.clientY], [
@@ -716,6 +718,7 @@ export default (base: HTMLElement) => {
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
+		return false;
 	};
 	defaultTool.mapMouseContext = (e: MouseEvent) => {
 		const pos = screen2Grid(e.clientX, e.clientY);
@@ -728,6 +731,7 @@ export default (base: HTMLElement) => {
 		} else {
 			rpc.signalPosition(pos);
 		}
+		return false;
 	};
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));

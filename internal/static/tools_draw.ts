@@ -119,11 +119,11 @@ const draw = (root: SVGElement, e: MouseEvent) => {
 		window.addEventListener("keydown", onkeydown);
 	}
       },
-      oncontext = (e: MouseEvent) => {
-	e.preventDefault();
+      oncontext = () => {
 	if (contextOverride) {
 		contextOverride();
 	}
+	return false;
       },
       marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
@@ -193,18 +193,26 @@ addTool({
 	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		if (e.button === 0) {
 			draw(this, e);
+			return false;
 		}
+		return true;
 	},
 	"mapMouseOver": function(this: SVGElement) {
 		showMarker(this);
+		return false;
 	},
 	"mapMouseContext": oncontext,
 	"tokenMouseDown": (e: MouseEvent) => {
 		if (e.button === 0) {
 			draw(globals.root, e);
+			return false;
 		}
+		return true;
 	},
-	"tokenMouseOver": () => showMarker(globals.root),
+	"tokenMouseOver": () => {
+		showMarker(globals.root);
+		return false;
+	},
 	"tokenMouseContext": oncontext,
 	"unset": () => marker.remove()
 });

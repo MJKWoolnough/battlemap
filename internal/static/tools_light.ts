@@ -71,11 +71,12 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true}),
 			this.removeEventListener("mousemove", onmousemove);
 		}});
 	}
+	return false;
       },
       mouseDown = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	if (e.button !== 0) {
-		return;
+		return true;
 	}
 	if (sunTool.checked) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
@@ -127,6 +128,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true}),
 		doWallRemove(lastWall.wall.id);
 		genWalls();
 	}
+	return false;
       },
       wallLayer = g({"stroke-width": 2}),
       walls: WallData[] = [],

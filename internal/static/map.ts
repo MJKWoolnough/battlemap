@@ -650,13 +650,13 @@ mapView = (mapData: MapData, loadChars = false) => {
 };
 
 defaultTool.mapMouseWheel = (e: WheelEvent) => {
-	e.preventDefault();
 	if (e.ctrlKey) {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
 		const amount = scrollAmount.value || 100;
 		createSVG(globals.root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
+	return false;
 };
 
 export default (base: HTMLElement) => {
@@ -667,7 +667,7 @@ export default (base: HTMLElement) => {
 	});
 	defaultTool.mapMouseDown = (e: MouseEvent) => {
 		if (e.button !== 0 && e.button !== 1) {
-			return;
+			return false;
 		}
 		let mX = e.clientX,
 		    mY = e.clientY;
@@ -691,11 +691,13 @@ export default (base: HTMLElement) => {
 		root.addEventListener("mousemove", viewDrag);
 		root.addEventListener("mouseup", stop);
 		root.addEventListener("mouseleave", stop);
+		return false;
 	};
 	defaultTool.mapMouseContext = (e: MouseEvent) => {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		rpc.signalPosition(pos);
+		return false;
 	};
 	let sliding = -1;
 	rpc.waitSignalMovePosition().then(pos => {

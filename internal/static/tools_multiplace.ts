@@ -82,13 +82,13 @@ addTool(Object.freeze({
 			i
 		])
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent): boolean | void {
+	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
 		const {layer} = globals.selected;
 		if (mode.checked || !token || !cursor || !layer || e.button === 1) {
 			return true;
 		}
 		if (e.button !== 0) {
-			return;
+			return false;
 		}
 		e.preventDefault();
 		cursor[node].remove();
@@ -97,13 +97,14 @@ addTool(Object.freeze({
 		doTokenAdd(layer.path, token);
 		setCursor();
 		globals.selected.layer![node].appendChild(cursor[node]);
+		return false;
 	},
-	"mapMouseOver": function (this: SVGElement, e: MouseEvent): boolean | void {
+	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
 		if (mode.checked) {
 			return true;
 		}
 		if (e.target instanceof HTMLDivElement || !cursor || cursor[node].parentNode || !token) {
-			return;
+			return false;
 		}
 		const {layer} = globals.selected,
 		      {width, height} = token,
@@ -120,12 +121,12 @@ addTool(Object.freeze({
 				globals.root.removeEventListener("mousemove", onmousemove);
 			}
 		      };
-		if (!layer) {
-			return;
+		if (layer) {
+			onmousemove(e);
+			layer[node].appendChild(cursor[node]);
+			createSVG(globals.root, {onmousemove, onmouseleave, "style": {"cursor": "none"}})
 		}
-		onmousemove(e);
-		layer[node].appendChild(cursor[node]);
-		createSVG(globals.root, {onmousemove, onmouseleave, "style": {"cursor": "none"}})
+		return false;
 	},
 	"set": () => {
 		if (!mode.checked) {

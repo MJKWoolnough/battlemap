@@ -8,8 +8,8 @@ import lang from './language.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
 
-type MouseFn = (this: SVGElement, e: MouseEvent) => void;
-type WheelFn = (this: SVGElement, e: WheelEvent) => void;
+type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
+type WheelFn = (this: SVGElement, e: WheelEvent) => boolean;
 
 type Tool = {
 	name: string;
