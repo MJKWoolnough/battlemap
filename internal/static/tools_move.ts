@@ -3,7 +3,7 @@ import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
 import {doLayerShift} from './map_fns.js';
 import {panZoom, screen2Grid} from './map.js';
-import {addTool} from './tools.js';
+import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import lang from './language.js';
@@ -64,8 +64,7 @@ const startDrag = function(this: SVGElement, e: MouseEvent) {
 	this.style.setProperty("cursor", "move");
 	this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
 	return false;
-      },
-      disable = () => false;
+      };
 
 addTool({
 	"name": lang["TOOL_MOVE"],
@@ -81,6 +80,6 @@ addTool({
 	"tokenMouse0": startDrag,
 	"tokenMouse2": disable,
 	"mapMouse0": startDrag,
-	"mapMouse2": disable,
+	"mapMouse2": ignore,
 	"mapMouseOver": mouseCursor
 });

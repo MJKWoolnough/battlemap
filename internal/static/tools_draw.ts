@@ -7,7 +7,7 @@ import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
-import {addTool} from './tools.js';
+import {addTool, ignore} from './tools.js';
 import lang from './language.js';
 
 let over = false,
@@ -28,8 +28,7 @@ const marker = g([
 		snap.click();
 	}
       },
-      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1}),
-      ignore = () => false;
+      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 let fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};

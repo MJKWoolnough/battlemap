@@ -2,7 +2,7 @@ import type {Uint} from '../types.js';
 import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
-import {addTool} from '../tools.js';
+import {addTool, ignore} from '../tools.js';
 import {screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
@@ -107,7 +107,6 @@ if (isAdmin) {
 			document.body.removeEventListener("mouseup", mouseup);
 		}
 	      },
-	      disabled = () => false,
 	      mousemove = (e: MouseEvent) => {
 		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -232,7 +231,7 @@ if (isAdmin) {
 		"tokenMouse0": function(this: SVGElement, e: MouseEvent) {
 			return !this.previousSibling && e.shiftKey;
 		},
-		"tokenMouse2": disabled,
+		"tokenMouse2": ignore,
 		"unset": mouseout
 	}));
 	mapLoadedReceive(() => setSize(size, width));

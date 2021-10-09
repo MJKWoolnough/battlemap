@@ -1,7 +1,7 @@
 import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
-import {addTool} from './tools.js';
+import {addTool, ignore} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
@@ -62,7 +62,6 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 		}
 	}
       },
-      disable = () => false,
       fullCleanup = () => {
 	document.body.removeEventListener("mouseup", mouseUp0);
 	document.body.removeEventListener("mouseup", mouseUp2);
@@ -150,8 +149,8 @@ addTool({
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 		return false;
 	},
-	"tokenMouse0": disable,
-	"tokenMouse2": disable,
+	"tokenMouse0": ignore,
+	"tokenMouse2": ignore,
 	"mapMouse0": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		startMeasurement(x, y);
