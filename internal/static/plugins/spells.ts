@@ -68,6 +68,9 @@ if (isAdmin) {
 			selectedEffect.replaceWith(effect);
 		}
 		selectedEffect = effect;
+		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
+			setTokenCentre();
+		}
 	      },
 	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [effectList.indexOf(selectedEffect) ?? 0, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
