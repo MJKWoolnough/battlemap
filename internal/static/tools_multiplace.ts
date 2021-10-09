@@ -28,7 +28,7 @@ let setToken: (() => TokenImage) | null = null,
     token: TokenImage | null = null,
     cursor: SVGToken | null = null;
 
-addTool(Object.freeze({
+addTool({
 	"name": lang["TOOL_MULTIPLACE"],
 	"icon": svg({"viewBox": "0 0 100 100", "stroke": "currentColor", "fill": "none"}, [
 		title(lang["TOOL_MULTIPLACE"]),
@@ -133,7 +133,7 @@ addTool(Object.freeze({
 			deselectToken();
 		}
 	}
-}));
+});
 
 layersRPC.waitLayerSelect().then(() => {
 	const {layer} = globals.selected;
