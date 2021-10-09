@@ -8,8 +8,6 @@ import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './sh
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
-let over = false;
-
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {mapData: {width, height}} = globals;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
@@ -39,61 +37,47 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       ltwo = line({"stroke": "#000", "stroke-width": 6}),
       drawnLine = g([lone, ltwo, spot]),
       coords: [number, number] = [NaN, NaN],
-      showMarker = (root: SVGElement) => {
-	if (over) {
-		return;
-	}
-	over = true;
-	createSVG(root, {"style": {"cursor": "none"}}, marker);
-	let send = false;
-	const onmousedown = (e: MouseEvent) => {
-		if (e.button === 0) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			startMeasurement(x, y);
-		} else if (e.button === 2 && !isNaN(coords[0]) && !send) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			rpc.signalMeasure([coords[0], coords[1], x, y]);
-			send = true;
-		}
-	      },
-	      onmouseup = (e: MouseEvent) => {
-		switch (e.button) {
-		case 0:
-			stopMeasurement();
-		case 2:
-			if (send) {
-				rpc.signalMeasure(null);
-				send = false;
-			}
-		}
-	      },
-	      onmousemove = (e: MouseEvent) => {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
-		if (!isNaN(coords[0])) {
-			measureDistance(x, y);
-			if (send) {
-				rpc.signalMeasure([coords[0], coords[1], x, y]);
-			}
-		}
-	      };
-	cleanup = () => {
-		document.body.removeEventListener("mousedown", onmousedown);
-		document.body.removeEventListener("mouseup", onmouseup);
-		document.body.removeEventListener("mousemove", onmousemove);
-		document.body.removeEventListener("mouseleave", cleanup);
-		globals.root.style.removeProperty("cursor");
+      mouseUp0 = (e: MouseEvent) => {
+	if (e.button === 0) {
 		stopMeasurement();
-		marker.remove();
-		over = false;
+		document.body.removeEventListener("mouseup", mouseUp0);
+	}
+      },
+      mouseUp2 = (e: MouseEvent) => {
+	if (e.button === 2) {
 		if (send) {
 			rpc.signalMeasure(null);
+			send = false;
 		}
-		cleanup = noopCleanup;
-	};
-	createSVG(document.body, {onmousedown, onmouseup, onmousemove, "onmouseleave": cleanup});
+		document.body.removeEventListener("mouseup", mouseUp2);
+	}
       },
-      disable = (e: MouseEvent) => e.button !== 0 && e.button !== 2,
+      onmousemove = (e: MouseEvent) => {
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
+	if (!isNaN(coords[0])) {
+		measureDistance(x, y);
+		if (send) {
+			rpc.signalMeasure([coords[0], coords[1], x, y]);
+		}
+	}
+      },
+      disable = () => false,
+      fullCleanup = () => {
+	document.body.removeEventListener("mouseup", mouseUp0);
+	document.body.removeEventListener("mouseup", mouseUp2);
+	document.body.removeEventListener("mousemove", onmousemove);
+	document.body.removeEventListener("mouseleave", cleanup);
+	globals.root.style.removeProperty("cursor");
+	stopMeasurement();
+	marker.remove();
+	over = false;
+	if (send) {
+		rpc.signalMeasure(null);
+		send = false;
+	}
+	cleanup = noopCleanup;
+      },
       noopCleanup = () => {};
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
@@ -136,7 +120,7 @@ stopMeasurement = () => {
 	coords[1] = NaN;
 };
 
-let cleanup = noopCleanup;
+let over = false, send = false, cleanup = noopCleanup;
 
 window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
@@ -152,20 +136,35 @@ addTool({
 		labels(`${lang["TOOL_MEASURE_CELL"]}: `, cellValue)
 	]),
 	"mapMouseOver": function(this: SVGElement) {
-		showMarker(this);
+		if (!over) {
+			over = true;
+			createSVG(this, {"style": {"cursor": "none"}}, marker);
+			cleanup = fullCleanup;
+			createHTML(document.body, {onmousemove, "onmouseleave": cleanup});
+		}
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
 		const {root} = globals;
-		showMarker(root)
 		root.style.setProperty("--outline-cursor", "none");
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 		return false;
 	},
 	"tokenMouse0": disable,
 	"tokenMouse2": disable,
-	"mapMouse0": disable,
-	"mapMouse2": disable,
+	"mapMouse0": (e: MouseEvent) => {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		startMeasurement(x, y);
+		document.body.addEventListener("mouseup", mouseUp0);
+		return false;
+	},
+	"mapMouse2": (e: MouseEvent) => {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		rpc.signalMeasure([coords[0], coords[1], x, y]);
+		send = true;
+		document.body.addEventListener("mouseup", mouseUp2);
+		return false;
+	},
 	"unset": () => cleanup()
 });
 
