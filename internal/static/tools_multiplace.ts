@@ -2,7 +2,7 @@ import type {TokenImage, Uint} from './types.js';
 import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
-import {addTool} from './tools.js';
+import {addTool, disable, ignore} from './tools.js';
 import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
@@ -99,6 +99,7 @@ addTool({
 		globals.selected.layer![node].appendChild(cursor[node]);
 		return false;
 	},
+	"mapMouse2": ignore,
 	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
 		if (mode.checked) {
 			return true;
@@ -128,6 +129,7 @@ addTool({
 		}
 		return false;
 	},
+	"tokenMouse2": disable,
 	"set": () => {
 		if (!mode.checked) {
 			deselectToken();
