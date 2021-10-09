@@ -90,7 +90,56 @@ if (isAdmin) {
 			snap.click();
 		}
 	      },
-	      disabled = () => false;
+	      mouseupRotate = (e: MouseEvent) => {
+		if (e.button === 0 && rotate) {
+			rotate = false;
+			document.body.removeEventListener("mouseup", mouseupRotate);
+		}
+	      },
+	      mouseup = (e: MouseEvent) => {
+		if (e.button === 2) {
+			send = false;
+			cancelEffect();
+			document.body.removeEventListener("mouseup", mouseup);
+		}
+	      },
+	      disabled = () => false,
+	      mousemove = (e: MouseEvent) => {
+		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
+			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
+			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
+		} else {
+			[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+		}
+		if (send) {
+			sendEffect();
+		}
+	      },
+	      mouseout = () => {
+		if (send) {
+			cancelEffect();
+			send = false;
+		}
+		document.body.removeEventListener("mousemove", mousemove);
+		document.body.removeEventListener("mouseup", mouseup);
+		document.body.removeEventListener("keydown", keydown);
+		selectedEffect?.remove();
+		over = false;
+	      },
+	      keydown = (e: KeyboardEvent) => {
+		if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
+			return;
+		}
+		const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
+		      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
+		      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
+		      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};
+		if (layer) {
+			doTokenAdd(layer.path, token);
+		}
+	      };
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
@@ -98,7 +147,9 @@ if (isAdmin) {
 	    rotation = 0,
 	    size = 20,
 	    width = 5,
-	    damageType = 0;
+	    damageType = 0,
+	    send = false,
+	    rotate = false;
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -151,95 +202,34 @@ if (isAdmin) {
 			} else {
 				[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			}
-			let send = false,
-			    rotate = false;
-			const mousemove = (e: MouseEvent) => {
-				if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
-					const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
-					rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
-					rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
-				} else {
-					[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-					selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
-				}
-				if (send) {
-					sendEffect();
-				}
-			      },
-			      mousedown = (e: MouseEvent) => {
-				if (e.button === 0 && (selectedEffect === cubeEffect || selectedEffect === wallEffect)) {
-					rotate = true;
-					this.addEventListener("mouseup", mouseupRotate);
-					e.preventDefault();
-				}
-				if (e.button !== 2 || !selectedEffect.parentNode) {
-					return;
-				}
-				send = true;
-				sendEffect();
-				this.addEventListener("mouseup", mouseup);
-			      },
-			      mouseupRotate = (e: MouseEvent) => {
-				if (e.button === 0 && rotate) {
-					rotate = false;
-					this.removeEventListener("mouseup", mouseupRotate);
-				}
-			      },
-			      mouseup = (e: MouseEvent) => {
-				if (e.button !== 2) {
-					return;
-				}
-				send = false;
-				cancelEffect();
-				this.removeEventListener("mouseup", mouseup);
-			      },
-			      mouseout = () => {
-				if (send) {
-					cancelEffect();
-				}
-				this.removeEventListener("mousemove", mousemove);
-				this.removeEventListener("mousedown", mousedown);
-				this.removeEventListener("mouseup", mouseup);
-				this.removeEventListener("keydown", keydown);
-				selectedEffect?.remove();
-				over = false;
-			      },
-			      keydown = (e: KeyboardEvent) => {
-				if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
-					return;
-				}
-				const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
-				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
-				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
-				      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};
-				if (layer) {
-					doTokenAdd(layer.path, token);
-				}
-			      };
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
 				this.appendChild(selectedEffect);
 			}
-			this.addEventListener("mousemove", mousemove);
-			this.addEventListener("mousedown", mousedown);
-			this.addEventListener("keydown", keydown);
-			this.addEventListener("mouseleave", mouseout, {"once": true});
+			document.body.addEventListener("mousemove", mousemove);
+			document.body.addEventListener("keydown", keydown);
+			document.body.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
 		},
 		"mapMouse0": () => {
 			if (selectedEffect === cubeEffect || selectedEffect === wallEffect) {
+				rotate = true;
+				document.body.addEventListener("mouseup", mouseupRotate);
 				return false;
 			}
 			return true;
 		},
-		"mapMouse2": disabled,
+		"mapMouse2": () => {
+			send = true;
+			sendEffect();
+			document.body.addEventListener("mouseup", mouseup);
+			return false;
+		},
 		"tokenMouse0": function(this: SVGElement, e: MouseEvent) {
-			if (this.previousSibling || !e.shiftKey) {
-				return false;
-			}
-			return true;
+			return !this.previousSibling && e.shiftKey;
 		},
-		"tokenMouse2": disabled
+		"tokenMouse2": disabled,
+		"unset": mouseout
 	}));
 	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {
@@ -264,7 +254,8 @@ if (isAdmin) {
 			console.log("plugin spells: broadcast data must be an array with length 7");
 			return;
 		}
-		const [effect, size, width, x, y, rotation, damageType] = data;
+		const [effect, size, width, x, y, rotation, damageType] = data,
+		      selectedEffect = effectList[effect];
 		for (const [a, log] of [
 			[isUint(effect, effectList.length - 1), "invalid type"],
 			[isInt(size, 1, 1000), "invalid size"],
@@ -278,7 +269,6 @@ if (isAdmin) {
 				return;
 			}
 		}
-		const selectedEffect = effectList[effect];
 		if (lastEffect !== selectedEffect) {
 			lastEffect?.remove();
 			globals.root.appendChild(selectedEffect);
