@@ -82,7 +82,7 @@ addTool({
 			i
 		])
 	]),
-	"mapMouseDown": function(this: SVGElement, e: MouseEvent) {
+	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
 		const {layer} = globals.selected;
 		if (mode.checked || !token || !cursor || !layer || e.button === 1) {
 			return true;
