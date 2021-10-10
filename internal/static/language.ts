@@ -150,6 +150,7 @@ const defaultLanguage = {
 	"TITLE": "Battlemap",
 	"TOKEN": "Token",
 	"TOKEN_ADD": "Add Token",
+	"TOKEN_NEXT": "Next Token",
 	"TOKEN_ORDER": "Token Order",
 	"TOKEN_ORDER_NORMAL": "Normal",
 	"TOKEN_ORDER_SHUFFLE": "Shuffle",
