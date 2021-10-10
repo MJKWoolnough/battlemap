@@ -1,11 +1,11 @@
-import type {Colour} from './types.js';
+import type {Byte, Colour} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {br, button, div, h1, input} from './lib/html.js';
 import {windows, shell} from './windows.js';
 import {checkInt, isUint, labels} from './shared.js';
 import lang from './language.js';
 
-export const hex2Colour = (hex: string, a = 255): Colour => Object.freeze({"r": checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), "g": checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), "b": checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a}),
+export const hex2Colour = (hex: string, a: Byte = 255): Colour => Object.freeze({"r": checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), "g": checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), "b": checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a}),
 colour2Hex = (c: Colour) => `#${c.r.toString(16).padStart(2, "0")}${c.g.toString(16).padStart(2, "0")}${c.b.toString(16).padStart(2, "0")}`,
 colour2RGBA = (c: Colour) => `rgba(${c.r}, ${c.g}, ${c.b}, ${c.a / 255})`,
 noColour = Object.freeze({"r": 0, "g": 0, "b": 0, "a": 0}),
