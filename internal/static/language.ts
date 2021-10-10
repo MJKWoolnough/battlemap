@@ -73,7 +73,6 @@ const defaultLanguage = {
 	"LAYER_NAME": "Name",
 	"LAYER_RENAME": "Rename Layer",
 	"LAYER_TOGGLE_VISIBILITY": "Toggle Visibility",
-	"LIGHT_MODE": "Light Mode",
 	"LIGHTING_COLOUR": "Light Colour",
 	"LIGHTING_INTENSITY": "Light Intensity (Distance)",
 	"LIGHTING_PICK_COLOUR": "Pick Token Lighting Colour",
