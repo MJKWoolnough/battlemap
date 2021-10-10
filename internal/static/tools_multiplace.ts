@@ -80,7 +80,8 @@ addTool({
 				setImg(src);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
-		])
+		]),
+		button({"onclick": () => cursor && setCursor()}, lang["TOKEN_NEXT"])
 	]),
 	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
 		const {layer} = globals.selected;
