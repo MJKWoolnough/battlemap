@@ -12,7 +12,11 @@ import lang from './language.js';
 
 let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
-    contextOverride: null | Function = null;
+    contextOverride: null | Function = null,
+    fillColour = noColour,
+    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
+
+
 const marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
 	      polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
@@ -29,9 +33,6 @@ const marker = g([
 	}
       },
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
-
-let fillColour = noColour,
-    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
 
 window.addEventListener("keydown", shiftSnap);
 window.addEventListener("keyup", shiftSnap);
