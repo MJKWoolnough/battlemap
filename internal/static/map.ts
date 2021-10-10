@@ -855,4 +855,4 @@ export default (base: HTMLElement) => {
 	rpc.waitMapDataRemove().then(key => {
 		delete globals.mapData.data[key];
 	})
-}
+};

@@ -190,4 +190,4 @@ export default (base: HTMLElement) => {
 			}
 		}
 	});
-}
+};

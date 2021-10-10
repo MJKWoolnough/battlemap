@@ -235,4 +235,4 @@ export default (base: Node) => {
 			root[node]
 		]);
 	});
-}
+};

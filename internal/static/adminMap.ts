@@ -772,4 +772,4 @@ export default (base: HTMLElement) => {
 		}
 	});
 	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
-}
+};

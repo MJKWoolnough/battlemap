@@ -143,4 +143,4 @@ export default () => {
 		}
 		return Promise.all(ls);
 	});
-}
+};

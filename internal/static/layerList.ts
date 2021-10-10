@@ -395,4 +395,4 @@ export default (base: HTMLElement) => {
 		};
 	    };
 	mapLoadedReceive(() => loadFn());
-}
+};

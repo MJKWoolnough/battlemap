@@ -528,4 +528,4 @@ export default (base: Node) => {
 			return undefined;
 		});
 	});
-}
+};

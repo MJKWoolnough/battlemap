@@ -314,7 +314,7 @@ export default (url: string): Promise<void> => {
 		Object.freeze(rpc);
 		return inited;
 	});
-}
+};
 
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 

@@ -164,4 +164,4 @@ export default () => {
 	} else {
 		help.remove();
 	}
-}
+};
