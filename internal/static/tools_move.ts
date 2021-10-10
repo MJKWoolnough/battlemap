@@ -34,30 +34,25 @@ addTool({
 					measureDistance(x, y);
 				}
 			      },
-			      mouseUp = (e: MouseEvent) => {
-				if (e.button !== 0) {
-					return;
-				}
+			      stop = () => {
 				this.removeEventListener("mousemove", mover);
 				this.removeEventListener("mouseup", mouseUp);
 				document.body.removeEventListener("keydown", cancel)
 				selectedLayer[node].removeAttribute("transform");
-				doLayerShift(selectedLayer.path, dx, dy);
 				if (measure) {
 					stopMeasurement();
 				}
 			      },
+			      mouseUp = (e: MouseEvent) => {
+				if (e.button === 0) {
+					stop();
+					doLayerShift(selectedLayer.path, dx, dy);
+				}
+			      },
 			      cancel = (e: KeyboardEvent) => {
-				if (e.key !== "Escape") {
-					return;
+				if (e.key === "Escape") {
+					stop();
 				}
-				if (measure) {
-					stopMeasurement();
-				}
-				this.removeEventListener("mousemove", mover);
-				this.removeEventListener("mouseup", mouseUp);
-				document.body.removeEventListener("keydown", cancel)
-				selectedLayer[node].removeAttribute("transform");
 			      };
 			if (measure) {
 				startMeasurement(ox, oy);
