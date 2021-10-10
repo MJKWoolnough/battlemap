@@ -217,7 +217,7 @@ const defaultLanguage = {
 	"UPLOADING": "Uploading Files...",
 	"ZOOM_SLIDER_HIDE": "Hide Zoom Slider"
       },
-      overlayLang = <Pack extends Record<string, string> = typeof defaultLanguage>(pack: {[K in keyof Pack]?: string;}, base: Pack): Pack => {
+      overlayLang = <Pack extends Record<string, string> = typeof defaultLanguage>(pack: Partial<Pack>, base: Pack): Pack => {
 	for (const s in base) {
 		if (!pack[s]) {
 			pack[s] = base[s];
