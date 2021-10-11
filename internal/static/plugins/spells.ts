@@ -232,7 +232,15 @@ if (isAdmin) {
 			return !this.previousSibling && e.shiftKey;
 		},
 		"tokenMouse2": ignore,
-		"unset": mouseout
+		"set": () => {
+			window.addEventListener("keydown", shiftSnap);
+			window.addEventListener("keyup", shiftSnap);
+		},
+		"unset": () => {
+			mouseout();
+			window.removeEventListener("keydown", shiftSnap);
+			window.removeEventListener("keyup", shiftSnap);
+		}
 	}));
 	mapLoadedReceive(() => setSize(size, width));
 	tokenSelectedReceive(() => {
@@ -240,8 +248,6 @@ if (isAdmin) {
 			setTokenCentre()
 		}
 	});
-	window.addEventListener("keydown", shiftSnap);
-	window.addEventListener("keyup", shiftSnap);
 } else {
 	let lastEffect: SVGGElement | null = null;
 	rpc.waitBroadcast().then(({type, data}) => {
