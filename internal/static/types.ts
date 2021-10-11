@@ -50,9 +50,9 @@ type RPCWaits = {
 	waitMapLightChange:          () => Subscription<Colour>;
 	waitLayerShow:               () => Subscription<string>;
 	waitLayerHide:               () => Subscription<string>;
-	waitLayerMaskAdd:            () => Subscription<Uint>;        //check type
-	waitLayerMaskChange:         () => Subscription<Uint>;        //check type
-	waitLayerMaskRemove:         () => Subscription<Uint>;        //check type
+	waitMaskAdd:                 () => Subscription<Uint[]>;
+	waitMaskRemove:              () => Subscription<Uint>;
+	waitMaskReset:               () => Subscription<boolean>;
 	waitTokenAdd:                () => Subscription<TokenAdd>;
 	waitTokenRemove:             () => Subscription<Uint>;
 	waitTokenMoveLayerPos:       () => Subscription<TokenMoveLayerPos>;
@@ -123,9 +123,10 @@ export type RPC = RPCWaits & {
 	moveLayer:        (from: string, to: string, position: Uint)                             => Promise<void>;
 	showLayer:        (path: string)                                                         => Promise<void>;
 	hideLayer:        (path: string)                                                         => Promise<void>;
-	addMask:          (path: string, mask: Uint)                                             => Promise<void>;
-	removeMask:       (path: string)                                                         => Promise<void>;
 	removeLayer:      (path: string)                                                         => Promise<void>;
+	addToMask:        (mask: Uint[])                                                         => Promise<void>;
+	removeFromMask:   (mask: Uint)                                                           => Promise<void>;
+	resetMask:        (opaque: boolean)                                                      => Promise<void>;
 	addToken:         (path: string, token: Token)                                           => Promise<Uint>;
 	removeToken:      (id: Uint)                                                             => Promise<void>;
 	setToken:         (t: TokenSet)                                                          => Promise<void>;
@@ -173,6 +174,8 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
+	maskOpaque: boolean;
+	mask: Uint[][];
 	data: Record<string, any>;
 };
 
