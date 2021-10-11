@@ -185,6 +185,72 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, nil
+	case "addToMask":
+		var mask []uint64
+		if err := json.Unmarshal(data, &mask); err != nil {
+			return nil, err
+		}
+		if len(mask) == 0 {
+			return nil, ErrInvalidMaskData
+		}
+		switch mask[0] {
+		case 0, 1: // rect
+			if len(mask) != 5 {
+				return nil, ErrInvalidMaskData
+			}
+		case 2, 3: // ellipse
+			if len(mask) != 4 {
+				return nil, ErrInvalidMaskData
+			}
+		case 4, 5: // poly
+			if l := len(mask); l < 7 || l&1 == 0 {
+				return nil, ErrInvalidMaskData
+			}
+		default:
+			return nil, ErrInvalidMaskData
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.Mask = append(mp.Mask, mask)
+			m.socket.broadcastMapChange(cd, broadcastMaskAdd, data, userAny)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
+	case "removeFromMask":
+		var (
+			toRemove int
+			errr     error
+		)
+		if err := json.Unmarshal(data, &toRemove); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			if toRemove < 0 || toRemove >= len(mp.Mask) {
+				errr = ErrInvalidMaskIndex
+				return false
+			}
+			mp.Mask = append(mp.Mask[:toRemove], mp.Mask[toRemove+1:]...)
+			m.socket.broadcastMapChange(cd, broadcastMaskRemove, data, userAny)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, errr
+	case "resetMask":
+		var startOpaque bool
+		if err := json.Unmarshal(data, &startOpaque); err != nil {
+			return nil, err
+		}
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			mp.MaskOpaque = startOpaque
+			mp.Mask = mp.Mask[:0]
+			m.socket.broadcastMapChange(cd, broadcastMaskReset, data, userAny)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		return nil, nil
 	case "addWall":
 		var wallAdd struct {
 			Path string `json:"path"`
@@ -845,4 +911,6 @@ var (
 	ErrInvalidLayerPath          = errors.New("invalid layer path")
 	ErrInvalidTokenPos           = errors.New("invalid token pos")
 	ErrInvalidStart              = errors.New("invalid start pos")
+	ErrInvalidMaskData           = errors.New("invalid mask data")
+	ErrInvalidMaskIndex          = errors.New("invalid mask index")
 )
