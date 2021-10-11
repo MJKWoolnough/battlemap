@@ -24,6 +24,8 @@ type levelMap struct {
 	Light        colour                     `json:"lightColour"`
 	LightX       uint64                     `json:"lightX"`
 	LightY       uint64                     `json:"lightY"`
+	MaskOpaque   bool                       `json:"maskOpaque"`
+	Mask         [][]uint64                 `json:"mask"`
 	Data         map[string]json.RawMessage `json:"data"`
 	layer
 	layers                  map[string]struct{}
@@ -74,6 +76,22 @@ func (l *levelMap) writeJSON() {
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
+	l.JSON = strconv.AppendBool(append(l.JSON, ",\"maskOpaque\":"...), l.MaskOpaque)
+	l.JSON = append(l.JSON, ",\"mask\":["...)
+	for n, m := range l.Mask {
+		if n > 0 {
+			l.JSON = append(l.JSON, ',')
+		}
+		l.JSON = append(l.JSON, '[')
+		for o, i := range m {
+			if o > 0 {
+				l.JSON = append(l.JSON, ',')
+			}
+			strconv.AppendUint(l.JSON, i, 10)
+		}
+		l.JSON = append(l.JSON, ']')
+	}
+	l.JSON = append(l.JSON, ']')
 	l.JSON = append(l.JSON, ",\"data\":{"...)
 	first := true
 	for k, v := range l.Data {
