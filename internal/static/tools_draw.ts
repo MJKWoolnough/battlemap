@@ -194,9 +194,13 @@ addTool({
 	"tokenMouse0": ignore,
 	"tokenMouse2": ignore,
 	"tokenMouseOver": ignore,
-	"set": () => window.addEventListener("keydown", shiftSnap),
+	"set": () => {
+		window.addEventListener("keydown", shiftSnap);
+		window.addEventListener("keyup", shiftSnap);
+	},
 	"unset": () => {
 		marker.remove();
-		window.addEventListener("keyup", shiftSnap);
+		window.removeEventListener("keydown", shiftSnap);
+		window.removeEventListener("keyup", shiftSnap);
 	}
 });

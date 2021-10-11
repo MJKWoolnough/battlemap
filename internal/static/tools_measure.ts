@@ -161,10 +161,14 @@ addTool({
 		document.body.addEventListener("mouseup", mouseUp2);
 		return false;
 	},
-	"set": () => window.addEventListener("keydown", shiftSnap),
+	"set": () => {
+		window.addEventListener("keydown", shiftSnap);
+		window.addEventListener("keyup", shiftSnap);
+	},
 	"unset": () => {
 		cleanup();
-		window.addEventListener("keyup", shiftSnap);
+		window.removeEventListener("keydown", shiftSnap);
+		window.removeEventListener("keyup", shiftSnap);
 	}
 });
 
