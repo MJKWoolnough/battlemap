@@ -354,41 +354,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastLayerHide, data, userAny)
 			return true
 		})
-	case "addMask":
-		var addMask struct {
-			Path string `json:"path"`
-			Mask uint64 `json:"mask"`
-		}
-		if err := json.Unmarshal(data, &addMask); err != nil {
-			return nil, err
-		}
-		if len(addMask.Path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapLayer(cd.CurrentMap, addMask.Path, func(_ *levelMap, l *layer) bool {
-			if l.Mask == addMask.Mask {
-				return false
-			}
-			l.Mask = addMask.Mask
-			m.socket.broadcastMapChange(cd, broadcastLayerMaskAdd, data, userAny)
-			return true
-		})
-	case "removeMask":
-		var path string
-		if err := json.Unmarshal(data, &path); err != nil {
-			return nil, err
-		}
-		if len(path) == 0 {
-			return nil, ErrInvalidLayerPath
-		}
-		return nil, m.updateMapLayer(cd.CurrentMap, path, func(_ *levelMap, l *layer) bool {
-			if l.Mask == 0 {
-				return false
-			}
-			l.Mask = 0
-			m.socket.broadcastMapChange(cd, broadcastLayerMaskRemove, data, userAny)
-			return true
-		})
 	case "removeLayer":
 		var path string
 		err := json.Unmarshal(data, &path)

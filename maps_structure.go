@@ -101,7 +101,6 @@ func (l *levelMap) validate() error {
 
 type layer struct {
 	Name   string   `json:"name"`
-	Mask   uint64   `json:"mask"`
 	Hidden bool     `json:"hidden"`
 	Tokens []*token `json:"tokens"`
 	Walls  []*wall  `json:"walls"`
@@ -151,7 +150,6 @@ func (l *layer) validate(layers map[string]struct{}, lm *levelMap, first bool) e
 func (l *layer) appendTo(p []byte, full, user bool) []byte {
 	if full {
 		p = appendString(append(p, "\"name\":"...), l.Name)
-		p = strconv.AppendUint(append(p, ",\"mask\":"...), l.Mask, 10)
 		p = strconv.AppendBool(append(p, ",\"hidden\":"...), l.Hidden)
 		if l.Layers == nil && l.Name != "Grid" && l.Name != "Light" {
 			p = append(p, ",\"walls\":["...)
