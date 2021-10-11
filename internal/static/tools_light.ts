@@ -11,8 +11,8 @@ import {addTool} from './tools.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
-const sunTool = input({"type": "radio", "name": "lightTool", "checked": true}),
-      wallTool = input({"type": "radio", "name": "lightTool"}),
+const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "class": "settings_ticker"}),
+      wallTool = input({"type": "radio", "name": "lightTool", "class": "settings_ticker"}),
       lightMarker = g([
 	      defs(radialGradient({"id": "lightMGrad"}, [
 		      stop({"offset": "30%", "stop-color": "currentColor"}),
@@ -181,11 +181,11 @@ addTool({
 		])
 	]),
 	"options": div([
-		labels(`${lang["TOOL_LIGHT_SUN"]}: `, sunTool),
+		labels(`${lang["TOOL_LIGHT_SUN"]}: `, sunTool, false),
 		br(),
-		labels(`${lang["TOOL_LIGHT_WALL"]}: `, wallTool),
+		labels(`${lang["TOOL_LIGHT_WALL"]}: `, wallTool, false),
 		br(),
-		labels(`${lang["TOOL_LIGHT_REMOVE"]}: `, input({"name": "lightTool", "type": "radio"})),
+		labels(`${lang["TOOL_LIGHT_REMOVE"]}: `, input({"name": "lightTool", "type": "radio", "class": "settings_ticker"}), false),
 		div({"id": "wallToolOptions"}, [
 			label(`${lang["TOOL_LIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_LIGHT_COLOUR"], () => wallColour, (c: Colour) => wallColour = c, "wallColour")),

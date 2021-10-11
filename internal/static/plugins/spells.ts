@@ -88,7 +88,7 @@ if (isAdmin) {
 			lineEffect.remove();
 		}
 	      },
-	      snap = input({"type": "checkbox", "checked": autosnap.value}),
+	      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
 	      shiftSnap = (e: KeyboardEvent) => {
 		if (e.key === "Shift") {
 			snap.click();
@@ -174,17 +174,17 @@ if (isAdmin) {
 				}
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
 			br(),
-			labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "onclick": () => setEffect(circleEffect)})),
+			labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), false),
 			br(),
-			labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "onclick": () => setEffect(coneEffect)})),
+			labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), false),
 			br(),
-			labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "onclick": () => setEffect(cubeEffect)})),
+			labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), false),
 			br(),
-			labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)})),
+			labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}), false),
 			br(),
-			labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)})),
+			labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}), false),
 			br(),
-			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap),
+			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap, false),
 			br(),
 			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);

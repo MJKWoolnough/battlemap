@@ -22,10 +22,10 @@ const marker = g([
 	      polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
 	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
       ]),
-      rectangle = input({"name": "drawShape", "type": "radio", "checked": true}),
-      circle = input({"type": "radio", "name": "drawShape"}),
-      poly = input({"type": "radio", "name": "drawShape"}),
-      snap = input({"type": "checkbox", "checked": autosnap.value}),
+      rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
+      circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
+      poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
+      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
       shiftSnap = (e: KeyboardEvent) => {
 	if (e.key === "Shift") {
 		snap.click();
@@ -41,13 +41,13 @@ addTool({
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),
 	"options": div([
-		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle),
+		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
 		br(),
-		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle),
+		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
 		br(),
-		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly),
+		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
 		br(),
-		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap),
+		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap, false),
 		br(),
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
