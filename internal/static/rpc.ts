@@ -71,9 +71,9 @@ export default (url: string): Promise<void> => {
 				["waitMapLightChange",       broadcastMapLightChange,       checkColour],
 				["waitLayerShow",            broadcastLayerShow,            checkString],
 				["waitLayerHide",            broadcastLayerHide,            checkString],
-				["waitLayerMaskAdd",         broadcastLayerMaskAdd,         checkUint],
-				["waitLayerMaskChange",      broadcastLayerMaskChange,      checkUint],
-				["waitLayerMaskRemove",      broadcastLayerMaskRemove,      checkUint],
+				["waitMaskAdd",              broadcastMaskAdd,              checkMask],
+				["waitMaskRemove",           broadcastMaskRemove,           checkUint],
+				["waitMaskReset",            broadcastMaskReset,            checkBoolean],
 				["waitTokenAdd",             broadcastTokenAdd,             checkTokenAdd],
 				["waitTokenRemove",          broadcastTokenRemove,          checkUint],
 				["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
@@ -169,8 +169,9 @@ export default (url: string): Promise<void> => {
 				["moveLayer",        "maps.moveLayer",        ["from", "to", "position"],                 returnVoid,       "waitLayerMove", ""],
 				["showLayer",        "maps.showLayer",         "!",                                       returnVoid,       "waitLayerShow", ""],
 				["hideLayer",        "maps.hideLayer",         "!",                                       returnVoid,       "waitLayerHide", ""],
-				["addMask",          "maps.addMask",          ["path", "mask"],                           returnVoid,       "", ""],
-				["removeMask",       "maps.removeMask",        "!",                                       returnVoid,       "", ""],
+				["addToMask",        "maps.addToMask",         "!",                                       returnVoid,       "waitMaskAdd", ""],
+				["removeFromMask",   "maps.removeFromMask",    "!",                                       returnVoid,       "waitMaskRemove", ""],
+				["resetMask",        "maps.resetMask",         "!",                                       returnVoid,       "waitMaskReset", ""],
 				["removeLayer",      "maps.removeLayer",       "!",                                       returnVoid,       "waitLayerRemove", ""],
 				["addToken",         "maps.addToken",         ["path", "token"],                          checkUint,        "waitTokenAdd", "token/id"],
 				["removeToken",      "maps.removeToken",       "!",                                       returnVoid,       "waitTokenRemove", ""],
@@ -615,6 +616,36 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	checkUint(data[0], "SignalPosition.x");
 	checkUint(data[1], "SignalPosition.y");
 	return data;
+      },
+      checkMask = (data: any) => {
+	checkArray(data, "Mask");
+	if (data.length === 0) {
+		throwError("invalid mask data");
+	}
+	switch (data[0]) {
+	case 0:
+	case 1:
+		if (data.length !== 5) {
+			throwError("invalid number of points for rect mask");
+		}
+		break;
+	case 2:
+	case 3:
+		if (data.length !== 4) {
+			throwError("invalid number of points for ellipse mask");
+		}
+		break;
+	case 4:
+	case 5:
+		if (data.length < 7 || (data.length & 1) === 0) {
+			throwError("invalid number of points for poly mask");
+		}
+		break;
+	default:
+	}
+	for (let i = 1; i < data.length; i++) {
+		checkUint(data[i], "Mask", i + "");
+	}
       },
       checksBroadcastWindow: checkers = [[checkID, ""], [checkString, "module"], [checkString, "contents"]],
       checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
