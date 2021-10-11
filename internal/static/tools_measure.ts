@@ -121,9 +121,6 @@ stopMeasurement = () => {
 
 let over = false, send = false, cleanup = noopCleanup;
 
-window.addEventListener("keydown", shiftSnap);
-window.addEventListener("keyup", shiftSnap);
-
 addTool({
 	"name": lang["TOOL_MEASURE"],
 	"icon": svg({"viewBox": "0 0 50 50"}, [title(lang["TOOL_MEASURE"]), path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})]),
@@ -164,7 +161,11 @@ addTool({
 		document.body.addEventListener("mouseup", mouseUp2);
 		return false;
 	},
-	"unset": () => cleanup()
+	"set": () => window.addEventListener("keydown", shiftSnap),
+	"unset": () => {
+		cleanup();
+		window.addEventListener("keyup", shiftSnap);
+	}
 });
 
 mapLoadedReceive(() => {

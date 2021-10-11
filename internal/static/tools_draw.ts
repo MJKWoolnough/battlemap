@@ -16,7 +16,6 @@ let over = false,
     fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
 
-
 const marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
 	      polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
@@ -33,9 +32,6 @@ const marker = g([
 	}
       },
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
-
-window.addEventListener("keydown", shiftSnap);
-window.addEventListener("keyup", shiftSnap);
 
 addTool({
 	"name": lang["TOOL_DRAW"],
@@ -198,5 +194,9 @@ addTool({
 	"tokenMouse0": ignore,
 	"tokenMouse2": ignore,
 	"tokenMouseOver": ignore,
-	"unset": () => marker.remove()
+	"set": () => window.addEventListener("keydown", shiftSnap),
+	"unset": () => {
+		marker.remove();
+		window.addEventListener("keyup", shiftSnap);
+	}
 });
