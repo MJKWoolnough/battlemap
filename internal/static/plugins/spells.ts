@@ -1,4 +1,5 @@
 import type {Uint} from '../types.js';
+import type {CancelFn} from '../keys.js';
 import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
@@ -154,8 +155,8 @@ if (isAdmin) {
 	    damageType = 0,
 	    send = false,
 	    rotate = false,
-	    cancelShift: ((run?: true) => void) | null = null,
-	    cancelKey: (() => void) | null = null;
+	    cancelShift: CancelFn | null = null,
+	    cancelKey: CancelFn | null = null;
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [

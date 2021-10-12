@@ -1,4 +1,5 @@
 import type {Colour, Coords, Uint} from './types.js';
+import type {CancelFn} from './keys.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
@@ -16,7 +17,7 @@ let over = false,
     contextOverride: null | Function = null,
     fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    cancelShift: ((run?: true) => void) | null = null;
+    cancelShift: CancelFn | null = null;
 
 const marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),

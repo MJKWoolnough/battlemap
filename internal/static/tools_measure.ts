@@ -1,4 +1,5 @@
 import type {Uint} from './types.js';
+import type {CancelFn} from './keys.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool, ignore} from './tools.js';
@@ -119,7 +120,7 @@ stopMeasurement = () => {
 let over = false,
     send = false,
     cleanup = noopCleanup,
-    cancelShift: ((run?: true) => void) | null = null;
+    cancelShift: CancelFn | null = null;
 
 addTool({
 	"name": lang["TOOL_MEASURE"],

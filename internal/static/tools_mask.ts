@@ -1,3 +1,4 @@
+import type {CancelFn} from './keys.js';
 import {br, button, div, input} from './lib/html.js';
 import {svg, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
@@ -14,7 +15,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
       shiftSnap = () => snap.click();
 
-let cancelShift: ((run?: true) => void) | null = null;
+let cancelShift: CancelFn | null = null;
 
 addTool({
 	"name": lang["TOOL_MASK"],

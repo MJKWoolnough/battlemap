@@ -1,5 +1,7 @@
 import type {Uint} from './types.js';
 
+export type CancelFn = (run?: true) => void;
+
 type KeyFn = (e: KeyboardEvent) => void;
 
 let nextID = 0;
