@@ -17,6 +17,7 @@ let over = false,
     contextOverride: null | Function = null,
     fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+    cancelKey: CancelFn | null = null,
     cancelShift: CancelFn | null = null;
 
 const marker = g([
@@ -78,7 +79,8 @@ addTool({
 			      clearup = () => {
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
-				cancelKey();
+				cancelKey?.();
+				cancelKey = null;
 				s.remove();
 			      },
 			      onmouseup = (e: MouseEvent) => {
@@ -96,8 +98,8 @@ addTool({
 						shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 					}
 				}
-			      },
-			      cancelKey = keyEvent("Escape", () => clearup);
+			      };
+			cancelKey = keyEvent("Escape", clearup);
 			createSVG(root, {onmousemove, onmouseup}, s);
 		} else {
 			let minX = cx,
@@ -117,10 +119,10 @@ addTool({
 			      clearup = () => {
 				clickOverride = null;
 				root.removeEventListener("mousemove", onmousemove);
-				cancelKey();
+				cancelKey?.();
 				p.remove();
-			      },
-			      cancelKey = keyEvent("Escape", clearup);
+			      };
+			cancelKey = keyEvent("Escape", clearup);
 			clickOverride = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 				points.push({x, y});
@@ -186,6 +188,7 @@ addTool({
 	"set": () => cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true),
 	"unset": () => {
 		marker.remove();
+		cancelKey?.(true);
 		cancelShift?.(true);
 	}
 });
