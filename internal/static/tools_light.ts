@@ -1,5 +1,5 @@
 import type {Colour, Int, Uint, Wall} from './types.js';
-import type {CancelFn} from './keys.js';
+import type {CancelFn} from './events.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
@@ -9,7 +9,7 @@ import {colour2RGBA, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 

@@ -1,4 +1,4 @@
-import type {CancelFn} from './keys.js';
+import type {CancelFn} from './events.js';
 import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
@@ -7,7 +7,7 @@ import {panZoom, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import lang from './language.js';
 
 let cancelKey: CancelFn | null = null;

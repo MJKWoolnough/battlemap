@@ -1,10 +1,10 @@
-import type {CancelFn} from './keys.js';
+import type {CancelFn} from './events.js';
 import {br, button, div, input} from './lib/html.js';
 import {svg, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
 import {deselectToken, labels} from './shared.js';
 import {autosnap} from './settings.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),

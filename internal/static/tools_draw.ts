@@ -1,5 +1,5 @@
 import type {Colour, Coords, Uint} from './types.js';
-import type {CancelFn} from './keys.js';
+import type {CancelFn} from './events.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
@@ -8,7 +8,7 @@ import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import {addTool, ignore} from './tools.js';
 import lang from './language.js';
 

@@ -7,7 +7,7 @@ import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;
 type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;

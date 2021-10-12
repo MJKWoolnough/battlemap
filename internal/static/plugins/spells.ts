@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import type {CancelFn} from '../keys.js';
+import type {CancelFn} from '../events.js';
 import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
@@ -10,7 +10,7 @@ import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
 import {colour2RGBA, hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
-import keyEvent from '../keys.js';
+import {keyEvent} from '../events.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},

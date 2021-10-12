@@ -1,12 +1,12 @@
 import type {Uint} from './types.js';
-import type {CancelFn} from './keys.js';
+import type {CancelFn} from './events.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool, ignore} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 

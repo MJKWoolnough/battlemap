@@ -17,7 +17,7 @@ import {characterData, checkInt, deselectToken, getCharacterToken, globals, labe
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
-import keyEvent from './keys.js';
+import {keyEvent} from './events.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
