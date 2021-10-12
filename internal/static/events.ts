@@ -104,6 +104,7 @@ window.addEventListener("blur", () => {
 				}
 			}
 		}
+		buttons[button] = false;
 	}
 });
 
