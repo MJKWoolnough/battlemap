@@ -9,6 +9,7 @@ import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
 import {colour2RGBA, hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
+import keyEvent from '../keys.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
@@ -127,12 +128,12 @@ if (isAdmin) {
 		}
 		document.body.removeEventListener("mousemove", mousemove);
 		document.body.removeEventListener("mouseup", mouseup);
-		document.body.removeEventListener("keydown", keydown);
+		cancelKey?.();
 		selectedEffect?.remove();
 		over = false;
 	      },
-	      keydown = (e: KeyboardEvent) => {
-		if (e.key !== "Enter" || selectedEffect === coneEffect || selectedEffect === lineEffect) {
+	      addSpell = () => {
+		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			return;
 		}
 		const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
@@ -152,7 +153,9 @@ if (isAdmin) {
 	    width = 5,
 	    damageType = 0,
 	    send = false,
-	    rotate = false;
+	    rotate = false,
+	    cancelShift: ((run?: true) => void) | null = null,
+	    cancelKey: (() => void) | null = null;
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -209,8 +212,8 @@ if (isAdmin) {
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
 				this.appendChild(selectedEffect);
 			}
+			cancelKey = keyEvent("Enter", addSpell);
 			document.body.addEventListener("mousemove", mousemove);
-			document.body.addEventListener("keydown", keydown);
 			document.body.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
 		},
@@ -233,13 +236,11 @@ if (isAdmin) {
 		},
 		"tokenMouse2": ignore,
 		"set": () => {
-			window.addEventListener("keydown", shiftSnap);
-			window.addEventListener("keyup", shiftSnap);
+			cancelShift = keyEvent("Shift", shiftSnap, shiftSnap);
 		},
 		"unset": () => {
 			mouseout();
-			window.removeEventListener("keydown", shiftSnap);
-			window.removeEventListener("keyup", shiftSnap);
+			cancelShift?.(true);
 		}
 	}));
 	mapLoadedReceive(() => setSize(size, width));

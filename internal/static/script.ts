@@ -16,6 +16,7 @@ import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
 import {addCSS, isAdmin, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
+import keyEvent from './keys.js';
 import './tools_draw.js';
 import './tools_light.js';
 import './tools_mask.js';
@@ -195,14 +196,13 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		get html() {return createDocumentFragment([c , h]);}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
-	window.addEventListener("keydown", (e: KeyboardEvent) => {
-		if (e.key === "F9") {
-			panelShow.set(c.checked = !c.checked);
-			e.preventDefault();
-		} else if (e.key === "F1") {
-			help();
-			e.preventDefault();
-		}
+	keyEvent("F9", (e: KeyboardEvent) => {
+		panelShow.set(c.checked = !c.checked);
+		e.preventDefault();
+	});
+	keyEvent("F1", (e: KeyboardEvent) => {
+		help();
+		e.preventDefault();
 	});
 	return o;
       }()),

@@ -7,6 +7,7 @@ import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
+import keyEvent from './keys.js';
 import {addTool, ignore} from './tools.js';
 import lang from './language.js';
 
@@ -14,7 +15,8 @@ let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
     contextOverride: null | Function = null,
     fillColour = noColour,
-    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255};
+    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+    cancelShift: ((run?: true) => void) | null = null;
 
 const marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
@@ -26,11 +28,7 @@ const marker = g([
       circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
-      shiftSnap = (e: KeyboardEvent) => {
-	if (e.key === "Shift") {
-		snap.click();
-	}
-      },
+      shiftSnap = () => snap.click(),
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 addTool({
@@ -79,7 +77,7 @@ addTool({
 			      clearup = () => {
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
-				window.removeEventListener("keydown", onkeydown);
+				cancelKey();
 				s.remove();
 			      },
 			      onmouseup = (e: MouseEvent) => {
@@ -98,13 +96,8 @@ addTool({
 					}
 				}
 			      },
-			      onkeydown = (e: KeyboardEvent) => {
-				if (e.key === "Escape") {
-					clearup();
-				}
-			      };
+			      cancelKey = keyEvent("Escape", () => clearup);
 			createSVG(root, {onmousemove, onmouseup}, s);
-			window.addEventListener("keydown", onkeydown);
 		} else {
 			let minX = cx,
 			    maxX = cx,
@@ -123,14 +116,10 @@ addTool({
 			      clearup = () => {
 				clickOverride = null;
 				root.removeEventListener("mousemove", onmousemove);
-				window.removeEventListener("keydown", onkeydown);
+				cancelKey();
 				p.remove();
 			      },
-			      onkeydown = (e: KeyboardEvent) => {
-				if (e.key === "Escape") {
-					clearup();
-				}
-			      };
+			      cancelKey = keyEvent("Escape", clearup);
 			clickOverride = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 				points.push({x, y});
@@ -161,7 +150,6 @@ addTool({
 				}
 			};
 			createSVG(root, {onmousemove}, p);
-			window.addEventListener("keydown", onkeydown);
 		}
 		return false;
 	},
@@ -194,13 +182,9 @@ addTool({
 	"tokenMouse0": ignore,
 	"tokenMouse2": ignore,
 	"tokenMouseOver": ignore,
-	"set": () => {
-		window.addEventListener("keydown", shiftSnap);
-		window.addEventListener("keyup", shiftSnap);
-	},
+	"set": () => cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true),
 	"unset": () => {
 		marker.remove();
-		window.removeEventListener("keydown", shiftSnap);
-		window.removeEventListener("keyup", shiftSnap);
+		cancelShift?.(true);
 	}
 });

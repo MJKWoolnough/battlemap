@@ -5,6 +5,7 @@ import {addTool, ignore} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
+import keyEvent from './keys.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -20,11 +21,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	}
       }}),
       diagonals = input({"type": "checkbox", "checked": true, "class": "settings_ticker", "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
-      shiftSnap = (e: KeyboardEvent) => {
-	if (e.key === "Shift") {
-		snap.click();
-	}
-      },
+      shiftSnap = () => snap.click(),
       info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
       marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, [
               polygon({"points": "5,0 16,0 10.5,5"}),
@@ -119,7 +116,10 @@ stopMeasurement = () => {
 	coords[1] = NaN;
 };
 
-let over = false, send = false, cleanup = noopCleanup;
+let over = false,
+    send = false,
+    cleanup = noopCleanup,
+    cancelShift: ((run?: true) => void) | null = null;
 
 addTool({
 	"name": lang["TOOL_MEASURE"],
@@ -161,14 +161,10 @@ addTool({
 		document.body.addEventListener("mouseup", mouseUp2);
 		return false;
 	},
-	"set": () => {
-		window.addEventListener("keydown", shiftSnap);
-		window.addEventListener("keyup", shiftSnap);
-	},
+	"set": () => cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true),
 	"unset": () => {
 		cleanup();
-		window.removeEventListener("keydown", shiftSnap);
-		window.removeEventListener("keyup", shiftSnap);
+		cancelShift?.(true)
 	}
 });
 

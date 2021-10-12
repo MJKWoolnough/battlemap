@@ -8,6 +8,7 @@ import {colour2RGBA, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
+import keyEvent from './keys.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 
@@ -87,7 +88,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		      reset = () => {
 			this.removeEventListener("mousemove", onmousemove);
 			this.removeEventListener("mouseup", onmouseup);
-			window.removeEventListener("keydown", onkeydown);
+			cancelKey();
 			l.remove();
 		      },
 		      onmouseup = (e: MouseEvent) => {
@@ -113,13 +114,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 				genWalls();
 			}
 		      },
-		      onkeydown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				reset();
-			}
-		      };
+		      cancelKey = keyEvent("Escape", reset);
 		createSVG(this, {onmousemove, onmouseup}, l)
-		window.addEventListener("keydown", onkeydown);
 	} else if (lastWall !== null) {
 		doWallRemove(lastWall.wall.id);
 		genWalls();

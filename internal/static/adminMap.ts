@@ -17,6 +17,7 @@ import {characterData, checkInt, deselectToken, getCharacterToken, globals, labe
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
+import keyEvent from './keys.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
@@ -497,19 +498,7 @@ export default (base: HTMLElement) => {
 		if (!overOutline) {
 			if (selectedLayer) {
 				let overToken = currentlyOverToken;
-				const keyUp = (e: KeyboardEvent) => {
-					if (e.key === "Control" && overToken) {
-						document.body.style.setProperty("--outline-cursor", "pointer");
-						window.removeEventListener("keyup", keyUp);
-					}
-				      },
-				      keyDown = (e: KeyboardEvent) => {
-					if (e.key === "Control" && overToken) {
-						document.body.style.setProperty("--outline-cursor", "grab");
-						window.addEventListener("keyup", keyUp);
-					}
-				      },
-				      mouseMove = (e: MouseEvent) => {
+				const mouseMove = (e: MouseEvent) => {
 					if (!ctrl && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
 						if (!overToken) {
 							overToken = true;
@@ -519,16 +508,20 @@ export default (base: HTMLElement) => {
 						document.body.style.setProperty("--outline-cursor", "grab");
 						overToken = false;
 					}
-				};
+				      },
+				      cancelKeys = keyEvent("Control", () => {
+					if (overToken) {
+						document.body.style.setProperty("--outline-cursor", "grab");
+					}
+				      }, () => {
+					if (overToken) {
+						document.body.style.setProperty("--outline-cursor", "pointer");
+					}
+				      }, true);
 				root.addEventListener("mousemove", mouseMove);
-				window.addEventListener("keydown", keyDown);
-				if (currentlyOverToken) {
-					window.addEventListener("keyup", keyUp);
-				}
 				root.addEventListener("mouseout", () => {
 					document.body.style.removeProperty("--outline-cursor");
-					window.removeEventListener("keydown", keyDown);
-					window.removeEventListener("keyup", keyUp);
+					cancelKeys();
 					root.removeEventListener("mousemove", mouseMove);
 				}, {"once": true})
 			} else {

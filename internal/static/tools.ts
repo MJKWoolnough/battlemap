@@ -7,6 +7,7 @@ import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
+import keyEvent from './keys.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;
 type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
@@ -176,17 +177,19 @@ export default (base: HTMLElement) => {
 			}
 		}
 	});
-	document.body.addEventListener("keydown", (e: KeyboardEvent) => {
-		if (document.activeElement instanceof HTMLInputElement || document.activeElement instanceof HTMLTextAreaElement) {
-			return;
+	keyEvent("(", () => {
+		for (let i = 0; i < tools.length; i++) {
+			if (tools[i] === selectedTool) {
+				list[mod(i - 1, tools.length)].click();
+				return;
+			}
 		}
-		const n = e.key === "(" ? -1 : e.key === ")" ? 1 : 0;
-		if (n !== 0) {
-			for (let i = 0; i < tools.length; i++) {
-				if (tools[i] === selectedTool) {
-					list[mod(i + n, tools.length)].click();
-					break;
-				}
+	});
+	keyEvent(")", () => {
+		for (let i = 0; i < tools.length; i++) {
+			if (tools[i] === selectedTool) {
+				list[mod(i + 1, tools.length)].click();
+				return;
 			}
 		}
 	});

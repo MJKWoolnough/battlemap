@@ -6,6 +6,7 @@ import {panZoom, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
+import keyEvent from './keys.js';
 import lang from './language.js';
 
 addTool({
@@ -37,7 +38,7 @@ addTool({
 			      stop = () => {
 				this.removeEventListener("mousemove", mover);
 				this.removeEventListener("mouseup", mouseUp);
-				document.body.removeEventListener("keydown", cancel)
+				cancelKey();
 				selectedLayer[node].removeAttribute("transform");
 				if (measure) {
 					stopMeasurement();
@@ -49,18 +50,13 @@ addTool({
 					doLayerShift(selectedLayer.path, dx, dy);
 				}
 			      },
-			      cancel = (e: KeyboardEvent) => {
-				if (e.key === "Escape") {
-					stop();
-				}
-			      };
+			      cancelKey = keyEvent("Escape", stop);
 			if (measure) {
 				startMeasurement(ox, oy);
 			}
 			deselectToken();
 			this.addEventListener("mousemove", mover);
 			this.addEventListener("mouseup", mouseUp);
-			document.body.addEventListener("keydown", cancel);
 		}
 		return false;
 	},
