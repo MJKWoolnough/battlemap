@@ -56,7 +56,10 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
 });
 
 window.addEventListener("keyup", (e: KeyboardEvent) => {
-	const {key} = e;
+	const {key, target} = e;
+	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+		return;
+	}
 	if (!held.has(key)) {
 		return;
 	}
