@@ -1,4 +1,5 @@
 import type {Colour, Int, Uint, Wall} from './types.js';
+import type {CancelFn} from './keys.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
@@ -88,7 +89,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		      reset = () => {
 			this.removeEventListener("mousemove", onmousemove);
 			this.removeEventListener("mouseup", onmouseup);
-			cancelKey();
+			cancelKey?.();
 			l.remove();
 		      },
 		      onmouseup = (e: MouseEvent) => {
@@ -113,8 +114,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 				});
 				genWalls();
 			}
-		      },
-		      cancelKey = keyEvent("Escape", reset);
+		      };
+		cancelKey = keyEvent("Escape", reset);
 		createSVG(this, {onmousemove, onmouseup}, l)
 	} else if (lastWall !== null) {
 		doWallRemove(lastWall.wall.id);
@@ -157,7 +158,8 @@ type WallData = {
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
     lastWall: WallData | null = null,
     wallWaiter = () => {},
-    on = false;
+    on = false,
+    cancelKey: CancelFn | null = null;
 
 mapLoadedReceive(a => {
 	if (a) {
@@ -205,6 +207,7 @@ addTool({
 		deselectToken();
 	},
 	"unset": () => {
+		cancelKey?.(true);
 		wallWaiter();
 		wallLayer.remove();
 		walls.splice(0, walls.length);
