@@ -40,7 +40,7 @@ const held = new Set<string>(),
 
 window.addEventListener("keydown", (e: KeyboardEvent) => {
 	const {key, target} = e;
-	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
+	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || held.has(key)) {
 		return;
 	}
 	const events = downs.get(key);
@@ -57,10 +57,7 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
 
 window.addEventListener("keyup", (e: KeyboardEvent) => {
 	const {key, target} = e;
-	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement) {
-		return;
-	}
-	if (!held.has(key)) {
+	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || !held.has(key)) {
 		return;
 	}
 	const events = ups.get(key);
@@ -77,7 +74,7 @@ window.addEventListener("keyup", (e: KeyboardEvent) => {
 
 window.addEventListener("mousedown", (e: MouseEvent) => {
 	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2) {
+	if (button !== 0 && button !== 1 && button !== 2 || buttons[button]) {
 		return;
 	}
 	for (const [id, [event, once]] of mouseDown[button]) {
@@ -91,7 +88,7 @@ window.addEventListener("mousedown", (e: MouseEvent) => {
 
 window.addEventListener("mouseup", (e: MouseEvent) => {
 	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2) {
+	if (button !== 0 && button !== 1 && button !== 2 || !buttons[button]) {
 		return;
 	}
 	for (const [id, [event, once]] of mouseUp[button]) {
