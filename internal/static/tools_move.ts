@@ -1,3 +1,4 @@
+import type {CancelFn} from './keys.js';
 import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
@@ -8,6 +9,8 @@ import {startMeasurement, measureDistance, stopMeasurement} from './tools_measur
 import {autosnap, measureTokenMove} from './settings.js';
 import keyEvent from './keys.js';
 import lang from './language.js';
+
+let cancelKey: CancelFn | null = null;
 
 addTool({
 	"name": lang["TOOL_MOVE"],
@@ -38,7 +41,7 @@ addTool({
 			      stop = () => {
 				this.removeEventListener("mousemove", mover);
 				this.removeEventListener("mouseup", mouseUp);
-				cancelKey();
+				cancelKey?.();
 				selectedLayer[node].removeAttribute("transform");
 				if (measure) {
 					stopMeasurement();
@@ -49,8 +52,8 @@ addTool({
 					stop();
 					doLayerShift(selectedLayer.path, dx, dy);
 				}
-			      },
-			      cancelKey = keyEvent("Escape", stop);
+			      };
+			cancelKey = keyEvent("Escape", stop);
 			if (measure) {
 				startMeasurement(ox, oy);
 			}
@@ -70,4 +73,5 @@ addTool({
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
+	"unset": () => cancelKey?.()
 });
