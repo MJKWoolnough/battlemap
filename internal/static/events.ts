@@ -36,14 +36,13 @@ const held = new Set<string>(),
 	      new Map<Uint, [MouseFn, boolean]>(),
 	      new Map<Uint, [MouseFn, boolean]>(),
 	      new Map<Uint, [MouseFn, boolean]>()
-      ];
-
-window.addEventListener("keydown", (e: KeyboardEvent) => {
+      ],
+      keyEventFn = (down: boolean, e: KeyboardEvent) => {
 	const {key, target} = e;
-	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || held.has(key)) {
+	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || held.has(key) === down) {
 		return;
 	}
-	const events = downs.get(key);
+	const events = (down ? downs : ups).get(key);
 	if (events) {
 		for (const [id, [event, once]] of events) {
 			event(e);
@@ -52,53 +51,34 @@ window.addEventListener("keydown", (e: KeyboardEvent) => {
 			}
 		}
 	}
-	held.add(key);
-});
-
-window.addEventListener("keyup", (e: KeyboardEvent) => {
-	const {key, target} = e;
-	if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || !held.has(key)) {
-		return;
+	if (down) {
+		held.add(key);
+	} else {
+		held.delete(key);
 	}
-	const events = ups.get(key);
-	if (events) {
-		for (const [id, [event, once]] of events) {
-			event(e);
-			if (once) {
-				events.delete(id);
-			}
-		}
-	}
-	held.delete(key);
-});
-
-window.addEventListener("mousedown", (e: MouseEvent) => {
+      },
+      mouseEventFn = (down: boolean, e: MouseEvent) => {
 	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2 || buttons[button]) {
+	if (button !== 0 && button !== 1 && button !== 2 || buttons[button] === down) {
 		return;
 	}
-	for (const [id, [event, once]] of mouseDown[button]) {
+	const events = (down ? mouseDown : mouseUp);
+	for (const [id, [event, once]] of events[button]) {
 		event(e);
 		if (once) {
-			mouseDown[button].delete(id);
+			events[button].delete(id);
 		}
 	}
-	buttons[button] = true;
-});
+	buttons[button] = down;
+      };
 
-window.addEventListener("mouseup", (e: MouseEvent) => {
-	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2 || !buttons[button]) {
-		return;
-	}
-	for (const [id, [event, once]] of mouseUp[button]) {
-		event(e);
-		if (once) {
-			mouseUp[button].delete(id);
-		}
-	}
-	buttons[button] = false;
-});
+window.addEventListener("keydown", (e: KeyboardEvent) => keyEventFn(true, e));
+
+window.addEventListener("keyup", (e: KeyboardEvent) => keyEventFn(false, e));
+
+window.addEventListener("mousedown", (e: MouseEvent) => mouseEventFn(true, e));
+
+window.addEventListener("mouseup", (e: MouseEvent) => mouseEventFn(false, e));
 
 window.addEventListener("blur", () => {
 	for (const key of held) {
