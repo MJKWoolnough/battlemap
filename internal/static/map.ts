@@ -9,6 +9,7 @@ import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
+import {mouseDragEvent} from './events.js';
 import {rpc, inited} from './rpc.js';
 import {tokenClass} from './plugins.js';
 import lang from './language.js';
@@ -520,21 +521,13 @@ zoom = (() => {
 		zoomerControl.setAttribute("cy", v + "");
 		zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
+	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
 	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
-	      zoomMouseUp = (e: MouseEvent) => {
-		if (e.button !== 0) {
-			return;
-		}
-		window.removeEventListener("mousemove", zoomMove);
-		window.removeEventListener("mouseup", zoomMouseUp);
-		document.body.classList.remove("zooming");
-	      },
 	      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
 		if (e.button !== 0) {
 			return;
 		}
-		window.addEventListener("mousemove", zoomMove);
-		window.addEventListener("mouseup", zoomMouseUp);
+		setupZoomDrag();
 		document.body.classList.add("zooming");
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)

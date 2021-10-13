@@ -5,7 +5,7 @@ import {addTool, ignore} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
-import {keyEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -34,21 +34,13 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       ltwo = line({"stroke": "#000", "stroke-width": 6}),
       drawnLine = g([lone, ltwo, spot]),
       coords: [number, number] = [NaN, NaN],
-      mouseUp0 = (e: MouseEvent) => {
-	if (e.button === 0) {
-		stopMeasurement();
-		document.body.removeEventListener("mouseup", mouseUp0);
+      [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, () => stopMeasurement()),
+      [setupMouse2, cancelMouse2] = mouseDragEvent(2, undefined, () => {
+	if (send) {
+		rpc.signalMeasure(null);
+		send = false;
 	}
-      },
-      mouseUp2 = (e: MouseEvent) => {
-	if (e.button === 2) {
-		if (send) {
-			rpc.signalMeasure(null);
-			send = false;
-		}
-		document.body.removeEventListener("mouseup", mouseUp2);
-	}
-      },
+      }),
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
@@ -60,8 +52,8 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	}
       },
       fullCleanup = () => {
-	document.body.removeEventListener("mouseup", mouseUp0);
-	document.body.removeEventListener("mouseup", mouseUp2);
+	cancelMouse0();
+	cancelMouse2();
 	document.body.removeEventListener("mousemove", onmousemove);
 	document.body.removeEventListener("mouseleave", cleanup);
 	globals.root.style.removeProperty("cursor");
@@ -151,14 +143,14 @@ addTool({
 	"mapMouse0": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		startMeasurement(x, y);
-		document.body.addEventListener("mouseup", mouseUp0);
+		setupMouse0();
 		return false;
 	},
 	"mapMouse2": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		rpc.signalMeasure([coords[0], coords[1], x, y]);
 		send = true;
-		document.body.addEventListener("mouseup", mouseUp2);
+		setupMouse2();
 		return false;
 	},
 	"set": setupShiftSnap,

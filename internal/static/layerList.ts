@@ -11,12 +11,13 @@ import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
+import {mouseDragEvent} from './events.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
-const dragFn = (e: MouseEvent) => {
+const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!draggedName) {
 		dragging![node].classList.add("dragged");
 		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
@@ -24,21 +25,15 @@ const dragFn = (e: MouseEvent) => {
 	}
 	draggedName.style.setProperty("top", e.clientY + 1 + "px");
 	draggedName.style.setProperty("left", e.clientX + dragOffset + "px");
-      },
-      dropFn = (e: MouseEvent) => {
-	if (e.button !== 0) {
-		return;
-	}
+      }, () => {
 	dragging![node].classList.remove("dragged");
 	dragging = undefined;
 	if (draggedName) {
-		document.body.removeChild(draggedName!);
+		document.body.removeChild(draggedName);
 	}
 	draggedName = undefined;
-	document.body.removeEventListener("mousemove", dragFn);
-	document.body.removeEventListener("mouseup", dropFn);
 	dragBase.classList.remove("dragging", "draggingSpecial");
-      },
+      }),
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
@@ -101,8 +96,7 @@ const dragFn = (e: MouseEvent) => {
 		dragOffset += e.offsetLeft;
 	}
 	dragging = l;
-	document.body.addEventListener("mousemove", dragFn);
-	document.body.addEventListener("mouseup", dropFn);
+	setupDrag();
       },
       visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
 	ellipse({"cx": 50, "cy": 35, "rx": 49, "ry": 34, "stroke-width": 2, "stroke": "#000", "fill": "#fff"}),

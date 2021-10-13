@@ -6,7 +6,7 @@ import {panZoom, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
-import {keyEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './events.js';
 import lang from './language.js';
 
 
@@ -16,7 +16,7 @@ let dx = 0, dy = 0,
     oy = 0,
     measure = false;
 
-const mover = (e: MouseEvent) => {
+const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	const {selected: {layer: selectedLayer}} = globals;
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
 	dx = (x - ox) / panZoom.zoom;
@@ -25,22 +25,18 @@ const mover = (e: MouseEvent) => {
 	if (measure) {
 		measureDistance(x, y);
 	}
-      },
+      }, () => {
+	const {selected: {layer: selectedLayer}} = globals;
+	stop();
+	doLayerShift(selectedLayer!.path, dx, dy);
+      }),
       stop = () => {
-	const {root, selected: {layer: selectedLayer}} = globals;
-	root.removeEventListener("mousemove", mover);
-	root.removeEventListener("mouseup", mouseUp);
+	const {selected: {layer: selectedLayer}} = globals;
+	cancelMover();
 	cancelEscape();
 	selectedLayer![node].removeAttribute("transform");
 	if (measure) {
 		stopMeasurement();
-	}
-      },
-      mouseUp = (e: MouseEvent) => {
-	const {selected: {layer: selectedLayer}} = globals;
-	if (e.button === 0) {
-		stop();
-		doLayerShift(selectedLayer!.path, dx, dy);
 	}
       },
       [setupEscape, cancelEscape] = keyEvent("Escape", stop);
@@ -68,8 +64,7 @@ addTool({
 				startMeasurement(ox, oy);
 			}
 			deselectToken();
-			this.addEventListener("mousemove", mover);
-			this.addEventListener("mouseup", mouseUp);
+			setupMover();
 		}
 		return false;
 	},

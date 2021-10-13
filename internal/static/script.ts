@@ -16,7 +16,7 @@ import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
 import {addCSS, isAdmin, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
-import {keyEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './events.js';
 import './tools_draw.js';
 import './tools_light.js';
 import './tools_mask.js';
@@ -57,21 +57,14 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		}
 		return true;
 	      }),
-	      mousemove = function(e: MouseEvent) {
+	      [setupPanelDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
 			panelWidth.set(x);
 			h.style.setProperty("--panel-width", `${x}px`);
 			moved = true;
 		}
-	      },
-	      mouseUp = (e: MouseEvent) => {
-		if (e.button !== 0) {
-			return;
-		}
-		window.removeEventListener("mousemove", mousemove);
-		window.removeEventListener("mouseup", mouseUp);
-	      },
+	      }),
 	      c = input({"id": "panelHider", "type": "checkbox", "checked": panelShow.value, "onchange": () => panelShow.set(c.checked)}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
@@ -80,8 +73,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 				return;
 			}
 			if (!c.checked) {
-				window.addEventListener("mousemove", mousemove);
-				window.addEventListener("mouseup", mouseUp);
+				setupPanelDrag();
 			}
 			moved = false;
 	      }, "onclick": (e: MouseEvent) => {

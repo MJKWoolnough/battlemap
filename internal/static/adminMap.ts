@@ -17,7 +17,7 @@ import {characterData, checkInt, deselectToken, getCharacterToken, globals, labe
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
-import {keyEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './events.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
@@ -27,7 +27,7 @@ export default (base: HTMLElement) => {
 	let tokenDragMode = -1,
 	    overToken = false;
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
-	      tokenDrag = (e: MouseEvent) => {
+	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
 		      dx = bdx - tokenMousePos.mouseX,
@@ -115,13 +115,11 @@ export default (base: HTMLElement) => {
 		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
 		createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
-	      },
-	      tokenMouseUp = (e: MouseEvent) => {
-		if (!globals.selected.token || e.button !== 0 || !globals.selected.layer) {
+	      }, () => {
+		if (!globals.selected.token || !globals.selected.layer) {
 			return;
 		}
-		document.body.removeEventListener("mousemove", tokenDrag);
-		document.body.removeEventListener("mouseup", tokenMouseUp);
+		cancelTokenDrag();
 		globals.root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
 		const {token} = globals.selected,
@@ -162,7 +160,7 @@ export default (base: HTMLElement) => {
 			doTokenSet(ts);
 		}
 		stopMeasurement();
-	      },
+	      }),
 	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": -1, "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
 		const {token} = globals.selected;
 		if (!token) {
@@ -170,8 +168,7 @@ export default (base: HTMLElement) => {
 		}
 		if (tokenDragMode > -1) {
 			if (e.key === "Escape") {
-				document.body.removeEventListener("mousemove", tokenDrag);
-				document.body.removeEventListener("mouseup", tokenMouseUp);
+				cancelTokenDrag();
 				globals.root.style.removeProperty("--outline-cursor");
 				tokenDragMode = -1;
 				const {selected: {token}} = globals,
@@ -585,8 +582,7 @@ export default (base: HTMLElement) => {
 			}
 			return false;
 		}
-		document.body.addEventListener("mousemove", tokenDrag);
-		document.body.addEventListener("mouseup", tokenMouseUp);
+		setupTokenDrag();
 		tokenDragMode = n;
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
