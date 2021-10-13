@@ -191,11 +191,11 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	keyEvent("F9", (e: KeyboardEvent) => {
 		panelShow.set(c.checked = !c.checked);
 		e.preventDefault();
-	});
+	})[0]();
 	keyEvent("F1", (e: KeyboardEvent) => {
 		help();
 		e.preventDefault();
-	});
+	})[0]();
 	return o;
       }()),
       spinner = (id: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), loading({"style": "width: 64px"})]),
