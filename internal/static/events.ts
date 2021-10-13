@@ -57,12 +57,18 @@ window.addEventListener("keydown", (e: KeyboardEvent) => keyEventFn(true, e));
 
 window.addEventListener("keyup", (e: KeyboardEvent) => keyEventFn(false, e));
 
+window.addEventListener("mousemove", (e: MouseEvent) => {
+	for (const [, event] of mouseMove) {
+		event(e);
+	}
+});
+
 window.addEventListener("mouseup", (e: MouseEvent) => {
 	const {button} = e;
 	if (button !== 0 && button !== 1 && button !== 2) {
 		return;
 	}
-	for (const [,event] of mouseUp[button]) {
+	for (const [, event] of mouseUp[button]) {
 		event(e);
 	}
 	mouseUp[button].clear();
