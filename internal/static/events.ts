@@ -19,7 +19,7 @@ const held = new Set<string>(),
 	"altKey": held.has("Alt"),
 	"metaKey": held.has("OS")
       }),
-      me = (event: "down" | "up", button: 0 | 1 | 2) => new MouseEvent(`mouse${event}`, {
+      me = (button: 0 | 1 | 2) => new MouseEvent(`mouseup`, {
 	button,
 	"ctrlKey": held.has("Control"),
 	"shiftKey": held.has("Shift"),
@@ -84,7 +84,7 @@ window.addEventListener("blur", () => {
 	}
 	for (let button = 0; button < 3; button++) {
 		if (mouseUp[button].size) {
-			const e = me("up", button as 0 | 1 | 2);
+			const e = me(button as 0 | 1 | 2);
 			for (const [, event] of mouseUp[button]) {
 				event(e);
 			}
@@ -133,6 +133,7 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn)
 	const id = nextMouseID++;
 	return [
 		() => {
+			console.log(id);
 			if (onmousemove) {
 				mouseMove.set(id, onmousemove);
 			}
@@ -142,7 +143,7 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn)
 		},
 		(run = true) => {
 			if (run) {
-				mouseUp[button].get(id)?.(me("up", button));
+				mouseUp[button].get(id)?.(me(button));
 			}
 			mouseMove.delete(id);
 			mouseUp[button].delete(id);
