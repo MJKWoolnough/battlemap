@@ -121,11 +121,10 @@ export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once =
 			}
 		},
 		(now = true) => {
-			if (now && held.has(key)) {
-				ups.get(key)?.get(id)?.[0](ke("up", key));
-			}
+			const toRun = now && held.has(key) ? ups.get(key)?.get(id)?.[0] : null;
 			downs.get(key)?.delete(id);
 			ups.get(key)?.delete(id);
+			toRun?.(ke("up", key));
 		}
 	];
 },
@@ -133,7 +132,6 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn)
 	const id = nextMouseID++;
 	return [
 		() => {
-			console.log(id);
 			if (onmousemove) {
 				mouseMove.set(id, onmousemove);
 			}
@@ -142,11 +140,10 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn)
 			}
 		},
 		(run = true) => {
-			if (run) {
-				mouseUp[button].get(id)?.(me(button));
-			}
+			const toRun = run ? mouseUp[button].get(id) : null;
 			mouseMove.delete(id);
 			mouseUp[button].delete(id);
+			toRun?.(me(button));
 		}
 	];
 };
