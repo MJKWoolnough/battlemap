@@ -98,6 +98,7 @@ window.addEventListener("blur", () => {
 			mouseUp[button].clear();
 		}
 	}
+	mouseMove.clear();
 });
 
 export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once = false) => {
