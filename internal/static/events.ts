@@ -32,6 +32,7 @@ const held = new Set<string>(),
 	      new Map<Uint, [MouseFn, boolean]>(),
 	      new Map<Uint, [MouseFn, boolean]>()
       ],
+      mouseMove = new Map<Uint, MouseFn>(),
       mouseUp = [
 	      new Map<Uint, [MouseFn, boolean]>(),
 	      new Map<Uint, [MouseFn, boolean]>(),
@@ -144,24 +145,24 @@ export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once =
 		}
 	];
 },
-mouseEvent = (button: 0 | 1 | 2, onmousedown?: MouseFn, onmouseup?: MouseFn, now = false, once = false) => {
-	const id = nextMouseID++;
-	if (onmousedown) {
-		if (now && buttons[button]) {
-			onmousedown(me("down", button));
+mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn) => {
+	const id = nextMouseID++,
+	      mouseup = onmouseup ? [onmouseup, true] as [MouseFn, true] : null;
+	return [
+		() => {
+			if (onmousemove) {
+				mouseMove.set(id, onmousemove);
+			}
+			if (mouseup) {
+				mouseUp[button].set(id, mouseup);
+			}
+		},
+		(run = true) => {
+			if (run && buttons[button]) {
+				mouseUp[button].get(id)?.[0](me("up", button));
+			}
+			mouseMove.delete(id);
+			mouseUp[button].delete(id);
 		}
-		if (!now || !once) {
-			mouseDown[button].set(id, [onmousedown, once]);
-		}
-	}
-	if (onmouseup) {
-		mouseUp[button].set(id, [onmouseup, once]);
-	}
-	return (run?: true) => {
-		if (run && buttons[button]) {
-			mouseUp[button].get(id)?.[0](me("up", button));
-		}
-		mouseDown[button].delete(id);
-		mouseUp[button].delete(id);
-	};
+	];
 };
