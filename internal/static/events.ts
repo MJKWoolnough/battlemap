@@ -26,17 +26,11 @@ const held = new Set<string>(),
 	"altKey": held.has("Alt"),
 	"metaKey": held.has("OS")
       }),
-      buttons = [false, false, false],
-      mouseDown = [
-	      new Map<Uint, [MouseFn, boolean]>(),
-	      new Map<Uint, [MouseFn, boolean]>(),
-	      new Map<Uint, [MouseFn, boolean]>()
-      ],
       mouseMove = new Map<Uint, MouseFn>(),
       mouseUp = [
-	      new Map<Uint, [MouseFn, boolean]>(),
-	      new Map<Uint, [MouseFn, boolean]>(),
-	      new Map<Uint, [MouseFn, boolean]>()
+	      new Map<Uint, MouseFn>(),
+	      new Map<Uint, MouseFn>(),
+	      new Map<Uint, MouseFn>()
       ],
       keyEventFn = (down: boolean, e: KeyboardEvent) => {
 	const {key, target} = e;
@@ -57,29 +51,22 @@ const held = new Set<string>(),
 	} else {
 		held.delete(key);
 	}
-      },
-      mouseEventFn = (down: boolean, e: MouseEvent) => {
-	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2 || buttons[button] === down) {
-		return;
-	}
-	const events = (down ? mouseDown : mouseUp);
-	for (const [id, [event, once]] of events[button]) {
-		event(e);
-		if (once) {
-			events[button].delete(id);
-		}
-	}
-	buttons[button] = down;
       };
 
 window.addEventListener("keydown", (e: KeyboardEvent) => keyEventFn(true, e));
 
 window.addEventListener("keyup", (e: KeyboardEvent) => keyEventFn(false, e));
 
-window.addEventListener("mousedown", (e: MouseEvent) => mouseEventFn(true, e));
-
-window.addEventListener("mouseup", (e: MouseEvent) => mouseEventFn(false, e));
+window.addEventListener("mouseup", (e: MouseEvent) => {
+	const {button} = e;
+	if (button !== 0 && button !== 1 && button !== 2) {
+		return;
+	}
+	for (const [,event] of mouseUp[button]) {
+		event(e);
+	}
+	mouseUp[button].clear();
+});
 
 window.addEventListener("blur", () => {
 	for (const key of held) {
@@ -96,16 +83,13 @@ window.addEventListener("blur", () => {
 		held.delete(key);
 	}
 	for (let button = 0; button < 3; button++) {
-		if (buttons[button] && mouseUp[button].size) {
+		if (mouseUp[button].size) {
 			const e = me("up", button as 0 | 1 | 2);
-			for (const [id, [event, once]] of mouseUp[button]) {
+			for (const [, event] of mouseUp[button]) {
 				event(e);
-				if (once) {
-					mouseUp[button].delete(id);
-				}
 			}
+			mouseUp[button].clear();
 		}
-		buttons[button] = false;
 	}
 });
 
@@ -146,20 +130,19 @@ export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once =
 	];
 },
 mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn) => {
-	const id = nextMouseID++,
-	      mouseup = onmouseup ? [onmouseup, true] as [MouseFn, true] : null;
+	const id = nextMouseID++;
 	return [
 		() => {
 			if (onmousemove) {
 				mouseMove.set(id, onmousemove);
 			}
-			if (mouseup) {
-				mouseUp[button].set(id, mouseup);
+			if (onmouseup) {
+				mouseUp[button].set(id, onmouseup);
 			}
 		},
 		(run = true) => {
-			if (run && buttons[button]) {
-				mouseUp[button].get(id)?.[0](me("up", button));
+			if (run) {
+				mouseUp[button].get(id)?.(me("up", button));
 			}
 			mouseMove.delete(id);
 			mouseUp[button].delete(id);
