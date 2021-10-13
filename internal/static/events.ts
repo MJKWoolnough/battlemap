@@ -68,8 +68,9 @@ window.addEventListener("mouseup", (e: MouseEvent) => {
 	if (button !== 0 && button !== 1 && button !== 2) {
 		return;
 	}
-	for (const [, event] of mouseUp[button]) {
+	for (const [id, event] of mouseUp[button]) {
 		event(e);
+		mouseMove.delete(id);
 	}
 	mouseUp[button].clear();
 });
@@ -134,16 +135,14 @@ export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once =
 		}
 	];
 },
-mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup?: MouseFn) => {
+mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup: MouseFn = () => {}) => {
 	const id = nextMouseID++;
 	return [
 		() => {
 			if (onmousemove) {
 				mouseMove.set(id, onmousemove);
 			}
-			if (onmouseup) {
-				mouseUp[button].set(id, onmouseup);
-			}
+			mouseUp[button].set(id, onmouseup);
 		},
 		(run = true) => {
 			const toRun = run ? mouseUp[button].get(id) : null;
