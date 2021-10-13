@@ -1,4 +1,3 @@
-import type {CancelFn} from './events.js';
 import {br, button, div, input} from './lib/html.js';
 import {svg, path, title} from './lib/svg.js';
 import {addTool} from './tools.js';
@@ -13,9 +12,8 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       ellipse = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
-      shiftSnap = () => snap.click();
-
-let cancelShift: CancelFn | null = null;
+      shiftSnap = () => snap.click(),
+      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
 
 addTool({
 	"name": lang["TOOL_MASK"],
@@ -37,7 +35,7 @@ addTool({
 	]),
 	"set": () => {
 		deselectToken();
-		cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true);
+		setupShiftSnap();
 	},
-	"unset": () => cancelShift?.(true)
+	"unset": cancelShiftSnap
 });

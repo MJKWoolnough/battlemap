@@ -1,5 +1,4 @@
 import type {Colour, Int, Uint, Wall} from './types.js';
-import type {CancelFn} from './events.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
@@ -12,6 +11,10 @@ import {addTool} from './tools.js';
 import {keyEvent} from './events.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
+
+let x1 = 0,
+    y1 = 0,
+    l: SVGLineElement;
 
 const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "class": "settings_ticker"}),
       wallTool = input({"type": "radio", "name": "lightTool", "class": "settings_ticker"}),
@@ -29,6 +32,40 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 	      polygon({"points": "21,16 21,5 16,10.5"})
       ]),
       over = (x: Int, y: Int, w: Wall) => point2Line(x, y, w.x1, w.y1, w.x2, w.y2) < 5,
+      onmousemove = (e: MouseEvent) => {
+	const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+	createSVG(l, {x2, y2});
+      },
+      reset = () => {
+	const {root} = globals;
+	root.removeEventListener("mousemove", onmousemove);
+	root.removeEventListener("mouseup", onmouseup);
+	cancelKey();
+	l.remove();
+      },
+      onmouseup = (e: MouseEvent) => {
+	if (e.button !== 0) {
+		return;
+	}
+	reset();
+	const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
+	      {layer: selectedLayer} = globals.selected;
+	if (x2 === x1 && y2 === y1) {
+		return;
+	}
+	if (selectedLayer) {
+		doWallAdd({
+			"path": selectedLayer.path,
+			"id": 0,
+			x1,
+			y1,
+			x2,
+			y2,
+			"colour": wallColour
+		});
+		genWalls();
+	}
+      },
       mouseOver = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
 	if (sunTool.checked || wallTool.checked) {
@@ -80,42 +117,9 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
 		doLightShift(x, y);
 	} else if (wallTool.checked) {
-		const [x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-		      l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5}),
-		      onmousemove = (e: MouseEvent) => {
-			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-			createSVG(l, {x2, y2});
-		      },
-		      reset = () => {
-			this.removeEventListener("mousemove", onmousemove);
-			this.removeEventListener("mouseup", onmouseup);
-			cancelKey?.();
-			l.remove();
-		      },
-		      onmouseup = (e: MouseEvent) => {
-			if (e.button !== 0) {
-				return;
-			}
-			reset();
-			const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-			      {layer: selectedLayer} = globals.selected;
-			if (x2 === x1 && y2 === y1) {
-				return;
-			}
-			if (selectedLayer) {
-				doWallAdd({
-					"path": selectedLayer.path,
-					"id": 0,
-					x1,
-					y1,
-					x2,
-					y2,
-					"colour": wallColour
-				});
-				genWalls();
-			}
-		      };
-		cancelKey = keyEvent("Escape", reset);
+		[x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5});
+		setupKey();
 		createSVG(this, {onmousemove, onmouseup}, l)
 	} else if (lastWall !== null) {
 		doWallRemove(lastWall.wall.id);
@@ -146,7 +150,8 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 			});
 		}
 	});
-      }
+      },
+      [setupKey, cancelKey] = keyEvent("Escape", reset);
 
 type WallData = {
 	wall: Wall;
@@ -158,8 +163,7 @@ type WallData = {
 let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
     lastWall: WallData | null = null,
     wallWaiter = () => {},
-    on = false,
-    cancelKey: CancelFn | null = null;
+    on = false;
 
 mapLoadedReceive(a => {
 	if (a) {
@@ -207,7 +211,7 @@ addTool({
 		deselectToken();
 	},
 	"unset": () => {
-		cancelKey?.(true);
+		cancelKey();
 		wallWaiter();
 		wallLayer.remove();
 		walls.splice(0, walls.length);

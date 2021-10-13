@@ -1,5 +1,4 @@
 import type {Uint} from '../types.js';
-import type {CancelFn} from '../events.js';
 import {br, div, input, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
@@ -96,6 +95,7 @@ if (isAdmin) {
 			snap.click();
 		}
 	      },
+	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      mouseupRotate = (e: MouseEvent) => {
 		if (e.button === 0 && rotate) {
 			rotate = false;
@@ -129,7 +129,7 @@ if (isAdmin) {
 		}
 		document.body.removeEventListener("mousemove", mousemove);
 		document.body.removeEventListener("mouseup", mouseup);
-		cancelKey?.();
+		cancelEnter();
 		selectedEffect?.remove();
 		over = false;
 	      },
@@ -144,7 +144,8 @@ if (isAdmin) {
 		if (layer) {
 			doTokenAdd(layer.path, token);
 		}
-	      };
+	      },
+	      [setupEnter, cancelEnter] = keyEvent("Enter", addSpell);
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
@@ -154,9 +155,7 @@ if (isAdmin) {
 	    width = 5,
 	    damageType = 0,
 	    send = false,
-	    rotate = false,
-	    cancelShift: CancelFn | null = null,
-	    cancelKey: CancelFn | null = null;
+	    rotate = false;
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100"}, [
@@ -213,7 +212,7 @@ if (isAdmin) {
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
 				this.appendChild(selectedEffect);
 			}
-			cancelKey = keyEvent("Enter", addSpell);
+			setupEnter();
 			document.body.addEventListener("mousemove", mousemove);
 			document.body.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
@@ -236,12 +235,10 @@ if (isAdmin) {
 			return !this.previousSibling && e.shiftKey;
 		},
 		"tokenMouse2": ignore,
-		"set": () => {
-			cancelShift = keyEvent("Shift", shiftSnap, shiftSnap);
-		},
+		"set": setupShiftSnap,
 		"unset": () => {
 			mouseout();
-			cancelShift?.(true);
+			cancelShiftSnap();
 		}
 	}));
 	mapLoadedReceive(() => setSize(size, width));

@@ -24,7 +24,8 @@ import lang from './language.js';
 let copiedToken: Token | null = null;
 
 export default (base: HTMLElement) => {
-	let tokenDragMode = -1;
+	let tokenDragMode = -1,
+	    overToken = false;
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      tokenDrag = (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
@@ -443,7 +444,16 @@ export default (base: HTMLElement) => {
 		this.addEventListener("mouseup", stop);
 		this.addEventListener("mouseleave", stop)
 		return false
-	      };
+	      },
+	      [setupControlOverride, cancelControlOverride] = keyEvent("Control", () => {
+		if (overToken) {
+			document.body.style.setProperty("--outline-cursor", "grab");
+		}
+	      }, () => {
+		if (overToken) {
+			document.body.style.setProperty("--outline-cursor", "pointer");
+		}
+	      });
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
@@ -483,7 +493,7 @@ export default (base: HTMLElement) => {
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
 		const {selected: {layer: selectedLayer}, outline} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
-		      currentlyOverToken = overOutline || selectedLayer && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY)),
+		      currentlyOverToken = overOutline || selectedLayer !== null && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY)),
 		      {root} = globals;
 		let ctrl = e.ctrlKey;
 		if (ctrl && !e.shiftKey) {
@@ -497,7 +507,7 @@ export default (base: HTMLElement) => {
 		}
 		if (!overOutline) {
 			if (selectedLayer) {
-				let overToken = currentlyOverToken;
+				overToken = currentlyOverToken;
 				const mouseMove = (e: MouseEvent) => {
 					if (!ctrl && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
 						if (!overToken) {
@@ -508,20 +518,12 @@ export default (base: HTMLElement) => {
 						document.body.style.setProperty("--outline-cursor", "grab");
 						overToken = false;
 					}
-				      },
-				      cancelKeys = keyEvent("Control", () => {
-					if (overToken) {
-						document.body.style.setProperty("--outline-cursor", "grab");
-					}
-				      }, () => {
-					if (overToken) {
-						document.body.style.setProperty("--outline-cursor", "pointer");
-					}
-				      }, true);
+				      };
+				setupControlOverride();
 				root.addEventListener("mousemove", mouseMove);
 				root.addEventListener("mouseout", () => {
 					document.body.style.removeProperty("--outline-cursor");
-					cancelKeys();
+					cancelControlOverride();
 					root.removeEventListener("mousemove", mouseMove);
 				}, {"once": true})
 			} else {

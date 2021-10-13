@@ -108,34 +108,41 @@ window.addEventListener("blur", () => {
 	}
 });
 
-export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, now = false, once = false) => {
-	const id = nextKeyID++;
-	if (onkeydown) {
-		if (now && held.has(key)) {
-			onkeydown(ke("down", key));
-		}
-		if (!now || !once) {
-			let m = downs.get(key);
-			if (!m) {
-				downs.set(key, m = new Map());
+export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once = false) => {
+	const id = nextKeyID++,
+	      keydown: [KeyFn, boolean] = [onkeydown!, once],
+	      keyup: [KeyFn, boolean] = [onkeyup!, once];
+	return [
+		() => {
+			if (onkeydown) {
+				const kh = held.has(key);
+				if (kh) {
+					onkeydown(ke("down", key));
+				}
+				if (!kh || !once) {
+					let m = downs.get(key);
+					if (!m) {
+						downs.set(key, m = new Map());
+					}
+					m.set(id, keydown);
+				}
 			}
-			m.set(id, [onkeydown, once]);
+			if (onkeyup) {
+				let m = ups.get(key);
+				if (!m) {
+					ups.set(key, m = new Map());
+				}
+				m.set(id, keyup);
+			}
+		},
+		(now = true) => {
+			if (now && held.has(key)) {
+				ups.get(key)?.get(id)?.[0](ke("up", key));
+			}
+			downs.get(key)?.delete(id);
+			ups.get(key)?.delete(id);
 		}
-	}
-	if (onkeyup) {
-		let m = ups.get(key);
-		if (!m) {
-			ups.set(key, m = new Map());
-		}
-		m.set(id, [onkeyup, once]);
-	}
-	return (run?: true) => {
-		if (run && held.has(key)) {
-			ups.get(key)?.get(id)?.[0](ke("up", key));
-		}
-		downs.get(key)?.delete(id);
-		ups.get(key)?.delete(id);
-	};
+	];
 },
 mouseEvent = (button: 0 | 1 | 2, onmousedown?: MouseFn, onmouseup?: MouseFn, now = false, once = false) => {
 	const id = nextMouseID++;

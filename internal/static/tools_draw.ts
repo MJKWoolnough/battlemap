@@ -17,8 +17,7 @@ let over = false,
     contextOverride: null | Function = null,
     fillColour = noColour,
     strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
-    cancelKey: CancelFn | null = null,
-    cancelShift: CancelFn | null = null;
+    cancelEscapeKey: CancelFn | null = null;
 
 const marker = g([
 	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
@@ -31,6 +30,7 @@ const marker = g([
       poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
+      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
 
 addTool({
@@ -79,8 +79,7 @@ addTool({
 			      clearup = () => {
 				root.removeEventListener("mousemove", onmousemove);
 				root.removeEventListener("mouseup", onmouseup);
-				cancelKey?.();
-				cancelKey = null;
+				cancelKey();
 				s.remove();
 			      },
 			      onmouseup = (e: MouseEvent) => {
@@ -98,8 +97,10 @@ addTool({
 						shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 					}
 				}
-			      };
-			cancelKey = keyEvent("Escape", clearup);
+			      },
+			      [setupKey, cancelKey] = keyEvent("Escape", clearup);
+			cancelEscapeKey = cancelKey;
+			setupKey();
 			createSVG(root, {onmousemove, onmouseup}, s);
 		} else {
 			let minX = cx,
@@ -121,8 +122,10 @@ addTool({
 				root.removeEventListener("mousemove", onmousemove);
 				cancelKey?.();
 				p.remove();
-			      };
-			cancelKey = keyEvent("Escape", clearup);
+			      },
+			      [setupKey, cancelKey] = keyEvent("Escape", clearup);
+			cancelEscapeKey = cancelKey;
+			setupKey();
 			clickOverride = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 				points.push({x, y});
@@ -185,10 +188,10 @@ addTool({
 	"tokenMouse0": ignore,
 	"tokenMouse2": ignore,
 	"tokenMouseOver": ignore,
-	"set": () => cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true),
+	"set": setupShiftSnap,
 	"unset": () => {
 		marker.remove();
-		cancelKey?.(true);
-		cancelShift?.(true);
+		cancelEscapeKey?.(true);
+		cancelShiftSnap();
 	}
 });

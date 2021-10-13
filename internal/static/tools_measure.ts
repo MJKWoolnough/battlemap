@@ -1,5 +1,4 @@
 import type {Uint} from './types.js';
-import type {CancelFn} from './events.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
 import {addTool, ignore} from './tools.js';
@@ -75,7 +74,8 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	}
 	cleanup = noopCleanup;
       },
-      noopCleanup = () => {};
+      noopCleanup = () => {},
+      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
 	coords[0] = x1;
@@ -119,8 +119,7 @@ stopMeasurement = () => {
 
 let over = false,
     send = false,
-    cleanup = noopCleanup,
-    cancelShift: CancelFn | null = null;
+    cleanup = noopCleanup;
 
 addTool({
 	"name": lang["TOOL_MEASURE"],
@@ -162,10 +161,10 @@ addTool({
 		document.body.addEventListener("mouseup", mouseUp2);
 		return false;
 	},
-	"set": () => cancelShift = keyEvent("Shift", shiftSnap, shiftSnap, true),
+	"set": setupShiftSnap,
 	"unset": () => {
 		cleanup();
-		cancelShift?.(true)
+		cancelShiftSnap();
 	}
 });
 

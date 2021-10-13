@@ -1,4 +1,3 @@
-import type {CancelFn} from './events.js';
 import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {deselectToken, globals} from './shared.js';
@@ -10,7 +9,41 @@ import {autosnap, measureTokenMove} from './settings.js';
 import {keyEvent} from './events.js';
 import lang from './language.js';
 
-let cancelKey: CancelFn | null = null;
+
+let dx = 0, dy = 0,
+    snap = false,
+    ox = 0,
+    oy = 0,
+    measure = false;
+
+const mover = (e: MouseEvent) => {
+	const {selected: {layer: selectedLayer}} = globals;
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+	dx = (x - ox) / panZoom.zoom;
+	dy = (y - oy) / panZoom.zoom;
+	selectedLayer![node].setAttribute("transform", `translate(${dx}, ${dy})`);
+	if (measure) {
+		measureDistance(x, y);
+	}
+      },
+      stop = () => {
+	const {root, selected: {layer: selectedLayer}} = globals;
+	root.removeEventListener("mousemove", mover);
+	root.removeEventListener("mouseup", mouseUp);
+	cancelEscape();
+	selectedLayer![node].removeAttribute("transform");
+	if (measure) {
+		stopMeasurement();
+	}
+      },
+      mouseUp = (e: MouseEvent) => {
+	const {selected: {layer: selectedLayer}} = globals;
+	if (e.button === 0) {
+		stop();
+		doLayerShift(selectedLayer!.path, dx, dy);
+	}
+      },
+      [setupEscape, cancelEscape] = keyEvent("Escape", stop);
 
 addTool({
 	"name": lang["TOOL_MOVE"],
@@ -25,35 +58,12 @@ addTool({
 	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
 		const {selected: {layer: selectedLayer}} = globals;
 		if (selectedLayer) {
-			let dx = 0, dy = 0;
-			const snap = selectedLayer.tokens.some(t => t.snap),
-			      [ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value),
-			      measure = measureTokenMove.value,
-			      mover = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap);
-				dx = (x - ox) / panZoom.zoom;
-				dy = (y - oy) / panZoom.zoom;
-				selectedLayer[node].setAttribute("transform", `translate(${dx}, ${dy})`);
-				if (measure) {
-					measureDistance(x, y);
-				}
-			      },
-			      stop = () => {
-				this.removeEventListener("mousemove", mover);
-				this.removeEventListener("mouseup", mouseUp);
-				cancelKey?.();
-				selectedLayer[node].removeAttribute("transform");
-				if (measure) {
-					stopMeasurement();
-				}
-			      },
-			      mouseUp = (e: MouseEvent) => {
-				if (e.button === 0) {
-					stop();
-					doLayerShift(selectedLayer.path, dx, dy);
-				}
-			      };
-			cancelKey = keyEvent("Escape", stop);
+			dx = 0;
+			dy = 0;
+			snap = selectedLayer.tokens.some(t => t.snap);
+			[ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value);
+			measure = measureTokenMove.value;
+			setupEscape();
 			if (measure) {
 				startMeasurement(ox, oy);
 			}
@@ -73,5 +83,5 @@ addTool({
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
-	"unset": () => cancelKey?.()
+	"unset": stop
 });
