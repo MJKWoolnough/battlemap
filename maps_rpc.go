@@ -237,15 +237,39 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, errr
-	case "resetMask":
-		var startOpaque bool
-		if err := json.Unmarshal(data, &startOpaque); err != nil {
+	case "setMask":
+		var set struct {
+			BaseOpaque bool       `json:"baseOpaque"`
+			Masks      [][]uint64 `json:"masks"`
+		}
+		if err := json.Unmarshal(data, &set); err != nil {
 			return nil, err
 		}
+		for _, mask := range set.Masks {
+			if len(mask) == 0 {
+				return nil, ErrInvalidMaskData
+			}
+			switch mask[0] {
+			case 0, 1: // rect
+				if len(mask) != 5 {
+					return nil, ErrInvalidMaskData
+				}
+			case 2, 3: // ellipse
+				if len(mask) != 4 {
+					return nil, ErrInvalidMaskData
+				}
+			case 4, 5: // poly
+				if l := len(mask); l < 7 || l&1 == 0 {
+					return nil, ErrInvalidMaskData
+				}
+			default:
+				return nil, ErrInvalidMaskData
+			}
+		}
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			mp.MaskOpaque = startOpaque
-			mp.Mask = mp.Mask[:0]
-			m.socket.broadcastMapChange(cd, broadcastMaskReset, data, userAny)
+			mp.MaskOpaque = set.BaseOpaque
+			mp.Mask = set.Masks
+			m.socket.broadcastMapChange(cd, broadcastMaskSet, data, userAny)
 			return true
 		}); err != nil {
 			return nil, err

@@ -68,7 +68,7 @@ const (
 	broadcastLayerHide
 	broadcastMaskAdd
 	broadcastMaskRemove
-	broadcastMaskReset
+	broadcastMaskSet
 
 	broadcastTokenAdd
 	broadcastTokenRemove
