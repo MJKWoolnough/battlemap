@@ -52,7 +52,7 @@ type RPCWaits = {
 	waitLayerHide:               () => Subscription<string>;
 	waitMaskAdd:                 () => Subscription<Uint[]>;
 	waitMaskRemove:              () => Subscription<Uint>;
-	waitMaskReset:               () => Subscription<boolean>;
+	waitMaskSet:                 () => Subscription<MaskSet>;
 	waitTokenAdd:                () => Subscription<TokenAdd>;
 	waitTokenRemove:             () => Subscription<Uint>;
 	waitTokenMoveLayerPos:       () => Subscription<TokenMoveLayerPos>;
@@ -126,7 +126,7 @@ export type RPC = RPCWaits & {
 	removeLayer:      (path: string)                                                         => Promise<void>;
 	addToMask:        (mask: Mask)                                                           => Promise<void>;
 	removeFromMask:   (mask: Uint)                                                           => Promise<void>;
-	resetMask:        (opaque: boolean)                                                      => Promise<void>;
+	setMask:          (baseOpaque: boolean, masks: Mask[])                                   => Promise<void>;
 	addToken:         (path: string, token: Token)                                           => Promise<Uint>;
 	removeToken:      (id: Uint)                                                             => Promise<void>;
 	setToken:         (t: TokenSet)                                                          => Promise<void>;
@@ -446,3 +446,8 @@ type Copy = {
 }
 
 type Mask = [0|1, Uint, Uint, Uint, Uint] | [2|3, Uint, Uint, Uint] | [4|5, ...Uint[]];
+
+type MaskSet = {
+	baseOpaque: boolean;
+	masks: Mask[];
+}
