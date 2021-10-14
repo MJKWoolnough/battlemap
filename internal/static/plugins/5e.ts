@@ -14,6 +14,7 @@ import {addCSS, characterData, globals, mapLoadedReceive, tokenSelectedReceive, 
 import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
+import {keyEvent} from '../events.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';
@@ -851,7 +852,41 @@ if (isAdmin) {
 			settings["store-image-shapechanges"] = {"user": false, "data": tokens};
 			rpc.pluginSetting(importName, settings, []);
 		}}, mainLang["SAVE"])
-	      ]));
+	      ])),
+	      [setupHealthButton, cancelHealthButton] = keyEvent("h", () => {
+		const {selected: {token}} = globals;
+		if (token instanceof SVGToken5E) {
+			const currHP = token.getData("5e-hp-current");
+			if (currHP !== null) {
+				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
+					globals.outline.focus();
+					if (hp === null || !isValidToken(token)) {
+						return;
+					}
+					const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
+					if (data >= 0) {
+						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+						token.updateData();
+					} else {
+						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
+						token.updateData();
+					}
+					globals.outline.focus();
+				});
+			}
+		}
+	      }),
+	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", () => {
+		const {selected: {token}} = globals;
+		if (token instanceof SVGToken5E) {
+			const mapData = globals.mapData as MapData5E;
+			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+				initChange(token);
+			} else {
+				initAdd(token, token.getData("5e-initiative-mod"));
+			}
+		}
+	      });
 	plugin["settings"]!.fn.appendChild(button({"onclick": () => shell.appendChild(shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
@@ -987,45 +1022,30 @@ if (isAdmin) {
 			return ctxList;
 		}
 	};
-	globals.outline.addEventListener("keypress", (e: KeyboardEvent) => {
-		const {selected: {token}} = globals;
-		if (token instanceof SVGToken5E) {
-			if (e.key === 'h') {
-				const currHP = token.getData("5e-hp-current");
-				if (currHP !== null) {
-					shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
-						globals.outline.focus();
-						if (hp === null || !isValidToken(token)) {
-							return;
-						}
-						const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
-						if (data >= 0) {
-							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-							token.updateData();
-						} else {
-							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
-							token.updateData();
-						}
-						globals.outline.focus();
-					});
-				}
-				e.preventDefault();
-			} else if (e.key === 'i') {
-				const mapData = globals.mapData as MapData5E;
-				if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
-					initChange(token);
-				} else {
-					initAdd(token, token.getData("5e-initiative-mod"));
-				}
-			}
-		}
-	});
 	rpc.waitPluginSetting().then(setting => {
 		if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
 			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
 			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
 		}
-	})
+	});
+	tokenSelectedReceive((() => {
+		let lastSelectedToken: SVGToken5E | null = null;
+		return () => {
+			if (lastSelectedToken) {
+				lastSelectedToken.unselect();
+			}
+			const {selected: {token}} = globals;
+			if (token instanceof SVGToken5E && !token.isPattern) {
+				setupHealthButton();
+				setupInitiativeButton();
+				lastSelectedToken = token;
+				token.select();
+			} else {
+				cancelHealthButton();
+				cancelInitiativeButton();
+			}
+		}
+	})());
 }
 
 addPlugin("5e", plugin);
@@ -1104,19 +1124,6 @@ rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 		}
 	}
 }));
-
-let lastSelectedToken: SVGToken5E | null = null;
-
-tokenSelectedReceive(() => {
-	if (lastSelectedToken) {
-		lastSelectedToken.unselect();
-	}
-	const {selected: {token}} = globals;
-	if (token instanceof SVGToken5E && !token.isPattern) {
-		lastSelectedToken = token;
-		token.select();
-	}
-});
 
 addMapDataChecker((data: Record<string, any>) => {
 	for (const key in data) {
