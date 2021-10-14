@@ -124,7 +124,7 @@ export type RPC = RPCWaits & {
 	showLayer:        (path: string)                                                         => Promise<void>;
 	hideLayer:        (path: string)                                                         => Promise<void>;
 	removeLayer:      (path: string)                                                         => Promise<void>;
-	addToMask:        (mask: Uint[])                                                         => Promise<void>;
+	addToMask:        (mask: Mask)                                                           => Promise<void>;
 	removeFromMask:   (mask: Uint)                                                           => Promise<void>;
 	resetMask:        (opaque: boolean)                                                      => Promise<void>;
 	addToken:         (path: string, token: Token)                                           => Promise<Uint>;
@@ -444,3 +444,5 @@ type Copy = {
 	newID: Uint;
 	path: string;
 }
+
+type Mask = [0|1, Uint, Uint, Uint, Uint] | [2|3, Uint, Uint, Uint] | [4|5, ...Uint[]];
