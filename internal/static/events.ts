@@ -1,7 +1,5 @@
 import type {Uint} from './types.js';
 
-export type CancelFn = (run?: true) => void;
-
 type KeyFn = (e: KeyboardEvent) => void;
 
 type MouseFn = (e: MouseEvent) => void;
