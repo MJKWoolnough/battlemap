@@ -73,7 +73,7 @@ export default (url: string): Promise<void> => {
 				["waitLayerHide",            broadcastLayerHide,            checkString],
 				["waitMaskAdd",              broadcastMaskAdd,              checkMask],
 				["waitMaskRemove",           broadcastMaskRemove,           checkUint],
-				["waitMaskReset",            broadcastMaskSet,              checkBoolean],
+				["waitMaskSet",              broadcastMaskSet,              checkMaskSet],
 				["waitTokenAdd",             broadcastTokenAdd,             checkTokenAdd],
 				["waitTokenRemove",          broadcastTokenRemove,          checkUint],
 				["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
@@ -171,7 +171,7 @@ export default (url: string): Promise<void> => {
 				["hideLayer",        "maps.hideLayer",         "!",                                       returnVoid,       "waitLayerHide", ""],
 				["addToMask",        "maps.addToMask",         "!",                                       returnVoid,       "waitMaskAdd", ""],
 				["removeFromMask",   "maps.removeFromMask",    "!",                                       returnVoid,       "waitMaskRemove", ""],
-				["resetMask",        "maps.resetMask",         "!",                                       returnVoid,       "waitMaskReset", ""],
+				["resetMask",        "maps.setMask",          ["baseOpaque", "masks"],                    returnVoid,       "waitMaskSet", ""],
 				["removeLayer",      "maps.removeLayer",       "!",                                       returnVoid,       "waitLayerRemove", ""],
 				["addToken",         "maps.addToken",         ["path", "token"],                          checkUint,        "waitTokenAdd", "token/id"],
 				["removeToken",      "maps.removeToken",       "!",                                       returnVoid,       "waitTokenRemove", ""],
@@ -646,6 +646,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (let i = 1; i < data.length; i++) {
 		checkUint(data[i], "Mask", i + "");
 	}
+      },
+      checksMaskSet: checkers = [[checkObject, ""], [checkBoolean, "baseOpaque"], [checkArray, "masks"]],
+      checkMaskSet = (data: any) => {
+	checker(data, "MaskSet", checksMaskSet);
+	for (const mask of data.masks) {
+		checkMask(mask);
+	}
+	return data;
       },
       checksBroadcastWindow: checkers = [[checkID, ""], [checkString, "module"], [checkString, "contents"]],
       checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
