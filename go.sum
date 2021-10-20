@@ -8,8 +8,6 @@ vimagination.zapto.org/authenticate v0.0.0-20200222183941-b1a68429295c h1:h6vTu9
 vimagination.zapto.org/authenticate v0.0.0-20200222183941-b1a68429295c/go.mod h1:YfddapgT/AVNsjGL5wZ5gsVPjLur7oLw1ZEXOYL19pw=
 vimagination.zapto.org/byteio v0.0.0-20200608082009-ae680929f676 h1:14MnnTdnMAOdJVphtWa1YDUHXRCwm2wB1YWLW2GrnqU=
 vimagination.zapto.org/byteio v0.0.0-20200608082009-ae680929f676/go.mod h1:fl9OF22g6MTKgvHA1hqMXe/L7+ULWofVTwbC9loGu7A=
-vimagination.zapto.org/httpaccept v0.0.0-20200314191426-3dbdf1d7ec5c h1:lNdl9rFOMsi+JaVhvOY2pojPh+E/WnsfGmUhq5r+wqA=
-vimagination.zapto.org/httpaccept v0.0.0-20200314191426-3dbdf1d7ec5c/go.mod h1:tWlFvS6CegbeaOZZFC9NXIRa+Xb9wqMNlpCa0zxQBZw=
 vimagination.zapto.org/httpdir v0.0.0-20200410121005-508c78ebcc4d h1:HpRao5n2ocF+kx6m+e+f1duTinb/2nSfRx5PpRlM54A=
 vimagination.zapto.org/httpdir v0.0.0-20200410121005-508c78ebcc4d/go.mod h1:wguXbVsxlad7AMVFp1blNM1H/AwjfkfG5I709wmV8xQ=
 vimagination.zapto.org/httpencoding v0.0.0-20200308201051-11896c622dd3 h1:1YbOB/k0ab//SmuieOpa6iIqwBHB8o9DFKxJxNpefI0=
