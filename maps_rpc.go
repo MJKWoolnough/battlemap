@@ -805,19 +805,18 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		m.config.Get("currentUserMap", &cu)
 		if _, _, id := m.getFolderItem(mapPath); id == uint64(cu) {
 			return nil, ErrCurrentlySelected
-		} else {
-			inUse := false
-			m.socket.mu.RLock()
-			for c := range m.socket.conns {
-				if c.CurrentMap == id {
-					inUse = true
-					break
-				}
+		}
+		inUse := false
+		m.socket.mu.RLock()
+		for c := range m.socket.conns {
+			if c.CurrentMap == id {
+				inUse = true
+				break
 			}
-			m.socket.mu.RUnlock()
-			if inUse {
-				return nil, ErrCurrentlyInUse
-			}
+		}
+		m.socket.mu.RUnlock()
+		if inUse {
+			return nil, ErrCurrentlyInUse
 		}
 	case "rename":
 		var (
