@@ -17,7 +17,7 @@ type Battlemap struct {
 	socket     socket
 	auth       Auth
 	images     assetsDir
-	sounds     assetsDir
+	audio      assetsDir
 	musicPacks musicPacksDir
 	chars      charactersDir
 	maps       mapsDir
@@ -45,7 +45,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		return fmt.Errorf("error loading Config: %w", err)
 	}
 	b.images.fileType = fileTypeImage
-	b.sounds.fileType = fileTypeAudio
+	b.audio.fileType = fileTypeAudio
 	if a == nil {
 		a := new(auth)
 		if err := a.Init(b); err != nil {
@@ -63,7 +63,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		}
 	}{
 		{"Socket", &b.socket},
-		{"Sounds", &b.sounds},
+		{"Audio", &b.audio},
 		{"MusicPacks", &b.musicPacks},
 		{"Images", &b.images},
 		{"Chars", &b.chars},
@@ -76,7 +76,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	}
 	b.chars.cleanup(l.chars)
 	b.images.cleanup(l.images)
-	b.sounds.cleanup(l.audio)
+	b.audio.cleanup(l.audio)
 	return nil
 }
 
@@ -85,7 +85,7 @@ func (b *Battlemap) initMux(index http.Handler) {
 	for path, module := range map[string]http.Handler{
 		"/login/":   b.auth,
 		"/images/":  &b.images,
-		"/audio/":   &b.sounds,
+		"/audio/":   &b.audio,
 		"/plugins/": &b.plugins,
 	} {
 		p := strings.TrimSuffix(path, "/")

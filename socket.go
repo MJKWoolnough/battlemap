@@ -158,7 +158,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 			}
 		case "audioAssets":
 			if cd.IsAdmin() {
-				return c.sounds.RPCData(cd, submethod, data)
+				return c.audio.RPCData(cd, submethod, data)
 			}
 		case "characters":
 			if cd.IsAdmin() || submethod == "get" {
