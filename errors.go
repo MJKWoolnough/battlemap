@@ -1,0 +1,35 @@
+package battlemap
+
+import "errors"
+
+// errors
+var (
+	ErrInvalidFileType           = errors.New("invalid file type")
+	ErrDuplicateKey              = errors.New("duplicate key")
+	ErrItemNotFound              = errors.New("item not found")
+	ErrFolderNotFound            = errors.New("folder not found")
+	ErrUnknownMap                = errors.New("unknown map")
+	ErrUnknownLayer              = errors.New("unknown layer")
+	ErrUnknownToken              = errors.New("unknown token")
+	ErrInvalidDimensions         = errors.New("invalid dimensions")
+	ErrInvalidData               = errors.New("invalid map data")
+	ErrCurrentlySelected         = errors.New("cannot remove or rename currently selected map")
+	ErrCurrentlyInUse            = errors.New("cannot remove or rename map currently in use")
+	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
+	ErrInvalidLayerPath          = errors.New("invalid layer path")
+	ErrInvalidTokenPos           = errors.New("invalid token pos")
+	ErrInvalidStart              = errors.New("invalid start pos")
+	ErrInvalidMaskData           = errors.New("invalid mask data")
+	ErrInvalidMaskIndex          = errors.New("invalid mask index")
+	ErrDuplicateLayer            = errors.New("duplicate layer name")
+	ErrInvalidLayer              = errors.New("invalid layer structure")
+	ErrInvalidToken              = errors.New("invalid token")
+	ErrInvalidWall               = errors.New("invalid wall")
+	ErrDuplicateTokenID          = errors.New("duplicate token ID")
+	ErrInvalidTokenID            = errors.New("invalid token ID")
+	ErrUnknownMusicPack          = errors.New("unknown music pack")
+	ErrUnknownMusicTrack         = errors.New("unknown music track")
+	ErrUnknownPlugin             = errors.New("unknown plugin")
+	ErrUnknownMethod             = errors.New("unknown method")
+	ErrInvalidPassword           = errors.New("invalid password")
+)

@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -417,9 +416,3 @@ func (f *folders) getBroadcastID(base int) int {
 }
 
 const folderMetadata = "folders"
-
-// Errors
-var (
-	ErrItemNotFound   = errors.New("item not found")
-	ErrFolderNotFound = errors.New("folder not found")
-)

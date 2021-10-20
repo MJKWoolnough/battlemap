@@ -3,7 +3,6 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -386,9 +385,3 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 	}
 	return nil, ErrUnknownMethod
 }
-
-// errors
-var (
-	ErrUnknownMusicPack  = errors.New("unknown music pack")
-	ErrUnknownMusicTrack = errors.New("unknown music track")
-)

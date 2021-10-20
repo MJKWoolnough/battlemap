@@ -3,7 +3,6 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -273,8 +272,3 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 	}
 	return nil, nil
 }
-
-// Errors
-var (
-	ErrUnknownPlugin = errors.New("unknown plugin")
-)

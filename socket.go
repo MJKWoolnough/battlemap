@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -184,9 +183,3 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 	}
 	return nil, ErrUnknownMethod
 }
-
-// Errors
-var (
-	ErrUnknownMethod   = errors.New("unknown method")
-	ErrInvalidPassword = errors.New("invalid password")
-)

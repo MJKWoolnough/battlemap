@@ -3,7 +3,6 @@ package battlemap
 import (
 	"compress/gzip"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -257,8 +256,3 @@ func (c *charactersDir) copy(cd ConnData, data json.RawMessage) (json.RawMessage
 	data = append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), kid, 10), ",\"path\":"...), ip.Path), '}')
 	return data, nil
 }
-
-// Errors
-var (
-	ErrDuplicateKey = errors.New("duplicate key")
-)

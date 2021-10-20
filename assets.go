@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -151,9 +150,4 @@ func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
 const (
 	invalidFilenameChars = "\x00\r\n\\/"
 	contentType          = "Content-Type"
-)
-
-// Errors
-var (
-	ErrInvalidFileType = errors.New("invalid file type")
 )

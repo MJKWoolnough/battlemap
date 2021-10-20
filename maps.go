@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -276,11 +275,3 @@ func (l *layer) addToken(tk *token, pos uint) {
 	copy(l.Tokens[pos+1:], l.Tokens[pos:])
 	l.Tokens[pos] = tk
 }
-
-// Errors
-var (
-	ErrUnknownMap        = errors.New("unknown map")
-	ErrUnknownLayer      = errors.New("unknown layer")
-	ErrUnknownToken      = errors.New("unknown token")
-	ErrInvalidDimensions = errors.New("invalid dimensions")
-)

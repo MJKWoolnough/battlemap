@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"vimagination.zapto.org/keystore"
@@ -925,16 +924,3 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 func validTokenLayer(path string) bool {
 	return path != "/Grid" && path != "Light"
 }
-
-// Errors
-var (
-	ErrInvalidData               = errors.New("invalid map data")
-	ErrCurrentlySelected         = errors.New("cannot remove or rename currently selected map")
-	ErrCurrentlyInUse            = errors.New("cannot remove or rename map currently in use")
-	ErrContainsCurrentlySelected = errors.New("cannot remove or rename as contains currently selected map")
-	ErrInvalidLayerPath          = errors.New("invalid layer path")
-	ErrInvalidTokenPos           = errors.New("invalid token pos")
-	ErrInvalidStart              = errors.New("invalid start pos")
-	ErrInvalidMaskData           = errors.New("invalid mask data")
-	ErrInvalidMaskIndex          = errors.New("invalid mask index")
-)

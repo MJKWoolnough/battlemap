@@ -2,7 +2,6 @@ package battlemap
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"strconv"
 
@@ -457,13 +456,3 @@ func appendNum(p []byte, n uint8) []byte {
 	}
 	return append(p, '0'+n)
 }
-
-// Errors
-var (
-	ErrDuplicateLayer   = errors.New("duplicate layer name")
-	ErrInvalidLayer     = errors.New("invalid layer structure")
-	ErrInvalidToken     = errors.New("invalid token")
-	ErrInvalidWall      = errors.New("invalid wall")
-	ErrDuplicateTokenID = errors.New("duplicate token ID")
-	ErrInvalidTokenID   = errors.New("invalid token ID")
-)
