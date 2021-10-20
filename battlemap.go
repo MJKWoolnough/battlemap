@@ -21,7 +21,6 @@ type Battlemap struct {
 	musicPacks musicPacksDir
 	chars      charactersDir
 	maps       mapsDir
-	files      filesDir
 	plugins    pluginsDir
 	mux        http.ServeMux
 }
@@ -69,7 +68,6 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 		{"Images", &b.images},
 		{"Chars", &b.chars},
 		{"Maps", &b.maps},
-		{"Files", &b.files},
 		{"Plugins", &b.plugins},
 	} {
 		if err := m.Module.Init(b, l); err != nil {
@@ -88,7 +86,6 @@ func (b *Battlemap) initMux(index http.Handler) {
 		"/login/":   b.auth,
 		"/images/":  &b.images,
 		"/audio/":   &b.sounds,
-		"/files/":   &b.files,
 		"/plugins/": &b.plugins,
 	} {
 		p := strings.TrimSuffix(path, "/")
