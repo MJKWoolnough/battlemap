@@ -177,7 +177,7 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new NodeMap<string, Folder>(ul({"class": "folders"}), this.sorter);
+		this.children = new NodeMap<string, Folder | Item>(ul({"class": "folders"}), this.sorter);
 		this.name = name;
 		this[node] = li({"class": "foldersFolder"}, [
 			details([
