@@ -845,7 +845,5 @@ export default (base: HTMLElement) => {
 			globals.mapData.data[kd.key] = kd.data;
 		}
 	}),
-	rpc.waitMapDataRemove().then(key => {
-		delete globals.mapData.data[key];
-	})
+	rpc.waitMapDataRemove().then(key => delete globals.mapData.data[key])
 };
