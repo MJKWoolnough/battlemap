@@ -1,20 +1,22 @@
 import type {Int} from './types.js';
 import {Pipe} from './lib/inter.js';
 
-const pipes = new Map<Setting<any>, Pipe<any>>();
-
 class Setting<T> {
 	name: string;
 	value: T;
+	#pipe = new Pipe<T>();
 	constructor(name: string, value: T) {
 		this.name = name;
 		this.value = value;
-		pipes.set(this, new Pipe<T>());
 	}
-	set(v: T, s: string) {
+	set(v: T, s: string | null) {
 		this.value = v;
-		window.localStorage.setItem(this.name, s);
-		pipes.get(this)?.send(v);
+		if (s === null) {
+			window.localStorage.removeItem(this.name);
+		} else {
+			window.localStorage.setItem(this.name, s);
+		}
+		this.#pipe.send(v);
 		return this;
 	}
 	remove() {
@@ -23,7 +25,7 @@ class Setting<T> {
 	}
 	wait(fn: (value: T) => void) {
 		fn(this.value);
-		pipes.get(this)?.receive(fn);
+		this.#pipe.receive(fn);
 		return this;
 	}
 }
@@ -33,14 +35,7 @@ export class BoolSetting extends Setting<boolean> {
 		super(name, window.localStorage.getItem(name) !== null);
 	}
 	set(b: boolean) {
-		this.value = b;
-		if (b) {
-			window.localStorage.setItem(this.name, "");
-		} else {
-			window.localStorage.removeItem(this.name);
-		}
-		pipes.get(this)?.send(b);
-		return this;
+		return super.set(this.value = b, b ? "" : null);
 	}
 }
 
