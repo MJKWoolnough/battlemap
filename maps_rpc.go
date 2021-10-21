@@ -803,7 +803,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		m.config.Get("currentUserMap", &cu)
-		if _, _, id := m.getFolderItem(mapPath); id == uint64(cu) {
+		_, _, id := m.getFolderItem(mapPath)
+		if id == uint64(cu) {
 			return nil, ErrCurrentlySelected
 		}
 		inUse := false
