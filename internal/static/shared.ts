@@ -84,23 +84,17 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 	] as const;
 })(),
 globals = {
-	"definitions": null,
-	"root": null,
-	"layerList": null,
-	"mapData": null,
+	"definitions": null as any as Defs,
+	"root": null as any as SVGSVGElement,
+	"layerList": null as any as SVGFolder,
+	"mapData": null as any as MapData,
 	"tokens": new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 	"walls": new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
-	"selected": {},
+	"selected": {
+		"layer": null as SVGLayer | null,
+		"token": null as SVGToken | SVGShape | null
+	},
 	"outline": g(),
-} as unknown as {
-	definitions: Defs;
-	root: SVGSVGElement;
-	layerList: SVGFolder;
-	mapData: MapData;
-	tokens: Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>;
-	walls: Map<Uint, {layer: SVGLayer, wall: Wall}>;
-	selected: {layer: SVGLayer | null, token: SVGToken | SVGShape | null};
-	outline: SVGGElement;
 },
 deselectToken = () => {
 	globals.selected.token = null;
