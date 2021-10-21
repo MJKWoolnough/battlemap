@@ -577,7 +577,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const n = g(),
-		children = new NodeArray<SVGFolder | SVGLayer>(n);
+		      children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of mapData.children) {
 			children.push(processLayers(wg, c));
 		}
