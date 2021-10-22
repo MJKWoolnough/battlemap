@@ -76,7 +76,7 @@ export class Defs {
 	list = new Map<string, SVGPatternElement>();
 	lighting = new Map<string, SVGFilterElement>();
 	constructor() {
-		this[node] = defs();
+		this[node] = defs(globals.masks.maskNode);
 	}
 	add(t: SVGToken) {
 		let i = 0;
