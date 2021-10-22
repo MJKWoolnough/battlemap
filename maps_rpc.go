@@ -198,7 +198,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				return nil, ErrInvalidMaskData
 			}
 		case 2, 3: // ellipse
-			if len(mask) != 4 {
+			if len(mask) != 5 {
 				return nil, ErrInvalidMaskData
 			}
 		case 4, 5: // poly
