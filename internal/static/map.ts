@@ -69,6 +69,8 @@ export class Masks {
 	}
 }
 
+globals.masks = new Masks();
+
 export class Defs {
 	[node]: SVGElement;
 	list = new Map<string, SVGPatternElement>();
