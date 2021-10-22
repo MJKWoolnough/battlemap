@@ -1,8 +1,8 @@
-import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Mask, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, animate, circle, defs, ellipse, filter, g, image, path, pattern, polygon, rect, svg} from './lib/svg.js';
+import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
@@ -25,6 +25,49 @@ export type SVGFolder = LayerFolder & {
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
+
+export class Masks {
+	#base = rect({"width": "100%", "height": "100%", "fill": "#000"});
+	baseOpaque = false;
+	masks = new NodeArray<Mask & {[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement}>(g());
+	maskNode = mask([this.#base, this.masks[node]]);
+	add(m: Mask) {
+		const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
+		let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
+		switch (m[0]) {
+		case 0:
+		case 1:
+			shape = rect({"x": m[1], "y": m[2], "width": m[3], "height": m[4], fill});
+			break;
+		case 2:
+		case 3:
+			shape = ellipse({"cx": m[1], "cy": m[2], "rx": m[3], "ry": m[4], fill});
+			break;
+		case 4:
+		case 5:
+			shape = polygon({"points": m.reduce((res, _, i) => {
+				if (i % 2 === 1) {
+					res.push(m[i] + "," + m[i+1]);
+				}
+				return res;
+			}, [] as string[]).join(" "), fill});
+			break;
+		default:
+			return;
+		}
+		this.masks.push(Object.assign(m, {[node]: shape}));
+	}
+	remove(index: Uint) {
+		this.masks.splice(index, 1);
+	}
+	set(baseOpaque: boolean, masks: Mask[]) {
+		this.baseOpaque = baseOpaque;
+		this.masks.splice(0, this.masks.length);
+		for (const mask of masks) {
+			this.add(mask);
+		}
+	}
+}
 
 export class Defs {
 	[node]: SVGElement;
