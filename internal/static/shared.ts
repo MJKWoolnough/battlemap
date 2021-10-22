@@ -1,6 +1,6 @@
 import type {Int, Uint, CharacterToken, KeystoreData, MapData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
-import type {Defs, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
+import type {Defs, Masks, SVGFolder, SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
 import {label, style} from './lib/html.js';
 import {g} from './lib/svg.js';
@@ -85,6 +85,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 })(),
 globals = {
 	"definitions": null as any as Defs,
+	"masks": null as any as Masks,
 	"root": null as any as SVGSVGElement,
 	"layerList": null as any as SVGFolder,
 	"mapData": null as any as MapData,
