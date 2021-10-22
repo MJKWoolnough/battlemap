@@ -631,7 +631,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		break;
 	case 2:
 	case 3:
-		if (data.length !== 4) {
+		if (data.length !== 5) {
 			throwError("invalid number of points for ellipse mask");
 		}
 		break;
