@@ -32,6 +32,7 @@ const defaultLanguage = {
 	"NAME_INVALID_LONG": "Note names cannot contains the '/' (slash) character",
 	"NOTE": "Note",
 	"NOTE_EDIT": "Edit Note",
+	"NOTE_POPOUT": "Open in New Window",
 	"NOTE_SAVE": "Save Note",
 	"NOTE_SHARE": "Allow Note Sharing",
 	"NOTES_NEW": "New Note",
@@ -49,6 +50,7 @@ register("plugin-notes", [icon, lang["NOTE"]]);
 if (isAdmin) {
 	class NoteItem extends DraggableItem {
 		window: WindowElement | null = null;
+		popWindow: Window | null = null;
 		share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name);
@@ -61,8 +63,21 @@ if (isAdmin) {
 		show() {
 			if (this.window) {
 				this.window.focus();
+			} else if (this.popWindow) {
+				this.popWindow.focus();
 			} else {
-				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, bbcode(div({"class": "plugin-notes"}), allTags, pages.get(this.id)?.data.contents || "")));
+				const data = bbcode(div({"class": "plugin-notes"}), allTags, pages.get(this.id)?.data.contents || "");
+				this.window = shell.appendChild(windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, data));
+				this.window.addControlButton(popOutIcon, () => {
+					const wp = window.open("", "", "");
+					if (wp) {
+						this.popWindow = wp;
+						wp.addEventListener("unload", () => this.popWindow = null);
+						wp.document.title = this.name;
+						wp.document.body.appendChild(data);
+						this.window?.remove();
+					}
+				}, lang["NOTE_POPOUT"]);
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
@@ -151,6 +166,7 @@ if (isAdmin) {
 	let lastID = 0;
 	const importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
+	      popOutIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 15 15"%3E%3Cpath d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="currentColor" /%3E%3C/svg%3E`,
 	      pages = new Map<Uint, KeystoreData<Page>>(),
 	      notes = new Map<Uint, NoteItem>(),
 	      defaultSettings = {"user": false, "data": {"folders": {}, "items": {}}} as KeystoreData<FolderItems>,
