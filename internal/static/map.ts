@@ -30,7 +30,7 @@ export class Masks {
 	#base = rect({"width": "100%", "height": "100%", "fill": "#000"});
 	baseOpaque = false;
 	masks = new NodeArray<Mask & {[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement}>(g());
-	maskNode = mask({"id": "mapMask"}, [this.#base, this.masks[node]]);
+	[node] = mask({"id": "mapMask"}, [this.#base, this.masks[node]]);
 	add(m: Mask) {
 		const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
 		let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
@@ -76,7 +76,7 @@ export class Defs {
 	list = new Map<string, SVGPatternElement>();
 	lighting = new Map<string, SVGFilterElement>();
 	constructor() {
-		this[node] = defs(globals.masks.maskNode);
+		this[node] = defs(globals.masks[node]);
 	}
 	add(t: SVGToken) {
 		let i = 0;
