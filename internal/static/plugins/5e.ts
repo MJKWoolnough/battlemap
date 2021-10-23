@@ -198,13 +198,13 @@ class SVGToken5E extends SVGToken {
 			this.ac.setAttribute("style", "display: none");
 		} else {
 			this.ac.removeAttribute("style");
-			this.acValue.innerHTML = ac.toString();
+			this.acValue.innerHTML = ac + "";
 		}
 		if (currentHP === null || maxHP === null) {
 			this.hp.setAttribute("style", "display: none");
 		} else {
 			this.hp.removeAttribute("style");
-			this.hpValue.innerHTML = currentHP.toString();
+			this.hpValue.innerHTML = currentHP + "";
 			this.hpValue.setAttribute("fill", `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`);
 			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`);
 		}
@@ -455,7 +455,7 @@ const defaultLanguage = {
 			updateInitiative([token.id, null]);
 			saveInitiative();
 			highlight.remove();
-		} : undefined}, initiative.toString())
+		} : undefined}, initiative + "")
 	])
       })),
       updateInitiative = (change?: [Uint, Uint | null]) => {

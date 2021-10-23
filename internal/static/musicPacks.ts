@@ -280,11 +280,11 @@ export default (base: Node) => {
 			}
 			setVolume(volume: Uint) {
 				super.setVolume(volume);
-				this.volumeNode.value = volume.toString();
+				this.volumeNode.value = volume + "";
 			}
 			setRepeat(repeat: Int) {
 				super.setRepeat(repeat);
-				this.repeatNode.value = repeat.toString();
+				this.repeatNode.value = repeat + "";
 			}
 			remove() {
 				this.cleanup();
@@ -413,7 +413,7 @@ export default (base: Node) => {
 			}
 			setVolume(volume: Uint) {
 				super.setVolume(volume);
-				this.volumeNode.value = volume.toString();
+				this.volumeNode.value = volume + "";
 			}
 			play(playTime: Uint, sendRPC = false) {
 				super.play(playTime);

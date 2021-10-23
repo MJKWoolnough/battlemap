@@ -44,7 +44,7 @@ export class IntSetting extends Setting<Int> {
 		super(name, parseInt(window.localStorage.getItem(name) || starting));
 	}
 	set(i: Int) {
-		return super.set(i, i.toString());
+		return super.set(i, i + "");
 	}
 }
 
