@@ -134,6 +134,13 @@ export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once =
 		}
 	];
 },
+mouseMoveEvent = (onmousemove: MouseFn) => {
+	const id = nextMouseID++;
+	return [
+		() => mouseMove.set(id, onmousemove),
+		() => mouseMove.delete(id)
+	];
+},
 mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup: MouseFn = () => {}) => {
 	const id = nextMouseID++;
 	return [
