@@ -527,9 +527,17 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		}
 	}
       },
+      checksMaskSet: checkers = [[checkObject, ""], [checkBoolean, "baseOpaque"], [checkArray, "masks"]],
+      checkMaskSet = (data: any) => {
+	checker(data, "MaskSet", checksMaskSet);
+	for (const mask of data.masks) {
+		checkMask(mask);
+	}
+	return data;
+      },
       checksMapStart: checkers = [[checkObject, ""], [checkUint, "startX"], [checkUint, "startY"]],
       checkMapStart = (data: any, name = "MapStart") => checker(data, name, checksMapStart),
-      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
+      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkUint, "lightX"], [checkUint, "lightY"], [checkMaskSet, ""], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {
@@ -646,14 +654,6 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (let i = 1; i < data.length; i++) {
 		checkUint(data[i], "Mask", i + "");
 	}
-      },
-      checksMaskSet: checkers = [[checkObject, ""], [checkBoolean, "baseOpaque"], [checkArray, "masks"]],
-      checkMaskSet = (data: any) => {
-	checker(data, "MaskSet", checksMaskSet);
-	for (const mask of data.masks) {
-		checkMask(mask);
-	}
-	return data;
       },
       checksBroadcastWindow: checkers = [[checkID, ""], [checkString, "module"], [checkString, "contents"]],
       checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
