@@ -1,10 +1,10 @@
-import type {Colour, Int, Uint, Wall} from './types.js';
+import type {Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {deselectToken, globals, labels, mapLoadedReceive} from './shared.js';
-import {colour2RGBA, makeColourPicker} from './colours.js';
+import {Colour, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
@@ -74,7 +74,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		      offset = sun ? 20 : 10,
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${colour2RGBA(sun ? globals.mapData.lightColour : wallColour)}`});
+			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${(sun ? globals.mapData.lightColour : wallColour).toRGBA()}`});
 		      };
 		createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
 			this.removeEventListener("mousemove", onmousemove);
@@ -118,7 +118,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		doLightShift(x, y);
 	} else if (wallTool.checked) {
 		[x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": colour2RGBA(wallColour), "stroke-width": 5});
+		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": wallColour.toRGBA(), "stroke-width": 5});
 		setupKey();
 		createSVG(this, {onmousemove, onmouseup}, l)
 	} else if (lastWall !== null) {
@@ -144,7 +144,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		for (const wall of layer.walls) {
 			walls.push({
 			      wall,
-			      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": colour2RGBA(wall.colour)}, title(layer.path))),
+			      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": wall.colour.toRGBA()}, title(layer.path))),
 			      layer,
 			      "pos": pos++
 			});
@@ -160,7 +160,7 @@ type WallData = {
 	pos: Uint;
 }
 
-let wallColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+let wallColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
     lastWall: WallData | null = null,
     wallWaiter = () => {},
     on = false;

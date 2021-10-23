@@ -1,7 +1,6 @@
 import {svgNS} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
-import {colour2RGBA} from '../colours.js';
 import {globals, labels} from '../shared.js';
 import {panZoom} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
@@ -71,7 +70,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			return p.then(() => {
 				const {lightColour, width, height} = globals.mapData,
 				      fs = ctx.fillStyle;
-				ctx.fillStyle = colour2RGBA(lightColour);
+				ctx.fillStyle = lightColour.toRGBA();
 				ctx.fillRect(0, 0, width, height);
 				ctx.fillStyle = fs;
 			});

@@ -1,5 +1,6 @@
-import type {Colour, IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import type {SVGLayer} from './map.js';
+import type {Colour} from './colours.js';
 import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
 import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
@@ -422,8 +423,7 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		handleError("invalid layer for wall add")
 		return;
 	}
-	const {path, x1, y1, x2, y2, colour: {r, g, b, a}} = w,
-	      colour = {r, g, b, a},
+	const {path, x1, y1, x2, y2, colour} = w,
 	      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
 	      doIt = (sendRPC = true) => {
 		layer.walls.push(wall);

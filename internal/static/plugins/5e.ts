@@ -1,4 +1,4 @@
-import type {KeystoreData, Uint, Int, MapData, Colour, TokenImage, TokenSet} from '../types.js';
+import type {KeystoreData, Uint, Int, MapData, TokenImage, TokenSet} from '../types.js';
 import type {WindowElement} from '../windows.js';
 import type {List} from '../lib/context.js';
 import type {PluginType} from '../plugins.js';
@@ -11,7 +11,7 @@ import {item, menu} from '../lib/context.js';
 import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
 import {addCSS, characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
-import {colour2Hex, colour2RGBA, isColour, makeColourPicker} from '../colours.js';
+import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
 import {keyEvent} from '../events.js';
@@ -510,8 +510,14 @@ const defaultLanguage = {
 	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => document.body.classList.toggle("hide-token-conditions-5e", b)), new BoolSetting("5e-hide-selected-conditions").wait(b => document.body.classList.toggle("hide-selected-conditions-5e", b))],
 	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting("5e-desaturate-selected-conditions").wait(b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
-      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", {"r": 255, "g": 255, "b": 0, "a": 127}, isColour),
-      highlight = rect({"fill": colour2Hex(highlightColour.value), "stroke": colour2Hex(highlightColour.value), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
+      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", Colour.from({"r": 255, "g": 255, "b": 0, "a": 127}), (v: any): v is Colour => {
+	if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
+		Colour.from(v);
+		return true;
+	}
+	return false;
+      }),
+      highlight = rect({"fill": highlightColour.value.toHex(), "stroke": highlightColour.value.toHex(), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       plugin: PluginType = {
 	"settings": {
 		"priority": 0,
@@ -519,7 +525,7 @@ const defaultLanguage = {
 			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);
-				const rgba = colour2RGBA(c);
+				const rgba = c.toRGBA();
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),

@@ -1,4 +1,5 @@
 import type {Subscription} from './lib/inter.js';
+import type {Colour} from './colours.js';
 
 export type Int = number;
 export type Uint = number;
@@ -191,13 +192,6 @@ export type FolderItems = {
 	folders: Record<string, FolderItems>;
 	items:  Record<string, Uint>;
 }
-
-export type Colour = Readonly<{
-	r: Byte;
-	g: Byte;
-	b: Byte;
-	a: Byte;
-}>;
 
 export type MapDetails = GridDetails & {
 	width: Uint;

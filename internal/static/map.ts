@@ -1,11 +1,11 @@
-import type {Colour, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {Colour} from './colours.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
 import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {colour2RGBA} from './colours.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
@@ -160,7 +160,7 @@ export class SVGShape extends SVGTransform {
 			n = ellipse({"cx": rx, "cy": ry, rx, ry});
 		}
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {[node]: n}), SVGShape.prototype);
-		createSVG(n, {"class": "mapShape", "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
+		createSVG(n, {"class": "mapShape", "fill": token.fill.toRGBA(), "stroke": token.stroke.toRGBA(), "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
 		Object.defineProperty(svgShape, node, {"enumerable": false});
 		return svgShape;
 	}
@@ -203,7 +203,7 @@ export class SVGDrawing extends SVGShape {
 		}
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight,
-		      n = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": colour2RGBA(token.fill), "stroke": colour2RGBA(token.stroke), "stroke-width": token.strokeWidth}),
+		      n = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill.toRGBA(), "stroke": token.stroke.toRGBA(), "stroke-width": token.strokeWidth}),
 		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {[node]: n, oWidth, oHeight}), SVGDrawing.prototype);
 		n.setAttribute("transform", svgDrawing.transformString());
 		Object.defineProperty(svgDrawing, node, {"enumerable": false});
@@ -348,7 +348,7 @@ setMapDetails = (details: MapDetails) => {
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", colour2RGBA(globals.mapData.lightColour = c));
+	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", (globals.mapData.lightColour = c).toRGBA());
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
@@ -379,7 +379,7 @@ updateLight = () => {
 		};
 	});
 	createSVG(clearElement(getLayer("/Light")![node]), [
-		rect({"width": "100%", "height": "100%", "fill": colour2RGBA(globals.mapData.lightColour)}),
+		rect({"width": "100%", "height": "100%", "fill": globals.mapData.lightColour.toRGBA()}),
 		wallPolygons
 	]);
 },
@@ -545,7 +545,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	(getLayer("/Light") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": colour2RGBA(lightColour)}));
+	(getLayer("/Light") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": lightColour.toRGBA()}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {

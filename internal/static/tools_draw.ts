@@ -1,4 +1,4 @@
-import type {Colour, Coords, Uint} from './types.js';
+import type {Coords, Uint} from './types.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
 import {autosnap} from './settings.js';
@@ -6,7 +6,7 @@ import {screen2Grid} from './map.js';
 import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
-import {colour2RGBA, makeColourPicker, noColour} from './colours.js';
+import {Colour, makeColourPicker, noColour} from './colours.js';
 import {keyEvent} from './events.js';
 import {addTool, ignore} from './tools.js';
 import lang from './language.js';
@@ -15,7 +15,7 @@ let over = false,
     clickOverride: null | ((e: MouseEvent) => void) = null,
     contextOverride: null | Function = null,
     fillColour = noColour,
-    strokeColour: Colour = {"r": 0, "g": 0, "b": 0, "a": 255},
+    strokeColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
     cancelEscapeKey: ((run?: boolean) => void) | null = null;
 
 const marker = g([
@@ -66,7 +66,7 @@ addTool({
 		      {root} = globals;
 		if (rectangle.checked || circle.checked) {
 			const isEllipse = circle.checked,
-			      s = (isEllipse ? ellipse : rect)({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value, cx, cy}),
+			      s = (isEllipse ? ellipse : rect)({"stroke": strokeColour.toRGBA(), "fill": fillColour.toRGBA(), "stroke-width": strokeWidth.value, cx, cy}),
 			      onmousemove = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 				if (isEllipse) {
@@ -108,7 +108,7 @@ addTool({
 			    maxY = cy;
 			const points: Coords[] = [{"x": cx, "y": cy}],
 			      close = fillColour.a > 0,
-			      p = path({"stroke": colour2RGBA(strokeColour), "fill": colour2RGBA(fillColour), "stroke-width": strokeWidth.value}),
+			      p = path({"stroke": strokeColour.toRGBA(), "fill": fillColour.toRGBA(), "stroke-width": strokeWidth.value}),
 			      draw = (x?: Uint, y?: Uint) => {
 				p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
 			      },

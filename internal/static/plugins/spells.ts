@@ -7,7 +7,7 @@ import {screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
-import {colour2RGBA, hex2Colour, noColour} from '../colours.js';
+import {hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
 import {keyEvent, mouseDragEvent} from '../events.js';
 
@@ -36,7 +36,7 @@ const sparkID = "plugin-spell-spark",
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, colour2RGBA(hex2Colour(c, n === 8 ? 255 : 128))]);
+      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128).toRGBA()]);
 
 if (isAdmin) {
 	addCSS(".plugin-spell-nowidth:not(:checked)~.plugin-spell-nowidth:not(:checked)~div{display:none}");

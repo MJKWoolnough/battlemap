@@ -7,7 +7,7 @@ import {node, noSort} from './lib/nodes.js';
 import {getLayer} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
-import {colour2Hex, colourPicker, hex2Colour} from './colours.js';
+import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
@@ -152,7 +152,7 @@ class ItemLayer extends Item {
 			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize)}),
 			      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize}),
-			      sqColour = input({"type": "color", "value": colour2Hex(mapData.gridColour)}),
+			      sqColour = input({"type": "color", "value": mapData.gridColour.toHex()}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke}),
 			      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
