@@ -1,8 +1,8 @@
-import type {Colour, GridDetails, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Mask, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {Colour, KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
+import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
 import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {colour2RGBA} from './colours.js';
@@ -25,116 +25,6 @@ export type SVGFolder = LayerFolder & {
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
-
-export class Masks {
-	#base = rect({"width": "100%", "height": "100%", "fill": "#000"});
-	baseOpaque = false;
-	masks = new NodeArray<Mask & {[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement}>(g());
-	[node] = mask({"id": "mapMask"}, [this.#base, this.masks[node]]);
-	add(m: Mask) {
-		const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
-		let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
-		switch (m[0]) {
-		case 0:
-		case 1:
-			shape = rect({"x": m[1], "y": m[2], "width": m[3], "height": m[4], fill});
-			break;
-		case 2:
-		case 3:
-			shape = ellipse({"cx": m[1], "cy": m[2], "rx": m[3], "ry": m[4], fill});
-			break;
-		case 4:
-		case 5:
-			shape = polygon({"points": m.reduce((res, _, i) => {
-				if (i % 2 === 1) {
-					res.push(m[i] + "," + m[i+1]);
-				}
-				return res;
-			}, [] as string[]).join(" "), fill});
-			break;
-		default:
-			return;
-		}
-		this.masks.push(Object.assign(m, {[node]: shape}));
-	}
-	remove(index: Uint) {
-		this.masks.splice(index, 1);
-	}
-	set(baseOpaque: boolean, masks: Mask[]) {
-		this.baseOpaque = baseOpaque;
-		this.masks.splice(0, this.masks.length);
-		for (const mask of masks) {
-			this.add(mask);
-		}
-	}
-}
-
-globals.masks = new Masks();
-
-export class Defs {
-	[node]: SVGElement;
-	list = new Map<string, SVGPatternElement>();
-	lighting = new Map<string, SVGFilterElement>();
-	constructor() {
-		this[node] = defs(globals.masks[node]);
-	}
-	add(t: SVGToken) {
-		let i = 0;
-		while (this.list.has(`Pattern_${i}`)) {
-			i++;
-		}
-		const id = `Pattern_${i}`;
-		this.list.set(id, this[node].appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
-		return id;
-	}
-	remove(id: string) {
-		this[node].removeChild(this.list.get(id)!).firstChild as SVGImageElement;
-		this.list.delete(id);
-	}
-	setGrid(grid: GridDetails) {
-		const old = this.list.get("grid");
-		if (old) {
-			this[node].removeChild(old);
-		}
-		switch (grid.gridType) {
-		case 1: {
-			const w = grid.gridSize,
-			      h = 2 * w / SQRT3,
-			      maxH = 2 * Math.round(1.5 * w / SQRT3);
-			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
-		}; break;
-		case 2: {
-			const h = grid.gridSize,
-			      w = 2 * h / SQRT3,
-			      maxW = 2 * Math.round(1.5 * h / SQRT3);
-			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
-		}; break;
-		default:
-			this.list.set("grid", this[node].appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": colour2RGBA(grid.gridColour), "stroke-width": grid.gridStroke, "fill": "transparent"}))));
-		}
-	}
-	getLighting(id: string) {
-		if (this.lighting.has(id)) {
-			return this.lighting.get(id)!;
-		}
-		const f = this[node].appendChild(filter({id}));
-		this.lighting.set(id, f);
-		return f;
-	}
-	clearLighting() {
-		for (const l of this.lighting.values()) {
-			l.remove();
-		}
-		this.lighting.clear();
-	}
-	clear() {
-		this.clearLighting();
-		for (const d of this.list.values()) {
-			d.remove();
-		}
-		this.list.clear();
-	}
-}
 
 class SVGTransform {
 	id: Uint;
@@ -626,7 +516,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 	globals.tokens.clear();
 	globals.walls.clear();
 	globals.masks.set(mapData.baseOpaque, mapData.masks);
-	const definitions = globals.definitions = new Defs(),
+	globals.definitions.clear();
+	const definitions = globals.definitions,
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const n = g(),
