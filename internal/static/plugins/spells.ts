@@ -101,7 +101,7 @@ if (isAdmin) {
 		send = false;
 		cancelEffect();
 	      }),
-	      [setupMoveMove, cancelMouseMove] = mouseDragEvent(0, (e: MouseEvent) => {
+	      [setupMouseMove, cancelMouseMove] = mouseDragEvent(0, (e: MouseEvent) => {
 		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
@@ -206,7 +206,7 @@ if (isAdmin) {
 				this.appendChild(selectedEffect);
 			}
 			setupEnter();
-			setupMoveMove();
+			setupMouseMove();
 			document.body.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
 		},
