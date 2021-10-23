@@ -122,10 +122,10 @@ export class Defs {
 		return f;
 	}
 	clearLighting() {
-		for (const [key, l] of this.lighting) {
+		for (const l of this.lighting.values()) {
 			l.remove();
-			this.lighting.delete(key);
 		}
+		this.lighting.clear();
 	}
 }
 
