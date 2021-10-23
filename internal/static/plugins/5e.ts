@@ -517,7 +517,7 @@ const defaultLanguage = {
 	}
 	return false;
       }),
-      highlight = rect({"fill": highlightColour.value.toHex(), "stroke": highlightColour.value.toHex(), "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
+      highlight = rect({"fill": highlightColour.value, "stroke": highlightColour.value, "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       plugin: PluginType = {
 	"settings": {
 		"priority": 0,
@@ -525,7 +525,7 @@ const defaultLanguage = {
 			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);
-				const rgba = c.toRGBA();
+				const rgba = c + "";
 				highlight.setAttribute("fill", rgba);
 				highlight.setAttribute("stroke", rgba);
 			}, "highlight-colour-5e")),

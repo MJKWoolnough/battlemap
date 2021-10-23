@@ -70,7 +70,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			return p.then(() => {
 				const {lightColour, width, height} = globals.mapData,
 				      fs = ctx.fillStyle;
-				ctx.fillStyle = lightColour.toRGBA();
+				ctx.fillStyle = lightColour + "";
 				ctx.fillRect(0, 0, width, height);
 				ctx.fillStyle = fs;
 			});

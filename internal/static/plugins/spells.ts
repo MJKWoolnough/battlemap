@@ -36,7 +36,7 @@ const sparkID = "plugin-spell-spark",
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128).toRGBA()]);
+      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128) + ""]);
 
 if (isAdmin) {
 	addCSS(".plugin-spell-nowidth:not(:checked)~.plugin-spell-nowidth:not(:checked)~div{display:none}");

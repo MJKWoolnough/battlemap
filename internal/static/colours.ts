@@ -13,11 +13,11 @@ export class Colour {
 	static from(c: {r: Byte; g: Byte; b: Byte; a: Byte;}) {
 		return Object.freeze(Object.setPrototypeOf(c, Colour.prototype));
 	}
-	toHex() {
-		return `#${this.r.toString(16).padStart(2, "0")}${this.g.toString(16).padStart(2, "0")}${this.b.toString(16).padStart(2, "0")}`;
-	}
-	toRGBA() {
+	toString() {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`;
+	}
+	toHexString() {
+		return `#${this.r.toString(16).padStart(2, "0")}${this.g.toString(16).padStart(2, "0")}${this.b.toString(16).padStart(2, "0")}`;
 	}
 }
 
@@ -25,9 +25,9 @@ export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(p
 noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const checkboard = div({"class": "checkboard"}),
-	      preview = checkboard.appendChild(div({"style": `background-color: ${colour.toRGBA()}`})),
-	      updatePreview = () => preview.style.setProperty("background-color", hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)).toRGBA()),
-	      colourInput = input({"type": "color", "value": colour.toHex(), "onchange": updatePreview}),
+	      preview = checkboard.appendChild(div({"style": `background-color: ${colour}`})),
+	      updatePreview = () => preview.style.setProperty("background-color", hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""),
+	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": reject}, [
 		h1(title),
@@ -50,7 +50,7 @@ makeColourPicker = (() => {
 			b.style.setProperty("background-color", "#fff");
 			b.innerText = "None";
 		} else {
-			b.style.setProperty("background-color", c.toRGBA());
+			b.style.setProperty("background-color", c + "");
 			b.innerText = "";
 		}
 		return c;

@@ -74,7 +74,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		      offset = sun ? 20 : 10,
 		      onmousemove = (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${(sun ? globals.mapData.lightColour : wallColour).toRGBA()}`});
+			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${sun ? globals.mapData.lightColour : wallColour}`});
 		      };
 		createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
 			this.removeEventListener("mousemove", onmousemove);
@@ -118,7 +118,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		doLightShift(x, y);
 	} else if (wallTool.checked) {
 		[x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": wallColour.toRGBA(), "stroke-width": 5});
+		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": wallColour, "stroke-width": 5});
 		setupKey();
 		createSVG(this, {onmousemove, onmouseup}, l)
 	} else if (lastWall !== null) {
@@ -144,7 +144,7 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		for (const wall of layer.walls) {
 			walls.push({
 			      wall,
-			      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": wall.colour.toRGBA()}, title(layer.path))),
+			      "element": wallLayer.appendChild(line({"x1": wall.x1, "y1": wall.y1, "x2": wall.x2, "y2": wall.y2, "stroke": wall.colour}, title(layer.path))),
 			      layer,
 			      "pos": pos++
 			});

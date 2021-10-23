@@ -66,7 +66,7 @@ addTool({
 		      {root} = globals;
 		if (rectangle.checked || circle.checked) {
 			const isEllipse = circle.checked,
-			      s = (isEllipse ? ellipse : rect)({"stroke": strokeColour.toRGBA(), "fill": fillColour.toRGBA(), "stroke-width": strokeWidth.value, cx, cy}),
+			      s = (isEllipse ? ellipse : rect)({"stroke": strokeColour, "fill": fillColour, "stroke-width": strokeWidth.value, cx, cy}),
 			      onmousemove = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 				if (isEllipse) {
@@ -108,7 +108,7 @@ addTool({
 			    maxY = cy;
 			const points: Coords[] = [{"x": cx, "y": cy}],
 			      close = fillColour.a > 0,
-			      p = path({"stroke": strokeColour.toRGBA(), "fill": fillColour.toRGBA(), "stroke-width": strokeWidth.value}),
+			      p = path({"stroke": strokeColour, "fill": fillColour, "stroke-width": strokeWidth.value}),
 			      draw = (x?: Uint, y?: Uint) => {
 				p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
 			      },
