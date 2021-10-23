@@ -9,7 +9,7 @@ import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
 import {hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
-import {keyEvent, mouseDragEvent} from '../events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../events.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
@@ -101,7 +101,7 @@ if (isAdmin) {
 		send = false;
 		cancelEffect();
 	      }),
-	      [setupMouseMove, cancelMouseMove] = mouseDragEvent(0, (e: MouseEvent) => {
+	      [setupMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
