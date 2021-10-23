@@ -127,6 +127,13 @@ export class Defs {
 		}
 		this.lighting.clear();
 	}
+	clear() {
+		this.clearLighting();
+		for (const d of this.list.values()) {
+			d.remove();
+		}
+		this.list.clear();
+	}
 }
 
 class SVGTransform {
