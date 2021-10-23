@@ -166,7 +166,7 @@ export type RPC = RPCWaits & {
 	broadcast:       (data: Broadcast)                            => Promise<void>;
 };
 
-export type MapData = LayerFolder & MapDetails & {
+export type MapData = LayerFolder & MapDetails & MaskSet & {
 	startX: Uint;
 	startY: Uint;
 	gridDistance: Uint;
@@ -174,8 +174,6 @@ export type MapData = LayerFolder & MapDetails & {
 	lightColour: Colour;
 	lightX: Uint;
 	lightY: Uint;
-	maskOpaque: boolean;
-	mask: Uint[][];
 	data: Record<string, any>;
 };
 
