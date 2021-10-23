@@ -618,6 +618,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	globals.tokens.clear();
 	globals.walls.clear();
+	globals.masks.set(mapData.baseOpaque, mapData.masks);
 	const definitions = globals.definitions = new Defs(),
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
