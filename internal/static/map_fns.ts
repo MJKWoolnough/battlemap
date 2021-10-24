@@ -1,4 +1,4 @@
-import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, Mask, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import type {SVGLayer} from './map.js';
 import type {Colour} from './colours.js';
 import {Subscription} from './lib/inter.js';
@@ -535,6 +535,22 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_REMOVE"]);
+},
+doMaskAdd = (m: Mask, sendRPC = true) => {
+	let index = -1;
+	const doIt = (sendRPC = true) => {
+		index = globals.masks.add(m);
+		if (sendRPC) {
+			queue(() => rpc.addToMask(m));
+		}
+		return undoIt;
+	      },
+	      undoIt = () => {
+		      globals.masks.remove(index);
+		      queue(() => rpc.removeFromMask(index));
+		      return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang["UNDO_MASK_ADD"]);
 },
 snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	const size = globals.mapData.gridSize;
