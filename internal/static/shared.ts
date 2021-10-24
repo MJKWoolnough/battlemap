@@ -22,7 +22,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 	return {
 		get [node]() {return baseNode;},
 		get baseOpaque() {return baseOpaque;},
-		get masks() {return masks;},
+		get masks() {return JSON.parse(JSON.stringify(masks));},
 		index(i: Uint) {
 			return masks[i];
 		},

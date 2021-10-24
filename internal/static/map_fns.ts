@@ -572,7 +572,7 @@ doMaskRemove = (index: Uint, sendRPC = true) => {
 doMaskSet = (m: MaskSet, sendRPC = true) => {
 	let oldData = {
 		"baseOpaque": globals.masks.baseOpaque,
-		"masks": JSON.parse(JSON.stringify(globals.masks.masks))
+		"masks": globals.masks.masks
 	};
 	const doIt = (sendRPC = true) => {
 		globals.masks.set(m.baseOpaque, m.masks);
