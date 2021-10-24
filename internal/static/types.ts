@@ -439,7 +439,7 @@ type Copy = {
 
 export type Mask = [0|1, Uint, Uint, Uint, Uint] | [2|3, Uint, Uint, Uint, Uint] | [4|5, Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]];
 
-type MaskSet = {
+export type MaskSet = {
 	baseOpaque: boolean;
 	masks: Mask[];
 }
