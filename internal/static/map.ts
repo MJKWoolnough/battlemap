@@ -790,4 +790,7 @@ export default (base: HTMLElement) => {
 		}
 	}),
 	rpc.waitMapDataRemove().then(key => delete globals.mapData.data[key])
+	rpc.waitMaskAdd().then(globals.masks.add);
+	rpc.waitMaskRemove().then(globals.masks.remove);
+	rpc.waitMaskSet().then(({baseOpaque, masks}) => globals.masks.set(baseOpaque, masks));
 };
