@@ -172,7 +172,7 @@ export default (url: string): Promise<void> => {
 				["hideLayer",        "maps.hideLayer",         "!",                                       returnVoid,       "waitLayerHide", ""],
 				["addToMask",        "maps.addToMask",         "!",                                       returnVoid,       "waitMaskAdd", ""],
 				["removeFromMask",   "maps.removeFromMask",    "!",                                       returnVoid,       "waitMaskRemove", ""],
-				["resetMask",        "maps.setMask",          ["baseOpaque", "masks"],                    returnVoid,       "waitMaskSet", ""],
+				["setMask",          "maps.setMask",          ["baseOpaque", "masks"],                    returnVoid,       "waitMaskSet", ""],
 				["removeLayer",      "maps.removeLayer",       "!",                                       returnVoid,       "waitLayerRemove", ""],
 				["addToken",         "maps.addToken",         ["path", "token"],                          checkUint,        "waitTokenAdd", "token/id"],
 				["removeToken",      "maps.removeToken",       "!",                                       returnVoid,       "waitTokenRemove", ""],
