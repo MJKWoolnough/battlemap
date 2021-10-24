@@ -6,13 +6,17 @@ import {Pipe} from './lib/inter.js';
 import {label, style} from './lib/html.js';
 import {defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect} from './lib/svg.js';
 
+type MaskNode = Mask & {
+	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
+}
+
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
 	const p = new Pipe<T>();
 	return [(data: T) => p.send(data), (fn: (data: T) => void) => p.receive(fn)];
       },
       masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
-	      masks = new NodeArray<Mask & {[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement}>(g()),
+	      masks = new NodeArray<MaskNode>(g()),
 	      baseNode = mask({"id": "mapMask"}, [base, masks[node]]);
 	let baseOpaque = false;
 	return {
@@ -20,6 +24,50 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 		get baseOpaque() {return baseOpaque;},
 		index(i: Uint) {
 			return masks[i];
+		},
+		at(x: Uint, y: Uint) {
+			let selected: MaskNode | null = null;
+			for (const m of masks) {
+				switch (m[0]) {
+				case 0:
+				case 1: {
+					const [, i, j, w, h] = m;
+					if (i <= x && x <= i + w && j <= y && y <= j + h) {
+						selected = m;
+					}
+				}; break;
+				case 2:
+				case 3: {
+					const [, cx, cy, rx, ry] = m,
+					      rx2 = Math.pow(rx, 2),
+					      ry2 = Math.pow(ry, 2);
+					if (ry2 * Math.pow(x - cx, 2) + rx2 * Math.pow(y - cy, 2) <= rx2 * ry2) {
+						selected = m;
+					}
+				}; break;
+				case 4:
+				case 5: {
+					const points = m.reduce((res, _, i) => {
+						if (i % 2 === 1) {
+							res.push([m[i], m[i+1]]);
+						}
+						return res;
+					}, [] as [Uint, Uint][]);
+					let last = points[points.length-1],
+					    inside = false;
+					for (const point of points) {
+						if (y > Math.min(point[1], last[1]) && y <= Math.max(point[1], last[1]) && x <= (y - point[1]) * (last[0] - point[0]) / (last[1] - point[1]) + point[0]) {
+							inside = !inside;
+						}
+						last = point;
+					}
+					if (inside) {
+						selected = m;
+					}
+				}
+				}
+			}
+			return selected;
 		},
 		add(m: Mask) {
 			const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
