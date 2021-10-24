@@ -552,6 +552,23 @@ doMaskAdd = (m: Mask, sendRPC = true) => {
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MASK_ADD"]);
 },
+doMaskRemove = (index: Uint, sendRPC = true) => {
+	const oldOpaque = globals.masks.baseOpaque,
+	      oldMasks = JSON.parse(JSON.stringify(globals.masks.masks)),
+	      doIt = (sendRPC = true) => {
+		globals.masks.remove(index);
+		if (sendRPC) {
+			queue(() => rpc.removeFromMask(index));
+		}
+		return undoIt;
+	      },
+	      undoIt = () => {
+		globals.masks.set(oldOpaque, oldMasks);
+		queue(() => rpc.setMask(oldOpaque, oldMasks));
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang["UNDO_MASK_REMOVE"]);
+},
 snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	const size = globals.mapData.gridSize;
 	switch (globals.mapData.gridType) {
