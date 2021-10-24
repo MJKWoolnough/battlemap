@@ -8,7 +8,7 @@ import place, {item, menu, List} from './lib/context.js';
 import {edit as tokenEdit} from './characters.js';
 import {tokenContext} from './plugins.js';
 import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView, panZoom, screen2Grid, showSignal} from './map.js';
-import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doMaskAdd, doMaskRemove, doMaskSet, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
@@ -763,4 +763,7 @@ export default (base: HTMLElement) => {
 		}
 	});
 	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
+	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
+	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
+	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
 };
