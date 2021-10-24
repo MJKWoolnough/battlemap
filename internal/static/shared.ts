@@ -91,7 +91,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 				}, [] as string[]).join(" "), fill});
 				break;
 			default:
-				return;
+				return -1;
 			}
 			return masks.push(Object.assign(m, {[node]: shape})) - 1;
 		},
