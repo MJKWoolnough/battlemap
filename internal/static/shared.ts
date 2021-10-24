@@ -45,7 +45,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 			default:
 				return;
 			}
-			masks.push(Object.assign(m, {[node]: shape}));
+			return masks.push(Object.assign(m, {[node]: shape})) - 1;
 		},
 		remove(index: Uint) {
 			masks.splice(index, 1);
