@@ -1,4 +1,4 @@
-import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, Mask, TokenSet, Token, WallPath, LayerRPC} from './types.js';
+import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, Mask, MaskSet, TokenSet, Token, WallPath, LayerRPC} from './types.js';
 import type {SVGLayer} from './map.js';
 import type {Colour} from './colours.js';
 import {Subscription} from './lib/inter.js';
@@ -568,6 +568,21 @@ doMaskRemove = (index: Uint, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MASK_REMOVE"]);
+},
+doMaskSet = (m: MaskSet, sendRPC = true) => {
+	let oldData = {
+		"baseOpaque": globals.masks.baseOpaque,
+		"masks": JSON.parse(JSON.stringify(globals.masks.masks))
+	};
+	const doIt = (sendRPC = true) => {
+		globals.masks.set(m.baseOpaque, m.masks);
+		if (sendRPC) {
+			queue(rpc.setMask.bind(rpc, m.baseOpaque, m.masks));
+		}
+		[oldData, m] = [m, oldData];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang["UNDO_MASK_SET"]);
 },
 snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	const size = globals.mapData.gridSize;
