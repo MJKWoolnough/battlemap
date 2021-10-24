@@ -18,6 +18,9 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 	return {
 		get [node]() {return baseNode;},
 		get baseOpaque() {return baseOpaque;},
+		index(i: Uint) {
+			return masks[i];
+		},
 		add(m: Mask) {
 			const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
 			let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
