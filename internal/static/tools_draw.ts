@@ -18,12 +18,7 @@ let over = false,
     strokeColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
     cancelEscapeKey: ((run?: boolean) => void) | null = null;
 
-const marker = g([
-	      polygon({"points": "5,0 16,0 10.5,5", "fill": "#000"}),
-	      polygon({"points": "0,5 0,16 5,10.5", "fill": "#000"}),
-	      polygon({"points": "5,21 16,21 10.5,16", "fill": "#000"}),
-	      polygon({"points": "21,16 21,5 16,10.5", "fill": "#000"})
-      ]),
+const marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
       rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
       circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
