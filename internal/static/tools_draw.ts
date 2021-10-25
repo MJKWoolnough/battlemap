@@ -37,7 +37,7 @@ const marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "2
 	root.removeEventListener("mouseleave", onmouseleave);
 	root.style.removeProperty("cursor");
 	marker.remove();
-      }
+      };
 
 addTool({
 	"name": lang["TOOL_DRAW"],
