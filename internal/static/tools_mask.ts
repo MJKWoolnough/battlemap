@@ -27,7 +27,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		switch (mask[0]) {
 		case 0:
 		case 1:
-			createSVG(maskElement, {"width": mask[3] = x - mask[1], "height": mask[4] = y - mask[2]});
+			createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
 			break;
 		}
 	}
