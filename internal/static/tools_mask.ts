@@ -4,6 +4,8 @@ import {addTool} from './tools.js';
 import {deselectToken, labels} from './shared.js';
 import {autosnap} from './settings.js';
 import {keyEvent} from './events.js';
+import {shell} from './windows.js';
+import {doMaskSet} from './map_fns.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
@@ -31,7 +33,11 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap, false),
 		br(),
-		button(lang["TOOL_MASK_CLEAR"])
+		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["TOOL_MASK_CLEAR_CONFIRM"]).then(c => {
+			if (c) {
+				doMaskSet({"baseOpaque": opaque.checked, "masks": []});
+			}
+		})}, lang["TOOL_MASK_CLEAR"])
 	]),
 	"set": () => {
 		deselectToken();
