@@ -1,10 +1,11 @@
 import {br, button, div, input} from './lib/html.js';
-import {svg, path, title} from './lib/svg.js';
+import {createSVG, svg, g, path, polygon, title} from './lib/svg.js';
 import {addTool} from './tools.js';
-import {deselectToken, labels} from './shared.js';
+import {deselectToken, globals, labels} from './shared.js';
 import {autosnap} from './settings.js';
 import {keyEvent} from './events.js';
 import {shell} from './windows.js';
+import {screen2Grid} from './map.js';
 import {doMaskSet} from './map_fns.js';
 import lang from './language.js';
 
@@ -15,7 +16,22 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
       shiftSnap = () => snap.click(),
-      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
+      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
+      marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
+	onmousemove = (e: MouseEvent) => {
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+      },
+      onmouseleave = () => {
+	const {root} = globals;
+	over = false;
+	root.removeEventListener("mousemove", onmousemove);
+	root.removeEventListener("mouseleave", onmouseleave);
+	root.style.removeProperty("cursor");
+	marker.remove();
+      };
+
+let over = false;
 
 addTool({
 	"name": lang["TOOL_MASK"],
@@ -39,9 +55,25 @@ addTool({
 			}
 		})}, lang["TOOL_MASK_CLEAR"])
 	]),
+	"mapMouseOver": () => {
+		if (!over) {
+			over = true;
+			createSVG(globals.root, {"style": {"cursor": "none"}, onmousemove, onmouseleave}, marker);
+		}
+		return false;
+	},
+	"mapMouse0": () => {
+		return false;
+	},
+	"mapMouse2": () => {
+		return false;
+	},
 	"set": () => {
 		deselectToken();
 		setupShiftSnap();
 	},
-	"unset": cancelShiftSnap
+	"unset": () => {
+		cancelShiftSnap();
+		onmouseleave();
+	}
 });
