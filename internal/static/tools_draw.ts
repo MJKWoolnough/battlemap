@@ -30,7 +30,19 @@ const marker = g([
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
-      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1});
+      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1}),
+      onmousemove = (e: MouseEvent) => {
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+      },
+      onmouseleave = () => {
+	const {root} = globals;
+	over = false;
+	root.removeEventListener("mousemove", onmousemove);
+	root.removeEventListener("mouseleave", onmouseleave);
+	root.style.removeProperty("cursor");
+	marker.remove();
+      }
 
 addTool({
 	"name": lang["TOOL_DRAW"],
@@ -165,32 +177,22 @@ addTool({
 		return false;
 	},
 	"mapMouseOver": () => {
-		if (over) {
-			return false;
+		if (!over) {
+			over = true;
+			createSVG(globals.root, {"style": {"cursor": "none"}, onmousemove, onmouseleave}, marker);
 		}
-		const {root} = globals;
-		over = true;
-		createSVG(root, {"style": {"cursor": "none"}}, marker);
-		const onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-		};
-		deselectToken();
-		createSVG(root, {onmousemove, "1onmouseleave": () => {
-			over = false;
-			root.removeEventListener("mousemove", onmousemove);
-			root.style.removeProperty("cursor");
-			marker.remove();
-		}});
 		return false;
 	},
 	"tokenMouse0": ignore,
 	"tokenMouse2": ignore,
 	"tokenMouseOver": ignore,
-	"set": setupShiftSnap,
+	"set": () => {
+		setupShiftSnap();
+		deselectToken();
+	},
 	"unset": () => {
-		marker.remove();
 		cancelEscapeKey?.(true);
 		cancelShiftSnap();
+		onmouseleave();
 	}
 });
