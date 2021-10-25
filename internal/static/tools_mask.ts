@@ -7,7 +7,7 @@ import {keyEvent} from './events.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
-      transparent = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
+      transparent = input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}),
       rectangle = input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": true}),
       ellipse = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
