@@ -1,5 +1,7 @@
+import type {Mask} from './types.js';
 import {br, button, div, input} from './lib/html.js';
-import {createSVG, svg, g, path, polygon, title} from './lib/svg.js';
+import {createSVG, svg, g, path, polygon, rect, title} from './lib/svg.js';
+import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {deselectToken, globals, labels} from './shared.js';
 import {autosnap} from './settings.js';
@@ -21,6 +23,14 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	if (mask && maskElement) {
+		switch (mask[0]) {
+		case 0:
+		case 1:
+			createSVG(maskElement, {"width": mask[3] = x - mask[1], "height": mask[4] = y - mask[2]});
+			break;
+		}
+	}
       },
       onmouseleave = () => {
 	const {root} = globals;
@@ -30,6 +40,9 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	root.style.removeProperty("cursor");
 	marker.remove();
       };
+
+let mask: Mask | null = null,
+    maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
 let over = false;
 
@@ -62,7 +75,18 @@ addTool({
 		}
 		return false;
 	},
-	"mapMouse0": () => {
+	"mapMouse0": (e: MouseEvent) => {
+		if (over) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			if (mask && maskElement && (mask[0] === 4 || mask[0] === 5)) {
+			} else if (rectangle.checked) {
+				mask = [opaque.checked ? 0 : 1, x, y, 0, 0];
+				maskElement?.remove();
+				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": opaque.checked ? "#fff" : "#000"}));
+			} else if (ellipse.checked) {
+			} else if (poly.checked) {
+			}
+		}
 		return false;
 	},
 	"mapMouse2": () => {
