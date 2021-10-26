@@ -84,12 +84,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 				break;
 			case 4:
 			case 5:
-				shape = polygon({"points": m.reduce((res, _, i) => {
-					if (i % 2 === 1) {
-						res.push(m[i] + "," + m[i+1]);
-					}
-					return res;
-				}, [] as string[]).join(" "), fill});
+				shape = polygon({"points": m.reduce((res, _, i) => i % 2 === 1 ? `${res} ${m[i]},${m[i+1]}` : res, ""), fill});
 				break;
 			default:
 				return -1;
