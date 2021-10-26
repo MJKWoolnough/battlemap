@@ -9,7 +9,7 @@ import {keyEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
 import {doMaskAdd, doMaskSet} from './map_fns.js';
-import {mouseDragEvent} from './events.js';
+import {mouseDragEvent, mouseMoveEvent} from './events.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
@@ -45,6 +45,13 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		doMaskAdd([addOpaque ? 2 : 3, coords[0], coords[1], Math.abs(coords[0] - x), Math.abs(coords[1] - y)]);
 	}
 	maskElement?.remove();
+      }),
+      [polyMove, cancelPolyMove] = mouseMoveEvent((e: MouseEvent) => {
+	if (!maskElement) {
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
       }),
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -109,6 +116,17 @@ addTool({
 				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
 				ellipseDrag();
 			} else if (poly.checked) {
+				if (maskElement && maskElement instanceof SVGPolygonElement) {
+					coords.push(x, y);
+					createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": undefined});
+				} else {
+					coords[0] = x;
+					coords[1] = y;
+					maskElement?.remove();
+					const fill = opaque.checked ? "#fff" : "#000";
+					maskElement = globals.masks[node].appendChild(polygon({fill, "stroke": fill}));
+					polyMove();
+				}
 			}
 		}
 		return false;
@@ -124,6 +142,7 @@ addTool({
 		cancelShiftSnap();
 		cancelRectDrag()
 		cancelEllipseDrag();
+		cancelPolyMove();
 		onmouseleave();
 	}
 });
