@@ -1,6 +1,6 @@
 import type {Mask} from './types.js';
 import {br, button, div, input} from './lib/html.js';
-import {createSVG, svg, g, path, polygon, rect, title} from './lib/svg.js';
+import {createSVG, svg, ellipse, g, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {deselectToken, globals, labels} from './shared.js';
@@ -14,7 +14,7 @@ import lang from './language.js';
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
       transparent = input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}),
       rectangle = input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": true}),
-      ellipse = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
+      circle = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
       shiftSnap = () => snap.click(),
@@ -28,6 +28,10 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		case 0:
 		case 1:
 			createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
+			break;
+		case 2:
+		case 3:
+			createSVG(maskElement, {"rx": mask[3] = Math.abs(mask[1] - x), "ry": mask[4] = Math.abs(mask[2] - y)});
 			break;
 		}
 	}
@@ -56,7 +60,7 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
 		br(),
-		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, ellipse, false),
+		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
 		br(),
 		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
 		br(),
@@ -83,7 +87,10 @@ addTool({
 				mask = [opaque.checked ? 0 : 1, x, y, 0, 0];
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": opaque.checked ? "#fff" : "#000"}));
-			} else if (ellipse.checked) {
+			} else if (circle.checked) {
+				mask = [opaque.checked ? 2: 3, x, y, 0, 0];
+				maskElement?.remove();
+				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
 			} else if (poly.checked) {
 			}
 		}
