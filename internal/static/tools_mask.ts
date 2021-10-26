@@ -33,6 +33,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		doMaskAdd([addOpaque ? 0 : 1, Math.min(coords[0], x), Math.min(coords[1], y), Math.abs(coords[0] - x), Math.abs(coords[1] - y)]);
 	}
 	maskElement?.remove();
+	maskElement = null;
       }),
       [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!maskElement) {
@@ -47,6 +48,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		doMaskAdd([addOpaque ? 2 : 3, coords[0], coords[1], Math.abs(coords[0] - x), Math.abs(coords[1] - y)]);
 	}
 	maskElement?.remove();
+	maskElement = null;
       }),
       [polyMove, cancelPolyMove] = mouseMoveEvent((e: MouseEvent) => {
 	if (!maskElement) {
