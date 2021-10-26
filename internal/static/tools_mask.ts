@@ -136,7 +136,14 @@ addTool({
 		}
 		return false;
 	},
-	"mapMouse2": () => {
+	"mapMouse2": (e: MouseEvent) => {
+		if (maskElement instanceof SVGPolygonElement && coords.length >= 4) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			coords.push(x, y);
+			doMaskAdd([addOpaque ? 4 : 5, ...coords as [Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]]]);
+			cancelPolyMove();
+			maskElement = null;
+		}
 		return false;
 	},
 	"set": () => {
