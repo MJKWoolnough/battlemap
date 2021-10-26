@@ -45,9 +45,8 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       };
 
 let mask: Mask | null = null,
-    maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
-
-let over = false;
+    maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null,
+    over = false;
 
 addTool({
 	"name": lang["TOOL_MASK"],
