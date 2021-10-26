@@ -22,6 +22,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
       [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!maskElement) {
+		cancelRectDrag();
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -35,6 +36,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       }),
       [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!maskElement) {
+		cancelEllipseDrag();
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -48,6 +50,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       }),
       [polyMove, cancelPolyMove] = mouseMoveEvent((e: MouseEvent) => {
 	if (!maskElement) {
+		cancelPolyMove();
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
