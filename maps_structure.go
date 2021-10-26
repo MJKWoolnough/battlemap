@@ -86,7 +86,7 @@ func (l *levelMap) writeJSON() {
 			if o > 0 {
 				l.JSON = append(l.JSON, ',')
 			}
-			strconv.AppendUint(l.JSON, i, 10)
+			l.JSON = strconv.AppendUint(l.JSON, i, 10)
 		}
 		l.JSON = append(l.JSON, ']')
 	}
