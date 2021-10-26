@@ -9,6 +9,7 @@ import {keyEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
 import {doMaskSet} from './map_fns.js';
+import {mouseDragEvent} from './events.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
@@ -19,21 +20,29 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
-	onmousemove = (e: MouseEvent) => {
+      [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	if (!maskElement || !mask) {
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
+      }, () => {
+	maskElement?.remove();
+	mask = null;
+      }),
+      [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	if (!maskElement || !mask) {
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(maskElement, {"rx": mask[3] = Math.abs(mask[1] - x), "ry": mask[4] = Math.abs(mask[2] - y)});
+      }, () => {
+	maskElement?.remove();
+	mask = null;
+      }),
+      onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-	if (mask && maskElement) {
-		switch (mask[0]) {
-		case 0:
-		case 1:
-			createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
-			break;
-		case 2:
-		case 3:
-			createSVG(maskElement, {"rx": mask[3] = Math.abs(mask[1] - x), "ry": mask[4] = Math.abs(mask[2] - y)});
-			break;
-		}
-	}
       },
       onmouseleave = () => {
 	const {root} = globals;
@@ -85,10 +94,12 @@ addTool({
 				mask = [opaque.checked ? 0 : 1, x, y, 0, 0];
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": opaque.checked ? "#fff" : "#000"}));
+				rectDrag();
 			} else if (circle.checked) {
 				mask = [opaque.checked ? 2: 3, x, y, 0, 0];
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
+				ellipseDrag();
 			} else if (poly.checked) {
 			}
 		}
@@ -103,6 +114,8 @@ addTool({
 	},
 	"unset": () => {
 		cancelShiftSnap();
+		cancelRectDrag()
+		cancelEllipseDrag();
 		onmouseleave();
 	}
 });
