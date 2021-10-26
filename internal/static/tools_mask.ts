@@ -1,4 +1,4 @@
-import type {Mask} from './types.js';
+import type {Uint} from './types.js';
 import {br, button, div, input} from './lib/html.js';
 import {createSVG, svg, ellipse, g, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
@@ -21,31 +21,30 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
       [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
-	if (!maskElement || !mask) {
+	if (!maskElement) {
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
+	createSVG(maskElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
-	if (mask && e.isTrusted) {
+	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		doMaskAdd([mask[0] as 0 | 1, Math.min(mask[1], x), Math.min(mask[2], y), Math.abs(mask[1] - x), Math.abs(mask[2] - y)]);
+		doMaskAdd([addOpaque ? 0 : 1, Math.min(coords[0], x), Math.min(coords[1], y), Math.abs(coords[0] - x), Math.abs(coords[1] - y)]);
 	}
 	maskElement?.remove();
-	mask = null;
       }),
       [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
-	if (!maskElement || !mask) {
+	if (!maskElement) {
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(maskElement, {"rx": mask[3] = Math.abs(mask[1] - x), "ry": mask[4] = Math.abs(mask[2] - y)});
+	createSVG(maskElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
-	if (mask && e.isTrusted) {
-		doMaskAdd(mask);
+	if (e.isTrusted) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		doMaskAdd([addOpaque ? 2 : 3, coords[0], coords[1], Math.abs(coords[0] - x), Math.abs(coords[1] - y)]);
 	}
 	maskElement?.remove();
-	mask = null;
       }),
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -58,9 +57,10 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	root.removeEventListener("mouseleave", onmouseleave);
 	root.style.removeProperty("cursor");
 	marker.remove();
-      };
+      },
+      coords: [Uint, Uint, ...Uint[]] = [0, 0];
 
-let mask: Mask | null = null,
+let addOpaque = false,
     maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null,
     over = false;
 
@@ -96,14 +96,15 @@ addTool({
 	"mapMouse0": (e: MouseEvent) => {
 		if (over) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			if (mask && maskElement && (mask[0] === 4 || mask[0] === 5)) {
-			} else if (rectangle.checked) {
-				mask = [opaque.checked ? 0 : 1, x, y, 0, 0];
+			if (rectangle.checked) {
+				coords[0] = x;
+				coords[1] = y;
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": opaque.checked ? "#fff" : "#000"}));
 				rectDrag();
 			} else if (circle.checked) {
-				mask = [opaque.checked ? 2: 3, x, y, 0, 0];
+				coords[0] = x;
+				coords[1] = y;
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
 				ellipseDrag();
