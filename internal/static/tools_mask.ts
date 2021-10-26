@@ -12,7 +12,6 @@ import {doMaskSet} from './map_fns.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
-      transparent = input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}),
       rectangle = input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": true}),
       circle = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
@@ -56,7 +55,7 @@ addTool({
 	"options": div([
 		labels(`${lang["TOOL_MASK_OPAQUE"]}: `, opaque, false),
 		br(),
-		labels(`${lang["TOOL_MASK_TRANSPARENT"]}: `, transparent, false),
+		labels(`${lang["TOOL_MASK_TRANSPARENT"]}: `, input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), false),
 		br(),
 		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
 		br(),
