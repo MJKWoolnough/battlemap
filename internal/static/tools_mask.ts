@@ -121,7 +121,7 @@ addTool({
 				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
 				ellipseDrag();
 			} else if (poly.checked) {
-				if (maskElement && maskElement instanceof SVGPolygonElement) {
+				if (maskElement instanceof SVGPolygonElement) {
 					coords.push(x, y);
 					createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": undefined});
 				} else {
