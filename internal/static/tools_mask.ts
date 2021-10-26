@@ -8,7 +8,7 @@ import {autosnap} from './settings.js';
 import {keyEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
-import {doMaskSet} from './map_fns.js';
+import {doMaskAdd, doMaskSet} from './map_fns.js';
 import {mouseDragEvent} from './events.js';
 import lang from './language.js';
 
@@ -26,7 +26,11 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(maskElement, {"x": Math.min(mask[1], mask[3] = x), "y": Math.min(mask[2], mask[4] = y), "width": Math.abs(mask[1] - x), "height": Math.abs(mask[2] - y)});
-      }, () => {
+      }, (e: MouseEvent) => {
+	if (mask && e.isTrusted) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		doMaskAdd([mask[0] as 0 | 1, Math.min(mask[1], x), Math.min(mask[2], y), Math.abs(mask[1] - x), Math.abs(mask[2] - y)]);
+	}
 	maskElement?.remove();
 	mask = null;
       }),
@@ -36,7 +40,10 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(maskElement, {"rx": mask[3] = Math.abs(mask[1] - x), "ry": mask[4] = Math.abs(mask[2] - y)});
-      }, () => {
+      }, (e: MouseEvent) => {
+	if (mask && e.isTrusted) {
+		doMaskAdd(mask);
+	}
 	maskElement?.remove();
 	mask = null;
       }),
