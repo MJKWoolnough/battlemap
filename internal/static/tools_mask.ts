@@ -112,13 +112,13 @@ addTool({
 				coords[0] = x;
 				coords[1] = y;
 				maskElement?.remove();
-				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": opaque.checked ? "#fff" : "#000"}));
+				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 				rectDrag();
 			} else if (circle.checked) {
 				coords[0] = x;
 				coords[1] = y;
 				maskElement?.remove();
-				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": opaque.checked ? "#fff" : "#000"}));
+				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 				ellipseDrag();
 			} else if (poly.checked) {
 				if (maskElement instanceof SVGPolygonElement) {
@@ -128,7 +128,7 @@ addTool({
 					coords[0] = x;
 					coords[1] = y;
 					maskElement?.remove();
-					const fill = opaque.checked ? "#fff" : "#000";
+					const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
 					maskElement = globals.masks[node].appendChild(polygon({fill, "stroke": fill}));
 					polyMove();
 				}
