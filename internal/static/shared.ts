@@ -27,14 +27,14 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 			return masks[i];
 		},
 		at(x: Uint, y: Uint) {
-			let selected: MaskNode | null = null;
-			for (const m of masks) {
+			let selected: Int = -1;
+			for (const [n, m] of masks.entries()) {
 				switch (m[0]) {
 				case 0:
 				case 1: {
 					const [, i, j, w, h] = m;
 					if (i <= x && x <= i + w && j <= y && y <= j + h) {
-						selected = m;
+						selected = n;
 					}
 				}; break;
 				case 2:
@@ -43,7 +43,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 					      rx2 = Math.pow(rx, 2),
 					      ry2 = Math.pow(ry, 2);
 					if (ry2 * Math.pow(x - cx, 2) + rx2 * Math.pow(y - cy, 2) <= rx2 * ry2) {
-						selected = m;
+						selected = n;
 					}
 				}; break;
 				case 4:
@@ -63,7 +63,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 						last = point;
 					}
 					if (inside) {
-						selected = m;
+						selected = n;
 					}
 				}
 				}

@@ -63,7 +63,8 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	if (remove.checked) {
-		const mask = globals.masks.at(x, y);
+		const maskIndex = globals.masks.at(x, y),
+		      mask = maskIndex === -1 ? null : globals.masks.index(maskIndex);
 		if (mask !== overMask) {
 			maskHighlight?.remove();
 			if (mask) {
