@@ -181,6 +181,7 @@ addTool({
 			coords.push(x, y);
 			doMaskAdd([addOpaque ? 4 : 5, ...coords as [Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]]]);
 			cancelPolyMove();
+			maskElement.remove();
 			maskElement = null;
 		}
 		return false;
