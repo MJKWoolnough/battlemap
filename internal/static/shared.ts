@@ -71,7 +71,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 			return selected;
 		},
 		add(m: Mask) {
-			const fill = (m[0] & 1) === 1 ? "#fff" : "#000";
+			const fill = (m[0] & 1) === 1 ? "#000" : "#fff";
 			let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
 			switch (m[0]) {
 			case 0:
