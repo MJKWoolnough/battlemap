@@ -1,4 +1,4 @@
-import type {Uint} from './types.js';
+import type {Mask, Uint} from './types.js';
 import {br, button, div, input} from './lib/html.js';
 import {createSVG, svg, ellipse, g, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
@@ -62,6 +62,34 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	if (remove.checked) {
+		const mask = globals.masks.at(x, y);
+		if (mask !== overMask) {
+			maskHighlight?.remove();
+			if (mask) {
+				overMask = mask;
+				switch (mask[0]) {
+				case 0:
+				case 1:
+					maskHighlight = rect({"x": mask[1], "y": mask[2], "width": mask[3], "height": mask[4]});
+					break;
+				case 2:
+				case 3:
+					maskHighlight = ellipse({"cx": mask[1], "cy": mask[2], "rx": mask[3], "ry": mask[4]});
+					break;
+				case 4:
+				case 5:
+					maskHighlight = polygon({"points": mask.reduce((res, _, i) => i % 2 === 1 ? `${res} ${mask[i]},${mask[i+1]}` : res, "")});
+				}
+				createSVG(globals.root, createSVG(maskHighlight, {"fill": "none", "stroke": "#f00"}));
+			} else {
+				maskHighlight = overMask = null;
+			}
+		}
+	} else {
+		maskHighlight?.remove();
+		overMask = null;
+	}
       },
       onmouseleave = () => {
 	const {root} = globals;
@@ -75,7 +103,9 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 
 let addOpaque = false,
     maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null,
-    over = false;
+    over = false,
+    overMask: Mask | null = null,
+    maskHighlight: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
 addTool({
 	"name": lang["TOOL_MASK"],
