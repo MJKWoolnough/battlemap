@@ -119,7 +119,6 @@ export default (base: HTMLElement) => {
 		if (!globals.selected.token || !globals.selected.layer) {
 			return;
 		}
-		cancelTokenDrag();
 		globals.root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
 		const {token} = globals.selected,
