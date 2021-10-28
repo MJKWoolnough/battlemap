@@ -168,7 +168,6 @@ export default (base: HTMLElement) => {
 		}
 		if (tokenDragMode > -1) {
 			if (e.key === "Escape") {
-				cancelTokenDrag();
 				globals.root.style.removeProperty("--outline-cursor");
 				tokenDragMode = -1;
 				const {selected: {token}} = globals,
@@ -183,6 +182,7 @@ export default (base: HTMLElement) => {
 					createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
 				}
 				stopMeasurement();
+				cancelTokenDrag();
 			}
 			return;
 		}
