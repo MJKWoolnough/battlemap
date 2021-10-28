@@ -8,7 +8,7 @@ import {autosnap} from './settings.js';
 import {keyEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
-import {doMaskAdd, doMaskSet} from './map_fns.js';
+import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
 import {mouseDragEvent, mouseMoveEvent} from './events.js';
 import lang from './language.js';
 
@@ -140,8 +140,14 @@ addTool({
 		return false;
 	},
 	"mapMouse0": (e: MouseEvent) => {
-		if (over) {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		if (remove.checked) {
+			const maskIndex = globals.masks.at(x, y);
+			if (maskIndex !== -1) {
+				doMaskRemove(maskIndex);
+				onmousemove(e);
+			}
+		} else if (over) {
 			if (rectangle.checked) {
 				coords[0] = x;
 				coords[1] = y;
