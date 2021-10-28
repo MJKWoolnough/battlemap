@@ -859,7 +859,7 @@ if (isAdmin) {
 			rpc.pluginSetting(importName, settings, []);
 		}}, mainLang["SAVE"])
 	      ])),
-	      [setupHealthButton, cancelHealthButton] = keyEvent("h", () => {
+	      [setupHealthButton, cancelHealthButton] = keyEvent("h", undefined, () => {
 		const {selected: {token}} = globals;
 		if (token instanceof SVGToken5E) {
 			const currHP = token.getData("5e-hp-current");
@@ -882,7 +882,7 @@ if (isAdmin) {
 			}
 		}
 	      }),
-	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", () => {
+	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", undefined, () => {
 		const {selected: {token}} = globals;
 		if (token instanceof SVGToken5E) {
 			const mapData = globals.mapData as MapData5E;
