@@ -94,8 +94,8 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 		remove(index: Uint) {
 			masks.splice(index, 1);
 		},
-		set(baseOpaque: boolean, maskList: Mask[]) {
-			baseOpaque = baseOpaque;
+		set(bO: boolean, maskList: Mask[]) {
+			baseOpaque = bO;
 			masks.splice(0, masks.length);
 			for (const mask of maskList) {
 				this.add(mask);
