@@ -165,8 +165,7 @@ addTool({
 					coords.push(x, y);
 					createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": undefined});
 				} else {
-					coords[0] = x;
-					coords[1] = y;
+					coords.splice(0, coords.length, x, y);
 					maskElement?.remove();
 					const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
 					maskElement = globals.masks[node].appendChild(polygon({fill, "stroke": fill}));
