@@ -51,54 +51,6 @@ const held = new Set<string>(),
 	}
       };
 
-window.addEventListener("keydown", (e: KeyboardEvent) => keyEventFn(true, e));
-
-window.addEventListener("keyup", (e: KeyboardEvent) => keyEventFn(false, e));
-
-window.addEventListener("mousemove", (e: MouseEvent) => {
-	for (const [, event] of mouseMove) {
-		event(e);
-	}
-});
-
-window.addEventListener("mouseup", (e: MouseEvent) => {
-	const {button} = e;
-	if (button !== 0 && button !== 1 && button !== 2) {
-		return;
-	}
-	for (const [id, event] of mouseUp[button]) {
-		event(e);
-		mouseMove.delete(id);
-	}
-	mouseUp[button].clear();
-});
-
-window.addEventListener("blur", () => {
-	for (const key of held) {
-		const events = ups.get(key);
-		if (events && events.size) {
-			const e = ke("up", key);
-			for (const [id, [event, once]] of events) {
-				event(e);
-				if (once) {
-					events.delete(id);
-				}
-			}
-		}
-		held.delete(key);
-	}
-	for (let button = 0; button < 3; button++) {
-		if (mouseUp[button].size) {
-			const e = me(button as 0 | 1 | 2);
-			for (const [, event] of mouseUp[button]) {
-				event(e);
-			}
-			mouseUp[button].clear();
-		}
-	}
-	mouseMove.clear();
-});
-
 export const keyEvent = (key: string, onkeydown?: KeyFn, onkeyup?: KeyFn, once = false) => {
 	const id = nextKeyID++,
 	      keydown: [KeyFn, boolean] = [onkeydown!, once],
@@ -159,3 +111,51 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup: MouseFn =
 	];
 },
 hasKeyEvent = (key: string) => !!(downs.get(key)?.size || ups.get(key)?.size);
+
+window.addEventListener("keydown", (e: KeyboardEvent) => keyEventFn(true, e));
+
+window.addEventListener("keyup", (e: KeyboardEvent) => keyEventFn(false, e));
+
+window.addEventListener("mousemove", (e: MouseEvent) => {
+	for (const [, event] of mouseMove) {
+		event(e);
+	}
+});
+
+window.addEventListener("mouseup", (e: MouseEvent) => {
+	const {button} = e;
+	if (button !== 0 && button !== 1 && button !== 2) {
+		return;
+	}
+	for (const [id, event] of mouseUp[button]) {
+		event(e);
+		mouseMove.delete(id);
+	}
+	mouseUp[button].clear();
+});
+
+window.addEventListener("blur", () => {
+	for (const key of held) {
+		const events = ups.get(key);
+		if (events && events.size) {
+			const e = ke("up", key);
+			for (const [id, [event, once]] of events) {
+				event(e);
+				if (once) {
+					events.delete(id);
+				}
+			}
+		}
+		held.delete(key);
+	}
+	for (let button = 0; button < 3; button++) {
+		if (mouseUp[button].size) {
+			const e = me(button as 0 | 1 | 2);
+			for (const [, event] of mouseUp[button]) {
+				event(e);
+			}
+			mouseUp[button].clear();
+		}
+	}
+	mouseMove.clear();
+});
