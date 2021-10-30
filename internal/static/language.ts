@@ -180,6 +180,7 @@ const defaultLanguage = {
 	"TOOL_MASK": "Mask Tool",
 	"TOOL_MASK_CLEAR": "Clear Mask",
 	"TOOL_MASK_CLEAR_CONFIRM": "Are you sure you wish to clear the mask?",
+	"TOOL_MASK_OPACITY": "Mask Opacity",
 	"TOOL_MASK_OPAQUE": "Opaque",
 	"TOOL_MASK_REMOVE": "Remove",
 	"TOOL_MASK_TRANSPARENT": "Transparent",
