@@ -27,7 +27,8 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 			return masks[i];
 		},
 		at(x: Uint, y: Uint) {
-			let selected: Int = -1;
+			let selected: Int = -1,
+			    selectedMask: Mask | null = null;
 			for (const [n, m] of masks.entries()) {
 				switch (m[0]) {
 				case 0:
@@ -35,6 +36,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 					const [, i, j, w, h] = m;
 					if (i <= x && x <= i + w && j <= y && y <= j + h) {
 						selected = n;
+						selectedMask = m;
 					}
 				}; break;
 				case 2:
@@ -44,6 +46,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 					      ry2 = Math.pow(ry, 2);
 					if (ry2 * Math.pow(x - cx, 2) + rx2 * Math.pow(y - cy, 2) <= rx2 * ry2) {
 						selected = n;
+						selectedMask = m;
 					}
 				}; break;
 				case 4:
@@ -64,11 +67,12 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 					}
 					if (inside) {
 						selected = n;
+						selectedMask = m;
 					}
 				}
 				}
 			}
-			return selected;
+			return [selectedMask, selected] as const;
 		},
 		add(m: Mask) {
 			const fill = (m[0] & 1) === 1 ? "#000" : "#fff";

@@ -62,8 +62,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	if (remove.checked) {
-		const maskIndex = globals.masks.at(x, y),
-		      mask = maskIndex === -1 ? null : globals.masks.index(maskIndex);
+		const [mask] = globals.masks.at(x, y);
 		if (mask !== overMask) {
 			maskHighlight?.remove();
 			if (mask) {
@@ -141,7 +140,7 @@ addTool({
 	"mapMouse0": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		if (remove.checked) {
-			const maskIndex = globals.masks.at(x, y);
+			const [, maskIndex] = globals.masks.at(x, y);
 			if (maskIndex !== -1) {
 				doMaskRemove(maskIndex);
 				onmousemove(e);
