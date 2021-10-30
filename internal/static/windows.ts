@@ -5,6 +5,7 @@ import {createHTML, div} from './lib/html.js';
 import {desktop, shell as ashell, windows as awindows} from './lib/windows.js';
 import {JSONSetting} from './settings_types.js';
 import {isInt, isUint} from './shared.js';
+import {hasKeyEvent} from './events.js';
 import lang from './language.js';
 
 export {ShellElement, WindowElement, desktop};
@@ -24,7 +25,7 @@ export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowEleme
 },
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => {
 	const w = createHTML(awindows({"hide-maximise": "true", "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
-		if (e.key === "Escape" && !this.hasAttribute("hide-close")) {
+		if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 			this.close();
 		}
 	}}), props, children),
