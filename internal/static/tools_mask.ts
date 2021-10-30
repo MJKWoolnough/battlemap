@@ -5,11 +5,10 @@ import {node} from './lib/nodes.js';
 import {addTool} from './tools.js';
 import {deselectToken, globals, labels} from './shared.js';
 import {autosnap} from './settings.js';
-import {keyEvent} from './events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
-import {mouseDragEvent, mouseMoveEvent} from './events.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
