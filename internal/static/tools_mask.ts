@@ -34,6 +34,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
 	maskElement?.remove();
 	maskElement = null;
+	cancelEscape();
       }),
       [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!maskElement) {
@@ -49,6 +50,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
 	maskElement?.remove();
 	maskElement = null;
+	cancelEscape();
       }),
       [polyMove, cancelPolyMove] = mouseMoveEvent((e: MouseEvent) => {
 	if (!maskElement) {
@@ -57,6 +59,10 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
+      }),
+      [setEscape, cancelEscape] = keyEvent("Escape", () => {
+	cancelRectDrag();
+	cancelEllipseDrag();
       }),
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -152,12 +158,14 @@ addTool({
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 				rectDrag();
+				setEscape();
 			} else if (circle.checked) {
 				coords[0] = x;
 				coords[1] = y;
 				maskElement?.remove();
 				maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 				ellipseDrag();
+				setEscape();
 			} else if (poly.checked) {
 				if (maskElement instanceof SVGPolygonElement) {
 					coords.push(x, y);
@@ -193,6 +201,7 @@ addTool({
 		cancelRectDrag()
 		cancelEllipseDrag();
 		cancelPolyMove();
+		cancelEscape();
 		onmouseleave();
 	}
 });
