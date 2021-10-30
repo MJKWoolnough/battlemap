@@ -64,6 +64,21 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	cancelRectDrag();
 	cancelEllipseDrag();
       }),
+      [setPolyEscape, cancelPolyEscape] = keyEvent("Escape", () => {
+	if (!maskElement) {
+		return;
+	}
+	if (coords.length === 2) {
+		maskElement.remove();
+		maskElement = null;
+		cancelPolyMove();
+		return;
+	} else {
+		coords.pop();
+		coords.pop();
+		createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": coords.length === 2 ? addOpaque ? "#fff" : "#000" : undefined});
+	}
+      }),
       onmousemove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
@@ -176,6 +191,7 @@ addTool({
 					const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
 					maskElement = globals.masks[node].appendChild(polygon({fill, "stroke": fill}));
 					polyMove();
+					setPolyEscape();
 				}
 			}
 		}
@@ -187,6 +203,7 @@ addTool({
 			coords.push(x, y);
 			doMaskAdd([addOpaque ? 4 : 5, ...coords as [Uint, Uint, Uint, Uint, Uint, Uint, ...Uint[]]]);
 			cancelPolyMove();
+			cancelPolyEscape();
 			maskElement.remove();
 			maskElement = null;
 		}
@@ -202,6 +219,7 @@ addTool({
 		cancelEllipseDrag();
 		cancelPolyMove();
 		cancelEscape();
+		cancelPolyEscape();
 		onmouseleave();
 	}
 });
