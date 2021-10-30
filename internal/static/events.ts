@@ -157,4 +157,5 @@ mouseDragEvent = (button: 0 | 1 | 2, onmousemove?: MouseFn, onmouseup: MouseFn =
 			toRun?.(me(button));
 		}
 	];
-};
+},
+hasKeyEvent = (key: string) => !!(downs.get(key)?.size || ups.get(key)?.size);
