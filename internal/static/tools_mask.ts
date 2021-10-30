@@ -9,6 +9,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
+import {JSONSetting} from './settings_types.js';
 import lang from './language.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
@@ -119,7 +120,8 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	root.style.removeProperty("cursor");
 	marker.remove();
       },
-      coords: [Uint, Uint, ...Uint[]] = [0, 0];
+      coords: [Uint, Uint, ...Uint[]] = [0, 0],
+      maskOpacity = new JSONSetting<number>("maskOpacity", 1, (v: any): v is number => typeof v === "number" && v >= 0 && v <= 1);
 
 let addOpaque = false,
     maskElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null,
@@ -127,10 +129,16 @@ let addOpaque = false,
     overMask: Mask | null = null,
     maskHighlight: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
+maskOpacity.wait(v => document.body.style.setProperty("--maskOpacity", v + ""));
+
 addTool({
 	"name": lang["TOOL_MASK"],
 	"icon": svg({"viewBox": "0 0 60 50"}, [title(lang["TOOL_MASK"]), path({"d": "M0,0 Q30,15 60,0 Q30,100 0,0 M32,20 q9,-10 18,0 q-9,-3 -18,0 M10,20 q9,-10 18,0 q-9,-3 -18,0 M20,35 q10,5 20,0 q-10,10 -20,0", "stroke": "none", "fill": "currentColor", "fill-rule": "evenodd"})]),
 	"options": div([
+		labels(`${lang["TOOL_MASK_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 1, "step": 0.05, "value": maskOpacity.value, "oninput": function(this: HTMLInputElement) {
+			maskOpacity.set(parseFloat(this.value));
+		}})),
+		br(),
 		labels(`${lang["TOOL_MASK_OPAQUE"]}: `, opaque, false),
 		br(),
 		labels(`${lang["TOOL_MASK_TRANSPARENT"]}: `, input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), false),
