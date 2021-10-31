@@ -263,7 +263,7 @@ export default (base: Node) => {
 			constructor(parent: AdminPack, track: MusicTrack) {
 				super(parent, track);
 				this[node] = li([
-					this.nameNode = span(),
+					this.nameNode = span(`${lang["MUSIC_TRACK"]} ${track.id}`),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
 						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 						this.updateVolume();
