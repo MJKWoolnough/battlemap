@@ -42,19 +42,22 @@ class AudioAsset extends DraggableItem {
 	}
 }
 
-class AudioFolder extends Folder {
+type AssetMap = Map<Uint, [Pipe<string>, string]>;
+
+abstract class AssetFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children);
 		for (const name in children.items) {
 			this.registerItem(children.items[name], name);
 		}
 	}
+	abstract get assetMap(): AssetMap
 	registerItem(id: Uint, name: string) {
-		const v = audioAssets.get(id);
+		const v = this.assetMap.get(id);
 		if (v) {
 			v[0].send(v[1] = name);
 		} else {
-			audioAssets.set(id, [new Pipe(), name]);
+			this.assetMap.set(id, [new Pipe(), name]);
 		}
 	}
 	addItem(id: Uint, name: string) {
@@ -64,10 +67,16 @@ class AudioFolder extends Folder {
 	removeItem(path: string) {
 		const id = super.removeItem(path);
 		if (id > 0) {
-			const v = audioAssets.get(id)!;
+			const v = this.assetMap.get(id)!;
 			v[0].send(v[1] = "");
 		}
 		return id;
+	}
+}
+
+class AudioFolder extends AssetFolder {
+	get assetMap() {
+		return audioAssets;
 	}
 }
 
