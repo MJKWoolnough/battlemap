@@ -147,7 +147,7 @@ export class DraggableItem extends Item {
 					return;
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				e.dataTransfer!.setData(this.dragName(), JSON.stringify({id: this.id, width: img.naturalWidth, height: img.naturalHeight}));
+				e.dataTransfer!.setData(this.dragName(), JSON.stringify({"id": this.id, "width": img.naturalWidth, "height": img.naturalHeight, "name": this.name}));
 				this.icon.style.setProperty("transform", "translateX(-9999px)");
 			}
 		});
