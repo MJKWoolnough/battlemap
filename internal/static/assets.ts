@@ -103,7 +103,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 	);
       };
 
-export const audioAssetName = ((id: Uint, fn: (name: string) => void) => {
+export const audioAssetName = (id: Uint, fn: (name: string) => void) => {
 	let asset = audioAssets.get(id);
 	if (!asset) {
 		asset = [new Pipe(), ""];
@@ -112,7 +112,7 @@ export const audioAssetName = ((id: Uint, fn: (name: string) => void) => {
 	fn(asset[1]);
 	asset[0].receive(fn);
 	return () => asset![0].remove(fn);
-}),
+},
 imageIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Crect x="4" y="4" width="92" height="92" fill="%2344f" /%3E%3Ccircle cx="20" cy="20" r="12" fill="%23ff0" /%3E%3Cpath d="M50,65 l20,-20 a3,2 0,0,1 5,0 l20,20 v30 h-20 z" fill="%2305b" /%3E%3Cpath d="M3,70 l30,-30 a3,2 0,0,1 5,0 l55,55 h-90 z" fill="%23039" /%3E%3Crect x="3" y="3" width="94" height="94" stroke-width="6" rx="8" stroke="%23840" fill="none" /%3E%3C/svg%3E`,
 audioIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="53" height="71" viewBox="0 0 53 71"%3E%3Cpath d="M12,56 s-5,-2 -10,5 s7,15 15,0 v-30 l30,-10 v30 s-5,-2 -10,5 s7,15 15,0 v-55 l-40,13 z m5,-29 l30,-10 v-5 l-30,10 v5 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" fill-rule="evenodd" /%3E%3C/svg%3E`,
 uploadImages = uploadAsset.bind(null, imageRoot, "images"),
