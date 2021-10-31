@@ -349,10 +349,12 @@ export default (base: Node) => {
 							f.append("asset", file);
 						}
 						uploadAudio(f, this.window).then(audio => {
+							const ids: Uint[] = [];
 							for (const {id, name} of audio) {
 								this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
-								rpc.musicPackTrackAdd(this.name, [id]);
+								ids.push(id);
 							}
+							rpc.musicPackTrackAdd(this.name, ids);
 						}).catch(handleError);
 						e.preventDefault();
 					}
