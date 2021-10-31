@@ -11,6 +11,10 @@ import {windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
 import {checkInt} from './shared.js';
 
+type MusicTrackName = MusicTrack & {
+	name?: string;
+}
+
 class Track {
 	id: Uint;
 	volume: Uint;
@@ -260,10 +264,10 @@ export default (base: Node) => {
 			repeatNode: HTMLInputElement;
 			cleanup: () => void;
 			repeatWait: Int = -1;
-			constructor(parent: AdminPack, track: MusicTrack) {
+			constructor(parent: AdminPack, track: MusicTrackName) {
 				super(parent, track);
 				this[node] = li([
-					this.nameNode = span(`${lang["MUSIC_TRACK"]} ${track.id}`),
+					this.nameNode = span(track.name ?? `${lang["MUSIC_TRACK"]} ${track.id}`),
 					this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
 						rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 						this.updateVolume();
@@ -276,7 +280,7 @@ export default (base: Node) => {
 						rpc.musicPackTrackRemove(parent.name, this.remove());
 					})})
 				]);
-				this.cleanup = audioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
+				this.cleanup = track.name ? () => {} : audioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
 			}
 			setVolume(volume: Uint) {
 				super.setVolume(volume);
@@ -336,8 +340,8 @@ export default (base: Node) => {
 						return;
 					}
 					if (e.dataTransfer.types.includes("audioasset")) {
-						const id = JSON.parse(e.dataTransfer.getData("audioasset")).id;
-						this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0}));
+						const {id, name} = JSON.parse(e.dataTransfer.getData("audioasset"));
+						this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 						rpc.musicPackTrackAdd(this.name, [id]);
 					} else if (e.dataTransfer.types.includes("Files")) {
 						const f = new FormData();
@@ -345,8 +349,8 @@ export default (base: Node) => {
 							f.append("asset", file);
 						}
 						uploadAudio(f, this.window).then(audio => {
-							for (const {id} of audio) {
-								this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0}));
+							for (const {id, name} of audio) {
+								this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 								rpc.musicPackTrackAdd(this.name, [id]);
 							}
 						}).catch(handleError);
