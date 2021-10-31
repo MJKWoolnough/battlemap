@@ -113,6 +113,7 @@ const defaultLanguage = {
 	"MUSIC_PAUSE": "Pause",
 	"MUSIC_PLAY": "Play",
 	"MUSIC_STOP": "Stop",
+	"MUSIC_TRACK": "Track",
 	"MUSIC_TRACK_REMOVE": "Remove Music Track",
 	"MUSIC_TRACK_REMOVE_LONG": "Are you sure you wish to remove this track?",
 	"MUSIC_WINDOW_TITLE": "Music Pack",
