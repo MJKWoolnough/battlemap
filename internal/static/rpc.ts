@@ -493,6 +493,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		}
 	case 1:
 		checker(data, name, checksTokenShape);
+		if (data.isEllipse !== undefined) {
+			checkBoolean(data.isEllipse, "Token", "isEllipse");
+		}
 		for (const f of data.fills) {
 			checker(f, "Token->Fills", checksFills);
 		}
