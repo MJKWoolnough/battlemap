@@ -66,67 +66,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		genWalls();
 	}
       },
-      mouseOver = function(this: SVGElement, e: MouseEvent) {
-	e.preventDefault();
-	if (sunTool.checked || wallTool.checked) {
-		const sun = sunTool.checked,
-		      marker = sun ? lightMarker : wallMarker,
-		      offset = sun ? 20 : 10,
-		      onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-			createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${sun ? globals.mapData.lightColour : wallColour}`});
-		      };
-		createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
-			this.removeEventListener("mousemove", onmousemove);
-			this.style.removeProperty("cursor");
-			marker.remove();
-		}, onmousemove}, marker);
-	} else {
-		const onmousemove = (e: MouseEvent) => {
-			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-			if (lastWall !== null) {
-				if (over(x, y, lastWall.wall)) {
-					return;
-				}
-				lastWall.element.setAttribute("stroke-width", "1");
-				lastWall = null;
-			}
-			let pos = 0;
-			for (const w of walls) {
-				if (over(x, y, w.wall)) {
-					const element = (wallLayer.childNodes[pos] as SVGGElement);
-					element.setAttribute("stroke-width", "5");
-					lastWall = w;
-					break;
-				}
-				pos++;
-			}
-		      };
-		createSVG(this, {onmousemove, "1onmouseout": () => {
-			if (lastWall !== null) {
-				lastWall.element.setAttribute("stroke-width", "1");
-				lastWall = null;
-			}
-			this.removeEventListener("mousemove", onmousemove);
-		}});
-	}
-	return false;
-      },
-      mouseDown = function(this: SVGElement, e: MouseEvent) {
-	if (sunTool.checked) {
-		const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-		doLightShift(x, y);
-	} else if (wallTool.checked) {
-		[x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-		l = line({x1, y1, "x2": x1, "y2": y1, "stroke": wallColour, "stroke-width": 5});
-		setupKey();
-		createSVG(this, {onmousemove, onmouseup}, l)
-	} else if (lastWall !== null) {
-		doWallRemove(lastWall.wall.id);
-		genWalls();
-	}
-	return false;
-      },
       wallLayer = g({"stroke-width": 2}),
       walls: WallData[] = [],
       genWalls = () => {
@@ -193,8 +132,67 @@ addTool({
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_LIGHT_COLOUR"], () => wallColour, (c: Colour) => wallColour = c, "wallColour")),
 		])
 	]),
-	"mapMouseOver": mouseOver,
-	"mapMouse0": mouseDown,
+	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
+		e.preventDefault();
+		if (sunTool.checked || wallTool.checked) {
+			const sun = sunTool.checked,
+			      marker = sun ? lightMarker : wallMarker,
+			      offset = sun ? 20 : 10,
+			      onmousemove = (e: MouseEvent) => {
+				const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+				createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${sun ? globals.mapData.lightColour : wallColour}`});
+			      };
+			createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
+				this.removeEventListener("mousemove", onmousemove);
+				this.style.removeProperty("cursor");
+				marker.remove();
+			}, onmousemove}, marker);
+		} else {
+			const onmousemove = (e: MouseEvent) => {
+				const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+				if (lastWall !== null) {
+					if (over(x, y, lastWall.wall)) {
+						return;
+					}
+					lastWall.element.setAttribute("stroke-width", "1");
+					lastWall = null;
+				}
+				let pos = 0;
+				for (const w of walls) {
+					if (over(x, y, w.wall)) {
+						const element = (wallLayer.childNodes[pos] as SVGGElement);
+						element.setAttribute("stroke-width", "5");
+						lastWall = w;
+						break;
+					}
+					pos++;
+				}
+			      };
+			createSVG(this, {onmousemove, "1onmouseout": () => {
+				if (lastWall !== null) {
+					lastWall.element.setAttribute("stroke-width", "1");
+					lastWall = null;
+				}
+				this.removeEventListener("mousemove", onmousemove);
+			}});
+		}
+		return false;
+	},
+	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
+		if (sunTool.checked) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			doLightShift(x, y);
+		} else if (wallTool.checked) {
+			[x1, y1] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
+			l = line({x1, y1, "x2": x1, "y2": y1, "stroke": wallColour, "stroke-width": 5});
+			setupKey();
+			createSVG(this, {onmousemove, onmouseup}, l)
+		} else if (lastWall !== null) {
+			doWallRemove(lastWall.wall.id);
+			genWalls();
+		}
+		return false;
+	},
 	"set": () => {
 		wallWaiter = Subscription.canceller(...([
 			rpc.waitWallAdded,
