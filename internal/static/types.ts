@@ -235,6 +235,7 @@ export type TokenShape = TokenShared & {
 	fill:        Colour
 	stroke:      Colour;
 	strokeWidth: Uint;
+	isEllipse?:  boolean;
 }
 
 export type TokenDrawing = TokenShape & {
