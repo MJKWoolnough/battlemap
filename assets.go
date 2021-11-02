@@ -1,8 +1,10 @@
 package battlemap
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"hash"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -13,9 +15,18 @@ import (
 	"vimagination.zapto.org/memio"
 )
 
+type hasher struct {
+	hash.Hash
+}
+
+func (h *hasher) ReadFrom(r io.Reader) (int64, error) {
+	return io.Copy(h.Hash, r)
+}
+
 type assetsDir struct {
 	folders
 	handler http.Handler
+	hashes  map[[sha256.Size]byte][]uint64
 }
 
 func (a *assetsDir) Init(b *Battlemap, links links) error {
@@ -43,8 +54,26 @@ func (a *assetsDir) Init(b *Battlemap, links links) error {
 	if err != nil {
 		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
+	a.hashes = make(map[[sha256.Size]byte][]uint64)
 	a.handler = http.FileServer(http.Dir(l))
 	return a.folders.Init(b, assetStore, lm)
+}
+
+func (a *assetsDir) cleanup(l linkManager) {
+	a.folders.cleanup(l)
+	h := hasher{Hash: sha256.New()}
+	for _, key := range a.Keys() {
+		id, err := strconv.ParseUint(key, 10, 64)
+		if err != nil {
+			continue
+		}
+		if err := a.Get(key, &h); err != nil {
+			continue
+		}
+		hash := *(*[sha256.Size]byte)(h.Sum(nil))
+		a.hashes[hash] = append(a.hashes[hash], id)
+		h.Reset()
+	}
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
