@@ -371,8 +371,7 @@ export default (base: HTMLElement) => {
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(globals.tokens.get(newToken.id)!.layer);
 		globals.selected.token = newToken;
-		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": undefined, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
-		window.setTimeout(() => outline.setAttribute("style", `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`)); // TODO: Remove once Firefox bug is fixed!
+		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
 		tokenMousePos.x = newToken.x;
 		tokenMousePos.y = newToken.y;
 		tokenMousePos.width = newToken.width;
