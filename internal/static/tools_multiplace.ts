@@ -7,6 +7,7 @@ import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
+import {mouseMoveEvent} from './events.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
@@ -14,6 +15,9 @@ import lang from './language.js';
 const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
 	if (!this.checked) {
 		deselectToken();
+		showCursor();
+	} else {
+		hideCursor();
 	}
       }}),
       i = img(),
@@ -22,7 +26,25 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	i.setAttribute("src", `/images/${id}`);
 	setCursor();
       },
-      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": globals.mapData.gridSize, "height": globals.mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk);
+      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": globals.mapData.gridSize, "height": globals.mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
+      [moveCursor, stopCursor] = mouseMoveEvent((e: MouseEvent) => {
+	[cursor!.x, cursor!.y] = screen2Grid(e.clientX - cursor!.width / 2, e.clientY - cursor!.height / 2, token!.snap);
+	cursor!.updateNode();
+      }),
+      showCursor = () => {
+	const {layer} = globals.selected;
+	if (cursor && token && layer) {
+		layer[node].appendChild(cursor[node]);
+		createSVG(globals.root, {"style": {"cursor": "none"}})
+		moveCursor();
+	}
+      },
+      hideCursor = () => {
+	stopCursor()
+	cursor![node].remove();
+	cursor!.cleanup();
+	globals.root.style.removeProperty("cursor");
+      };
 
 let setToken: (() => TokenImage) | null = null,
     token: TokenImage | null = null,
@@ -101,41 +123,15 @@ addTool({
 		return false;
 	},
 	"mapMouse2": ignore,
-	"mapMouseOver": function (this: SVGElement, e: MouseEvent) {
-		if (mode.checked) {
-			return true;
-		}
-		if (e.target instanceof HTMLDivElement || !cursor || cursor[node].parentNode || !token) {
-			return false;
-		}
-		const {layer} = globals.selected,
-		      {width, height} = token,
-		      onmousemove = (e: MouseEvent) => {
-			[cursor!.x, cursor!.y] = screen2Grid(e.clientX - width / 2, e.clientY - height / 2, token!.snap);
-			cursor!.updateNode();
-		      },
-		      onmouseleave = (e: Event) => {
-			if (e.isTrusted) {
-				cursor![node].remove();
-				cursor!.cleanup();
-				globals.root.style.removeProperty("cursor");
-				globals.root.removeEventListener("mouseleave", onmouseleave);
-				globals.root.removeEventListener("mousemove", onmousemove);
-			}
-		      };
-		if (layer) {
-			onmousemove(e);
-			layer[node].appendChild(cursor[node]);
-			createSVG(globals.root, {onmousemove, onmouseleave, "style": {"cursor": "none"}})
-		}
-		return false;
-	},
+	"mapMouseOver": ignore,
 	"tokenMouse2": disable,
 	"set": () => {
 		if (!mode.checked) {
 			deselectToken();
 		}
-	}
+		showCursor();
+	},
+	"unset": hideCursor
 });
 
 layersRPC.waitLayerSelect().then(() => {
