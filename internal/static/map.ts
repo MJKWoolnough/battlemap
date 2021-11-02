@@ -151,8 +151,8 @@ export class SVGShape extends SVGTransform {
 	}
 	static from(token: TokenShape) {
 		let n: SVGGraphicsElement;
-		if (!(token as any).isEllipse) {
-			(token as any).isEllipse = false;
+		if (!token.isEllipse) {
+			token.isEllipse = false;
 			n = rect({"width": token.width, "height": token.height});
 		} else {
 			const rx = token.width / 2,
@@ -190,7 +190,7 @@ export class SVGDrawing extends SVGShape {
 		super(token);
 	}
 	static from(token: TokenDrawing) {
-		(token as any).isEllipse = false;
+		token.isEllipse = false;
 		let oWidth: Uint = 0,
 		    oHeight: Uint = 0;
 		for (const c of token.points) {
