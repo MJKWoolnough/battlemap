@@ -1,22 +1,20 @@
-import type {Coords, Uint} from './types.js';
+import type {Uint} from './types.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
+import {node} from './lib/nodes.js';
 import {autosnap} from './settings.js';
 import {screen2Grid} from './map.js';
 import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
-import {keyEvent} from './events.js';
-import {addTool, ignore} from './tools.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
+import {addTool} from './tools.js';
 import lang from './language.js';
 
-let over = false,
-    clickOverride: null | ((e: MouseEvent) => void) = null,
-    contextOverride: null | Function = null,
-    fillColour = noColour,
-    strokeColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
-    cancelEscapeKey: ((run?: boolean) => void) | null = null;
+let fill = noColour,
+    stroke = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
+    drawElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
 const marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000"}))),
       rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
@@ -26,18 +24,82 @@ const marker = g(["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "2
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1}),
-      onmousemove = (e: MouseEvent) => {
+      [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	if (!drawElement) {
+		cancelRectDrag();
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(drawElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
+      }, (e: MouseEvent) => {
+	if (e.isTrusted) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
+		      {layer} = globals.selected;
+		if (layer) {
+			doTokenAdd(layer.path, {"id": 0, "x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y), "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "lightColour": noColour, "lightIntensity": 0});
+		} else {
+			shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
+		}
+	}
+	drawElement?.remove();
+	drawElement = null;
+	cancelEscape();
+      }),
+      [ellipseDrag, cancelEllipseDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	if (!drawElement) {
+		cancelEllipseDrag();
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(drawElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
+      }, (e: MouseEvent) => {
+	if (e.isTrusted) {
+		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
+		      {layer} = globals.selected;
+		if (layer) {
+			const width = Math.abs(coords[0] - x),
+			      height = Math.abs(coords[1] - y);
+			doTokenAdd(layer.path, {"id": 0, "x": coords[0] - width, "y": coords[1] - height, "width": width * 2, "height": height * 2, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "isEllipse": true, "lightColour": noColour, "lightIntensity": 0});
+		} else {
+			shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
+		}
+	}
+	drawElement?.remove();
+	drawElement = null;
+	cancelEscape();
+      }),
+      [polyMove, cancelPolyMove] = mouseMoveEvent((e: MouseEvent) => {
+	if (!drawElement) {
+		cancelPolyMove();
+		return;
+	}
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
+      }),
+      [setEscape, cancelEscape] = keyEvent("Escape", () => {
+	cancelRectDrag();
+	cancelEllipseDrag();
+      }),
+      [setPolyEscape, cancelPolyEscape] = keyEvent("Escape", () => {
+	if (!drawElement) {
+		return;
+	}
+	if (coords.length === 2) {
+		drawElement.remove();
+		drawElement = null;
+		cancelPolyMove();
+		return;
+	} else {
+		coords.pop();
+		coords.pop();
+		createSVG(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
+	}
+      }),
+      [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-      },
-      onmouseleave = () => {
-	const {root} = globals;
-	over = false;
-	root.removeEventListener("mousemove", onmousemove);
-	root.removeEventListener("mouseleave", onmouseleave);
-	root.style.removeProperty("cursor");
-	marker.remove();
-      };
+      }),
+      coords: [Uint, Uint, ...Uint[]] = [0, 0];
 
 addTool({
 	"name": lang["TOOL_DRAW"],
@@ -58,136 +120,100 @@ addTool({
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
 		label(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => strokeColour, (c: Colour) => strokeColour = c, "strokeColour")),
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
 		br(),
 		label(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fillColour, (c: Colour) => fillColour = c, "fillColour"))
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
 	]),
+	"mapMouseOver": () => {
+		startCursorMove();
+		return false;
+	},
 	"mapMouse0": (e: MouseEvent) => {
-		e.stopPropagation();
-		if (clickOverride) {
-			clickOverride(e);
-			return false;
-		}
-		const [cx, cy] = screen2Grid(e.clientX, e.clientY, snap.checked),
-		      {root} = globals;
-		if (rectangle.checked || circle.checked) {
-			const isEllipse = circle.checked,
-			      s = (isEllipse ? ellipse : rect)({"stroke": strokeColour, "fill": fillColour, "stroke-width": strokeWidth.value, cx, cy}),
-			      onmousemove = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-				if (isEllipse) {
-					createSVG(s, {"rx": Math.abs(cx - x), "ry": Math.abs(cy - y)});
+		const {layer} = globals.selected,
+		      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
+		      sw = checkInt(parseInt(strokeWidth.value), 0, 100);
+		if (layer) {
+			if (rectangle.checked) {
+				coords[0] = x;
+				coords[1] = y;
+				drawElement?.remove();
+				drawElement = layer[node].appendChild(rect({x, y, fill, stroke, "stroke-width": sw}));
+				rectDrag();
+				setEscape();
+			} else if (circle.checked) {
+				coords[0] = x;
+				coords[1] = y;
+				drawElement?.remove();
+				drawElement = layer[node].appendChild(ellipse({"cx": x, "cy": y, fill, stroke, "stroke-width": sw}));
+				ellipseDrag();
+				setEscape();
+			} else if (poly.checked) {
+				if (drawElement instanceof SVGPolygonElement) {
+					coords.push(x, y);
+					createSVG(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
 				} else {
-					createSVG(s, {"x": Math.min(cx, x), "y": Math.min(cy, y), "width": Math.abs(cx - x), "height": Math.abs(cy - y)});
+					coords.splice(0, coords.length, x, y);
+					drawElement?.remove();
+					drawElement = layer[node].appendChild(polygon({stroke, fill, "stroke-width": sw}));
+					polyMove();
+					setPolyEscape();
 				}
-			      },
-			      clearup = () => {
-				root.removeEventListener("mousemove", onmousemove);
-				root.removeEventListener("mouseup", onmouseup);
-				cancelKey();
-				s.remove();
-			      },
-			      onmouseup = (e: MouseEvent) => {
-				if (e.button === 0) {
-					clearup();
-					const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
-					      dr = isEllipse ? 2 : 1,
-					      {layer: selectedLayer} = globals.selected,
-					      width = Math.abs(cx - x),
-					      height = Math.abs(cy - y),
-					      token = {"id": 0, "x": isEllipse ? cx - width : Math.min(cx, x), "y": isEllipse ? cy - height : Math.min(cy, y), "width": width * dr, "height": height * dr, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, isEllipse, "lightColour": noColour, "lightIntensity": 0};
-					if (selectedLayer) {
-						doTokenAdd(selectedLayer.path, token);
-					} else {
-						shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
+			}
+		}
+		return false;
+	},
+	"mapMouse2": (e: MouseEvent) => {
+		const {layer} = globals.selected;
+		if (layer && drawElement instanceof SVGPolygonElement && coords.length >= 4) {
+			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+			coords.push(x, y);
+			let minX = Infinity,
+			    minY = Infinity,
+			    maxX = -Infinity,
+			    maxY = -Infinity;
+			const points = coords.reduce((res, _, i) => {
+				if (i % 2 === 0) {
+					const x = coords[i],
+					      y = coords[i+1];
+					res.push([x, y]);
+					if (x < minX) {
+						minX = x;
+					}
+					if (y < minY) {
+						minY = y;
+					}
+					if (x > maxX) {
+						maxX = x;
+					}
+					if (y > maxY) {
+						maxY = y;
 					}
 				}
-			      },
-			      [setupKey, cancelKey] = keyEvent("Escape", clearup);
-			cancelEscapeKey = cancelKey;
-			setupKey();
-			createSVG(root, {onmousemove, onmouseup}, s);
-		} else {
-			let minX = cx,
-			    maxX = cx,
-			    minY = cy,
-			    maxY = cy;
-			const points: Coords[] = [{"x": cx, "y": cy}],
-			      close = fillColour.a > 0,
-			      p = path({"stroke": strokeColour, "fill": fillColour, "stroke-width": strokeWidth.value}),
-			      draw = (x?: Uint, y?: Uint) => {
-				p.setAttribute("d", `M${points.map(c => `${c.x},${c.y}`).join(" L")}${x !== undefined ? ` ${x},${y}` : ""}${close ? " Z" : ""}`);
-			      },
-			      onmousemove = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-				draw(x, y);
-			      },
-			      clearup = () => {
-				clickOverride = null;
-				root.removeEventListener("mousemove", onmousemove);
-				cancelKey?.();
-				p.remove();
-			      },
-			      [setupKey, cancelKey] = keyEvent("Escape", clearup);
-			cancelEscapeKey = cancelKey;
-			setupKey();
-			clickOverride = (e: MouseEvent) => {
-				const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-				points.push({x, y});
-				if (x < minX) {
-					minX = x;
-				} else if (x > maxX) {
-					maxX = x;
-				}
-				if (y < minY) {
-					minY = y;
-				} else if (y > maxY) {
-					maxY = y;
-				}
-				draw();
-			};
-			contextOverride = () => {
-				clearup();
-				for (const c of points) {
-					c.x -= minX;
-					c.y -= minY;
-				}
-				const {layer: selectedLayer} = globals.selected,
-				      token = {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, "fill": fillColour, "stroke": strokeColour, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0};
-				if (selectedLayer) {
-					doTokenAdd(selectedLayer.path, token);
-				} else {
-					shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
-				}
-			};
-			createSVG(root, {onmousemove}, p);
+				return res;
+			}, [] as [Uint, Uint][]).map(([x, y]) => ({"x": x - minX, "y": y - minY}));
+			doTokenAdd(layer.path, {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0});
+			cancelPolyMove();
+			cancelPolyEscape();
+			drawElement.remove();
+			drawElement = null;
 		}
 		return false;
 	},
-	"mapMouse2": () => {
-		if (contextOverride) {
-			contextOverride();
-		}
-		return false;
-	},
-	"mapMouseOver": () => {
-		if (!over) {
-			over = true;
-			createSVG(globals.root, {"style": {"cursor": "none"}, onmousemove, onmouseleave}, marker);
-		}
-		return false;
-	},
-	"tokenMouse0": ignore,
-	"tokenMouse2": ignore,
-	"tokenMouseOver": ignore,
 	"set": () => {
-		setupShiftSnap();
 		deselectToken();
+		setupShiftSnap();
+		createSVG(globals.root, {"style": {"cursor": "none"}}, marker);
 	},
 	"unset": () => {
-		cancelEscapeKey?.(true);
 		cancelShiftSnap();
-		onmouseleave();
+		cancelRectDrag()
+		cancelEllipseDrag();
+		cancelPolyMove();
+		cancelEscape();
+		cancelPolyEscape();
+		cancelCursorMove();
+		marker.remove();
+		globals.root.style.removeProperty("cursor");
 	}
 });
