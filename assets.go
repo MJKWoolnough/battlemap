@@ -1,6 +1,7 @@
 package battlemap
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
@@ -107,6 +108,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		added []idName
 		gft   getFileType
 	)
+	h := sha256.New()
 	for {
 		p, err := m.NextPart()
 		if err != nil {
@@ -128,8 +130,54 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		id := a.lastID
 		a.mu.Unlock()
 		idStr := strconv.FormatUint(id, 10)
-		if err = a.Set(idStr, bufReaderWriterTo{gft.Buffer[:bufLen], p}); err != nil {
+		b := bufReaderWriterTo{gft.Buffer[:bufLen], p, h, 0}
+		if err = a.Set(idStr, &b); err != nil {
 			return err
+		}
+		hash := *(*[sha256.Size]byte)(h.Sum(nil))
+		h.Reset()
+		if ids, ok := a.hashes[hash]; ok {
+			match := false
+			for _, fid := range ids {
+				fidStr := strconv.FormatUint(fid, 10)
+				fs, err := a.Stat(fidStr)
+				if err != nil {
+					continue
+				}
+				if fs.Size() == b.size {
+					a.Get(idStr, readerFromFunc(func(ar io.Reader) {
+						a.Get(fidStr, readerFromFunc(func(br io.Reader) {
+							abuf, bbuf := make([]byte, 32768), make([]byte, 32768)
+							for {
+								n, erra := io.ReadFull(ar, abuf)
+								m, errb := io.ReadFull(br, bbuf)
+								if !bytes.Equal(abuf[:n], bbuf[:m]) {
+									return
+								}
+								if erra == io.EOF || erra == io.ErrUnexpectedEOF {
+									match = erra == errb
+									return
+								} else if erra != nil || errb != nil {
+									return
+								}
+							}
+						}))
+					}))
+					if match {
+						id = fid
+						a.mu.Lock()
+						a.lastID--
+						a.mu.Unlock()
+						a.Remove(idStr)
+						break
+					}
+				}
+			}
+			if !match {
+				a.hashes[hash] = append(ids, id)
+			}
+		} else {
+			a.hashes[hash] = []uint64{id}
 		}
 		filename := p.FileName()
 		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
@@ -165,15 +213,27 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 type bufReaderWriterTo struct {
 	Buf    []byte
 	Reader io.Reader
+	hash   hash.Hash
+	size   int64
 }
 
-func (b bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
+func (b *bufReaderWriterTo) WriteTo(w io.Writer) (int64, error) {
+	b.hash.Reset()
+	b.hash.Write(b.Buf)
 	n, err := w.Write(b.Buf)
 	if err != nil {
 		return int64(n), err
 	}
-	m, err := io.Copy(w, b.Reader)
+	m, err := io.Copy(io.MultiWriter(w, b.hash), b.Reader)
+	b.size = int64(n) + m
 	return int64(n) + m, err
+}
+
+type readerFromFunc func(io.Reader)
+
+func (rff readerFromFunc) ReadFrom(r io.Reader) (int64, error) {
+	rff(r)
+	return 0, nil
 }
 
 const (
