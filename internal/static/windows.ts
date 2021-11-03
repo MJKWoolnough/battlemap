@@ -2,7 +2,7 @@ import type {Int, Uint} from './types.js';
 import type {DOMBind, Props, Children} from './lib/dom.js';
 import type {ShellElement, WindowElement} from './lib/windows.js';
 import {createHTML, div} from './lib/html.js';
-import {desktop, shell as ashell, windows as awindows} from './lib/windows.js';
+import {defaultIcon, desktop, shell as ashell, setDefaultIcon, windows as awindows} from './lib/windows.js';
 import {JSONSetting} from './settings_types.js';
 import {isInt, isUint} from './shared.js';
 import {hasKeyEvent} from './events.js';
@@ -17,6 +17,8 @@ class WindowSettings extends JSONSetting<WindowData> {
 		super(name, starting, checkWindowData);
 	}
 }
+
+setDefaultIcon(document.getElementsByTagName("link")?.[0].getAttribute("href") ?? defaultIcon);
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
