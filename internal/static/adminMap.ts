@@ -13,7 +13,7 @@ import {autosnap, measureTokenMove} from './settings.js';
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, SQRT3} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, tokenSelectedReceive, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -379,39 +379,6 @@ export default (base: HTMLElement) => {
 		tokenMousePos.rotation = newToken.rotation;
 		tokenSelected();
 	      },
-	      mapOnKeyDown = (e: KeyboardEvent) => {
-		if (e.ctrlKey) {
-			switch (e.key) {
-			case 'z':
-				if (!e.shiftKey) {
-					undo.undo();
-					e.preventDefault();
-					break;
-				}
-			case 'r':
-			case 'y':
-				undo.redo();
-				e.preventDefault();
-				break;
-			case 'x':
-			case 'c':
-				const t = globals.selected.token;
-				if (t) {
-					copiedToken = JSON.parse(JSON.stringify(t));
-					if (e.key === 'x') {
-						doTokenRemove(t.id);
-					}
-				}
-				break;
-			case 'v':
-				if (!copiedToken || !globals.selected.layer) {
-					return;
-				}
-				const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-				doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
-			}
-		}
-	      },
 	      pasteCoords = [0, 0],
 	      moveMap = function (this: SVGElement, e: MouseEvent) {
 		this.style.setProperty("--outline-cursor", "grabbing");
@@ -448,12 +415,49 @@ export default (base: HTMLElement) => {
 		if (overToken) {
 			document.body.style.setProperty("--outline-cursor", "pointer");
 		}
+	      }),
+	      redo = (e: KeyboardEvent) => {
+		if (e.ctrlKey) {
+			undo.redo();
+		}
+	      },
+	      [startCopy, cancelCopy] = keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
+	      [startCut, cancelCut] = keyEvent("x", () => {
+		copiedToken = JSON.parse(JSON.stringify(globals.selected.token));
+		doTokenRemove(copiedToken!.id);
 	      });
+	tokenSelectedReceive(() => {
+		if (globals.selected.token) {
+			startCopy();
+			startCut();
+		} else {
+			cancelCopy();
+			cancelCut();
+		}
+	});
+	keyEvent("z", (e: KeyboardEvent) => {
+		if (e.ctrlKey) {
+			if (e.shiftKey) {
+				undo.redo();
+			} else {
+				undo.undo();
+			}
+		}
+	});
+	keyEvent("y", redo);
+	keyEvent("r", redo);
+	keyEvent("v", () => {
+		if (!copiedToken || !globals.selected.layer) {
+			return;
+		}
+		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
+		doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
+	});
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
-		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop, "onkeydown": mapOnKeyDown}, createHTML(outline, {"style": "display: none"}));
+		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, createHTML(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
