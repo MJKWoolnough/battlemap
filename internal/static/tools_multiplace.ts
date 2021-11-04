@@ -129,7 +129,7 @@ addTool({
 	},
 	"tokenMouse2": disable,
 	"set": () => {
-		if (!mode.checked) {
+		if (!mode.checked && token) {
 			deselectToken();
 		}
 	},
