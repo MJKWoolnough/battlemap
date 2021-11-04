@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"vimagination.zapto.org/keystore"
 	"vimagination.zapto.org/memio"
@@ -28,6 +29,7 @@ type assetsDir struct {
 	folders
 	handler http.Handler
 	hashes  map[[sha256.Size]byte][]uint64
+	sync.Once
 }
 
 func (a *assetsDir) Init(b *Battlemap, links links) error {
@@ -55,13 +57,12 @@ func (a *assetsDir) Init(b *Battlemap, links links) error {
 	if err != nil {
 		return fmt.Errorf("error creating asset meta store: %w", err)
 	}
-	a.hashes = make(map[[sha256.Size]byte][]uint64)
 	a.handler = http.FileServer(http.Dir(l))
 	return a.folders.Init(b, assetStore, lm)
 }
 
-func (a *assetsDir) cleanup(l linkManager) {
-	a.folders.cleanup(l)
+func (a *assetsDir) makeHashMap() {
+	a.hashes = make(map[[sha256.Size]byte][]uint64)
 	h := hasher{Hash: sha256.New()}
 	for _, key := range a.Keys() {
 		id, err := strconv.ParseUint(key, 10, 64)
@@ -78,6 +79,7 @@ func (a *assetsDir) cleanup(l linkManager) {
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	a.Once.Do(a.makeHashMap)
 	switch r.Method {
 	case http.MethodGet, http.MethodHead:
 		if r.URL.Path == folderMetadata {
