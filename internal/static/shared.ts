@@ -173,7 +173,6 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 	}
       })();
 
-
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.key === "Enter") {
 		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
