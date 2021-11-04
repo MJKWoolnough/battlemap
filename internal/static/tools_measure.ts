@@ -1,7 +1,7 @@
 import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
-import {createSVG, svg, circle, g, line, path, polygon, title} from './lib/svg.js';
-import {addTool, ignore} from './tools.js';
+import {createSVG, svg, circle, g, line, path, title} from './lib/svg.js';
+import {addTool, ignore, marker} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
@@ -23,7 +23,6 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       diagonals = input({"type": "checkbox", "checked": true, "class": "settings_ticker", "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
       shiftSnap = () => snap.click(),
       info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
-      marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, ["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points, "fill": "#000", "stroke": "#fff"}))),
       spot = circle({"r": 8, "fill": "#000", "stroke": "#fff", "stroke-width": 2}),
       lone = line({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square"}),
       ltwo = line({"stroke": "#000", "stroke-width": 6}),

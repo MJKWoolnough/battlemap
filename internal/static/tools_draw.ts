@@ -1,6 +1,6 @@
 import type {Uint} from './types.js';
 import {br, div, input, label, span} from './lib/html.js';
-import {createSVG, svg, rect, ellipse, g, path, polyline, polygon, title} from './lib/svg.js';
+import {createSVG, svg, rect, ellipse, path, polyline, polygon, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {autosnap} from './settings.js';
 import {screen2Grid} from './map.js';
@@ -9,15 +9,14 @@ import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
-import {addTool} from './tools.js';
+import {addTool, marker} from './tools.js';
 import lang from './language.js';
 
 let fill = noColour,
     stroke = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
     drawElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-const marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, ["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points}))),
-      rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
+const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
       circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),

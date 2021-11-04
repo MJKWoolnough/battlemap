@@ -1,8 +1,8 @@
 import type {Mask, Uint} from './types.js';
 import {br, button, div, input} from './lib/html.js';
-import {createSVG, svg, ellipse, g, path, polygon, rect, title} from './lib/svg.js';
+import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
-import {addTool} from './tools.js';
+import {addTool, marker} from './tools.js';
 import {deselectToken, globals, labels} from './shared.js';
 import {autosnap} from './settings.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
@@ -20,7 +20,6 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
-      marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, ["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points}))),
       [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!maskElement) {
 		cancelRectDrag();
