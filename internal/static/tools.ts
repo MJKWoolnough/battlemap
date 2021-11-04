@@ -1,7 +1,7 @@
 import type {Uint} from './types.js';
 import {createHTML, clearElement, svgNS} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
-import {path, svg, title} from './lib/svg.js';
+import {g, path, polygon, svg, title} from './lib/svg.js';
 import {mapLoadedReceive, mod} from './shared.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
@@ -43,7 +43,8 @@ ignore = () => false,
 disable = (e: Event) => {
 	e.stopPropagation();
 	return false;
-};
+},
+marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, ["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points})));
 
 let selectedTool = defaultTool;
 
