@@ -18,7 +18,7 @@ class WindowSettings extends JSONSetting<WindowData> {
 	}
 }
 
-setDefaultIcon(document.getElementsByTagName("link")?.[0].getAttribute("href") ?? defaultIcon);
+setDefaultIcon(document.getElementsByTagName("link")[0]?.getAttribute("href") ?? defaultIcon);
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
