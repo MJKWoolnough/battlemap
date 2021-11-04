@@ -123,13 +123,15 @@ addTool({
 		return false;
 	},
 	"mapMouse2": ignore,
-	"mapMouseOver": ignore,
+	"mapMouseOver": () => {
+		showCursor()
+		return false;
+	},
 	"tokenMouse2": disable,
 	"set": () => {
 		if (!mode.checked) {
 			deselectToken();
 		}
-		showCursor();
 	},
 	"unset": hideCursor
 });
