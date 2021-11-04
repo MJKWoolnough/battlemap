@@ -35,7 +35,7 @@ export class BoolSetting extends Setting<boolean> {
 		super(name, window.localStorage.getItem(name) !== null);
 	}
 	set(b: boolean) {
-		return super.set(this.value = b, b ? "" : null);
+		return super.set(b, b ? "" : null);
 	}
 }
 
