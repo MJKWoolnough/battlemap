@@ -165,34 +165,6 @@ export default (base: HTMLElement) => {
 		if (!token) {
 			return;
 		}
-		if (tokenDragMode > -1) {
-			if (e.key === "Escape") {
-				globals.root.style.removeProperty("--outline-cursor");
-				tokenDragMode = -1;
-				const {selected: {token}} = globals,
-				      {x, y, width, height, rotation} = tokenMousePos;
-				if (token) {
-					token.x = x;
-					token.y = y;
-					token.width = width;
-					token.rotation = rotation;
-					token.height = height;
-					token.updateNode();
-					createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
-				}
-				stopMeasurement();
-				cancelTokenDrag();
-			}
-			return;
-		}
-		if (e.key === "Escape") {
-			deselectToken();
-			return;
-		}
-		if (e.key === "Delete") {
-			doTokenRemove(token.id);
-			return;
-		}
 		let {x, y, rotation} = token;
 		if (token.snap) {
 			const {mapData: {gridSize, gridType}} = globals,
@@ -425,14 +397,40 @@ export default (base: HTMLElement) => {
 	      [startCut, cancelCut] = keyEvent("x", () => {
 		copiedToken = JSON.parse(JSON.stringify(globals.selected.token));
 		doTokenRemove(copiedToken!.id);
-	      });
+	      }),
+	      [startEscape, cancelEscape] = keyEvent("Escape", () => {
+		if (tokenDragMode == -1) {
+			deselectToken();
+			return;
+		}
+		globals.root.style.removeProperty("--outline-cursor");
+		tokenDragMode = -1;
+		const {selected: {token}} = globals,
+		      {x, y, width, height, rotation} = tokenMousePos;
+		if (token) {
+			token.x = x;
+			token.y = y;
+			token.width = width;
+			token.rotation = rotation;
+			token.height = height;
+			token.updateNode();
+			createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+		}
+		stopMeasurement();
+		cancelTokenDrag();
+	      }),
+	      [startDelete, cancelDelete] = keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id));
 	tokenSelectedReceive(() => {
 		if (globals.selected.token) {
 			startCopy();
 			startCut();
+			startEscape();
+			startDelete();
 		} else {
 			cancelCopy();
 			cancelCut();
+			cancelEscape();
+			cancelDelete();
 		}
 	});
 	keyEvent("z", (e: KeyboardEvent) => {
@@ -443,16 +441,16 @@ export default (base: HTMLElement) => {
 				undo.undo();
 			}
 		}
-	});
-	keyEvent("y", redo);
-	keyEvent("r", redo);
+	})[0]();
+	keyEvent("y", redo)[0]();
+	keyEvent("r", redo)[0]();
 	keyEvent("v", () => {
 		if (!copiedToken || !globals.selected.layer) {
 			return;
 		}
 		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
 		doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
-	});
+	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		Object.assign(globals.selected, {"layer": null, "token": null});
 		const oldBase = base;
