@@ -10,7 +10,7 @@ import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
-	const {mapData: {width, height}} = globals;
+	const {width, height} = globals.mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
@@ -88,7 +88,7 @@ measureDistance = (x2: Uint, y2: Uint) => {
 	if (isNaN(coords[0]) || isNaN(coords[1])) {
 		return;
 	}
-	const size = globals.mapData.gridSize,
+	const {gridSize: size} = globals.mapData,
 	      [x1, y1] = coords,
 	      l = {x1, y1, x2, y2},
 	      [sx, sy] = grid2Screen(x2, y2);
@@ -155,8 +155,9 @@ addTool({
 });
 
 mapLoadedReceive(() => {
-	cellValue.value = globals.mapData.gridDistance + "";
-	diagonals.checked = globals.mapData.gridDiagonal;
+	const {gridDistance, gridDiagonal} = globals.mapData;
+	cellValue.value = gridDistance + "";
+	diagonals.checked = gridDiagonal;
 });
 
 inited.then(() => {

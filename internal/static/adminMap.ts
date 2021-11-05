@@ -36,7 +36,7 @@ export default (base: HTMLElement) => {
 		      dy = bdy - tokenMousePos.mouseY,
 		      mapData = globals.mapData,
 		      sq = mapData.gridSize,
-		      {token: selectedToken} = globals.selected;
+		      selectedToken = globals.selected.token;
 		if (!selectedToken) {
 			return;
 		}
@@ -196,7 +196,7 @@ export default (base: HTMLElement) => {
 		if (e.dataTransfer.types.includes("Files")) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
-			      {selected: {layer}} = globals;
+			      {layer} = globals.selected;
 			for (const file of e.dataTransfer.files) {
 				f.append("asset", file);
 			}
@@ -316,7 +316,7 @@ export default (base: HTMLElement) => {
 		}
 		globals.root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
-		const {selected: {token}} = globals,
+		const {token} = globals.selected,
 		      {x, y, width, height, rotation} = tokenMousePos;
 		if (token) {
 			token.x = x;
@@ -449,10 +449,9 @@ export default (base: HTMLElement) => {
 	}
 	defaultTool.mapMouse1 = moveMap;
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
-		const {selected: {layer: selectedLayer}, outline} = globals,
+		const {selected: {layer: selectedLayer}, outline, root} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
-		      currentlyOverToken = overOutline || selectedLayer !== null && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY)),
-		      {root} = globals;
+		      currentlyOverToken = overOutline || selectedLayer !== null && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
 		let ctrl = e.ctrlKey;
 		if (ctrl && !e.shiftKey) {
 			document.body.style.setProperty("--outline-cursor", "grab");
@@ -548,7 +547,7 @@ export default (base: HTMLElement) => {
 		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 		if (n === 0 && measureTokenMove.value) {
-			const {selected: {token}} = globals;
+			const {token} = globals.selected;
 			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
 		return false;

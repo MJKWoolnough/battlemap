@@ -360,8 +360,7 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
-	const x = globals.mapData.lightX,
-	      y = globals.mapData.lightY,
+	const {lightX: x, lightY: y} = globals.mapData,
 	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y)),
 	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`,
 	      wallPolygons: SVGPolygonElement[] = [];
@@ -423,14 +422,13 @@ screen2Grid = (() => {
 		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
 		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
 		if (snap) {
-			const gridType = globals.mapData.gridType;
+			const {gridType, gridSize} = mapData;
 			switch (gridType) {
 			case 1:
 			case 2: {
-				const size = globals.mapData.gridSize,
-				      o = 2 * Math.round(1.5 * size / SQRT3),
-				      w = gridType === 1 ? size : o,
-				      h = gridType === 2 ? size : o,
+				const o = 2 * Math.round(1.5 * gridSize / SQRT3),
+				      w = gridType === 1 ? gridSize : o,
+				      h = gridType === 2 ? gridSize : o,
 				      px = sx / w,
 				      py = sy / h,
 				      dx = px % 1,
@@ -449,7 +447,7 @@ screen2Grid = (() => {
 				return [Math.round((Math.floor(px) + nearestPoint[first]) * w), Math.round((Math.floor(py) + nearestPoint[second]) * h)];
 			}
 			default:
-				const size = mapData.gridSize >> 1;
+				const size = gridSize >> 1;
 				return [size * Math.round(sx / size), size * Math.round(sy / size)];
 			}
 		}
@@ -517,7 +515,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	globals.walls.clear();
 	globals.masks.set(mapData.baseOpaque, mapData.masks);
 	globals.definitions.clear();
-	const definitions = globals.definitions,
+	const {definitions} = globals,
 	      wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const n = g(),
