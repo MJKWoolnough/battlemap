@@ -1,7 +1,7 @@
 import type {TokenSet, Token, Uint} from './types.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGLayer, SVGFolder} from './map.js';
-import {autoFocus, createDocumentFragment} from './lib/dom.js';
+import {createDocumentFragment} from './lib/dom.js';
 import {createHTML, br, button, h1, img, input} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -162,7 +162,7 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": -1, "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
+	      outline = createSVG(globals.outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
@@ -254,7 +254,7 @@ export default (base: HTMLElement) => {
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(globals.tokens.get(newToken.id)!.layer);
 		globals.selected.token = newToken;
-		autoFocus(createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`}));
+		createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
 		tokenMousePos.x = newToken.x;
 		tokenMousePos.y = newToken.y;
 		tokenMousePos.width = newToken.width;
@@ -569,14 +569,12 @@ export default (base: HTMLElement) => {
 						return;
 					}
 					doTokenSet({"id": currToken.id, "flip": !currToken.flip});
-					globals.outline.focus();
 				}),
 				item(lang["CONTEXT_FLOP"], () => {
 					if (!(currToken instanceof SVGToken)) {
 						return;
 					}
 					doTokenSet({"id": currToken.id, "flop": !currToken.flop});
-					globals.outline.focus();
 				}),
 				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
 					if (!(currToken instanceof SVGToken)) {
@@ -587,7 +585,6 @@ export default (base: HTMLElement) => {
 					} else {
 						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
 					}
-					globals.outline.focus();
 				}),
 			] : [],
 			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
@@ -602,11 +599,10 @@ export default (base: HTMLElement) => {
 				} else {
 					doTokenSet({"id": currToken.id, "snap": !snap});
 				}
-				globals.outline.focus();
 			}),
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
-				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "onremove": () => globals.outline.focus()})),
+				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
 				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				w.appendChild(createDocumentFragment([
 					h1(lang["CONTEXT_SET_LIGHTING"]),
@@ -629,7 +625,6 @@ export default (base: HTMLElement) => {
 					}
 					const currLayer = globals.tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
-					globals.outline.focus();
 				}),
 				item(lang["CONTEXT_MOVE_UP"], () => {
 					if (!globals.tokens.has(currToken.id)) {
@@ -638,7 +633,6 @@ export default (base: HTMLElement) => {
 					const currLayer = globals.tokens.get(currToken.id)!.layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
-					globals.outline.focus();
 				})
 			] : [],
 			tokenPos > 0 ? [
@@ -656,7 +650,6 @@ export default (base: HTMLElement) => {
 					}
 					const currLayer = globals.tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
-					globals.outline.focus();
 				})
 			] : [],
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
@@ -664,7 +657,6 @@ export default (base: HTMLElement) => {
 					return;
 				}
 				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
-				globals.outline.focus();
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
