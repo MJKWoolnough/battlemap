@@ -25,7 +25,9 @@ let copiedToken: Token | null = null;
 
 export default (base: HTMLElement) => {
 	let tokenDragMode = -1,
-	    overToken = false;
+	    overToken = false,
+	    lastToken: Token | null = null;
+
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
@@ -160,98 +162,7 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": -1, "style": "display: none", "onkeyup": (e: KeyboardEvent) => {
-		const {token} = globals.selected;
-		if (!token) {
-			return;
-		}
-		let {x, y, rotation} = token;
-		if (token.snap) {
-			const {mapData: {gridSize, gridType}} = globals,
-			      h = gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize,
-			      v = gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize;
-			switch (e.key) {
-			case "ArrowUp":
-				y -= v;
-				break;
-			case "ArrowDown":
-				y += v;
-				break;
-			case "ArrowLeft":
-				if (e.shiftKey) {
-					const {mapData: {gridType}} = globals,
-					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
-					rotation = mod(Math.round(rotation - deg), 256);
-					e.preventDefault();
-				} else {
-					x -= h;
-				}
-				break;
-			case "ArrowRight":
-				if (e.shiftKey) {
-					const {mapData: {gridType}} = globals,
-					      deg = 256 / (gridType === 1 || gridType === 2 ? 12 : 8);
-					rotation = mod(Math.round(rotation + deg), 256);
-					e.preventDefault();
-				} else {
-					x += h;
-				}
-				break;
-			default:
-				return;
-			}
-		} else {
-			switch (e.key) {
-			case "ArrowUp":
-			case "ArrowDown":
-			case "ArrowLeft":
-			case "ArrowRight":
-				token.x = tokenMousePos.x;
-				token.y = tokenMousePos.y;
-				token.rotation = tokenMousePos.rotation;
-				break;
-			default:
-				return;
-			}
-		}
-		doTokenSet({"id": token.id, x, y, rotation});
-	      }, "onkeydown": (e: KeyboardEvent) => {
-		const {token} = globals.selected;
-		if (!token) {
-			return;
-		}
-		if (token.snap) {
-			return;
-		}
-		switch (e.key) {
-		case "ArrowUp":
-			token.y--;
-			break;
-		case "ArrowDown":
-			token.y++;
-			break;
-		case "ArrowLeft":
-			if (e.shiftKey) {
-				token.rotation = mod(token.rotation - 1, 256);
-				e.preventDefault();
-			} else {
-				token.x--;
-			}
-			break;
-		case "ArrowRight":
-			if (e.shiftKey) {
-				token.rotation = mod(token.rotation + 1, 256);
-				e.preventDefault();
-			} else {
-				token.x++;
-			}
-			break;
-		default:
-			return;
-		}
-		token.updateNode();
-		outline.setAttribute("transform", token.transformString(false));
-	      }, "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
+	      outline = createSVG(globals.outline, {"id": "outline", "tabindex": -1, "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
@@ -419,19 +330,69 @@ export default (base: HTMLElement) => {
 		stopMeasurement();
 		cancelTokenDrag();
 	      }),
-	      [startDelete, cancelDelete] = keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id));
+	      [startDelete, cancelDelete] = keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
+	      keyRepeats = [-1, -1, -1, -1],
+	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
+		const {token} = globals.selected;
+		if (!token || token.snap) {
+			return;
+		}
+		keyRepeats[n] = setInterval(() => {
+			shift(token, 1, 1, e.shiftKey);
+			token.updateNode();
+			outline.setAttribute("transform", token.transformString(false));
+		}, 5);
+	      }, (e: KeyboardEvent) => {
+		if (keyRepeats[n] !== -1) {
+			clearInterval(keyRepeats[n]);
+			keyRepeats[n] = -1;
+			if (lastToken && keyRepeats.every(d => d === -1)) {
+				const {id, x, y, rotation} = lastToken;
+				lastToken.x = tokenMousePos.x;
+				lastToken.y = tokenMousePos.y;
+				lastToken.rotation = tokenMousePos.rotation;
+				doTokenSet({id, x, y, rotation});
+			}
+		} else {
+			const {mapData: {gridSize, gridType}, selected: {token}} = globals;
+			if (e.isTrusted && token) {
+				shift(token, gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize, gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize, e.shiftKey);
+				if (lastToken) {
+					const {id, x, y, rotation} = lastToken;
+					lastToken.x = tokenMousePos.x;
+					lastToken.y = tokenMousePos.y;
+					lastToken.rotation = tokenMousePos.rotation;
+					doTokenSet({id, x, y, rotation});
+				}
+			}
+		}
+	      }),
+	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (globals.mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
+	      keys = ([
+		["Up", (tk: Token, dy: Uint) => tk.y -= dy],
+		["Down", (tk: Token, dy: Uint) => tk.y += dy],
+		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
+		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
+	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn));
 	tokenSelectedReceive(() => {
 		if (globals.selected.token) {
 			startCopy();
 			startCut();
 			startEscape();
 			startDelete();
+			for (const [fn] of keys) {
+				fn();
+			}
 		} else {
 			cancelCopy();
 			cancelCut();
 			cancelEscape();
 			cancelDelete();
+			for (const [, fn] of keys) {
+				fn(true);
+			}
 		}
+		lastToken = globals.selected.token;
 	});
 	keyEvent("z", (e: KeyboardEvent) => {
 		if (e.ctrlKey) {
