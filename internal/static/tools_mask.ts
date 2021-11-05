@@ -5,7 +5,7 @@ import {node} from './lib/nodes.js';
 import {addTool, marker} from './tools.js';
 import {deselectToken, globals, labels} from './shared.js';
 import {autosnap} from './settings.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {shell} from './windows.js';
 import {screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';

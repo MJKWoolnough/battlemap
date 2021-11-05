@@ -6,7 +6,7 @@ import {panZoom, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
-import {keyEvent, mouseDragEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './lib/events.js';
 import lang from './language.js';
 
 

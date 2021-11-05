@@ -8,7 +8,7 @@ import {Colour, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
-import {keyEvent} from './events.js';
+import {keyEvent} from './lib/events.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
 

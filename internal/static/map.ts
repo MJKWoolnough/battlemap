@@ -9,7 +9,7 @@ import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
-import {mouseDragEvent} from './events.js';
+import {mouseDragEvent} from './lib/events.js';
 import {rpc, inited} from './rpc.js';
 import {tokenClass} from './plugins.js';
 import lang from './language.js';

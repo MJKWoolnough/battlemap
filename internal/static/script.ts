@@ -16,7 +16,7 @@ import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
 import {addCSS, isAdmin, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
-import {keyEvent, mouseDragEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './lib/events.js';
 import './tools_draw.js';
 import './tools_light.js';
 import './tools_mask.js';

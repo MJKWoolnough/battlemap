@@ -5,7 +5,7 @@ import {addTool, ignore, marker} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
-import {keyEvent, mouseDragEvent} from './events.js';
+import {keyEvent, mouseDragEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 

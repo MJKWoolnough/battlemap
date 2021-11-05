@@ -7,7 +7,7 @@ import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
-import {mouseMoveEvent} from './events.js';
+import {mouseMoveEvent} from './lib/events.js';
 import {autosnap} from './settings.js';
 import {noColour} from './colours.js';
 import lang from './language.js';

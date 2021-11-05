@@ -14,7 +14,7 @@ import {addCSS, characterData, globals, mapLoadedReceive, tokenSelectedReceive, 
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
-import {keyEvent} from '../events.js';
+import {keyEvent} from '../lib/events.js';
 import {rpc, combined as combinedRPC, addMapDataChecker, addCharacterDataChecker, addTokenDataChecker} from '../rpc.js';
 import {iconSelector, tokenSelector, characterSelector} from '../characters.js';
 import {addSymbol, getSymbol, addFilter} from '../symbols.js';

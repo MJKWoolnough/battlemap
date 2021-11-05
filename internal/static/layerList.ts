@@ -11,7 +11,7 @@ import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
-import {mouseDragEvent} from './events.js';
+import {mouseDragEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 

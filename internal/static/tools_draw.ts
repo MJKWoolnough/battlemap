@@ -8,7 +8,7 @@ import {checkInt, deselectToken, globals, labels} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent} from './events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {addTool, marker} from './tools.js';
 import lang from './language.js';
 
