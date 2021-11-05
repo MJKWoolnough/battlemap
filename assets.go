@@ -69,10 +69,11 @@ func (a *assetsDir) makeHashMap() {
 		if err != nil {
 			continue
 		}
+		var hash [sha256.Size]byte
 		if err := a.Get(key, &h); err != nil {
 			continue
 		}
-		hash := *(*[sha256.Size]byte)(h.Sum(nil))
+		h.Sum(hash[:0])
 		a.hashes[hash] = append(a.hashes[hash], id)
 		h.Reset()
 	}
@@ -109,6 +110,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	var (
 		added []idName
 		gft   getFileType
+		hash  [sha256.Size]byte
 	)
 	h := sha256.New()
 	for {
@@ -136,7 +138,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		if err = a.Set(idStr, &b); err != nil {
 			return err
 		}
-		hash := *(*[sha256.Size]byte)(h.Sum(nil))
+		h.Sum(hash[:0])
 		h.Reset()
 		if ids, ok := a.hashes[hash]; ok {
 			match := false
