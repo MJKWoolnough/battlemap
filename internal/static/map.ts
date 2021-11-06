@@ -417,12 +417,12 @@ screen2Grid = (() => {
 		[1, 3/6],
 		[1, 5/6]
 	      ];
-	return (x: Uint, y: Uint, snap = false): [Int, Int] => {
-		const {mapData} = globals,
-		      sx = (x + ((panZoom.zoom - 1) * mapData.width / 2) - panZoom.x) / panZoom.zoom,
-		      sy = (y + ((panZoom.zoom - 1) * mapData.height / 2) - panZoom.y) / panZoom.zoom;
+	return (mx: Uint, my: Uint, snap = false): [Int, Int] => {
+		const {width, height, gridType, gridSize} = globals.mapData,
+		      {x, y, zoom} = panZoom,
+		      sx = (mx + ((zoom - 1) * width / 2) - x) / zoom,
+		      sy = (my + ((zoom - 1) * height / 2) - y) / zoom;
 		if (snap) {
-			const {gridType, gridSize} = mapData;
 			switch (gridType) {
 			case 1:
 			case 2: {
