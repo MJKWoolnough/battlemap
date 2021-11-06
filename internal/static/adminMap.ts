@@ -410,14 +410,14 @@ export default (base: HTMLElement) => {
 		doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
-		Object.assign(globals.selected, {"layer": null, "token": null});
+		deselectToken();
+		globals.selected.layer = null;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
 		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, createHTML(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
-		tokenSelected();
 	}));
 	defaultTool.mapMouse0 = function (this: SVGElement, e: MouseEvent) {
 		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
