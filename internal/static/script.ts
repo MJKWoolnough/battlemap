@@ -185,7 +185,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			}
 			selectFirst();
 		},
-		get html() {return createDocumentFragment([c , h]);}
+		get html() {return createDocumentFragment([c, h]);}
 	});
 	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
 	keyEvent("F9", (e: KeyboardEvent) => {
