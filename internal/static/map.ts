@@ -538,7 +538,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      items = div(),
 	      percent = progress(),
 	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
-	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height, "tabindex": -1}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]),
+	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]),
 	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
