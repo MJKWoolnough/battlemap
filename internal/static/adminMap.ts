@@ -304,33 +304,32 @@ export default (base: HTMLElement) => {
 			undo.redo();
 		}
 	      },
-	      [startCopy, cancelCopy] = keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
-	      [startCut, cancelCut] = keyEvent("x", () => {
-		copiedToken = JSON.parse(JSON.stringify(globals.selected.token));
-		doTokenRemove(copiedToken!.id);
-	      }),
-	      [startEscape, cancelEscape] = keyEvent("Escape", () => {
-		if (tokenDragMode == -1) {
-			deselectToken();
-			return;
-		}
-		globals.root.style.removeProperty("--outline-cursor");
-		tokenDragMode = -1;
-		const {token} = globals.selected,
-		      {x, y, width, height, rotation} = tokenMousePos;
-		if (token) {
-			token.x = x;
-			token.y = y;
-			token.width = width;
-			token.rotation = rotation;
-			token.height = height;
-			token.updateNode();
-			createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
-		}
-		stopMeasurement();
-		cancelTokenDrag();
-	      }),
-	      [startDelete, cancelDelete] = keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
+	      commands = [
+		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
+		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(globals.selected.token))).id)),
+		keyEvent("Escape", () => {
+			if (tokenDragMode == -1) {
+				deselectToken();
+				return;
+			}
+			globals.root.style.removeProperty("--outline-cursor");
+			tokenDragMode = -1;
+			const {token} = globals.selected,
+			      {x, y, width, height, rotation} = tokenMousePos;
+			if (token) {
+				token.x = x;
+				token.y = y;
+				token.width = width;
+				token.rotation = rotation;
+				token.height = height;
+				token.updateNode();
+				createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+			}
+			stopMeasurement();
+			cancelTokenDrag();
+		}),
+		keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
+	      ],
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
 		const {token} = globals.selected;
@@ -376,18 +375,16 @@ export default (base: HTMLElement) => {
 	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn));
 	tokenSelectedReceive(() => {
 		if (globals.selected.token) {
-			startCopy();
-			startCut();
-			startEscape();
-			startDelete();
+			for (const [fn] of commands) {
+				fn();
+			}
 			for (const [fn] of keys) {
 				fn();
 			}
 		} else {
-			cancelCopy();
-			cancelCut();
-			cancelEscape();
-			cancelDelete();
+			for (const [, fn] of commands) {
+				fn();
+			}
 			for (const [, fn] of keys) {
 				fn(true);
 			}
@@ -420,6 +417,7 @@ export default (base: HTMLElement) => {
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
+		tokenSelected();
 	}));
 	defaultTool.mapMouse0 = function (this: SVGElement, e: MouseEvent) {
 		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
