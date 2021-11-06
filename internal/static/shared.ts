@@ -264,7 +264,6 @@ deselectToken = () => {
 	globals.selected.token = null;
 	globals.outline.style.setProperty("display", "none");
 	tokenSelected();
-	globals.root.focus();
 },
 SQRT3 = Math.sqrt(3);
 
