@@ -185,7 +185,7 @@ export default (base: HTMLElement) => {
 				return;
 			}
 		}
-	});
+	})[0]();
 	keyEvent(")", () => {
 		for (let i = 0; i < tools.length; i++) {
 			if (tools[i] === selectedTool) {
@@ -193,5 +193,5 @@ export default (base: HTMLElement) => {
 				return;
 			}
 		}
-	});
+	})[0]();
 };
