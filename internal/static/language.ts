@@ -68,6 +68,8 @@ const defaultLanguage = {
 	"LANGUAGE": "Language",
 	"LAYER_ADD": "Add Layer",
 	"LAYER_GRID": "Grid",
+	"LAYER_HIDDEN_OPACITY": "Hidden Layer Opacity",
+	"LAYER_HIDDEN_SELECTED_OPACITY": "Selected Hidden Layer Opacity",
 	"LAYER_LIGHT": "Light",
 	"LAYER_LIGHT_COLOUR": "Change Light Colour",
 	"LAYER_NAME": "Name",
