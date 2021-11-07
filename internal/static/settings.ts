@@ -17,7 +17,9 @@ measureTokenMove = new BoolSetting("measureTokenMove"),
 miniTools = new BoolSetting("miniTools"),
 tabIcons = new BoolSetting("tabIcons"),
 zoomSlider = new BoolSetting("zoomSlider"),
-panelOnTop = new BoolSetting("panelOnTop");
+panelOnTop = new BoolSetting("panelOnTop"),
+hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
+hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", "128");
 
 export default (base: HTMLElement, loggedIn: boolean) => {
 	createHTML(base, [
@@ -75,6 +77,17 @@ export default (base: HTMLElement, loggedIn: boolean) => {
 		labels(`${lang["HIDE_MENU"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
 		}}), false),
+		isAdmin ? [
+			br(),
+			labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": checkInt(hiddenLayerOpacity.value, 0, 255, 128), "oninput": function(this: HTMLInputElement) {
+				hiddenLayerOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
+			}})),
+			br(),
+			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": checkInt(hiddenLayerSelectedOpacity.value, 0, 255, 128), "oninput": function(this: HTMLInputElement) {
+				console.log(this.value);
+				hiddenLayerSelectedOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
+			}})),
+		] : [],
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),
 		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
