@@ -110,10 +110,14 @@
 }
 
 .isAdmin .hiddenLayer {
-	opacity: 0.5;
+	opacity: var(--hiddenLayerOpacity, 0.5);
+	display: block;
 }
 
-.isUser .hiddenLayer, #layerLight.hiddenLayer,  #layerGrid.hiddenLayer {
+.isAdmin .hiddenLayer.selectedLayer {
+	opacity: var(--hiddenLayerSelectedOpacity, 0.5);
+
+.hiddenLayer, #layerLight.hiddenLayer,  #layerGrid.hiddenLayer {
 	display: none;
 }
 
