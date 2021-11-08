@@ -5,7 +5,7 @@ import type {List} from './lib/context.js';
 import type {WindowElement} from './windows.js';
 import {h1, label, select, option, button, br, input} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
-import {isAdmin} from './shared.js';
+import {isAdmin, setAndReturn} from './shared.js';
 import lang from './language.js';
 import {shell} from './windows.js';
 import {rpc, handleError} from './rpc.js';
@@ -134,9 +134,7 @@ export default () => {
 	return rpc.listPlugins().then(plugins => {
 		const ls: Promise<void>[] = [];
 		for (const p in plugins) {
-			const plugin = plugins[p];
-			pluginList.set(p, plugin);
-			if (plugin.enabled) {
+			if (setAndReturn(pluginList, p, plugins[p]).enabled) {
 				ls.push(import(`/plugins/${p}`));
 			}
 		}

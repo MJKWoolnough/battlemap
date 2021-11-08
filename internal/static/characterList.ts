@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {characterData, enterKey, labels} from './shared.js';
+import {characterData, enterKey, labels, setAndReturn} from './shared.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -77,13 +77,10 @@ const characters = new Map<Uint, Character>(),
       characterNames = new Map<Uint, [Pipe<string>, string]>();
 
 export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
-	let character = characterNames.get(id);
-	if (!character) {
-		characterNames.set(id, character = [new Pipe(), ""]);
-	}
+	const character = characterNames.get(id) ?? setAndReturn(characterNames, id, [new Pipe(), ""]);
 	fn(character[1]);
 	character[0].receive(fn);
-	return () => character![0].remove(fn);
+	return () => character[0].remove(fn);
 };
 
 export default (base: Node) => {

@@ -6,7 +6,7 @@ import {HTTPRequest} from './lib/conn.js';
 import {node} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {labels} from './shared.js';
+import {labels, setAndReturn} from './shared.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
 import {register, shareIcon} from './messaging.js'
@@ -91,13 +91,10 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
       audioAssets = new Map<Uint, [Pipe<string>, string]>(),
       imageAssets = new Map<Uint, [Pipe<string>, string]>(),
       getAssetName = (id: Uint, fn: (name: string) => void, assetMap: AssetMap) => {
-	let asset = assetMap.get(id);
-	if (!asset) {
-		assetMap.set(id, asset = [new Pipe(), ""]);
-	}
+	const asset = assetMap.get(id) ?? setAndReturn(assetMap, id, [new Pipe(), ""]);
 	fn(asset[1]);
 	asset[0].receive(fn);
-	return () => asset![0].remove(fn);
+	return () => asset[0].remove(fn);
       },
       uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell) => {
 	const bar = progress({"style": "width: 100%"}) as HTMLElement;

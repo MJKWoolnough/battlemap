@@ -153,9 +153,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 			if (lighting.has(id)) {
 				return lighting.get(id)!;
 			}
-			const f = base.appendChild(filter({id}));
-			lighting.set(id, f);
-			return f;
+			return setAndReturn(lighting, id, base.appendChild(filter({id})));
 		},
 		clearLighting() {
 			for (const l of lighting.values()) {
