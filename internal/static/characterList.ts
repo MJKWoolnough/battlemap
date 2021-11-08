@@ -1,7 +1,8 @@
-import type {Uint} from './types.js';
+import type {FolderItems, Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
+import {Pipe} from './lib/inter.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
@@ -38,6 +39,23 @@ class Character extends DraggableItem {
 	}
 }
 
+class CharacterFolder extends Folder {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
+		super(root, parent, name, children);
+		for (const name in children.items) {
+			this.registerItem(children.items[name], name);
+		}
+	}
+	registerItem(id: Uint, name: string) {
+		const v = characterNames.get(id);
+		if (v) {
+			v[0].send(v[1] = name);
+		} else {
+			characterNames.set(id, [new Pipe(), name]);
+		}
+	}
+}
+
 class CharacterRoot extends Root {
 	removeItem(name: string) {
 		const id = super.removeItem(name);
@@ -55,12 +73,23 @@ class CharacterRoot extends Root {
 	}
 }
 
-const characters = new Map<Uint, Character>();
+const characters = new Map<Uint, Character>(),
+      characterNames = new Map<Uint, [Pipe<string>, string]>();
+
+export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
+	let character = characterNames.get(id);
+	if (!character) {
+		characterNames.set(id, character = [new Pipe(), ""]);
+	}
+	fn(character[1]);
+	character[0].receive(fn);
+	return () => character![0].remove(fn);
+};
 
 export default (base: Node) => {
 	const rpcFuncs = rpc["characters"];
 	rpcFuncs.list().then(folderList => {
-		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character);
+		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 		root.windowIcon = characterIcon;
 		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
 			button(lang["CHARACTER_NEW"], {"onclick": () => {
