@@ -126,7 +126,7 @@ export class Item {
 	delete() {}
 }
 
-export class DraggableItem extends Item {
+export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
 	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -147,7 +147,7 @@ export class DraggableItem extends Item {
 			}
 		});
 	}
-	dragName() {return ""}
+	abstract dragName(): string;
 	delete() {
 		this.removeIcon();
 	}
