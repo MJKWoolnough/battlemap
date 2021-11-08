@@ -129,9 +129,7 @@ const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => 
 		},
 		setGrid(grid: GridDetails) {
 			const old = list.get("grid");
-			if (old) {
-				base.removeChild(old);
-			}
+			old?.remove();
 			switch (grid.gridType) {
 			case 1: {
 				const w = grid.gridSize,
