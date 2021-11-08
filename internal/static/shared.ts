@@ -265,6 +265,10 @@ deselectToken = () => {
 	globals.outline.style.setProperty("display", "none");
 	tokenSelected();
 },
+setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
+	m.set(k, v);
+	return v;
+},
 SQRT3 = Math.sqrt(3);
 
 export let isUser = false, isAdmin = false;
