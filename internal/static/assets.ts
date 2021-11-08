@@ -93,8 +93,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
       getAssetName = (id: Uint, fn: (name: string) => void, assetMap: AssetMap) => {
 	let asset = assetMap.get(id);
 	if (!asset) {
-		asset = [new Pipe(), ""];
-		assetMap.set(id, asset);
+		assetMap.set(id, asset = [new Pipe(), ""]);
 	}
 	fn(asset[1]);
 	asset[0].receive(fn);
