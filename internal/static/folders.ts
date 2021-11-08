@@ -152,9 +152,7 @@ export abstract class DraggableItem extends Item {
 		this.removeIcon();
 	}
 	removeIcon() {
-		if (this.icon.parentNode) {
-			document.body.removeChild(this.icon);
-		}
+		this.icon.remove();
 		this.icon.style.removeProperty("transform");
 	}
 }
