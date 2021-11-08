@@ -51,7 +51,7 @@ abstract class AssetFolder extends Folder {
 			this.registerItem(children.items[name], name);
 		}
 	}
-	abstract get assetMap(): AssetMap
+	abstract get assetMap(): AssetMap;
 	registerItem(id: Uint, name: string) {
 		const v = this.assetMap.get(id);
 		if (v) {
