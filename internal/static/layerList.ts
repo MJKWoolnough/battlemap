@@ -28,9 +28,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       }, () => {
 	dragging![node].classList.remove("dragged");
 	dragging = undefined;
-	if (draggedName) {
-		document.body.removeChild(draggedName);
-	}
+	draggedName?.remove();
 	draggedName = undefined;
 	dragBase.classList.remove("dragging", "draggingSpecial");
       }),
