@@ -4,7 +4,7 @@ import {clearElement, svgNS} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
-import {NodeArray, node, stringSort, noSort} from './lib/nodes.js';
+import {NodeArray, NodeMap, node, stringSort, noSort} from './lib/nodes.js';
 import {addSymbol, getSymbol} from './symbols.js';
 import {rpc, inited, handleError} from './rpc.js';
 import {windows, shell} from './windows.js';
@@ -401,7 +401,7 @@ export default (base: Node) => {
 					copy({"title": lang["MUSIC_COPY"], "class": "itemCopy", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 						if (name) {
 							rpc.musicPackCopy(this.name, name).then(name => {
-								musicList.push(new AdminPack(name, {
+								musicList.set(name, new AdminPack(name, {
 									"tracks": this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})),
 									"volume": this.volume,
 									"playTime": 0
@@ -464,77 +464,62 @@ export default (base: Node) => {
 				for (const t of this.tracks) {
 					t.cleanup();
 				}
-				musicList.filterRemove(p => Object.is(p, this));
+				musicList.delete(this.name);
 			}
 		}
 		const rename = getSymbol("rename")!,
 		      copy = getSymbol("copy")!,
 		      remove = getSymbol("remove")!,
 		      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
-		      musicList = new NodeArray<AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
+		      musicList = new NodeMap<string, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 			const dt = b.playTime - a.playTime;
 			if (dt === 0) {
 				return stringSort(a.name, b.name);
 			}
 			return dt;
 		      }),
-		      findPack = (name: string) => {
-			for (const p of musicList) {
-				if (p.name === name) {
-					return p;
-				}
-			}
-			return null;
-		      },
 		      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
 		      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 		      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 		      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"};
 		for (const name in list) {
-			musicList.push(new AdminPack(name, list[name]));
+			musicList.set(name, new AdminPack(name, list[name]));
 		}
 		createHTML(clearElement(base), {"id": "musicPacks"}, [
 			button(lang["MUSIC_ADD"], {"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 				if (name) {
-					rpc.musicPackAdd(name).then(name => musicList.push(new AdminPack(name, newPack())));
+					rpc.musicPackAdd(name).then(name => musicList.set(name, new AdminPack(name, newPack())));
 				}
 			})}),
 			musicList[node]
 		]);
-		rpc.waitMusicPackAdd().then(name => musicList.push(new AdminPack(name, newPack())));
+		rpc.waitMusicPackAdd().then(name => musicList.set(name, new AdminPack(name, newPack())));
 		rpc.waitMusicPackRename().then(ft => {
-			const pack = findPack(ft.from);
+			const pack = musicList.get(ft.from);
 			if (pack) {
 				pack.name = ft.to;
 				musicList.sort();
 			}
 		});
-		rpc.waitMusicPackRemove().then(name => musicList.filterRemove(p => p.name === name)[0].remove());
+		rpc.waitMusicPackRemove().then(name => musicList.delete(name));
 		rpc.waitMusicPackCopy().then(ft => {
-			const pack = findPack(ft.from);
+			const pack = musicList.get(ft.from);
 			if (pack) {
 				const tracks: MusicTrack[] = [];
 				for (const track in pack.tracks) {
 					tracks.push({"id": pack.tracks[track].id, "volume": pack.tracks[track].volume, "repeat": pack.tracks[track].repeat});
 				}
-				musicList.push(new AdminPack(ft.to, {tracks, "volume": pack.volume, "playTime": 0}));
+				musicList.set(ft.to, new AdminPack(ft.to, {tracks, "volume": pack.volume, "playTime": 0}));
 			}
 		});
 		rpc.waitMusicPackTrackAdd().then(mt => {
-			const pack = findPack(mt.musicPack);
+			const pack = musicList.get(mt.musicPack);
 			if (pack) {
 				for (const id of mt.tracks) {
 					pack.tracks.push(new AdminTrack(pack, {id, "volume": 255, "repeat": 0}));
 				}
 			}
 		});
-		commonWaits((name: string) => {
-			for (const p of musicList) {
-				if (p.name === name) {
-					return p;
-				}
-			}
-			return undefined;
-		});
+		commonWaits((name: string) => musicList.get(name))
 	});
 };
