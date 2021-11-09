@@ -501,7 +501,13 @@ export default (base: Node) => {
 				musicList.sort();
 			}
 		});
-		rpc.waitMusicPackRemove().then(name => musicList.delete(name));
+		rpc.waitMusicPackRemove().then(name => {
+			const pack = musicList.get(name);
+			if (pack) {
+				pack.remove();
+				musicList.delete(name);
+			}
+		});
 		rpc.waitMusicPackCopy().then(ft => {
 			const pack = musicList.get(ft.from);
 			if (pack) {
