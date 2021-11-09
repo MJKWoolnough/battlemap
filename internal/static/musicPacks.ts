@@ -169,39 +169,39 @@ class Pack {
 const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => document.body.appendChild(div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
       playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "fill": "currentColor"}))),
       newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
-      commonWaits = (getPack: (name: string) => (Pack | undefined)) => {
+      commonWaits = (packs: Map<string, Pack>) => {
 	rpc.waitMusicPackVolume().then(pv => {
-		const pack = getPack(pv.musicPack);
+		const pack = packs.get(pv.musicPack);
 		if (pack) {
 			pack.setVolume(pv.volume);
 		}
 	});
 	rpc.waitMusicPackPlay().then(pp => {
-		const pack = getPack(pp.musicPack);
+		const pack = packs.get(pp.musicPack);
 		if (pack) {
 			pack.play(pp.playTime);
 		}
 	});
 	rpc.waitMusicPackStop().then(name => {
-		const pack = getPack(name);
+		const pack = packs.get(name);
 		if (pack) {
 			pack.stop();
 		}
 	});
 	rpc.waitMusicPackTrackRemove().then(mr => {
-		const pack = getPack(mr.musicPack);
+		const pack = packs.get(mr.musicPack);
 		if (pack && pack.tracks.length >= mr.track) {
 			pack.tracks[mr.track].remove();
 		}
 	});
 	rpc.waitMusicPackTrackVolume().then(mv => {
-		const pack = getPack(mv.musicPack);
+		const pack = packs.get(mv.musicPack);
 		if (pack && pack.tracks.length >= mv.track) {
 			pack.tracks[mv.track].setVolume(mv.volume);
 		}
 	});
 	rpc.waitMusicPackTrackRepeat().then(mr => {
-		const pack = getPack(mr.musicPack);
+		const pack = packs.get(mr.musicPack);
 		if (pack && pack.tracks.length >= mr.track) {
 			pack.tracks[mr.track].setRepeat(mr.repeat);
 		}
@@ -251,7 +251,7 @@ export const userMusic = () => audioEnabled().then(rpc.musicPackList).then(list 
 			}
 		}
 	});
-	commonWaits((name: string) => packs.get(name));
+	commonWaits(packs);
 }),
 musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
 
@@ -526,6 +526,6 @@ export default (base: Node) => {
 				}
 			}
 		});
-		commonWaits((name: string) => musicList.get(name))
+		commonWaits(musicList)
 	});
 };
