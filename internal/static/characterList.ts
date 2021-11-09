@@ -28,6 +28,7 @@ class Character extends DraggableItem {
 		}
 		characters.set(id, this);
 	}
+	get showOnMouseOver() { return true; }
 	setIcon(id: Uint) {
 		this.image.setAttribute("src", `/images/${id}`);
 	}
