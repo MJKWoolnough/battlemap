@@ -128,12 +128,12 @@ export class Item {
 
 export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
-	icon: HTMLDivElement = div({"style": {"transform": "translateX(-9999px)"}}, this.image);
+	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		createHTML(this[node].firstChild!, {
 			"draggable": "true",
-			"onmouseover": () => document.body.appendChild(this.icon),
+			"onmouseover": () => createHTML(document.body, createHTML(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
 			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => createHTML(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
 			"ondragstart": (e: DragEvent) => {
