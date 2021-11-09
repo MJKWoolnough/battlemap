@@ -214,44 +214,44 @@ let timeShift = 0;
 inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000);
 
 export const userMusic = () => audioEnabled().then(rpc.musicPackList).then(list => {
-	const packs: Record<string, Pack> = {};
+	const packs = new Map<string, Pack>();
 	for (const name in list) {
-		packs[name] = new Pack(list[name]);
+		packs.set(name, new Pack(list[name]));
 	}
-	rpc.waitMusicPackAdd().then(name => packs[name] = new Pack(newPack()));
+	rpc.waitMusicPackAdd().then(name => packs.set(name, new Pack(newPack())));
 	rpc.waitMusicPackRename().then(ft => {
-		const p = packs[ft.from];
+		const p = packs.get(ft.from);
 		if (p) {
-			delete packs[ft.from];
-			packs[ft.to] = p;
+			packs.delete(ft.from);
+			packs.set(ft.to, p);
 		}
 	});
 	rpc.waitMusicPackRemove().then(name => {
-		const p = packs[name];
+		const p = packs.get(name);
 		if (p) {
 			p.remove();
-			delete packs[name]
+			packs.delete(name)
 		}
 	});
 	rpc.waitMusicPackCopy().then(ft => {
-		const p = packs[ft.from];
+		const p = packs.get(ft.from);
 		if (p) {
 			const tracks: MusicTrack[] = [];
 			for (const track in p.tracks) {
 				tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
 			}
-			packs[ft.to] = new Pack({tracks, "volume": p.volume, "playTime": 0});
+			packs.set(ft.to, new Pack({tracks, "volume": p.volume, "playTime": 0}));
 		}
 	});
 	rpc.waitMusicPackTrackAdd().then(mt => {
-		const p = packs[mt.musicPack];
+		const p = packs.get(mt.musicPack);
 		if (p) {
 			for (const id of mt.tracks) {
 				p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
 			}
 		}
 	});
-	commonWaits((name: string) => packs[name]);
+	commonWaits((name: string) => packs.get(name));
 }),
 musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
 
