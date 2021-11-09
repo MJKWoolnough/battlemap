@@ -128,7 +128,7 @@ export class Item {
 
 export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
-	icon: HTMLDivElement = div({"transform": "translateX(-9999px)"}, this.image);
+	icon: HTMLDivElement = div({"style": {"transform": "translateX(-9999px)"}}, this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		createHTML(this[node].firstChild!, {
