@@ -128,12 +128,13 @@ export class Item {
 
 export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
-	icon: HTMLDivElement = div(this.image);
+	icon: HTMLDivElement = div({"transform": "translateX(-9999px)"}, this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		createHTML(this[node].firstChild!, {
 			"draggable": "true",
-			"onmousemove": (e: MouseEvent) => createHTML(this.icon.parentNode ? this.icon : document.body.appendChild(this.icon), {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}),
+			"onmouseover": () => document.body.appendChild(this.icon),
+			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => createHTML(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
 			"ondragstart": (e: DragEvent) => {
 				const img = this.image;
@@ -147,6 +148,7 @@ export abstract class DraggableItem extends Item {
 			}
 		});
 	}
+	get showOnMouseOver() { return false; }
 	abstract dragName(): string;
 	delete() {
 		this.removeIcon();
