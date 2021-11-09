@@ -17,6 +17,7 @@ class ImageAsset extends DraggableItem {
 		super(parent, id, name);
 		this.image.setAttribute("src", `/images/${id}`);
 	}
+	get showOnMouseOver() { return true; }
 	dragName() {
 		return "imageasset";
 	}
@@ -31,10 +32,8 @@ class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		this.image.setAttribute("src", audioIcon);
-		this.icon.style.setProperty("transform", "translateX(-9999px)");
 	}
 	dragName() { return "audioasset"; }
-	removeIcon() { this.icon.remove(); }
 	show() {
 		const w = createHTML(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
