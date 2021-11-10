@@ -5,7 +5,7 @@ import {addTool, ignore, marker} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
-import {keyEvent, mouseDragEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
@@ -35,7 +35,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 		send = false;
 	}
       }),
-      onmousemove = (e: MouseEvent) => {
+      [startMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 	if (!isNaN(coords[0])) {
@@ -44,11 +44,11 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 			rpc.signalMeasure([coords[0], coords[1], x, y]);
 		}
 	}
-      },
+      }),
       fullCleanup = () => {
 	cancelMouse0();
 	cancelMouse2();
-	document.body.removeEventListener("mousemove", onmousemove);
+	cancelMouseMove();
 	document.body.removeEventListener("mouseleave", cleanup);
 	globals.root.style.removeProperty("cursor");
 	stopMeasurement();
@@ -122,7 +122,8 @@ addTool({
 			over = true;
 			createSVG(this, {"style": {"cursor": "none"}}, marker);
 			cleanup = fullCleanup;
-			createHTML(document.body, {onmousemove, "onmouseleave": cleanup});
+			startMouseMove();
+			createHTML(document.body, {"onmouseleave": cleanup});
 		}
 		return false;
 	},
