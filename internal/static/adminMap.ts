@@ -305,32 +305,6 @@ export default (base: HTMLElement) => {
 			undo.redo();
 		}
 	      },
-	      commands = [
-		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
-		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(globals.selected.token))).id)),
-		keyEvent("Escape", () => {
-			if (tokenDragMode == -1) {
-				deselectToken();
-				return;
-			}
-			globals.root.style.removeProperty("--outline-cursor");
-			tokenDragMode = -1;
-			const {token} = globals.selected,
-			      {x, y, width, height, rotation} = tokenMousePos;
-			if (token) {
-				token.x = x;
-				token.y = y;
-				token.width = width;
-				token.rotation = rotation;
-				token.height = height;
-				token.updateNode();
-				createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
-			}
-			stopMeasurement();
-			cancelTokenDrag();
-		}),
-		keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
-	      ],
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
 		const {token} = globals.selected;
@@ -373,19 +347,38 @@ export default (base: HTMLElement) => {
 		["Down", (tk: Token, dy: Uint) => tk.y += dy],
 		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
-	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn));
+	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
+		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
+		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(globals.selected.token))).id)),
+		keyEvent("Escape", () => {
+			if (tokenDragMode == -1) {
+				deselectToken();
+				return;
+			}
+			globals.root.style.removeProperty("--outline-cursor");
+			tokenDragMode = -1;
+			const {token} = globals.selected,
+			      {x, y, width, height, rotation} = tokenMousePos;
+			if (token) {
+				token.x = x;
+				token.y = y;
+				token.width = width;
+				token.rotation = rotation;
+				token.height = height;
+				token.updateNode();
+				createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+			}
+			stopMeasurement();
+			cancelTokenDrag();
+		}),
+		keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
+	      ]);
 	tokenSelectedReceive(() => {
 		if (globals.selected.token) {
-			for (const [fn] of commands) {
-				fn();
-			}
 			for (const [fn] of keys) {
 				fn();
 			}
 		} else {
-			for (const [, fn] of commands) {
-				fn();
-			}
 			for (const [, fn] of keys) {
 				fn();
 			}
