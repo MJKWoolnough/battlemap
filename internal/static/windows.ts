@@ -30,7 +30,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | 
 		if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 			this.close();
 		}
-	}}), props, children),
+	      }}), props, children),
 	      saveName = w.getAttribute("window-data");
 	if (saveName) {
 		const settings = new WindowSettings(saveName, getWindowData(w)),
