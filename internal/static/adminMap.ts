@@ -36,7 +36,8 @@ export default (base: HTMLElement) => {
 		      dy = bdy - tokenMousePos.mouseY,
 		      mapData = globals.mapData,
 		      sq = mapData.gridSize,
-		      selectedToken = globals.selected.token;
+		      selectedToken = globals.selected.token,
+		      snap = (selectedToken?.snap ?? false) != e.shiftKey;
 		if (!selectedToken) {
 			return;
 		}
@@ -44,7 +45,7 @@ export default (base: HTMLElement) => {
 		case 0:
 			x += dx;
 			y += dy;
-			if (selectedToken.snap) {
+			if (snap) {
 				[x, y] = snapTokenToGrid(x, y, width, height);
 			}
 			if (measureTokenMove.value) {
@@ -53,7 +54,7 @@ export default (base: HTMLElement) => {
 			break;
 		case 1: {
 			rotation = mod(Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI), 256);
-			if (selectedToken.snap) {
+			if (snap) {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
@@ -66,7 +67,7 @@ export default (base: HTMLElement) => {
 			      fr = new DOMMatrix().translateSelf(x + width / 2, y + height / 2).rotateSelf(-r).translateSelf(-(x + width / 2), -(y + height / 2)),
 			      dirX = [2, 5, 7].includes(tokenDragMode) ? -1 : [4, 6, 9].includes(tokenDragMode) ? 1 : 0,
 			      dirY = [2, 3, 4].includes(tokenDragMode) ? -1 : [7, 8, 9].includes(tokenDragMode) ? 1 : 0,
-			      min = selectedToken.snap ? sq : 10;
+			      min = snap ? sq : 10;
 			let mDx = aDx * dirX,
 			    mDy = aDy * dirY;
 			if (dirX !== 0 && mDy < mDx * height / width || dirY === 0) {
@@ -84,7 +85,7 @@ export default (base: HTMLElement) => {
 			}
 			mDx *= dirX;
 			mDy *= dirY;
-			if (selectedToken.snap) {
+			if (snap) {
 				mDx = Math.round(mDx / sq) * sq;
 				mDy = Math.round(mDy / sq) * sq;
 			}
@@ -100,7 +101,7 @@ export default (base: HTMLElement) => {
 			} else if (dirY === 1) {
 				height += mDy;
 			}
-			if (selectedToken.snap) {
+			if (snap) {
 				width = Math.max(Math.round(width / sq) * sq, sq);
 				height = Math.max(Math.round(height / sq) * sq, sq);
 				[x, y] = snapTokenToGrid(x, y, width, height);
