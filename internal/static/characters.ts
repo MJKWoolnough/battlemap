@@ -143,7 +143,7 @@ iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, Keystor
 		changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
 		clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
-edit = function (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) {
+edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
