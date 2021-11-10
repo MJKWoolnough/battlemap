@@ -387,7 +387,7 @@ export default (base: HTMLElement) => {
 				fn();
 			}
 			for (const [, fn] of keys) {
-				fn(true);
+				fn();
 			}
 		}
 		lastToken = globals.selected.token;
