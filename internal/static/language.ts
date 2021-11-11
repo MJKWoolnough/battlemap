@@ -190,6 +190,7 @@ const defaultLanguage = {
 	"TOOL_MEASURE": "Measuring Tool",
 	"TOOL_MEASURE_CELL": "Cell Distance",
 	"TOOL_MEASURE_DIAGONALS": "Measure Diagonals",
+	"TOOL_MEASURE_MULTI": "Multiple Measuring Points",
 	"TOOL_MEASURE_SNAP": "Snap to Grid",
 	"TOOL_MOVE": "Move All",
 	"TOOL_MULTIPLACE": "Multi-Place",
