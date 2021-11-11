@@ -53,7 +53,15 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	marker.remove();
 	globals.root.style.removeProperty("cursor");
       }),
-      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
+      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
+      [setupEscape, cancelEscape] = keyEvent("Escape", () => {
+	if (coords.length === 2) {
+		stopMeasurement();
+	} else {
+		coords.pop();
+		coords.pop();
+	}
+      });
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
 	coords.splice(0, coords.length, x1, y1);
@@ -160,12 +168,16 @@ addTool({
 		setupMouse2();
 		return false;
 	},
-	"set": setupShiftSnap,
+	"set": () => {
+		setupShiftSnap();
+		setupEscape();
+	},
 	"unset": () => {
 		cancelMouse0();
 		cancelMouse2();
 		cancelMouseMove();
 		cancelShiftSnap();
+		cancelEscape();
 	}
 });
 
