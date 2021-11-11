@@ -28,7 +28,11 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       ltwo = polyline({"stroke": "#000", "stroke-width": 6, "stroke-linejoin": "round"}),
       drawnLine = g([lone, ltwo, spot]),
       coords: [number, number, ...number[]] = [NaN, NaN],
-      [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, () => stopMeasurement()),
+      [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, (e: MouseEvent) => {
+	      if (!e.ctrlKey) {
+		      stopMeasurement()
+	      }
+      }),
       [setupMouse2, cancelMouse2] = mouseDragEvent(2, undefined, () => {
 	if (send) {
 		rpc.signalMeasure(null);
@@ -139,8 +143,14 @@ addTool({
 	"tokenMouse2": ignore,
 	"mapMouse0": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		startMeasurement(x, y);
-		setupMouse0();
+		if (isNaN(coords[0])) {
+			startMeasurement(x, y);
+		} else {
+			coords.push(x, y);
+		}
+		if (!e.ctrlKey) {
+			setupMouse0();
+		}
 		return false;
 	},
 	"mapMouse2": (e: MouseEvent) => {
