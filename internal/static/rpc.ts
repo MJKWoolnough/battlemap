@@ -611,13 +611,12 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		return data;
 	}
 	checkArray(data, "SignalMeasure");
-	if (data.length !== 4) {
-		throw new TypeError("invalid SignalMeasure array, needs length 4");
+	if (data.length < 4 || data.length % 2 == 1) {
+		throw new TypeError("invalid SignalMeasure array, needs even length at least 4");
 	}
-	checkUint(data[0], "SignalPosition.x1");
-	checkUint(data[1], "SignalPosition.y1");
-	checkUint(data[2], "SignalPosition.x2");
-	checkUint(data[3], "SignalPosition.y2");
+	for (let i = 0; i < data.length; i++) {
+		checkUint(data[i], `SignalPosition.${i % 2 == 0 ? "x" : "y"}${(i >> 1) + 1}`);
+	}
 	return data;
       },
       checkSignalPosition = (data: any) => {
