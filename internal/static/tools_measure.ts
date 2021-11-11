@@ -44,23 +44,11 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 			rpc.signalMeasure([coords[0], coords[1], x, y]);
 		}
 	}
-      }),
-      fullCleanup = () => {
-	cancelMouse0();
-	cancelMouse2();
-	cancelMouseMove();
-	document.body.removeEventListener("mouseleave", cleanup);
-	globals.root.style.removeProperty("cursor");
-	stopMeasurement();
-	marker.remove();
+      }, () => {
 	over = false;
-	if (send) {
-		rpc.signalMeasure(null);
-		send = false;
-	}
-	cleanup = noopCleanup;
-      },
-      noopCleanup = () => {},
+	marker.remove();
+	globals.root.style.removeProperty("cursor");
+      }),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
@@ -104,8 +92,7 @@ stopMeasurement = () => {
 };
 
 let over = false,
-    send = false,
-    cleanup = noopCleanup;
+    send = false;
 
 addTool({
 	"name": lang["TOOL_MEASURE"],
@@ -121,9 +108,7 @@ addTool({
 		if (!over) {
 			over = true;
 			createSVG(this, {"style": {"cursor": "none"}}, marker);
-			cleanup = fullCleanup;
 			startMouseMove();
-			createHTML(document.body, {"onmouseleave": cleanup});
 		}
 		return false;
 	},
@@ -150,7 +135,9 @@ addTool({
 	},
 	"set": setupShiftSnap,
 	"unset": () => {
-		cleanup();
+		cancelMouse0();
+		cancelMouse2();
+		cancelMouseMove();
 		cancelShiftSnap();
 	}
 });
