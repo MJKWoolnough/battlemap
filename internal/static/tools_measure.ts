@@ -1,6 +1,6 @@
 import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
-import {createSVG, svg, circle, g, line, path, title} from './lib/svg.js';
+import {createSVG, svg, circle, g, path, polyline, title} from './lib/svg.js';
 import {addTool, ignore, marker} from './tools.js';
 import {panZoom, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
@@ -24,10 +24,10 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       shiftSnap = () => snap.click(),
       info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
       spot = circle({"r": 8, "fill": "#000", "stroke": "#fff", "stroke-width": 2}),
-      lone = line({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square"}),
-      ltwo = line({"stroke": "#000", "stroke-width": 6}),
+      lone = polyline({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square", "stroke-linejoin": "round"}),
+      ltwo = polyline({"stroke": "#000", "stroke-width": 6, "stroke-linejoin": "round"}),
       drawnLine = g([lone, ltwo, spot]),
-      coords: [number, number] = [NaN, NaN],
+      coords: [number, number, ...number[]] = [NaN, NaN],
       [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, () => stopMeasurement()),
       [setupMouse2, cancelMouse2] = mouseDragEvent(2, undefined, () => {
 	if (send) {
@@ -52,9 +52,8 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap);
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
-	coords[0] = x1;
-	coords[1] = y1;
-	const l = {x1, y1, "x2": x1, "y2": y1},
+	coords.splice(0, coords.length, x1, y1);
+	const l = {"points": `${x1},${y1} ${x1},${y1}`},
 	      [sx, sy] = grid2Screen(x1, y1),
 	      {root} = globals;
 	createSVG(lone, l);
@@ -72,23 +71,41 @@ export const startMeasurement = (x1: Uint, y1: Uint) => {
 		document.body.appendChild(info);
 	}
 },
-measureDistance = (x2: Uint, y2: Uint) => {
+measureDistance = (x: Uint, y: Uint) => {
 	if (isNaN(coords[0]) || isNaN(coords[1])) {
 		return;
 	}
+	let distance = 0;
 	const {gridSize: size} = globals.mapData,
-	      [x1, y1] = coords,
-	      l = {x1, y1, x2, y2},
-	      [sx, sy] = grid2Screen(x2, y2);
-	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, "" + Math.round(checkInt(parseInt(cellValue.value), 1, Infinity, size) * (diagonals.checked ? Math.hypot(x2 -x1, y2 - y1) : Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1))) / size));
+	      last = [0, 0],
+	      cv = checkInt(parseInt(cellValue.value), 1, Infinity, size),
+	      l = {"points": coords.reduce((res, _, i) => {
+		if (i % 2 === 0) {
+			const x = coords[i],
+			      y = coords[i+1];
+			res += ` ${x},${y}`;
+			if (i >= 2) {
+				const dx = x - last[0],
+				      dy = y - last[1];
+				distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
+			}
+			last[0] = coords[i];
+			last[1] = coords[i+1];
+		}
+		return res
+	      }, "") + ` ${x},${y}`},
+	      [sx, sy] = grid2Screen(x, y),
+	      dx = x - last[0],
+	      dy = y - last[1];
+	distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
+	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / size) + "");
 	createSVG(lone, l);
 	createSVG(ltwo, l);
 },
 stopMeasurement = () => {
 	drawnLine.remove();
 	info.remove();
-	coords[0] = NaN;
-	coords[1] = NaN;
+	coords.splice(0, coords.length, NaN, NaN);
 };
 
 let over = false,
@@ -157,12 +174,12 @@ inited.then(() => {
 				stopMeasurement();
 				return;
 			}
-			const [x1, y1, x2, y2] = data;
-			if (isUint(x1) && isUint(y1) && isUint(x2) && isUint(y2)) {
-				startMeasurement(x1, y1);
-				measureDistance(x2, y2);
-				return;
-			}
+			const [x1, y1, ...additional] = data,
+			      yn = additional.pop()!,
+			      xn = additional.pop()!;
+			startMeasurement(x1, y1);
+			coords.push(...additional);
+			measureDistance(xn, yn);
 		});
 	}
 });
