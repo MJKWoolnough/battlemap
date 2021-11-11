@@ -45,7 +45,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	if (!isNaN(coords[0])) {
 		measureDistance(x, y);
 		if (send) {
-			rpc.signalMeasure([coords[0], coords[1], x, y]);
+			rpc.signalMeasure(coords.concat(x, y) as [Uint, Uint, Uint, Uint]);
 		}
 	}
       }, () => {
