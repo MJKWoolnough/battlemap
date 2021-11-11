@@ -21,6 +21,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	}
       }}),
       diagonals = input({"type": "checkbox", "checked": true, "class": "settings_ticker", "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
+      multiPoint = input({"type": "checkbox", "checked": false, "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
       spot = circle({"r": 8, "fill": "#000", "stroke": "#fff", "stroke-width": 2}),
@@ -131,6 +132,8 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_MEASURE_DIAGONALS"]}: `, diagonals, false),
 		br(),
+		labels(`${lang["TOOL_MEASURE_MULTI"]}: `, multiPoint, false),
+		br(),
 		labels(`${lang["TOOL_MEASURE_CELL"]}: `, cellValue)
 	]),
 	"mapMouseOver": function(this: SVGElement) {
@@ -156,7 +159,7 @@ addTool({
 		} else {
 			coords.push(x, y);
 		}
-		if (!e.ctrlKey) {
+		if (!e.ctrlKey && !multiPoint.checked) {
 			setupMouse0();
 		}
 		return false;
