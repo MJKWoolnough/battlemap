@@ -600,38 +600,32 @@ export default (base: HTMLElement) => {
 		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
 	});
-	defaultTool.mapMouse0 = defaultTool.mapMouse1 = (e: MouseEvent) => {
-		let mX = e.clientX,
-		    mY = e.clientY;
-		const button = e.button,
-		      {root} = globals,
-		      viewDrag = (e: MouseEvent) => {
-			createSVG(root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
-			mX = e.clientX;
-			mY = e.clientY;
-		      },
-		      stop = (e: MouseEvent) => {
-			if (e.button !== button) {
-				return;
-			}
-			document.body.classList.remove("dragging");
-			root.removeEventListener("mousemove", viewDrag);
-			root.removeEventListener("mouseup", stop);
-			root.removeEventListener("mouseleave", stop);
-		      };
+	let sliding = -1,
+	    mX = 0,
+	    mY = 0;
+	const startMapMove = (e: MouseEvent) => {
+		createSVG(globals.root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
+		mX = e.clientX;
+		mY = e.clientY;
+	      },
+	      stopMapMove = () => document.body.classList.remove("dragging"),
+	      [startMapMove0] = mouseDragEvent(0, startMapMove, stopMapMove),
+	      [startMapMove1] = mouseDragEvent(1, startMapMove, stopMapMove),
+	      initMapMove = (e: MouseEvent, initFn: () => void) => {
+		mX = e.clientX;
+		mY = e.clientY;
 		document.body.classList.toggle("dragging", true);
-		root.addEventListener("mousemove", viewDrag);
-		root.addEventListener("mouseup", stop);
-		root.addEventListener("mouseleave", stop);
+		initFn();
 		return false;
-	};
+	      };
+	defaultTool.mapMouse0 = (e: MouseEvent) => initMapMove(e, startMapMove0);
+	defaultTool.mapMouse1 = (e: MouseEvent) => initMapMove(e, startMapMove1);
 	defaultTool.mapMouse2 = (e: MouseEvent) => {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		rpc.signalPosition(pos);
 		return false;
 	};
-	let sliding = -1;
 	rpc.waitSignalMovePosition().then(pos => {
 		if (sliding === -1) {
 			document.body.classList.toggle("sliding", true);
