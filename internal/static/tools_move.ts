@@ -67,14 +67,13 @@ addTool({
 		return false;
 	},
 	"mapMouse2": ignore,
-	"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
-		e.preventDefault();
-		this.style.setProperty("cursor", "move");
-		this.addEventListener("mouseout", () => this.style.removeProperty("cursor"), {"once": true});
-		return false;
-	},
+	"mapMouseOver": ignore,
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
-	"unset": stop
+	"set": () => globals.root.style.setProperty("cursor", "move"),
+	"unset": () => {
+		globals.root.style.removeProperty("cursor");
+		stop();
+	}
 });
