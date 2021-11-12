@@ -11,7 +11,7 @@ import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
-import {mouseDragEvent} from './lib/events.js';
+import {mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -278,10 +278,10 @@ export default (base: HTMLElement) => {
 	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
 	dragBase = base;
 	const mousePos = {"clientX": 0, "clientY": 0};
-	window.addEventListener("mousemove", e => {
+	mouseMoveEvent(e => {
 		mousePos.clientX = e.clientX;
 		mousePos.clientY = e.clientY;
-	}, {"passive": true});
+	})[0]();
 	let loadFn = () => {
 		const list = new LayerRoot(globals.layerList, layersRPC),
 		      addKeyboard =  () => globals.root.addEventListener("keypress", (e: KeyboardEvent) => {
