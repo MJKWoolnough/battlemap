@@ -59,8 +59,9 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	if (coords.length === 2) {
 		stopMeasurement();
 	} else {
-		coords.pop();
-		coords.pop();
+		const y = coords.pop()!,
+		      x = coords.pop()!;
+		measureDistance(x, y);
 	}
       });
 
