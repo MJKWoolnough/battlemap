@@ -26,7 +26,10 @@ let copiedToken: Token | null = null;
 export default (base: HTMLElement) => {
 	let tokenDragMode = -1,
 	    overToken = false,
-	    lastToken: Token | null = null;
+	    lastToken: Token | null = null,
+	    mX = 0,
+	    mY = 0,
+	    moved = false;
 
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -264,31 +267,27 @@ export default (base: HTMLElement) => {
 		tokenSelected();
 	      },
 	      pasteCoords = [0, 0],
-	      moveMap = function (this: SVGElement, e: MouseEvent) {
-		this.style.setProperty("--outline-cursor", "grabbing");
-		let mX = e.clientX,
-		    mY = e.clientY,
-		    moved = false;
-		const viewDrag = (e: MouseEvent) => {
-			moved = true;
-			panZoom.x += e.clientX - mX;
-			panZoom.y += e.clientY - mY;
-			createSVG(this, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
-			mX = e.clientX;
-			mY = e.clientY;
-		      },
-		      stop = () => {
-			if (!moved && !e.ctrlKey) {
-				deselectToken();
-			}
-			this.style.removeProperty("--outline-cursor");
-			this.removeEventListener("mousemove", viewDrag);
-			this.removeEventListener("mouseup", stop);
-			this.removeEventListener("mouseleave", stop);
-		      };
-		this.addEventListener("mousemove", viewDrag);
-		this.addEventListener("mouseup", stop);
-		this.addEventListener("mouseleave", stop)
+	      mapMove = (e: MouseEvent) => {
+		moved = true;
+		panZoom.x += e.clientX - mX;
+		panZoom.y += e.clientY - mY;
+		createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		mX = e.clientX;
+		mY = e.clientY;
+	      },
+	      [startMouseDrag0] = mouseDragEvent(0, mapMove, (e: MouseEvent) => {
+		if (!moved && !e.ctrlKey) {
+			deselectToken();
+		}
+		globals.root.style.removeProperty("--outline-cursor");
+	      }),
+	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => globals.root.style.removeProperty("--outline-cursor")),
+	      moveMap = (e: MouseEvent, initFn: () => void) => {
+		globals.root.style.setProperty("--outline-cursor", "grabbing");
+		mX = e.clientX;
+		mY = e.clientY;
+		moved = false;
+		initFn();
 		return false
 	      },
 	      [setupControlOverride, cancelControlOverride] = keyEvent("Control", () => {
@@ -437,9 +436,9 @@ export default (base: HTMLElement) => {
 				return false;
 			}
 		}
-		return moveMap.call(this, e);
+		return moveMap(e, startMouseDrag0);
 	}
-	defaultTool.mapMouse1 = moveMap;
+	defaultTool.mapMouse1 = (e: MouseEvent) => moveMap(e, startMouseDrag1);;
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
 		const {selected: {layer: selectedLayer}, outline, root} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
