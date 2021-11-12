@@ -17,7 +17,7 @@ import {characterData, checkInt, deselectToken, getCharacterToken, globals, labe
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
-import {keyEvent, mouseDragEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
@@ -29,7 +29,8 @@ export default (base: HTMLElement) => {
 	    lastToken: Token | null = null,
 	    mX = 0,
 	    mY = 0,
-	    moved = false;
+	    moved = false,
+	    ctrl = false;
 
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -290,7 +291,7 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false
 	      },
-	      [setupControlOverride, cancelControlOverride] = keyEvent("Control", () => {
+	      [setupControlOverride] = keyEvent("Control", () => {
 		if (overToken) {
 			document.body.style.setProperty("--outline-cursor", "grab");
 		}
@@ -299,6 +300,17 @@ export default (base: HTMLElement) => {
 			document.body.style.setProperty("--outline-cursor", "pointer");
 		}
 	      }),
+	      [mouseControlOverride] = mouseMoveEvent((e: MouseEvent) => {
+		if (!ctrl && globals.selected.layer && (globals.selected.layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
+			if (!overToken) {
+				overToken = true;
+				document.body.style.setProperty("--outline-cursor", "pointer");
+			}
+		} else if (overToken) {
+			document.body.style.setProperty("--outline-cursor", "grab");
+			overToken = false;
+		}
+	      }, () => document.body.style.removeProperty("--outline-cursor")),
 	      redo = (e: KeyboardEvent) => {
 		if (e.ctrlKey) {
 			undo.redo();
@@ -443,7 +455,7 @@ export default (base: HTMLElement) => {
 		const {selected: {layer: selectedLayer}, outline, root} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
 		      currentlyOverToken = overOutline || selectedLayer !== null && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
-		let ctrl = e.ctrlKey;
+		ctrl = e.ctrlKey;
 		if (ctrl && !e.shiftKey) {
 			document.body.style.setProperty("--outline-cursor", "grab");
 		} else if (!overOutline) {
@@ -456,27 +468,9 @@ export default (base: HTMLElement) => {
 		if (!overOutline) {
 			if (selectedLayer) {
 				overToken = currentlyOverToken;
-				const mouseMove = (e: MouseEvent) => {
-					if (!ctrl && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
-						if (!overToken) {
-							overToken = true;
-							document.body.style.setProperty("--outline-cursor", "pointer");
-						}
-					} else if (overToken) {
-						document.body.style.setProperty("--outline-cursor", "grab");
-						overToken = false;
-					}
-				      };
 				setupControlOverride();
-				root.addEventListener("mousemove", mouseMove);
-				root.addEventListener("mouseout", () => {
-					document.body.style.removeProperty("--outline-cursor");
-					cancelControlOverride();
-					root.removeEventListener("mousemove", mouseMove);
-				}, {"once": true})
-			} else {
-				root.addEventListener("mouseout", () => document.body.style.removeProperty("--outline-cursor"), {"once": true})
 			}
+			mouseControlOverride();
 		} else {
 			const keyUp = (e: KeyboardEvent) => {
 				if (e.key === "Control") {
