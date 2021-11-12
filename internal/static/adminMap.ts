@@ -450,7 +450,7 @@ export default (base: HTMLElement) => {
 		}
 		return moveMap(e, startMouseDrag0);
 	}
-	defaultTool.mapMouse1 = (e: MouseEvent) => moveMap(e, startMouseDrag1);;
+	defaultTool.mapMouse1 = (e: MouseEvent) => moveMap(e, startMouseDrag1);
 	defaultTool.mapMouseOver = (e: MouseEvent) => {
 		const {selected: {layer: selectedLayer}, outline, root} = globals,
 		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
