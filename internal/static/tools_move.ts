@@ -30,7 +30,7 @@ const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	doLayerShift(globals.selected.layer!.path, dx, dy);
       }),
       stop = () => {
-	cancelMover();
+	cancelMover(false);
 	cancelEscape();
 	globals.selected.layer![node].removeAttribute("transform");
 	if (measure) {
