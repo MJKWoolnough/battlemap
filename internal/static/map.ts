@@ -601,7 +601,6 @@ export default (base: HTMLElement) => {
 		mapLoadedSend(false);
 	});
 	defaultTool.mapMouse0 = defaultTool.mapMouse1 = (e: MouseEvent) => {
-		console.log(3);
 		let mX = e.clientX,
 		    mY = e.clientY;
 		const button = e.button,
