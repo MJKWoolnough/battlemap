@@ -291,7 +291,7 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false
 	      },
-	      [setupControlOverride] = keyEvent("Control", () => {
+	      [setupControlOverride, cancelControlOverride] = keyEvent("Control", () => {
 		if (overToken) {
 			document.body.style.setProperty("--outline-cursor", "grab");
 		}
@@ -300,7 +300,7 @@ export default (base: HTMLElement) => {
 			document.body.style.setProperty("--outline-cursor", "pointer");
 		}
 	      }),
-	      [mouseControlOverride] = mouseMoveEvent((e: MouseEvent) => {
+	      [mouseControlOverride, cancelMouseControlOverride] = mouseMoveEvent((e: MouseEvent) => {
 		if (!ctrl && globals.selected.layer && (globals.selected.layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
 			if (!overToken) {
 				overToken = true;
@@ -658,6 +658,10 @@ export default (base: HTMLElement) => {
 			rpc.signalPosition(pos);
 		}
 		return false;
+	};
+	defaultTool.unset = () => {
+		cancelControlOverride();
+		cancelMouseControlOverride();
 	};
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
