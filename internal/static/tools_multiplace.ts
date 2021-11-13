@@ -2,7 +2,7 @@ import type {TokenImage, Uint} from './types.js';
 import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
-import {addTool, disable, ignore} from './tools.js';
+import {addTool, defaultTool, disable, ignore} from './tools.js';
 import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
 import {SVGToken} from './map.js';
@@ -16,6 +16,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	if (!this.checked) {
 		deselectToken();
 		showCursor();
+		defaultTool.unset?.();
 	} else {
 		hideCursor();
 	}
@@ -33,7 +34,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       }),
       showCursor = () => {
 	const {layer} = globals.selected;
-	if (cursor && token && layer) {
+	if (!mode.checked && cursor && token && layer) {
 		layer[node].appendChild(cursor[node]);
 		createSVG(globals.root, {"style": {"cursor": "none"}})
 		moveCursor();
@@ -72,6 +73,9 @@ addTool({
 				}
 				setToken = () => fullToken(JSON.parse(JSON.stringify(data)));
 				setImg(data["src"]);
+				if (!mode.checked) {
+					deselectToken();
+				}
 			}, "ondragover": (e: DragEvent) => {
 				if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
 					e.preventDefault();
@@ -125,7 +129,7 @@ addTool({
 	"mapMouse2": ignore,
 	"mapMouseOver": () => {
 		showCursor()
-		return false;
+		return !mode.checked;
 	},
 	"tokenMouse2": disable,
 	"set": () => {
@@ -133,7 +137,12 @@ addTool({
 			deselectToken();
 		}
 	},
-	"unset": hideCursor
+	"unset": () => {
+		hideCursor();
+		if (!mode.checked) {
+			defaultTool.unset?.();
+		}
+	}
 });
 
 layersRPC.waitLayerSelect().then(() => {
