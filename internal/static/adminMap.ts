@@ -17,7 +17,7 @@ import {characterData, checkInt, deselectToken, getCharacterToken, globals, labe
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
@@ -25,12 +25,11 @@ let copiedToken: Token | null = null;
 
 export default (base: HTMLElement) => {
 	let tokenDragMode = -1,
-	    overToken = false,
 	    lastToken: Token | null = null,
 	    mX = 0,
 	    mY = 0,
 	    moved = false,
-	    ctrl = false;
+	    overOutline = false;
 
 	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -279,6 +278,7 @@ export default (base: HTMLElement) => {
 	      [startMouseDrag0] = mouseDragEvent(0, mapMove, (e: MouseEvent) => {
 		if (!moved && !e.ctrlKey) {
 			deselectToken();
+			updateCursor(e);
 		}
 		globals.root.style.removeProperty("--outline-cursor");
 	      }),
@@ -291,26 +291,6 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false
 	      },
-	      [setupControlOverride, cancelControlOverride] = keyEvent("Control", () => {
-		if (overToken) {
-			document.body.style.setProperty("--outline-cursor", "grab");
-		}
-	      }, () => {
-		if (overToken) {
-			document.body.style.setProperty("--outline-cursor", "pointer");
-		}
-	      }),
-	      [mouseControlOverride, cancelMouseControlOverride] = mouseMoveEvent((e: MouseEvent) => {
-		if (!ctrl && globals.selected.layer && (globals.selected.layer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY))) {
-			if (!overToken) {
-				overToken = true;
-				document.body.style.setProperty("--outline-cursor", "pointer");
-			}
-		} else if (overToken) {
-			document.body.style.setProperty("--outline-cursor", "grab");
-			overToken = false;
-		}
-	      }, () => document.body.style.removeProperty("--outline-cursor")),
 	      redo = (e: KeyboardEvent) => {
 		if (e.ctrlKey) {
 			undo.redo();
@@ -353,6 +333,21 @@ export default (base: HTMLElement) => {
 		}
 	      }),
 	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (globals.mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
+	      updateCursor = ({target, clientX, clientY, ctrlKey}: {target: EventTarget | null, clientX: number, clientY: number, ctrlKey: boolean}) => {
+		const {layer} = globals.selected;
+		overOutline = (target as HTMLElement)?.parentNode === outline;
+		if (!ctrlKey && overOutline) {
+			document.body.style.removeProperty("--outline-cursor")
+		} else if (!ctrlKey && layer && (layer.tokens as SVGToken[]).some(t => t.at(clientX, clientY))) {
+			document.body.style.setProperty("--outline-cursor", "pointer")
+		} else {
+			document.body.style.setProperty("--outline-cursor", "grab");
+		}
+	      },
+	      psuedoUpdateCursor = (target: EventTarget | null, ctrlKey: boolean) => updateCursor({target, "clientX": mouseX, "clientY": mouseY, ctrlKey}),
+	      [startMapMouseMove, cancelMapMouseMove] = mouseMoveEvent(updateCursor),
+	      ctrlOverride = (e: KeyboardEvent) => psuedoUpdateCursor(overOutline ? outline.firstChild : null, e.ctrlKey),
+	      [startControlOverride, cancelControlOverride] = keyEvent("Control", ctrlOverride, ctrlOverride),
 	      keys = ([
 		["Up", (tk: Token, dy: Uint) => tk.y -= dy],
 		["Down", (tk: Token, dy: Uint) => tk.y += dy],
@@ -361,9 +356,10 @@ export default (base: HTMLElement) => {
 	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
 		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
 		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(globals.selected.token))).id)),
-		keyEvent("Escape", () => {
+		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
+				psuedoUpdateCursor(globals.root, e.ctrlKey);
 				return;
 			}
 			globals.root.style.removeProperty("--outline-cursor");
@@ -436,13 +432,14 @@ export default (base: HTMLElement) => {
 			}
 			if (newToken) {
 				selectToken(newToken);
+				psuedoUpdateCursor(outline.firstChild, e.ctrlKey);
 				return false;
 			}
 		}
 		if (!e.ctrlKey) {
 			const {outline} = globals;
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
-				document.body.style.removeProperty("--outline-cursor");
+				//document.body.style.removeProperty("--outline-cursor");
 				return false;
 			} else if (e.target && (e.target as ChildNode).parentNode === outline) {
 				return false;
@@ -451,55 +448,9 @@ export default (base: HTMLElement) => {
 		return moveMap(e, startMouseDrag0);
 	}
 	defaultTool.mapMouse1 = (e: MouseEvent) => moveMap(e, startMouseDrag1);
-	defaultTool.mapMouseOver = (e: MouseEvent) => {
-		const {selected: {layer: selectedLayer}, outline, root} = globals,
-		      overOutline = e.target && (e.target as ChildNode).parentNode === outline,
-		      currentlyOverToken = overOutline || selectedLayer !== null && (selectedLayer.tokens as SVGToken[]).some(t => t.at(e.clientX, e.clientY));
-		ctrl = e.ctrlKey;
-		if (ctrl && !e.shiftKey) {
-			document.body.style.setProperty("--outline-cursor", "grab");
-		} else if (!overOutline) {
-			if (currentlyOverToken) {
-				document.body.style.setProperty("--outline-cursor", "pointer");
-			} else {
-				document.body.style.setProperty("--outline-cursor", "grab");
-			}
-		}
-		if (!overOutline) {
-			if (selectedLayer) {
-				overToken = currentlyOverToken;
-				setupControlOverride();
-			}
-			mouseControlOverride();
-		} else {
-			const keyUp = (e: KeyboardEvent) => {
-				if (e.key === "Control") {
-					document.body.style.removeProperty("--outline-cursor");
-					window.removeEventListener("keyup", keyUp);
-					ctrl = false;
-				} else if (ctrl && e.key === "Shift") {
-					document.body.style.setProperty("--outline-cursor", "grab");
-				}
-			      },
-			      keyDown = (e: KeyboardEvent) => {
-				if (e.key === "Control" && !e.shiftKey) {
-					document.body.style.setProperty("--outline-cursor", "grab");
-					window.addEventListener("keyup", keyUp);
-					ctrl = true;
-				} else if (ctrl && e.key === "Shift") {
-					document.body.style.removeProperty("--outline-cursor");
-				}
-			      };
-			window.addEventListener("keydown", keyDown);
-			if (ctrl || e.shiftKey) {
-				window.addEventListener("keyup", keyUp);
-			}
-			root.addEventListener("mouseout", () => {
-				document.body.style.removeProperty("--outline-cursor");
-				window.removeEventListener("keydown", keyDown);
-				window.removeEventListener("keyup", keyUp);
-			}, {"once": true})
-		}
+	defaultTool.mapMouseOver = () => {
+		startMapMouseMove();
+		startControlOverride();
 		return false;
 	};
 	defaultTool.tokenMouse0 = (e: MouseEvent, n: Uint) => {
@@ -660,8 +611,8 @@ export default (base: HTMLElement) => {
 		return false;
 	};
 	defaultTool.unset = () => {
+		cancelMapMouseMove();
 		cancelControlOverride();
-		cancelMouseControlOverride();
 	};
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
