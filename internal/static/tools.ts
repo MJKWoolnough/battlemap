@@ -153,11 +153,7 @@ export default (base: HTMLElement) => {
 		}
 	}}, [ul(list), toolOptions]);
 	fc.click();
-	mapLoadedReceive(() => {
-		if (selectedTool !== defaultTool) {
-			fc.click();
-		}
-	});
+	mapLoadedReceive(() => fc.click());
 	miniTools.wait(on => {
 		document.body.classList.toggle("miniTools", on)
 		if (!windowed) {
