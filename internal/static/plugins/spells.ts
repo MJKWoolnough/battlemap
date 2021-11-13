@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import {br, div, input, option, select} from '../lib/html.js';
+import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
@@ -43,6 +43,7 @@ if (isAdmin) {
 	const defaultLanguage = {
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
+		"SPELL_TYPE": "Spell Shape",
 		"SPELL_TYPE_CIRCLE": "Circle Spell",
 		"SPELL_TYPE_CONE": "Cone Spell",
 		"SPELL_TYPE_CUBE": "Cube Spell",
@@ -169,17 +170,18 @@ if (isAdmin) {
 					effect.setAttribute("fill", types[damageType][1]);
 				}
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
-			br(),
-			labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), false),
-			br(),
-			labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), false),
-			br(),
-			labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), false),
-			br(),
-			labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}), false),
-			br(),
-			labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}), false),
-			br(),
+			fieldset([
+				legend(lang["SPELL_TYPE"]),
+				labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), false),
+				br(),
+				labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), false),
+				br(),
+				labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), false),
+				br(),
+				labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}), false),
+				br(),
+				labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}), false),
+			]),
 			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap, false),
 			br(),
 			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
