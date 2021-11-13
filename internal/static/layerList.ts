@@ -11,7 +11,7 @@ import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
-import {mouseDragEvent, mouseMoveEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -284,41 +284,41 @@ export default (base: HTMLElement) => {
 	})[0]();
 	let loadFn = () => {
 		const list = new LayerRoot(globals.layerList, layersRPC),
-		      addKeyboard =  () => globals.root.addEventListener("keypress", (e: KeyboardEvent) => {
+		      setLayer = (sl: ItemLayer) => {
+			const {root} = globals;
+			root.dispatchEvent(new MouseEvent("mouseout", mousePos));
+			root.dispatchEvent(new MouseEvent("mouseleave", mousePos));
+			sl.show();
+			root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mousePos));
+		      };
+		keyEvent('[', () => {
 			let sl: ItemLayer | undefined;
-			switch (e.key) {
-			case '[':
-				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
-						if (l === selectedLayer) {
-							return true;
-						}
-						sl = l;
+			walkLayers(list.folder as FolderLayer, l => {
+				if (l.id > 0) {
+					if (l === selectedLayer) {
+						return true;
 					}
-					return false;
-				});
-				break;
-			case ']':
-				let next = false;
-				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
-						if (next) {
-							sl = l;
-							return true;
-						}
-						next = l === selectedLayer;
-					}
-					return false;
-				});
-			}
+					sl = l;
+				}
+				return false;
+			});
 			if (sl) {
-				const {root} = globals;
-				root.dispatchEvent(new MouseEvent("mouseout", mousePos));
-				root.dispatchEvent(new MouseEvent("mouseleave", mousePos));
-				sl.show();
-				root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mousePos));
+				setLayer(sl);
 			}
-		      });
+		})[0]();
+		keyEvent(']', () => {
+			let next = false;
+			walkLayers(list.folder as FolderLayer, l => {
+				if (l.id > 0) {
+					if (next) {
+						setLayer(l);
+						return true;
+					}
+					next = l === selectedLayer;
+				}
+				return false;
+			});
+		})[0]();
 		layersRPC.waitLayerSetVisible().then(path => {
 			const l = list.getLayer(path);
 			if (l) {
@@ -379,11 +379,9 @@ export default (base: HTMLElement) => {
 			}}),
 			list[node]
 		]);
-		addKeyboard();
 		loadFn = () => {
 			selectedLayer = undefined;
 			list.setRoot(globals.layerList);
-			addKeyboard();
 		};
 	    };
 	mapLoadedReceive(() => loadFn());
