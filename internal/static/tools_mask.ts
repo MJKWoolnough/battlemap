@@ -1,5 +1,5 @@
 import type {Mask, Uint} from './types.js';
-import {br, button, div, input} from './lib/html.js';
+import {br, button, div, fieldset, legend, input} from './lib/html.js';
 import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, marker} from './tools.js';
@@ -131,17 +131,21 @@ addTool({
 		labels(`${lang["TOOL_MASK_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 1, "step": 0.05, "value": maskOpacity.value, "oninput": function(this: HTMLInputElement) {
 			maskOpacity.set(parseFloat(this.value));
 		}})),
-		br(),
-		labels(`${lang["TOOL_MASK_OPAQUE"]}: `, opaque, false),
-		br(),
-		labels(`${lang["TOOL_MASK_TRANSPARENT"]}: `, input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), false),
-		br(),
-		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
-		br(),
-		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
-		br(),
-		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
-		br(),
+		fieldset([
+			legend(lang["TOOL_MASK_DRAW_TYPE"]),
+			labels(`${lang["TOOL_MASK_OPAQUE"]}: `, opaque, false),
+			br(),
+			labels(`${lang["TOOL_MASK_TRANSPARENT"]}: `, input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), false),
+		]),
+		fieldset([
+			legend(lang["TOOL_MASK_DRAW_SHAPE"]),
+			labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
+			br(),
+			labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
+			br(),
+			labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
+			br(),
+		]),
 		labels(`${lang["TOOL_MASK_REMOVE"]}: `, remove, false),
 		br(),
 		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap, false),
