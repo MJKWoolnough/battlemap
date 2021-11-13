@@ -41,8 +41,8 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       },
       hideCursor = () => {
 	stopCursor()
-	cursor![node].remove();
-	cursor!.cleanup();
+	cursor?.[node].remove();
+	cursor?.cleanup();
 	globals.root.style.removeProperty("cursor");
       };
 
