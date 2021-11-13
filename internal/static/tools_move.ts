@@ -18,7 +18,7 @@ let dx = 0, dy = 0,
 
 const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	const {layer: selectedLayer} = globals.selected,
-	      [x, y] = screen2Grid(e.clientX, e.clientY, snap);
+	      [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
 	dx = (x - ox) / panZoom.zoom;
 	dy = (y - oy) / panZoom.zoom;
 	selectedLayer![node].setAttribute("transform", `translate(${dx}, ${dy})`);
