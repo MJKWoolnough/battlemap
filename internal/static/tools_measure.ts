@@ -9,6 +9,8 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
 
+let send = false;
+
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {width, height} = globals.mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
@@ -49,10 +51,6 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 			rpc.signalMeasure(coords.concat(x, y) as [Uint, Uint, Uint, Uint]);
 		}
 	}
-      }, () => {
-	over = false;
-	marker.remove();
-	globals.root.style.removeProperty("cursor");
       }),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       [setupEscape, cancelEscape] = keyEvent("Escape", () => {
@@ -122,9 +120,6 @@ stopMeasurement = () => {
 	coords.splice(0, coords.length, NaN, NaN);
 };
 
-let over = false,
-    send = false;
-
 addTool({
 	"name": lang["TOOL_MEASURE"],
 	"icon": svg({"viewBox": "0 0 50 50"}, [title(lang["TOOL_MEASURE"]), path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})]),
@@ -137,12 +132,8 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_MEASURE_CELL"]}: `, cellValue)
 	]),
-	"mapMouseOver": function(this: SVGElement) {
-		if (!over) {
-			over = true;
-			createSVG(this, {"style": {"cursor": "none"}}, marker);
-			startMouseMove();
-		}
+	"mapMouseOver": () => {
+		startMouseMove();
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
@@ -173,10 +164,13 @@ addTool({
 		return false;
 	},
 	"set": () => {
+		createSVG(globals.root, {"style": {"cursor": "none"}}, marker);
 		setupShiftSnap();
 		setupEscape();
 	},
 	"unset": () => {
+		globals.root.style.removeProperty("cursor");
+		marker.remove();
 		cancelMouse0();
 		cancelMouse2();
 		cancelMouseMove();
