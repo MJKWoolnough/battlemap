@@ -623,7 +623,6 @@ if (isAdmin) {
 	      },
 	      initChange = (token: SVGToken) => {
 		shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-			globals.outline.focus();
 			if (isValidToken(token) && initiative !== null) {
 				const init = parseInt(initiative);
 				if (isInt(init, -20, 40)) {
@@ -639,10 +638,8 @@ if (isAdmin) {
 		}
 		updateInitiative([token.id, null]);
 		saveInitiative();
-		globals.outline.focus();
 	      },
 	      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
-		globals.outline.focus();
 		if (!initiative) {
 			throw new Error("invalid initiative");
 		}
@@ -865,7 +862,6 @@ if (isAdmin) {
 			const currHP = token.getData("5e-hp-current");
 			if (currHP !== null) {
 				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
-					globals.outline.focus();
 					if (hp === null || !isValidToken(token)) {
 						return;
 					}
@@ -877,7 +873,6 @@ if (isAdmin) {
 						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
 						token.updateData();
 					}
-					globals.outline.focus();
 				});
 			}
 		}
@@ -998,7 +993,6 @@ if (isAdmin) {
 					data[n] = !data[n];
 					doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
 					token.updateData();
-					globals.outline.focus();
 				}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"}));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
@@ -1008,7 +1002,6 @@ if (isAdmin) {
 							return;
 						}
 						setShapechange(token);
-						globals.outline.focus();
 					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
 						if (!b) {
@@ -1020,7 +1013,6 @@ if (isAdmin) {
 								return;
 							}
 							setShapechange(token, newToken);
-							globals.outline.focus();
 						});
 					})))
 				]));
