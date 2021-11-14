@@ -436,13 +436,8 @@ export default (base: HTMLElement) => {
 				return false;
 			}
 		}
-		if (!e.ctrlKey) {
-			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
-				//document.body.style.removeProperty("--outline-cursor");
-				return false;
-			} else if (e.target && (e.target as ChildNode).parentNode === outline) {
-				return false;
-			}
+		if (!e.ctrlKey && (document.body.style.getPropertyValue("--outline-cursor") === "pointer" || e.target && (e.target as ChildNode).parentNode === outline)) {
+			return false;
 		}
 		return moveMap(e, startMouseDrag0);
 	}
