@@ -3,7 +3,7 @@ import {br, button, div, fieldset, legend, input} from './lib/html.js';
 import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, marker} from './tools.js';
-import {deselectToken, globals, labels} from './shared.js';
+import {deselectToken, globals, labels, masks} from './shared.js';
 import {autosnap} from './settings.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {shell} from './windows.js';
@@ -80,7 +80,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	}
       }),
       highlightMask = (x: Uint, y: Uint) => {
-	const [mask] = globals.masks.at(x, y);
+	const [mask] = masks.at(x, y);
 	if (mask !== overMask) {
 		maskHighlight?.remove();
 		if (mask) {
@@ -163,7 +163,7 @@ addTool({
 	"mapMouse0": (e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		if (remove.checked) {
-			const [, maskIndex] = globals.masks.at(x, y);
+			const [, maskIndex] = masks.at(x, y);
 			if (maskIndex !== -1) {
 				doMaskRemove(maskIndex);
 				highlightMask(x, y);
@@ -172,14 +172,14 @@ addTool({
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			maskElement = globals.masks[node].appendChild(rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			maskElement = masks[node].appendChild(rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			rectDrag();
 			setEscape();
 		} else if (circle.checked) {
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			maskElement = globals.masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			maskElement = masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			ellipseDrag();
 			setEscape();
 		} else if (poly.checked) {
@@ -190,7 +190,7 @@ addTool({
 				coords.splice(0, coords.length, x, y);
 				maskElement?.remove();
 				const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
-				maskElement = globals.masks[node].appendChild(polygon({fill, "stroke": fill}));
+				maskElement = masks[node].appendChild(polygon({fill, "stroke": fill}));
 				polyMove();
 				setPolyEscape();
 			}

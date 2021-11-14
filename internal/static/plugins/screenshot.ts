@@ -1,7 +1,7 @@
 import {svgNS} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
-import {globals, labels} from '../shared.js';
+import {definitions, globals, labels} from '../shared.js';
 import {panZoom} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
@@ -28,7 +28,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 		});
 	case "rect":
 		if (n.getAttribute("fill")?.startsWith("url(#Pattern_")) {
-			const pattern = globals.definitions.list.get(n.getAttribute("fill")!.slice(5, -1))?.firstChild;
+			const pattern = definitions.list.get(n.getAttribute("fill")!.slice(5, -1))?.firstChild;
 			if (pattern && pattern instanceof SVGImageElement) {
 				return p.then(() => {
 					const fs = ctx.fillStyle,
@@ -61,7 +61,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			}
 			return p.then(() => new Promise<void>(sfn => {
 				const {width, height} = globals.mapData;
-				img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}"><defs>${globals.definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
+				img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}"><defs>${definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 					ctx.drawImage(this, 0, 0);
 					sfn();
 				}});

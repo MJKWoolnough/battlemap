@@ -5,7 +5,7 @@ import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
 import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import undo from './undo.js';
-import {deselectToken, globals, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
+import {deselectToken, globals, masks, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
 import {tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -539,31 +539,31 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 doMaskAdd = (m: Mask, sendRPC = true) => {
 	let index = -1;
 	const doIt = (sendRPC = true) => {
-		index = globals.masks.add(m);
+		index = masks.add(m);
 		if (sendRPC) {
 			queue(() => rpc.addToMask(m));
 		}
 		return undoIt;
 	      },
 	      undoIt = () => {
-		      globals.masks.remove(index);
+		      masks.remove(index);
 		      queue(() => rpc.removeFromMask(index));
 		      return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MASK_ADD"]);
 },
 doMaskRemove = (index: Uint, sendRPC = true) => {
-	const oldOpaque = globals.masks.baseOpaque,
-	      oldMasks = JSON.parse(JSON.stringify(globals.masks.masks)),
+	const oldOpaque = masks.baseOpaque,
+	      oldMasks = JSON.parse(JSON.stringify(masks.masks)),
 	      doIt = (sendRPC = true) => {
-		globals.masks.remove(index);
+		masks.remove(index);
 		if (sendRPC) {
 			queue(() => rpc.removeFromMask(index));
 		}
 		return undoIt;
 	      },
 	      undoIt = () => {
-		globals.masks.set(oldOpaque, oldMasks);
+		masks.set(oldOpaque, oldMasks);
 		queue(() => rpc.setMask(oldOpaque, oldMasks));
 		return doIt;
 	      };
@@ -571,11 +571,11 @@ doMaskRemove = (index: Uint, sendRPC = true) => {
 },
 doMaskSet = (m: MaskSet, sendRPC = true) => {
 	let oldData = {
-		"baseOpaque": globals.masks.baseOpaque,
-		"masks": globals.masks.masks
+		"baseOpaque": masks.baseOpaque,
+		"masks": masks.masks
 	};
 	const doIt = (sendRPC = true) => {
-		globals.masks.set(m.baseOpaque, m.masks);
+		masks.set(m.baseOpaque, m.masks);
 		if (sendRPC) {
 			queue(rpc.setMask.bind(rpc, m.baseOpaque, m.masks));
 		}

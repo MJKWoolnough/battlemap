@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, SQRT3, tokens, walls} from './shared.js';
+import {characterData, checkInt, definitions, globals, isAdmin, mapLoadedReceive, mapLoadedSend, masks, outline, queue, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -105,23 +105,23 @@ export class SVGToken extends SVGTransform {
 	}
 	cleanup() {
 		if (this.isPattern) {
-			globals.definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
+			definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
 		}
 	}
 	uncleanup() {
 		if (this.isPattern) {
-			this[node].setAttribute("fill", `url(#${globals.definitions.add(this)})`);
+			this[node].setAttribute("fill", `url(#${definitions.add(this)})`);
 		}
 	}
 	updateSource(source: Uint) {
-		(this[node] instanceof SVGRectElement ? (globals.definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this[node]).setAttribute("href", `images/${this.src = source}`);
+		(this[node] instanceof SVGRectElement ? (definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this[node]).setAttribute("href", `images/${this.src = source}`);
 	}
 	updateNode() {
 		if (this[node] instanceof SVGRectElement && !this.isPattern) {
-			globals.definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
+			definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
 			this[node].replaceWith(this[node] = image({"href": `/images/${this.src}`, "preserveAspectRatio": "none"}));
 		} else if (this[node] instanceof SVGImageElement && this.isPattern) {
-			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${globals.definitions.add(this)})`}));
+			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${definitions.add(this)})`}));
 		}
 		createSVG(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
@@ -344,7 +344,7 @@ setMapDetails = (details: MapDetails) => {
 	Object.assign(globals.mapData, details);
 	globals.root.setAttribute("width", details["width"] + "");
 	globals.root.setAttribute("height", details["height"] + "");
-	globals.definitions.setGrid(details);
+	definitions.setGrid(details);
 	updateLight();
 },
 setLightColour = (c: Colour) => {
@@ -513,10 +513,9 @@ mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	tokens.clear();
 	walls.clear();
-	globals.masks.set(mapData.baseOpaque, mapData.masks);
-	globals.definitions.clear();
-	const {definitions} = globals,
-	      wg = new WaitGroup(),
+	masks.set(mapData.baseOpaque, mapData.masks);
+	definitions.clear();
+	const wg = new WaitGroup(),
 	      layerList = globals.layerList = (() => {
 		const n = g(),
 		      children = new NodeArray<SVGFolder | SVGLayer>(n);
@@ -781,7 +780,7 @@ export default (base: HTMLElement) => {
 		}
 	}),
 	rpc.waitMapDataRemove().then(key => delete globals.mapData.data[key])
-	rpc.waitMaskAdd().then(globals.masks.add);
-	rpc.waitMaskRemove().then(globals.masks.remove);
-	rpc.waitMaskSet().then(({baseOpaque, masks}) => globals.masks.set(baseOpaque, masks));
+	rpc.waitMaskAdd().then(masks.add);
+	rpc.waitMaskRemove().then(masks.remove);
+	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
 };
