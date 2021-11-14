@@ -172,6 +172,7 @@ const defaultLanguage = {
 	"TOOL_DRAW_FILL_COLOUR": "Fill Colour",
 	"TOOL_DRAW_POLYGON": "Polygon",
 	"TOOL_DRAW_RECT": "Rectangle",
+	"TOOL_DRAW_SHAPE": "Draw Shape",
 	"TOOL_DRAW_SNAP": "Snap to Grid",
 	"TOOL_DRAW_STROKE_COLOUR": "Stroke Colour",
 	"TOOL_DRAW_STROKE_WIDTH": "Stroke Width",
