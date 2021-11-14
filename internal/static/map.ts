@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, SQRT3, queue, walls} from './shared.js';
+import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -511,7 +511,7 @@ centreOnGrid = (x: Uint, y: Uint) => {
 },
 mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
-	globals.tokens.clear();
+	tokens.clear();
 	walls.clear();
 	globals.masks.set(mapData.baseOpaque, mapData.masks);
 	globals.definitions.clear();
@@ -547,7 +547,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {
-				globals.tokens.set(t.id, {
+				tokens.set(t.id, {
 					layer: l,
 					token: t
 				});
@@ -668,24 +668,24 @@ export default (base: HTMLElement) => {
 			token = SVGShape.from(tk.token);
 		}
 		layer.tokens.push(token);
-		globals.tokens.set(token.id, {layer, token});
+		tokens.set(token.id, {layer, token});
 	}),
 	rpc.waitTokenMoveLayerPos().then(tm => {
-		const {layer, token} = globals.tokens.get(tm.id)!,
+		const {layer, token} = tokens.get(tm.id)!,
 		      newParent = getLayer(tm.to);
 		if (layer && token && newParent && isSVGLayer(newParent)) {
 			if (tm.newPos > newParent.tokens.length) {
 				tm.newPos = newParent.tokens.length;
 			}
 			newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-			globals.tokens.get(tm.id)!.layer = newParent;
+			tokens.get(tm.id)!.layer = newParent;
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 				updateLight();
 			}
 		}
 	}),
 	rpc.waitTokenSet().then(ts => {
-		const {token} = globals.tokens.get(ts.id)!;
+		const {token} = tokens.get(ts.id)!;
 		if (!token) {
 			return;
 		}
@@ -721,7 +721,7 @@ export default (base: HTMLElement) => {
 		token.updateNode()
 	}),
 	rpc.waitTokenRemove().then(tk => {
-		const {layer, token} = globals.tokens.get(tk)!;
+		const {layer, token} = tokens.get(tk)!;
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 		if (token instanceof SVGToken) {
 			token.cleanup();
@@ -768,7 +768,7 @@ export default (base: HTMLElement) => {
 		updateLight();
 	}),
 	rpc.waitTokenLightChange().then(lc => {
-		const {token} = globals.tokens.get(lc.id)!;
+		const {token} = tokens.get(lc.id)!;
 		if (token instanceof SVGToken) {
 			token.lightColour = lc.lightColour;
 			token.lightIntensity = lc.lightIntensity;

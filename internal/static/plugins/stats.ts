@@ -4,7 +4,7 @@ import {NodeArray, node} from '../lib/nodes.js';
 import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
-import {addCSS, globals, mapLoadReceive, isAdmin} from '../shared.js';
+import {addCSS, mapLoadReceive, isAdmin, tokens} from '../shared.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
 
@@ -48,10 +48,6 @@ if (isAdmin) {
 			"priority": 0,
 			"fn": [lang["MENU_TITLE"], div([
 				button({"onclick": () => {
-					if (!globals.tokens) {
-						output.innerText = lang["NO_MAP"];
-						return;
-					}
 					tb.splice(0, tb.length);
 					const entries = performance?.getEntries() ?? [],
 					      done = new Set<Uint>(),
@@ -67,7 +63,7 @@ if (isAdmin) {
 						}
 					}
 					let totalSize = 0;
-					for (const [_, {token: tk}] of globals.tokens) {
+					for (const [_, {token: tk}] of tokens) {
 						if (tk instanceof SVGToken) {
 							const id = tk.src;
 							if (done.has(id)) {

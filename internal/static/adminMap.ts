@@ -13,7 +13,7 @@ import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpaci
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokenSelected, tokenSelectedReceive} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -255,7 +255,7 @@ export default (base: HTMLElement) => {
 		}
 	      },
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
-		setLayer(globals.tokens.get(newToken.id)!.layer);
+		setLayer(tokens.get(newToken.id)!.layer);
 		selected.token = newToken;
 		createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
 		tokenMousePos.x = newToken.x;
@@ -550,40 +550,40 @@ export default (base: HTMLElement) => {
 			}),
 			tokenPos < currLayer.tokens.length - 1 ? [
 				item(lang["CONTEXT_MOVE_TOP"], () => {
-					if (!globals.tokens.has(currToken.id)) {
+					if (!tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer;
+					const currLayer = tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 				}),
 				item(lang["CONTEXT_MOVE_UP"], () => {
-					if (!globals.tokens.has(currToken.id)) {
+					if (!tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer,
+					const currLayer = tokens.get(currToken.id)!.layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 				})
 			] : [],
 			tokenPos > 0 ? [
 				item(lang["CONTEXT_MOVE_DOWN"], () => {
-					if (!globals.tokens.has(currToken.id)) {
+					if (!tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer,
+					const currLayer = tokens.get(currToken.id)!.layer,
 					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 				}),
 				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-					if (!globals.tokens.has(currToken.id)) {
+					if (!tokens.has(currToken.id)) {
 						return;
 					}
-					const currLayer = globals.tokens.get(currToken.id)!.layer;
+					const currLayer = tokens.get(currToken.id)!.layer;
 					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 				})
 			] : [],
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
-				if (!globals.tokens.has(currToken.id)) {
+				if (!tokens.has(currToken.id)) {
 					return;
 				}
 				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);

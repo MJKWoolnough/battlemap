@@ -10,7 +10,7 @@ import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
-import {addCSS, characterData, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokenSelectedReceive} from '../shared.js';
+import {addCSS, characterData, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokens, tokenSelectedReceive} from '../shared.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
@@ -398,7 +398,7 @@ const defaultLanguage = {
       },
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
-      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && globals.tokens.has(t.id),
+      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
       initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -459,7 +459,7 @@ const defaultLanguage = {
 	])
       })),
       updateInitiative = (change?: [Uint, Uint | null]) => {
-	const {mapData: {data: {"5e-initiative": initiative}}, tokens} = globals;
+	const {"5e-initiative": initiative} = globals.mapData.data;
 	initiativeList.splice(0, initiativeList.length);
 	initTokens.clear();
 	const hiddenLayers = new Set<string>();
@@ -949,9 +949,9 @@ if (isAdmin) {
 							updateInitiative();
 						}
 						if (!isCharacter) {
-							(globals.tokens.get(id)!.token as SVGToken5E).updateData();
+							(tokens.get(id)!.token as SVGToken5E).updateData();
 						} else {
-							for (const [_, {token}] of globals.tokens) {
+							for (const [_, {token}] of tokens) {
 								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 									token.updateData();
 								}
@@ -1051,7 +1051,7 @@ addPlugin("5e", plugin);
 mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	queue(async () => {
-		for (const [_, tk] of globals.tokens) {
+		for (const [_, tk] of tokens) {
 			if (tk instanceof SVGToken5E) {
 				tk.updateData();
 			}
@@ -1067,7 +1067,7 @@ rpc.waitTokenSet().then(ts => {
 			if (initTokens.has(ts.id)) {
 				updateInitiative();
 			}
-			(globals.tokens.get(ts.id)!.token as SVGToken5E).updateData();
+			(tokens.get(ts.id)!.token as SVGToken5E).updateData();
 		}, 0);
 		return;
 	}
@@ -1078,7 +1078,7 @@ rpc.waitTokenSet().then(ts => {
 			case "5e-hp-max":
 			case "5e-hp-current":
 			case "5e-conditions":
-				setTimeout(() => (globals.tokens.get(ts.id)!.token as SVGToken5E).updateData(), 0);
+				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5E).updateData(), 0);
 				return;
 			}
 		}
@@ -1112,7 +1112,7 @@ combinedRPC.waitTokenSet().then(({id}) => {
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	let ui = false;
-	for (const [_, {token}] of globals.tokens) {
+	for (const [_, {token}] of tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 			token.updateData();
 			if (!ui && initTokens.has(token.id)) {
