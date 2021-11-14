@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, SQRT3, queue} from './shared.js';
+import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, SQRT3, queue} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -482,7 +482,7 @@ zoom = (() => {
 	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
 	mapLoadedReceive(() => zoomerControl.setAttribute("cy", "60"));
 	return (delta: number, x: number, y: number, moveControl = true) => {
-		const {root, outline} = globals,
+		const {root} = globals,
 		      width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
 		      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
 		      oldZoom = panZoom.zoom;

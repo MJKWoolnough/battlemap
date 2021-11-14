@@ -13,7 +13,7 @@ import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpaci
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, tokenSelected, tokenSelectedReceive, SQRT3} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, tokenSelected, tokenSelectedReceive, SQRT3} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -61,7 +61,7 @@ export default (base: HTMLElement) => {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
-			globals.outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
+			outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
 		}
 		break;
 		default: {
@@ -120,7 +120,7 @@ export default (base: HTMLElement) => {
 		selectedToken.height = Math.round(height);
 		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
-		createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
+		createSVG(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
 	      }, () => {
 		if (!globals.selected.token || !globals.selected.layer) {
 			return;
@@ -166,7 +166,6 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      outline = createSVG(globals.outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	      mapOnDragOver = (e: DragEvent) => {
 		if (e.dataTransfer) {
 			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
@@ -373,13 +372,14 @@ export default (base: HTMLElement) => {
 				token.rotation = rotation;
 				token.height = height;
 				token.updateNode();
-				createSVG(globals.outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+				createSVG(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
 			}
 			stopMeasurement();
 			cancelTokenDrag();
 		}),
 		keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
 	      ]);
+	createSVG(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (globals.selected.token) {
 			for (const [fn] of keys) {
@@ -437,7 +437,6 @@ export default (base: HTMLElement) => {
 			}
 		}
 		if (!e.ctrlKey) {
-			const {outline} = globals;
 			if (document.body.style.getPropertyValue("--outline-cursor") === "pointer") {
 				//document.body.style.removeProperty("--outline-cursor");
 				return false;

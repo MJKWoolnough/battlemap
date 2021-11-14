@@ -247,18 +247,18 @@ globals = {
 	masks,
 	"root": null as any as SVGSVGElement,
 	"layerList": null as any as SVGFolder,
-	"mapData": null as any as MapData,
+	"mapData": {} as MapData,
 	"tokens": new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 	"walls": new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 	"selected": {
 		"layer": null as SVGLayer | null,
 		"token": null as SVGToken | SVGShape | null
 	},
-	"outline": g(),
 },
+outline = g(),
 deselectToken = () => {
 	globals.selected.token = null;
-	globals.outline.style.setProperty("display", "none");
+	outline.style.setProperty("display", "none");
 	tokenSelected();
 },
 setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {

@@ -10,7 +10,7 @@ import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
-import {addCSS, characterData, globals, mapLoadedReceive, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
+import {addCSS, characterData, globals, mapLoadedReceive, outline, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
@@ -148,7 +148,7 @@ class SVGToken5E extends SVGToken {
 		return super.at(x, y, this.tokenNode);
 	}
 	select() {
-		globals.outline.insertAdjacentElement("beforebegin", this.extra);
+		outline.insertAdjacentElement("beforebegin", this.extra);
 	}
 	unselect() {
 		if (!this.isPattern) {
@@ -174,7 +174,7 @@ class SVGToken5E extends SVGToken {
 			}
 		} else if (wasPattern) {
 			if (globals.selected.token === this) {
-				globals.outline.insertAdjacentElement("beforebegin", this.extra);
+				outline.insertAdjacentElement("beforebegin", this.extra);
 			}
 			this[node].replaceWith(this[node] = g([this.tokenNode, this.extra]));
 		}
