@@ -1,7 +1,7 @@
 import type {Uint} from '../types.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, tokenSelectedReceive} from '../shared.js';
+import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 import {screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
@@ -77,7 +77,7 @@ if (isAdmin) {
 	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [effectList.indexOf(selectedEffect) ?? 0, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
 	      setTokenCentre = () => {
-		const {selected: {token}} = globals;
+		const {token} = selected;
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
@@ -131,7 +131,8 @@ if (isAdmin) {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			return;
 		}
-		const {mapData: {gridSize, gridDistance}, selected: {layer}} = globals,
+		const {gridSize, gridDistance} = globals.mapData,
+		      {layer} = selected,
 		      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 		      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
 		      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0};

@@ -4,7 +4,7 @@ import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 import {screen2Grid} from './map.js';
-import {characterData, deselectToken, getCharacterToken, globals, labels} from './shared.js';
+import {characterData, deselectToken, getCharacterToken, globals, labels, selected} from './shared.js';
 import {SVGToken} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {mouseMoveEvent} from './lib/events.js';
@@ -33,7 +33,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	cursor!.updateNode();
       }),
       showCursor = () => {
-	const {layer} = globals.selected;
+	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
 		layer[node].appendChild(cursor[node]);
 		createSVG(globals.root, {"style": {"cursor": "none"}})
@@ -110,7 +110,7 @@ addTool({
 		button({"onclick": () => cursor && setCursor()}, lang["TOKEN_NEXT"])
 	]),
 	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
-		const {layer} = globals.selected;
+		const {layer} = selected;
 		if (mode.checked || !token || !cursor || !layer || e.button === 1) {
 			return true;
 		}
@@ -123,7 +123,7 @@ addTool({
 		token.y = cursor.y;
 		doTokenAdd(layer.path, token);
 		setCursor();
-		globals.selected.layer![node].appendChild(cursor[node]);
+		selected.layer![node].appendChild(cursor[node]);
 		return false;
 	},
 	"mapMouse2": ignore,
@@ -146,7 +146,7 @@ addTool({
 });
 
 layersRPC.waitLayerSelect().then(() => {
-	const {layer} = globals.selected;
+	const {layer} = selected;
 	if (cursor && cursor[node].parentNode && layer) {
 		layer[node].appendChild(cursor[node]);
 	}

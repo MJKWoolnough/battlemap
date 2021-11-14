@@ -250,14 +250,14 @@ globals = {
 	"mapData": {} as MapData,
 	"tokens": new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 	"walls": new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
-	"selected": {
-		"layer": null as SVGLayer | null,
-		"token": null as SVGToken | SVGShape | null
-	},
+},
+selected = {
+	"layer": null as SVGLayer | null,
+	"token": null as SVGToken | SVGShape | null
 },
 outline = g(),
 deselectToken = () => {
-	globals.selected.token = null;
+	selected.token = null;
 	outline.style.setProperty("display", "none");
 	tokenSelected();
 },

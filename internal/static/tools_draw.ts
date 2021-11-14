@@ -4,7 +4,7 @@ import {createSVG, svg, rect, ellipse, path, polyline, polygon, title} from './l
 import {node} from './lib/nodes.js';
 import {autosnap} from './settings.js';
 import {screen2Grid} from './map.js';
-import {checkInt, deselectToken, globals, labels} from './shared.js';
+import {checkInt, deselectToken, globals, labels, selected} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
@@ -33,7 +33,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
-		      {layer} = globals.selected;
+		      {layer} = selected;
 		if (layer) {
 			doTokenAdd(layer.path, {"id": 0, "x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y), "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "lightColour": noColour, "lightIntensity": 0});
 		} else {
@@ -54,7 +54,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
-		      {layer} = globals.selected;
+		      {layer} = selected;
 		if (layer) {
 			const width = Math.abs(coords[0] - x),
 			      height = Math.abs(coords[1] - y);
@@ -131,7 +131,7 @@ addTool({
 		return false;
 	},
 	"mapMouse0": (e: MouseEvent) => {
-		const {layer} = globals.selected,
+		const {layer} = selected,
 		      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 		      sw = checkInt(parseInt(strokeWidth.value), 0, 100);
 		if (layer) {
@@ -165,7 +165,7 @@ addTool({
 		return false;
 	},
 	"mapMouse2": (e: MouseEvent) => {
-		const {layer} = globals.selected;
+		const {layer} = selected;
 		if (layer && drawElement instanceof SVGPolygonElement && coords.length >= 4) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			coords.push(x, y);

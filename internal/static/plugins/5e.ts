@@ -10,7 +10,7 @@ import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
-import {addCSS, characterData, globals, mapLoadedReceive, outline, tokenSelectedReceive, isInt, isUint, labels, queue, isAdmin} from '../shared.js';
+import {addCSS, characterData, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokenSelectedReceive} from '../shared.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
@@ -173,7 +173,7 @@ class SVGToken5E extends SVGToken {
 				this.extra.remove();
 			}
 		} else if (wasPattern) {
-			if (globals.selected.token === this) {
+			if (selected.token === this) {
 				outline.insertAdjacentElement("beforebegin", this.extra);
 			}
 			this[node].replaceWith(this[node] = g([this.tokenNode, this.extra]));
@@ -857,7 +857,7 @@ if (isAdmin) {
 		}}, mainLang["SAVE"])
 	      ])),
 	      [setupHealthButton, cancelHealthButton] = keyEvent("h", undefined, () => {
-		const {selected: {token}} = globals;
+		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			const currHP = token.getData("5e-hp-current");
 			if (currHP !== null) {
@@ -878,7 +878,7 @@ if (isAdmin) {
 		}
 	      }),
 	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", undefined, () => {
-		const {selected: {token}} = globals;
+		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			const mapData = globals.mapData as MapData5E;
 			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
@@ -965,7 +965,7 @@ if (isAdmin) {
 	plugin["tokenContext"] = {
 		"priority": 0,
 		"fn": () => {
-			const {selected: {token}} = globals;
+			const {token} = selected;
 			if (!(token instanceof SVGToken5E)) {
 				return [];
 			}
@@ -1032,7 +1032,7 @@ if (isAdmin) {
 			if (lastSelectedToken) {
 				lastSelectedToken.unselect();
 			}
-			const {selected: {token}} = globals;
+			const {token} = selected;
 			if (token instanceof SVGToken5E && !token.isPattern) {
 				setupHealthButton();
 				setupInitiativeButton();

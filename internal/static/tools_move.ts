@@ -1,6 +1,6 @@
 import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
-import {deselectToken, globals} from './shared.js';
+import {deselectToken, globals, selected} from './shared.js';
 import {doLayerShift} from './map_fns.js';
 import {panZoom, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
@@ -17,22 +17,21 @@ let dx = 0, dy = 0,
     measure = false;
 
 const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
-	const {layer: selectedLayer} = globals.selected,
-	      [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
 	dx = (x - ox) / panZoom.zoom;
 	dy = (y - oy) / panZoom.zoom;
-	selectedLayer![node].setAttribute("transform", `translate(${dx}, ${dy})`);
+	selected.layer![node].setAttribute("transform", `translate(${dx}, ${dy})`);
 	if (measure) {
 		measureDistance(x, y);
 	}
       }, () => {
 	stop();
-	doLayerShift(globals.selected.layer!.path, dx, dy);
+	doLayerShift(selected.layer!.path, dx, dy);
       }),
       stop = () => {
 	cancelMover(false);
 	cancelEscape();
-	globals.selected.layer?.[node].removeAttribute("transform");
+	selected.layer?.[node].removeAttribute("transform");
 	if (measure) {
 		stopMeasurement();
 	}
@@ -50,11 +49,11 @@ addTool({
 		path({"d": "M11,0 L6,5 L16,5 Z M0,11 L5,6 L 5,16 Z M11,22 L6,17 L16,17 Z M22,11 L17,16 L17,6 Z"})
 	]),
 	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
-		const {layer: selectedLayer} = globals.selected;
-		if (selectedLayer) {
+		const {layer} = selected;
+		if (layer) {
 			dx = 0;
 			dy = 0;
-			snap = selectedLayer.tokens.some(t => t.snap);
+			snap = layer.tokens.some(t => t.snap);
 			[ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value);
 			measure = measureTokenMove.value;
 			setupEscape();

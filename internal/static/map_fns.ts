@@ -5,7 +5,7 @@ import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
 import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import undo from './undo.js';
-import {deselectToken, globals, outline, SQRT3, queue} from './shared.js';
+import {deselectToken, globals, outline, queue, selected, SQRT3} from './shared.js';
 import {tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -25,7 +25,7 @@ const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
       };
 
 export const getToken = () => {
-	const {token} = globals.selected;
+	const {token} = selected;
 	if (token instanceof SVGToken && !token.isPattern) {
 		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity} = token,
 		      tokenData = JSON.parse(JSON.stringify(token.tokenData));
@@ -37,10 +37,10 @@ export const getToken = () => {
 	return undefined;
       },
 checkSelectedLayer = (path: string) => {
-	const {layer} = globals.selected;
+	const {layer} = selected;
 	if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
-		globals.selected.layer = null;
-		if (globals.selected.token) {
+		selected.layer = null;
+		if (selected.token) {
 			deselectToken();
 		}
 	}
@@ -211,7 +211,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		return undoIt;
 	      },
 	      undoIt = () => {
-		if (token === globals.selected.token) {
+		if (token === selected.token) {
 			deselectToken();
 		}
 		globals.tokens.delete(token.id);
@@ -240,7 +240,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 			updateLight();
 		}
-		if (globals.selected.token === token) {
+		if (selected.token === token) {
 			deselectToken();
 		}
 		if (sendRPC) {
@@ -321,7 +321,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		if (sendRPC) {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
-		if (globals.selected.token === token) {
+		if (selected.token === token) {
 			createSVG(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
@@ -342,7 +342,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 	}
 	const pos = layer.tokens.findIndex(t => t === token),
 	      doIt = (sendRPC = true) => {
-		if (token === globals.selected.token) {
+		if (token === selected.token) {
 			deselectToken();
 		}
 		layer.tokens.splice(pos, 1);

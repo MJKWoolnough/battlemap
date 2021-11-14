@@ -6,7 +6,7 @@ import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
 import {getLayer} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
-import {checkInt, deselectToken, globals, mapLoadedReceive, enterKey, queue, labels} from './shared.js';
+import {checkInt, deselectToken, enterKey, globals, labels, mapLoadedReceive, queue, selected} from './shared.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -195,9 +195,9 @@ class ItemLayer extends Item {
 			this[node].classList.add("selectedLayer");
 			selectedLayer = this;
 			deselectToken();
-			globals.selected.layer?.[node].classList.remove("selectedLayer");
-			setLayer(globals.selected.layer = getLayer(this.getPath()) as SVGLayer);
-			globals.selected.layer[node].classList.add("selectedLayer");
+			selected.layer?.[node].classList.remove("selectedLayer");
+			setLayer(selected.layer = getLayer(this.getPath()) as SVGLayer);
+			selected.layer[node].classList.add("selectedLayer");
 		}
 	}
 	rename() {

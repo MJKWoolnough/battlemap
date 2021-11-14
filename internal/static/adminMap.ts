@@ -13,7 +13,7 @@ import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpaci
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, tokenSelected, tokenSelectedReceive, SQRT3} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokenSelected, tokenSelectedReceive} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -39,7 +39,7 @@ export default (base: HTMLElement) => {
 		      dy = bdy - tokenMousePos.mouseY,
 		      mapData = globals.mapData,
 		      sq = mapData.gridSize,
-		      selectedToken = globals.selected.token,
+		      selectedToken = selected.token,
 		      snap = (selectedToken?.snap ?? false) != e.shiftKey;
 		if (!selectedToken) {
 			return;
@@ -122,12 +122,12 @@ export default (base: HTMLElement) => {
 		selectedToken.updateNode();
 		createSVG(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
 	      }, () => {
-		if (!globals.selected.token || !globals.selected.layer) {
+		if (!selected.token || !selected.layer) {
 			return;
 		}
 		globals.root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
-		const {token} = globals.selected,
+		const {token} = selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
 		      newX = Math.round(token.x),
 		      newY = Math.round(token.y),
@@ -193,20 +193,20 @@ export default (base: HTMLElement) => {
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
-		if (globals.selected.layer === null || !e.dataTransfer) {
+		if (selected.layer === null || !e.dataTransfer) {
 			return;
 		}
 		if (e.dataTransfer.types.includes("Files")) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
-			      {layer} = globals.selected;
+			      {layer} = selected;
 			for (const file of e.dataTransfer.files) {
 				f.append("asset", file);
 			}
 			uploadImages(f).then(images => {
 				for (const image of images) {
 					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
-						if (globals.selected.layer === layer && this.width > 0 && this.height > 0) {
+						if (selected.layer === layer && this.width > 0 && this.height > 0) {
 							const token = {"id": 0, "src": image.id, x, y, "width": this.width, "height": this.height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 							if (token.snap) {
 								[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
@@ -243,7 +243,7 @@ export default (base: HTMLElement) => {
 		if (token.snap) {
 			[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 		}
-		doTokenAdd(globals.selected.layer.path, token);
+		doTokenAdd(selected.layer.path, token);
 	      },
 	      allTokens = function* (folder: SVGFolder = globals.layerList): Iterable<SVGToken | SVGShape> {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
@@ -256,7 +256,7 @@ export default (base: HTMLElement) => {
 	      },
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(globals.tokens.get(newToken.id)!.layer);
-		globals.selected.token = newToken;
+		selected.token = newToken;
 		createSVG(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
 		tokenMousePos.x = newToken.x;
 		tokenMousePos.y = newToken.y;
@@ -297,7 +297,7 @@ export default (base: HTMLElement) => {
 	      },
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
-		const {token} = globals.selected;
+		const {token} = selected;
 		if (!token || token.snap) {
 			return;
 		}
@@ -318,7 +318,8 @@ export default (base: HTMLElement) => {
 				doTokenSet({id, x, y, rotation});
 			}
 		} else {
-			const {mapData: {gridSize, gridType}, selected: {token}} = globals;
+			const {gridSize, gridType} = globals.mapData,
+			      {token} = selected;
 			if (e.isTrusted && token) {
 				shift(token, gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize, gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize, e.shiftKey);
 				if (lastToken) {
@@ -333,7 +334,7 @@ export default (base: HTMLElement) => {
 	      }),
 	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (globals.mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
 	      updateCursor = ({target, clientX, clientY, ctrlKey}: {target: EventTarget | null, clientX: number, clientY: number, ctrlKey: boolean}) => {
-		const {layer} = globals.selected;
+		const {layer} = selected;
 		overOutline = (target as HTMLElement)?.parentNode === outline;
 		if (!ctrlKey && overOutline) {
 			document.body.style.removeProperty("--outline-cursor")
@@ -353,8 +354,8 @@ export default (base: HTMLElement) => {
 		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
 	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
-		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(globals.selected.token))),
-		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(globals.selected.token))).id)),
+		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(selected.token))),
+		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(selected.token))).id)),
 		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
@@ -363,7 +364,7 @@ export default (base: HTMLElement) => {
 			}
 			globals.root.style.removeProperty("--outline-cursor");
 			tokenDragMode = -1;
-			const {token} = globals.selected,
+			const {token} = selected,
 			      {x, y, width, height, rotation} = tokenMousePos;
 			if (token) {
 				token.x = x;
@@ -377,11 +378,11 @@ export default (base: HTMLElement) => {
 			stopMeasurement();
 			cancelTokenDrag();
 		}),
-		keyEvent("Delete", () => doTokenRemove(globals.selected.token!.id)),
+		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
 	      ]);
 	createSVG(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
-		if (globals.selected.token) {
+		if (selected.token) {
 			for (const [fn] of keys) {
 				fn();
 			}
@@ -390,7 +391,7 @@ export default (base: HTMLElement) => {
 				fn();
 			}
 		}
-		lastToken = globals.selected.token;
+		lastToken = selected.token;
 	});
 	keyEvent("z", (e: KeyboardEvent) => {
 		if (e.ctrlKey) {
@@ -404,15 +405,15 @@ export default (base: HTMLElement) => {
 	keyEvent("y", redo)[0]();
 	keyEvent("r", redo)[0]();
 	keyEvent("v", () => {
-		if (!copiedToken || !globals.selected.layer) {
+		if (!copiedToken || !selected.layer) {
 			return;
 		}
 		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-		doTokenAdd(globals.selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
+		doTokenAdd(selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		deselectToken();
-		globals.selected.layer = null;
+		selected.layer = null;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
 		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, createHTML(outline, {"style": "display: none"}));
@@ -422,7 +423,7 @@ export default (base: HTMLElement) => {
 	}));
 	defaultTool.mapMouse0 = function (this: SVGElement, e: MouseEvent) {
 		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
-		const {layer} = globals.selected;
+		const {layer} = selected;
 		if (layer && (!e.ctrlKey || e.shiftKey)) {
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
 			for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
@@ -448,12 +449,12 @@ export default (base: HTMLElement) => {
 		return false;
 	};
 	defaultTool.tokenMouse0 = (e: MouseEvent, n: Uint) => {
-		if ((e.ctrlKey && !e.shiftKey) || !globals.selected.token) {
+		if ((e.ctrlKey && !e.shiftKey) || !selected.token) {
 			return false;
 		}
 		e.stopPropagation();
 		if (n === 0 && e.shiftKey) {
-			const {layer, token} = globals.selected;
+			const {layer, token} = selected;
 			if (!layer) {
 				return false;
 			}
@@ -474,17 +475,17 @@ export default (base: HTMLElement) => {
 		}
 		setupTokenDrag();
 		tokenDragMode = n;
-		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((globals.selected.token.rotation + 143) >> 5)) % 4 + 2]);
+		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 		if (n === 0 && measureTokenMove.value) {
-			const {token} = globals.selected;
+			const {token} = selected;
 			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
 		return false;
 	};
 	defaultTool.tokenMouse2 = (e: MouseEvent) => {
 		e.stopPropagation();
-		const {layer: currLayer, token: currToken} = globals.selected;
+		const {layer: currLayer, token: currToken} = selected;
 		if (!currLayer || !currToken) {
 			return false;
 		}
@@ -540,7 +541,7 @@ export default (base: HTMLElement) => {
 					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
 					br(),
 					button({"onclick": () => {
-						if (globals.selected.token === currToken) {
+						if (selected.token === currToken) {
 							doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
 						}
 						w.close();

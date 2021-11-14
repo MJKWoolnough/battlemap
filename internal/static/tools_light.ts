@@ -3,7 +3,7 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
-import {deselectToken, globals, labels, mapLoadedReceive} from './shared.js';
+import {deselectToken, globals, labels, mapLoadedReceive, selected} from './shared.js';
 import {Colour, makeColourPicker} from './colours.js';
 import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
@@ -49,13 +49,13 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 	}
 	reset();
 	const [x2, y2] = screen2Grid(e.clientX, e.clientY, e.shiftKey),
-	      {layer: selectedLayer} = globals.selected;
+	      {layer} = selected;
 	if (x2 === x1 && y2 === y1) {
 		return;
 	}
-	if (selectedLayer) {
+	if (layer) {
 		doWallAdd({
-			"path": selectedLayer.path,
+			"path": layer.path,
 			"id": 0,
 			x1,
 			y1,
