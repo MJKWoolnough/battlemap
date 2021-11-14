@@ -249,8 +249,8 @@ globals = {
 	"layerList": null as any as SVGFolder,
 	"mapData": {} as MapData,
 	"tokens": new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
-	"walls": new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 },
+walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 selected = {
 	"layer": null as SVGLayer | null,
 	"token": null as SVGToken | SVGShape | null

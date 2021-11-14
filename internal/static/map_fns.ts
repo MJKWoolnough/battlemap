@@ -5,7 +5,7 @@ import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
 import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import undo from './undo.js';
-import {deselectToken, globals, outline, queue, selected, SQRT3} from './shared.js';
+import {deselectToken, globals, outline, queue, selected, SQRT3, walls} from './shared.js';
 import {tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -431,10 +431,10 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		if (sendRPC) {
 			queue(() => rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
 				wall.id = id;
-				globals.walls.set(id, {layer, wall});
+				walls.set(id, {layer, wall});
 			}));
 		} else if (w.id > 0) {
-			globals.walls.set(w.id, {layer, wall});
+			walls.set(w.id, {layer, wall});
 		}
 		return undoIt;
 	      },
@@ -443,14 +443,14 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		updateLight();
 		const id = wall.id;
 		queue(() => rpc.removeWall(id));
-		globals.walls.delete(id);
+		walls.delete(id);
 		wall.id = 0;
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_ADD"]);
 },
 doWallRemove = (wID: Uint, sendRPC = true) => {
-	const {layer, wall} = globals.walls.get(wID)!;
+	const {layer, wall} = walls.get(wID)!;
 	if (!layer || !wall) {
 		handleError("invalid wall to remove");
 		return;
@@ -462,7 +462,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 			const id = wall.id;
 			queue(() => rpc.removeWall(id));
 		}
-		globals.walls.delete(wall.id);
+		walls.delete(wall.id);
 		wall.id = 0;
 		return undoIt;
 	      },
@@ -471,7 +471,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 		updateLight();
 		queue(() => rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
 			wall.id = id;
-			globals.walls.set(id, {layer, wall});
+			walls.set(id, {layer, wall});
 		}));
 		return doIt;
 	      };

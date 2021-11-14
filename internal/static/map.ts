@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, SQRT3, queue} from './shared.js';
+import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, SQRT3, queue, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -512,7 +512,7 @@ centreOnGrid = (x: Uint, y: Uint) => {
 mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	globals.tokens.clear();
-	globals.walls.clear();
+	walls.clear();
 	globals.masks.set(mapData.baseOpaque, mapData.masks);
 	globals.definitions.clear();
 	const {definitions} = globals,
@@ -562,7 +562,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 				}
 			}
 			for (const w of l.walls) {
-				globals.walls.set(w.id, {
+				walls.set(w.id, {
 					layer: l,
 					wall: w
 				});
@@ -763,7 +763,7 @@ export default (base: HTMLElement) => {
 		updateLight();
 	}),
 	rpc.waitWallRemoved().then(wp => {
-		const {layer, wall} = globals.walls.get(wp)!;
+		const {layer, wall} = walls.get(wp)!;
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
 	}),
