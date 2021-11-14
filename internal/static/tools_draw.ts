@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {br, div, input, label, span} from './lib/html.js';
+import {br, div, fieldset, input, label, legend, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, path, polyline, polygon, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {autosnap} from './settings.js';
@@ -108,12 +108,14 @@ addTool({
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
 	]),
 	"options": div([
-		labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
-		br(),
-		labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
-		br(),
-		labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
-		br(),
+		fieldset([
+			legend(lang["TOOL_DRAW_SHAPE"]),
+			labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
+			br(),
+			labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
+			br(),
+			labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
+		]),
 		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap, false),
 		br(),
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
