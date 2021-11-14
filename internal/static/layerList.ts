@@ -11,7 +11,7 @@ import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -277,19 +277,15 @@ export const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 
 export default (base: HTMLElement) => {
 	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
 	dragBase = base;
-	const mousePos = {"clientX": 0, "clientY": 0};
-	mouseMoveEvent(e => {
-		mousePos.clientX = e.clientX;
-		mousePos.clientY = e.clientY;
-	})[0]();
 	let loadFn = () => {
 		const list = new LayerRoot(globals.layerList, layersRPC),
 		      setLayer = (sl: ItemLayer) => {
-			const {root} = globals;
-			root.dispatchEvent(new MouseEvent("mouseout", mousePos));
-			root.dispatchEvent(new MouseEvent("mouseleave", mousePos));
+			const {root} = globals,
+			      mo = {"clientX": mouseX, "clientY": mouseY};
+			root.dispatchEvent(new MouseEvent("mouseout", mo));
+			root.dispatchEvent(new MouseEvent("mouseleave", mo));
 			sl.show();
-			root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mousePos));
+			root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mo));
 		      };
 		keyEvent('[', () => {
 			let sl: ItemLayer | undefined;
