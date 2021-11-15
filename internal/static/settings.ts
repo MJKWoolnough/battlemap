@@ -8,16 +8,9 @@ import {shell} from './windows.js';
 import {checkInt, isAdmin, labels} from './shared.js';
 
 export const settingsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg fill="none"%3E%3Ccircle cx="50" cy="50" r="35" stroke="%23ccc" stroke-width="10" fill="none" /%3E%3Ccircle cx="50" cy="50" r="5" stroke="%23ccc" stroke-width="2" fill="none" /%3E%3C/g%3E%3Cpath id="settings-spoke" d="M35,15 l5,-15 h20 l5,15" fill="%23ccc" /%3E%3Cuse href="%23settings-spoke" transform="rotate(60, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(120, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(180, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(240, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(300, 50, 50)" /%3E%3Cpath d="M21.5,33.5 L46,47.5 M50,81 L50,55 M78.5,33.5 L54,47.5" stroke="%23ccc" stroke-width="2" /%3E%3C/svg%3E`,
-autosnap = new BoolSetting("autosnap"),
-hideMenu = new BoolSetting("menuHide"),
+[autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invery", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
-invert = new BoolSetting("invert"),
-measureTokenMove = new BoolSetting("measureTokenMove"),
-miniTools = new BoolSetting("miniTools"),
-tabIcons = new BoolSetting("tabIcons"),
-zoomSlider = new BoolSetting("zoomSlider"),
-panelOnTop = new BoolSetting("panelOnTop"),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
 hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", "128");
 
