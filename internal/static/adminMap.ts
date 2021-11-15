@@ -21,10 +21,9 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/ev
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
 
-let copiedToken: Token | null = null;
-
 export default (base: HTMLElement) => {
-	let tokenDragMode = -1,
+	let copiedToken: Token | null = null,
+	    tokenDragMode = -1,
 	    lastToken: Token | null = null,
 	    mX = 0,
 	    mY = 0,
