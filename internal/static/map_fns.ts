@@ -607,7 +607,7 @@ layersRPC: LayerRPC = Object.freeze({
 	"waitRemoved": () => waitRemoved[1],
 	"waitCopied": unusedWaitFn,
 	"waitFolderAdded": () => waitFolderAdded[1],
-	"waitFolderMoved": () => unusedWait,
+	"waitFolderMoved": unusedWaitFn,
 	"waitFolderRemoved": () => waitFolderRemoved[1],
 	"waitLayerSetVisible": () => waitLayerShow[1],
 	"waitLayerSetInvisible": () => waitLayerHide[1],
