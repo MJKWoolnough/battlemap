@@ -101,12 +101,8 @@ export default (base: HTMLElement) => {
 	const options = div(),
 	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
 	      list: HTMLLIElement[] = tools.map(t => li({"onclick": function(this: HTMLLIElement) {
-		if (selectedTool.unset) {
-			selectedTool.unset();
-		}
-		if (t.set) {
-			t.set();
-		}
+		selectedTool.unset?.();
+		t.set?.();
 		selectedTool = t;
 		if (t.options) {
 			clearElement(options).appendChild(t.options);
