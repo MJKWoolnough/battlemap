@@ -44,11 +44,10 @@ settings = () => {
 			return;
 		}
 		const plugin = pluginList.get(selected)!;
-		if (check.checked === plugin.enabled) {
-			return;
+		if (check.checked !== plugin.enabled) {
+			plugin.enabled = check.checked;
+			(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
 		}
-		plugin.enabled = check.checked;
-		(check.checked ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
 	      }}, lang["SAVE"]);
 	return [
 		isAdmin ? [
