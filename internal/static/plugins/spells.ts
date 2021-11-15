@@ -115,18 +115,6 @@ if (isAdmin) {
 			sendEffect();
 		}
 	      }),
-	      mouseout = () => {
-		if (send) {
-			cancelEffect();
-			send = false;
-		}
-		cancelMouseMove();
-		cancelMouseUp();
-		cancelEnter();
-		cancelRotate();
-		selectedEffect?.remove();
-		over = false;
-	      },
 	      addSpell = () => {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			return;
@@ -210,7 +198,6 @@ if (isAdmin) {
 			}
 			setupEnter();
 			setupMouseMove();
-			document.body.addEventListener("mouseleave", mouseout, {"once": true});
 			return true;
 		},
 		"mapMouse0": () => {
@@ -233,7 +220,16 @@ if (isAdmin) {
 		"tokenMouse2": ignore,
 		"set": setupShiftSnap,
 		"unset": () => {
-			mouseout();
+			if (send) {
+				cancelEffect();
+				send = false;
+			}
+			cancelMouseMove();
+			cancelMouseUp();
+			cancelEnter();
+			cancelRotate();
+			selectedEffect?.remove();
+			over = false;
 			cancelShiftSnap();
 		}
 	}));
