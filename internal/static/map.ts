@@ -1,10 +1,10 @@
-import type {KeystoreData, MapDetails, Byte, Int, Uint, LayerFolder, LayerTokens, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {KeystoreData, MapDetails, Byte, Int, Uint, GridDetails, LayerFolder, LayerTokens, Mask, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
 import type {Colour} from './colours.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, animate, circle, ellipse, g, image, path, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, definitions, globals, isAdmin, mapLoadedReceive, mapLoadedSend, masks, outline, queue, SQRT3, tokens, walls} from './shared.js';
+import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
+import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -25,6 +25,10 @@ export type SVGFolder = LayerFolder & {
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
+
+type MaskNode = Mask & {
+	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
+}
 
 class SVGTransform {
 	id: Uint;
@@ -509,6 +513,160 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
 	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
+masks = (() => {
+	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
+	      masks = new NodeArray<MaskNode>(g()),
+	      baseNode = mask({"id": "mapMask"}, [base, masks[node]]);
+	let baseOpaque = false;
+	return {
+		get [node]() {return baseNode;},
+		get baseOpaque() {return baseOpaque;},
+		get masks() {return JSON.parse(JSON.stringify(masks));},
+		index(i: Uint) {
+			return masks[i];
+		},
+		at(x: Uint, y: Uint) {
+			let selected: Int = -1,
+			    selectedMask: Mask | null = null;
+			for (const [n, m] of masks.entries()) {
+				switch (m[0]) {
+				case 0:
+				case 1: {
+					const [, i, j, w, h] = m;
+					if (i <= x && x <= i + w && j <= y && y <= j + h) {
+						selected = n;
+						selectedMask = m;
+					}
+				}; break;
+				case 2:
+				case 3: {
+					const [, cx, cy, rx, ry] = m,
+					      rx2 = Math.pow(rx, 2),
+					      ry2 = Math.pow(ry, 2);
+					if (ry2 * Math.pow(x - cx, 2) + rx2 * Math.pow(y - cy, 2) <= rx2 * ry2) {
+						selected = n;
+						selectedMask = m;
+					}
+				}; break;
+				case 4:
+				case 5: {
+					const points = m.reduce((res, _, i) => {
+						if (i % 2 === 1) {
+							res.push([m[i], m[i+1]]);
+						}
+						return res;
+					}, [] as [Uint, Uint][]);
+					let last = points[points.length-1],
+					    inside = false;
+					for (const point of points) {
+						if (y > Math.min(point[1], last[1]) && y <= Math.max(point[1], last[1]) && x <= (y - point[1]) * (last[0] - point[0]) / (last[1] - point[1]) + point[0]) {
+							inside = !inside;
+						}
+						last = point;
+					}
+					if (inside) {
+						selected = n;
+						selectedMask = m;
+					}
+				}
+				}
+			}
+			return [selectedMask, selected] as const;
+		},
+		add(m: Mask) {
+			const fill = (m[0] & 1) === 1 ? "#000" : "#fff";
+			let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
+			switch (m[0]) {
+			case 0:
+			case 1:
+				shape = rect({"x": m[1], "y": m[2], "width": m[3], "height": m[4], fill});
+				break;
+			case 2:
+			case 3:
+				shape = ellipse({"cx": m[1], "cy": m[2], "rx": m[3], "ry": m[4], fill});
+				break;
+			case 4:
+			case 5:
+				shape = polygon({"points": m.reduce((res, _, i) => i % 2 === 1 ? `${res} ${m[i]},${m[i+1]}` : res, ""), fill});
+				break;
+			default:
+				return -1;
+			}
+			return masks.push(Object.assign(m, {[node]: shape})) - 1;
+		},
+		remove(index: Uint) {
+			masks.splice(index, 1);
+		},
+		set(bO: boolean, maskList: Mask[]) {
+			base.setAttribute("fill", (baseOpaque = bO) ? "#fff" : "#000");
+			masks.splice(0, masks.length);
+			for (const mask of maskList) {
+				this.add(mask);
+			}
+		}
+	}
+})(),
+definitions = (() => {
+	const base = defs(masks[node]),
+	      list = new Map<string, SVGPatternElement>(),
+	      lighting = new Map<string, SVGFilterElement>();
+	return {
+		get [node]() {return base;},
+		get list() {return list;},
+		add(t: SVGToken) {
+			let i = 0;
+			while (list.has(`Pattern_${i}`)) {
+				i++;
+			}
+			const id = `Pattern_${i}`;
+			list.set(id, base.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
+			return id;
+		},
+		remove(id: string) {
+			base.removeChild(list.get(id)!).firstChild as SVGImageElement;
+			list.delete(id);
+		},
+		setGrid(grid: GridDetails) {
+			const old = list.get("grid");
+			old?.remove();
+			switch (grid.gridType) {
+			case 1: {
+				const w = grid.gridSize,
+				      h = 2 * w / SQRT3,
+				      maxH = 2 * Math.round(1.5 * w / SQRT3);
+				list.set("grid", base.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			}; break;
+			case 2: {
+				const h = grid.gridSize,
+				      w = 2 * h / SQRT3,
+				      maxW = 2 * Math.round(1.5 * h / SQRT3);
+				list.set("grid", base.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			}; break;
+			default:
+				list.set("grid", base.appendChild(pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+			}
+		},
+		getLighting(id: string) {
+			if (lighting.has(id)) {
+				return lighting.get(id)!;
+			}
+			return setAndReturn(lighting, id, base.appendChild(filter({id})));
+		},
+		clearLighting() {
+			for (const l of lighting.values()) {
+				l.remove();
+			}
+			lighting.clear();
+		},
+		clear() {
+			this.clearLighting();
+			for (const d of list.values()) {
+				d.remove();
+			}
+			list.clear();
+		}
+	}
+})(),
 mapView = (mapData: MapData, loadChars = false) => {
 	globals.mapData = mapData;
 	tokens.clear();

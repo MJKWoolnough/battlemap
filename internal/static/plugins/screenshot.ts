@@ -1,8 +1,8 @@
 import {svgNS} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
-import {definitions, globals, labels} from '../shared.js';
-import {panZoom} from '../map.js';
+import {globals, labels} from '../shared.js';
+import {definitions, panZoom} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
 import {keyEvent} from '../lib/events.js';
