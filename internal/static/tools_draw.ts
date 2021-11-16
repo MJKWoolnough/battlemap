@@ -3,8 +3,8 @@ import {br, div, fieldset, input, label, legend, span} from './lib/html.js';
 import {createSVG, svg, rect, ellipse, path, polyline, polygon, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {autosnap} from './settings.js';
-import {screen2Grid} from './map.js';
-import {checkInt, deselectToken, globals, labels, selected} from './shared.js';
+import {root, screen2Grid} from './map.js';
+import {checkInt, deselectToken, labels, selected} from './shared.js';
 import {doTokenAdd} from './map_fns.js';
 import {shell} from './windows.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
@@ -204,7 +204,7 @@ addTool({
 	"set": () => {
 		deselectToken();
 		setupShiftSnap();
-		createSVG(globals.root, {"style": {"cursor": "none"}}, marker);
+		createSVG(root, {"style": {"cursor": "none"}}, marker);
 	},
 	"unset": () => {
 		cancelShiftSnap();
@@ -215,6 +215,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		globals.root.style.removeProperty("cursor");
+		root.style.removeProperty("cursor");
 	}
 });

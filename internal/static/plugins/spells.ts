@@ -3,7 +3,7 @@ import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
-import {screen2Grid} from '../map.js';
+import {root, screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
@@ -83,7 +83,7 @@ if (isAdmin) {
 			y = Math.round(token.y + token.height / 2);
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			if (!selectedEffect.parentNode) {
-				globals.root.appendChild(selectedEffect);
+				root.appendChild(selectedEffect);
 			}
 		} else {
 			coneEffect.remove();
@@ -271,7 +271,7 @@ if (isAdmin) {
 		}
 		if (lastEffect !== selectedEffect) {
 			lastEffect?.remove();
-			globals.root.appendChild(selectedEffect);
+			root.appendChild(selectedEffect);
 		}
 		lastEffect = selectedEffect;
 		setSize(size, width);

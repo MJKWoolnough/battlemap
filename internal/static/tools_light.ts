@@ -5,7 +5,7 @@ import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {deselectToken, globals, labels, mapLoadedReceive, selected} from './shared.js';
 import {Colour, makeColourPicker} from './colours.js';
-import {SVGLayer, walkLayers, point2Line, screen2Grid} from './map.js';
+import {SVGLayer, point2Line, root, screen2Grid, walkLayers} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
 import {keyEvent} from './lib/events.js';
@@ -37,7 +37,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 	createSVG(l, {x2, y2});
       },
       reset = () => {
-	const {root} = globals;
 	root.removeEventListener("mousemove", onmousemove);
 	root.removeEventListener("mouseup", onmouseup);
 	cancelKey();
@@ -205,7 +204,7 @@ addTool({
 		] as (() => Subscription<any>)[]).map(fn => fn().then(() => window.setTimeout(genWalls))));
 		on = true;
 		genWalls();
-		globals.root.appendChild(wallLayer);
+		root.appendChild(wallLayer);
 		deselectToken();
 	},
 	"unset": () => {

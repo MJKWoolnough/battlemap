@@ -7,7 +7,7 @@ import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {edit as tokenEdit} from './characters.js';
 import {tokenContext} from './plugins.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView, panZoom, screen2Grid, showSignal} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView, panZoom, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doMaskAdd, doMaskRemove, doMaskSet, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpacity} from './settings.js';
 import undo from './undo.js';
@@ -124,7 +124,7 @@ export default (base: HTMLElement) => {
 		if (!selected.token || !selected.layer) {
 			return;
 		}
-		globals.root.style.removeProperty("--outline-cursor");
+		root.style.removeProperty("--outline-cursor");
 		tokenDragMode = -1;
 		const {token} = selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
@@ -269,7 +269,7 @@ export default (base: HTMLElement) => {
 		moved = true;
 		panZoom.x += e.clientX - mX;
 		panZoom.y += e.clientY - mY;
-		createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		createSVG(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 		mX = e.clientX;
 		mY = e.clientY;
 	      },
@@ -278,11 +278,11 @@ export default (base: HTMLElement) => {
 			deselectToken();
 			updateCursor(e);
 		}
-		globals.root.style.removeProperty("--outline-cursor");
+		root.style.removeProperty("--outline-cursor");
 	      }),
-	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => globals.root.style.removeProperty("--outline-cursor")),
+	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => root.style.removeProperty("--outline-cursor")),
 	      moveMap = (e: MouseEvent, initFn: () => void) => {
-		globals.root.style.setProperty("--outline-cursor", "grabbing");
+		root.style.setProperty("--outline-cursor", "grabbing");
 		mX = e.clientX;
 		mY = e.clientY;
 		moved = false;
@@ -358,10 +358,10 @@ export default (base: HTMLElement) => {
 		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
-				psuedoUpdateCursor(globals.root, e.ctrlKey);
+				psuedoUpdateCursor(root, e.ctrlKey);
 				return;
 			}
-			globals.root.style.removeProperty("--outline-cursor");
+			root.style.removeProperty("--outline-cursor");
 			tokenDragMode = -1;
 			const {token} = selected,
 			      {x, y, width, height, rotation} = tokenMousePos;
@@ -415,7 +415,7 @@ export default (base: HTMLElement) => {
 		selected.layer = null;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
-		createSVG(globals.root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, createHTML(outline, {"style": "display: none"}));
+		createSVG(root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, createHTML(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
@@ -474,7 +474,7 @@ export default (base: HTMLElement) => {
 		}
 		setupTokenDrag();
 		tokenDragMode = n;
-		globals.root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]);
+		root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]);
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 		if (n === 0 && measureTokenMove.value) {
 			const {token} = selected;

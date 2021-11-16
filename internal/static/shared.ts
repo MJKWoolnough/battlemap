@@ -84,7 +84,6 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 	] as const;
 })(),
 globals = {
-	"root": null as any as SVGSVGElement,
 	"layerList": null as any as SVGFolder,
 	"mapData": {} as MapData,
 },

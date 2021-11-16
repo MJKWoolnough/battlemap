@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, path, polyline, title} from './lib/svg.js';
 import {addTool, ignore, marker} from './tools.js';
-import {panZoom, screen2Grid} from './map.js';
+import {panZoom, root, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
 import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
@@ -66,8 +66,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 export const startMeasurement = (x1: Uint, y1: Uint) => {
 	coords.splice(0, coords.length, x1, y1);
 	const l = {"points": `${x1},${y1} ${x1},${y1}`},
-	      [sx, sy] = grid2Screen(x1, y1),
-	      {root} = globals;
+	      [sx, sy] = grid2Screen(x1, y1);
 	createSVG(lone, l);
 	createSVG(ltwo, l);
 	createSVG(spot, {"cx": coords[0], "cy": coords[1]});
@@ -137,7 +136,6 @@ addTool({
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
-		const {root} = globals;
 		root.style.setProperty("--outline-cursor", "none");
 		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
 		return false;
@@ -164,12 +162,12 @@ addTool({
 		return false;
 	},
 	"set": () => {
-		createSVG(globals.root, {"style": {"cursor": "none"}}, marker);
+		createSVG(root, {"style": {"cursor": "none"}}, marker);
 		setupShiftSnap();
 		setupEscape();
 	},
 	"unset": () => {
-		globals.root.style.removeProperty("cursor");
+		root.style.removeProperty("cursor");
 		marker.remove();
 		cancelMouse0();
 		cancelMouse2();

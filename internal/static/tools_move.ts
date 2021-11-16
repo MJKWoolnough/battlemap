@@ -1,8 +1,8 @@
 import {svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
-import {deselectToken, globals, selected} from './shared.js';
+import {deselectToken, selected} from './shared.js';
 import {doLayerShift} from './map_fns.js';
-import {panZoom, screen2Grid} from './map.js';
+import {panZoom, root, screen2Grid} from './map.js';
 import {addTool, disable, ignore} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
 import {autosnap, measureTokenMove} from './settings.js';
@@ -70,9 +70,9 @@ addTool({
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
-	"set": () => globals.root.style.setProperty("cursor", "move"),
+	"set": () => root.style.setProperty("cursor", "move"),
 	"unset": () => {
-		globals.root.style.removeProperty("cursor");
+		root.style.removeProperty("cursor");
 		stop();
 	}
 });

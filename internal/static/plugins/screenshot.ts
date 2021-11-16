@@ -2,7 +2,7 @@ import {svgNS} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {globals, labels} from '../shared.js';
-import {definitions, panZoom} from '../map.js';
+import {definitions, panZoom, root} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
 import {keyEvent} from '../lib/events.js';
@@ -98,7 +98,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
       disablePNG = new BoolSetting("plugin-screenshot-png"),
       hideGrid = new BoolSetting("plugin-screenshot-grid"),
       makeScreenshot = () => {
-	const {root, mapData: {width, height}} = globals,
+	const {width, height} = globals.mapData,
 	      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
 	      ctx = c.getContext("2d")!,
 	      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),

@@ -252,6 +252,8 @@ const idNames: Record<string, Int> = {
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
+export let root = svg();
+
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		if (py >= y1 && py <= y2) {
@@ -346,8 +348,8 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 },
 setMapDetails = (details: MapDetails) => {
 	Object.assign(globals.mapData, details);
-	globals.root.setAttribute("width", details["width"] + "");
-	globals.root.setAttribute("height", details["height"] + "");
+	root.setAttribute("width", details["width"] + "");
+	root.setAttribute("height", details["height"] + "");
 	definitions.setGrid(details);
 	updateLight();
 },
@@ -395,7 +397,7 @@ showSignal = (() => {
 	      ]);
 	return (pos: [Uint, Uint]) => {
 		signal.setAttribute("transform", `translate(${pos[0] - 50}, ${pos[1] - 50})`);
-		globals.root.appendChild(signal);
+		root.appendChild(signal);
 		signalAnim1.beginElement();
 		signalAnim2.beginElement();
 	};
@@ -486,8 +488,7 @@ zoom = (() => {
 	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
 	mapLoadedReceive(() => zoomerControl.setAttribute("cy", "60"));
 	return (delta: number, x: number, y: number, moveControl = true) => {
-		const {root} = globals,
-		      width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
+		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
 		      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
 		      oldZoom = panZoom.zoom;
 		if (delta < 0) {
@@ -511,7 +512,7 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	      {zoom} = panZoom;
 	panZoom.x = Math.min(Math.max((iw - width) / 2 - (x - width / 2) * zoom, iw - width * (zoom + 1) / 2), width * (zoom - 1) / 2);
 	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
-	createSVG(globals.root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+	createSVG(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
 masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
@@ -695,8 +696,8 @@ mapView = (mapData: MapData, loadChars = false) => {
 	      items = div(),
 	      percent = progress(),
 	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
-	      root = globals.root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]),
 	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	(getLayer("/Grid") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
@@ -746,7 +747,7 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
 		const amount = scrollAmount.value || 100;
-		createSVG(globals.root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
+		createSVG(root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
 	return false;
 };
@@ -761,7 +762,7 @@ export default (base: HTMLElement) => {
 	    mX = 0,
 	    mY = 0;
 	const startMapMove = (e: MouseEvent) => {
-		createSVG(globals.root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
+		createSVG(root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
 		mX = e.clientX;
 		mY = e.clientY;
 	      },

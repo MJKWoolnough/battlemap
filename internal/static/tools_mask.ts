@@ -3,11 +3,11 @@ import {br, button, div, fieldset, legend, input} from './lib/html.js';
 import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, marker} from './tools.js';
-import {deselectToken, globals, labels} from './shared.js';
+import {deselectToken, labels} from './shared.js';
 import {autosnap} from './settings.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {shell} from './windows.js';
-import {masks, screen2Grid} from './map.js';
+import {masks, root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
 import {JSONSetting} from './settings_types.js';
 import lang from './language.js';
@@ -98,7 +98,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 			case 5:
 				maskHighlight = polygon({"points": mask.reduce((res, _, i) => i % 2 === 1 ? `${res} ${mask[i]},${mask[i+1]}` : res, "")});
 			}
-			createSVG(globals.root, createSVG(maskHighlight, {"fill": "none", "stroke": "#f00"}));
+			createSVG(root, createSVG(maskHighlight, {"fill": "none", "stroke": "#f00"}));
 		} else {
 			maskHighlight = overMask = null;
 		}
@@ -212,7 +212,7 @@ addTool({
 	"set": () => {
 		deselectToken();
 		setupShiftSnap();
-		createSVG(globals.root, {"style": {"cursor": "none"}}, marker);
+		createSVG(root, {"style": {"cursor": "none"}}, marker);
 	},
 	"unset": () => {
 		cancelShiftSnap();
@@ -223,6 +223,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		globals.root.style.removeProperty("cursor");
+		root.style.removeProperty("cursor");
 	}
 });

@@ -5,7 +5,7 @@ import {node} from './lib/nodes.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 import {screen2Grid} from './map.js';
 import {characterData, deselectToken, getCharacterToken, globals, labels, selected} from './shared.js';
-import {SVGToken} from './map.js';
+import {SVGToken, root} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {mouseMoveEvent} from './lib/events.js';
 import {autosnap} from './settings.js';
@@ -36,7 +36,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
 		layer[node].appendChild(cursor[node]);
-		createSVG(globals.root, {"style": {"cursor": "none"}})
+		createSVG(root, {"style": {"cursor": "none"}})
 		moveCursor();
 	}
       },
@@ -44,7 +44,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	stopCursor()
 	cursor?.[node].remove();
 	cursor?.cleanup();
-	globals.root.style.removeProperty("cursor");
+	root.style.removeProperty("cursor");
       };
 
 let setToken: (() => TokenImage) | null = null,
