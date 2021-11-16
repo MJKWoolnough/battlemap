@@ -2,12 +2,12 @@ import type {Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
-import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
+import {createSVG, circle, defs, g, line, path, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {deselectToken, labels, mapLoadedReceive, selected} from './shared.js';
 import {Colour, makeColourPicker} from './colours.js';
 import {SVGLayer, mapData, point2Line, root, screen2Grid, walkLayers} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
-import {addTool} from './tools.js';
+import {addTool, marker as wallMarker} from './tools.js';
 import {keyEvent} from './lib/events.js';
 import {rpc, combined as combinedRPC} from './rpc.js';
 import lang from './language.js';
@@ -24,12 +24,6 @@ const sunTool = input({"type": "radio", "name": "lightTool", "checked": true, "c
 		      stop({"offset": "100%", "stop-color": "currentColor", "stop-opacity": 0})
 	      ])),
 	      circle({"cx": 20, "cy": 20, "r": 20, "fill": "url(#lightMGrad)", "stroke": "#888", "stroke-width": 3})
-      ]),
-      wallMarker = g({"stroke": "#000"}, [
-	      polygon({"points": "5,0 16,0 10.5,5"}),
-	      polygon({"points": "0,5 0,16 5,10.5"}),
-	      polygon({"points": "5,21 16,21 10.5,16"}),
-	      polygon({"points": "21,16 21,5 16,10.5"})
       ]),
       over = (x: Int, y: Int, w: Wall) => point2Line(x, y, w.x1, w.y1, w.x2, w.y2) < 5,
       onmousemove = (e: MouseEvent) => {
