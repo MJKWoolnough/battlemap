@@ -15,11 +15,11 @@ undoLimit = new IntSetting("undoLimit", "100"),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
 hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", "128");
 
-export default (base: HTMLElement, loggedIn: boolean) => {
+export default (base: HTMLElement) => {
 	createHTML(base, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
-		form({"action": loggedIn ? "login/logout" : "login/login"}, input({"type": "submit", "value": loggedIn ? lang["LOGOUT"] : lang["LOGIN"]})),
+		form({"action": isAdmin ? "login/logout" : "login/login"}, input({"type": "submit", "value": lang[isAdmin ? "LOGOUT" : "LOGIN"]})),
 		br(),
 		h1(lang["LANGUAGE"]),
 		labels(`${lang["SELECT_LANGUAGE"]}: `, select({"onchange": function(this: HTMLSelectElement) {

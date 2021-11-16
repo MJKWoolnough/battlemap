@@ -221,10 +221,10 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon), true);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon));
 		loadMap(base.appendChild(div()));
 	} else {
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon), false);
+		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon));
 		for (const mi of menuItems()) {
 			tabs.add(mi[0], mi[1], mi[2], mi[3]);
 		}
