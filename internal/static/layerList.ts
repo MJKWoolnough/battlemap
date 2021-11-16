@@ -4,7 +4,7 @@ import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
-import {getLayer, root} from './map.js';
+import {getLayer, layerList, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {checkInt, deselectToken, enterKey, globals, labels, mapLoadedReceive, queue, selected} from './shared.js';
 import {colourPicker, hex2Colour} from './colours.js';
@@ -278,7 +278,7 @@ export default (base: HTMLElement) => {
 	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
 	dragBase = base;
 	let loadFn = () => {
-		const list = new LayerRoot(globals.layerList, layersRPC),
+		const list = new LayerRoot(layerList, layersRPC),
 		      setLayer = (sl: ItemLayer) => {
 			const mo = {"clientX": mouseX, "clientY": mouseY};
 			root.dispatchEvent(new MouseEvent("mouseout", mo));
@@ -376,7 +376,7 @@ export default (base: HTMLElement) => {
 		]);
 		loadFn = () => {
 			selectedLayer = undefined;
-			list.setRoot(globals.layerList);
+			list.setRoot(layerList);
 		};
 	    };
 	mapLoadedReceive(() => loadFn());

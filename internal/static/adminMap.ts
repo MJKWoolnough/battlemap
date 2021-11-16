@@ -7,7 +7,7 @@ import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {edit as tokenEdit} from './characters.js';
 import {tokenContext} from './plugins.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, removeLayer, mapView, panZoom, root, screen2Grid, showSignal} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doMaskAdd, doMaskRemove, doMaskSet, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpacity} from './settings.js';
 import undo from './undo.js';
@@ -244,7 +244,7 @@ export default (base: HTMLElement) => {
 		}
 		doTokenAdd(selected.layer.path, token);
 	      },
-	      allTokens = function* (folder: SVGFolder = globals.layerList): Iterable<SVGToken | SVGShape> {
+	      allTokens = function* (folder: SVGFolder = layerList): Iterable<SVGToken | SVGShape> {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 			if (isSVGLayer(e)) {
 				yield* e.tokens;
@@ -581,7 +581,7 @@ export default (base: HTMLElement) => {
 					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 				})
 			] : [],
-			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(globals.layerList, (sl: SVGLayer) => {
+			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
 				if (!tokens.has(currToken.id)) {
 					return;
 				}

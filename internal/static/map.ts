@@ -252,7 +252,8 @@ const idNames: Record<string, Int> = {
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
-export let root = svg();
+export let root = svg(),
+layerList: SVGFolder;
 
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
@@ -282,7 +283,7 @@ splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
-walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = globals.layerList, hidden = false) => {
+walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = layerList, hidden = false) => {
 	for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 		if (isSVGLayer(e)) {
 			fn(e, hidden || e.hidden);
@@ -293,7 +294,7 @@ walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = gl
 },
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
-getLayer = (path: string, layer: SVGFolder | SVGLayer = globals.layerList) => path.split("/").filter(b => b).every(p => {
+getLayer = (path: string, layer: SVGFolder | SVGLayer = layerList) => path.split("/").filter(b => b).every(p => {
 	if (!isSVGFolder(layer)) {
 		return false;
 	}
@@ -322,7 +323,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	layer.hidden = !visibility;
 	updateLight();
 },
-addLayerFolder = (path: string) => (globals.layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
+addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
 	const l = getLayer(path)!;
 	l.name = name
@@ -334,7 +335,7 @@ removeLayer = (path: string) => {
 	(fromParent!.children as NodeArray<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
 },
-addLayer = (name: string) => (globals.layerList.children.push(processLayers(undefined, {name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
+addLayer = (name: string) => (layerList.children.push(processLayers(undefined, {name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(parentStr)!,
@@ -675,7 +676,12 @@ mapView = (mapData: MapData, loadChars = false) => {
 	masks.set(mapData.baseOpaque, mapData.masks);
 	definitions.clear();
 	const wg = new WaitGroup(),
-	      layerList = globals.layerList = (() => {
+	      {width, height, lightColour, startX, startY} = mapData,
+	      items = div(),
+	      percent = progress(),
+	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
+	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	layerList = (() => {
 		const n = g(),
 		      children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of mapData.children) {
@@ -691,12 +697,7 @@ mapView = (mapData: MapData, loadChars = false) => {
 			items: {},
 			path: "/"
 		} as SVGFolder;
-	      })(),
-	      {width, height, lightColour, startX, startY} = mapData,
-	      items = div(),
-	      percent = progress(),
-	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
-	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	})();
 	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
