@@ -649,10 +649,7 @@ definitions = (() => {
 			}
 		},
 		getLighting(id: string) {
-			if (lighting.has(id)) {
-				return lighting.get(id)!;
-			}
-			return setAndReturn(lighting, id, base.appendChild(filter({id})));
+			return lighting.get(id) ?? setAndReturn(lighting, id, base.appendChild(filter({id})));
 		},
 		clearLighting() {
 			for (const l of lighting.values()) {
