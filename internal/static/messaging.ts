@@ -21,11 +21,10 @@ shareIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 20 20"%3E%3
 
 inited.then(() => {
 	rpc.waitBroadcastWindow().then(d => {
-		if (!modules.has(d.module)) {
-			return;
+		const fn = modules.get(d.module);
+		if (fn) {
+			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
+			shell.appendChild(bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
 		}
-		const fn = modules.get(d.module)!,
-		      [icon, title] = fn instanceof Array ? fn : fn(d.id);
-		shell.appendChild(bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
 	});
 });
