@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
+import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -500,8 +500,7 @@ zoom = (() => {
 		}
 		panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 		panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-		createSVG(outline, {"style": {"--zoom": panZoom.zoom}});
-		createSVG(root, {"transform": `scale(${panZoom.zoom})` ,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		createSVG(root, {"transform": `scale(${panZoom.zoom})` ,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px", "--zoom": panZoom.zoom}});
 		if (moveControl) {
 			zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
 		}
