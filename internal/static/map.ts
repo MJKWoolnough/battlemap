@@ -679,8 +679,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	      {width, height, lightColour, startX, startY} = mapData,
 	      items = div(),
 	      percent = progress(),
-	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
-	      base = div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items]));
 	layerList = (() => {
 		const n = g(),
 		      children = new NodeArray<SVGFolder | SVGLayer>(n);
@@ -740,7 +739,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	updateLight();
 	panZoom.zoom = 1;
 	centreOnGrid(startX, startY);
-	return base;
+	return div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 };
 
 defaultTool.mapMouseWheel = (e: WheelEvent) => {
