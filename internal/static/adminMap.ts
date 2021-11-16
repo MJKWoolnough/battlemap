@@ -548,43 +548,42 @@ export default (base: HTMLElement) => {
 			}),
 			tokenPos < currLayer.tokens.length - 1 ? [
 				item(lang["CONTEXT_MOVE_TOP"], () => {
-					if (!tokens.has(currToken.id)) {
-						return;
+					const tokenLayer = tokens.get(currToken.id);
+					if (tokenLayer) {
+						const currLayer = tokenLayer.layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 					}
-					const currLayer = tokens.get(currToken.id)!.layer;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 				}),
 				item(lang["CONTEXT_MOVE_UP"], () => {
-					if (!tokens.has(currToken.id)) {
-						return;
+					const tokenLayer = tokens.get(currToken.id);
+					if (tokenLayer) {
+						const currLayer = tokenLayer.layer,
+						      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 					}
-					const currLayer = tokens.get(currToken.id)!.layer,
-					      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 				})
 			] : [],
 			tokenPos > 0 ? [
 				item(lang["CONTEXT_MOVE_DOWN"], () => {
-					if (!tokens.has(currToken.id)) {
-						return;
+					const tokenLayer = tokens.get(currToken.id);
+					if (tokenLayer) {
+						const currLayer = tokenLayer.layer,
+						      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 					}
-					const currLayer = tokens.get(currToken.id)!.layer,
-					      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
 				}),
 				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-					if (!tokens.has(currToken.id)) {
-						return;
+					const tokenLayer = tokens.get(currToken.id);
+					if (tokenLayer) {
+						const currLayer = tokenLayer.layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 					}
-					const currLayer = tokens.get(currToken.id)!.layer;
-					doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 				})
 			] : [],
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
-				if (!tokens.has(currToken.id)) {
-					return;
+				if (tokens.has(currToken.id)) {
+					doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
 				}
-				doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
 			}, currLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
 		]);
