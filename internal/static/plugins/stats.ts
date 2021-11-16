@@ -4,7 +4,8 @@ import {NodeArray, node} from '../lib/nodes.js';
 import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, thead, th, tr, td} from '../lib/html.js';
 import {SVGToken} from '../map.js';
-import {addCSS, mapLoadReceive, isAdmin, tokens} from '../shared.js';
+import {addCSS, mapLoadReceive, tokens} from '../shared.js';
+import {isAdmin} from '../rpc.js';
 import {addPlugin} from '../plugins.js';
 import {language} from '../language.js';
 

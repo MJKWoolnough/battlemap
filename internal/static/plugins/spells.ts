@@ -1,12 +1,12 @@
 import type {Uint} from '../types.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {addCSS, checkInt, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
+import {addCSS, checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
-import {rpc} from '../rpc.js';
+import {isAdmin, rpc} from '../rpc.js';
 import {hex2Colour, noColour} from '../colours.js';
 import {doTokenAdd} from '../map_fns.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';

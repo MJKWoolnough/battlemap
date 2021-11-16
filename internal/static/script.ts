@@ -1,5 +1,5 @@
 import type {WindowElement, WindowData} from './windows.js';
-import RPC, {rpc, handleError} from './rpc.js';
+import RPC, {handleError, isAdmin, rpc} from './rpc.js';
 import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
 import {div, h2, img, input, label, span} from './lib/html.js';
 import {symbol, path, circle, animateTransform} from './lib/svg.js';
@@ -14,7 +14,7 @@ import {shell, desktop, windows, getWindowData, checkWindowData} from './windows
 import settings, {hideMenu, invert, panelOnTop, settingsIcon, tabIcons} from './settings.js';
 import tools, {toolsIcon} from './tools.js';
 import {characterIcon} from './characters.js';
-import {addCSS, isAdmin, mod} from './shared.js';
+import {addCSS, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import './tools_draw.js';

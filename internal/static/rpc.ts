@@ -2,7 +2,7 @@ import type {RPC as RPCType, InternalWaits, KeystoreData, Uint} from './types.js
 import {Subscription} from './lib/inter.js';
 import RPC from './lib/rpc_ws.js';
 import {shell} from './windows.js';
-import {isInt, isUint, queue, setUser, setAdmin} from './shared.js';
+import {isInt, isUint, queue} from './shared.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 
@@ -38,11 +38,13 @@ handleError = (e: Error | string) => {
 inited = new Promise<void>(success => initSend = success),
 connID = new Promise<Uint>(success => connIDSet = success);
 
+export let isAdmin: boolean, isUser: boolean;
+
 export default (url: string): Promise<void> => {
 	return RPC(url, 1.1).then(arpc => {
 		arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
-			setAdmin(userLevel === 2);
-			setUser(userLevel === 1);
+			isAdmin = userLevel === 2;
+			isUser = userLevel === 1;
 			initSend();
 		});
 		arpc.request("conn.connID").then(checkUint).then(connIDSet);

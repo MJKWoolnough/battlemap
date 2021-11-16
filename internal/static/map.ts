@@ -4,13 +4,13 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
+import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
 import {mouseDragEvent} from './lib/events.js';
-import {rpc, inited} from './rpc.js';
+import {rpc, inited, isAdmin} from './rpc.js';
 import {tokenClass} from './plugins.js';
 import lang from './language.js';
 

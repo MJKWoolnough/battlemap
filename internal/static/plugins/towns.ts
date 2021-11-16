@@ -5,8 +5,8 @@ import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, the
 import {addPlugin, getSettings} from '../plugins.js';
 import {shell, windows} from '../windows.js';
 import {getSymbol} from '../symbols.js';
-import {isUint, isAdmin} from '../shared.js';
-//import {rpc} from '../rpc.js';
+import {isUint} from '../shared.js';
+import {isAdmin} from '../rpc.js';
 import {language} from '../language.js';
 
 type MetaURL = {
