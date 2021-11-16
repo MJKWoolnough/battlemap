@@ -2,9 +2,9 @@ import type {Uint} from './types.js';
 import {createHTML, br, div, input} from './lib/html.js';
 import {createSVG, svg, circle, g, path, polyline, title} from './lib/svg.js';
 import {addTool, ignore, marker} from './tools.js';
-import {panZoom, root, screen2Grid} from './map.js';
+import {mapData, panZoom, root, screen2Grid} from './map.js';
 import {autosnap} from './settings.js';
-import {checkInt, globals, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
+import {checkInt, labels, mapLoadedReceive, isUint, isAdmin} from './shared.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
@@ -12,7 +12,7 @@ import {rpc, inited} from './rpc.js';
 let send = false;
 
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
-	const {width, height} = globals.mapData;
+	const {width, height} = mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
       snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
@@ -87,9 +87,9 @@ measureDistance = (x: Uint, y: Uint) => {
 		return;
 	}
 	let distance = 0;
-	const {gridSize: size} = globals.mapData,
+	const {gridSize} = mapData,
 	      last = [0, 0],
-	      cv = checkInt(parseInt(cellValue.value), 1, Infinity, size),
+	      cv = checkInt(parseInt(cellValue.value), 1, Infinity, gridSize),
 	      l = {"points": coords.reduce((res, _, i) => {
 		if (i % 2 === 0) {
 			const x = coords[i],
@@ -109,7 +109,7 @@ measureDistance = (x: Uint, y: Uint) => {
 	      dx = x - last[0],
 	      dy = y - last[1];
 	distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
-	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / size) + "");
+	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
 	createSVG(lone, l);
 	createSVG(ltwo, l);
 },
@@ -178,7 +178,7 @@ addTool({
 });
 
 mapLoadedReceive(() => {
-	const {gridDistance, gridDiagonal} = globals.mapData;
+	const {gridDistance, gridDiagonal} = mapData;
 	cellValue.value = gridDistance + "";
 	diagonals.checked = gridDiagonal;
 });

@@ -4,9 +4,9 @@ import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
-import {getLayer, layerList, root} from './map.js';
+import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
-import {checkInt, deselectToken, enterKey, globals, labels, mapLoadedReceive, queue, selected} from './shared.js';
+import {checkInt, deselectToken, enterKey, labels, mapLoadedReceive, queue, selected} from './shared.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
@@ -145,8 +145,7 @@ class ItemLayer extends Item {
 	}
 	show() {
 		if (this.id === -1) { // Grid
-			const {mapData} = globals,
-			      width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize)}),
+			const width = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.width / mapData.gridSize)}),
 			      height = input({"type": "number", "min": "1", "max": "1000", "value": Math.round(mapData.height / mapData.gridSize)}),
 			      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize}),
@@ -189,7 +188,7 @@ class ItemLayer extends Item {
 				}})
 			      ]));
 		} else if (this.id === -2) { // Light
-			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], globals.mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
+			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
 			selectedLayer?.[node].classList.remove("selectedLayer");
 			this[node].classList.add("selectedLayer");

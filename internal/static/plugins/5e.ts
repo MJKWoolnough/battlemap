@@ -8,9 +8,9 @@ import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix,
 import {NodeArray, node, noSort} from '../lib/nodes.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
-import {SVGToken, centreOnGrid, walkLayers} from '../map.js';
+import {SVGToken, centreOnGrid, mapData, walkLayers} from '../map.js';
 import {getToken, doMapDataSet, doMapDataRemove, doTokenSet} from '../map_fns.js';
-import {addCSS, characterData, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokens, tokenSelectedReceive} from '../shared.js';
+import {addCSS, characterData, isAdmin, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokens, tokenSelectedReceive} from '../shared.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {windows, shell} from '../windows.js';
@@ -459,7 +459,7 @@ const defaultLanguage = {
 	])
       })),
       updateInitiative = (change?: [Uint, Uint | null]) => {
-	const {"5e-initiative": initiative} = globals.mapData.data;
+	const {"5e-initiative": initiative} = mapData.data;
 	initiativeList.splice(0, initiativeList.length);
 	initTokens.clear();
 	const hiddenLayers = new Set<string>();
@@ -880,8 +880,7 @@ if (isAdmin) {
 	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", undefined, () => {
 		const {token} = selected;
 		if (token instanceof SVGToken5E) {
-			const mapData = globals.mapData as MapData5E;
-			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				initChange(token);
 			} else {
 				initAdd(token, token.getData("5e-initiative-mod"));
@@ -972,10 +971,9 @@ if (isAdmin) {
 			const initMod: number | null = token.getData("5e-initiative-mod"),
 			      tokenConditions: boolean[] = token.getData("5e-conditions") ?? [],
 			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
-			      ctxList: List = [],
-			      mapData = globals.mapData as MapData5E;
+			      ctxList: List = [];
 			let showConditions = tokenConditions.some(a => a);
-			if (mapData.data["5e-initiative"] && mapData.data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
 					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),

@@ -1,9 +1,9 @@
 import type {Uint} from '../types.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
-import {addCSS, checkInt, globals, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
+import {addCSS, checkInt, isAdmin, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
-import {root, screen2Grid} from '../map.js';
+import {mapData, root, screen2Grid} from '../map.js';
 import {autosnap} from '../settings.js';
 import mainLang, {language} from '../language.js';
 import {rpc} from '../rpc.js';
@@ -26,7 +26,7 @@ const sparkID = "plugin-spell-spark",
       effectList = [circleEffect, coneEffect, cubeEffect, lineEffect, wallEffect],
       rotations = new Map<SVGGElement, SVGElement>([[coneEffect, conePath], [cubeEffect, cubeRect], [lineEffect, lineRect], [wallEffect, wallRect]]),
       setSize = (size: Uint, width: Uint) => {
-	const {gridSize, gridDistance} = globals.mapData,
+	const {gridSize, gridDistance} = mapData,
 	      s = gridSize * size / (gridDistance || 1),
 	      sh = s >> 1,
 	      w = gridSize * width / (gridDistance || 1);
@@ -119,7 +119,7 @@ if (isAdmin) {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			return;
 		}
-		const {gridSize, gridDistance} = globals.mapData,
+		const {gridSize, gridDistance} = mapData,
 		      {layer} = selected,
 		      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 		      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,

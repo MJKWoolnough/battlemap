@@ -1,8 +1,8 @@
 import {svgNS} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
-import {globals, labels} from '../shared.js';
-import {definitions, panZoom, root} from '../map.js';
+import {labels} from '../shared.js';
+import {definitions, mapData, panZoom, root} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
 import {keyEvent} from '../lib/events.js';
@@ -48,7 +48,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	case "polygon":
 	case "ellipse":
 		return p.then(() => new Promise<void>(sfn => {
-			const {width, height} = globals.mapData;
+			const {width, height} = mapData;
 			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}">${n.outerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 				ctx.drawImage(this, 0, 0);
 				sfn();
@@ -60,7 +60,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				return p;
 			}
 			return p.then(() => new Promise<void>(sfn => {
-				const {width, height} = globals.mapData;
+				const {width, height} = mapData;
 				img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}"><defs>${definitions.list.get("grid")!.outerHTML}</defs>${n.innerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 					ctx.drawImage(this, 0, 0);
 					sfn();
@@ -68,7 +68,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			}));
 		} else if (id === "layerLight") {
 			return p.then(() => {
-				const {lightColour, width, height} = globals.mapData,
+				const {lightColour, width, height} = mapData,
 				      fs = ctx.fillStyle;
 				ctx.fillStyle = lightColour + "";
 				ctx.fillRect(0, 0, width, height);
@@ -98,7 +98,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
       disablePNG = new BoolSetting("plugin-screenshot-png"),
       hideGrid = new BoolSetting("plugin-screenshot-grid"),
       makeScreenshot = () => {
-	const {width, height} = globals.mapData,
+	const {width, height} = mapData,
 	      c = canvas({width, height, "style": "max-width: 100%;max-height: 100%"}),
 	      ctx = c.getContext("2d")!,
 	      ctm = new DOMMatrix().scaleSelf(panZoom.zoom, panZoom.zoom, 1, width / 2, height / 2).inverse(),

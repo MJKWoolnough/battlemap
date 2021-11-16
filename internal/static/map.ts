@@ -4,7 +4,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, globals, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
+import {characterData, checkInt, isAdmin, mapLoadedReceive, mapLoadedSend, outline, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
@@ -253,7 +253,8 @@ const idNames: Record<string, Int> = {
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export let root = svg(),
-layerList: SVGFolder;
+layerList: SVGFolder,
+mapData: MapData;
 
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
@@ -348,14 +349,14 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 	updateLight();
 },
 setMapDetails = (details: MapDetails) => {
-	Object.assign(globals.mapData, details);
+	Object.assign(mapData, details);
 	root.setAttribute("width", details["width"] + "");
 	root.setAttribute("height", details["height"] + "");
 	definitions.setGrid(details);
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", (globals.mapData.lightColour = c) + "");
+	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", (mapData.lightColour = c) + "");
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
@@ -367,9 +368,9 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
-	const {lightX: x, lightY: y} = globals.mapData,
-	      distance = Math.hypot(Math.max(x, globals.mapData.width - x), Math.max(y, globals.mapData.height - y)),
-	      fadedLight = `rgba(${globals.mapData.lightColour.r / 2}, ${globals.mapData.lightColour.g / 2}, ${globals.mapData.lightColour.b / 2}, ${1 - (255 - globals.mapData.lightColour.a) * 0.5 / 255}`,
+	const {lightX: x, lightY: y} = mapData,
+	      distance = Math.hypot(Math.max(x, mapData.width - x), Math.max(y, mapData.height - y)),
+	      fadedLight = `rgba(${mapData.lightColour.r / 2}, ${mapData.lightColour.g / 2}, ${mapData.lightColour.b / 2}, ${1 - (255 - mapData.lightColour.a) * 0.5 / 255}`,
 	      wallPolygons: SVGPolygonElement[] = [];
 	walkLayers((l: SVGLayer) => {
 		for (const w of l.walls) {
@@ -385,7 +386,7 @@ updateLight = () => {
 		};
 	});
 	createSVG(clearElement(getLayer("/Light")![node]), [
-		rect({"width": "100%", "height": "100%", "fill": globals.mapData.lightColour}),
+		rect({"width": "100%", "height": "100%", "fill": mapData.lightColour}),
 		wallPolygons
 	]);
 },
@@ -425,7 +426,7 @@ screen2Grid = (() => {
 		[1, 5/6]
 	      ];
 	return (mx: Uint, my: Uint, snap = false): [Int, Int] => {
-		const {width, height, gridType, gridSize} = globals.mapData,
+		const {width, height, gridType, gridSize} = mapData,
 		      {x, y, zoom} = panZoom,
 		      sx = (mx + ((zoom - 1) * width / 2) - x) / zoom,
 		      sy = (my + ((zoom - 1) * height / 2) - y) / zoom;
@@ -507,7 +508,7 @@ zoom = (() => {
 	};
 })(),
 centreOnGrid = (x: Uint, y: Uint) => {
-	const {mapData: {width, height}} = globals,
+	const {width, height} = mapData,
 	      iw = window.innerWidth,
 	      ih = window.innerHeight,
 	      {zoom} = panZoom;
@@ -669,8 +670,8 @@ definitions = (() => {
 		}
 	}
 })(),
-mapView = (mapData: MapData, loadChars = false) => {
-	globals.mapData = mapData;
+mapView = (mD: MapData, loadChars = false) => {
+	mapData = mD;
 	tokens.clear();
 	walls.clear();
 	masks.set(mapData.baseOpaque, mapData.masks);
@@ -908,8 +909,8 @@ export default (base: HTMLElement) => {
 		updateLight();
 	}),
 	rpc.waitLightShift().then(pos => {
-		globals.mapData.lightX = pos.x;
-		globals.mapData.lightY = pos.y;
+		mapData.lightX = pos.x;
+		mapData.lightY = pos.y;
 		updateLight();
 	}),
 	rpc.waitWallAdded().then(w => {
@@ -936,10 +937,10 @@ export default (base: HTMLElement) => {
 	}),
 	rpc.waitMapDataSet().then(kd => {
 		if (kd.key) {
-			globals.mapData.data[kd.key] = kd.data;
+			mapData.data[kd.key] = kd.data;
 		}
 	}),
-	rpc.waitMapDataRemove().then(key => delete globals.mapData.data[key])
+	rpc.waitMapDataRemove().then(key => delete mapData.data[key])
 	rpc.waitMaskAdd().then(masks.add);
 	rpc.waitMaskRemove().then(masks.remove);
 	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));

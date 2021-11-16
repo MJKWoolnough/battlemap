@@ -3,9 +3,9 @@ import type {SVGLayer} from './map.js';
 import type {Colour} from './colours.js';
 import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
-import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, masks, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, mapData, masks, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import undo from './undo.js';
-import {deselectToken, globals, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
+import {deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
 import {tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -57,7 +57,7 @@ waitLayerPositionChange = subFn<LayerMove>(),
 waitLayerRename = subFn<LayerRename>(),
 waitLayerSelect = subFn<string>(),
 doMapChange = (details: MapDetails, sendRPC = true) => {
-	let oldDetails = {"width": globals.mapData.width, "height": globals.mapData.height, "gridType": globals.mapData.gridType, "gridSize": globals.mapData.gridSize, "gridStroke": globals.mapData.gridStroke, "gridColour": globals.mapData.gridColour};
+	let oldDetails = {"width": mapData.width, "height": mapData.height, "gridType": mapData.gridType, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour};
 	const doIt = (sendRPC = true) => {
 		setMapDetails(details);
 		if (sendRPC) {
@@ -69,7 +69,7 @@ doMapChange = (details: MapDetails, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_CHANGE"]);
       },
 doSetLightColour = (c: Colour, sendRPC = true) => {
-	let oldColour = globals.mapData.lightColour;
+	let oldColour = mapData.lightColour;
 	const doIt = (sendRPC = true) => {
 		setLightColour(c);
 		if (sendRPC) {
@@ -403,10 +403,10 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_SHIFT"]);
 },
 doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
-	let {lightX: oldX, lightY: oldY} = globals.mapData;
+	let {lightX: oldX, lightY: oldY} = mapData;
 	const doIt = (sendRPC = true) => {
-		globals.mapData.lightX = x;
-		globals.mapData.lightY = y;
+		mapData.lightX = x;
+		mapData.lightY = y;
 		updateLight();
 		if (sendRPC) {
 			queue(rpc.shiftLight.bind(rpc, x, y));
@@ -498,9 +498,9 @@ doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendR
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_LIGHT_CHANGE"]);
 },
 doMapDataSet = (key: string, data: any, sendRPC = true) => {
-	const oldData = globals.mapData.data[key],
+	const oldData = mapData.data[key],
 	      doIt = (sendRPC = true) => {
-		globals.mapData.data[key] = data;
+		mapData.data[key] = data;
 		if (sendRPC) {
 			queue(() => rpc.setMapKeyData(key, data));
 		}
@@ -508,9 +508,9 @@ doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	      },
 	      undoIt = () => {
 		if (oldData) {
-			queue(() => rpc.setMapKeyData(key, globals.mapData.data[key] = oldData));
+			queue(() => rpc.setMapKeyData(key, mapData.data[key] = oldData));
 		} else {
-			delete globals.mapData.data[key];
+			delete mapData.data[key];
 			queue(() => rpc.removeMapKeyData(key));
 		}
 		return doIt;
@@ -518,19 +518,19 @@ doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_DATA_SET"]);
 },
 doMapDataRemove = (key: string, sendRPC = true) => {
-	const oldData = globals.mapData.data[key];
+	const oldData = mapData.data[key];
 	if (!oldData) {
 		return;
 	}
 	const doIt = (sendRPC = true) => {
-		delete globals.mapData.data[key];
+		delete mapData.data[key];
 		if (sendRPC) {
 			queue(() => rpc.removeMapKeyData(key));
 		}
 		return undoIt;
 	      },
 	      undoIt = () => {
-		globals.mapData.data[key] = oldData
+		mapData.data[key] = oldData
 		queue(() => rpc.setMapKeyData(key, oldData));
 		return doIt;
 	      };
@@ -585,8 +585,8 @@ doMaskSet = (m: MaskSet, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MASK_SET"]);
 },
 snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
-	const size = globals.mapData.gridSize;
-	switch (globals.mapData.gridType) {
+	const size = mapData.gridSize;
+	switch (mapData.gridType) {
 	case 1: {
 		const dy = 1.5 * size / SQRT3,
 		      row = Math.round(y / dy),

@@ -3,9 +3,9 @@ import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
 import {br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, polygon, radialGradient, stop, svg, title, use} from './lib/svg.js';
-import {deselectToken, globals, labels, mapLoadedReceive, selected} from './shared.js';
+import {deselectToken, labels, mapLoadedReceive, selected} from './shared.js';
 import {Colour, makeColourPicker} from './colours.js';
-import {SVGLayer, point2Line, root, screen2Grid, walkLayers} from './map.js';
+import {SVGLayer, mapData, point2Line, root, screen2Grid, walkLayers} from './map.js';
 import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
 import {addTool} from './tools.js';
 import {keyEvent} from './lib/events.js';
@@ -139,7 +139,7 @@ addTool({
 			      offset = sun ? 20 : 10,
 			      onmousemove = (e: MouseEvent) => {
 				const [x, y] = screen2Grid(e.clientX, e.clientY, e.shiftKey);
-				createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${sun ? globals.mapData.lightColour : wallColour}`});
+				createSVG(marker, {"transform": `translate(${x - offset}, ${y - offset})`, "style": `color: ${sun ? mapData.lightColour : wallColour}`});
 			      };
 			createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
 				this.removeEventListener("mousemove", onmousemove);

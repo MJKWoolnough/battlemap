@@ -3,8 +3,8 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
-import {screen2Grid} from './map.js';
-import {characterData, deselectToken, getCharacterToken, globals, labels, selected} from './shared.js';
+import {mapData, screen2Grid} from './map.js';
+import {characterData, deselectToken, getCharacterToken, labels, selected} from './shared.js';
 import {SVGToken, root} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {mouseMoveEvent} from './lib/events.js';
@@ -27,7 +27,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	i.setAttribute("src", `/images/${id}`);
 	setCursor();
       },
-      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": globals.mapData.gridSize, "height": globals.mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
+      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
       [moveCursor, stopCursor] = mouseMoveEvent((e: MouseEvent) => {
 	[cursor!.x, cursor!.y] = screen2Grid(e.clientX - cursor!.width / 2, e.clientY - cursor!.height / 2, token!.snap);
 	cursor!.updateNode();

@@ -1,4 +1,4 @@
-import type {Int, Uint, CharacterToken, KeystoreData, MapData, Wall} from './types.js';
+import type {Int, Uint, CharacterToken, KeystoreData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
@@ -83,9 +83,6 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
 	] as const;
 })(),
-globals = {
-	"mapData": {} as MapData,
-},
 tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 selected = {

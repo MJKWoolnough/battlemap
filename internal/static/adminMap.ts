@@ -7,13 +7,13 @@ import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
 import {edit as tokenEdit} from './characters.js';
 import {tokenContext} from './plugins.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doMaskAdd, doMaskRemove, doMaskSet, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpacity} from './settings.js';
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, globals, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
+import {characterData, checkInt, deselectToken, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -36,7 +36,6 @@ export default (base: HTMLElement) => {
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
 		      dx = bdx - tokenMousePos.mouseX,
 		      dy = bdy - tokenMousePos.mouseY,
-		      mapData = globals.mapData,
 		      sq = mapData.gridSize,
 		      selectedToken = selected.token,
 		      snap = (selectedToken?.snap ?? false) != e.shiftKey;
@@ -317,7 +316,7 @@ export default (base: HTMLElement) => {
 				doTokenSet({id, x, y, rotation});
 			}
 		} else {
-			const {gridSize, gridType} = globals.mapData,
+			const {gridSize, gridType} = mapData,
 			      {token} = selected;
 			if (e.isTrusted && token) {
 				shift(token, gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize, gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize, e.shiftKey);
@@ -331,7 +330,7 @@ export default (base: HTMLElement) => {
 			}
 		}
 	      }),
-	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (globals.mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
+	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
 	      updateCursor = ({target, clientX, clientY, ctrlKey}: {target: EventTarget | null, clientX: number, clientY: number, ctrlKey: boolean}) => {
 		const {layer} = selected;
 		overOutline = (target as HTMLElement)?.parentNode === outline;
