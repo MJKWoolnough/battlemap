@@ -2,7 +2,7 @@ import type {Int, Uint, CharacterToken, KeystoreData, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
-import {label, style} from './lib/html.js';
+import {createHTML, label, style} from './lib/html.js';
 import {g} from './lib/svg.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
@@ -42,7 +42,7 @@ queue = (() => {
 labels = (() => {
 	let next = 0;
 	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Props = {}) => {
-		input.setAttribute("id", props["for"] = `ID_${next++}`);
+		createHTML(input, {"id": props["for"] = `ID_${next++}`});
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];
 	};

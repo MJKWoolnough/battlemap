@@ -1,4 +1,4 @@
-import {svg, g, line, path, title} from './lib/svg.js';
+import {createSVG, svg, g, line, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {deselectToken, selected} from './shared.js';
 import {doLayerShift} from './map_fns.js';
@@ -20,7 +20,7 @@ const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
 	dx = (x - ox) / panZoom.zoom;
 	dy = (y - oy) / panZoom.zoom;
-	selected.layer![node].setAttribute("transform", `translate(${dx}, ${dy})`);
+	createSVG(selected.layer![node], {"transform": `translate(${dx}, ${dy})`});
 	if (measure) {
 		measureDistance(x, y);
 	}

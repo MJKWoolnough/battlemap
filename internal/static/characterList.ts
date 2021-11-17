@@ -31,7 +31,7 @@ class Character extends DraggableItem {
 	get showOnMouseOver() { return true; }
 	dragName() { return "character"; }
 	setIcon(id: Uint) {
-		this.image.setAttribute("src", `/images/${id}`);
+		createHTML(this.image, {"src": `/images/${id}`});
 	}
 	show() {
 		characterEdit(this.id, this.name, characterData.get(this.id)!, true);

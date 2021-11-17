@@ -15,7 +15,7 @@ import {rpc, handleError} from './rpc.js';
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		this.image.setAttribute("src", `/images/${id}`);
+		createHTML(this.image, {"src": `/images/${id}`});
 	}
 	get showOnMouseOver() { return true; }
 	dragName() { return "imageasset"; }
@@ -29,7 +29,7 @@ class ImageAsset extends DraggableItem {
 class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		this.image.setAttribute("src", audioIcon);
+		createHTML(this.image, {"src": audioIcon});
 	}
 	dragName() { return "audioasset"; }
 	show() {

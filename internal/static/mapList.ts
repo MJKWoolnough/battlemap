@@ -40,7 +40,7 @@ let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		this.image.setAttribute("src", mapIcon);
+		createHTML(this.image, {"src": mapIcon});
 		this[node].classList.add("mapItem");
 		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
@@ -216,7 +216,7 @@ export default (base: Node) => {
 					labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 					br(),
 					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
-						this.setAttribute("disabled", "disabled");
+						createHTML(this, {"disabled": true});
 						const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
 						loadingWindow(rpc.newMap({
 							"name": name.value,

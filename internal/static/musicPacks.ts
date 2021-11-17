@@ -2,7 +2,7 @@ import type {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './t
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
-import {svg, animate, path, rect, symbol, title} from './lib/svg.js';
+import {createSVG, svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
 import {NodeArray, NodeMap, node, stringSort, noSort} from './lib/nodes.js';
 import {addSymbol, getSymbol} from './symbols.js';
@@ -430,7 +430,7 @@ export default (base: Node) => {
 				if (document.body.contains(this.toPause)) {
 					this.toPause.beginElement();
 				} else {
-					this.playPauseNode.setAttribute("d", pauseIcon);
+					createSVG(this.playPauseNode, {"d": pauseIcon});
 				}
 				this.playStatus.style.removeProperty("visibility");
 				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
@@ -449,7 +449,7 @@ export default (base: Node) => {
 				if (document.body.contains(this.toPlay)) {
 					this.toPlay.beginElement();
 				} else {
-					this.playPauseNode.setAttribute("d", playIcon);
+					createSVG(this.playPauseNode, {"d": playIcon});
 				}
 				this.playStatus.style.setProperty("visibility", "hidden");
 				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];

@@ -147,14 +147,13 @@ addTool({
 					if (over(x, y, lastWall.wall)) {
 						return;
 					}
-					lastWall.element.setAttribute("stroke-width", "1");
+					createSVG(lastWall.element, {"stroke-width": 1});
 					lastWall = null;
 				}
 				let pos = 0;
 				for (const w of walls) {
 					if (over(x, y, w.wall)) {
-						const element = (wallLayer.childNodes[pos] as SVGGElement);
-						element.setAttribute("stroke-width", "5");
+						createSVG(wallLayer.childNodes[pos], {"stroke-width": 5});
 						lastWall = w;
 						break;
 					}
@@ -163,7 +162,7 @@ addTool({
 			      };
 			createSVG(this, {onmousemove, "1onmouseout": () => {
 				if (lastWall !== null) {
-					lastWall.element.setAttribute("stroke-width", "1");
+					createSVG(lastWall.element, {"stroke-width": 1});
 					lastWall = null;
 				}
 				this.removeEventListener("mousemove", onmousemove);

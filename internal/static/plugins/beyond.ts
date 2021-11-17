@@ -227,7 +227,7 @@ const defaultLanguage = {
 			const urlMatch = beyondID.value.match(urlReg),
 			      id = parseInt(urlMatch ? beyondID.value = urlMatch[1] : beyondID.value);
 			if (id + "" === beyondID.value) {
-				beyondLink.setAttribute("href", `https://www.dndbeyond.com/character/${id}/json`);
+				createHTML(beyondLink, {"href": `https://www.dndbeyond.com/character/${id}/json`});
 				beyondEntry.replaceWith(beyondDownload);
 			} else {
 				handleError(lang["BEYOND_INVALID_ID"], lang["BEYOND_INVALID_ID_LONG"]);

@@ -1,5 +1,5 @@
 import {svgNS} from '../lib/dom.js';
-import {a, br, button, div, canvas, img, input} from '../lib/html.js';
+import {createHTML, a, br, button, div, canvas, img, input} from '../lib/html.js';
 import {shell, windows} from '../windows.js';
 import {labels} from '../shared.js';
 import {definitions, mapData, panZoom, root} from '../map.js';
@@ -114,7 +114,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 		if (!disablePNG.value) {
 			c.toBlob(b => {
 				const href = URL.createObjectURL(b);
-				link.setAttribute("href", href);
+				createHTML(link, {"href": href});
 				w.addEventListener("onremove", () => URL.revokeObjectURL(href));
 			});
 		}

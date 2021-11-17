@@ -54,7 +54,7 @@ if (isAdmin) {
 		share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name);
-			this.image.setAttribute("src", icon);
+			createHTML(this.image, {"src": icon});
 			notes.set(id, this);
 		}
 		dragName() {

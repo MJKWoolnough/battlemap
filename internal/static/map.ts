@@ -114,11 +114,11 @@ export class SVGToken extends SVGTransform {
 	}
 	uncleanup() {
 		if (this.isPattern) {
-			this[node].setAttribute("fill", `url(#${definitions.add(this)})`);
+			createHTML(this[node], {"fill": `url(#${definitions.add(this)})`});
 		}
 	}
 	updateSource(source: Uint) {
-		(this[node] instanceof SVGRectElement ? (definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild as SVGImageElement) : this[node]).setAttribute("href", `images/${this.src = source}`);
+		createHTML(this[node] instanceof SVGRectElement ? definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild! : this[node], {"href": `images/${this.src = source}`});
 	}
 	updateNode() {
 		if (this[node] instanceof SVGRectElement && !this.isPattern) {
@@ -209,7 +209,7 @@ export class SVGDrawing extends SVGShape {
 		      yr = token.height / oHeight,
 		      n = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth}),
 		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {[node]: n, oWidth, oHeight}), SVGDrawing.prototype);
-		n.setAttribute("transform", svgDrawing.transformString());
+		createSVG(n, {"transform": svgDrawing.transformString()});
 		Object.defineProperty(svgDrawing, node, {"enumerable": false});
 		return svgDrawing;
 	}
@@ -244,7 +244,7 @@ const idNames: Record<string, Int> = {
 			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
-		n.setAttribute("id", `layer${layer.name}`);
+		createSVG(n, {"id": `layer${layer.name}`});
 		layer.walls = [];
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
@@ -350,13 +350,12 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 },
 setMapDetails = (details: MapDetails) => {
 	Object.assign(mapData, details);
-	root.setAttribute("width", details["width"] + "");
-	root.setAttribute("height", details["height"] + "");
+	createSVG(root, {"width": details["width"], "height": details["height"]});
 	definitions.setGrid(details);
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement).setAttribute("fill", (mapData.lightColour = c) + "");
+	createSVG((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement, {"fill": mapData.lightColour = c});
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
@@ -398,8 +397,7 @@ showSignal = (() => {
 		circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, signalAnim2)
 	      ]);
 	return (pos: [Uint, Uint]) => {
-		signal.setAttribute("transform", `translate(${pos[0] - 50}, ${pos[1] - 50})`);
-		createSVG(root, signal);
+		createSVG(root, createSVG(signal, {"transform": `translate(${pos[0] - 50}, ${pos[1] - 50})`}));
 		signalAnim1.beginElement();
 		signalAnim2.beginElement();
 	};
@@ -466,7 +464,7 @@ zoom = (() => {
 	const zoomMove = (e: MouseEvent) => {
 		const v = Math.max(10, Math.min(110, e.clientY)),
 		      z = Math.pow(1.4, (60 - v) / 10);
-		zoomerControl.setAttribute("cy", v + "");
+		createSVG(zoomerControl, {"cy": v});
 		zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
 	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
@@ -488,7 +486,7 @@ zoom = (() => {
 		zoomerControl
 	])));
 	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
-	mapLoadedReceive(() => zoomerControl.setAttribute("cy", "60"));
+	mapLoadedReceive(() => createSVG(zoomerControl, {"cy": "60"}));
 	return (delta: number, x: number, y: number, moveControl = true) => {
 		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
 		      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
@@ -502,7 +500,7 @@ zoom = (() => {
 		panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
 		createSVG(root, {"transform": `scale(${panZoom.zoom})` ,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px", "--zoom": panZoom.zoom}});
 		if (moveControl) {
-			zoomerControl.setAttribute("cy", Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4)) + "");
+			createSVG(zoomerControl, {"cy": Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4))});
 		}
 	};
 })(),
@@ -600,7 +598,7 @@ masks = (() => {
 			masks.splice(index, 1);
 		},
 		set(bO: boolean, maskList: Mask[]) {
-			base.setAttribute("fill", (baseOpaque = bO) ? "#fff" : "#000");
+			createSVG(base, {"fill": (baseOpaque = bO) ? "#fff" : "#000"});
 			masks.splice(0, masks.length);
 			for (const mask of maskList) {
 				this.add(mask);
@@ -728,8 +726,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	wg.onUpdate(({waits, done, errors}) => {
 		const d = done + errors;
 		items.innerText = `${d} / ${waits}`;
-		percent.setAttribute("max", waits + "")
-		percent.setAttribute("value", d + "");
+		createSVG(percent, {"max": waits, "value": d});
 	});
 	wg.add();
 	wg.done();

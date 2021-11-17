@@ -1,7 +1,7 @@
 import type {SVGAnimateBeginElement} from './types.js';
 import {clearElement, formatText} from './lib/dom.js';
 import {createHTML, div, h1, input} from './lib/html.js';
-import {svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
+import {createSVG, svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
 import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
 import lang from './language.js';
@@ -158,7 +158,7 @@ export default () => {
 		])));
 		window.setTimeout(() => {
 			const w = settingsText.getComputedTextLength() + 5;
-			settingsOutline.setAttribute("d", `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`);
+			createSVG(settingsOutline, {"d": `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`});
 			mapDrag.click();
 		});
 	} else {

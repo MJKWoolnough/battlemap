@@ -127,10 +127,9 @@ class SVGToken5E extends SVGToken {
 		      nameLength = this.name.getComputedTextLength(),
 		      size = Math.min(this.width, this.height) / 8,
 		      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
-		this.name.style.setProperty("font-size", textSize + "px");
-		this.name.setAttribute("stroke-width", `${textSize / 100}`);
-		this.acValue.style.setProperty("font-size", `${size}px`);
-		this.hpValue.style.setProperty("font-size", `${size}px`);
+		createSVG(this.name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
+		createSVG(this.acValue, {"style": {"font-size": `${size}px`}});
+		createSVG(this.hpValue, {"style": {"font-size": `${size}px`}});
 	}
 	cleanup() {
 		const n = this[node];
@@ -195,18 +194,18 @@ class SVGToken5E extends SVGToken {
 		      ac: Uint | null = this.getData("5e-ac"),
 		      name = this.getData("name") || "";
 		if (ac === null) {
-			this.ac.setAttribute("style", "display: none");
+			createSVG(this.ac, {"style": "display: none"});
 		} else {
-			this.ac.removeAttribute("style");
+			createSVG(this.ac, {"style": undefined})
 			this.acValue.innerHTML = ac + "";
 		}
 		if (currentHP === null || maxHP === null) {
-			this.hp.setAttribute("style", "display: none");
+			createSVG(this.hp, {"style": "display: none"});
 		} else {
-			this.hp.removeAttribute("style");
+			createSVG(this.hp, {"style": undefined});
 			this.hpValue.innerHTML = currentHP + "";
-			this.hpValue.setAttribute("fill", `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`);
-			this.hpBar.setAttribute("stroke-dasharray", `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`);
+			createSVG(this.hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
+			createSVG(this.hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
 		}
 		if (this.name.innerHTML !== name) {
 			createSVG(this.name, {"style": {"font-size": undefined}}, name);
@@ -230,7 +229,7 @@ class SVGToken5E extends SVGToken {
 				}
 			}
 		}
-		this.conditions.setAttribute("transform", `translate(0, ${this.height})`);
+		createSVG(this.conditions, {"transform": `translate(0, ${this.height})`});
 	}
 
 }
@@ -525,9 +524,7 @@ const defaultLanguage = {
 			label(`${lang["HIGHLIGHT_COLOUR"]}: `),
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);
-				const rgba = c + "";
-				highlight.setAttribute("fill", rgba);
-				highlight.setAttribute("stroke", rgba);
+				createSVG(highlight, {"fill": c, "stroke": c});
 			}, "highlight-colour-5e")),
 			table({"id": "display-settings-5e"}, [
 				thead(tr([
@@ -756,7 +753,7 @@ if (isAdmin) {
 								return;
 							}
 							Object.assign(t, token);
-							i.setAttribute("src", `/images/${t.src}`);
+							createHTML(i, {"src": `/images/${t.src}`});
 						});
 					}}),
 					i

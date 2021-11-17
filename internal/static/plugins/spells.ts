@@ -30,8 +30,8 @@ const sparkID = "plugin-spell-spark",
 	      s = gridSize * size / (gridDistance || 1),
 	      sh = s >> 1,
 	      w = gridSize * width / (gridDistance || 1);
-	circleCircle.setAttribute("r", s + "")
-	conePath.setAttribute("d", `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`);
+	createSVG(circleCircle, {"r": s})
+	createSVG(conePath, {"d": `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`});
 	createSVG(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	createSVG(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	createSVG(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
@@ -81,9 +81,9 @@ if (isAdmin) {
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
-			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			createSVG(selectedEffect, {"transform": `translate(${x}, ${y})`});
 			if (!selectedEffect.parentNode) {
-				createHTML(root, selectedEffect);
+				createSVG(root, selectedEffect);
 			}
 		} else {
 			coneEffect.remove();
@@ -109,7 +109,7 @@ if (isAdmin) {
 			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
 		} else {
 			[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			createSVG(selectedEffect, {"transform": `translate(${x}, ${y})`});
 		}
 		if (send) {
 			sendEffect();
@@ -155,8 +155,7 @@ if (isAdmin) {
 			labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
 				for (const effect of effectList) {
-					effect.setAttribute("stroke", types[damageType][0]);
-					effect.setAttribute("fill", types[damageType][1]);
+					createSVG(effect, {"stroke": types[damageType][0], "fill": types[damageType][1]});
 				}
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
@@ -192,7 +191,7 @@ if (isAdmin) {
 			} else {
 				[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			}
-			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
+			createSVG(selectedEffect, {"transform": `translate(${x}, ${y})`});
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
 				createHTML(this, selectedEffect);
 			}
@@ -273,11 +272,7 @@ if (isAdmin) {
 			lastEffect?.remove();
 			createHTML(root, selectedEffect);
 		}
-		lastEffect = selectedEffect;
 		setSize(size, width);
-		selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
-		selectedEffect.setAttribute("stroke", types[damageType][0]);
-		selectedEffect.setAttribute("fill", types[damageType][1]);
-		rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
+		rotations.get(lastEffect = createSVG(selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]}))?.setAttribute("transform", `rotate(${rotation})`);
 	});
 }

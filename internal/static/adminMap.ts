@@ -58,7 +58,7 @@ export default (base: HTMLElement) => {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
-			outline.setAttribute("class", `cursor_${((rotation + 143) >> 5) % 4}`);
+			createHTML(outline, {"class": `cursor_${((rotation + 143) >> 5) % 4}`});
 		}
 		break;
 		default: {
@@ -301,7 +301,7 @@ export default (base: HTMLElement) => {
 		keyRepeats[n] = setInterval(() => {
 			shift(token, 1, 1, e.shiftKey);
 			token.updateNode();
-			outline.setAttribute("transform", token.transformString(false));
+			createHTML(outline, {"transform": token.transformString(false)});
 		}, 5);
 	      }, (e: KeyboardEvent) => {
 		if (keyRepeats[n] !== -1) {

@@ -90,7 +90,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 					return;
 				}
 				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-				i.setAttribute("src", `/images/${data["src"]}`);
+				createHTML(i, {"src": `/images/${data["src"]}`});
 			})}, lang["TOKEN_USE_SELECTED"]),
 			i,
 			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
