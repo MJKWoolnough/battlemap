@@ -23,8 +23,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		createHTML(document.body, draggedName = span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
-	draggedName.style.setProperty("top", e.clientY + 1 + "px");
-	draggedName.style.setProperty("left", e.clientX + dragOffset + "px");
+	createHTML(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
       }, () => {
 	dragging![node].classList.remove("dragged");
 	dragging = undefined;

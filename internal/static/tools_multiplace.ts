@@ -44,7 +44,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	stopCursor()
 	cursor?.[node].remove();
 	cursor?.cleanup();
-	root.style.removeProperty("cursor");
+	createSVG(root, {"style": {"cursor": undefined}});
       };
 
 let setToken: (() => TokenImage) | null = null,

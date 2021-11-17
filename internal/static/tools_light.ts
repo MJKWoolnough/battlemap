@@ -137,7 +137,7 @@ addTool({
 			      };
 			createSVG(this, {"style": {"cursor": "none"}, "1onmouseleave": () => {
 				this.removeEventListener("mousemove", onmousemove);
-				this.style.removeProperty("cursor");
+				createSVG(this, {"style": {"cursor": undefined}});
 				marker.remove();
 			}, onmousemove}, marker);
 		} else {

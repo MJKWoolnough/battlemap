@@ -1,6 +1,6 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
-import {br, button, div, h1, input} from './lib/html.js';
+import {createHTML, br, button, div, h1, input} from './lib/html.js';
 import {windows, shell} from './windows.js';
 import {checkInt, labels} from './shared.js';
 import lang from './language.js';
@@ -26,7 +26,7 @@ noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const checkboard = div({"class": "checkboard"}),
 	      preview = checkboard.appendChild(div({"style": `background-color: ${colour}`})),
-	      updatePreview = () => preview.style.setProperty("background-color", hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""),
+	      updatePreview = () => createHTML(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": reject}, [
@@ -47,10 +47,10 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 makeColourPicker = (() => {
 	const sc = (b: HTMLButtonElement, c: Colour) => {
 		if (c.a === 0) {
-			b.style.setProperty("background-color", "#fff");
+			createHTML(b, {"style": {"background-color": "#fff"}});
 			b.innerText = "None";
 		} else {
-			b.style.setProperty("background-color", c + "");
+			createHTML(b, {"style": {"background-color": c + ""}});
 			b.innerText = "";
 		}
 		return c;

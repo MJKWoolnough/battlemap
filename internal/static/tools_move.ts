@@ -70,9 +70,9 @@ addTool({
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
-	"set": () => root.style.setProperty("cursor", "move"),
+	"set": () => createSVG(root, {"style": {"cursor": "move"}}),
 	"unset": () => {
-		root.style.removeProperty("cursor");
+		createSVG(root, {"style": {"cursor": undefined}});
 		stop();
 	}
 });

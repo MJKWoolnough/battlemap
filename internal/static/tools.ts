@@ -110,13 +110,13 @@ export default (base: HTMLElement) => {
 				createHTML(shell, optionsWindow);
 				optionsWindow.focus();
 			} else {
-				toolOptions.style.removeProperty("display");
+				createHTML(toolOptions, {"style": {"display": undefined}});
 			}
 		} else {
 			if (windowed && miniTools.value) {
 				optionsWindow.remove();
 			} else {
-				toolOptions.style.setProperty("display", "none");
+				createHTML(toolOptions, {"style": {"display": "none"}});
 			}
 		}
 		selected?.classList.remove("selected")
@@ -133,7 +133,7 @@ export default (base: HTMLElement) => {
 		if (miniTools.value) {
 			createHTML(optionsWindow, options);
 			if (selectedTool.options) {
-				toolOptions.style.setProperty("display", "none");
+				createHTML(toolOptions, {"style": {"display": "none"}});
 				createHTML(shell, optionsWindow);
 				window.setTimeout(() => optionsWindow.focus());
 			}
@@ -143,7 +143,7 @@ export default (base: HTMLElement) => {
 		if (miniTools.value) {
 			createHTML(toolOptions, options);
 			if (selectedTool.options) {
-				toolOptions.style.removeProperty("display");
+				createHTML(toolOptions, {"style": {"display": undefined}});
 				optionsWindow.remove();
 			}
 		}
@@ -158,14 +158,14 @@ export default (base: HTMLElement) => {
 		if (on) {
 			createHTML(optionsWindow, options);
 			if (selectedTool.options) {
-				toolOptions.style.setProperty("display", "none");
+				createHTML(toolOptions, {"style": {"display": "none"}});
 				createHTML(shell, optionsWindow);
 				optionsWindow.focus();
 			}
 		} else {
 			createHTML(toolOptions, options);
 			if (selectedTool.options) {
-				toolOptions.style.removeProperty("display");
+				createHTML(toolOptions, {"style": {"display": undefined}});
 				optionsWindow.remove();
 			}
 		}

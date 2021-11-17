@@ -3,7 +3,7 @@ import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
 import {createHTML, label, style} from './lib/html.js';
-import {g} from './lib/svg.js';
+import {createSVG, g} from './lib/svg.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
 	const p = new Pipe<T>();
@@ -90,7 +90,7 @@ selected = {
 outline = g(),
 deselectToken = () => {
 	selected.token = null;
-	outline.style.setProperty("display", "none");
+	createSVG(outline, {"style": {"display": "none"}});
 	tokenSelected();
 },
 setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {

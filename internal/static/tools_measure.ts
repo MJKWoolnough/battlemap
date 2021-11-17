@@ -136,8 +136,8 @@ addTool({
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
-		root.style.setProperty("--outline-cursor", "none");
-		this.addEventListener("mouseout", () => root.style.removeProperty("--outline-cursor"), {"once": true});
+		createSVG(root, {"style": {"--outline-cursor": "none"}});
+		this.addEventListener("mouseout", () => createSVG(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
 		return false;
 	},
 	"tokenMouse0": ignore,
@@ -167,7 +167,7 @@ addTool({
 		setupEscape();
 	},
 	"unset": () => {
-		root.style.removeProperty("cursor");
+		createSVG(root, {"style": {"cursor": undefined}});
 		marker.remove();
 		cancelMouse0();
 		cancelMouse2();

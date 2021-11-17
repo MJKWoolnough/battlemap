@@ -215,6 +215,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		root.style.removeProperty("cursor");
+		createSVG(root, {"style": {"cursor": undefined}});
 	}
 });

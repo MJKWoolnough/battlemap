@@ -144,7 +144,7 @@ export abstract class DraggableItem extends Item {
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
 				e.dataTransfer!.setData(this.dragName(), JSON.stringify({"id": this.id, "width": img.naturalWidth, "height": img.naturalHeight, "name": this.name}));
-				this.icon.style.setProperty("transform", "translateX(-9999px)");
+				createHTML(this.icon, {"style": {"transform": "translateX(-9999px)"}});
 			}
 		});
 	}
@@ -154,8 +154,7 @@ export abstract class DraggableItem extends Item {
 		this.removeIcon();
 	}
 	removeIcon() {
-		this.icon.remove();
-		this.icon.style.removeProperty("transform");
+		createHTML(this.icon, {"style": {"transform": undefined}}).remove();
 	}
 }
 

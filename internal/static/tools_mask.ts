@@ -122,7 +122,7 @@ let addOpaque = false,
     overMask: Mask | null = null,
     maskHighlight: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-maskOpacity.wait(v => document.body.style.setProperty("--maskOpacity", v + ""));
+maskOpacity.wait(v => createHTML(document.body, {"style": {"--maskOpacity": v + ""}}));
 
 addTool({
 	"name": lang["TOOL_MASK"],
@@ -223,6 +223,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		root.style.removeProperty("cursor");
+		createSVG(root, {"style": {"cursor": undefined}});
 	}
 });

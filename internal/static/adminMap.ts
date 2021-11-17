@@ -122,7 +122,7 @@ export default (base: HTMLElement) => {
 		if (!selected.token || !selected.layer) {
 			return;
 		}
-		root.style.removeProperty("--outline-cursor");
+		createSVG(root, {"style": {"--outline-cursor": undefined}});
 		tokenDragMode = -1;
 		const {token} = selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
@@ -276,11 +276,11 @@ export default (base: HTMLElement) => {
 			deselectToken();
 			updateCursor(e);
 		}
-		root.style.removeProperty("--outline-cursor");
+		createSVG(root, {"style": {"--outline-cursor": undefined}});
 	      }),
-	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => root.style.removeProperty("--outline-cursor")),
+	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => createSVG(root, {"style": {"--outline-cursor": undefined}})),
 	      moveMap = (e: MouseEvent, initFn: () => void) => {
-		root.style.setProperty("--outline-cursor", "grabbing");
+		createSVG(root, {"style": {"--outline-cursor": "grabbing"}});
 		mX = e.clientX;
 		mY = e.clientY;
 		moved = false;
@@ -334,11 +334,11 @@ export default (base: HTMLElement) => {
 		const {layer} = selected;
 		overOutline = (target as HTMLElement)?.parentNode === outline;
 		if (!ctrlKey && overOutline) {
-			document.body.style.removeProperty("--outline-cursor")
+			createSVG(document.body, {"style": {"--outline-cursor": undefined}});
 		} else if (!ctrlKey && layer && (layer.tokens as SVGToken[]).some(t => t.at(clientX, clientY))) {
-			document.body.style.setProperty("--outline-cursor", "pointer")
+			createSVG(document.body, {"style": {"--outline-cursor": "pointer"}});
 		} else {
-			document.body.style.setProperty("--outline-cursor", "grab");
+			createSVG(document.body, {"style": {"--outline-cursor": "grab"}});
 		}
 	      },
 	      psuedoUpdateCursor = (target: EventTarget | null, ctrlKey: boolean) => updateCursor({target, "clientX": mouseX, "clientY": mouseY, ctrlKey}),
@@ -359,7 +359,7 @@ export default (base: HTMLElement) => {
 				psuedoUpdateCursor(root, e.ctrlKey);
 				return;
 			}
-			root.style.removeProperty("--outline-cursor");
+			createSVG(root, {"style": {"--outline-cursor": undefined}});
 			tokenDragMode = -1;
 			const {token} = selected,
 			      {x, y, width, height, rotation} = tokenMousePos;
@@ -472,7 +472,7 @@ export default (base: HTMLElement) => {
 		}
 		setupTokenDrag();
 		tokenDragMode = n;
-		root.style.setProperty("--outline-cursor", ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]);
+		createSVG(root, {"style": {"--outline-cursor": ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]}});
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 		if (n === 0 && measureTokenMove.value) {
 			const {token} = selected;

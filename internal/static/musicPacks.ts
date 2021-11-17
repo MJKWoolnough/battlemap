@@ -432,7 +432,7 @@ export default (base: Node) => {
 				} else {
 					createSVG(this.playPauseNode, {"d": pauseIcon});
 				}
-				this.playStatus.style.removeProperty("visibility");
+				createSVG(this.playStatus, {"style": {"visibility": undefined}});
 				this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 				if (sendRPC) {
 					rpc.musicPackPlay(this.name, 0).then(playTime => {
@@ -451,7 +451,7 @@ export default (base: Node) => {
 				} else {
 					createSVG(this.playPauseNode, {"d": playIcon});
 				}
-				this.playStatus.style.setProperty("visibility", "hidden");
+				createSVG(this.playStatus, {"style": {"visibility": "hidden"}});
 				this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
 				if (sendRPC) {
 					rpc.musicPackStop(this.name);
