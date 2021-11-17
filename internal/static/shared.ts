@@ -48,6 +48,7 @@ labels = (() => {
 	};
 })(),
 addCSS = (css: string) => document.head.append(style({"type": "text/css"}, css)),
+cloneObject = (o: Object | null | undefined) => o ? JSON.parse(JSON.stringify(o)) : o,
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {
 	const tokensSymbol = Symbol("tokens");
