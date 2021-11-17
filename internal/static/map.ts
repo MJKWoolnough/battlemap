@@ -823,7 +823,7 @@ export default (base: HTMLElement) => {
 		tokens.set(token.id, {layer, token});
 	}),
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
-		const tk = tokens.get(id)!,
+		const tk = tokens.get(id) ?? {"layer": null, "token": null},
 		      {layer, token} = tk,
 		      newParent = getLayer(to);
 		if (layer && token && newParent && isSVGLayer(newParent)) {
@@ -838,7 +838,7 @@ export default (base: HTMLElement) => {
 		}
 	}),
 	rpc.waitTokenSet().then(ts => {
-		const {token} = tokens.get(ts.id)!;
+		const {token} = tokens.get(ts.id) ?? {"token": null};
 		if (!token) {
 			return;
 		}
