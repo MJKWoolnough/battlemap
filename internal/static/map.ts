@@ -823,14 +823,15 @@ export default (base: HTMLElement) => {
 		tokens.set(token.id, {layer, token});
 	}),
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
-		const {layer, token} = tokens.get(id)!,
+		const tk = tokens.get(id)!,
+		      {layer, token} = tk,
 		      newParent = getLayer(to);
 		if (layer && token && newParent && isSVGLayer(newParent)) {
 			if (newPos > newParent.tokens.length) {
 				newPos = newParent.tokens.length;
 			}
 			newParent.tokens.splice(newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-			tokens.get(id)!.layer = newParent;
+			tk.layer = newParent;
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 				updateLight();
 			}
