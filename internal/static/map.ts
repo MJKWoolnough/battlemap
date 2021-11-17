@@ -798,8 +798,8 @@ export default (base: HTMLElement) => {
 	rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
 	rpc.waitLayerAdd().then(addLayer),
 	rpc.waitLayerFolderAdd().then(addLayerFolder),
-	rpc.waitLayerMove().then(lm => moveLayer(lm.from, lm.to, lm.position)),
-	rpc.waitLayerRename().then(lr => renameLayer(lr.path, lr.name)),
+	rpc.waitLayerMove().then(({from, to, position}) => moveLayer(from, to, position)),
+	rpc.waitLayerRename().then(({path, name}) => renameLayer(path, name)),
 	rpc.waitLayerRemove().then(removeLayer),
 	rpc.waitTokenAdd().then(tk => {
 		const layer = getLayer(tk.path);
@@ -822,15 +822,15 @@ export default (base: HTMLElement) => {
 		layer.tokens.push(token);
 		tokens.set(token.id, {layer, token});
 	}),
-	rpc.waitTokenMoveLayerPos().then(tm => {
-		const {layer, token} = tokens.get(tm.id)!,
-		      newParent = getLayer(tm.to);
+	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
+		const {layer, token} = tokens.get(id)!,
+		      newParent = getLayer(to);
 		if (layer && token && newParent && isSVGLayer(newParent)) {
-			if (tm.newPos > newParent.tokens.length) {
-				tm.newPos = newParent.tokens.length;
+			if (newPos > newParent.tokens.length) {
+				newPos = newParent.tokens.length;
 			}
-			newParent.tokens.splice(tm.newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
-			tokens.get(tm.id)!.layer = newParent;
+			newParent.tokens.splice(newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
+			tokens.get(id)!.layer = newParent;
 			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 				updateLight();
 			}
@@ -882,27 +882,27 @@ export default (base: HTMLElement) => {
 			}
 		}
 	}),
-	rpc.waitLayerShift().then(ls => {
-		const layer = getLayer(ls.path);
+	rpc.waitLayerShift().then(({path, dx, dy}) => {
+		const layer = getLayer(path);
 		if (!layer || !isSVGLayer(layer)) {
 			return;
 		}
 		for (const t of layer.tokens) {
-			t.x += ls.dx;
-			t.y += ls.dy;
+			t.x += dx;
+			t.y += dy;
 			t.updateNode();
 		};
 		for (const w of layer.walls) {
-			w.x1 += ls.dx;
-			w.y1 += ls.dy;
-			w.x2 += ls.dx;
-			w.y2 += ls.dy;
+			w.x1 += dx;
+			w.y1 += dy;
+			w.x2 += dx;
+			w.y2 += dy;
 		};
 		updateLight();
 	}),
-	rpc.waitLightShift().then(pos => {
-		mapData.lightX = pos.x;
-		mapData.lightY = pos.y;
+	rpc.waitLightShift().then(({x, y}) => {
+		mapData.lightX = x;
+		mapData.lightY = y;
 		updateLight();
 	}),
 	rpc.waitWallAdded().then(w => {
@@ -919,11 +919,11 @@ export default (base: HTMLElement) => {
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
 	}),
-	rpc.waitTokenLightChange().then(lc => {
-		const {token} = tokens.get(lc.id)!;
+	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => {
+		const {token} = tokens.get(id)!;
 		if (token instanceof SVGToken) {
-			token.lightColour = lc.lightColour;
-			token.lightIntensity = lc.lightIntensity;
+			token.lightColour = lightColour;
+			token.lightIntensity = lightIntensity;
 			updateLight();
 		}
 	}),
