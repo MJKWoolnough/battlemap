@@ -72,9 +72,9 @@ if (isAdmin) {
 		"settings": {
 			"priority": 0,
 			"fn": div([
-				button({"onclick": () => shell.appendChild(speciesWindow)}, lang["SPECIES_EDIT"]),
+				button({"onclick": () => createHTML(shell, speciesWindow)}, lang["SPECIES_EDIT"]),
 				br(),
-				button({"onclick": () => shell.appendChild(createHTML(clearElement(profWindow), [
+				button({"onclick": () => createHTML(shell, createHTML(clearElement(profWindow), [
 					h1(lang["PROFESSIONS_EDIT"]),
 					table([
 						thead(tr([

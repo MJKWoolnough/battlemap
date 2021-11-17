@@ -1,7 +1,6 @@
 import type {TokenSet, Token, Uint} from './types.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGLayer, SVGFolder} from './map.js';
-import {createDocumentFragment} from './lib/dom.js';
 import {createHTML, br, button, h1, img, input} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import place, {item, menu, List} from './lib/context.js';
@@ -532,7 +531,7 @@ export default (base: HTMLElement) => {
 				let c = currToken.lightColour;
 				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
 				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-				w.appendChild(createDocumentFragment([
+				createHTML(w, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
 					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
 					br(),
@@ -544,7 +543,7 @@ export default (base: HTMLElement) => {
 						}
 						w.close();
 					}}, lang["SAVE"])
-				]));
+				]);
 			}),
 			tokenPos < currLayer.tokens.length - 1 ? [
 				item(lang["CONTEXT_MOVE_TOP"], () => {

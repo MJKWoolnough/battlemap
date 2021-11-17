@@ -6,7 +6,7 @@ import {clearElement} from './lib/dom.js';
 import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {div, progress} from './lib/html.js';
+import {createHTML, div, progress} from './lib/html.js';
 import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
 import {shell} from './windows.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -399,7 +399,7 @@ showSignal = (() => {
 	      ]);
 	return (pos: [Uint, Uint]) => {
 		signal.setAttribute("transform", `translate(${pos[0] - 50}, ${pos[1] - 50})`);
-		root.appendChild(signal);
+		createSVG(root, signal);
 		signalAnim1.beginElement();
 		signalAnim2.beginElement();
 	};
@@ -479,7 +479,7 @@ zoom = (() => {
 		document.body.classList.add("zooming");
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)
-	inited.then(() => shell.appendChild(svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+	inited.then(() => createHTML(shell, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
 		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 			if (e.button === 0) {
 				zoomMove(e);
@@ -697,8 +697,8 @@ mapView = (mD: MapData, loadChars = false) => {
 	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
-	(getLayer("/Grid") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	(getLayer("/Light") as SVGLayer)[node].appendChild(rect({"width": "100%", "height": "100%", "fill": lightColour}));
+	createSVG((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+	createSVG((getLayer("/Light") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": lightColour}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {

@@ -232,9 +232,9 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 		userMusic();
 	}
 	addCSS(tabs.css);
-	base.appendChild(tabs.html);
+	createHTML(base, tabs.html);
 	window.setTimeout(() => tabs.setTab(lastTab.value));
-	clearElement(document.body).appendChild(shell);
+	createHTML(clearElement(document.body), shell);
 	shell.realignWindows();
 	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
 })).catch(handleError);

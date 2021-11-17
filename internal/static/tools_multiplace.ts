@@ -1,5 +1,5 @@
 import type {TokenImage, Uint} from './types.js';
-import {br, button, div, img, input, label} from './lib/html.js';
+import {createHTML, br, button, div, img, input, label} from './lib/html.js';
 import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
@@ -35,7 +35,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       showCursor = () => {
 	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
-		layer[node].appendChild(cursor[node]);
+		createHTML(layer[node], cursor[node]);
 		createSVG(root, {"style": {"cursor": "none"}})
 		moveCursor();
 	}
@@ -123,7 +123,7 @@ addTool({
 		token.y = cursor.y;
 		doTokenAdd(layer.path, token);
 		setCursor();
-		selected.layer![node].appendChild(cursor[node]);
+		createHTML(selected.layer![node], cursor[node]);
 		return false;
 	},
 	"mapMouse2": ignore,
@@ -148,6 +148,6 @@ addTool({
 layersRPC.waitLayerSelect().then(() => {
 	const {layer} = selected;
 	if (cursor && cursor[node].parentNode && layer) {
-		layer[node].appendChild(cursor[node]);
+		createHTML(layer[node], cursor[node]);
 	}
 });

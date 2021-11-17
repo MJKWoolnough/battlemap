@@ -1,7 +1,7 @@
 import type {Int, Uint, Wall} from './types.js';
 import {Subscription} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {br, div, input, label, span} from './lib/html.js';
+import {createHTML, br, div, input, label, span} from './lib/html.js';
 import {createSVG, circle, defs, g, line, path, radialGradient, stop, svg, title, use} from './lib/svg.js';
 import {deselectToken, labels, mapLoadedReceive, selected} from './shared.js';
 import {Colour, makeColourPicker} from './colours.js';
@@ -198,7 +198,7 @@ addTool({
 		] as (() => Subscription<any>)[]).map(fn => fn().then(() => window.setTimeout(genWalls))));
 		on = true;
 		genWalls();
-		root.appendChild(wallLayer);
+		createHTML(root, wallLayer);
 		deselectToken();
 	},
 	"unset": () => {

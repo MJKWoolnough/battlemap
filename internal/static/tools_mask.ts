@@ -1,5 +1,5 @@
 import type {Mask, Uint} from './types.js';
-import {br, button, div, fieldset, legend, input} from './lib/html.js';
+import {createHTML, br, button, div, fieldset, legend, input} from './lib/html.js';
 import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, marker} from './tools.js';
@@ -172,14 +172,14 @@ addTool({
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			maskElement = masks[node].appendChild(rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			createHTML(masks[node], maskElement = rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			rectDrag();
 			setEscape();
 		} else if (circle.checked) {
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			maskElement = masks[node].appendChild(ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			createHTML(masks[node], maskElement = ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			ellipseDrag();
 			setEscape();
 		} else if (poly.checked) {
@@ -190,7 +190,7 @@ addTool({
 				coords.splice(0, coords.length, x, y);
 				maskElement?.remove();
 				const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
-				maskElement = masks[node].appendChild(polygon({fill, "stroke": fill}));
+				createHTML(masks[node], maskElement = polygon({fill, "stroke": fill}));
 				polyMove();
 				setPolyEscape();
 			}

@@ -138,7 +138,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 
 export default () => {
 	if (!help.parentNode) {
-		shell.appendChild(createHTML(clearElement(help), div({"id": "help"}, [
+		createHTML(shell, createHTML(clearElement(help), div({"id": "help"}, [
 			h1(lang["HELP"]),
 			createDemo(),
 			div({"id": "helpDemos"}, [

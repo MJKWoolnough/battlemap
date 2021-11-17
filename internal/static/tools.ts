@@ -105,9 +105,9 @@ export default (base: HTMLElement) => {
 		t.set?.();
 		selectedTool = t;
 		if (t.options) {
-			clearElement(options).appendChild(t.options);
+			createHTML(clearElement(options), t.options);
 			if (windowed && miniTools.value) {
-				shell.appendChild(optionsWindow);
+				createHTML(shell, optionsWindow);
 				optionsWindow.focus();
 			} else {
 				toolOptions.style.removeProperty("display");
@@ -131,17 +131,17 @@ export default (base: HTMLElement) => {
 	createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
 		windowed = true;
 		if (miniTools.value) {
-			optionsWindow.appendChild(options);
+			createHTML(optionsWindow, options);
 			if (selectedTool.options) {
 				toolOptions.style.setProperty("display", "none");
-				shell.appendChild(optionsWindow);
+				createHTML(shell, optionsWindow);
 				window.setTimeout(() => optionsWindow.focus());
 			}
 		}
 	}, "onpopin": () => {
 		windowed = false;
 		if (miniTools.value) {
-			toolOptions.appendChild(options);
+			createHTML(toolOptions, options);
 			if (selectedTool.options) {
 				toolOptions.style.removeProperty("display");
 				optionsWindow.remove();
@@ -156,14 +156,14 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		if (on) {
-			optionsWindow.appendChild(options);
+			createHTML(optionsWindow, options);
 			if (selectedTool.options) {
 				toolOptions.style.setProperty("display", "none");
-				shell.appendChild(optionsWindow);
+				createHTML(shell, optionsWindow);
 				optionsWindow.focus();
 			}
 		} else {
-			toolOptions.appendChild(options);
+			createHTML(toolOptions, options);
 			if (selectedTool.options) {
 				toolOptions.style.removeProperty("display");
 				optionsWindow.remove();

@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
+import {createHTML, br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
 import {addCSS, checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
@@ -83,7 +83,7 @@ if (isAdmin) {
 			y = Math.round(token.y + token.height / 2);
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			if (!selectedEffect.parentNode) {
-				root.appendChild(selectedEffect);
+				createHTML(root, selectedEffect);
 			}
 		} else {
 			coneEffect.remove();
@@ -194,7 +194,7 @@ if (isAdmin) {
 			}
 			selectedEffect.setAttribute("transform", `translate(${x}, ${y})`);
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
-				this.appendChild(selectedEffect);
+				createHTML(this, selectedEffect);
 			}
 			setupEnter();
 			setupMouseMove();
@@ -271,7 +271,7 @@ if (isAdmin) {
 		}
 		if (lastEffect !== selectedEffect) {
 			lastEffect?.remove();
-			root.appendChild(selectedEffect);
+			createHTML(root, selectedEffect);
 		}
 		lastEffect = selectedEffect;
 		setSize(size, width);

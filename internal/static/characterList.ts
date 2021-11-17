@@ -92,7 +92,7 @@ export default (base: Node) => {
 				let icon = 0;
 				const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
 				      name = autoFocus(input({"onkeypress": enterKey}));
-				shell.appendChild(createHTML(w, [
+				createHTML(shell, createHTML(w, [
 					h1(lang["CHARACTER_NEW"]),
 					labels(`${lang["CHARACTER_NAME"]}: `, name),
 					br(),
@@ -105,7 +105,7 @@ export default (base: Node) => {
 					}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 						const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 						icon = tokenData.id;
-						clearElement(this).appendChild(img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+						createHTML(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 					}}, lang["CHARACTER_DRAG_ICON"]),
 					br(),
 					button("Create", {"onclick": function(this: HTMLButtonElement) {

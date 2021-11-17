@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {svgNS} from './lib/dom.js';
+import {createHTML, svgNS} from './lib/dom.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
@@ -24,7 +24,7 @@ inited.then(() => {
 		const fn = modules.get(d.module);
 		if (fn) {
 			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
-			shell.appendChild(bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
+			createHTML(shell, bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
 		}
 	});
 });

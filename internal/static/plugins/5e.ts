@@ -3,7 +3,7 @@ import type {WindowElement} from '../windows.js';
 import type {List} from '../lib/context.js';
 import type {PluginType} from '../plugins.js';
 import {clearElement, svgNS} from '../lib/dom.js';
-import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
+import {createHTML, br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, thead, th, tr, ul} from '../lib/html.js';
 import {createSVG, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, symbol, svg, text, use} from '../lib/svg.js';
 import {NodeArray, node, noSort} from '../lib/nodes.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
@@ -152,7 +152,7 @@ class SVGToken5E extends SVGToken {
 	}
 	unselect() {
 		if (!this.isPattern) {
-			this[node].appendChild(this.extra);
+			createHTML(this[node], this.extra);
 		}
 	}
 	updateSource(source: Uint) {
@@ -222,7 +222,7 @@ class SVGToken5E extends SVGToken {
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
 			if (myConditions[i]) {
-				this.conditions.appendChild(use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
+				createSVG(this.conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
 				col++;
 				if (col === perRow) {
 					col = 0;
@@ -500,7 +500,7 @@ const defaultLanguage = {
 	if (initiativeList.length === 0) {
 		initiativeWindow.remove();
 	} else if (!initiativeWindow.parentNode) {
-		shell.appendChild(initiativeWindow);
+		createHTML(shell, initiativeWindow);
 	}
       },
       displaySettings = {
@@ -800,9 +800,9 @@ if (isAdmin) {
 				"images": Array.from({"length": shapechangeTokens.length}, _ => false),
 			      },
 			      p = shapechangeCats.push(c) - 1;
-			cats.appendChild(addCat(c))
+			createHTML(cats, addCat(c))
 			for (let i = 0; i < rows.length; i++) {
-				rows[i].appendChild(addTicker(i, p));
+				createHTML(rows[i], addTicker(i, p));
 			}
 		})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 		button({"onclick": () => {
@@ -817,7 +817,7 @@ if (isAdmin) {
 					return;
 				}
 				const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
-				ticks.appendChild(addToken(t, shapechangeTokens.length));
+				createHTML(ticks, addToken(t, shapechangeTokens.length));
 				shapechangeTokens.push(t);
 				for (const cat of shapechangeCats) {
 					cat["images"].push(false);
@@ -887,7 +887,7 @@ if (isAdmin) {
 			}
 		}
 	      });
-	plugin["settings"]!.fn.appendChild(button({"onclick": () => shell.appendChild(shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
+	createHTML(plugin["settings"]!.fn, button({"onclick": () => createHTML(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {

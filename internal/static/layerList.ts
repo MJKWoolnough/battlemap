@@ -20,7 +20,7 @@ let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | un
 const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!draggedName) {
 		dragging![node].classList.add("dragged");
-		draggedName = document.body.appendChild(span(dragging!.name, {"class": "beingDragged"}));
+		createHTML(document.body, draggedName = span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
 	draggedName.style.setProperty("top", e.clientY + 1 + "px");
@@ -128,7 +128,7 @@ class ItemLayer extends Item {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		this.hidden = hidden;
 		if (id < 0) {
-			clearElement(this[node]).appendChild(this.nameElem);
+			createHTML(clearElement(this[node]), this.nameElem);
 		} else {
 			this.copier.remove();
 			if (selectedLayer === undefined) {
@@ -139,8 +139,10 @@ class ItemLayer extends Item {
 			this[node].classList.add("layerHidden");
 		}
 		this[node].insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
-		this[node].appendChild(div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}));
-		this[node].appendChild(div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)}));
+		createHTML(this[node], [
+			div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
+			div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
+		]);
 		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
 	}
 	show() {
@@ -274,7 +276,7 @@ class LayerRoot extends Root {
 export const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`;
 
 export default (base: HTMLElement) => {
-	base.appendChild(h1(lang["MAP_NONE_SELECTED"]));
+	createHTML(base, h1(lang["MAP_NONE_SELECTED"]));
 	dragBase = base;
 	let loadFn = () => {
 		const list = new LayerRoot(layerList, layersRPC),

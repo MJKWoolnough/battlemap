@@ -74,12 +74,12 @@ export const startMeasurement = (x1: Uint, y1: Uint) => {
 		if (marker.parentNode) {
 			root.insertBefore(drawnLine, marker);
 		} else {
-			root.appendChild(drawnLine);
+			createHTML(root, drawnLine);
 		}
 	}
 	createHTML(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
 	if (!info.parentNode) {
-		document.body.appendChild(info);
+		createHTML(document.body, info);
 	}
 },
 measureDistance = (x: Uint, y: Uint) => {
