@@ -69,13 +69,13 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 							list.reverse();
 						}
 					} else {
-						return JSON.parse(JSON.stringify(tokens.data));
+						return cloneObject(tokens.data);
 					}
 				}
 			}
 			const tk = list.pop();
 			if (tk) {
-				return JSON.parse(JSON.stringify(tk));
+				return cloneObject(tk);
 			}
 			return null;
 		},

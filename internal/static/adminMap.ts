@@ -12,7 +12,7 @@ import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpaci
 import undo from './undo.js';
 import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
 import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, deselectToken, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
+import {characterData, checkInt, cloneObject, deselectToken, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
@@ -351,8 +351,8 @@ export default (base: HTMLElement) => {
 		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
 	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
-		keyEvent("c", () => copiedToken = JSON.parse(JSON.stringify(selected.token))),
-		keyEvent("x", () => doTokenRemove((copiedToken = JSON.parse(JSON.stringify(selected.token))).id)),
+		keyEvent("c", () => copiedToken = cloneObject(selected.token)),
+		keyEvent("x", () => doTokenRemove((copiedToken = cloneObject(selected.token)).id)),
 		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
@@ -406,7 +406,7 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-		doTokenAdd(selected.layer.path, Object.assign(JSON.parse(JSON.stringify(copiedToken)), {"id": 0, x, y}));
+		doTokenAdd(selected.layer.path, Object.assign(cloneObject(copiedToken), {"id": 0, x, y}));
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		deselectToken();

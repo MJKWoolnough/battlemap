@@ -5,7 +5,7 @@ import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
 import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, mapData, masks, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
 import undo from './undo.js';
-import {deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
+import {cloneObject, deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
 import {tokenDataFilter} from './plugins.js';
 import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
@@ -28,7 +28,7 @@ export const getToken = () => {
 	const {token} = selected;
 	if (token instanceof SVGToken && !token.isPattern) {
 		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity} = token,
-		      tokenData = JSON.parse(JSON.stringify(token.tokenData));
+		      tokenData = cloneObject(token.tokenData);
 		for (const f of tokenDataFilter()) {
 			delete(tokenData[f]);
 		}
@@ -554,7 +554,7 @@ doMaskAdd = (m: Mask, sendRPC = true) => {
 },
 doMaskRemove = (index: Uint, sendRPC = true) => {
 	const oldOpaque = masks.baseOpaque,
-	      oldMasks = JSON.parse(JSON.stringify(masks.masks)),
+	      oldMasks = cloneObject(masks.masks),
 	      doIt = (sendRPC = true) => {
 		masks.remove(index);
 		if (sendRPC) {

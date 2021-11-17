@@ -4,7 +4,7 @@ import {createSVG, svg, circle, path, title} from './lib/svg.js';
 import {node} from './lib/nodes.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 import {mapData, screen2Grid} from './map.js';
-import {characterData, deselectToken, getCharacterToken, labels, selected} from './shared.js';
+import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';
 import {SVGToken, root} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {mouseMoveEvent} from './lib/events.js';
@@ -71,7 +71,7 @@ addTool({
 				if (!data) {
 					return;
 				}
-				setToken = () => fullToken(JSON.parse(JSON.stringify(data)));
+				setToken = () => fullToken(cloneObject(data));
 				setImg(data["src"]);
 				if (!mode.checked) {
 					deselectToken();

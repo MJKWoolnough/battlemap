@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {characterData, enterKey, labels, setAndReturn} from './shared.js';
+import {characterData, cloneObject, enterKey, labels, setAndReturn} from './shared.js';
 import lang from './language.js';
 import {rpc} from './rpc.js';
 
@@ -66,7 +66,7 @@ class CharacterRoot extends Root {
 	copyItem(oldID: Uint, newID: Uint, name: string) {
 		const c = characterData.get(oldID);
 		if (c) {
-			characterData.set(newID, JSON.parse(JSON.stringify(c)));
+			characterData.set(newID, cloneObject(c));
 			super.copyItem(oldID, newID, name);
 		}
 	}
