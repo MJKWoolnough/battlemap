@@ -47,11 +47,9 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 makeColourPicker = (() => {
 	const sc = (b: HTMLButtonElement, c: Colour) => {
 		if (c.a === 0) {
-			createHTML(b, {"style": {"background-color": "#fff"}});
-			b.innerText = "None";
+			createHTML(b, {"style": {"background-color": "#fff"}}, "None");
 		} else {
-			createHTML(b, {"style": {"background-color": c + ""}});
-			b.innerText = "";
+			createHTML(b, {"style": {"background-color": c + ""}}, "");
 		}
 		return c;
 	};
