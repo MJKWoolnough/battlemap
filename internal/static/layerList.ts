@@ -6,14 +6,14 @@ import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
-import {checkInt, deselectToken, enterKey, labels, mapLoadedReceive, queue, selected} from './shared.js';
+import {checkInt, deselectToken, enterKey, labels, mapLoadedReceive, menuItems, queue, selected} from './shared.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {addSymbol} from './symbols.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import lang from './language.js';
-import {rpc} from './rpc.js';
+import {isAdmin, rpc} from './rpc.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
 
@@ -274,9 +274,8 @@ class LayerRoot extends Root {
 
 export const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`;
 
-export default (base: HTMLElement) => {
-	createHTML(base, h1(lang["MAP_NONE_SELECTED"]));
-	dragBase = base;
+menuItems.push([5, () => isAdmin ? [lang["TAB_LAYERS"], (() => {
+	const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
 	let loadFn = () => {
 		const list = new LayerRoot(layerList, layersRPC),
 		      setLayer = (sl: ItemLayer) => {
@@ -380,4 +379,8 @@ export default (base: HTMLElement) => {
 		};
 	    };
 	mapLoadedReceive(() => loadFn());
-};
+	return base;
+})(),
+	true,
+	layerIcon
+] : null]);
