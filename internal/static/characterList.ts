@@ -6,9 +6,9 @@ import {Pipe} from './lib/inter.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {characterData, cloneObject, enterKey, labels, setAndReturn} from './shared.js';
+import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
 import lang from './language.js';
-import {rpc} from './rpc.js';
+import {isAdmin, rpc} from './rpc.js';
 
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -82,8 +82,9 @@ export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
 	return () => character[0].remove(fn);
 };
 
-export default (base: Node) => {
-	const rpcFuncs = rpc["characters"];
+menuItems.push([2, () => isAdmin ? [lang["TAB_CHARACTERS"], (() => {
+	const rpcFuncs = rpc["characters"],
+	      base = div(loading());
 	rpcFuncs.list().then(folderList => {
 		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 		root.windowIcon = characterIcon;
@@ -136,4 +137,8 @@ export default (base: Node) => {
 			}
 		});
 	});
-};
+	return base;
+})(),
+	true,
+	characterIcon
+] : null]);
