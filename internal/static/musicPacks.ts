@@ -6,10 +6,10 @@ import {createSVG, svg, animate, path, rect, symbol, title} from './lib/svg.js';
 import lang from './language.js';
 import {NodeArray, NodeMap, node, stringSort, noSort} from './lib/nodes.js';
 import {addSymbol, getSymbol} from './symbols.js';
-import {rpc, inited, handleError} from './rpc.js';
+import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
-import {checkInt} from './shared.js';
+import {checkInt, loading, menuItems} from './shared.js';
 
 type MusicTrackName = MusicTrack & {
 	name?: string;
@@ -255,8 +255,9 @@ export const userMusic = () => audioEnabled().then(rpc.musicPackList).then(list 
 }),
 musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
 
-export default (base: Node) => {
-	const dragIcon = div({"style": {"transform": "translateX(-9999px)"}}, img({"class": "imageIcon", "src": musicIcon}));
+menuItems.push([3, () => isAdmin ? [lang["TAB_MUSIC_PACKS"], (() => {
+	const base = div(loading()),
+	      dragIcon = div({"style": {"transform": "translateX(-9999px)"}}, img({"class": "imageIcon", "src": musicIcon}));
 	audioEnabled().then(rpc.musicPackList).then(list => {
 		class AdminTrack extends Track {
 			[node]: HTMLLIElement;
@@ -528,4 +529,8 @@ export default (base: Node) => {
 		});
 		commonWaits(musicList)
 	});
-};
+	return base;
+})(),
+	true,
+	musicIcon
+] : null]);
