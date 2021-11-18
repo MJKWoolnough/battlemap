@@ -1,33 +1,33 @@
 import type {WindowElement, WindowData} from './windows.js';
-import RPC, {handleError, isAdmin, rpc} from './rpc.js';
+import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
-import {div, h2, img, input, label, span} from './lib/html.js';
-import {symbol, path, circle, animateTransform} from './lib/svg.js';
-import assets, {imageIcon, audioIcon} from './assets.js';
-import musicPacks, {userMusic, musicIcon} from './musicPacks.js';
-import mapList, {mapIcon} from './mapList.js';
-import layerList, {layerIcon} from './layerList.js';
-import characters from './characterList.js';
+import {div, img, input, label, span} from './lib/html.js';
+import {symbol, path} from './lib/svg.js';
+import {userMusic} from './musicPacks.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows, getWindowData, checkWindowData} from './windows.js';
-import settings, {hideMenu, invert, panelOnTop, settingsIcon, tabIcons} from './settings.js';
-import tools, {toolsIcon} from './tools.js';
-import {characterIcon} from './characters.js';
-import {addCSS, mod} from './shared.js';
+import {hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
+import {addCSS, menuItems as mI, mod} from './shared.js';
 import symbols, {addSymbol} from './symbols.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
+import help from './help.js';
+import pluginInit, {menuItems} from './plugins.js';
+import lang from './language.js';
+import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './settings_types.js';
+import './assets.js';
+import './mapList.js';
+import './layerList.js';
+import './characterList.js';
+import './tools.js';
+import './characters.js';
 import './tools_draw.js';
 import './tools_light.js';
 import './tools_mask.js';
 import './tools_measure.js';
 import './tools_move.js';
 import './tools_multiplace.js';
-import help from './help.js';
-import pluginInit, {menuItems} from './plugins.js';
 import './messaging.js';
-import lang from './language.js';
-import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './settings_types.js';
 
 type savedWindow = {
 	out: boolean;
@@ -39,7 +39,6 @@ declare const pageLoad: Promise<void>;
 document.title = lang["TITLE"];
 
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "stroke": "currentColor"}))),
-      loading = addSymbol("loading", symbol({"viewBox": "0 0 10 10"}, circle({"cx": 5, "cy": 5, "r": 4, "stroke-width": 2, "stroke": "currentColor", "fill": "none", "stroke-linecap": "round", "stroke-dasharray": "12 12"}, animateTransform({"attributeName": "transform", "type": "rotate", "from": "0 5 5", "to": "360 5 5", "dur": "2s", "repeatCount": "indefinite"})))),
       lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	let n = 0, moved = false;
@@ -198,7 +197,6 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	})[0]();
 	return o;
       })(),
-      spinner = (id: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), loading({"style": "width: 64px"})]),
       base = desktop(symbols);
 
 createHTML(shell, {"snap": 50}, base);
@@ -207,27 +205,26 @@ invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", 
 tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
 panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panelOnTop", p));
 
-pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.location.host}/socket`).then(pluginInit).then(() => {
-	rpc.ready();
+inited.then(() => {
+	Object.freeze(mI.sort(([a], [b]) => a - b));
+	return pluginInit();
+}).then(() => {
 	createHTML(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
-	if (isAdmin) {
-		assets(tabs.add(lang["TAB_IMAGES"], spinner("imagesLoading"), true, imageIcon), "IMAGES");
-		assets(tabs.add(lang["TAB_AUDIO"], spinner("audioLoading"), true, audioIcon), "AUDIO");
-		characters(tabs.add(lang["TAB_CHARACTERS"], spinner("charactersLoading"), true, characterIcon));
-		musicPacks(tabs.add(lang["TAB_MUSIC_PACKS"], spinner("musicLoading"), true, musicIcon));
-		mapList(tabs.add(lang["TAB_MAPS"], spinner("maps"), true, mapIcon));
-		layerList(tabs.add(lang["TAB_LAYERS"], div(), true, layerIcon));
-		tools(tabs.add(lang["TAB_TOOLS"], div(), true, toolsIcon));
-		for (const mi of menuItems()) {
-			tabs.add(mi[0], mi[1], mi[2], mi[3]);
+	for (const [, fn] of mI.slice(0, isAdmin ? -1 : 0)) {
+		const data = fn();
+		if (data) {
+			const [name, base, popOut, icon] = data;
+			tabs.add(name, base, popOut, icon);
 		}
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon));
+	}
+	for (const mi of menuItems()) {
+		tabs.add(mi[0], mi[1], mi[2], mi[3]);
+	}
+	if (isAdmin) {
+		const [name, tbase, popOut, icon] = mI[mI.length-1][1]()!;
+		tabs.add(name, tbase, popOut, icon);
 		loadMap(base.appendChild(div()));
 	} else {
-		settings(tabs.add(lang["TAB_SETTINGS"], div(), false, settingsIcon));
-		for (const mi of menuItems()) {
-			tabs.add(mi[0], mi[1], mi[2], mi[3]);
-		}
 		loadUserMap(base.appendChild(div()));
 		userMusic();
 	}
@@ -237,4 +234,5 @@ pageLoad.then(() => RPC(`ws${window.location.protocol.slice(4)}//${window.locati
 	createHTML(clearElement(document.body), shell);
 	shell.realignWindows();
 	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
-})).catch(handleError);
+	rpc.ready();
+}).catch(handleError);
