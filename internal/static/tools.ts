@@ -2,12 +2,13 @@ import type {Uint} from './types.js';
 import {createHTML, clearElement, svgNS} from './lib/dom.js';
 import {div, h2, ul, li, span} from './lib/html.js';
 import {g, path, polygon, svg, title} from './lib/svg.js';
-import {mapLoadedReceive, mod} from './shared.js';
 import {stringSort} from './lib/nodes.js';
+import {keyEvent} from './lib/events.js';
 import lang from './language.js';
 import {shell, windows} from './windows.js';
 import {miniTools} from './settings.js';
-import {keyEvent} from './lib/events.js';
+import {isAdmin} from './rpc.js';
+import {mapLoadedReceive, menuItems, mod} from './shared.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;
 type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
@@ -93,7 +94,8 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	}
 };
 
-export default (base: HTMLElement) => {
+menuItems.push([6, () => isAdmin ? [lang["TAB_TOOLS"], (() => {
+	const base = div();
 	tools.sort((a, b) => stringSort(a.name, b.name));
 	tools.unshift(defaultTool);
 	let windowed = false,
@@ -186,4 +188,8 @@ export default (base: HTMLElement) => {
 			}
 		}
 	})[0]();
-};
+	return base;
+})(),
+	true,
+	toolsIcon
+] : null]);
