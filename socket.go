@@ -90,7 +90,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		if c.IsAdmin() {
 			c.rpc.Send(jsonrpc.Response{
 				ID:     broadcastCurrentUserMap,
-				Result: uint64(cd.CurrentMap),
+				Result: cd.CurrentMap,
 			})
 		} else {
 			c.maps.mu.RLock()
