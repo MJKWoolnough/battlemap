@@ -1,4 +1,4 @@
-import type {IDName, Uint, FolderItems} from './types.js';
+import type {IDName, Uint, FolderItems, FolderRPC} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
@@ -6,11 +6,11 @@ import {HTTPRequest} from './lib/conn.js';
 import {node} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {Root, Folder, DraggableItem} from './folders.js';
-import {labels, setAndReturn} from './shared.js';
+import {labels, loading, menuItems, setAndReturn} from './shared.js';
 import lang from './language.js';
 import {Pipe} from './lib/inter.js';
 import {register, shareIcon} from './messaging.js'
-import {rpc, handleError} from './rpc.js';
+import {rpc, handleError, isAdmin} from './rpc.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
@@ -120,6 +120,28 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 			bar
 		])
 	);
+      },
+      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: string, types: string) => {
+	const base = div(loading());
+	rpcFuncs.list().then(folderList => {
+		root.setRPCFuncs(rpcFuncs);
+		root.setRoot(folderList);
+		root.windowIcon = icon;
+		createHTML(clearElement(base), {"id": `${id}Items`, "class": "folders"}, [
+			button({"onclick": () => {
+				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, autoFocus(input({"accept": types, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+					uploadAsset(root, id, new FormData(f), window)
+					.then(() => window.remove())
+					.catch(handleError)
+					.finally(() => this.removeAttribute("disabled"));
+					this.toggleAttribute("disabled", true);
+				      }})))),
+				      window = shell.appendChild(windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]));
+			}}, upload),
+			root[node]
+		]);
+	});
+	return base;
       };
 
 export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, audioAssets),
@@ -132,25 +154,7 @@ uploadAudio = uploadAsset.bind(null, audioRoot, "audio");
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
-export default (base: Node, fileType: "IMAGES" | "AUDIO") => {
-	const rpcFuncs = fileType == "IMAGES" ? rpc["images"] : rpc["audio"];
-	rpcFuncs.list().then(folderList => {
-		const root = fileType === "IMAGES" ? imageRoot : audioRoot;
-		root.setRPCFuncs(rpcFuncs);
-		root.setRoot(folderList);
-		root.windowIcon = fileType === "IMAGES" ? imageIcon : audioIcon;
-		createHTML(clearElement(base), {"id": fileType.toLowerCase() + "Items", "class": "folders"}, [
-			button(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], {"onclick": () => {
-				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], autoFocus(input({"accept": fileType === "IMAGES" ? "image/gif, image/png, image/jpeg, image/webp" : "application/ogg, audio/mpeg", "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
-					uploadAsset(root, fileType.toLowerCase(), new FormData(f), window)
-					.then(() => window.remove())
-					.catch(handleError)
-					.finally(() => this.removeAttribute("disabled"));
-					this.toggleAttribute("disabled", true);
-				      }})))),
-				      window = shell.appendChild(windows({"window-icon": fileType === "IMAGES" ? imageIcon : audioIcon, "window-title": lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"], "class": "assetAdd"}, [h1(lang[fileType === "IMAGES" ? "UPLOAD_IMAGES" : "UPLOAD_AUDIO"]), f]));
-			}}),
-			root[node]
-		]);
-	});
-};
+menuItems.push(
+	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], "image/gif, image/png, image/jpeg, image/webp"), true, imageIcon] : null],
+	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], "application/ogg, audio/mpeg"), true, audioIcon] : null]
+);
