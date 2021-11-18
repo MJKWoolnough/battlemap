@@ -6,7 +6,7 @@ import {definitions, mapData, panZoom, root} from '../map.js';
 import {BoolSetting} from '../settings_types.js';
 import {addPlugin} from '../plugins.js';
 import {keyEvent} from '../lib/events.js';
-import {language} from '../language.js';
+import mainLang, {language} from '../language.js';
 
 const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke="%23000"%3E%3Crect x="2" y="2" width="96" height="96" stroke-width="4" stroke-dasharray="20 8" fill="%2388f" /%3E%3Cpath d="M10,40 v-15 q0,-2 2,-2 h75 q2,0 2,2 v17 z" fill="%23aaa" /%3E%3Cpath d="M10,40 v30 q0,2 2,2 h75 q2,0 2,-2 v-30 z m5,-17 v-3 q0,-2 2,-2 h12 q2,0 2,2 v3 z" fill="%23333" /%3E%3Ccircle cx="50" cy="50" r="18" fill="%23888" /%3E%3Ccircle cx="50" cy="50" r="12" fill="%23111" /%3E%3Crect x="70" y="36" width="15" height="8" rx="1" fill="%23cc0" /%3E%3C/g%3E%3Crect x="86" width="3" y="23.5" height="48" fill="rgba(0, 0, 0, 0.25)" /%3E%3Crect x="82" width="3" y="36" height="8" fill="rgba(0, 0, 0, 0.25)" /%3E%3C/svg%3E`,
       walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix, p: Promise<void>) => {
@@ -89,6 +89,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
       defaultLanguage = {
 	"ENABLE_GRID": "Show Grid on Screenshot",
 	"ENABLE_PNG": "Automatic PNG creation",
+	"ERROR_GENERATING": "Unknown error while generating PNG",
 	"SCREENSHOT_TAKE": "Take Screenshot"
       },
       langs: Record<string, typeof defaultLanguage> = {
@@ -113,9 +114,13 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 		      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
 		if (!disablePNG.value) {
 			c.toBlob(b => {
-				const href = URL.createObjectURL(b);
-				createHTML(link, {"href": href});
-				w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+				if (b) {
+					const href = URL.createObjectURL(b);
+					createHTML(link, {href});
+					w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+				} else {
+					w.alert(mainLang["ERROR"], lang["ERROR_GENERATING"], icon);
+				}
 			});
 		}
 	});
