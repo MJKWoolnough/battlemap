@@ -1,11 +1,11 @@
 import {svgNS} from './lib/dom.js';
-import {createHTML, button, br, form, h1, input, select, option} from './lib/html.js';
+import {button, br, div, form, h1, input, select, option} from './lib/html.js';
 import {BoolSetting, IntSetting} from './settings_types.js';
 import {settings as pluginSettings} from './plugins.js';
 import lang, {language, languages} from './language.js';
 import help from './help.js';
 import {shell} from './windows.js';
-import {checkInt, labels} from './shared.js';
+import {checkInt, labels, menuItems} from './shared.js';
 import {isAdmin} from './rpc.js';
 
 export const settingsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg fill="none"%3E%3Ccircle cx="50" cy="50" r="35" stroke="%23ccc" stroke-width="10" fill="none" /%3E%3Ccircle cx="50" cy="50" r="5" stroke="%23ccc" stroke-width="2" fill="none" /%3E%3C/g%3E%3Cpath id="settings-spoke" d="M35,15 l5,-15 h20 l5,15" fill="%23ccc" /%3E%3Cuse href="%23settings-spoke" transform="rotate(60, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(120, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(180, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(240, 50, 50)" /%3E%3Cuse href="%23settings-spoke" transform="rotate(300, 50, 50)" /%3E%3Cpath d="M21.5,33.5 L46,47.5 M50,81 L50,55 M78.5,33.5 L54,47.5" stroke="%23ccc" stroke-width="2" /%3E%3C/svg%3E`,
@@ -15,8 +15,8 @@ undoLimit = new IntSetting("undoLimit", "100"),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
 hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", "128");
 
-export default (base: HTMLElement) => {
-	createHTML(base, [
+menuItems.push([7, () => [
+	lang["TAB_SETTINGS"], div([
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
 		form({"action": isAdmin ? "login/logout" : "login/login"}, input({"type": "submit", "value": lang[isAdmin ? "LOGOUT" : "LOGIN"]})),
@@ -91,5 +91,7 @@ export default (base: HTMLElement) => {
 			window.localStorage.clear();
 			window.location.reload();
 		})}, lang["SETTINGS_CLEAR"])
-	]);
-};
+	]),
+	false,
+	settingsIcon
+]]);
