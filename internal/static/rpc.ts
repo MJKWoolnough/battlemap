@@ -8,7 +8,11 @@ import lang from './language.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastTokenDataChange = -37, broadcastLayerAdd = -38, broadcastLayerFolderAdd = -39, broadcastLayerMove = -40, broadcastLayerRename = -41, broadcastLayerRemove = -42, broadcastGridDistanceChange = -43, broadcastGridDiagonalChange = -44, broadcastMapLightChange = -45, broadcastLayerShow = -46, broadcastLayerHide = -47, broadcastMaskAdd = -48, broadcastMaskRemove = -49, broadcastMaskSet = -50, broadcastTokenAdd = -51, broadcastTokenRemove = -52, broadcastTokenMoveLayerPos = -53, broadcastTokenSet = -54, broadcastLayerShift = -55, broadcastLightShift = -56, broadcastTokenLightChange = -57, broadcastWallAdd = -58, broadcastWallRemove = -59, broadcastMusicPackAdd = -60, broadcastMusicPackRename = -61, broadcastMusicPackRemove = -62, broadcastMusicPackCopy = -63, broadcastMusicPackVolume = -64, broadcastMusicPackPlay = -65, broadcastMusicPackStop = -66, broadcastMusicPackStopAll = -67, broadcastMusicPackTrackAdd = -68, broadcastMusicPackTrackRemove = -69, broadcastMusicPackTrackVolume = -70, broadcastMusicPackTrackRepeat = -71, broadcastPluginChange = -72, broadcastPluginSettingChange = -73, broadcastWindow = -74, broadcastSignalMeasure = -75, broadcastSignalPosition = -76, broadcastSignalMovePosition = -77, broadcastAny = -78;
 
-let initSend: () => void, connIDSet: (id: Uint) => void;
+let connIDSet: (id: Uint) => void;
+
+declare const pageLoad: Promise<void>;
+
+export let isAdmin: boolean, isUser: boolean;
 
 export const internal = {
 	"images":     {},
@@ -35,290 +39,282 @@ handleError = (e: Error | string) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
-inited = new Promise<void>(success => initSend = success),
-connID = new Promise<Uint>(success => connIDSet = success);
+connID = new Promise<Uint>(success => connIDSet = success),
+{protocol, host} = window.location,
+inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).then(arpc => {
+	const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
+		"": () => {},
+		"!": (args: IArguments) => args[0],
+		"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
+	      },
+	      waiters: Record<string, [string, number, (data: any) => any][]> = {
+		"": [
+			["waitCurrentUserMap",       broadcastCurrentUserMap,       checkUint],
+			["waitCurrentUserMapData",   broadcastCurrentUserMapData,   checkMapData],
+			["waitMapDataSet",           broadcastMapDataSet,           checkMapKeyData],
+			["waitMapDataRemove",        broadcastMapDataRemove,        checkString],
+			["waitCharacterDataChange",  broadcastCharacterDataChange,  checkCharacterDataChange],
+			["waitTokenDataChange",      broadcastTokenDataChange,      checkTokenDataChange],
+			["waitMapChange",            broadcastMapItemChange,        checkMapDetails],
+			["waitMapStartChange",       broadcastMapStartChange,       checkMapStart],
+			["waitLayerAdd",             broadcastLayerAdd,             checkString],
+			["waitLayerFolderAdd",       broadcastLayerFolderAdd,       checkString],
+			["waitLayerMove",            broadcastLayerMove,            checkLayerMove],
+			["waitLayerRename",          broadcastLayerRename,          checkLayerRename],
+			["waitLayerRemove",          broadcastLayerRemove,          checkString],
+			["waitGridDistanceChange",   broadcastGridDistanceChange,   checkUint],
+			["waitGridDiagonalChange",   broadcastGridDiagonalChange,   checkBoolean],
+			["waitMapLightChange",       broadcastMapLightChange,       checkColour],
+			["waitLayerShow",            broadcastLayerShow,            checkString],
+			["waitLayerHide",            broadcastLayerHide,            checkString],
+			["waitMaskAdd",              broadcastMaskAdd,              checkMask],
+			["waitMaskRemove",           broadcastMaskRemove,           checkUint],
+			["waitMaskSet",              broadcastMaskSet,              checkMaskSet],
+			["waitTokenAdd",             broadcastTokenAdd,             checkTokenAdd],
+			["waitTokenRemove",          broadcastTokenRemove,          checkUint],
+			["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
+			["waitTokenSet",             broadcastTokenSet,             checkTokenSet],
+			["waitLayerShift",           broadcastLayerShift,           checkLayerShift],
+			["waitLightShift",           broadcastLightShift,           checkLightShift],
+			["waitTokenLightChange",     broadcastTokenLightChange,     checkLightChange],
+			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
+			["waitWallRemoved",          broadcastWallRemove,           checkUint],
+			["waitMusicPackAdd",         broadcastMusicPackAdd,         checkString],
+			["waitMusicPackRename",      broadcastMusicPackRename,      checkFromTo],
+			["waitMusicPackRemove",      broadcastMusicPackRemove,      checkString],
+			["waitMusicPackCopy",        broadcastMusicPackCopy,        checkFromTo],
+			["waitMusicPackVolume",      broadcastMusicPackVolume,      checkMusicPackVolume],
+			["waitMusicPackPlay",        broadcastMusicPackPlay,        checkMusicPackPlay],
+			["waitMusicPackStop",        broadcastMusicPackStop,        checkString],
+			["waitMusicPackStopAll",     broadcastMusicPackStopAll,     returnVoid],
+			["waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    checkMusicPackTrackAdd],
+			["waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, checkMusicPackTrack],
+			["waitMusicPackTrackVolume", broadcastMusicPackTrackVolume, checkMusicPackTrackVolume],
+			["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, checkMusicPackTrackRepeat],
+			["waitPluginChange",         broadcastPluginChange,         returnVoid],
+			["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
+			["waitSignalMeasure",        broadcastSignalMeasure,        checkSignalMeasure],
+			["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
+			["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
+			["waitBroadcastWindow",      broadcastWindow,               checkBroadcastWindow],
+			["waitBroadcast",            broadcastAny,                  checkBroadcast]
+		],
+		"images": [
+			["waitAdded",         broadcastImageItemAdd,      checkIDName],
+			["waitMoved",         broadcastImageItemMove,     checkFromTo],
+			["waitRemoved",       broadcastImageItemRemove,   checkString],
+			["waitCopied",        broadcastImageItemCopy,     checkCopied],
+			["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
+			["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
+			["waitFolderRemoved", broadcastImageFolderRemove, checkString]
+		],
+		"audio": [
+			["waitAdded",         broadcastAudioItemAdd,      checkIDName],
+			["waitMoved",         broadcastAudioItemMove,     checkFromTo],
+			["waitRemoved",       broadcastAudioItemRemove,   checkString],
+			["waitCopied",        broadcastAudioItemCopy,     checkCopied],
+			["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
+			["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
+			["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
+		],
+		"characters": [
+			["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
+			["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
+			["waitRemoved",       broadcastCharacterItemRemove,   checkString],
+			["waitCopied",        broadcastCharacterItemCopy,     checkCopied],
+			["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
+			["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
+			["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
+		],
+		"maps": [
+			["waitAdded",         broadcastMapItemAdd,      checkIDName],
+			["waitMoved",         broadcastMapItemMove,     checkFromTo],
+			["waitRemoved",       broadcastMapItemRemove,   checkString],
+			["waitCopied",        broadcastMapItemCopy,     checkCopied],
+			["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
+			["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
+			["waitFolderRemoved", broadcastMapFolderRemove, checkString]
+		]
+	      },
+	      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
+		"": [
+			["ready"      , "conn.ready"      , "", returnVoid, "", ""],
+			["currentTime", "conn.currentTime", "", checkUint,  "", ""],
 
-export let isAdmin: boolean, isUser: boolean;
+			["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
+			["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],
+			["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "waitCurrentUserMap", ""],
+			["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
 
-export default (url: string): Promise<void> => {
-	return RPC(url, 1.1).then(arpc => {
-		arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
-			isAdmin = userLevel === 2;
-			isUser = userLevel === 1;
-			initSend();
-		});
-		arpc.request("conn.connID").then(checkUint).then(connIDSet);
+			["newMap",           "maps.new",             "!",                 checkIDName, "", ""],
+			["setMapDetails",    "maps.setMapDetails",   "!",                 returnVoid,  "waitMapChange", ""],
+			["setMapStart",      "maps.setMapStart",    ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
+			["setGridDistance",  "maps.setGridDistance", "!",                 returnVoid,  "waitGridDistanceChange", ""],
+			["setGridDiagonal",  "maps.setGridDiagonal", "!",                 returnVoid,  "waitGridDiagonalChange", ""],
+			["setLightColour",   "maps.setLightColour",  "!",                 returnVoid,  "waitMapLightChange", ""],
+			["setMapKeyData",    "maps.setData",        ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
+			["removeMapKeyData", "maps.removeData",      "!",                 returnVoid,  "waitMapDataRemove", ""],
 
-		const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
-			"": () => {},
-			"!": (args: IArguments) => args[0],
-			"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
-		      },
-		      waiters: Record<string, [string, number, (data: any) => any][]> = {
-			"": [
-				["waitCurrentUserMap",       broadcastCurrentUserMap,       checkUint],
-				["waitCurrentUserMapData",   broadcastCurrentUserMapData,   checkMapData],
-				["waitMapDataSet",           broadcastMapDataSet,           checkMapKeyData],
-				["waitMapDataRemove",        broadcastMapDataRemove,        checkString],
-				["waitCharacterDataChange",  broadcastCharacterDataChange,  checkCharacterDataChange],
-				["waitTokenDataChange",      broadcastTokenDataChange,      checkTokenDataChange],
-				["waitMapChange",            broadcastMapItemChange,        checkMapDetails],
-				["waitMapStartChange",       broadcastMapStartChange,       checkMapStart],
-				["waitLayerAdd",             broadcastLayerAdd,             checkString],
-				["waitLayerFolderAdd",       broadcastLayerFolderAdd,       checkString],
-				["waitLayerMove",            broadcastLayerMove,            checkLayerMove],
-				["waitLayerRename",          broadcastLayerRename,          checkLayerRename],
-				["waitLayerRemove",          broadcastLayerRemove,          checkString],
-				["waitGridDistanceChange",   broadcastGridDistanceChange,   checkUint],
-				["waitGridDiagonalChange",   broadcastGridDiagonalChange,   checkBoolean],
-				["waitMapLightChange",       broadcastMapLightChange,       checkColour],
-				["waitLayerShow",            broadcastLayerShow,            checkString],
-				["waitLayerHide",            broadcastLayerHide,            checkString],
-				["waitMaskAdd",              broadcastMaskAdd,              checkMask],
-				["waitMaskRemove",           broadcastMaskRemove,           checkUint],
-				["waitMaskSet",              broadcastMaskSet,              checkMaskSet],
-				["waitTokenAdd",             broadcastTokenAdd,             checkTokenAdd],
-				["waitTokenRemove",          broadcastTokenRemove,          checkUint],
-				["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
-				["waitTokenSet",             broadcastTokenSet,             checkTokenSet],
-				["waitLayerShift",           broadcastLayerShift,           checkLayerShift],
-				["waitLightShift",           broadcastLightShift,           checkLightShift],
-				["waitTokenLightChange",     broadcastTokenLightChange,     checkLightChange],
-				["waitWallAdded",            broadcastWallAdd,              checkWallPath],
-				["waitWallRemoved",          broadcastWallRemove,           checkUint],
-				["waitMusicPackAdd",         broadcastMusicPackAdd,         checkString],
-				["waitMusicPackRename",      broadcastMusicPackRename,      checkFromTo],
-				["waitMusicPackRemove",      broadcastMusicPackRemove,      checkString],
-				["waitMusicPackCopy",        broadcastMusicPackCopy,        checkFromTo],
-				["waitMusicPackVolume",      broadcastMusicPackVolume,      checkMusicPackVolume],
-				["waitMusicPackPlay",        broadcastMusicPackPlay,        checkMusicPackPlay],
-				["waitMusicPackStop",        broadcastMusicPackStop,        checkString],
-				["waitMusicPackStopAll",     broadcastMusicPackStopAll,     returnVoid],
-				["waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    checkMusicPackTrackAdd],
-				["waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, checkMusicPackTrack],
-				["waitMusicPackTrackVolume", broadcastMusicPackTrackVolume, checkMusicPackTrackVolume],
-				["waitMusicPackTrackRepeat", broadcastMusicPackTrackRepeat, checkMusicPackTrackRepeat],
-				["waitPluginChange",         broadcastPluginChange,         returnVoid],
-				["waitPluginSetting",        broadcastPluginSettingChange,  checkPluginSetting],
-				["waitSignalMeasure",        broadcastSignalMeasure,        checkSignalMeasure],
-				["waitSignalPosition",       broadcastSignalPosition,       checkSignalPosition],
-				["waitSignalMovePosition",   broadcastSignalMovePosition,   checkSignalPosition],
-				["waitBroadcastWindow",      broadcastWindow,               checkBroadcastWindow],
-				["waitBroadcast",            broadcastAny,                  checkBroadcast]
-			],
-			"images": [
-				["waitAdded",         broadcastImageItemAdd,      checkIDName],
-				["waitMoved",         broadcastImageItemMove,     checkFromTo],
-				["waitRemoved",       broadcastImageItemRemove,   checkString],
-				["waitCopied",        broadcastImageItemCopy,     checkCopied],
-				["waitFolderAdded",   broadcastImageFolderAdd,    checkString],
-				["waitFolderMoved",   broadcastImageFolderMove,   checkFromTo],
-				["waitFolderRemoved", broadcastImageFolderRemove, checkString]
-			],
-			"audio": [
-				["waitAdded",         broadcastAudioItemAdd,      checkIDName],
-				["waitMoved",         broadcastAudioItemMove,     checkFromTo],
-				["waitRemoved",       broadcastAudioItemRemove,   checkString],
-				["waitCopied",        broadcastAudioItemCopy,     checkCopied],
-				["waitFolderAdded",   broadcastAudioFolderAdd,    checkString],
-				["waitFolderMoved",   broadcastAudioFolderMove,   checkFromTo],
-				["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
-			],
-			"characters": [
-				["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
-				["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
-				["waitRemoved",       broadcastCharacterItemRemove,   checkString],
-				["waitCopied",        broadcastCharacterItemCopy,     checkCopied],
-				["waitFolderAdded",   broadcastCharacterFolderAdd,    checkString],
-				["waitFolderMoved",   broadcastCharacterFolderMove,   checkFromTo],
-				["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
-			],
-			"maps": [
-				["waitAdded",         broadcastMapItemAdd,      checkIDName],
-				["waitMoved",         broadcastMapItemMove,     checkFromTo],
-				["waitRemoved",       broadcastMapItemRemove,   checkString],
-				["waitCopied",        broadcastMapItemCopy,     checkCopied],
-				["waitFolderAdded",   broadcastMapFolderAdd,    checkString],
-				["waitFolderMoved",   broadcastMapFolderMove,   checkFromTo],
-				["waitFolderRemoved", broadcastMapFolderRemove, checkString]
-			]
-		      },
-		      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
-			"": [
-				["ready"      , "conn.ready"      , "", returnVoid, "", ""],
-				["currentTime", "conn.currentTime", "", checkUint,  "", ""],
+			["signalMeasure",      "maps.signalMeasure",      "!", returnVoid, "", ""],
+			["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
+			["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
 
-				["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
-				["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],
-				["setUserMap",    "maps.setUserMap",    "!", returnVoid,   "waitCurrentUserMap", ""],
-				["getMapData",    "maps.getMapData",    "!", checkMapData, "", ""],
+			["addLayer",         "maps.addLayer",          "!",                                       checkString,      "waitLayerAdd", "*"],
+			["addLayerFolder",   "maps.addLayerFolder",    "!",                                       checkString,      "waitLayerFolderAdd", "*"],
+			["renameLayer",      "maps.renameLayer",      ["path", "name"],                           checkLayerRename, "waitLayerRename", "*"],
+			["moveLayer",        "maps.moveLayer",        ["from", "to", "position"],                 returnVoid,       "waitLayerMove", ""],
+			["showLayer",        "maps.showLayer",         "!",                                       returnVoid,       "waitLayerShow", ""],
+			["hideLayer",        "maps.hideLayer",         "!",                                       returnVoid,       "waitLayerHide", ""],
+			["addToMask",        "maps.addToMask",         "!",                                       returnVoid,       "waitMaskAdd", ""],
+			["removeFromMask",   "maps.removeFromMask",    "!",                                       returnVoid,       "waitMaskRemove", ""],
+			["setMask",          "maps.setMask",          ["baseOpaque", "masks"],                    returnVoid,       "waitMaskSet", ""],
+			["removeLayer",      "maps.removeLayer",       "!",                                       returnVoid,       "waitLayerRemove", ""],
+			["addToken",         "maps.addToken",         ["path", "token"],                          checkUint,        "waitTokenAdd", "token/id"],
+			["removeToken",      "maps.removeToken",       "!",                                       returnVoid,       "waitTokenRemove", ""],
+			["setToken",         "maps.setToken",          "!",                                       returnVoid,       "waitTokenSet", ""],
+			["setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],                     returnVoid,       "waitTokenMoveLayerPos", ""],
+			["shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],                       returnVoid,       "waitLayerShift", ""],
+			["shiftLight",       "maps.shiftLight",       ["x", "y"],                                 returnVoid,       "waitLightShift", ""],
+			["setTokenLight",    "maps.setTokenLight",    ["id", "lightColour", "lightIntensity"],    returnVoid,       "waitTokenLightChange", ""],
+			["addWall",          "maps.addWall",          ["path", "x1", "y1", "x2", "y2", "colour"], checkUint,        "waitWallAdded", "id"],
+			["removeWall",       "maps.removeWall",        "!",                                       returnVoid,       "waitWallRemoved", ""],
 
-				["newMap",           "maps.new",             "!",                 checkIDName, "", ""],
-				["setMapDetails",    "maps.setMapDetails",   "!",                 returnVoid,  "waitMapChange", ""],
-				["setMapStart",      "maps.setMapStart",    ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
-				["setGridDistance",  "maps.setGridDistance", "!",                 returnVoid,  "waitGridDistanceChange", ""],
-				["setGridDiagonal",  "maps.setGridDiagonal", "!",                 returnVoid,  "waitGridDiagonalChange", ""],
-				["setLightColour",   "maps.setLightColour",  "!",                 returnVoid,  "waitMapLightChange", ""],
-				["setMapKeyData",    "maps.setData",        ["key", "data"],      returnVoid,  "waitMapDataSet", ""],
-				["removeMapKeyData", "maps.removeData",      "!",                 returnVoid,  "waitMapDataRemove", ""],
+			["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
+			["musicPackAdd",         "music.new",             "!",                             checkString,     "waitMusicPackAdd", "*"],
+			["musicPackRename",      "music.rename",         ["from", "to"],                   checkString,     "waitMusicPackRename", "*"],
+			["musicPackRemove",      "music.remove",          "!",                             returnVoid,      "waitMusicPackRemove", ""],
+			["musicPackCopy",        "music.copy",           ["from", "to"],                   checkString,     "waitMusicPackCopy", "to"],
+			["musicPackSetVolume",   "music.setVolume",      ["musicPack", "volume"],          returnVoid,      "waitMusicPackVolume", ""],
+			["musicPackPlay",        "music.playPack",       ["musicPack", "playTime"],        checkUint,       "waitMusicPackPlay", "*"],
+			["musicPackStop",        "music.stopPack",        "!",                             returnVoid,      "waitMusicPackStop", ""],
+			["musicPackStopAll",     "music.stopAllPacks",    "",                              returnVoid,      "waitMusicPackStopAll", ""],
+			["musicPackTrackAdd",    "music.addTracks",      ["musicPack", "tracks"],          returnVoid,      "waitMusicPackTrackAdd", ""],
+			["musicPackTrackRemove", "music.removeTrack",    ["musicPack", "track"],           returnVoid,      "waitMusicPackTrackRemove", ""],
+			["musicPackTrackVolume", "music.setTrackVolume", ["musicPack", "track", "volume"], returnVoid,      "waitMusicPackTrackVolume", ""],
+			["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
 
-				["signalMeasure",      "maps.signalMeasure",      "!", returnVoid, "", ""],
-				["signalPosition",     "maps.signalPosition",     "!", returnVoid, "", ""],
-				["signalMovePosition", "maps.signalMovePosition", "!", returnVoid, "", ""],
+			["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
+			["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
+			["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
 
-				["addLayer",         "maps.addLayer",          "!",                                       checkString,      "waitLayerAdd", "*"],
-				["addLayerFolder",   "maps.addLayerFolder",    "!",                                       checkString,      "waitLayerFolderAdd", "*"],
-				["renameLayer",      "maps.renameLayer",      ["path", "name"],                           checkLayerRename, "waitLayerRename", "*"],
-				["moveLayer",        "maps.moveLayer",        ["from", "to", "position"],                 returnVoid,       "waitLayerMove", ""],
-				["showLayer",        "maps.showLayer",         "!",                                       returnVoid,       "waitLayerShow", ""],
-				["hideLayer",        "maps.hideLayer",         "!",                                       returnVoid,       "waitLayerHide", ""],
-				["addToMask",        "maps.addToMask",         "!",                                       returnVoid,       "waitMaskAdd", ""],
-				["removeFromMask",   "maps.removeFromMask",    "!",                                       returnVoid,       "waitMaskRemove", ""],
-				["setMask",          "maps.setMask",          ["baseOpaque", "masks"],                    returnVoid,       "waitMaskSet", ""],
-				["removeLayer",      "maps.removeLayer",       "!",                                       returnVoid,       "waitLayerRemove", ""],
-				["addToken",         "maps.addToken",         ["path", "token"],                          checkUint,        "waitTokenAdd", "token/id"],
-				["removeToken",      "maps.removeToken",       "!",                                       returnVoid,       "waitTokenRemove", ""],
-				["setToken",         "maps.setToken",          "!",                                       returnVoid,       "waitTokenSet", ""],
-				["setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],                     returnVoid,       "waitTokenMoveLayerPos", ""],
-				["shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],                       returnVoid,       "waitLayerShift", ""],
-				["shiftLight",       "maps.shiftLight",       ["x", "y"],                                 returnVoid,       "waitLightShift", ""],
-				["setTokenLight",    "maps.setTokenLight",    ["id", "lightColour", "lightIntensity"],    returnVoid,       "waitTokenLightChange", ""],
-				["addWall",          "maps.addWall",          ["path", "x1", "y1", "x2", "y2", "colour"], checkUint,        "waitWallAdded", "id"],
-				["removeWall",       "maps.removeWall",        "!",                                       returnVoid,       "waitWallRemoved", ""],
+			["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
-				["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
-				["musicPackAdd",         "music.new",             "!",                             checkString,     "waitMusicPackAdd", "*"],
-				["musicPackRename",      "music.rename",         ["from", "to"],                   checkString,     "waitMusicPackRename", "*"],
-				["musicPackRemove",      "music.remove",          "!",                             returnVoid,      "waitMusicPackRemove", ""],
-				["musicPackCopy",        "music.copy",           ["from", "to"],                   checkString,     "waitMusicPackCopy", "to"],
-				["musicPackSetVolume",   "music.setVolume",      ["musicPack", "volume"],          returnVoid,      "waitMusicPackVolume", ""],
-				["musicPackPlay",        "music.playPack",       ["musicPack", "playTime"],        checkUint,       "waitMusicPackPlay", "*"],
-				["musicPackStop",        "music.stopPack",        "!",                             returnVoid,      "waitMusicPackStop", ""],
-				["musicPackStopAll",     "music.stopAllPacks",    "",                              returnVoid,      "waitMusicPackStopAll", ""],
-				["musicPackTrackAdd",    "music.addTracks",      ["musicPack", "tracks"],          returnVoid,      "waitMusicPackTrackAdd", ""],
-				["musicPackTrackRemove", "music.removeTrack",    ["musicPack", "track"],           returnVoid,      "waitMusicPackTrackRemove", ""],
-				["musicPackTrackVolume", "music.setTrackVolume", ["musicPack", "track", "volume"], returnVoid,      "waitMusicPackTrackVolume", ""],
-				["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
+			["listPlugins",   "plugins.list",    "",                           checkPlugins, "", ""],
+			["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
+			["disablePlugin", "plugins.disable", "!",                          returnVoid,   "", ""],
+			["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
 
-				["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
-				["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
-				["characterGet",    "characters.get",     "!",                          checkCharacter,    "", ""],
+			["broadcastWindow", "broadcastWindow", ["module", "id", "contents"], returnVoid, "waitBroadcastWindow", ""],
+			["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""],
+		],
+		"images": [
+			["list",         "imageAssets.list",         "",             checkFolderItems, "", ""],
+			["createFolder", "imageAssets.createFolder", "!",            checkString,      "waitFolderAdded", "*"],
+			["move",         "imageAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
+			["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
+			["remove",       "imageAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
+			["removeFolder", "imageAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
+			["copy",         "imageAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		],
+		"audio": [
+			["list",         "audioAssets.list",         "",             checkFolderItems, "", ""],
+			["createFolder", "audioAssets.createFolder", "!",            checkString,      "waitFolderAdded", ""],
+			["move",         "audioAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
+			["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
+			["remove",       "audioAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
+			["removeFolder", "audioAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
+			["copy",         "audioAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		],
+		"characters": [
+			["list",         "characters.list",         "",             checkFolderItems, "", ""],
+			["createFolder", "characters.createFolder", "!",            checkString,      "waitFolderAdded", ""],
+			["move",         "characters.move",         ["from", "to"], checkString,      "waitMoved", "to"],
+			["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
+			["remove",       "characters.remove",       "!",            returnVoid,       "waitRemoved", ""],
+			["removeFolder", "characters.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
+			["copy",         "characters.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		],
+		"maps": [
+			["list",         "maps.list",         "",             checkFolderItems, "", ""],
+			["createFolder", "maps.createFolder", "!",            checkString,      "waitFolderAdded", ""],
+			["move",         "maps.move",         ["from", "to"], checkString,      "waitMoved", "to"],
+			["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
+			["remove",       "maps.remove",       "!",            returnVoid,       "waitRemoved", ""],
+			["removeFolder", "maps.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
+			["copy",         "maps.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
+		]
+	      },
+	      pseudoWait = () => new Subscription<any>(() => {});
 
-				["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
-
-				["listPlugins",   "plugins.list",    "",                           checkPlugins, "", ""],
-				["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
-				["disablePlugin", "plugins.disable", "!",                          returnVoid,   "", ""],
-				["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
-
-				["broadcastWindow", "broadcastWindow", ["module", "id", "contents"], returnVoid, "waitBroadcastWindow", ""],
-				["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""],
-			],
-			"images": [
-				["list",         "imageAssets.list",         "",             checkFolderItems, "", ""],
-				["createFolder", "imageAssets.createFolder", "!",            checkString,      "waitFolderAdded", "*"],
-				["move",         "imageAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-				["moveFolder",   "imageAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-				["remove",       "imageAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
-				["removeFolder", "imageAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "imageAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
-			],
-			"audio": [
-				["list",         "audioAssets.list",         "",             checkFolderItems, "", ""],
-				["createFolder", "audioAssets.createFolder", "!",            checkString,      "waitFolderAdded", ""],
-				["move",         "audioAssets.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-				["moveFolder",   "audioAssets.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-				["remove",       "audioAssets.remove",       "!",            returnVoid,       "waitRemoved", ""],
-				["removeFolder", "audioAssets.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "audioAssets.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
-			],
-			"characters": [
-				["list",         "characters.list",         "",             checkFolderItems, "", ""],
-				["createFolder", "characters.createFolder", "!",            checkString,      "waitFolderAdded", ""],
-				["move",         "characters.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-				["moveFolder",   "characters.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-				["remove",       "characters.remove",       "!",            returnVoid,       "waitRemoved", ""],
-				["removeFolder", "characters.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "characters.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
-			],
-			"maps": [
-				["list",         "maps.list",         "",             checkFolderItems, "", ""],
-				["createFolder", "maps.createFolder", "!",            checkString,      "waitFolderAdded", ""],
-				["move",         "maps.move",         ["from", "to"], checkString,      "waitMoved", "to"],
-				["moveFolder",   "maps.moveFolder",   ["from", "to"], checkString,      "waitFolderMoved", "to"],
-				["remove",       "maps.remove",       "!",            returnVoid,       "waitRemoved", ""],
-				["removeFolder", "maps.removeFolder", "!",            returnVoid,       "waitFolderRemoved", ""],
-				["copy",         "maps.copy",         ["id", "path"], checkIDPath,      "waitCopied", "name"]
-			]
-		      },
-		      pseudoWait = () => new Subscription<any>(() => {});
-
-		for (const e in endpoints) {
-			const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
-			      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
-			for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
-				const processArgs = argProcessors[typeof args === "string" ? args : "*"];
-				if (internalWaiter === "") {
-					rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
-				} else {
-					let fn: Function;
-					ik[internalWaiter] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
-					if (postKey === "") {
-						rk[name] = function() {
-							const a = processArgs(arguments, args as string[]);
+	for (const e in endpoints) {
+		const rk = (e === "" ? rpc : rpc[e as keyof RPCType]) as Record<string, Function>,
+		      ik = (e === "" ? internal : internal[e as keyof InternalWaits]) as Record<string, Function>;
+		for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
+			const processArgs = argProcessors[typeof args === "string" ? args : "*"];
+			if (internalWaiter === "") {
+				rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
+			} else {
+				let fn: Function;
+				ik[internalWaiter] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
+				if (postKey === "") {
+					rk[name] = function() {
+						const a = processArgs(arguments, args as string[]);
+						fn(a);
+						return arpc.request(endpoint, a).then(checker).catch(handleError);
+					}
+				} else if (postKey === "*") {
+					rk[name] = function() {
+						return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError).then(data => {
+							fn(data);
+							return data;
+						});
+					}
+				} else if (postKey === "token/id") {
+					rk[name] = function() {
+						const a = processArgs(arguments, args as string[]);
+						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
+							a.token.id = data;
 							fn(a);
-							return arpc.request(endpoint, a).then(checker).catch(handleError);
-						}
-					} else if (postKey === "*") {
-						rk[name] = function() {
-							return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError).then(data => {
-								fn(data);
-								return data;
-							});
-						}
-					} else if (postKey === "token/id") {
-						rk[name] = function() {
-							const a = processArgs(arguments, args as string[]);
-							return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
-								a.token.id = data;
-								fn(a);
-								return data;
-							});
-						}
-					} else {
-						rk[name] = function() {
-							const a = processArgs(arguments, args as string[]);
-							return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
-								fn(Object.assign(a, {[postKey]: data}));
-								return data;
-							});
-						}
+							return data;
+						});
+					}
+				} else {
+					rk[name] = function() {
+						const a = processArgs(arguments, args as string[]);
+						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
+							fn(Object.assign(a, {[postKey]: data}));
+							return data;
+						});
 					}
 				}
 			}
 		}
-		for (const k in waiters) {
-			const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
-			      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>,
-			      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
-			for (const [name, broadcastID, checker] of waiters[k]) {
-				let fn: Function;
-				const waiter = new Subscription(success => fn = success);
-				arpc.await(broadcastID, true).then(checker).then(data => queue(async () => fn(data)));
-				rk[name] = () => waiter;
-				if (ik[name]) {
-					ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
-				} else {
-					ik[name] = pseudoWait;
-					ck[name] = rk[name];
-				}
+	}
+	for (const k in waiters) {
+		const rk = (k === "" ? rpc : rpc[k as keyof RPCType]) as Record<string, Function>,
+		      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>,
+		      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
+		for (const [name, broadcastID, checker] of waiters[k]) {
+			let fn: Function;
+			const waiter = new Subscription(success => fn = success);
+			arpc.await(broadcastID, true).then(checker).then(data => queue(async () => fn(data)));
+			rk[name] = () => waiter;
+			if (ik[name]) {
+				ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
+			} else {
+				ik[name] = pseudoWait;
+				ck[name] = rk[name];
 			}
 		}
-		arpc.await(-999).catch(handleError);
-		Object.freeze(rpc);
-		return inited;
+	}
+	arpc.await(-999).catch(handleError);
+	Object.freeze(rpc);
+	arpc.request("conn.connID").then(checkUint).then(connIDSet);
+	return arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
+		isAdmin = userLevel === 2;
+		isUser = userLevel === 1;
 	});
-};
+}));
 
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 
