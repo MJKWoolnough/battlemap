@@ -212,47 +212,49 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
 
 let timeShift = 0;
 
-inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000);
-
-export const userMusic = () => audioEnabled().then(rpc.musicPackList).then(list => {
-	const packs = new Map<string, Pack>();
-	for (const name in list) {
-		packs.set(name, new Pack(list[name]));
+inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000).then(() => {
+	if (!isAdmin) {
+		 audioEnabled().then(rpc.musicPackList).then(list => {
+			const packs = new Map<string, Pack>();
+			for (const name in list) {
+				packs.set(name, new Pack(list[name]));
+			}
+			rpc.waitMusicPackAdd().then(name => packs.set(name, new Pack(newPack())));
+			rpc.waitMusicPackRename().then(ft => {
+				const p = packs.get(ft.from);
+				if (p) {
+					packs.delete(ft.from);
+					packs.set(ft.to, p);
+				}
+			});
+			rpc.waitMusicPackRemove().then(name => {
+				const p = packs.get(name);
+				if (p) {
+					p.remove();
+					packs.delete(name)
+				}
+			});
+			rpc.waitMusicPackCopy().then(ft => {
+				const p = packs.get(ft.from);
+				if (p) {
+					const tracks: MusicTrack[] = [];
+					for (const track in p.tracks) {
+						tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
+					}
+					packs.set(ft.to, new Pack({tracks, "volume": p.volume, "playTime": 0}));
+				}
+			});
+			rpc.waitMusicPackTrackAdd().then(mt => {
+				const p = packs.get(mt.musicPack);
+				if (p) {
+					for (const id of mt.tracks) {
+						p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
+					}
+				}
+			});
+			commonWaits(packs);
+		 });
 	}
-	rpc.waitMusicPackAdd().then(name => packs.set(name, new Pack(newPack())));
-	rpc.waitMusicPackRename().then(ft => {
-		const p = packs.get(ft.from);
-		if (p) {
-			packs.delete(ft.from);
-			packs.set(ft.to, p);
-		}
-	});
-	rpc.waitMusicPackRemove().then(name => {
-		const p = packs.get(name);
-		if (p) {
-			p.remove();
-			packs.delete(name)
-		}
-	});
-	rpc.waitMusicPackCopy().then(ft => {
-		const p = packs.get(ft.from);
-		if (p) {
-			const tracks: MusicTrack[] = [];
-			for (const track in p.tracks) {
-				tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
-			}
-			packs.set(ft.to, new Pack({tracks, "volume": p.volume, "playTime": 0}));
-		}
-	});
-	rpc.waitMusicPackTrackAdd().then(mt => {
-		const p = packs.get(mt.musicPack);
-		if (p) {
-			for (const id of mt.tracks) {
-				p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
-			}
-		}
-	});
-	commonWaits(packs);
 });
 
 menuItems.push([3, () => isAdmin ? [lang["TAB_MUSIC_PACKS"], (() => {

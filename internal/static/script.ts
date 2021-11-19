@@ -3,7 +3,6 @@ import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
 import {div, img, input, label, span} from './lib/html.js';
 import {symbol, path} from './lib/svg.js';
-import {userMusic} from './musicPacks.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows, getWindowData, checkWindowData} from './windows.js';
@@ -19,6 +18,7 @@ import './assets.js';
 import './mapList.js';
 import './layerList.js';
 import './characterList.js';
+import './musicPacks.js';
 import './tools.js';
 import './characters.js';
 import './tools_draw.js';
@@ -223,8 +223,6 @@ inited.then(() => {
 		(isAdmin ? loadMap : loadUserMap)(base.appendChild(div()));
 		if (isAdmin) {
 			tabs.add(settings!()!);
-		} else {
-			userMusic();
 		}
 		addCSS(tabs.css);
 		createHTML(base, tabs.html);
