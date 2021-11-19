@@ -108,7 +108,7 @@ const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "
 		};
 	      },
 	      o = Object.freeze({
-		"add": (title: string, contents: Node, pop: boolean, popIcon: string) => {
+		"add": ([title, contents, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
 			const base = p.appendChild(div(contents)),
 			      pos = n++,
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
@@ -213,16 +213,14 @@ inited.then(() => {
 	for (const [, fn] of mI.slice(0, isAdmin ? -1 : 0)) {
 		const data = fn();
 		if (data) {
-			const [name, base, popOut, icon] = data;
-			tabs.add(name, base, popOut, icon);
+			tabs.add(data);
 		}
 	}
 	for (const mi of menuItems()) {
-		tabs.add(mi[0], mi[1], mi[2], mi[3]);
+		tabs.add(mi);
 	}
 	if (isAdmin) {
-		const [name, tbase, popOut, icon] = mI[mI.length-1][1]()!;
-		tabs.add(name, tbase, popOut, icon);
+		tabs.add(mI[mI.length-1][1]()!);
 		loadMap(base.appendChild(div()));
 	} else {
 		loadUserMap(base.appendChild(div()));
