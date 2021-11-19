@@ -199,7 +199,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       })(),
       base = desktop(symbols);
 
-createHTML(shell, {"snap": 50}, base);
+createHTML(clearElement(document.body), createHTML(shell, {"snap": 50}, base));
 
 invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
 tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
@@ -227,7 +227,6 @@ inited.then(() => {
 		addCSS(tabs.css);
 		createHTML(base, tabs.html);
 		window.setTimeout(() => tabs.setTab(lastTab.value));
-		createHTML(clearElement(document.body), shell);
 		shell.realignWindows();
 		window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
 		rpc.ready();
