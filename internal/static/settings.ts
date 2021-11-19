@@ -8,7 +8,7 @@ import {shell} from './windows.js';
 import {checkInt, labels, menuItems} from './shared.js';
 import {isAdmin} from './rpc.js';
 
-export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invery", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
+export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", "100"),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
