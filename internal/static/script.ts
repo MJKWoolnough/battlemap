@@ -34,8 +34,6 @@ type savedWindow = {
 	data: WindowData
 }
 
-declare const pageLoad: Promise<void>;
-
 document.title = lang["TITLE"];
 
 const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "stroke": "currentColor"}))),
