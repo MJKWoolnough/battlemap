@@ -221,8 +221,8 @@ inited.then(() => {
 			tabs.add(mi);
 		}
 		(isAdmin ? loadMap : loadUserMap)(base.appendChild(div()));
-		if (isAdmin) {
-			tabs.add(settings!()!);
+		if (settings) {
+			tabs.add(settings()!);
 		}
 		addCSS(tabs.css);
 		createHTML(base, tabs.html);
