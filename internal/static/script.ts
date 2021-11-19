@@ -206,31 +206,33 @@ tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcon
 panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panelOnTop", p));
 
 inited.then(() => {
-	Object.freeze(mI.sort(([a], [b]) => a - b));
-	return pluginInit();
-}).then(() => {
-	createHTML(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
-	for (const [, fn] of mI.slice(0, isAdmin ? -1 : 0)) {
-		const data = fn();
-		if (data) {
-			tabs.add(data);
+	const mIs = [...mI].sort(([a], [b]) => a - b),
+	      settings = isAdmin ? mIs.pop()![1] : null;
+	mI.splice(0, mI.length);
+	return pluginInit().then(() => {
+		createHTML(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
+		for (const [, fn] of mIs) {
+			const data = fn();
+			if (data) {
+				tabs.add(data);
+			}
 		}
-	}
-	for (const mi of menuItems()) {
-		tabs.add(mi);
-	}
-	if (isAdmin) {
-		tabs.add(mI[mI.length-1][1]()!);
-		loadMap(base.appendChild(div()));
-	} else {
-		loadUserMap(base.appendChild(div()));
-		userMusic();
-	}
-	addCSS(tabs.css);
-	createHTML(base, tabs.html);
-	window.setTimeout(() => tabs.setTab(lastTab.value));
-	createHTML(clearElement(document.body), shell);
-	shell.realignWindows();
-	window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
-	rpc.ready();
+		for (const mi of menuItems()) {
+			tabs.add(mi);
+		}
+		if (isAdmin) {
+			tabs.add(settings!()!);
+			loadMap(base.appendChild(div()));
+		} else {
+			loadUserMap(base.appendChild(div()));
+			userMusic();
+		}
+		addCSS(tabs.css);
+		createHTML(base, tabs.html);
+		window.setTimeout(() => tabs.setTab(lastTab.value));
+		createHTML(clearElement(document.body), shell);
+		shell.realignWindows();
+		window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
+		rpc.ready();
+	});
 }).catch(handleError);
