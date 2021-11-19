@@ -220,11 +220,10 @@ inited.then(() => {
 		for (const mi of menuItems()) {
 			tabs.add(mi);
 		}
+		(isAdmin ? loadMap : loadUserMap)(base.appendChild(div()));
 		if (isAdmin) {
 			tabs.add(settings!()!);
-			loadMap(base.appendChild(div()));
 		} else {
-			loadUserMap(base.appendChild(div()));
 			userMusic();
 		}
 		addCSS(tabs.css);
