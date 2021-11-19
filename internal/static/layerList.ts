@@ -31,6 +31,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	draggedName = undefined;
 	dragBase.classList.remove("dragging", "draggingSpecial");
       }),
+      layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`,
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
@@ -271,8 +272,6 @@ class LayerRoot extends Root {
 		return folder.children.get(sub) as FolderLayer | ItemLayer;
 	}
 }
-
-export const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`;
 
 menuItems.push([5, () => isAdmin ? [lang["TAB_LAYERS"], (() => {
 	const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
