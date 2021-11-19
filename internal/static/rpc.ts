@@ -315,7 +315,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 		isAdmin = userLevel === 2;
 		isUser = userLevel === 1;
 	});
-}));
+})).catch(handleError);
 
 type checkers = [(data: any, name: string, key?: string) => void, string][];
 
