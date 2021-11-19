@@ -10,6 +10,8 @@ const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserM
 
 let connIDSet: (id: Uint) => void;
 
+const {protocol, host} = window.location;
+
 declare const pageLoad: Promise<void>;
 
 export let isAdmin: boolean, isUser: boolean;
@@ -40,7 +42,6 @@ handleError = (e: Error | string) => {
 	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
 connID = new Promise<Uint>(success => connIDSet = success),
-{protocol, host} = window.location,
 inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).then(arpc => {
 	const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 		"": () => {},
