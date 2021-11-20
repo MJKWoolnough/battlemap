@@ -1,4 +1,4 @@
-import type {Int, MusicPack, MusicTrack, Uint, SVGAnimateBeginElement} from './types.js';
+import type {Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
@@ -308,8 +308,8 @@ menuItems.push([3, () => isAdmin ? [
 				nameNode: HTMLSpanElement;
 				titleNode: HTMLElement;
 				volumeNode: HTMLInputElement;
-				toPlay = animate(toPlayOptions) as SVGAnimateBeginElement;
-				toPause = animate(toPauseOptions) as SVGAnimateBeginElement;
+				toPlay = animate(toPlayOptions);
+				toPause = animate(toPauseOptions);
 				playPauseNode: SVGPathElement;
 				playPauseTitle: SVGTitleElement;
 				playStatus: SVGSVGElement;

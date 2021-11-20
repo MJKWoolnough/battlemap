@@ -1,4 +1,4 @@
-import type {Byte, Coords, GridDetails, Int, KeystoreData, LayerFolder, LayerTokens, MapData, MapDetails, Mask, SVGAnimateBeginElement, Token, TokenDrawing, TokenImage, TokenSet, TokenShape, Uint, Wall} from './types.js';
+import type {Byte, Coords, GridDetails, Int, KeystoreData, LayerFolder, LayerTokens, MapData, MapDetails, Mask, Token, TokenDrawing, TokenImage, TokenSet, TokenShape, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
 import {clearElement} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -390,8 +390,8 @@ updateLight = () => {
 	]);
 },
 showSignal = (() => {
-	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
-	      signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}) as SVGAnimateBeginElement,
+	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
+	      signalAnim2 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
 	      signal = g([
 		circle({"cx": 50, "cy": 50, "stroke": "#f00", "stroke-width": 8, "fill": "none"}, signalAnim1),
 		circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, signalAnim2)

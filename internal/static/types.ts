@@ -423,10 +423,6 @@ type IDPath = ID & {
 	path: string;
 }
 
-export type SVGAnimateBeginElement = SVGAnimateElement & {
-	beginElement: Function;
-}
-
 type MapStart = {
 	startX: Uint;
 	startY: Uint;
