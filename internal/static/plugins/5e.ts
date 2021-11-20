@@ -737,7 +737,7 @@ if (isAdmin) {
 		      i = img({"src": `/images/${t.src}`}),
 		      r = tr([
 			th([
-				div({"class": "tokenSelector tokenSelector5E"}, [
+				div({"class": "tokenSelector tokenSelector5E", "style": "width: 100px; height: 100px"}, [
 					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
 						const gt = getToken();
 						if (!gt) {
