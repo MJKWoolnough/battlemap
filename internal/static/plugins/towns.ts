@@ -1,13 +1,13 @@
 import type {Uint} from '../types.js';
-//import {NodeArray} from '../lib/nodes.js';
 import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
-import {addPlugin, getSettings} from '../plugins.js';
-import {shell, windows} from '../windows.js';
-import {remove} from '../symbols.js';
-import {isUint} from '../shared.js';
-import {isAdmin} from '../rpc.js';
+//import {NodeArray} from '../lib/nodes.js';
 import {language} from '../language.js';
+import {addPlugin, getSettings} from '../plugins.js';
+import {isAdmin} from '../rpc.js';
+import {isUint} from '../shared.js';
+import {remove} from '../symbols.js';
+import {shell, windows} from '../windows.js';
 
 type MetaURL = {
 	url: string;

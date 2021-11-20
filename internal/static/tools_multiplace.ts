@@ -1,16 +1,15 @@
 import type {TokenImage, Uint} from './types.js';
-import {createHTML, br, button, div, img, input, label} from './lib/html.js';
-import {createSVG, svg, circle, path, title} from './lib/svg.js';
-import {node} from './lib/nodes.js';
-import {addTool, defaultTool, disable, ignore} from './tools.js';
-import {mapData, screen2Grid} from './map.js';
-import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';
-import {SVGToken, root} from './map.js';
-import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {mouseMoveEvent} from './lib/events.js';
-import {autosnap} from './settings.js';
+import {createHTML, br, button, div, img, input, label} from './lib/html.js';
+import {node} from './lib/nodes.js';
+import {createSVG, circle, path, svg, title} from './lib/svg.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
+import {mapData, root, screen2Grid, SVGToken} from './map.js';
+import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
+import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';
+import {autosnap} from './settings.js';
+import {addTool, defaultTool, disable, ignore} from './tools.js';
 
 const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
 	if (!this.checked) {

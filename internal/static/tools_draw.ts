@@ -1,16 +1,16 @@
 import type {Uint} from './types.js';
-import {br, div, fieldset, input, label, legend, span} from './lib/html.js';
-import {createSVG, svg, rect, ellipse, path, polyline, polygon, title} from './lib/svg.js';
-import {node} from './lib/nodes.js';
-import {autosnap} from './settings.js';
-import {root, screen2Grid} from './map.js';
-import {checkInt, deselectToken, labels, selected} from './shared.js';
-import {doTokenAdd} from './map_fns.js';
-import {shell} from './windows.js';
-import {Colour, makeColourPicker, noColour} from './colours.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {addTool, marker} from './tools.js';
+import {br, div, fieldset, input, label, legend, span} from './lib/html.js';
+import {node} from './lib/nodes.js';
+import {createSVG, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
+import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
+import {root, screen2Grid} from './map.js';
+import {doTokenAdd} from './map_fns.js';
+import {autosnap} from './settings.js';
+import {checkInt, deselectToken, labels, selected} from './shared.js';
+import {addTool, marker} from './tools.js';
+import {shell} from './windows.js';
 
 let fill = noColour,
     stroke = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),

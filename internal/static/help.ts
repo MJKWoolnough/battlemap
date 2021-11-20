@@ -1,10 +1,10 @@
 import type {SVGAnimateBeginElement} from './types.js';
 import {clearElement, formatText} from './lib/dom.js';
 import {createHTML, div, h1, input} from './lib/html.js';
-import {createSVG, svg, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, text} from './lib/svg.js';
+import {createSVG, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, svg, text} from './lib/svg.js';
+import lang from './language.js';
 import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
-import lang from './language.js';
 
 const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),

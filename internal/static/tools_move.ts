@@ -1,13 +1,13 @@
-import {createSVG, svg, g, line, path, title} from './lib/svg.js';
-import {node} from './lib/nodes.js';
-import {deselectToken, selected} from './shared.js';
-import {doLayerShift} from './map_fns.js';
-import {panZoom, root, screen2Grid} from './map.js';
-import {addTool, disable, ignore} from './tools.js';
-import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {autosnap, measureTokenMove} from './settings.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
+import {node} from './lib/nodes.js';
+import {createSVG, g, line, path, svg, title} from './lib/svg.js';
 import lang from './language.js';
+import {panZoom, root, screen2Grid} from './map.js';
+import {doLayerShift} from './map_fns.js';
+import {autosnap, measureTokenMove} from './settings.js';
+import {deselectToken, selected} from './shared.js';
+import {addTool, disable, ignore} from './tools.js';
+import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 
 
 let dx = 0, dy = 0,

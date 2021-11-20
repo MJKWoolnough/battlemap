@@ -1,14 +1,14 @@
-import type {Uint, KeystoreData, Plugin, TokenImage} from './types.js';
-import type {SVGToken} from './map.js';
-import type {Children} from './lib/dom.js';
+import type {KeystoreData, Plugin, TokenImage, Uint} from './types.js';
 import type {List} from './lib/context.js';
+import type {Children} from './lib/dom.js';
+import type {SVGToken} from './map.js';
 import type {WindowElement} from './windows.js';
-import {h1, label, select, option, button, br, input} from './lib/html.js';
+import {br, button, h1, input, label, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
-import {setAndReturn} from './shared.js';
 import lang from './language.js';
+import {handleError, isAdmin, rpc} from './rpc.js';
+import {setAndReturn} from './shared.js';
 import {shell} from './windows.js';
-import {rpc, handleError, isAdmin} from './rpc.js';
 
 type owp<T> = {
 	priority: Uint;

@@ -1,15 +1,15 @@
 import type {Uint} from '../types.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {createHTML, br, div, fieldset, input, legend, option, select} from '../lib/html.js';
-import {createSVG, svg, circle, g, path, rect, title, use} from '../lib/svg.js';
+import {createSVG, circle, g, path, rect, svg, title, use} from '../lib/svg.js';
+import {hex2Colour, noColour} from '../colours.js';
+import mainLang, {language} from '../language.js';
+import {mapData, root, screen2Grid} from '../map.js';
+import {doTokenAdd} from '../map_fns.js';
+import {isAdmin, rpc} from '../rpc.js';
+import {autosnap} from '../settings.js';
 import {addCSS, checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
-import {mapData, root, screen2Grid} from '../map.js';
-import {autosnap} from '../settings.js';
-import mainLang, {language} from '../language.js';
-import {isAdmin, rpc} from '../rpc.js';
-import {hex2Colour, noColour} from '../colours.js';
-import {doTokenAdd} from '../map_fns.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 
 const sparkID = "plugin-spell-spark",
       effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},

@@ -1,18 +1,18 @@
-import type {KeystoreData, MapDetails, Byte, Int, Uint, GridDetails, LayerFolder, LayerTokens, Mask, Token, TokenImage, TokenShape, TokenDrawing, MapData, Coords, Wall, SVGAnimateBeginElement, TokenSet} from './types.js';
+import type {Byte, Coords, GridDetails, Int, KeystoreData, LayerFolder, LayerTokens, MapData, MapDetails, Mask, SVGAnimateBeginElement, Token, TokenDrawing, TokenImage, TokenSet, TokenShape, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
-import {NodeArray, node} from './lib/nodes.js';
-import {WaitGroup} from './lib/inter.js';
 import {clearElement} from './lib/dom.js';
-import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
-import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
-import {scrollAmount, zoomSlider} from './settings.js';
-import {createHTML, div, progress} from './lib/html.js';
-import {defaultTool, toolMapMouseDown, toolMapWheel, toolMapMouseOver} from './tools.js';
-import {shell} from './windows.js';
 import {mouseDragEvent} from './lib/events.js';
-import {rpc, inited, isAdmin} from './rpc.js';
-import {tokenClass} from './plugins.js';
+import {createHTML, div, progress} from './lib/html.js';
+import {WaitGroup} from './lib/inter.js';
+import {NodeArray, node} from './lib/nodes.js';
+import {createSVG, animate, circle, defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect, svg} from './lib/svg.js';
 import lang from './language.js';
+import {inited, isAdmin, rpc} from './rpc.js';
+import {tokenClass} from './plugins.js';
+import {scrollAmount, zoomSlider} from './settings.js';
+import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, setAndReturn, SQRT3, tokens, walls} from './shared.js';
+import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
+import {shell} from './windows.js';
 
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;

@@ -1,9 +1,9 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {createHTML, br, button, div, h1, input} from './lib/html.js';
-import {windows, shell} from './windows.js';
-import {checkInt, labels} from './shared.js';
 import lang from './language.js';
+import {checkInt, labels} from './shared.js';
+import {shell, windows} from './windows.js';
 
 export class Colour {
 	readonly r: Byte = 0;

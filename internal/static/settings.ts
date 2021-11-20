@@ -1,12 +1,12 @@
 import {svgNS} from './lib/dom.js';
 import {button, br, div, form, h1, input, select, option} from './lib/html.js';
-import {BoolSetting, IntSetting} from './settings_types.js';
-import {settings as pluginSettings} from './plugins.js';
-import lang, {language, languages} from './language.js';
 import help from './help.js';
-import {shell} from './windows.js';
-import {checkInt, labels, menuItems} from './shared.js';
+import lang, {language, languages} from './language.js';
+import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
+import {BoolSetting, IntSetting} from './settings_types.js';
+import {checkInt, labels, menuItems} from './shared.js';
+import {shell} from './windows.js';
 
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),

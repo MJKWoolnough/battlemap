@@ -1,24 +1,25 @@
 import type {TokenSet, Token, Uint} from './types.js';
+import type {List} from './lib/context.js';
+import type {SVGFolder, SVGLayer} from './map.js';
 import type {NodeArray} from './lib/nodes.js';
-import type {SVGLayer, SVGFolder} from './map.js';
+import place, {item, menu} from './lib/context.js';
+import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
 import {createHTML, br, button, h1, img, input} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
-import place, {item, menu, List} from './lib/context.js';
-import {edit as tokenEdit} from './characters.js';
-import {tokenContext} from './plugins.js';
-import {SVGToken, SVGShape, SVGDrawing, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
-import {checkSelectedLayer, doMapChange, doSetLightColour, doShowHideLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doTokenAdd, doTokenMoveLayerPos, doTokenSet, doTokenRemove, doLayerShift, doLightShift, doMaskAdd, doMaskRemove, doMaskSet, doWallAdd, doWallRemove, doTokenLightChange, doMapDataSet, doMapDataRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
-import {autosnap, measureTokenMove, hiddenLayerOpacity, hiddenLayerSelectedOpacity} from './settings.js';
-import undo from './undo.js';
-import {defaultTool, toolTokenMouseDown, toolTokenWheel, toolTokenMouseOver} from './tools.js';
-import {startMeasurement, measureDistance, stopMeasurement} from './tools_measure.js';
-import {characterData, checkInt, cloneObject, deselectToken, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
-import {makeColourPicker, noColour} from './colours.js';
-import {windows, shell} from './windows.js';
 import {uploadImages} from './assets.js';
-import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
-import {rpc, handleError} from './rpc.js';
+import {edit as tokenEdit} from './characters.js';
+import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
+import {SVGDrawing, SVGShape, SVGToken, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doLightShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {tokenContext} from './plugins.js';
+import {handleError, rpc} from './rpc.js';
+import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
+import {characterData, checkInt, cloneObject, deselectToken, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, outline, selected, SQRT3, tokens, tokenSelected, tokenSelectedReceive} from './shared.js';
+import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
+import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
+import undo from './undo.js';
+import {shell, windows} from './windows.js';
 
 export default (base: HTMLElement) => {
 	let copiedToken: Token | null = null,

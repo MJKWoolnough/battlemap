@@ -1,16 +1,16 @@
-import type {IDName, Uint, FolderItems, FolderRPC} from './types.js';
+import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
+import {HTTPRequest} from './lib/conn.js';
 import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
-import {HTTPRequest} from './lib/conn.js';
-import {node} from './lib/nodes.js';
-import {loadingWindow, windows, shell} from './windows.js';
-import {Root, Folder, DraggableItem} from './folders.js';
-import {labels, loading, menuItems, setAndReturn} from './shared.js';
-import lang from './language.js';
 import {Pipe} from './lib/inter.js';
+import {node} from './lib/nodes.js';
+import {DraggableItem, Root, Folder} from './folders.js';
+import lang from './language.js';
 import {register, shareIcon} from './messaging.js'
-import {rpc, handleError, isAdmin} from './rpc.js';
+import {handleError, isAdmin, rpc} from './rpc.js';
+import {labels, loading, menuItems, setAndReturn} from './shared.js';
+import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {

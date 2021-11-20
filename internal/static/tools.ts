@@ -1,14 +1,14 @@
 import type {Uint} from './types.js';
-import {createHTML, clearElement, svgNS} from './lib/dom.js';
-import {div, h2, ul, li, span} from './lib/html.js';
-import {g, path, polygon, svg, title} from './lib/svg.js';
-import {stringSort} from './lib/nodes.js';
+import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
+import {createHTML, div, h2, li, span, ul} from './lib/html.js';
+import {stringSort} from './lib/nodes.js';
+import {g, path, polygon, svg, title} from './lib/svg.js';
 import lang from './language.js';
-import {shell, windows} from './windows.js';
-import {miniTools} from './settings.js';
 import {isAdmin} from './rpc.js';
+import {miniTools} from './settings.js';
 import {mapLoadedReceive, menuItems, mod} from './shared.js';
+import {shell, windows} from './windows.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;
 type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;

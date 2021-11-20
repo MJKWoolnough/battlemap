@@ -1,16 +1,16 @@
 import type {Mask, Uint} from './types.js';
-import {createHTML, br, button, div, fieldset, legend, input} from './lib/html.js';
-import {createSVG, svg, ellipse, path, polygon, rect, title} from './lib/svg.js';
-import {node} from './lib/nodes.js';
-import {addTool, marker} from './tools.js';
-import {deselectToken, labels} from './shared.js';
-import {autosnap} from './settings.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {shell} from './windows.js';
+import {createHTML, br, button, div, fieldset, legend, input} from './lib/html.js';
+import {node} from './lib/nodes.js';
+import {createSVG, ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
+import lang from './language.js';
 import {masks, root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
+import {autosnap} from './settings.js';
 import {JSONSetting} from './settings_types.js';
-import lang from './language.js';
+import {deselectToken, labels} from './shared.js';
+import {addTool, marker} from './tools.js';
+import {shell} from './windows.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
       rectangle = input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": true}),

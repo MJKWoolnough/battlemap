@@ -1,12 +1,12 @@
-import type {Int, Uint, CharacterToken, KeystoreData, Wall} from './types.js';
+import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
-import {Pipe} from './lib/inter.js';
 import {createDocumentFragment} from './lib/dom.js';
 import {createHTML, h2, label, style} from './lib/html.js';
+import {Pipe} from './lib/inter.js';
 import {createSVG, g} from './lib/svg.js';
-import {spinner} from './symbols.js';
 import lang from './language.js';
+import {spinner} from './symbols.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
 	const p = new Pipe<T>();

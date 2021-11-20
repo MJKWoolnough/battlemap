@@ -1,16 +1,17 @@
 import type {Int, Uint, Wall} from './types.js';
-import {Subscription} from './lib/inter.js';
+import type {SVGLayer} from './map.js';
 import {clearElement} from './lib/dom.js';
-import {createHTML, br, div, input, label, span} from './lib/html.js';
-import {createSVG, circle, defs, g, line, path, radialGradient, stop, svg, title, use} from './lib/svg.js';
-import {deselectToken, labels, mapLoadedReceive, selected} from './shared.js';
-import {Colour, makeColourPicker} from './colours.js';
-import {SVGLayer, mapData, point2Line, root, screen2Grid, walkLayers} from './map.js';
-import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
-import {addTool, marker as wallMarker} from './tools.js';
 import {keyEvent} from './lib/events.js';
-import {rpc, combined as combinedRPC} from './rpc.js';
+import {createHTML, br, div, input, label, span} from './lib/html.js';
+import {Subscription} from './lib/inter.js';
+import {createSVG, circle, defs, g, line, path, radialGradient, stop, svg, title, use} from './lib/svg.js';
+import {Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
+import {mapData, point2Line, root, screen2Grid, walkLayers} from './map.js';
+import {doLightShift, doWallAdd, doWallRemove} from './map_fns.js';
+import {combined as combinedRPC, rpc} from './rpc.js';
+import {deselectToken, labels, mapLoadedReceive, selected} from './shared.js';
+import {addTool, marker as wallMarker} from './tools.js';
 
 let x1 = 0,
     y1 = 0,

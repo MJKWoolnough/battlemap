@@ -1,14 +1,14 @@
 import type {FolderItems, Uint} from './types.js';
 import {autoFocus, clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
-import {node} from './lib/nodes.js';
 import {Pipe} from './lib/inter.js';
-import {loadingWindow, windows, shell} from './windows.js';
-import {Root, Folder, DraggableItem} from './folders.js';
+import {node} from './lib/nodes.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
+import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
+import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
+import {loadingWindow, shell, windows} from './windows.js';
 
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {

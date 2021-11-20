@@ -1,10 +1,10 @@
 import type {Uint} from './types.js';
-import {createHTML, svgNS} from './lib/dom.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
+import {createHTML, svgNS} from './lib/dom.js';
+import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
-import {rpc, inited} from './rpc.js';
 
 const modules = new Map<string, [string, string] | ((id: Uint) => [string, string])>(),
       tags: Parsers = Object.assign({}, all);

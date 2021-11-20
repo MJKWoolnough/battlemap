@@ -1,10 +1,10 @@
-import {undoLimit} from './settings.js';
-import {NodeArray, node} from './lib/nodes.js';
 import {button, h1, li, ul} from './lib/html.js';
+import {NodeArray, node} from './lib/nodes.js';
+import lang from './language.js';
+import {undoLimit} from './settings.js';
 import {BoolSetting} from './settings_types.js';
 import {queue} from './shared.js';
-import {windows, shell} from './windows.js';
-import lang from './language.js';
+import {shell, windows} from './windows.js';
 
 type Fn = () => Fn;
 

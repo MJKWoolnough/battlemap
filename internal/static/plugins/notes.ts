@@ -1,19 +1,19 @@
-import type {FolderItems, KeystoreData, IDName, Uint} from '../types.js';
-import type {WindowElement} from '../windows.js';
+import type {FolderItems, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
-import {node} from '../lib/nodes.js';
+import type {WindowElement} from '../windows.js';
+import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
+import {all} from '../lib/bbcode_tags.js';
 import {clearElement, svgNS} from '../lib/dom.js';
 import {createHTML, br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
-import {all} from '../lib/bbcode_tags.js';
-import {addPlugin, getSettings, pluginName} from '../plugins.js';
-import {addCSS, isUint, labels} from '../shared.js';
-import mainLang, {language} from '../language.js';
+import {node} from '../lib/nodes.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
-import {rpc, handleError, isAdmin} from '../rpc.js';
-import {shell, windows} from '../windows.js';
-import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
+import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
+import {addPlugin, getSettings, pluginName} from '../plugins.js';
+import {handleError, isAdmin, rpc} from '../rpc.js';
+import {addCSS, isUint, labels} from '../shared.js';
+import {shell, windows} from '../windows.js';
 
 type Page = {
 	share: boolean;

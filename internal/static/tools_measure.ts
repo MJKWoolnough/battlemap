@@ -1,13 +1,13 @@
 import type {Uint} from './types.js';
-import {createHTML, br, div, input} from './lib/html.js';
-import {createSVG, svg, circle, g, path, polyline, title} from './lib/svg.js';
-import {addTool, ignore, marker} from './tools.js';
-import {mapData, panZoom, root, screen2Grid} from './map.js';
-import {autosnap} from './settings.js';
-import {checkInt, labels, mapLoadedReceive, isUint} from './shared.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
+import {createHTML, br, div, input} from './lib/html.js';
+import {createSVG, circle, g, path, polyline, svg, title} from './lib/svg.js';
 import lang from './language.js';
-import {rpc, inited, isAdmin} from './rpc.js';
+import {mapData, panZoom, root, screen2Grid} from './map.js';
+import {inited, isAdmin, rpc} from './rpc.js';
+import {autosnap} from './settings.js';
+import {checkInt, isUint, labels, mapLoadedReceive} from './shared.js';
+import {addTool, ignore, marker} from './tools.js';
 
 let send = false;
 

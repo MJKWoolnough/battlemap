@@ -2,11 +2,11 @@ import type {Int, Uint} from './types.js';
 import type {DOMBind, Props, Children} from './lib/dom.js';
 import type {ShellElement, WindowElement} from './lib/windows.js';
 import {createHTML, div} from './lib/html.js';
-import {defaultIcon, desktop, shell as ashell, setDefaultIcon, windows as awindows} from './lib/windows.js';
-import {JSONSetting} from './settings_types.js';
-import {isInt, isUint} from './shared.js';
 import {hasKeyEvent} from './lib/events.js';
+import {defaultIcon, desktop, shell as ashell, setDefaultIcon, windows as awindows} from './lib/windows.js';
 import lang from './language.js';
+import {isInt, isUint} from './shared.js';
+import {JSONSetting} from './settings_types.js';
 
 export {ShellElement, WindowElement, desktop};
 

@@ -2,15 +2,15 @@ import type {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {checkInt, labels, loading, mapLoadSend, menuItems} from './shared.js';
 import {hex2Colour} from './colours.js';
-import {Root, Folder, DraggableItem} from './folders.js';
-import {loadingWindow, windows, shell} from './windows.js';
-import {userSelected} from './symbols.js';
-import {IntSetting} from './settings_types.js';
+import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
+import {checkInt, labels, loading, mapLoadSend, menuItems} from './shared.js';
+import {IntSetting} from './settings_types.js';
+import {userSelected} from './symbols.js';
 import undo from './undo.js';
+import {loadingWindow, shell, windows} from './windows.js';
 
 const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" fill="none"%3E%3Cpath d="M30,1 L70,5 V99 L30,95" fill="%238f0" /%3E%3Cpath d="M30,55 h0.5 L69.5,48 H70 M40,53 L60,96 v2" stroke="%23333" stroke-width="10" /%3E%3Cpath d="M1,5 L30,1 70,5 99,1 M1,99 L30,95 70,99 99,95" stroke="%23eee" /%3E%3Cpath d="M30,1 L1,5 V99 L30,95 M70,5 L99,1 V95 L70,99" stroke="%23aaa" fill="%234a0" /%3E%3Cpath d="M2,40 Q10,40 30,35 V2 L2,6 Z M70,40 Q80,30 98,30 V2 L70,6 Z" fill="%2300a" /%3E%3Cpath d="M30,35 C50,30 50,50 70,40 V6 L30,2 Z" fill="%2300f" /%3E%3Cpath d="M2,75 h5 L26,55 H30 M70,48 h3 L96,37 H98" stroke="%23000" stroke-width="10" /%3E%3C/g%3E%3C/svg%3E`,
       setMap = (mapItem: MapItem | null, selected: MapItem | null, selectedClass: string, containsClass: string) => {

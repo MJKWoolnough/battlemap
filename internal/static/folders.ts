@@ -1,11 +1,11 @@
-import type {Uint, FolderRPC, FolderItems} from './types.js';
-import {createHTML, autoFocus, clearElement} from './lib/dom.js';
+import type {FolderItems, FolderRPC, Uint} from './types.js';
+import {autoFocus, clearElement, createHTML} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
-import {loadingWindow, windows, shell} from './windows.js';
-import {enterKey, queue, labels} from './shared.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
-import {rename, copy, remove, newFolder, folder} from './symbols.js';
 import lang from './language.js';
+import {enterKey, labels, queue} from './shared.js';
+import {copy, folder, newFolder, rename, remove} from './symbols.js';
+import {loadingWindow, shell, windows} from './windows.js';
 
 interface ItemConstructor {
 	new (parent: Folder, id: Uint, name: string): Item;

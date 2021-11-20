@@ -1,14 +1,14 @@
-import type {IDName, Int, Uint, MapDetails, LayerMove, LayerRename, Mask, MaskSet, TokenSet, Token, WallPath, LayerRPC} from './types.js';
-import type {SVGLayer} from './map.js';
+import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, WallPath} from './types.js';
 import type {Colour} from './colours.js';
+import type {SVGLayer} from './map.js';
 import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
-import {SVGToken, SVGShape, SVGDrawing, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, mapData, masks, removeLayer, renameLayer, setLayerVisibility, moveLayer, setMapDetails, setLightColour, isTokenImage, isTokenDrawing, updateLight, normaliseWall, splitAfterLastSlash} from './map.js';
-import undo from './undo.js';
-import {cloneObject, deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
-import {tokenDataFilter} from './plugins.js';
-import {rpc, handleError} from './rpc.js';
 import lang from './language.js';
+import {SVGDrawing, SVGShape, SVGToken, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, masks, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
+import {tokenDataFilter} from './plugins.js';
+import {handleError, rpc} from './rpc.js';
+import {cloneObject, deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
+import undo from './undo.js';
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
 	let fn: (data: T) => void;

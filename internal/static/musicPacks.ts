@@ -1,15 +1,15 @@
-import type {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './types.js';
+import type {Int, MusicPack, MusicTrack, Uint, SVGAnimateBeginElement} from './types.js';
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
-import {createSVG, svg, animate, path, rect, title} from './lib/svg.js';
-import lang from './language.js';
-import {NodeArray, NodeMap, node, stringSort, noSort} from './lib/nodes.js';
-import {copy, playStatus, remove, rename, stop} from './symbols.js';
-import {handleError, inited, isAdmin, rpc} from './rpc.js';
-import {windows, shell} from './windows.js';
+import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
+import {createSVG, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
+import lang from './language.js';
+import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
+import {copy, playStatus, remove, rename, stop} from './symbols.js';
+import {shell, windows} from './windows.js';
 
 type MusicTrackName = MusicTrack & {
 	name?: string;

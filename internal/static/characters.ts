@@ -1,16 +1,16 @@
-import type {Uint, KeystoreData} from './types.js';
+import type {KeystoreData, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {autoFocus, clearElement, svgNS} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
-import {loadingWindow, windows, shell} from './windows.js';
-import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
-import {getToken, doTokenSet} from './map_fns.js';
-import {userVisible, remove as removeSymbol} from './symbols.js';
-import {characterEdit} from './plugins.js';
 import lang from './language.js';
-import {rpc, inited} from './rpc.js';
+import {doTokenSet, getToken} from './map_fns.js';
+import {characterEdit} from './plugins.js';
+import {inited, rpc} from './rpc.js';
+import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
+import {remove as removeSymbol, userVisible} from './symbols.js';
 import undo from './undo.js';
+import {loadingWindow, shell, windows} from './windows.js';
 import './folders.js';
 
 let lastMapChanged = 0, n = 0;
