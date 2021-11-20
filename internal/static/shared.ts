@@ -4,8 +4,8 @@ import type {SVGLayer, SVGShape, SVGToken} from './map.js';
 import {Pipe} from './lib/inter.js';
 import {createDocumentFragment} from './lib/dom.js';
 import {createHTML, h2, label, style} from './lib/html.js';
-import {createSVG, animateTransform, circle, g, symbol} from './lib/svg.js';
-import {addSymbol} from './symbols.js';
+import {createSVG, g} from './lib/svg.js';
+import {spinner} from './symbols.js';
 import lang from './language.js';
 
 const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
@@ -102,7 +102,5 @@ setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
 	return v;
 },
 SQRT3 = Math.sqrt(3),
-loading = (() => {
-	const spinner = addSymbol("loading", symbol({"viewBox": "0 0 10 10"}, circle({"cx": 5, "cy": 5, "r": 4, "stroke-width": 2, "stroke": "currentColor", "fill": "none", "stroke-linecap": "round", "stroke-dasharray": "12 12"}, animateTransform({"attributeName": "transform", "type": "rotate", "from": "0 5 5", "to": "360 5 5", "dur": "2s", "repeatCount": "indefinite"}))));
-	return (id?: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), spinner({"style": "width: 64px"})]); })(),
+loading = (id?: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), spinner({"style": "width: 64px"})]),
 menuItems: [Uint, () => ([string, HTMLDivElement, boolean, string] | null)][] = [];

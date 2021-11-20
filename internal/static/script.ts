@@ -2,13 +2,12 @@ import type {WindowElement, WindowData} from './windows.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {createHTML, createDocumentFragment, clearElement, autoFocus} from './lib/dom.js';
 import {div, img, input, label, span} from './lib/html.js';
-import {symbol, path} from './lib/svg.js';
 import loadMap from './adminMap.js';
 import loadUserMap from './map.js';
 import {shell, desktop, windows, getWindowData, checkWindowData} from './windows.js';
 import {hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
 import {addCSS, menuItems as mI, mod} from './shared.js';
-import symbols, {addSymbol} from './symbols.js';
+import symbols, {popout} from './symbols.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import help from './help.js';
 import pluginInit, {menuItems} from './plugins.js';
@@ -36,8 +35,7 @@ type savedWindow = {
 
 document.title = lang["TITLE"];
 
-const popout = addSymbol("popout", symbol({"viewBox": "0 0 15 15"}, path({"d": "M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6", "stroke-linejoin": "round", "fill": "none", "stroke": "currentColor"}))),
-      lastTab = new StringSetting("lastTab"),
+const lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	let n = 0, moved = false;
 	const panelShow = new BoolSetting("panelShow"),

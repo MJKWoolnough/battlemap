@@ -2,12 +2,11 @@ import type {Uint, KeystoreData} from './types.js';
 import type {WindowElement} from './windows.js';
 import {autoFocus, clearElement, svgNS} from './lib/dom.js';
 import {createHTML, br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
-import {symbol, g, path} from './lib/svg.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {loadingWindow, windows, shell} from './windows.js';
 import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
 import {getToken, doTokenSet} from './map_fns.js';
-import {addSymbol, getSymbol} from './symbols.js';
+import {userVisible, remove as removeSymbol} from './symbols.js';
 import {characterEdit} from './plugins.js';
 import lang from './language.js';
 import {rpc, inited} from './rpc.js';
@@ -28,14 +27,6 @@ const allowedKey = (key: string, character: boolean) => {
 	}
 	return true;
       },
-      userVisible = addSymbol("userVisibility", symbol({"viewBox": "0 0 47 47"}, [
-	      path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14", "fill": "currentColor"}),
-	      g({"stroke-width": 6}, [
-		      path({"d": "M10,30 L20,47 L47,0", "stroke": "#0f0", "fill": "none", "style": "display: var(--check-on, block)"}),
-		      path({"d": "M10,47 L47,0 M10,0 L47,47", "stroke": "#f00", "fill": "none", "style": "display: var(--check-off, none)"})
-	      ])
-      ])),
-      removeSymbol = getSymbol("remove")!,
       doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
 	let oldChanges: Record<string, KeystoreData> = {},
 	    oldRemoves: string[] = [];

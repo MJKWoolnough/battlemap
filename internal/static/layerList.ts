@@ -2,7 +2,6 @@ import type {Uint, LayerRPC, LayerTokens, LayerFolder, FolderItems} from './type
 import type {SVGLayer} from './map.js';
 import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
-import {symbol, circle, ellipse, g} from './lib/svg.js';
 import {node, noSort} from './lib/nodes.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
@@ -10,7 +9,7 @@ import {checkInt, deselectToken, enterKey, labels, mapLoadedReceive, menuItems, 
 import {colourPicker, hex2Colour} from './colours.js';
 import {Root, Folder, Item} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {addSymbol} from './symbols.js';
+import {visibility} from './symbols.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -96,13 +95,6 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	dragging = l;
 	setupDrag();
       },
-      visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
-	ellipse({"cx": 50, "cy": 35, "rx": 49, "ry": 34, "stroke-width": 2, "stroke": "#000", "fill": "#fff"}),
-	g({"style": "display: var(--invisible, block)"}, [
-		circle({"cx": 50, "cy": 35, "r": 27, "stroke": "#888", "stroke-width": 10}),
-		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
-	])
-      ])),
       showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
 	const visible = !l[node].classList.toggle("layerHidden");
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));

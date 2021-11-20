@@ -2,10 +2,10 @@ import type {MusicPack, MusicTrack, Int, Uint, SVGAnimateBeginElement} from './t
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
-import {createSVG, svg, animate, path, rect, symbol, title} from './lib/svg.js';
+import {createSVG, svg, animate, path, rect, title} from './lib/svg.js';
 import lang from './language.js';
 import {NodeArray, NodeMap, node, stringSort, noSort} from './lib/nodes.js';
-import {addSymbol, getSymbol} from './symbols.js';
+import {copy, playStatus, remove, rename, stop} from './symbols.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {windows, shell} from './windows.js';
 import {audioAssetName, uploadAudio} from './assets.js';
@@ -168,7 +168,6 @@ class Pack {
 
 const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => createHTML(document.body, div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
       musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
-      playStatus = addSymbol("playing", symbol({"viewBox": "0 0 10 10"}, path({"d": "M1,1 v8 l8,-4 z", "fill": "currentColor"}))),
       newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (packs: Map<string, Pack>) => {
 	rpc.waitMusicPackVolume().then(pv => {
@@ -472,11 +471,7 @@ menuItems.push([3, () => isAdmin ? [
 					musicList.delete(this.name);
 				}
 			}
-			const rename = getSymbol("rename")!,
-			      copy = getSymbol("copy")!,
-			      remove = getSymbol("remove")!,
-			      stop = addSymbol("stop", svg({"viewBox": "0 0 90 90"}, path({"d": "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M25,25 v40 h40 v-40 z", "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}))),
-			      musicList = new NodeMap<string, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
+			const musicList = new NodeMap<string, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 				const dt = b.playTime - a.playTime;
 				if (dt === 0) {
 					return stringSort(a.name, b.name);

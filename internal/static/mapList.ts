@@ -2,12 +2,11 @@ import type {Uint} from './types.js';
 import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {symbol, g, path, rect} from './lib/svg.js';
 import {checkInt, labels, loading, mapLoadSend, menuItems} from './shared.js';
 import {hex2Colour} from './colours.js';
 import {Root, Folder, DraggableItem} from './folders.js';
 import {loadingWindow, windows, shell} from './windows.js';
-import {addSymbol} from './symbols.js';
+import {userSelected} from './symbols.js';
 import {IntSetting} from './settings_types.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -28,13 +27,6 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 		}
 	}
       },
-      userSelected = addSymbol("userMapSelected", symbol({"viewBox": "0 0 47 47"}, [
-	rect({"width": 47, height: 47, "fill": "#eee"}),
-	g({"style": "display: var(--map-selected, none)"}, [
-		rect({"width": 47, height: 47, "fill": "#cfc"}),
-		path({"d": "M3,17 H11 V27 H35 V17 H43 V40 H3 M14,6 H32 V24 H14"})
-	])
-      ])),
       selectedMap = new IntSetting("selectedMap")
 
 let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
