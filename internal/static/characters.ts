@@ -11,7 +11,6 @@ import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} fr
 import {remove as removeSymbol, userVisible} from './symbols.js';
 import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';
-import './folders.js';
 
 let lastMapChanged = 0, n = 0;
 
