@@ -1,7 +1,7 @@
 import type {Int} from './types.js';
 import {Pipe} from './lib/inter.js';
 
-class Setting<T> {
+abstract class Setting<T> {
 	name: string;
 	value: T;
 	#pipe = new Pipe<T>();
@@ -9,7 +9,11 @@ class Setting<T> {
 		this.name = name;
 		this.value = value;
 	}
-	set(v: T, s: string | null) {
+	s(v: T): string | null {
+		return v + "";
+	};
+	set(v: T) {
+		const s = this.s(v);
 		this.value = v;
 		if (s === null) {
 			window.localStorage.removeItem(this.name);
@@ -34,8 +38,8 @@ export class BoolSetting extends Setting<boolean> {
 	constructor(name: string) {
 		super(name, window.localStorage.getItem(name) !== null);
 	}
-	set(b: boolean) {
-		return super.set(b, b ? "" : null);
+	s(b: boolean) {
+		return b ? "" : null;
 	}
 }
 
@@ -43,17 +47,11 @@ export class IntSetting extends Setting<Int> {
 	constructor(name: string, starting = "0") {
 		super(name, parseInt(window.localStorage.getItem(name) || starting));
 	}
-	set(i: Int) {
-		return super.set(i, i + "");
-	}
 }
 
 export class StringSetting extends Setting<string> {
 	constructor(name: string, starting = "") {
 		super(name, window.localStorage.getItem(name) ?? starting);
-	}
-	set(s: string) {
-		return super.set(s, s);
 	}
 }
 
@@ -70,7 +68,7 @@ export class JSONSetting<T> extends Setting<T> {
 			} catch {}
 		}
 	}
-	set(v: T) {
-		return super.set(v, JSON.stringify(v));
+	s(v: T) {
+		return JSON.stringify(v);
 	}
 }
