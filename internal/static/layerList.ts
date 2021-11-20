@@ -273,113 +273,115 @@ class LayerRoot extends Root {
 	}
 }
 
-menuItems.push([5, () => isAdmin ? [lang["TAB_LAYERS"], (() => {
-	const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
-	let loadFn = () => {
-		const list = new LayerRoot(layerList, layersRPC),
-		      setLayer = (sl: ItemLayer) => {
-			const mo = {"clientX": mouseX, "clientY": mouseY};
-			root.dispatchEvent(new MouseEvent("mouseout", mo));
-			root.dispatchEvent(new MouseEvent("mouseleave", mo));
-			sl.show();
-			root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mo));
-		      };
-		keyEvent('[', () => {
-			let sl: ItemLayer | undefined;
-			walkLayers(list.folder as FolderLayer, l => {
-				if (l.id > 0) {
-					if (l === selectedLayer) {
-						return true;
+menuItems.push([5, () => isAdmin ? [
+	lang["TAB_LAYERS"],
+	(() => {
+		const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
+		let loadFn = () => {
+			const list = new LayerRoot(layerList, layersRPC),
+			      setLayer = (sl: ItemLayer) => {
+				const mo = {"clientX": mouseX, "clientY": mouseY};
+				root.dispatchEvent(new MouseEvent("mouseout", mo));
+				root.dispatchEvent(new MouseEvent("mouseleave", mo));
+				sl.show();
+				root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mo));
+			      };
+			keyEvent('[', () => {
+				let sl: ItemLayer | undefined;
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (l === selectedLayer) {
+							return true;
+						}
+						sl = l;
 					}
-					sl = l;
+					return false;
+				});
+				if (sl) {
+					setLayer(sl);
 				}
-				return false;
-			});
-			if (sl) {
-				setLayer(sl);
-			}
-		})[0]();
-		keyEvent(']', () => {
-			let next = false;
-			walkLayers(list.folder as FolderLayer, l => {
-				if (l.id > 0) {
-					if (next) {
-						setLayer(l);
-						return true;
+			})[0]();
+			keyEvent(']', () => {
+				let next = false;
+				walkLayers(list.folder as FolderLayer, l => {
+					if (l.id > 0) {
+						if (next) {
+							setLayer(l);
+							return true;
+						}
+						next = l === selectedLayer;
 					}
-					next = l === selectedLayer;
+					return false;
+				});
+			})[0]();
+			layersRPC.waitLayerSetVisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l[node].classList.remove("layerHidden");
 				}
-				return false;
 			});
-		})[0]();
-		layersRPC.waitLayerSetVisible().then(path => {
-			const l = list.getLayer(path);
-			if (l) {
-				l[node].classList.remove("layerHidden");
-			}
-		});
-		layersRPC.waitLayerSetInvisible().then(path => {
-			const l = list.getLayer(path);
-			if (l) {
-				l[node].classList.add("layerHidden");
-			}
-		});
-		layersRPC.waitLayerPositionChange().then(ml => {
-			const l = list.getLayer(ml.from),
-			      np = list.getLayer(ml.to);
-			if (!l || !(np instanceof FolderLayer)) {
-				return;
-			}
-			l.parent!.children.delete(l.name);
-			l.parent = np;
-			if (ml.position >= np.children.size) {
-				np.children.set(l.name, l);
-			} else {
-				np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
-			}
-		});
-		layersRPC.waitLayerRename().then(lr => {
-			const l = list.getLayer(lr.path);
-			if (l) {
-				l.name = lr.name;
-				l.nameElem.innerText = lr.name;
-			}
-		});
-		layersRPC.waitLayerSelect().then(path => {
-			const l = list.getLayer(path);
-			if (l !== selectedLayer && l instanceof ItemLayer) {
-				l.show();
-			}
-		});
-		createHTML(clearElement(base), {"id": "layerList"}, [
-			button(lang["LAYER_ADD"], {"onclick": () => {
-				const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
-				      name = autoFocus(input({"onkeypress": enterKey}));
-				createHTML(window, {"id": "layerAdd"}, [
-					h1(lang["LAYER_ADD"]),
-					labels(lang["LAYER_NAME"], name),
-					br(),
-					button(lang["LAYER_ADD"], {"onclick": function(this: HTMLButtonElement) {
-						this.toggleAttribute("disabled", true);
-						loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
-							doLayerAdd(name, false);
-							list.addItem(1, name);
-							window.remove();
-						})
-						.finally(() => this.removeAttribute("disabled"))), window);
-					}})
-				]);
-			}}),
-			list[node]
-		]);
-		loadFn = () => {
-			selectedLayer = undefined;
-			list.setRoot(layerList);
-		};
-	    };
-	mapLoadedReceive(() => loadFn());
-	return base;
-})(),
+			layersRPC.waitLayerSetInvisible().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					l[node].classList.add("layerHidden");
+				}
+			});
+			layersRPC.waitLayerPositionChange().then(ml => {
+				const l = list.getLayer(ml.from),
+				      np = list.getLayer(ml.to);
+				if (!l || !(np instanceof FolderLayer)) {
+					return;
+				}
+				l.parent!.children.delete(l.name);
+				l.parent = np;
+				if (ml.position >= np.children.size) {
+					np.children.set(l.name, l);
+				} else {
+					np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
+				}
+			});
+			layersRPC.waitLayerRename().then(lr => {
+				const l = list.getLayer(lr.path);
+				if (l) {
+					l.name = lr.name;
+					l.nameElem.innerText = lr.name;
+				}
+			});
+			layersRPC.waitLayerSelect().then(path => {
+				const l = list.getLayer(path);
+				if (l !== selectedLayer && l instanceof ItemLayer) {
+					l.show();
+				}
+			});
+			createHTML(clearElement(base), {"id": "layerList"}, [
+				button(lang["LAYER_ADD"], {"onclick": () => {
+					const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
+					      name = autoFocus(input({"onkeypress": enterKey}));
+					createHTML(window, {"id": "layerAdd"}, [
+						h1(lang["LAYER_ADD"]),
+						labels(lang["LAYER_NAME"], name),
+						br(),
+						button(lang["LAYER_ADD"], {"onclick": function(this: HTMLButtonElement) {
+							this.toggleAttribute("disabled", true);
+							loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
+								doLayerAdd(name, false);
+								list.addItem(1, name);
+								window.remove();
+							})
+							.finally(() => this.removeAttribute("disabled"))), window);
+						}})
+					]);
+				}}),
+				list[node]
+			]);
+			loadFn = () => {
+				selectedLayer = undefined;
+				list.setRoot(layerList);
+			};
+		    };
+		mapLoadedReceive(() => loadFn());
+		return base;
+	})(),
 	true,
 	layerIcon
 ] : null]);

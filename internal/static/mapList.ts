@@ -147,99 +147,101 @@ class MapRoot extends Root {
 	}
 }
 
-menuItems.push([4, () => isAdmin ? [lang["TAB_MAPS"], (() => {
-	const rpcFuncs = rpc["maps"],
-	      base = div(loading());
-	Promise.all([
-		rpcFuncs.list(),
-		rpc.getUserMap()
-	]).then(([folderList, userMap]) => {
-		const root = new MapRoot(folderList, lang["TAB_MAPS"], rpcFuncs, MapItem, MapFolder),
-		      findMap = (folder: Folder, id: Uint): MapItem | undefined => {
-			for (const [, item] of folder.children) {
-				if (item instanceof Folder) {
-					const m = findMap(item, id);
-					if (m) {
-						return m;
+menuItems.push([4, () => isAdmin ? [
+	lang["TAB_MAPS"],
+	(() => {
+		const rpcFuncs = rpc["maps"],
+		      base = div(loading());
+		Promise.all([
+			rpcFuncs.list(),
+			rpc.getUserMap()
+		]).then(([folderList, userMap]) => {
+			const root = new MapRoot(folderList, lang["TAB_MAPS"], rpcFuncs, MapItem, MapFolder),
+			      findMap = (folder: Folder, id: Uint): MapItem | undefined => {
+				for (const [, item] of folder.children) {
+					if (item instanceof Folder) {
+						const m = findMap(item, id);
+						if (m) {
+							return m;
+						}
+					} else if (item.id === id) {
+						return item as MapItem;
 					}
-				} else if (item.id === id) {
-					return item as MapItem;
 				}
-			}
-			return undefined;
-		      },
-		      setUserMap = (id: Uint, setCurrent: boolean = false) => {
-			const m = findMap(root.folder, id);
-			if (m) {
-				m.setUserMap();
-				if (setCurrent) {
+				return undefined;
+			      },
+			      setUserMap = (id: Uint, setCurrent: boolean = false) => {
+				const m = findMap(root.folder, id);
+				if (m) {
+					m.setUserMap();
+					if (setCurrent) {
+						m.show();
+					}
+				}
+			      };
+			root.windowIcon = mapIcon;
+			rpc.waitCurrentUserMap().then(setUserMap);
+			let s = true;
+			if (selectedMap.value > 0) {
+				const m = findMap(root.folder, selectedMap.value);
+				if (m) {
 					m.show();
+					s = false;
 				}
 			}
-		      };
-		root.windowIcon = mapIcon;
-		rpc.waitCurrentUserMap().then(setUserMap);
-		let s = true;
-		if (selectedMap.value > 0) {
-			const m = findMap(root.folder, selectedMap.value);
-			if (m) {
-				m.show();
-				s = false;
+			if (userMap > 0) {
+				setUserMap(userMap, s);
 			}
-		}
-		if (userMap > 0) {
-			setUserMap(userMap, s);
-		}
-		createHTML(clearElement(base), {"id": "mapList"}, [
-			button(lang["MAP_NEW"], {"onclick": () => {
-				const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
-				      name = autoFocus(input({"type": "text"})),
-				      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
-				      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
-				      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
-				      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
-				      sqColour = input({"type": "color"}),
-				      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"});
-				return createHTML(window, {"class": "mapAdd"}, [
-					h1(lang["MAP_NEW"]),
-					labels(`${lang["MAP_NAME"]}: `, name),
-					br(),
-					labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
-					br(),
-					labels(`${lang["MAP_SQUARE_HEIGHT"]}: `, height),
-					br(),
-					labels(`${lang["MAP_SQUARE_TYPE"]}: `, sqType),
-					br(),
-					labels(`${lang["MAP_SQUARE_SIZE"]}: `, sqWidth),
-					br(),
-					labels(`${lang["MAP_SQUARE_COLOUR"]}: `, sqColour),
-					br(),
-					labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
-					br(),
-					button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
-						createHTML(this, {"disabled": true});
-						const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
-						loadingWindow(rpc.newMap({
-							"name": name.value,
-							"width": checkInt(parseInt(width.value), 1, 1000, 1) * sq,
-							"height": checkInt(parseInt(height.value), 1, 1000, 1) * sq,
-							"gridType": checkInt(parseInt(sqType.value), 0, 2, 0),
-							"gridSize": sq,
-							"gridColour": hex2Colour(sqColour.value),
-							"gridStroke": checkInt(parseInt(sqLineWidth.value), 0, 10, 0)
-						}), window).then(({id, name}) => {
-							root.addItem(id, name);
-							window.remove();
-						})
-						.finally(() => this.removeAttribute("disabled"));
-					}})
-				])
-			}}),
-			root[node]
-		]);
-	});
-	return base;
-})(),
+			createHTML(clearElement(base), {"id": "mapList"}, [
+				button(lang["MAP_NEW"], {"onclick": () => {
+					const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
+					      name = autoFocus(input({"type": "text"})),
+					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
+					      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
+					      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
+					      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
+					      sqColour = input({"type": "color"}),
+					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"});
+					return createHTML(window, {"class": "mapAdd"}, [
+						h1(lang["MAP_NEW"]),
+						labels(`${lang["MAP_NAME"]}: `, name),
+						br(),
+						labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
+						br(),
+						labels(`${lang["MAP_SQUARE_HEIGHT"]}: `, height),
+						br(),
+						labels(`${lang["MAP_SQUARE_TYPE"]}: `, sqType),
+						br(),
+						labels(`${lang["MAP_SQUARE_SIZE"]}: `, sqWidth),
+						br(),
+						labels(`${lang["MAP_SQUARE_COLOUR"]}: `, sqColour),
+						br(),
+						labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
+						br(),
+						button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
+							createHTML(this, {"disabled": true});
+							const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
+							loadingWindow(rpc.newMap({
+								"name": name.value,
+								"width": checkInt(parseInt(width.value), 1, 1000, 1) * sq,
+								"height": checkInt(parseInt(height.value), 1, 1000, 1) * sq,
+								"gridType": checkInt(parseInt(sqType.value), 0, 2, 0),
+								"gridSize": sq,
+								"gridColour": hex2Colour(sqColour.value),
+								"gridStroke": checkInt(parseInt(sqLineWidth.value), 0, 10, 0)
+							}), window).then(({id, name}) => {
+								root.addItem(id, name);
+								window.remove();
+							})
+							.finally(() => this.removeAttribute("disabled"));
+						}})
+					])
+				}}),
+				root[node]
+			]);
+		});
+		return base;
+	})(),
 	true,
 	mapIcon
 ] : null]);

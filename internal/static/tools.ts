@@ -94,102 +94,104 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 	}
 };
 
-menuItems.push([6, () => isAdmin ? [lang["TAB_TOOLS"], (() => {
-	const base = div();
-	tools.sort((a, b) => stringSort(a.name, b.name));
-	tools.unshift(defaultTool);
-	let windowed = false,
-	    selected: HTMLLIElement | null = null;
-	const options = div(),
-	      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
-	      list: HTMLLIElement[] = tools.map(t => li({"onclick": function(this: HTMLLIElement) {
-		selectedTool.unset?.();
-		t.set?.();
-		selectedTool = t;
-		if (t.options) {
-			createHTML(clearElement(options), t.options);
-			if (windowed && miniTools.value) {
-				createHTML(shell, optionsWindow);
-				optionsWindow.focus();
+menuItems.push([6, () => isAdmin ? [
+	lang["TAB_TOOLS"],
+	(() => {
+		const base = div();
+		tools.sort((a, b) => stringSort(a.name, b.name));
+		tools.unshift(defaultTool);
+		let windowed = false,
+		    selected: HTMLLIElement | null = null;
+		const options = div(),
+		      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
+		      list: HTMLLIElement[] = tools.map(t => li({"onclick": function(this: HTMLLIElement) {
+			selectedTool.unset?.();
+			t.set?.();
+			selectedTool = t;
+			if (t.options) {
+				createHTML(clearElement(options), t.options);
+				if (windowed && miniTools.value) {
+					createHTML(shell, optionsWindow);
+					optionsWindow.focus();
+				} else {
+					createHTML(toolOptions, {"style": {"display": undefined}});
+				}
 			} else {
-				createHTML(toolOptions, {"style": {"display": undefined}});
+				if (windowed && miniTools.value) {
+					optionsWindow.remove();
+				} else {
+					createHTML(toolOptions, {"style": {"display": "none"}});
+				}
 			}
-		} else {
-			if (windowed && miniTools.value) {
-				optionsWindow.remove();
-			} else {
-				createHTML(toolOptions, {"style": {"display": "none"}});
+			selected?.classList.remove("selected")
+			this.classList.add("selected");
+			selected = this;
+		      }}, [
+			t.icon,
+			span(t.name)
+		      ])),
+		      fc = list[0],
+		      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
+		createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
+			windowed = true;
+			if (miniTools.value) {
+				createHTML(optionsWindow, options);
+				if (selectedTool.options) {
+					createHTML(toolOptions, {"style": {"display": "none"}});
+					createHTML(shell, optionsWindow);
+					window.setTimeout(() => optionsWindow.focus());
+				}
 			}
-		}
-		selected?.classList.remove("selected")
-		this.classList.add("selected");
-		selected = this;
-	      }}, [
-		t.icon,
-		span(t.name)
-	      ])),
-	      fc = list[0],
-	      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
-	createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
-		windowed = true;
-		if (miniTools.value) {
-			createHTML(optionsWindow, options);
-			if (selectedTool.options) {
-				createHTML(toolOptions, {"style": {"display": "none"}});
-				createHTML(shell, optionsWindow);
-				window.setTimeout(() => optionsWindow.focus());
+		}, "onpopin": () => {
+			windowed = false;
+			if (miniTools.value) {
+				createHTML(toolOptions, options);
+				if (selectedTool.options) {
+					createHTML(toolOptions, {"style": {"display": undefined}});
+					optionsWindow.remove();
+				}
 			}
-		}
-	}, "onpopin": () => {
-		windowed = false;
-		if (miniTools.value) {
-			createHTML(toolOptions, options);
-			if (selectedTool.options) {
-				createHTML(toolOptions, {"style": {"display": undefined}});
-				optionsWindow.remove();
-			}
-		}
-	}}, [ul(list), toolOptions]);
-	fc.click();
-	mapLoadedReceive(() => fc.click());
-	miniTools.wait(on => {
-		document.body.classList.toggle("miniTools", on)
-		if (!windowed) {
-			return;
-		}
-		if (on) {
-			createHTML(optionsWindow, options);
-			if (selectedTool.options) {
-				createHTML(toolOptions, {"style": {"display": "none"}});
-				createHTML(shell, optionsWindow);
-				optionsWindow.focus();
-			}
-		} else {
-			createHTML(toolOptions, options);
-			if (selectedTool.options) {
-				createHTML(toolOptions, {"style": {"display": undefined}});
-				optionsWindow.remove();
-			}
-		}
-	});
-	keyEvent("(", () => {
-		for (let i = 0; i < tools.length; i++) {
-			if (tools[i] === selectedTool) {
-				list[mod(i - 1, tools.length)].click();
+		}}, [ul(list), toolOptions]);
+		fc.click();
+		mapLoadedReceive(() => fc.click());
+		miniTools.wait(on => {
+			document.body.classList.toggle("miniTools", on)
+			if (!windowed) {
 				return;
 			}
-		}
-	})[0]();
-	keyEvent(")", () => {
-		for (let i = 0; i < tools.length; i++) {
-			if (tools[i] === selectedTool) {
-				list[mod(i + 1, tools.length)].click();
-				return;
+			if (on) {
+				createHTML(optionsWindow, options);
+				if (selectedTool.options) {
+					createHTML(toolOptions, {"style": {"display": "none"}});
+					createHTML(shell, optionsWindow);
+					optionsWindow.focus();
+				}
+			} else {
+				createHTML(toolOptions, options);
+				if (selectedTool.options) {
+					createHTML(toolOptions, {"style": {"display": undefined}});
+					optionsWindow.remove();
+				}
 			}
-		}
-	})[0]();
-	return base;
-})(),
+		});
+		keyEvent("(", () => {
+			for (let i = 0; i < tools.length; i++) {
+				if (tools[i] === selectedTool) {
+					list[mod(i - 1, tools.length)].click();
+					return;
+				}
+			}
+		})[0]();
+		keyEvent(")", () => {
+			for (let i = 0; i < tools.length; i++) {
+				if (tools[i] === selectedTool) {
+					list[mod(i + 1, tools.length)].click();
+					return;
+				}
+			}
+		})[0]();
+		return base;
+	})(),
 	true,
 	toolsIcon
 ] : null]);

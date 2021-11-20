@@ -82,63 +82,65 @@ export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
 	return () => character[0].remove(fn);
 };
 
-menuItems.push([2, () => isAdmin ? [lang["TAB_CHARACTERS"], (() => {
-	const rpcFuncs = rpc["characters"],
-	      base = div(loading());
-	rpcFuncs.list().then(folderList => {
-		const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
-		root.windowIcon = characterIcon;
-		createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
-			button(lang["CHARACTER_NEW"], {"onclick": () => {
-				let icon = 0;
-				const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
-				      name = autoFocus(input({"onkeypress": enterKey}));
-				createHTML(shell, createHTML(w, [
-					h1(lang["CHARACTER_NEW"]),
-					labels(`${lang["CHARACTER_NAME"]}: `, name),
-					br(),
-					label(`${lang["CHARACTER_IMAGE"]}: `),
-					div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-						e.preventDefault();
-						if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
-							e.dataTransfer.dropEffect = "link";
-						}
-					}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-						const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-						icon = tokenData.id;
-						createHTML(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
-					}}, lang["CHARACTER_DRAG_ICON"]),
-					br(),
-					button("Create", {"onclick": function(this: HTMLButtonElement) {
-						if (!name.value) {
-							w.alert(lang["ERROR"], lang["CHARACTER_NEED_NAME"]);
-							return;
-						}
-						if (!icon) {
-							w.alert(lang["ERROR"], lang["CHARACTER_NEED_ICON"]);
-							return;
-						}
-						this.toggleAttribute("disabled", true);
-						loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
-						.then(() => w.remove())
-						.finally(() => this.removeAttribute("disabled"));
-					}})
-				]));
-			}}),
-			root[node]
-		]);
-		rpc.waitCharacterDataChange().then(d => {
-			const icon = d.setting["store-image-icon"];
-			if (icon) {
-				const char = characters.get(d.id);
-				if (char) {
-					char.setIcon(parseInt(icon.data));
+menuItems.push([2, () => isAdmin ? [
+	lang["TAB_CHARACTERS"],
+	(() => {
+		const rpcFuncs = rpc["characters"],
+		      base = div(loading());
+		rpcFuncs.list().then(folderList => {
+			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
+			root.windowIcon = characterIcon;
+			createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
+				button(lang["CHARACTER_NEW"], {"onclick": () => {
+					let icon = 0;
+					const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
+					      name = autoFocus(input({"onkeypress": enterKey}));
+					createHTML(shell, createHTML(w, [
+						h1(lang["CHARACTER_NEW"]),
+						labels(`${lang["CHARACTER_NAME"]}: `, name),
+						br(),
+						label(`${lang["CHARACTER_IMAGE"]}: `),
+						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
+							e.preventDefault();
+							if (e.dataTransfer && e.dataTransfer.getData("imageAsset")) {
+								e.dataTransfer.dropEffect = "link";
+							}
+						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+							const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+							icon = tokenData.id;
+							createHTML(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+						}}, lang["CHARACTER_DRAG_ICON"]),
+						br(),
+						button("Create", {"onclick": function(this: HTMLButtonElement) {
+							if (!name.value) {
+								w.alert(lang["ERROR"], lang["CHARACTER_NEED_NAME"]);
+								return;
+							}
+							if (!icon) {
+								w.alert(lang["ERROR"], lang["CHARACTER_NEED_ICON"]);
+								return;
+							}
+							this.toggleAttribute("disabled", true);
+							loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
+							.then(() => w.remove())
+							.finally(() => this.removeAttribute("disabled"));
+						}})
+					]));
+				}}),
+				root[node]
+			]);
+			rpc.waitCharacterDataChange().then(d => {
+				const icon = d.setting["store-image-icon"];
+				if (icon) {
+					const char = characters.get(d.id);
+					if (char) {
+						char.setIcon(parseInt(icon.data));
+					}
 				}
-			}
+			});
 		});
-	});
-	return base;
-})(),
+		return base;
+	})(),
 	true,
 	characterIcon
 ] : null]);

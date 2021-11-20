@@ -15,7 +15,8 @@ hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", "128"),
 hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", "128");
 
 menuItems.push([7, () => [
-	lang["TAB_SETTINGS"], div([
+	lang["TAB_SETTINGS"],
+	div([
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		h1(lang["AUTH"]),
 		form({"action": isAdmin ? "login/logout" : "login/login"}, input({"type": "submit", "value": lang[isAdmin ? "LOGOUT" : "LOGIN"]})),
