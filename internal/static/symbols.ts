@@ -10,7 +10,6 @@ export const addSymbol = (id: string, s: SVGSymbolElement) => {
 		use({"href": `#${id}`})
 	]);
 },
-addFilter = (f: SVGFilterElement) => symbols.appendChild(f),
 copy = addSymbol("copy", symbol({"viewBox": "0 0 34, 37"}, path({"d": "M14,6 h-13 v30 h21 v-22 z v8 h8 M12,6 v-5 h13 l8,8 v22 h-11 m11,-22 h-8 v-8 M6,20 h11 m-11,5 h11 m-11,5 h11", "stroke": "currentColor", "fill": "none"}))),
 folder = addSymbol("folder", symbol({"viewBox": "0 0 37 28"}, g({"stroke-width": 2, "stroke": "currentColor", "fill": "none", "stroke-linejoin": "round"}, [
 	path({"d": "M32,27 h-30 v-20 h2 l5,-5 h5 l5,5 h13 v2"}),
