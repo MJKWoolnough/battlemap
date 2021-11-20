@@ -1,8 +1,8 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
-import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
-import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
+import {autoFocus, clearElement, svgNS} from './lib/dom.js';
+import {createHTML, audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {DraggableItem, Root, Folder} from './folders.js';
