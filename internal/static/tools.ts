@@ -132,7 +132,7 @@ menuItems.push([6, () => isAdmin ? [
 		      ])),
 		      fc = list[0],
 		      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
-		createHTML(clearElement(base), {"id": "toolList", "onpopout": () => {
+		createHTML(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
 				createHTML(optionsWindow, options);
