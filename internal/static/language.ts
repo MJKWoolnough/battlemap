@@ -198,6 +198,7 @@ const defaultLanguage = {
 	"TOOL_MOVE": "Move All",
 	"TOOL_MULTIPLACE": "Multi-Place",
 	"TOOL_MULTIPLACE_MODE": "Grab Mode",
+	"TOOL_WALL": "Wall Tool",
 	"UNDO_CHARACTER": "Character change",
 	"UNDO_LAYER_ADD": "Add Layer",
 	"UNDO_LAYER_FOLDER_ADD": "Add Layer Folder",
