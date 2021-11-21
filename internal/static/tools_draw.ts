@@ -1,6 +1,6 @@
 import type {Uint} from './types.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {br, div, fieldset, input, label, legend, span} from './lib/html.js';
+import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {createSVG, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
@@ -19,7 +19,7 @@ let fill = noColour,
 const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
       circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
-      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
+      snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1}),
@@ -203,6 +203,7 @@ addTool({
 	},
 	"set": () => {
 		deselectToken();
+		createHTML(snap, {"checked": autosnap.value});
 		setupShiftSnap();
 		createSVG(root, {"style": {"cursor": "none"}}, marker);
 	},

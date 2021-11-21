@@ -15,7 +15,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {width, height} = mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
-      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
+      snap = input({"type": "checkbox", "class": "settings_ticker"}),
       cellValue = input({"type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
 	if (isUint(v)) {
@@ -163,6 +163,7 @@ addTool({
 	},
 	"set": () => {
 		createSVG(root, {"style": {"cursor": "none"}}, marker);
+		createHTML(snap, {"checked": autosnap.value});
 		setupShiftSnap();
 		setupEscape();
 	},

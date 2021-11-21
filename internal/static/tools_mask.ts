@@ -17,7 +17,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       circle = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
       remove = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
-      snap = input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value}),
+      snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -211,6 +211,7 @@ addTool({
 	},
 	"set": () => {
 		deselectToken();
+		createHTML(snap, {"checked": autosnap.value});
 		setupShiftSnap();
 		createSVG(root, {"style": {"cursor": "none"}}, marker);
 	},
