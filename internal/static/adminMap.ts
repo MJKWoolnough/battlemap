@@ -288,11 +288,6 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false
 	      },
-	      redo = (e: KeyboardEvent) => {
-		if (e.ctrlKey) {
-			undo.redo();
-		}
-	      },
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
 		const {token} = selected;
@@ -400,8 +395,11 @@ export default (base: HTMLElement) => {
 			}
 		}
 	})[0]();
-	keyEvent("y", redo)[0]();
-	keyEvent("r", redo)[0]();
+	keyEvent(["r", "y"], (e: KeyboardEvent) => {
+		if (e.ctrlKey) {
+			undo.redo();
+		}
+	})[0]();
 	keyEvent("v", () => {
 		if (!copiedToken || !selected.layer) {
 			return;
