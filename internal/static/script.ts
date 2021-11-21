@@ -27,6 +27,7 @@ import './tools_mask.js';
 import './tools_measure.js';
 import './tools_move.js';
 import './tools_multiplace.js';
+import './tools_wall.js';
 
 type savedWindow = {
 	out: boolean;
