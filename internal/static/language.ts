@@ -203,6 +203,7 @@ const defaultLanguage = {
 	"TOOL_WALL_MODE": "Wall Mode",
 	"TOOL_WALL_PLACE": "Place Wall",
 	"TOOL_WALL_SELECT": "Select Wall",
+	"TOOL_WALL_SNAP": "Snap to Grid",
 	"UNDO_CHARACTER": "Character change",
 	"UNDO_LAYER_ADD": "Add Layer",
 	"UNDO_LAYER_FOLDER_ADD": "Add Layer Folder",
