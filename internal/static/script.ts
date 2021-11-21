@@ -104,9 +104,9 @@ const lastTab = new StringSetting("lastTab"),
 		};
 	      },
 	      o = Object.freeze({
-		"add": ([title, contents, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
-			const base = p.appendChild(div(contents)),
-			      pos = n++,
+		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
+			createHTML(p, base);
+			const pos = n++,
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 					const replaced = div();
