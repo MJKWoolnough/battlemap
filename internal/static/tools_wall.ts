@@ -8,10 +8,12 @@ import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
+import {combined} from './rpc.js';
 import {deselectToken, labels, selected, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
 
-let wallColour = hex2Colour("#000");
+let wallColour = hex2Colour("#000"),
+    active = false;
 
 const selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker"}),
@@ -37,6 +39,9 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
       }),
       wallLayer = g(),
       genWalls = () => {
+	if (!active) {
+		return;
+	}
 	clearElement(wallLayer);
 	for (const {wall: {x1, y1, x2, y2, colour}, layer} of walls.values()) {
 		if (!layer.hidden) {
@@ -76,6 +81,7 @@ addTool({
 		return false;
 	},
 	"set": () => {
+		active = true;
 		deselectToken();
 		createHTML(snap, {"checked": autosnap.value});
 		genWalls();
@@ -86,6 +92,7 @@ addTool({
 		setupShiftSnap();
 	},
 	"unset": () => {
+		active = false;
 		createSVG(root, {"style": {"cursor": undefined}});
 		cancelShiftSnap();
 		cancelCursorMove();
@@ -93,3 +100,6 @@ addTool({
 		wallLayer.remove();
 	}
 });
+
+combined.waitWallAdded().then(genWalls);
+combined.waitWallAdded().then(genWalls);
