@@ -48,7 +48,8 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${x2})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2}));
 		}
 	}
-      };
+      },
+      [startEscape, cancelEscape] = keyEvent("Escape", () => cancelWallDraw());
 
 addTool({
 	"name": lang["TOOL_WALL"],
@@ -90,6 +91,7 @@ addTool({
 			marker
 		]);
 		setupShiftSnap();
+		startEscape();
 	},
 	"unset": () => {
 		active = false;
@@ -97,6 +99,7 @@ addTool({
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
+		cancelEscape();
 		wallLayer.remove();
 	}
 });
