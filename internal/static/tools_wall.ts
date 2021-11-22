@@ -20,7 +20,7 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-      }),
+      }, () => marker.remove()),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
