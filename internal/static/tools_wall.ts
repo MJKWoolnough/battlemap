@@ -1,13 +1,14 @@
 import type {Colour} from './colours.js';
+import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
-import {createSVG, defs, path, pattern, rect, svg} from './lib/svg.js';
+import {createSVG, defs, g, path, pattern, rect, svg} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
-import {deselectToken, labels, selected} from './shared.js';
+import {deselectToken, labels, selected, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
 
 let wallColour = hex2Colour("#000");
@@ -33,7 +34,16 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 		doWallAdd({"path": selected.layer.path, "id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour});
 	}
 	wall.remove();
-      });
+      }),
+      wallLayer = g(),
+      genWalls = () => {
+	clearElement(wallLayer);
+	for (const {wall: {x1, y1, x2, y2, colour}, layer} of walls.values()) {
+		if (!layer.hidden) {
+			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${x2})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2}));
+		}
+	}
+      };
 
 addTool({
 	"name": lang["TOOL_WALL"],
@@ -68,7 +78,11 @@ addTool({
 	"set": () => {
 		deselectToken();
 		createHTML(snap, {"checked": autosnap.value});
-		createSVG(root, {"style": {"cursor": "none"}}, marker);
+		genWalls();
+		createSVG(root, {"style": {"cursor": "none"}}, [
+			wallLayer,
+			marker
+		]);
 		setupShiftSnap();
 	},
 	"unset": () => {
@@ -76,5 +90,6 @@ addTool({
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
+		wallLayer.remove();
 	}
 });
