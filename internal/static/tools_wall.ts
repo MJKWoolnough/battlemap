@@ -8,7 +8,7 @@ import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
-import {combined} from './rpc.js';
+import {combined, inited} from './rpc.js';
 import {deselectToken, labels, selected, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
 
@@ -104,5 +104,7 @@ addTool({
 	}
 });
 
-combined.waitWallAdded().then(genWalls);
-combined.waitWallAdded().then(genWalls);
+inited.then(() => {
+	combined.waitWallAdded().then(genWalls);
+	combined.waitWallAdded().then(genWalls);
+});
