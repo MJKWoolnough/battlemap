@@ -5,8 +5,9 @@ import {createSVG, defs, path, pattern, rect, svg} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
+import {doWallAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
-import {deselectToken, labels} from './shared.js';
+import {deselectToken, labels, selected} from './shared.js';
 import {addTool, marker} from './tools.js';
 
 let wallColour = hex2Colour("#000");
@@ -27,7 +28,9 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 	      r = Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI;
 	createSVG(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${r}, ${coords[0]}, ${coords[1]})`});
       }, (e: MouseEvent) => {
-	if (e.isTrusted) {
+	if (e.isTrusted && selected.layer) {
+		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
+		doWallAdd({"path": selected.layer.path, "id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour});
 	}
 	wall.remove();
       });
