@@ -230,6 +230,7 @@ const defaultLanguage = {
 	"UNDO_TOKEN_SET": "Token Update",
 	"UNDO_UNDO": "Undo",
 	"UNDO_WALL_ADD": "Wall Add",
+	"UNDO_WALL_MODIFY": "Wall Modified",
 	"UNDO_WALL_REMOVE": "Wall Remove",
 	"UNDO_WINDOW_TITLE": "Undo Debug",
 	"UNDO_WINDOW_UNDOS": "Undo List",
