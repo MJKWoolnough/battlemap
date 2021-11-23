@@ -80,6 +80,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 			["waitTokenLightChange",     broadcastTokenLightChange,     checkLightChange],
 			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
 			["waitWallRemoved",          broadcastWallRemove,           checkUint],
+			["waitWallModified",         broadcastWallModify,           checkWall],
 			["waitMusicPackAdd",         broadcastMusicPackAdd,         checkString],
 			["waitMusicPackRename",      broadcastMusicPackRename,      checkFromTo],
 			["waitMusicPackRemove",      broadcastMusicPackRemove,      checkString],
@@ -179,6 +180,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 			["setTokenLight",    "maps.setTokenLight",    ["id", "lightColour", "lightIntensity"],    returnVoid,       "waitTokenLightChange", ""],
 			["addWall",          "maps.addWall",          ["path", "x1", "y1", "x2", "y2", "colour"], checkUint,        "waitWallAdded", "id"],
 			["removeWall",       "maps.removeWall",        "!",                                       returnVoid,       "waitWallRemoved", ""],
+			["modifyWall",       "maps.modifyWall",        "!",                                       returnVoid,       "waitWallModified", ""],
 
 			["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
 			["musicPackAdd",         "music.new",             "!",                             checkString,     "waitMusicPackAdd", "*"],
