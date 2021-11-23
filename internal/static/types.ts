@@ -63,6 +63,7 @@ type RPCWaits = {
 	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
+	waitWallModified:            () => Subscription<Wall>;
 	waitMusicPackAdd:            () => Subscription<string>;
 	waitMusicPackRename:         () => Subscription<FromTo>;
 	waitMusicPackRemove:         () => Subscription<string>;
@@ -137,6 +138,7 @@ export type RPC = RPCWaits & {
 	setTokenLight:    (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
 	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
+	modifyWall:       (w: Wall)                                                              => Promise<void>;
 
 	musicPackList:        ()                                             => Promise<Record<string, MusicPack>>;
 	musicPackAdd:         (name: string)                                 => Promise<string>;
