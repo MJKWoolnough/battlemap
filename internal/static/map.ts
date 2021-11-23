@@ -920,6 +920,13 @@ export default (base: HTMLElement) => {
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
 	}),
+	rpc.waitWallModified().then(w => {
+		const wall = walls.get(w.id);
+		if (!wall) {
+			return;
+		}
+		Object.assign(wall.wall, w);
+	});
 	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => {
 		const {token} = tokens.get(id)!;
 		if (token instanceof SVGToken) {
