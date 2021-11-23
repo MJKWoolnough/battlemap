@@ -447,7 +447,9 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		wall.id = 0;
 		return doIt;
 	      };
-	undo.add(doIt(sendRPC), lang["UNDO_WALL_ADD"]);
+	if (x1 !== x2 || y1 !== y2) {
+		undo.add(doIt(sendRPC), lang["UNDO_WALL_ADD"]);
+	}
 },
 doWallRemove = (wID: Uint, sendRPC = true) => {
 	const {layer, wall} = walls.get(wID)!;
