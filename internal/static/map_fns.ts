@@ -1,4 +1,4 @@
-import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, WallPath} from './types.js';
+import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import {Subscription} from './lib/inter.js';
@@ -478,6 +478,23 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_REMOVE"]);
+},
+doWallModify = (wall: Wall, sendRPC = true) => {
+	const wl = walls.get(wall.id);
+	if (!wl) {
+		return;
+	}
+	let oldWall = cloneObject(wl.wall);
+	const doIt = (sendRPC = true) => {
+		Object.assign(wl.wall, wall);
+		if (sendRPC) {
+			queue(rpc.modifyWall.bind(rpc, wall));
+		}
+		updateLight();
+		[oldWall, wall] = [wall, oldWall];
+		return doIt;
+	};
+	undo.add(doIt(sendRPC), lang["UNDO_WALL_MODIFY"]);
 },
 doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
 	const {token} = tokens.get(id)!;
