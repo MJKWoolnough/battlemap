@@ -27,9 +27,8 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
-	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
-	      r = Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI;
-	createSVG(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${r}, ${coords[0]}, ${coords[1]})`});
+	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
+	createSVG(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
