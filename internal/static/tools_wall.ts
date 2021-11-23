@@ -78,6 +78,7 @@ addTool({
 	},
 	"mapMouseOver": () => {
 		startCursorMove();
+		createSVG(root, marker);
 		return false;
 	},
 	"set": () => {
