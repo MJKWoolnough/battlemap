@@ -325,6 +325,28 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, errr
 		}
 		return nil, nil
+	case "modifyWall":
+		var w *wall
+		if err := json.Unmarshal(data, &w); err != nil {
+			return nil, err
+		}
+		var errr error
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			wall, ok := mp.walls[w.ID]
+			if !ok {
+				errr = ErrInvalidWall
+				return false
+			}
+			wall.wall = w
+			m.socket.broadcastMapChange(cd, broadcastWallModify, data, userAny)
+			return true
+		}); err != nil {
+			return nil, err
+		}
+		if errr != nil {
+			return nil, errr
+		}
+		return nil, nil
 	case "addLayer":
 		var name string
 		if err := json.Unmarshal(data, &name); err != nil {
