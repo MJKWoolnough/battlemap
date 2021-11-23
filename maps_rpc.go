@@ -298,20 +298,21 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		return wallAdd.ID, nil
 	case "removeWall":
-		var wallRemove struct {
-			Path string `json:"path"`
-			Pos  uint   `json:"pos"`
-		}
-		if err := json.Unmarshal(data, &wallRemove); err != nil {
+		var wall uint64
+		if err := json.Unmarshal(data, &wall); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, wallRemove.Path, func(_ *levelMap, l *layer) bool {
-			if wallRemove.Pos > uint(len(l.Walls)) {
-				return false
+		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
+			w := mp.walls[wall]
+			for pos := range w.Walls {
+				if w.Walls[pos].ID == wall {
+					l := w.layer
+					l.Walls = append(l.Walls[:pos], l.Walls[pos+1:]...)
+					m.socket.broadcastMapChange(cd, broadcastWallRemove, data, userAny)
+					return true
+				}
 			}
-			l.Walls = append(l.Walls[:wallRemove.Pos], l.Walls[wallRemove.Pos+1:]...)
-			m.socket.broadcastMapChange(cd, broadcastWallRemove, data, userAny)
-			return true
+			return false
 		}); err != nil {
 			return nil, err
 		}
