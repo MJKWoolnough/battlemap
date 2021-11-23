@@ -302,8 +302,13 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &wall); err != nil {
 			return nil, err
 		}
+		var errr error
 		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			w := mp.walls[wall]
+			w, ok := mp.walls[wall]
+			if !ok {
+				errr = ErrInvalidWall
+				return false
+			}
 			for pos := range w.Walls {
 				if w.Walls[pos].ID == wall {
 					l := w.layer
@@ -315,6 +320,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return false
 		}); err != nil {
 			return nil, err
+		}
+		if errr != nil {
+			return nil, errr
 		}
 		return nil, nil
 	case "addLayer":
