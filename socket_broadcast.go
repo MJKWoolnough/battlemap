@@ -80,6 +80,7 @@ const (
 	broadcastTokenLightChange
 	broadcastWallAdd
 	broadcastWallRemove
+	broadcastWallModify
 
 	broadcastMusicPackAdd
 	broadcastMusicPackRename
