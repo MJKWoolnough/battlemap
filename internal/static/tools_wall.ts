@@ -107,4 +107,5 @@ addTool({
 inited.then(() => {
 	combined.waitWallAdded().then(genWalls);
 	combined.waitWallRemoved().then(genWalls);
+	combined.waitWallModified().then(genWalls);
 });
