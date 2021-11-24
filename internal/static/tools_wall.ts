@@ -1,6 +1,7 @@
 import type {Wall} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
+import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
@@ -13,10 +14,12 @@ import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
 import {deselectToken, labels, selected, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
+import {shell, windows} from './windows.js';
 
 let wallColour = hex2Colour("#000"),
     active = false,
-    overWall: {layer: SVGLayer, wall: Wall} | null = null;
+    overWall: {layer: SVGLayer, wall: Wall} | null = null,
+    w: WindowElement | null = null;
 
 const selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker"}),
@@ -78,6 +81,7 @@ addTool({
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
 		} else if (overWall) {
+			createHTML(shell, w = windows());
 		}
 		return false;
 	},
@@ -107,6 +111,10 @@ addTool({
 		cancelWallDraw();
 		cancelEscape();
 		wallLayer.remove();
+		if (w) {
+			w.remove();
+			w = null;
+		}
 	}
 });
 
