@@ -22,7 +22,6 @@ import './messaging.js';
 import './musicPacks.js';
 import './tools.js';
 import './tools_draw.js';
-import './tools_light.js';
 import './tools_mask.js';
 import './tools_measure.js';
 import './tools_move.js';
