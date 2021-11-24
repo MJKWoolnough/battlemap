@@ -21,8 +21,6 @@ type levelMap struct {
 	GridDistance uint64                     `json:"gridDistance"`
 	GridDiagonal bool                       `json:"gridDiagonal"`
 	Light        colour                     `json:"lightColour"`
-	LightX       uint64                     `json:"lightX"`
-	LightY       uint64                     `json:"lightY"`
 	MaskOpaque   bool                       `json:"baseOpaque"`
 	Mask         [][]uint64                 `json:"masks"`
 	Data         map[string]json.RawMessage `json:"data"`
@@ -73,8 +71,6 @@ func (l *levelMap) writeJSON() {
 	l.JSON = strconv.AppendUint(append(l.JSON, ",\"gridStroke\":"...), l.GridStroke, 10)
 	l.JSON = l.GridColour.appendTo(append(l.JSON, ",\"gridColour\":"...))
 	l.JSON = l.Light.appendTo(append(l.JSON, ",\"lightColour\":"...))
-	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightX\":"...), l.LightX, 10)
-	l.JSON = strconv.AppendUint(append(l.JSON, ",\"lightY\":"...), l.LightY, 10)
 	l.JSON = strconv.AppendBool(append(l.JSON, ",\"baseOpaque\":"...), l.MaskOpaque)
 	l.JSON = append(l.JSON, ",\"masks\":["...)
 	for n, m := range l.Mask {
