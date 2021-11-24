@@ -59,7 +59,6 @@ type RPCWaits = {
 	waitTokenMoveLayerPos:       () => Subscription<TokenMoveLayerPos>;
 	waitTokenSet:                () => Subscription<TokenSet>;
 	waitLayerShift:              () => Subscription<LayerShift>;
-	waitLightShift:              () => Subscription<Coords>;
 	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
@@ -134,7 +133,6 @@ export type RPC = RPCWaits & {
 	setToken:         (t: TokenSet)                                                          => Promise<void>;
 	setTokenLayerPos: (id: Uint, to: string, newPos: Uint)                                   => Promise<void>;
 	shiftLayer:       (path: string, dx: Int, dy: Int)                                       => Promise<void>;
-	shiftLight:       (x: Uint, y: Uint)                                                     => Promise<void>;
 	setTokenLight:    (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
 	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
@@ -175,8 +173,6 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 	gridDistance: Uint;
 	gridDiagonal: boolean;
 	lightColour: Colour;
-	lightX: Uint;
-	lightY: Uint;
 	data: Record<string, any>;
 };
 
