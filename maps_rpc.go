@@ -164,26 +164,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		return nil, nil
-	case "shiftLight":
-		var pos struct {
-			X uint64 `json:"x"`
-			Y uint64 `json:"y"`
-		}
-		if err := json.Unmarshal(data, &pos); err != nil {
-			return nil, err
-		}
-		if err := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			if mp.LightX == pos.X && mp.LightY == pos.Y {
-				return false
-			}
-			mp.LightX = pos.X
-			mp.LightY = pos.Y
-			m.socket.broadcastMapChange(cd, broadcastLightShift, data, userAny)
-			return true
-		}); err != nil {
-			return nil, err
-		}
-		return nil, nil
 	case "addToMask":
 		var mask []uint64
 		if err := json.Unmarshal(data, &mask); err != nil {

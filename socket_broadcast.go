@@ -76,7 +76,6 @@ const (
 	broadcastTokenSet
 	broadcastLayerShift
 
-	broadcastLightShift
 	broadcastTokenLightChange
 	broadcastWallAdd
 	broadcastWallRemove
