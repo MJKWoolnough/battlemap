@@ -119,7 +119,8 @@ addTool({
 });
 
 inited.then(() => {
-	combined.waitWallAdded().then(genWalls);
-	combined.waitWallRemoved().then(genWalls);
-	combined.waitWallModified().then(genWalls);
+	const gw = () => window.setTimeout(genWalls, 0);
+	combined.waitWallAdded().then(gw);
+	combined.waitWallRemoved().then(gw);
+	combined.waitWallModified().then(gw);
 });
