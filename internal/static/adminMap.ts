@@ -11,7 +11,7 @@ import {edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
-import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doLightShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
@@ -635,7 +635,6 @@ export default (base: HTMLElement) => {
 	rpc.waitTokenSet().then(t => doTokenSet(t, false));
 	rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false));
 	rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false));
-	rpc.waitLightShift().then(({x, y}) => doLightShift(x, y, false));
 	rpc.waitWallAdded().then(w => doWallAdd(w, false));
 	rpc.waitWallRemoved().then(wid => doWallRemove(wid, false));
 	rpc.waitWallModified().then(w => doWallModify(w, false));
