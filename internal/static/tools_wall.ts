@@ -1,4 +1,6 @@
+import type {Wall} from './types.js';
 import type {Colour} from './colours.js';
+import type {SVGLayer} from './map.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
@@ -13,7 +15,8 @@ import {deselectToken, labels, selected, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
-    active = false;
+    active = false,
+    overWall: {layer: SVGLayer, wall: Wall} | null = null;
 
 const selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker"}),
@@ -42,9 +45,10 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 		return;
 	}
 	clearElement(wallLayer);
-	for (const {wall: {x1, y1, x2, y2, colour}, layer} of walls.values()) {
-		if (!layer.hidden) {
-			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2}));
+	for (const wl of walls.values()) {
+		if (!wl.layer.hidden) {
+			const {x1, y1, x2, y2, colour} = wl.wall;
+			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = wl, "onmouseout": () => overWall = null}));
 		}
 	}
       },
@@ -73,6 +77,7 @@ addTool({
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
+		} else if (overWall) {
 		}
 		return false;
 	},
@@ -95,6 +100,7 @@ addTool({
 	},
 	"unset": () => {
 		active = false;
+		overWall = null;
 		createSVG(root, {"style": {"cursor": undefined}});
 		cancelShiftSnap();
 		cancelCursorMove();
