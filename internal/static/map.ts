@@ -1,6 +1,5 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, LayerFolder, LayerTokens, MapData, MapDetails, Mask, Token, TokenDrawing, TokenImage, TokenSet, TokenShape, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
-import {clearElement} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import {createHTML, div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
@@ -367,27 +366,6 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
-	const {lightX: x, lightY: y} = mapData,
-	      distance = Math.hypot(Math.max(x, mapData.width - x), Math.max(y, mapData.height - y)),
-	      fadedLight = `rgba(${mapData.lightColour.r / 2}, ${mapData.lightColour.g / 2}, ${mapData.lightColour.b / 2}, ${1 - (255 - mapData.lightColour.a) * 0.5 / 255}`,
-	      wallPolygons: SVGPolygonElement[] = [];
-	walkLayers((l: SVGLayer) => {
-		for (const w of l.walls) {
-			if (w.x1 === w.x2 && x === w.x1 || w.y1 === w.y2 && y === w.y1) {
-				return;
-			}
-			const d = point2Line(x, y, w.x1, w.y1, w.x2, w.y2);
-			if (d >= distance || d === 0) {
-				return;
-			}
-			const dm = distance;
-			wallPolygons.push(polygon({"fill": fadedLight, "points": `${w.x1},${w.y1} ${x + (w.x1 - x) * dm},${y + (w.y1 - y) * dm} ${x + (w.x2 - x) * dm},${y + (w.y2 - y) * dm} ${w.x2},${w.y2}`}));
-		};
-	});
-	createSVG(clearElement(getLayer("/Light")![node]), [
-		rect({"width": "100%", "height": "100%", "fill": mapData.lightColour}),
-		wallPolygons
-	]);
 },
 showSignal = (() => {
 	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
@@ -899,11 +877,6 @@ export default (base: HTMLElement) => {
 			w.x2 += dx;
 			w.y2 += dy;
 		};
-		updateLight();
-	}),
-	rpc.waitLightShift().then(({x, y}) => {
-		mapData.lightX = x;
-		mapData.lightY = y;
 		updateLight();
 	}),
 	rpc.waitWallAdded().then(w => {
