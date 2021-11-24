@@ -402,21 +402,6 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_LAYER_SHIFT"]);
 },
-doLightShift = (x: Uint, y: Uint, sendRPC = true) => {
-	let {lightX: oldX, lightY: oldY} = mapData;
-	const doIt = (sendRPC = true) => {
-		mapData.lightX = x;
-		mapData.lightY = y;
-		updateLight();
-		if (sendRPC) {
-			queue(rpc.shiftLight.bind(rpc, x, y));
-		}
-		[x, oldX] = [oldX, x];
-		[y, oldY] = [oldY, y];
-		return doIt;
-	      };
-	undo.add(doIt(sendRPC), lang["UNDO_LIGHT_SHIFT"]);
-},
 doWallAdd = (w: WallPath, sendRPC = true) => {
 	const layer = getLayer(w.path);
 	if (!layer || !isSVGLayer(layer)) {
