@@ -176,7 +176,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 			["setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],                     returnVoid,       "waitTokenMoveLayerPos", ""],
 			["shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],                       returnVoid,       "waitLayerShift", ""],
 			["setTokenLight",    "maps.setTokenLight",    ["id", "lightColour", "lightIntensity"],    returnVoid,       "waitTokenLightChange", ""],
-			["addWall",          "maps.addWall",          ["path", "x1", "y1", "x2", "y2", "colour"], checkUint,        "waitWallAdded", "id"],
+			["addWall",          "maps.addWall",          ["path", "wall"],                           checkUint,        "waitWallAdded", "wall/id"],
 			["removeWall",       "maps.removeWall",        "!",                                       returnVoid,       "waitWallRemoved", ""],
 			["modifyWall",       "maps.modifyWall",        "!",                                       returnVoid,       "waitWallModified", ""],
 
