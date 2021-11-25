@@ -1,6 +1,5 @@
-import type {Wall} from './types.js';
+import type {Uint} from './types.js';
 import type {Colour} from './colours.js';
-import type {SVGLayer} from './map.js';
 import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
@@ -18,7 +17,7 @@ import {shell, windows} from './windows.js';
 
 let wallColour = hex2Colour("#000"),
     active = false,
-    overWall: {layer: SVGLayer, wall: Wall} | null = null,
+    overWall: Uint = 0,
     w: WindowElement | null = null;
 
 const selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true}),
@@ -48,10 +47,10 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 		return;
 	}
 	clearElement(wallLayer);
-	for (const wl of walls.values()) {
-		if (!wl.layer.hidden) {
-			const {x1, y1, x2, y2, colour} = wl.wall;
-			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = wl, "onmouseout": () => overWall = null}));
+	for (const {layer, wall} of walls.values()) {
+		if (!layer.hidden) {
+			const {id, x1, y1, x2, y2, colour} = wall;
+			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0}));
 		}
 	}
       },
@@ -104,7 +103,7 @@ addTool({
 	},
 	"unset": () => {
 		active = false;
-		overWall = null;
+		overWall = 0;
 		createSVG(root, {"style": {"cursor": undefined}});
 		cancelShiftSnap();
 		cancelCursorMove();
