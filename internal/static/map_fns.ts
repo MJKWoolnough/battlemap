@@ -408,18 +408,18 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 		handleError("invalid layer for wall add")
 		return;
 	}
-	const {path, x1, y1, x2, y2, colour} = w,
-	      wall = normaliseWall({"id": w.id, x1, y1, x2, y2, colour}),
+	const {path, wall: {id, x1, y1, x2, y2, colour}} = w,
+	      wall = normaliseWall({id, x1, y1, x2, y2, colour}),
 	      doIt = (sendRPC = true) => {
 		layer.walls.push(wall);
 		updateLight();
 		if (sendRPC) {
-			queue(() => rpc.addWall(path, x1, y1, x2, y2, colour).then(id => {
+			queue(() => rpc.addWall(path, {id, x1, y1, x2, y2, colour}).then(id => {
 				wall.id = id;
 				walls.set(id, {layer, wall});
 			}));
-		} else if (w.id > 0) {
-			walls.set(w.id, {layer, wall});
+		} else if (id > 0) {
+			walls.set(id, {layer, wall});
 		}
 		return undoIt;
 	      },
@@ -456,7 +456,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 	      undoIt = () => {
 		layer.walls.push(wall);
 		updateLight();
-		queue(() => rpc.addWall(layer.path, wall.x1, wall.y1, wall.x2, wall.y2, wall.colour).then(id => {
+		queue(() => rpc.addWall(layer.path, wall).then(id => {
 			wall.id = id;
 			walls.set(id, {layer, wall});
 		}));
