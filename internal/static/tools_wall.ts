@@ -1,17 +1,17 @@
 import type {Uint} from './types.js';
 import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
-import {clearElement} from './lib/dom.js';
+import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
 import {createSVG, defs, g, path, pattern, rect, svg} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
-import {doWallAdd} from './map_fns.js';
+import {doWallAdd, doWallModify} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {deselectToken, labels, selected, walls} from './shared.js';
+import {deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
 import {addTool, marker} from './tools.js';
 import {shell, windows} from './windows.js';
 
@@ -42,26 +42,30 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
 	wall.remove();
       }),
       wallLayer = g(),
+      wallMap = new Map<Uint, SVGRectElement>(),
       genWalls = () => {
 	if (!active) {
 		return;
 	}
 	clearElement(wallLayer);
+	wallMap.clear();
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour} = wall;
-			createSVG(wallLayer, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0}));
+			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0})));
 		}
 	}
       },
-      [startEscape, cancelEscape] = keyEvent("Escape", () => cancelWallDraw());
+      [startEscape, cancelEscape] = keyEvent("Escape", () => cancelWallDraw()),
+      icon = svg({"viewBox": "0 0 90 60"}, [
+		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
+		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
+      ]),
+      iconStr = "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"" + svgNS + "\"" + icon.outerHTML.slice(4));
 
 addTool({
 	"name": lang["TOOL_WALL"],
-	"icon": svg({"viewBox": "0 0 90 60"}, [
-		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
-		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
-	]),
+	icon,
 	"options": div([
 		fieldset([
 			legend(lang["TOOL_WALL_MODE"]),
@@ -80,7 +84,20 @@ addTool({
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
 		} else if (overWall) {
-			createHTML(shell, w = windows());
+			const wl = walls.get(overWall);
+			if (wl) {
+				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
+					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.name}`),
+					label(`${lang["TOOL_WALL_COLOUR"]}: `),
+					span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
+						const wall = wallMap.get(wl.wall.id);
+						if (wall) {
+							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
+							doWallModify(wl.wall);
+						}
+					}, iconStr)),
+				]));
+			}
 		}
 		return false;
 	},
