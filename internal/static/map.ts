@@ -879,13 +879,12 @@ export default (base: HTMLElement) => {
 		};
 		updateLight();
 	}),
-	rpc.waitWallAdded().then(w => {
-		const layer = getLayer(w.path);
+	rpc.waitWallAdded().then(({path, wall}) => {
+		const layer = getLayer(path);
 		if (!layer || !isSVGLayer(layer)) {
 			return;
 		}
-		delete (w as Record<string, any>)["path"];
-		layer.walls.push(normaliseWall(w));
+		layer.walls.push(normaliseWall(wall));
 		updateLight();
 	}),
 	rpc.waitWallRemoved().then(wp => {
