@@ -38,7 +38,7 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		doWallAdd({"path": selected.layer.path, "id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour});
+		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour}});
 	}
 	wall.remove();
       }),
