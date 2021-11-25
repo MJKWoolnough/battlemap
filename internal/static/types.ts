@@ -134,7 +134,7 @@ export type RPC = RPCWaits & {
 	setTokenLayerPos: (id: Uint, to: string, newPos: Uint)                                   => Promise<void>;
 	shiftLayer:       (path: string, dx: Int, dy: Int)                                       => Promise<void>;
 	setTokenLight:    (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
-	addWall:          (path: string, x1: Uint, y1: Uint, x2: Uint, y2: Uint, colour: Colour) => Promise<Uint>;
+	addWall:          (path: string, wall: Wall)                                             => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 	modifyWall:       (w: Wall)                                                              => Promise<void>;
 
@@ -346,8 +346,9 @@ export type WallData = {
 
 export type Wall = WallData & ID;
 
-export type WallPath = Wall & {
+export type WallPath = {
 	path: string;
+	wall: Wall;
 }
 
 type TokenLight = {
