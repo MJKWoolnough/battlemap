@@ -76,7 +76,7 @@ addTool({
 		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
 		br(),
 		label(`${lang["TOOL_WALL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_LIGHT_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), "wallColour")),
+		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (placeWall.checked) {
