@@ -12,7 +12,7 @@ import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
 import {deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
-import {addTool, marker} from './tools.js';
+import {addTool, marker, optionsWindow} from './tools.js';
 import {shell, windows} from './windows.js';
 
 let wallColour = hex2Colour("#000"),
@@ -76,7 +76,7 @@ addTool({
 		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
 		br(),
 		label(`${lang["TOOL_WALL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (placeWall.checked) {
