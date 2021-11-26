@@ -9,7 +9,7 @@ import {root, screen2Grid} from './map.js';
 import {doTokenAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {checkInt, deselectToken, labels, selected} from './shared.js';
-import {addTool, marker} from './tools.js';
+import {addTool, marker, optionsWindow} from './tools.js';
 import {shell} from './windows.js';
 
 let fill = noColour,
@@ -121,10 +121,10 @@ addTool({
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
 		label(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
+		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
 		br(),
 		label(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
+		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
 	]),
 	"mapMouseOver": () => {
 		startCursorMove();
