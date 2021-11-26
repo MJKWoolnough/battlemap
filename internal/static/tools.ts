@@ -99,17 +99,19 @@ let selectedTool = defaultTool;
 menuItems.push([6, () => isAdmin ? [
 	lang["TAB_TOOLS"],
 	(() => {
-		const base = div();
 		tools.sort((a, b) => stringSort(a.name, b.name));
 		tools.unshift(defaultTool);
 		let windowed = false,
-		    selected: HTMLLIElement | null = null;
-		const options = div(),
+		    selected: HTMLLIElement | null = null,
+		    toolNum = 0;
+		const base = div(),
+		      options = div(),
 		      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
-		      list: HTMLLIElement[] = tools.map(t => li({"onclick": function(this: HTMLLIElement) {
+		      list: HTMLLIElement[] = tools.map((t, n) => li({"onclick": function(this: HTMLLIElement) {
 			selectedTool.unset?.();
 			t.set?.();
 			selectedTool = t;
+			toolNum = n;
 			if (t.options) {
 				createHTML(clearElement(options), t.options);
 				if (windowed && miniTools.value) {
@@ -180,22 +182,7 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 		});
-		keyEvent("(", () => {
-			for (let i = 0; i < tools.length; i++) {
-				if (tools[i] === selectedTool) {
-					list[mod(i - 1, tools.length)].click();
-					return;
-				}
-			}
-		})[0]();
-		keyEvent(")", () => {
-			for (let i = 0; i < tools.length; i++) {
-				if (tools[i] === selectedTool) {
-					list[mod(i + 1, tools.length)].click();
-					return;
-				}
-			}
-		})[0]();
+		keyEvent(["(", ")"], (e: KeyboardEvent) => list[mod(toolNum + (e.key === "(" ? -1 : 1), tools.length)].click())[0]();
 		return base;
 	})(),
 	true,
