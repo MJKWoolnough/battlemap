@@ -87,7 +87,7 @@ addTool({
 			const wl = walls.get(overWall);
 			if (wl) {
 				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
-					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.name}`),
+					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.path}`),
 					label(`${lang["TOOL_WALL_COLOUR"]}: `),
 					span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
 						const wall = wallMap.get(wl.wall.id);
