@@ -3,12 +3,12 @@ import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
+import {createHTML, br, button, div, fieldset, input, label, legend, span} from './lib/html.js';
 import {createSVG, defs, g, path, pattern, rect, svg} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
-import {doWallAdd, doWallModify} from './map_fns.js';
+import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
 import {deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
@@ -96,6 +96,11 @@ addTool({
 							doWallModify(wl.wall);
 						}
 					}, iconStr)),
+					br(),
+					button({"onclick": () => {
+						doWallRemove(wl.wall.id);
+						w?.remove();
+					}}, lang["TOOL_WALL_REMOVE"])
 				]));
 			}
 		}
