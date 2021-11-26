@@ -1,4 +1,5 @@
 import type {Uint} from './types.js';
+import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {createHTML, div, h2, li, span, ul} from './lib/html.js';
@@ -31,6 +32,8 @@ type Tool = {
 	mapMouseWheel?: WheelFn;
 	mapMouseOver?: MouseFn;
 };
+
+export let optionsWindow: WindowElement | null = null;
 
 const tools: Tool[] = [],
       toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="3"%3E%3Cpath d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="%23dde" stroke="%23000" transform="rotate(45, 50, 50)" /%3E%3Cg transform="rotate(315, 50, 50)"%3E%3Cpath d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="%23eee" stroke="%23000" /%3E%3Cpath d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="%23dd0" stroke="%23000" stroke-linejoin="round" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
@@ -111,14 +114,16 @@ menuItems.push([6, () => isAdmin ? [
 			if (t.options) {
 				createHTML(clearElement(options), t.options);
 				if (windowed && miniTools.value) {
-					createHTML(shell, optionsWindow);
-					optionsWindow.focus();
+					createHTML(shell, oW);
+					oW.focus();
+					optionsWindow = oW;
 				} else {
 					createHTML(toolOptions, {"style": {"display": undefined}});
 				}
 			} else {
 				if (windowed && miniTools.value) {
-					optionsWindow.remove();
+					oW.remove();
+					optionsWindow = null;
 				} else {
 					createHTML(toolOptions, {"style": {"display": "none"}});
 				}
@@ -131,15 +136,15 @@ menuItems.push([6, () => isAdmin ? [
 			span(t.name)
 		      ])),
 		      fc = list[0],
-		      optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
+		      oW = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
 		createHTML(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
-				createHTML(optionsWindow, options);
+				createHTML(oW, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, optionsWindow);
-					window.setTimeout(() => optionsWindow.focus());
+					createHTML(shell, oW);
+					window.setTimeout(() => oW.focus());
 				}
 			}
 		}, "onpopin": () => {
@@ -148,7 +153,7 @@ menuItems.push([6, () => isAdmin ? [
 				createHTML(toolOptions, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": undefined}});
-					optionsWindow.remove();
+					oW.remove();
 				}
 			}
 		}}, [ul(list), toolOptions]);
@@ -160,17 +165,19 @@ menuItems.push([6, () => isAdmin ? [
 				return;
 			}
 			if (on) {
-				createHTML(optionsWindow, options);
+				createHTML(oW, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, optionsWindow);
-					optionsWindow.focus();
+					createHTML(shell, oW);
+					oW.focus();
+					optionsWindow = oW;
 				}
 			} else {
 				createHTML(toolOptions, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": undefined}});
-					optionsWindow.remove();
+					oW.remove();
+					optionsWindow = null;
 				}
 			}
 		});
