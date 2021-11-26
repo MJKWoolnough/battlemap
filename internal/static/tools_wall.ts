@@ -89,7 +89,7 @@ addTool({
 				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
 					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.path}`),
 					label(`${lang["TOOL_WALL_COLOUR"]}: `),
-					span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
+					span({"class": "checkboard colourButton"}, makeColourPicker(w, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
 						const wall = wallMap.get(wl.wall.id);
 						if (wall) {
 							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
