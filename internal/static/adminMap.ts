@@ -347,8 +347,16 @@ export default (base: HTMLElement) => {
 		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
 	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
-		keyEvent("c", () => copiedToken = cloneObject(selected.token)),
-		keyEvent("x", () => doTokenRemove((copiedToken = cloneObject(selected.token)).id)),
+		keyEvent("c", (e: KeyboardEvent) => {
+			if (e.ctrlKey) {
+				copiedToken = cloneObject(selected.token);
+			}
+		}),
+		keyEvent("x", (e: KeyboardEvent) => {
+			if (e.ctrlKey) {
+				doTokenRemove((copiedToken = cloneObject(selected.token)).id);
+			}
+		}),
 		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
