@@ -144,4 +144,7 @@ inited.then(() => {
 	combined.waitWallAdded().then(gw);
 	combined.waitWallRemoved().then(gw);
 	combined.waitWallModified().then(gw);
+	combined.waitLayerMove().then(gw);
+	combined.waitLayerRemove().then(gw);
+	combined.waitLayerShift().then(gw);
 });
