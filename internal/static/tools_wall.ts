@@ -44,9 +44,6 @@ const selectWall = input({"type": "radio", "name": "wallTool", "class": "setting
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
       genWalls = () => {
-	if (!active) {
-		return;
-	}
 	clearElement(wallLayer);
 	wallMap.clear();
 	for (const {layer, wall} of walls.values()) {
@@ -140,7 +137,11 @@ addTool({
 });
 
 inited.then(() => {
-	const gw = () => window.setTimeout(genWalls, 0);
+	const gw = () => {
+		if (active) {
+			window.setTimeout(genWalls, 0);
+		}
+	};
 	combined.waitWallAdded().then(gw);
 	combined.waitWallRemoved().then(gw);
 	combined.waitWallModified().then(gw);
