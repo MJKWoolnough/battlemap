@@ -11,7 +11,7 @@ import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
+import {cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 import {shell, windows} from './windows.js';
 
@@ -91,7 +91,7 @@ addTool({
 						const wall = wallMap.get(id);
 						if (wall) {
 							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
-							doWallModify(wl.wall);
+							doWallModify(cloneObject(wl.wall));
 						}
 					}, iconStr)),
 					br(),
