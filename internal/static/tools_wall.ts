@@ -83,11 +83,12 @@ addTool({
 		} else if (overWall) {
 			const wl = walls.get(overWall);
 			if (wl) {
+				const {id} = wl.wall;
 				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
 					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.path}`),
 					label(`${lang["TOOL_WALL_COLOUR"]}: `),
 					span({"class": "checkboard colourButton"}, makeColourPicker(w, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
-						const wall = wallMap.get(wl.wall.id);
+						const wall = wallMap.get(id);
 						if (wall) {
 							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
 							doWallModify(wl.wall);
@@ -95,8 +96,10 @@ addTool({
 					}, iconStr)),
 					br(),
 					button({"onclick": () => {
-						doWallRemove(wl.wall.id);
+						doWallRemove(id);
 						w?.remove();
+						wallMap.get(id)?.remove();
+						wallMap.delete(id);
 					}}, lang["TOOL_WALL_REMOVE"])
 				]));
 			}
