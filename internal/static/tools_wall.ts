@@ -148,4 +148,6 @@ inited.then(() => {
 	combined.waitLayerMove().then(gw);
 	combined.waitLayerRemove().then(gw);
 	combined.waitLayerShift().then(gw);
+	combined.waitLayerShow().then(gw);
+	combined.waitLayerHide().then(gw);
 });
