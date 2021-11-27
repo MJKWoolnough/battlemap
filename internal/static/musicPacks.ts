@@ -170,42 +170,12 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
       musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
       newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (packs: Map<string, Pack>) => {
-	rpc.waitMusicPackVolume().then(pv => {
-		const pack = packs.get(pv.musicPack);
-		if (pack) {
-			pack.setVolume(pv.volume);
-		}
-	});
-	rpc.waitMusicPackPlay().then(pp => {
-		const pack = packs.get(pp.musicPack);
-		if (pack) {
-			pack.play(pp.playTime);
-		}
-	});
-	rpc.waitMusicPackStop().then(name => {
-		const pack = packs.get(name);
-		if (pack) {
-			pack.stop();
-		}
-	});
-	rpc.waitMusicPackTrackRemove().then(mr => {
-		const pack = packs.get(mr.musicPack);
-		if (pack && pack.tracks.length >= mr.track) {
-			pack.tracks[mr.track].remove();
-		}
-	});
-	rpc.waitMusicPackTrackVolume().then(mv => {
-		const pack = packs.get(mv.musicPack);
-		if (pack && pack.tracks.length >= mv.track) {
-			pack.tracks[mv.track].setVolume(mv.volume);
-		}
-	});
-	rpc.waitMusicPackTrackRepeat().then(mr => {
-		const pack = packs.get(mr.musicPack);
-		if (pack && pack.tracks.length >= mr.track) {
-			pack.tracks[mr.track].setRepeat(mr.repeat);
-		}
-	});
+	rpc.waitMusicPackVolume().then(pv => packs.get(pv.musicPack)?.setVolume(pv.volume));
+	rpc.waitMusicPackPlay().then(pp => packs.get(pp.musicPack)?.play(pp.playTime));
+	rpc.waitMusicPackStop().then(name => packs.get(name)?.stop());
+	rpc.waitMusicPackTrackRemove().then(mr => packs.get(mr.musicPack)?.tracks[mr.track]?.remove());
+	rpc.waitMusicPackTrackVolume().then(mv => packs.get(mv.musicPack)?.tracks[mv.track]?.setVolume(mv.volume));
+	rpc.waitMusicPackTrackRepeat().then(mr => packs.get(mr.musicPack)?.tracks[mr.track]?.setRepeat(mr.repeat));
       },
       now = () => timeShift + Date.now() / 1000;
 
