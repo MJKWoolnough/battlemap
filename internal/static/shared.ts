@@ -29,15 +29,7 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 checkInt = (n: number, min = -Infinity, max = Infinity, def = 0) => isInt(n, min, max) ? n : def,
-mod = (n: Uint, m: Uint) => {
-	while (n >= m) {
-		n -= m;
-	}
-	while (n < 0) {
-		n += m;
-	}
-	return n;
-},
+mod = (n: Uint, m: Uint) => ((n % m) + m) % m,
 queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
