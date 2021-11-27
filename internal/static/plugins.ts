@@ -77,7 +77,7 @@ settings = () => {
 		filterSortPlugins("settings").map(([name, plugin]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), plugin["settings"].fn])
 	];
 },
-       characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
+characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
 	for (const p of filterSortPlugins("characterEdit")) {
 		const h = p[1]["characterEdit"].fn(w, id, data, isCharacter, changes, removes, save);
 		if (h) {
@@ -85,17 +85,17 @@ settings = () => {
 		}
 	}
 	return null;
-       },
-       addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
-       getSettings = (name: string) => pluginList.get(name)?.data,
-       askReload = () => {
+},
+addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
+getSettings = (name: string) => pluginList.get(name)?.data,
+askReload = () => {
 	if (!isAdmin) {
 		window.location.reload();
 		return;
 	}
 	shell.confirm(lang["PLUGIN_REFRESH"], lang["PLUGIN_REFRESH_REQUEST"]).then(r => r && window.location.reload());
-       },
-       tokenContext = () => {
+},
+tokenContext = () => {
 	const ret: List[] = [];
 	for (const p of filterSortPlugins("tokenContext")) {
 		const r = p[1]["tokenContext"].fn();
@@ -104,8 +104,8 @@ settings = () => {
 		}
 	}
 	return ret;
-       },
-       tokenClass = (): SVGTokenConstructor | null => {
+},
+tokenClass = (): SVGTokenConstructor | null => {
 	for (const p of filterSortPlugins("tokenClass")) {
 		const tc = p[1]["tokenClass"].fn;
 		if (tc) {
@@ -113,15 +113,15 @@ settings = () => {
 		}
 	}
 	return null;
-       },
-       tokenDataFilter = () => {
+},
+tokenDataFilter = () => {
 	const tdf: string[] = [];
 	for (const p of filterSortPlugins("tokenDataFilter")) {
 		tdf.push(...p[1]["tokenDataFilter"].fn);
 	}
 	return tdf;
-       },
-       menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
+},
+menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
 export default () => {
 	rpc.waitPluginChange().then(askReload);
