@@ -33,7 +33,7 @@ export type LayerRPC = Readonly<FolderRPC & {
 	waitLayerSelect:         () => Subscription<string>;
 }>
 
-type RPCWaits = {
+export type RPCWaits = {
 	waitCurrentUserMap:          () => Subscription<Uint>;
 	waitCurrentUserMapData:      () => Subscription<MapData>;
 	waitMapDataSet:              () => Subscription<KeyData>;
