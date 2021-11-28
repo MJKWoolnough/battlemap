@@ -87,6 +87,9 @@ addTool({
 		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 	]),
 	"mapMouse0": (e: MouseEvent) => {
+		if (e.ctrlKey) {
+			return true;
+		}
 		if (placeWall.checked) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
