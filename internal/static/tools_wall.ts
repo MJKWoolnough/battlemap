@@ -4,7 +4,7 @@ import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, button, div, fieldset, input, label, legend, span} from './lib/html.js';
-import {createSVG, defs, g, path, pattern, rect, svg} from './lib/svg.js';
+import {createSVG, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -60,7 +60,7 @@ const updateCursorState = () => {
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour} = wall;
-			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0})));
+			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0}, title(layer.path))));
 		}
 	}
       },
