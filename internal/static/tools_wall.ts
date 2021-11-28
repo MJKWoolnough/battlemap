@@ -20,15 +20,26 @@ let wallColour = hex2Colour("#000"),
     overWall: Uint = 0,
     w: WindowElement | null = null;
 
-const selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true}),
-      placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker"}),
+const updateCursorState = () => {
+	if (placeWall.checked) {
+		createSVG(root, {"style": {"cursor": "none"}}, marker);
+		startCursorMove();
+	} else {
+		cancelCursorMove();
+	}
+      },
+      selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
+      placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
-      }, () => marker.remove()),
+      }, () => {
+	createSVG(root, {"style": {"cursor": undefined}});
+	marker.remove()
+      }),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -107,8 +118,7 @@ addTool({
 		return false;
 	},
 	"mapMouseOver": () => {
-		startCursorMove();
-		createSVG(root, marker);
+		updateCursorState();
 		return false;
 	},
 	"set": () => {
@@ -116,9 +126,9 @@ addTool({
 		deselectToken();
 		createHTML(snap, {"checked": autosnap.value});
 		genWalls();
-		createSVG(root, {"style": {"cursor": "none"}}, [
+		createSVG(root, {"style": {"cursor": placeWall.checked ? "none" : undefined}}, [
 			wallLayer,
-			marker
+			placeWall.checked ? marker : []
 		]);
 		setupShiftSnap();
 		startEscape();
@@ -126,7 +136,6 @@ addTool({
 	"unset": () => {
 		active = false;
 		overWall = 0;
-		createSVG(root, {"style": {"cursor": undefined}});
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
