@@ -35,7 +35,7 @@ export const getToken = () => {
 		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity, tokenData};
 	}
 	return undefined;
-      },
+},
 checkSelectedLayer = (path: string) => {
 	const {layer} = selected;
 	if (layer && (layer.path === path || layer.path.startsWith(path + "/"))) {
