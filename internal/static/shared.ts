@@ -8,11 +8,6 @@ import {createSVG, g} from './lib/svg.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
-const pipeBind = <T>(): [(data: T) => void, (fn: (data: T) => void) => void] => {
-	const p = new Pipe<T>();
-	return [(data: T) => p.send(data), (fn: (data: T) => void) => p.receive(fn)];
-      };
-
 export const enterKey = function(this: Node, e: KeyboardEvent): void {
 	if (e.key === "Enter") {
 		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
@@ -23,9 +18,9 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 		}
 	}
 },
-[mapLoadSend, mapLoadReceive] = pipeBind<Uint>(),
-[mapLoadedSend, mapLoadedReceive] = pipeBind<boolean>(),
-[tokenSelected, tokenSelectedReceive] = pipeBind<void>(),
+[mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(),
+[mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(),
+[tokenSelected, tokenSelectedReceive] = new Pipe<void>().bind(),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 checkInt = (n: number, min = -Infinity, max = Infinity, def = 0) => isInt(n, min, max) ? n : def,
