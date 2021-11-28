@@ -1,4 +1,4 @@
-import type {Uint} from './types.js';
+import type {RPCWaits, Uint} from './types.js';
 import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
@@ -145,12 +145,7 @@ inited.then(() => {
 			window.setTimeout(genWalls, 0);
 		}
 	};
-	combined.waitWallAdded().then(gw);
-	combined.waitWallRemoved().then(gw);
-	combined.waitWallModified().then(gw);
-	combined.waitLayerMove().then(gw);
-	combined.waitLayerRemove().then(gw);
-	combined.waitLayerShift().then(gw);
-	combined.waitLayerShow().then(gw);
-	combined.waitLayerHide().then(gw);
+	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]) {
+		(combined as Omit<typeof combined, "images" | "audio" | "characters" | "map">)[wait]().then(gw);
+	}
 });
