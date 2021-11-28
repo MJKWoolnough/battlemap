@@ -611,6 +611,7 @@ export default (base: HTMLElement) => {
 	defaultTool.unset = () => {
 		cancelMapMouseMove();
 		cancelControlOverride();
+		createSVG(document.body, {"style": {"--outline-cursor": undefined}});
 	};
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
