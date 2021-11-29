@@ -11,7 +11,7 @@ import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
+import {checkInt, cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 import {shell, windows} from './windows.js';
 
@@ -30,6 +30,7 @@ const updateCursorState = () => {
       },
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
+      scattering = input({"type": "range", "min": 0, "max": 255, "value": 0}),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
@@ -48,7 +49,7 @@ const updateCursorState = () => {
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour, "scattering": 0}});
+		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour, "scattering": checkInt(parseInt(scattering.value), 0, 255, 0)}});
 	}
 	wall.remove();
       }),
@@ -85,6 +86,8 @@ addTool({
 		br(),
 		label(`${lang["TOOL_WALL_COLOUR"]}: `),
 		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+		br(),
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering)
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey) {
