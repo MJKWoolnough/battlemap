@@ -342,6 +342,7 @@ export type WallData = {
 	x2: Int;
 	y2: Int;
 	colour: Colour;
+	scattering: Byte;
 }
 
 export type Wall = WallData & ID;
