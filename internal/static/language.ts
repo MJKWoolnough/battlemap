@@ -200,6 +200,7 @@ const defaultLanguage = {
 	"TOOL_WALL_PLACE": "Place Wall",
 	"TOOL_WALL_PROPS": "Wall Properties",
 	"TOOL_WALL_REMOVE": "Remove Wall",
+	"TOOL_WALL_SCATTER": "Wall Light Scattering",
 	"TOOL_WALL_SELECT": "Select Wall",
 	"TOOL_WALL_SNAP": "Snap to Grid",
 	"UNDO_CHARACTER": "Character change",
