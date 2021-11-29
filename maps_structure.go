@@ -358,12 +358,13 @@ type layerWall struct {
 }
 
 type wall struct {
-	ID     uint64 `json:"id"`
-	X1     int64  `json:"x1"`
-	Y1     int64  `json:"y1"`
-	X2     int64  `json:"x2"`
-	Y2     int64  `json:"y2"`
-	Colour colour `json:"colour"`
+	ID         uint64 `json:"id"`
+	X1         int64  `json:"x1"`
+	Y1         int64  `json:"y1"`
+	X2         int64  `json:"x2"`
+	Y2         int64  `json:"y2"`
+	Colour     colour `json:"colour"`
+	Scattering uint8  `json:"scattering"`
 }
 
 func (w wall) appendTo(p []byte) []byte {
@@ -373,6 +374,7 @@ func (w wall) appendTo(p []byte) []byte {
 	p = strconv.AppendInt(append(p, ",\"x2\":"...), w.X2, 10)
 	p = strconv.AppendInt(append(p, ",\"y2\":"...), w.Y2, 10)
 	p = w.Colour.appendTo(append(p, ",\"colour\":"...))
+	p = strconv.AppendUint(append(p, ",\"scattering\":"...), uint64(w.Scattering), 10)
 	return append(p, '}')
 }
 
