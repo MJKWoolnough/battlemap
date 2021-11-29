@@ -270,7 +270,8 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			if _, ok := mp.walls[wallAdd.wall.ID]; ok || wallAdd.wall.ID == 0 || wallAdd.wall.ID > mp.lastWallID {
 				mp.lastWallID++
 				wallAdd.wall.ID = mp.lastWallID
-				m.socket.broadcastMapChange(cd, broadcastWallAdd, append(strconv.AppendUint(append(data[:len(data)-1], ",\"id\":"...), mp.lastTokenID, 10), '}'), userAny)
+				data, _ := json.Marshal(wallAdd)
+				m.socket.broadcastMapChange(cd, broadcastWallAdd, json.RawMessage(data), userAny)
 			} else {
 				m.socket.broadcastMapChange(cd, broadcastWallAdd, data, userAny)
 			}
