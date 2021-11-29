@@ -42,7 +42,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 			window.remove();
 		}})
 	      ]);
-	parent.addWindow(window);
+	(parent.parentNode ? parent : shell).addWindow(window);
 }),
 makeColourPicker = (() => {
 	const sc = (b: HTMLButtonElement, c: Colour) => {
