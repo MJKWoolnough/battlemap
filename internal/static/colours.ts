@@ -1,6 +1,6 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
-import {createHTML, br, button, div, h1, input} from './lib/html.js';
+import {createHTML, br, button, div, h1, img, input} from './lib/html.js';
 import lang from './language.js';
 import {checkInt, labels} from './shared.js';
 import {shell, windows} from './windows.js';
@@ -21,10 +21,16 @@ export class Colour {
 	}
 }
 
+const iconDiv = div({"style": {"transform": "translateX(-9999px)"}}, img({"width": 20, "height": 20, "src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'}));
+
 export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), "g": checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), "b": checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a}),
 noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
-	const preview = div({"style": `background-color: ${colour}`}),
+	const preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
+		document.body.append(iconDiv);
+		e.dataTransfer!.setDragImage(iconDiv, -5, -5)!
+		e.dataTransfer!.setData("colour", JSON.stringify(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))));
+	      }}),
 	      updatePreview = () => createHTML(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
