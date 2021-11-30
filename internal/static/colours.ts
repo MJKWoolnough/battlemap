@@ -50,7 +50,13 @@ makeColourPicker = (() => {
 		return c;
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
-		const b = button({"style": "width: 50px; height: 50px", "onclick": () => colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c)))});
+		let active = false;
+		const b = button({"style": "width: 50px; height: 50px", "onclick": () => {
+			if (!active) {
+				active = true;
+				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c))).finally(() => active = false);
+			}
+		}});
 		sc(b, getColour());
 		return b;
 	};
