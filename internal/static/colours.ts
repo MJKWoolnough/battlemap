@@ -21,14 +21,13 @@ export class Colour {
 	}
 }
 
-const iconDiv = div({"style": {"transform": "translateX(-9999px)"}}, img({"width": 20, "height": 20, "src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'}));
+const iconImg = img({"src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'});
 
 export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), "g": checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), "b": checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a}),
 noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
-		document.body.append(iconDiv);
-		e.dataTransfer!.setDragImage(iconDiv, -5, -5);
+		e.dataTransfer!.setDragImage(iconImg, -5, -5);
 		e.dataTransfer!.setData("colour", JSON.stringify(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))));
 	      }, "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer?.types.includes("colour")) {
@@ -69,8 +68,7 @@ makeColourPicker = (() => {
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
 		const d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
-			document.body.append(iconDiv);
-			e.dataTransfer!.setDragImage(iconDiv, -5, -5);
+			e.dataTransfer!.setDragImage(iconImg, -5, -5);
 			e.dataTransfer!.setData("colour", JSON.stringify(getColour()));
 		      }}),
 		      b = button({"class": "checkboard colourButton", "onclick": () => {
