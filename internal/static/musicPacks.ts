@@ -230,7 +230,7 @@ menuItems.push([3, () => isAdmin ? [
 	lang["TAB_MUSIC_PACKS"],
 	(() => {
 		const base = div(loading()),
-		      dragIcon = div({"style": {"transform": "translateX(-9999px)"}}, img({"class": "imageIcon", "src": musicIcon}));
+		      dragIcon = img({"class": "imageIcon", "src": musicIcon});
 		audioEnabled().then(rpc.musicPackList).then(list => {
 			class AdminTrack extends Track {
 				[node]: HTMLLIElement;
@@ -356,7 +356,7 @@ menuItems.push([3, () => isAdmin ? [
 						this.tracks[node],
 						div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 					]);
-					this[node] = li({"class": "foldersItem", "draggable": "true", "onmouseover": () => createHTML(document.body, dragIcon), "onmouseout": () => dragIcon.remove(), "ondragstart": (e: DragEvent) => {
+					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
 						e.dataTransfer!.setDragImage(dragIcon, -5, -5);
 						e.dataTransfer!.setData("musicpack", JSON.stringify({"name": this.name}));
 					}}, [
