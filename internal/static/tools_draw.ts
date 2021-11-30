@@ -1,6 +1,6 @@
 import type {Uint} from './types.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, div, fieldset, input, label, legend, span} from './lib/html.js';
+import {createHTML, br, div, fieldset, input, legend} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {createSVG, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
@@ -120,11 +120,9 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
-		label(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
+		labels(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
 		br(),
-		label(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
+		labels(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
 	]),
 	"mapMouseOver": () => {
 		startCursorMove();

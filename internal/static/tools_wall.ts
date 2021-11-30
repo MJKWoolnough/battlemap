@@ -3,7 +3,7 @@ import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
 import {clearElement, svgNS} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, button, div, fieldset, input, label, legend, span} from './lib/html.js';
+import {createHTML, br, button, div, fieldset, input, legend} from './lib/html.js';
 import {createSVG, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
@@ -84,8 +84,7 @@ addTool({
 		]),
 		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
 		br(),
-		label(`${lang["TOOL_WALL_COLOUR"]}: `),
-		span({"class": "checkboard colourButton"}, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering)
 	]),
@@ -103,8 +102,7 @@ addTool({
 				const {id} = wl.wall;
 				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
 					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.path}`),
-					label(`${lang["TOOL_WALL_COLOUR"]}: `),
-					span({"class": "checkboard colourButton"}, makeColourPicker(w, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
+					labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(w, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
 						const wall = wallMap.get(id);
 						if (wall) {
 							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
