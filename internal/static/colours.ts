@@ -30,6 +30,18 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 		document.body.append(iconDiv);
 		e.dataTransfer!.setDragImage(iconDiv, -5, -5)!
 		e.dataTransfer!.setData("colour", JSON.stringify(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))));
+	      }, "ondragover": (e: DragEvent) => {
+		if (e.dataTransfer?.types.includes("colour")) {
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "copy";
+		}
+	      }, "ondrop": (e: DragEvent) => {
+		if (e.dataTransfer?.types.includes("colour")) {
+			const c = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
+			colourInput.value = c.toHexString();
+			alphaInput.value = c.a;
+			updatePreview();
+		}
 	      }}),
 	      updatePreview = () => createHTML(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
