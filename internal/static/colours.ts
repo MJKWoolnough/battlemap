@@ -73,11 +73,20 @@ makeColourPicker = (() => {
 				active = true;
 				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c))).finally(() => active = false);
 			}
-		}, "ondragstart": (e: DragEvent) => {
+		      }, "ondragstart": (e: DragEvent) => {
 			document.body.append(iconDiv);
 			e.dataTransfer!.setDragImage(iconDiv, -5, -5);
 			e.dataTransfer!.setData("colour", JSON.stringify(getColour()));
-		}});
+		      }, "ondragover": (e: DragEvent) => {
+			if (e.dataTransfer?.types.includes("colour")) {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = "copy";
+			}
+		      }, "ondrop": (e: DragEvent) => {
+			if (e.dataTransfer?.types.includes("colour")) {
+				setColour(sc(b, Colour.from(JSON.parse(e.dataTransfer.getData("colour")))));
+			}
+		      }});
 		sc(b, getColour());
 		return b;
 	};
