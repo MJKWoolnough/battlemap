@@ -62,21 +62,22 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	(parent.parentNode ? parent : shell).addWindow(window);
 }),
 makeColourPicker = (() => {
-	const sc = (b: HTMLButtonElement, c: Colour) => {
-		createHTML(b, {"style": {"background-color": c.a ? c + "" : "#fff"}}, c.a ? "" : "None");
+	const sc = (s: HTMLDivElement, c: Colour) => {
+		createHTML(s, {"style": {"background-color": c.a ? c + "" : "#fff"}}, c.a ? "" : "None");
 		return c;
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
-		const b = button({"style": "width: 50px; height: 50px", "draggable": "true", "onclick": () => {
-			if (!active) {
-				active = true;
-				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c))).finally(() => active = false);
-			}
-		      }, "ondragstart": (e: DragEvent) => {
+		const d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
 			document.body.append(iconDiv);
 			e.dataTransfer!.setDragImage(iconDiv, -5, -5);
 			e.dataTransfer!.setData("colour", JSON.stringify(getColour()));
+		      }}),
+		      b = button({"class": "checkboard colourButton", "onclick": () => {
+			if (!active) {
+				active = true;
+				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(d, c))).finally(() => active = false);
+			}
 		      }, "ondragover": (e: DragEvent) => {
 			if (e.dataTransfer?.types.includes("colour")) {
 				e.preventDefault();
@@ -84,10 +85,10 @@ makeColourPicker = (() => {
 			}
 		      }, "ondrop": (e: DragEvent) => {
 			if (e.dataTransfer?.types.includes("colour")) {
-				setColour(sc(b, Colour.from(JSON.parse(e.dataTransfer.getData("colour")))));
+				setColour(sc(d, Colour.from(JSON.parse(e.dataTransfer.getData("colour")))));
 			}
-		      }});
-		sc(b, getColour());
+		      }}, d);
+		sc(d, getColour());
 		return b;
 	};
 })();
