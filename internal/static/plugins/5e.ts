@@ -526,7 +526,7 @@ const defaultLanguage = {
 			span({"class": "checkboard colourButton"}, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);
 				createSVG(highlight, {"fill": c, "stroke": c});
-			}, "highlight-colour-5e")),
+			})),
 			table({"id": "display-settings-5e"}, [
 				thead(tr([
 					td(),
