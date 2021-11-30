@@ -28,7 +28,7 @@ noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
 		document.body.append(iconDiv);
-		e.dataTransfer!.setDragImage(iconDiv, -5, -5)!
+		e.dataTransfer!.setDragImage(iconDiv, -5, -5);
 		e.dataTransfer!.setData("colour", JSON.stringify(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))));
 	      }, "ondragover": (e: DragEvent) => {
 		if (e.dataTransfer?.types.includes("colour")) {
@@ -68,11 +68,15 @@ makeColourPicker = (() => {
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
-		const b = button({"style": "width: 50px; height: 50px", "onclick": () => {
+		const b = button({"style": "width: 50px; height: 50px", "draggable": "true", "onclick": () => {
 			if (!active) {
 				active = true;
 				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(b, c))).finally(() => active = false);
 			}
+		}, "ondragstart": (e: DragEvent) => {
+			document.body.append(iconDiv);
+			e.dataTransfer!.setDragImage(iconDiv, -5, -5);
+			e.dataTransfer!.setData("colour", JSON.stringify(getColour()));
 		}});
 		sc(b, getColour());
 		return b;
