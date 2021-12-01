@@ -4,7 +4,7 @@ import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, button, div, fieldset, input, legend} from './lib/html.js';
-import {createSVG, ns as svgNS, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
+import {createSVG, svgData, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -70,7 +70,7 @@ const updateCursorState = () => {
 		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
 		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
       ]),
-      iconStr = "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"" + svgNS + "\"" + icon.outerHTML.slice(4));
+      iconStr = svgData(icon);
 
 addTool({
 	"name": lang["TOOL_WALL"],
