@@ -1,4 +1,6 @@
-import {clearElement, formatText} from './lib/dom.js';
+import bbcode from './lib/bbcode.js';
+import {all} from './lib/bbcode_tags.js';
+import {clearElement} from './lib/dom.js';
 import {createHTML, div, h1, input} from './lib/html.js';
 import {createSVG, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, svg, text} from './lib/svg.js';
 import lang from './language.js';
@@ -147,12 +149,12 @@ export default () => {
 				labels(lang["HELP_MAP_SIGNAL"], mapSignal, false),
 				labels(lang["HELP_PANEL_OPEN"], panelOpen, false),
 				labels(lang["HELP_PANEL_RESIZE"], panelResize, false),
-				div(formatText(lang["HELP_DEMO_DRAG"])),
-				div(formatText(lang["HELP_DEMO_ZOOM"])),
-				div(formatText(lang["HELP_DEMO_SCROLL"])),
-				div(formatText(lang["HELP_DEMO_SIGNAL"])),
-				div(formatText(lang["HELP_DEMO_SIDEPANEL_OPEN"])),
-				div(formatText(lang["HELP_DEMO_SIDEPANEL_RESIZE"]))
+				bbcode(div(), all, lang["HELP_DEMO_DRAG"]),
+				bbcode(div(), all, lang["HELP_DEMO_ZOOM"]),
+				bbcode(div(), all, lang["HELP_DEMO_SCROLL"]),
+				bbcode(div(), all, lang["HELP_DEMO_SIGNAL"]),
+				bbcode(div(), all, lang["HELP_DEMO_SIDEPANEL_OPEN"]),
+				bbcode(div(), all, lang["HELP_DEMO_SIDEPANEL_RESIZE"])
 			])
 		])));
 		window.setTimeout(() => {
