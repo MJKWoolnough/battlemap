@@ -1,6 +1,6 @@
-import {svgNS} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {createHTML, a, br, button, div, canvas, img, input} from '../lib/html.js';
+import {ns as svgNS} from '../lib/svg.js';
 import mainLang, {language} from '../language.js';
 import {definitions, mapData, panZoom, root} from '../map.js';
 import {addPlugin} from '../plugins.js';

@@ -2,7 +2,8 @@ import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
-import {createHTML, svgNS} from './lib/dom.js';
+import {createHTML} from './lib/html.js';
+import {ns as svgNS} from './lib/svg.js';
 import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
 

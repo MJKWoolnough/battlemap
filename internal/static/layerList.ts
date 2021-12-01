@@ -1,9 +1,10 @@
 import type {FolderItems, LayerFolder, LayerRPC, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
-import {autoFocus, clearElement, createHTML, svgNS} from './lib/dom.js';
+import {autoFocus, clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
-import {br, button, div, h1, input, option, select, span} from './lib/html.js';
+import {createHTML, br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
+import {ns as svgNS} from './lib/svg.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Item, Folder, Root} from './folders.js';
 import lang from './language.js';

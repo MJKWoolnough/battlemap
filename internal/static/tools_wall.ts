@@ -1,10 +1,10 @@
 import type {RPCWaits, Uint} from './types.js';
 import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
-import {clearElement, svgNS} from './lib/dom.js';
+import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, button, div, fieldset, input, legend} from './lib/html.js';
-import {createSVG, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
+import {createSVG, ns as svgNS, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';

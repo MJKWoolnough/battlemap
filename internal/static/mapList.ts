@@ -1,7 +1,8 @@
 import type {Uint} from './types.js';
-import {createHTML, clearElement, autoFocus, svgNS} from './lib/dom.js';
-import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
+import {clearElement, autoFocus} from './lib/dom.js';
+import {createHTML, br, button, div, h1, h2, input, option, select} from './lib/html.js';
 import {node} from './lib/nodes.js';
+import {ns as svgNS} from './lib/svg.js';
 import {hex2Colour} from './colours.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';

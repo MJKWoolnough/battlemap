@@ -1,6 +1,6 @@
 import type {FolderItems, FolderRPC, Uint} from './types.js';
-import {autoFocus, clearElement, createHTML} from './lib/dom.js';
-import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
+import {autoFocus, clearElement} from './lib/dom.js';
+import {createHTML, br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {enterKey, labels, queue} from './shared.js';

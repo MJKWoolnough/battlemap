@@ -1,7 +1,8 @@
 import type {Uint} from '../types.js';
-import {clearElement, svgNS} from '../lib/dom.js';
+import {clearElement} from '../lib/dom.js';
 import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 //import {NodeArray} from '../lib/nodes.js';
+import {ns as svgNS} from '../lib/svg.js';
 import {language} from '../language.js';
 import {addPlugin, getSettings} from '../plugins.js';
 import {isAdmin} from '../rpc.js';

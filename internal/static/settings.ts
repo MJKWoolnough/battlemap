@@ -1,5 +1,5 @@
-import {svgNS} from './lib/dom.js';
 import {button, br, div, form, h1, input, select, option} from './lib/html.js';
+import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';

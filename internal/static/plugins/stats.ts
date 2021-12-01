@@ -1,8 +1,9 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
-import {clearElement, svgNS} from '../lib/dom.js';
+import {clearElement} from '../lib/dom.js';
 import {createHTML, button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {NodeArray, node} from '../lib/nodes.js';
+import {ns as svgNS} from '../lib/svg.js';
 import {language} from '../language.js';
 import {SVGToken} from '../map.js';
 import {addPlugin} from '../plugins.js';

@@ -1,9 +1,9 @@
 import type {Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
-import {clearElement, svgNS} from './lib/dom.js';
+import {clearElement} from './lib/dom.js';
 import {createHTML, audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
-import {createSVG, animate, path, rect, svg, title} from './lib/svg.js';
+import {createSVG, ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
