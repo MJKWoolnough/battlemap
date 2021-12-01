@@ -149,12 +149,12 @@ export default () => {
 				labels(lang["HELP_MAP_SIGNAL"], mapSignal, false),
 				labels(lang["HELP_PANEL_OPEN"], panelOpen, false),
 				labels(lang["HELP_PANEL_RESIZE"], panelResize, false),
-				bbcode(div(), all, lang["HELP_DEMO_DRAG"]),
-				bbcode(div(), all, lang["HELP_DEMO_ZOOM"]),
-				bbcode(div(), all, lang["HELP_DEMO_SCROLL"]),
-				bbcode(div(), all, lang["HELP_DEMO_SIGNAL"]),
-				bbcode(div(), all, lang["HELP_DEMO_SIDEPANEL_OPEN"]),
-				bbcode(div(), all, lang["HELP_DEMO_SIDEPANEL_RESIZE"])
+				div(bbcode(all, lang["HELP_DEMO_DRAG"])),
+				div(bbcode(all, lang["HELP_DEMO_ZOOM"])),
+				div(bbcode(all, lang["HELP_DEMO_SCROLL"])),
+				div(bbcode(all, lang["HELP_DEMO_SIGNAL"])),
+				div(bbcode(all, lang["HELP_DEMO_SIDEPANEL_OPEN"])),
+				div(bbcode(all, lang["HELP_DEMO_SIDEPANEL_RESIZE"]))
 			])
 		])));
 		window.setTimeout(() => {

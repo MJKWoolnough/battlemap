@@ -67,7 +67,7 @@ if (isAdmin) {
 			} else if (this.popWindow) {
 				this.popWindow.focus();
 			} else {
-				const data = bbcode(div({"class": "plugin-notes"}), allTags, pages.get(this.id)?.data.contents || "");
+				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
 				createHTML(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, data));
 				this.window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
@@ -123,7 +123,7 @@ if (isAdmin) {
 							page.data = {"contents": contents.value, "share": share.checked};
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							createHTML(clearElement(this.window!), bbcode(div({"class": "plugin-notes"}), allTags, contents.value));
+							createHTML(clearElement(this.window!), div({"class": "plugin-notes"}, bbcode(allTags, contents.value)));
 							this.setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);

@@ -25,7 +25,7 @@ inited.then(() => {
 		const fn = modules.get(d.module);
 		if (fn) {
 			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
-			createHTML(shell, bbcode(windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}), tags, d.contents));
+			createHTML(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(tags, d.contents)));
 		}
 	});
 });
