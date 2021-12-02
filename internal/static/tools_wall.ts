@@ -87,7 +87,8 @@ const updateCursorState = () => {
 		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
       ]),
       iconStr = svgData(icon),
-      iconImg = img({"src": iconStr});
+      iconImg = img({"src": iconStr}),
+      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, () => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "fill": "#000", "stroke": "#fff"}));
 
 addTool({
 	"name": lang["TOOL_WALL"],
