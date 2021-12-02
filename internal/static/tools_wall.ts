@@ -93,7 +93,7 @@ const updateCursorState = () => {
 		}
 	}
       },
-      [startEscape, cancelEscape] = keyEvent("Escape", () => cancelWallDraw()),
+      [startDrawEscape, cancelDrawEscape] = keyEvent("Escape", () => cancelWallDraw()),
       icon = svg({"width": 30, "height": 20, "viewBox": "0 0 90 60"}, [
 		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
 		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
@@ -150,14 +150,14 @@ addTool({
 			placeWall.checked ? marker : []
 		]);
 		setupShiftSnap();
-		startEscape();
+		startDrawEscape();
 	},
 	"unset": () => {
 		active = false;
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
-		cancelEscape();
+		cancelDrawEscape();
 		wallLayer.remove();
 		if (w) {
 			w.remove();
