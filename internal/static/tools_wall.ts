@@ -1,17 +1,16 @@
 import type {RPCWaits, Uint} from './types.js';
-import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, legend} from './lib/html.js';
 import {createSVG, svgData, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
-import {hex2Colour, makeColourPicker} from './colours.js';
+import {Colour, hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
-import {doWallAdd} from './map_fns.js';
+import {doWallAdd, doWallModify} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {checkInt, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
+import {checkInt, cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
@@ -59,7 +58,18 @@ const updateCursorState = () => {
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour} = wall;
-			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2}, title(layer.path))));
+			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "ondragover": (e: DragEvent) => {
+				if (e.dataTransfer?.types.includes("colour")) {
+					e.preventDefault();
+					e.dataTransfer.dropEffect = "copy";
+				}
+			}, "ondrop": (e: DragEvent) => {
+				const wall = walls.get(id);
+				if (e.dataTransfer?.types.includes("colour") && wall) {
+					e.preventDefault();
+					doWallModify(Object.assign(cloneObject(wall.wall), {"colour": Colour.from(JSON.parse(e.dataTransfer.getData("colour")))}));
+				}
+			}}, title(layer.path))));
 		}
 	}
       },
