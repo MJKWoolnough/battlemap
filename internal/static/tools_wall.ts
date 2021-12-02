@@ -15,6 +15,7 @@ import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
     active = false,
+    selectedWall = 0,
     w: WindowElement | null = null;
 
 const updateCursorState = () => {
@@ -77,6 +78,17 @@ const updateCursorState = () => {
 					e.preventDefault();
 					doWallModify(Object.assign(cloneObject(wall.wall), override));
 				}
+			}, "onmousedown": (e: MouseEvent) => {
+				const wall = walls.get(id);
+				if (wall) {
+					const {x1, y1, x2, y2} = wall.wall
+					createSVG(root, [
+						createSVG(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+						createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+					]);
+					selectedWall = id;
+					e.stopPropagation();
+				}
 			}}, title(layer.path))));
 		}
 	}
@@ -117,6 +129,10 @@ addTool({
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
+		} else {
+			draggableMarker1.remove();
+			draggableMarker2.remove();
+			selectedWall = 0;
 		}
 		return false;
 	},
@@ -147,6 +163,9 @@ addTool({
 			w.remove();
 			w = null;
 		}
+		draggableMarker1.remove();
+		draggableMarker2.remove();
+		selectedWall = 0;
 	}
 });
 
