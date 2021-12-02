@@ -2,7 +2,7 @@ import type {RPCWaits, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, div, fieldset, input, legend} from './lib/html.js';
+import {createHTML, br, div, fieldset, img, input, legend} from './lib/html.js';
 import {createSVG, svgData, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
@@ -74,11 +74,12 @@ const updateCursorState = () => {
 	}
       },
       [startEscape, cancelEscape] = keyEvent("Escape", () => cancelWallDraw()),
-      icon = svg({"viewBox": "0 0 90 60"}, [
+      icon = svg({"width": 30, "height": 20, "viewBox": "0 0 90 60"}, [
 		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
 		path({"d": "M60,15 V0.5 H0.5 V59.5 H89.5 V15 Z", "fill": "url(#brick)", "style": "stroke: currentColor", "stroke-width": 2})
       ]),
-      iconStr = svgData(icon);
+      iconStr = svgData(icon),
+      iconImg = img({"src": iconStr});
 
 addTool({
 	"name": lang["TOOL_WALL"],
@@ -94,7 +95,10 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
-		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering)
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
+			e.dataTransfer!.setDragImage(iconImg, -5, -5);
+			e.dataTransfer!.setData("scattering", scattering.value);
+		}})
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey) {
