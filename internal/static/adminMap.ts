@@ -236,6 +236,8 @@ export default (base: HTMLElement) => {
 			token.src = tokenData.id;
 			token.width = tokenData.width;
 			token.height = tokenData.height;
+		} else {
+			return;
 		}
 		[token.x, token.y] = screen2Grid(e.clientX, e.clientY);
 		if (token.snap) {
