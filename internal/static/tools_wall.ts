@@ -105,7 +105,7 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
-			e.dataTransfer!.setData("scattering", scattering.value);
+			e.dataTransfer!.setData("scattering", checkInt(parseInt(scattering.value), 0, 255, 0) + "");
 		}})
 	]),
 	"mapMouse0": (e: MouseEvent) => {
