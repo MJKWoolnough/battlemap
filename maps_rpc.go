@@ -322,7 +322,12 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				errr = ErrInvalidWall
 				return false
 			}
-			wall.wall = w
+			wall.wall.X1 = w.X1
+			wall.wall.Y1 = w.Y1
+			wall.wall.X2 = w.X2
+			wall.wall.Y2 = w.Y2
+			wall.wall.Colour = w.Colour
+			wall.wall.Scattering = w.Scattering
 			m.socket.broadcastMapChange(cd, broadcastWallModify, data, userAny)
 			return true
 		}); err != nil {
