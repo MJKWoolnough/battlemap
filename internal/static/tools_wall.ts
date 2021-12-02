@@ -1,4 +1,4 @@
-import type {RPCWaits, Uint} from './types.js';
+import type {RPCWaits, Uint, Wall} from './types.js';
 import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
@@ -59,15 +59,23 @@ const updateCursorState = () => {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour} = wall;
 			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer?.types.includes("colour")) {
+				if (e.dataTransfer?.types.includes("colour") || e.dataTransfer?.types.includes("scattering")) {
 					e.preventDefault();
 					e.dataTransfer.dropEffect = "copy";
 				}
 			}, "ondrop": (e: DragEvent) => {
 				const wall = walls.get(id);
-				if (e.dataTransfer?.types.includes("colour") && wall) {
+				if (wall) {
+					const override: Partial<Wall> = {};
+					if (e.dataTransfer?.types.includes("colour")) {
+						override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
+					} else if (e.dataTransfer?.types.includes("scattering")) {
+						override["scattering"] = JSON.parse(e.dataTransfer.getData("colour"));
+					} else {
+						return;
+					}
 					e.preventDefault();
-					doWallModify(Object.assign(cloneObject(wall.wall), {"colour": Colour.from(JSON.parse(e.dataTransfer.getData("colour")))}));
+					doWallModify(Object.assign(cloneObject(wall.wall), override));
 				}
 			}}, title(layer.path))));
 		}
