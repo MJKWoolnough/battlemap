@@ -3,21 +3,19 @@ import type {Colour} from './colours.js';
 import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, button, div, fieldset, input, legend} from './lib/html.js';
+import {createHTML, br, div, fieldset, input, legend} from './lib/html.js';
 import {createSVG, svgData, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
-import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
+import {doWallAdd} from './map_fns.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {checkInt, cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
+import {checkInt, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
-import {shell, windows} from './windows.js';
 
 let wallColour = hex2Colour("#000"),
     active = false,
-    overWall: Uint = 0,
     w: WindowElement | null = null;
 
 const updateCursorState = () => {
@@ -61,7 +59,7 @@ const updateCursorState = () => {
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour} = wall;
-			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2, "onmouseover": () => overWall = id, "onmouseout": () => overWall = 0}, title(layer.path))));
+			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "height": 10, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "stroke-width": 2}, title(layer.path))));
 		}
 	}
       },
@@ -96,28 +94,6 @@ addTool({
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
-		} else if (overWall) {
-			const wl = walls.get(overWall);
-			if (wl) {
-				const {id} = wl.wall;
-				createHTML(shell, w = windows({"windows-title": lang["TOOL_WALL_PROPS"], "windows-icon": iconStr}, [
-					div(`${lang["TOOL_WALL_LAYER"]}: ${wl.layer.path}`),
-					labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(w, lang["TOOL_WALL_COLOUR"], () => wl.wall.colour, (c: Colour) => {
-						const wall = wallMap.get(id);
-						if (wall) {
-							createSVG(wall, {"fill": wl.wall.colour = c, "stroke": c.toHexString()});
-							doWallModify(cloneObject(wl.wall));
-						}
-					}, iconStr)),
-					br(),
-					button({"onclick": () => {
-						doWallRemove(id);
-						w?.remove();
-						wallMap.get(id)?.remove();
-						wallMap.delete(id);
-					}}, lang["TOOL_WALL_REMOVE"])
-				]));
-			}
 		}
 		return false;
 	},
@@ -139,7 +115,6 @@ addTool({
 	},
 	"unset": () => {
 		active = false;
-		overWall = 0;
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
