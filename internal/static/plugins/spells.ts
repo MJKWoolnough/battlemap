@@ -124,7 +124,7 @@ if (isAdmin) {
 		if (send) {
 			sendEffect();
 		}
-	      }),
+	      }, () => over = false),
 	      addSpell = () => {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			return;
@@ -229,7 +229,6 @@ if (isAdmin) {
 			cancelEnter();
 			cancelRotate();
 			selectedEffect?.remove();
-			over = false;
 			cancelShiftSnap();
 		}
 	}));
