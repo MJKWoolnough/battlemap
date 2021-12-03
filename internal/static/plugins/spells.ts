@@ -8,7 +8,7 @@ import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {isAdmin, rpc} from '../rpc.js';
 import {autosnap} from '../settings.js';
-import {addCSS, checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
+import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
 const sparkID = "plugin-spell-spark",
@@ -39,7 +39,16 @@ const sparkID = "plugin-spell-spark",
       types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128) + ""]);
 
 if (isAdmin) {
-	addCSS(".plugin-spell-nowidth:not(:checked)~.plugin-spell-nowidth:not(:checked)~div{display:none}");
+	let selectedEffect = circleEffect,
+	    over = false,
+	    x = 0,
+	    y = 0,
+	    rotation = 0,
+	    size = 20,
+	    width = 5,
+	    damageType = 0,
+	    send = false,
+	    rotate = false;
 	const defaultLanguage = {
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
@@ -73,6 +82,7 @@ if (isAdmin) {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			setTokenCentre();
 		}
+		createHTML(options, {"style": {"--spell-display": selectedEffect === lineEffect || selectedEffect === wallEffect ? "block" : ""}});
 	      },
 	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [effectList.indexOf(selectedEffect) ?? 0, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
@@ -128,30 +138,8 @@ if (isAdmin) {
 			doTokenAdd(layer.path, token);
 		}
 	      },
-	      [setupEnter, cancelEnter] = keyEvent("Enter", addSpell);
-	let selectedEffect = circleEffect,
-	    over = false,
-	    x = 0,
-	    y = 0,
-	    rotation = 0,
-	    size = 20,
-	    width = 5,
-	    damageType = 0,
-	    send = false,
-	    rotate = false;
-	addTool(Object.freeze({
-		"name": lang["TITLE"],
-		"icon": svg({"viewBox": "0 0 100 100"}, [
-			title(lang["TITLE"]),
-			g({"fill": "currentColor", "stroke": "currentColor"}, [
-				path({"d": "M60,35 v70 h-20 v-100 h20 v30 h-20 v-30 h20", "fill-rule": "evenodd", "transform": "rotate(-45, 50, 50)"}),
-				path({"d": "M50,10 q0,10 10,10 q-10,0 -10,10 q0,-10 -10,-10 q10,0 10,-10", "id": sparkID}),
-				use({"href": `#${sparkID}`, "transform": "translate(5, 0) scale(1.5)"}),
-				use({"href": `#${sparkID}`, "transform": "translate(-45, 30) scale(1.2)"}),
-				use({"href": `#${sparkID}`, "transform": "translate(-30, -5) scale(0.8)"}),
-			]),
-		]),
-		"options": div([
+	      [setupEnter, cancelEnter] = keyEvent("Enter", addSpell),
+	      options = div([
 			labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
 				for (const effect of effectList) {
@@ -166,21 +154,34 @@ if (isAdmin) {
 				br(),
 				labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), false),
 				br(),
-				labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(lineEffect)}), false),
+				labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(lineEffect)}), false),
 				br(),
-				labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "class": "plugin-spell-nowidth settings_ticker", "name": "plugin-spell-type", "onclick": () => setEffect(wallEffect)}), false),
+				labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), false),
 			]),
 			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap, false),
 			br(),
 			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}})),
-			div([
+			div({"style": "display: var(--spell-display, none)"}, [
 				labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 					setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 				}}))
 			])
+		]);
+	addTool(Object.freeze({
+		"name": lang["TITLE"],
+		"icon": svg({"viewBox": "0 0 100 100"}, [
+			title(lang["TITLE"]),
+			g({"fill": "currentColor", "stroke": "currentColor"}, [
+				path({"d": "M60,35 v70 h-20 v-100 h20 v30 h-20 v-30 h20", "fill-rule": "evenodd", "transform": "rotate(-45, 50, 50)"}),
+				path({"d": "M50,10 q0,10 10,10 q-10,0 -10,10 q0,-10 -10,-10 q10,0 10,-10", "id": sparkID}),
+				use({"href": `#${sparkID}`, "transform": "translate(5, 0) scale(1.5)"}),
+				use({"href": `#${sparkID}`, "transform": "translate(-45, 30) scale(1.2)"}),
+				use({"href": `#${sparkID}`, "transform": "translate(-30, -5) scale(0.8)"}),
+			]),
 		]),
+		options,
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
 			if (over) {
 				return false;
