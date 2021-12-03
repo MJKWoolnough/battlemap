@@ -16,6 +16,7 @@ import {addTool, marker, optionsWindow} from './tools.js';
 let wallColour = hex2Colour("#000"),
     active = false,
     selectedWall = 0,
+    selectedMarker = 0,
     w: WindowElement | null = null;
 
 const updateCursorState = () => {
@@ -100,7 +101,30 @@ const updateCursorState = () => {
       ]),
       iconStr = svgData(icon),
       iconImg = img({"src": iconStr}),
-      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, () => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "class": "wallMarker"}));
+      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, (_, n: Uint) => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "class": "wallMarker", "onmousedown": (e: MouseEvent) => {
+	if (e.button === 0) {
+		selectedMarker = n;
+		startMarkerDrag();
+		e.stopPropagation();
+	}
+      }})),
+      [startMarkerDrag, cancelMarkerDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	const wall = walls.get(selectedWall);
+	if (wall) {
+		const {x1, y1, x2, y2} = wall.wall,
+		      wallRect = wallMap.get(selectedWall)!,
+		      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
+		      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
+		      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
+		createSVG(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
+		createSVG(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+	} else {
+		selectedWall = 0;
+		cancelMarkerDrag();
+		draggableMarker1.remove();
+		draggableMarker2.remove();
+	}
+      });
 
 addTool({
 	"name": lang["TOOL_WALL"],
