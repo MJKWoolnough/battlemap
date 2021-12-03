@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, input, legend} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {createSVG, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
+import {createSVG, svgData, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -98,15 +98,17 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
       }),
-      coords: [Uint, Uint, ...Uint[]] = [0, 0];
-
-addTool({
-	"name": lang["TOOL_DRAW"],
-	"icon": svg({"viewBox": "0 0 70 70", "fill": "none", "stroke": "currentColor"}, [
+      coords: [Uint, Uint, ...Uint[]] = [0, 0],
+      icon = svg({"viewBox": "0 0 70 70", "fill": "none", "stroke": "currentColor"}, [
 		title(lang["TOOL_DRAW"]),
 		polyline({"points": "51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18", "stroke-width": 2}),
 		path({"d": "M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55"})
-	]),
+      ]),
+      iconStr = svgData(icon);
+
+addTool({
+	"name": lang["TOOL_DRAW"],
+	icon,
 	"options": div([
 		fieldset([
 			legend(lang["TOOL_DRAW_SHAPE"]),
@@ -120,9 +122,9 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),
-		labels(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, "strokeColour")),
+		labels(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, iconStr)),
 		br(),
-		labels(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, "fillColour"))
+		labels(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, iconStr))
 	]),
 	"mapMouseOver": () => {
 		startCursorMove();
