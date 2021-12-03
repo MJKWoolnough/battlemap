@@ -124,6 +124,24 @@ const updateCursorState = () => {
 		draggableMarker1.remove();
 		draggableMarker2.remove();
 	}
+      }, (e: MouseEvent) => {
+	const wall = walls.get(selectedWall);
+	if (wall) {
+		const {x1, y1, x2, y2} = wall.wall,
+		      wallRect = wallMap.get(selectedWall)!;
+		if (e.isTrusted) {
+			const {colour, scattering} = wall.wall,
+			      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
+			      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
+			      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
+			createSVG(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+			doWallModify({"id": selectedWall, "x1": ax1, "y1": ay1, "x2": ax2, "y2": ay2, colour, scattering})
+		} else {
+			createSVG(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
+			createSVG(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+			createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+		}
+	}
       });
 
 addTool({
