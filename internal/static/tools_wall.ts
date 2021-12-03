@@ -100,7 +100,7 @@ const updateCursorState = () => {
       ]),
       iconStr = svgData(icon),
       iconImg = img({"src": iconStr}),
-      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, () => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "fill": "#000", "stroke": "#fff"}));
+      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, () => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "class": "wallMarker"}));
 
 addTool({
 	"name": lang["TOOL_WALL"],
