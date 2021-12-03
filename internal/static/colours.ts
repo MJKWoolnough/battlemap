@@ -62,7 +62,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 }),
 makeColourPicker = (() => {
 	const sc = (s: HTMLDivElement, c: Colour) => {
-		createHTML(s, {"style": {"background-color": c.a ? c + "" : "#fff"}}, c.a ? "" : "None");
+		createHTML(s, {"style": {"background-color": c}});
 		return c;
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
