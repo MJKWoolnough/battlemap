@@ -91,3 +91,9 @@
 	stroke-width: 2;
 	cursor: pointer;
 }
+
+.wallMarker {
+	fill: #000;
+	stroke: #fff;
+	cursor: move;
+}
