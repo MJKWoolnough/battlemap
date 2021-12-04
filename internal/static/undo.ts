@@ -1,4 +1,4 @@
-import {button, h1, li, ul} from './lib/html.js';
+import {createHTML, button, h1, li, ul} from './lib/html.js';
 import {NodeArray, node} from './lib/nodes.js';
 import lang from './language.js';
 import {undoLimit} from './settings.js';
@@ -69,7 +69,7 @@ const undos = new NodeArray<FnDesc>(ul()),
 
 showWindow.wait(v => {
 	if (v) {
-		shell.appendChild(w);
+		createHTML(shell, w);
 	}
 });
 
