@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {clearElement} from './lib/dom.js';
+import {autoFocus, clearElement} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {createHTML, div, h2, li, span, ul} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
@@ -113,8 +113,7 @@ menuItems.push([6, () => isAdmin ? [
 			if (t.options) {
 				createHTML(clearElement(options), t.options);
 				if (windowed && miniTools.value) {
-					createHTML(shell, optionsWindow);
-					optionsWindow.focus();
+					createHTML(shell, autoFocus(optionsWindow));
 				} else {
 					createHTML(toolOptions, {"style": {"display": undefined}});
 				}
@@ -139,8 +138,7 @@ menuItems.push([6, () => isAdmin ? [
 				createHTML(optionsWindow, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, optionsWindow);
-					window.setTimeout(() => optionsWindow.focus());
+					createHTML(shell, autoFocus(optionsWindow));
 				}
 			}
 		}, "onpopin": () => {
@@ -164,8 +162,7 @@ menuItems.push([6, () => isAdmin ? [
 				createHTML(optionsWindow, options);
 				if (selectedTool.options) {
 					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, optionsWindow);
-					optionsWindow.focus();
+					createHTML(shell, autoFocus(optionsWindow));
 				}
 			} else {
 				createHTML(toolOptions, options);
