@@ -59,7 +59,7 @@ const updateCursorState = () => {
 	wallMap.clear();
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
-			const {id, x1, y1, x2, y2, colour} = wall;
+			const {id, x1, y1, x2, y2, colour, scattering} = wall;
 			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": (e: DragEvent) => {
 				if (e.dataTransfer?.types.includes("colour") || e.dataTransfer?.types.includes("scattering")) {
 					e.preventDefault();
@@ -90,7 +90,7 @@ const updateCursorState = () => {
 					selectedWall = id;
 					e.stopPropagation();
 				}
-			}}, title(layer.path))));
+			}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
 		}
 	}
 	if (selectedWall && !walls.has(selectedWall)) {
