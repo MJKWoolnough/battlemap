@@ -11,8 +11,7 @@ import {autosnap} from '../settings.js';
 import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
-const sparkID = "plugin-spell-spark",
-      effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
+const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
       circleCircle = circle(),
       circleEffect = g(effectParams, circleCircle),
       conePath = path(),
@@ -74,6 +73,7 @@ if (isAdmin) {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
+	      sparkID = "plugin-spell-spark",
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
