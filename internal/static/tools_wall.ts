@@ -93,6 +93,9 @@ const updateCursorState = () => {
 			}}, title(layer.path))));
 		}
 	}
+	if (selectedWall && !walls.has(selectedWall)) {
+		deselectWall();
+	}
       },
       [startEscape, cancelEscape] = keyEvent("Escape", () => {
 	      cancelWallDraw();
