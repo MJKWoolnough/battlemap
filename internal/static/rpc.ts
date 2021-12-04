@@ -10,11 +10,11 @@ const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserM
 
 let connIDSet: (id: Uint) => void;
 
+export let isAdmin: boolean, isUser: boolean;
+
 const {protocol, host} = window.location;
 
 declare const pageLoad: Promise<void>;
-
-export let isAdmin: boolean, isUser: boolean;
 
 export const internal = {
 	"images":     {},
