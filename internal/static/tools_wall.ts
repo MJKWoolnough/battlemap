@@ -122,10 +122,7 @@ const updateCursorState = () => {
 		createSVG(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
 		createSVG(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
 	} else {
-		selectedWall = 0;
-		cancelMarkerDrag();
-		draggableMarker1.remove();
-		draggableMarker2.remove();
+		deselectWall();
 	}
       }, (e: MouseEvent) => {
 	const wall = walls.get(selectedWall);
@@ -145,7 +142,13 @@ const updateCursorState = () => {
 			createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 		}
 	}
-      });
+      }),
+      deselectWall = () => {
+	selectedWall = 0;
+	draggableMarker1.remove();
+	draggableMarker2.remove();
+	cancelMarkerDrag();
+      };
 
 addTool({
 	"name": lang["TOOL_WALL"],
@@ -175,9 +178,7 @@ addTool({
 			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
 		} else {
-			draggableMarker1.remove();
-			draggableMarker2.remove();
-			selectedWall = 0;
+			deselectWall();
 		}
 		return false;
 	},
@@ -208,9 +209,7 @@ addTool({
 			w.remove();
 			w = null;
 		}
-		draggableMarker1.remove();
-		draggableMarker2.remove();
-		selectedWall = 0;
+		deselectWall();
 	}
 });
 
