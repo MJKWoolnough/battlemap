@@ -195,6 +195,7 @@ const defaultLanguage = {
 	"TOOL_MULTIPLACE_MODE": "Grab Mode",
 	"TOOL_WALL": "Wall Tool",
 	"TOOL_WALL_COLOUR": "Wall Colour",
+	"TOOL_WALL_LAYER": "Wall Layer",
 	"TOOL_WALL_MODE": "Wall Mode",
 	"TOOL_WALL_PLACE": "Place Wall",
 	"TOOL_WALL_SCATTER": "Wall Light Scattering",
