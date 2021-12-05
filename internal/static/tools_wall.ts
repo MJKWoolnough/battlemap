@@ -76,7 +76,7 @@ const updateCursorState = () => {
 		if (e.dataTransfer?.types.includes("colour")) {
 			override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
 		} else if (e.dataTransfer?.types.includes("scattering")) {
-			override["scattering"] = JSON.parse(e.dataTransfer.getData("colour"));
+			override["scattering"] = checkInt(parseInt(e.dataTransfer.getData("scattering")), 0, 255, 0);
 		} else {
 			return;
 		}
