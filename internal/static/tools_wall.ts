@@ -72,7 +72,7 @@ const updateCursorState = () => {
       wallDrop = (e: DragEvent, id: Uint) => {
 	const wall = walls.get(id);
 	if (wall) {
-		const override: Partial<Wall> = {};
+		const override: Partial<Wall> = {"colour": wall.wall.colour};
 		if (e.dataTransfer?.types.includes("colour")) {
 			override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
 		} else if (e.dataTransfer?.types.includes("scattering")) {

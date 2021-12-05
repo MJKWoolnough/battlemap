@@ -1,8 +1,8 @@
 import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
-import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import {Subscription} from './lib/inter.js';
 import {createSVG} from './lib/svg.js';
+import {Colour} from './colours.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, masks, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
 import {tokenDataFilter} from './plugins.js';
@@ -470,6 +470,7 @@ doWallModify = (wall: Wall, sendRPC = true) => {
 		return;
 	}
 	let oldWall = cloneObject(wl.wall);
+	wl.wall.colour = Colour.from(wl.wall.colour);
 	const doIt = (sendRPC = true) => {
 		Object.assign(wl.wall, wall);
 		if (sendRPC) {

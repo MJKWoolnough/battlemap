@@ -65,7 +65,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 			}
 			const tk = list.pop();
 			if (tk) {
-				return cloneObject(tk);
+				return Object.assign(cloneObject(tk), {"lightColour": tk.lightColour});
 			}
 			return null;
 		},

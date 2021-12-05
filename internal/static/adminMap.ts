@@ -8,9 +8,9 @@ import {createHTML, br, button, h1, img, input} from './lib/html.js';
 import {createSVG, rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
-import {makeColourPicker, noColour} from './colours.js';
+import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
-import {SVGDrawing, SVGShape, SVGToken, getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {SVGDrawing, SVGShape, SVGToken, getLayer, isSVGFolder, isSVGLayer, isTokenDrawing, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
@@ -414,8 +414,14 @@ export default (base: HTMLElement) => {
 		if (!copiedToken || !selected.layer) {
 			return;
 		}
-		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords;
-		doTokenAdd(selected.layer.path, Object.assign(cloneObject(copiedToken), {"id": 0, x, y}));
+		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords,
+		      tk: Token  = Object.assign(cloneObject(copiedToken), {"id": 0, x, y});
+		tk.lightColour = Colour.from(tk.lightColour);
+		if (isTokenDrawing(tk)) {
+			tk.fill = Colour.from(tk.fill);
+			tk.stroke = Colour.from(tk.stroke);
+		}
+		doTokenAdd(selected.layer.path, tk);
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		deselectToken();
