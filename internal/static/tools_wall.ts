@@ -29,7 +29,16 @@ const updateCursorState = () => {
       },
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
-      scattering = input({"type": "range", "min": 0, "max": 255, "value": 0}),
+      scattering = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
+	if (e.dataTransfer?.types.includes("scattering")) {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "copy";
+	}
+      }, "ondrop": (e: DragEvent) => {
+	if (e.dataTransfer?.types.includes("scattering")) {
+		scattering.value = e.dataTransfer.getData("scattering");
+	}
+      }}),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
