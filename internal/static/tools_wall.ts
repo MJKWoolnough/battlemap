@@ -3,7 +3,7 @@ import type {WindowElement} from './windows.js';
 import {clearElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {createHTML, br, div, fieldset, img, input, legend} from './lib/html.js';
-import {createSVG, svgData, defs, g, path, pattern, rect, svg, title} from './lib/svg.js';
+import {createSVG, svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -54,36 +54,50 @@ const updateCursorState = () => {
       }),
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
+      validWallDrag = (e: DragEvent) => {
+	if (e.dataTransfer?.types.includes("colour") || e.dataTransfer?.types.includes("scattering")) {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = "copy";
+	}
+      },
+      wallDrop = (e: DragEvent, id: Uint) => {
+	const wall = walls.get(id);
+	if (wall) {
+		const override: Partial<Wall> = {};
+		if (e.dataTransfer?.types.includes("colour")) {
+			override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
+		} else if (e.dataTransfer?.types.includes("scattering")) {
+			override["scattering"] = JSON.parse(e.dataTransfer.getData("colour"));
+		} else {
+			return;
+		}
+		e.preventDefault();
+		doWallModify(Object.assign(cloneObject(wall.wall), override));
+	}
+      },
+      wallOverlay = div({"style": {"position": "absolute", "height": "10px"}, "draggable": "true", "ondragstart": (e: DragEvent) => {
+	const wall = walls.get(selectedWall);
+	if (wall) {
+		e.dataTransfer!.setDragImage(iconImg, -5, -5);
+		e.dataTransfer!.setData("colour", JSON.stringify(wall.wall.colour));
+		e.dataTransfer!.setData("scattering", wall.wall.scattering + "");
+	}
+      }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
+      fWallOverlay = foreignObject({"height": 10}, wallOverlay),
       genWalls = () => {
 	clearElement(wallLayer);
 	wallMap.clear();
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
-			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer?.types.includes("colour") || e.dataTransfer?.types.includes("scattering")) {
-					e.preventDefault();
-					e.dataTransfer.dropEffect = "copy";
-				}
-			}, "ondrop": (e: DragEvent) => {
+			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				const wall = walls.get(id);
 				if (wall) {
-					const override: Partial<Wall> = {};
-					if (e.dataTransfer?.types.includes("colour")) {
-						override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
-					} else if (e.dataTransfer?.types.includes("scattering")) {
-						override["scattering"] = JSON.parse(e.dataTransfer.getData("colour"));
-					} else {
-						return;
-					}
-					e.preventDefault();
-					doWallModify(Object.assign(cloneObject(wall.wall), override));
-				}
-			}, "onmousedown": (e: MouseEvent) => {
-				const wall = walls.get(id);
-				if (wall) {
-					const {x1, y1, x2, y2} = wall.wall
+					const {x1, y1, x2, y2} = wall.wall,
+					      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
+					createHTML(wallOverlay, {"style": {"width": width + "px"}});
 					createSVG(root, [
+						createSVG(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
 						createSVG(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
 						createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 					]);
@@ -148,6 +162,7 @@ const updateCursorState = () => {
       }),
       deselectWall = () => {
 	selectedWall = 0;
+	fWallOverlay.remove();
 	draggableMarker1.remove();
 	draggableMarker2.remove();
 	cancelMarkerDrag();
