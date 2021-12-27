@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
-import {clearElement} from '../lib/dom.js';
-import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
+import {clearElement, makeElement} from '../lib/dom.js';
+import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from '../lib/html.js';
 //import {NodeArray} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {language} from '../language.js';
@@ -72,9 +72,9 @@ if (isAdmin) {
 		"settings": {
 			"priority": 0,
 			"fn": div([
-				button({"onclick": () => createHTML(shell, speciesWindow)}, lang["SPECIES_EDIT"]),
+				button({"onclick": () => makeElement(shell, speciesWindow)}, lang["SPECIES_EDIT"]),
 				br(),
-				button({"onclick": () => createHTML(shell, createHTML(clearElement(profWindow), [
+				button({"onclick": () => makeElement(shell, makeElement(clearElement(profWindow), [
 					h1(lang["PROFESSIONS_EDIT"]),
 					table([
 						thead(tr([

@@ -1,7 +1,7 @@
 import type {WindowElement, WindowData} from './windows.js';
-import {clearElement, createDocumentFragment, autoFocus} from './lib/dom.js';
+import {autoFocus, clearElement, createDocumentFragment, makeElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
-import {createHTML, div, img, input, label, span} from './lib/html.js';
+import {div, img, input, label, span} from './lib/html.js';
 import loadMap from './adminMap.js';
 import help from './help.js';
 import lang from './language.js';
@@ -56,7 +56,7 @@ const lastTab = new StringSetting("lastTab"),
 		if (e.clientX > 0) {
 			const x = document.body.clientWidth - e.clientX;
 			panelWidth.set(x);
-			createHTML(h, {"style": {"--panel-width": `${x}px`}});
+			makeElement(h, {"style": {"--panel-width": `${x}px`}});
 			moved = true;
 		}
 	      }),
@@ -105,7 +105,7 @@ const lastTab = new StringSetting("lastTab"),
 	      },
 	      o = Object.freeze({
 		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
-			createHTML(p, base);
+			makeElement(p, base);
 			const pos = n++,
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
@@ -120,13 +120,13 @@ const lastTab = new StringSetting("lastTab"),
 					const [x, y, width, height] = windowData[title].data,
 					      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 						p.replaceChild(base, replaced);
-						createHTML(l, {"style": {"display": undefined}});
+						makeElement(l, {"style": {"display": undefined}});
 						windowData[title]["out"] = false;
 						updateWindowData();
 						base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
 					      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
 					e.preventDefault();
-					createHTML(l, {"style": {"display": "none"}});
+					makeElement(l, {"style": {"display": "none"}});
 					if (i.checked) {
 						selectFirst()
 					}
@@ -195,7 +195,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
       })(),
       base = desktop(symbols);
 
-createHTML(clearElement(document.body), createHTML(shell, {"snap": 50}, base));
+makeElement(clearElement(document.body), makeElement(shell, {"snap": 50}, base));
 
 invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
 tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
@@ -206,7 +206,7 @@ inited.then(() => {
 	      settings = isAdmin ? mIs.pop()![1] : null;
 	mI.splice(0, mI.length);
 	return pluginInit().then(() => {
-		createHTML(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
+		makeElement(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
 		for (const [, fn] of mIs) {
 			const data = fn();
 			if (data) {
@@ -221,7 +221,7 @@ inited.then(() => {
 			tabs.add(settings()!);
 		}
 		addCSS(tabs.css);
-		createHTML(base, tabs.html);
+		makeElement(base, tabs.html);
 		window.setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
 		window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});

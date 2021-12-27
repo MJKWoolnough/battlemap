@@ -1,8 +1,9 @@
 import type {TokenImage, Uint} from './types.js';
+import {makeElement} from './lib/dom.js';
 import {mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, button, div, img, input, label} from './lib/html.js';
+import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {createSVG, circle, path, svg, title} from './lib/svg.js';
+import {circle, path, svg, title} from './lib/svg.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid, SVGToken} from './map.js';
@@ -21,9 +22,9 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       }}),
       i = img(),
-      setCursor = () => createSVG((cursor = SVGToken.from(token = setToken!()))[node], {"opacity": 0.5}),
+      setCursor = () => makeElement((cursor = SVGToken.from(token = setToken!()))[node], {"opacity": 0.5}),
       setImg = (id: Uint) => {
-	createHTML(i, {"src": `/images/${id}`});
+	makeElement(i, {"src": `/images/${id}`});
 	setCursor();
       },
       fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
@@ -34,8 +35,8 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       showCursor = () => {
 	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
-		createHTML(layer[node], cursor[node]);
-		createSVG(root, {"style": {"cursor": "none"}})
+		makeElement(layer[node], cursor[node]);
+		makeElement(root, {"style": {"cursor": "none"}})
 		moveCursor();
 	}
       },
@@ -43,7 +44,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	stopCursor()
 	cursor?.[node].remove();
 	cursor?.cleanup();
-	createSVG(root, {"style": {"cursor": undefined}});
+	makeElement(root, {"style": {"cursor": undefined}});
       };
 
 let setToken: (() => TokenImage) | null = null,
@@ -122,7 +123,7 @@ addTool({
 		token.y = cursor.y;
 		doTokenAdd(layer.path, token);
 		setCursor();
-		createHTML(selected.layer![node], cursor[node]);
+		makeElement(selected.layer![node], cursor[node]);
 		return false;
 	},
 	"mapMouse2": ignore,
@@ -147,6 +148,6 @@ addTool({
 layersRPC.waitLayerSelect().then(() => {
 	const {layer} = selected;
 	if (cursor && cursor[node].parentNode && layer) {
-		createHTML(layer[node], cursor[node]);
+		makeElement(layer[node], cursor[node]);
 	}
 });

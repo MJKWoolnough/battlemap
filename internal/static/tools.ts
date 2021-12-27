@@ -1,7 +1,7 @@
 import type {Uint} from './types.js';
-import {autoFocus, clearElement} from './lib/dom.js';
+import {autoFocus, clearElement, makeElement} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
-import {createHTML, div, h2, li, span, ul} from './lib/html.js';
+import {div, h2, li, span, ul} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import {ns as svgNS, g, path, polygon, svg, title} from './lib/svg.js';
 import lang from './language.js';
@@ -111,17 +111,17 @@ menuItems.push([6, () => isAdmin ? [
 			selectedTool = t;
 			toolNum = n;
 			if (t.options) {
-				createHTML(clearElement(options), t.options);
+				makeElement(clearElement(options), t.options);
 				if (windowed && miniTools.value) {
-					createHTML(shell, autoFocus(optionsWindow));
+					makeElement(shell, autoFocus(optionsWindow));
 				} else {
-					createHTML(toolOptions, {"style": {"display": undefined}});
+					makeElement(toolOptions, {"style": {"display": undefined}});
 				}
 			} else {
 				if (windowed && miniTools.value) {
 					optionsWindow.remove();
 				} else {
-					createHTML(toolOptions, {"style": {"display": "none"}});
+					makeElement(toolOptions, {"style": {"display": "none"}});
 				}
 			}
 			selected?.classList.remove("selected")
@@ -132,21 +132,21 @@ menuItems.push([6, () => isAdmin ? [
 			span(t.name)
 		      ])),
 		      fc = list[0];
-		createHTML(base, {"id": "toolList", "onpopout": () => {
+		makeElement(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
-				createHTML(optionsWindow, options);
+				makeElement(optionsWindow, options);
 				if (selectedTool.options) {
-					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, autoFocus(optionsWindow));
+					makeElement(toolOptions, {"style": {"display": "none"}});
+					makeElement(shell, autoFocus(optionsWindow));
 				}
 			}
 		}, "onpopin": () => {
 			windowed = false;
 			if (miniTools.value) {
-				createHTML(toolOptions, options);
+				makeElement(toolOptions, options);
 				if (selectedTool.options) {
-					createHTML(toolOptions, {"style": {"display": undefined}});
+					makeElement(toolOptions, {"style": {"display": undefined}});
 					optionsWindow.remove();
 				}
 			}
@@ -159,15 +159,15 @@ menuItems.push([6, () => isAdmin ? [
 				return;
 			}
 			if (on) {
-				createHTML(optionsWindow, options);
+				makeElement(optionsWindow, options);
 				if (selectedTool.options) {
-					createHTML(toolOptions, {"style": {"display": "none"}});
-					createHTML(shell, autoFocus(optionsWindow));
+					makeElement(toolOptions, {"style": {"display": "none"}});
+					makeElement(shell, autoFocus(optionsWindow));
 				}
 			} else {
-				createHTML(toolOptions, options);
+				makeElement(toolOptions, options);
 				if (selectedTool.options) {
-					createHTML(toolOptions, {"style": {"display": undefined}});
+					makeElement(toolOptions, {"style": {"display": undefined}});
 					optionsWindow.remove();
 				}
 			}

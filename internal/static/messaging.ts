@@ -2,7 +2,7 @@ import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
-import {createHTML} from './lib/html.js';
+import {makeElement} from './lib/dom.js';
 import {ns as svgNS} from './lib/svg.js';
 import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
@@ -25,7 +25,7 @@ inited.then(() => {
 		const fn = modules.get(d.module);
 		if (fn) {
 			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
-			createHTML(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(tags, d.contents)));
+			makeElement(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}, bbcode(tags, d.contents)));
 		}
 	});
 });

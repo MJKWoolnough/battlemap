@@ -1,7 +1,7 @@
 import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {SVGLayer} from './map.js';
+import {makeElement} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
-import {createSVG} from './lib/svg.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken, addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, masks, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
@@ -322,7 +322,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (selected.token === token) {
-			createSVG(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
+			makeElement(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;

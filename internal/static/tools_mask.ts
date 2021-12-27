@@ -1,8 +1,9 @@
 import type {Mask, Uint} from './types.js';
+import {makeElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, button, div, fieldset, legend, input} from './lib/html.js';
+import {br, button, div, fieldset, legend, input} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {createSVG, ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
+import {ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {masks, root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
@@ -26,7 +27,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(maskElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
+	makeElement(maskElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -42,7 +43,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(maskElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
+	makeElement(maskElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -58,7 +59,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
+	makeElement(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
       }),
       [setEscape, cancelEscape] = keyEvent("Escape", () => {
 	cancelRectDrag();
@@ -76,7 +77,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	} else {
 		coords.pop();
 		coords.pop();
-		createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": coords.length === 2 ? addOpaque ? "#fff" : "#000" : undefined});
+		makeElement(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": coords.length === 2 ? addOpaque ? "#fff" : "#000" : undefined});
 	}
       }),
       highlightMask = (x: Uint, y: Uint) => {
@@ -98,7 +99,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 			case 5:
 				maskHighlight = polygon({"points": mask.reduce((res, _, i) => i % 2 === 1 ? `${res} ${mask[i]},${mask[i+1]}` : res, "")});
 			}
-			createSVG(root, createSVG(maskHighlight, {"fill": "none", "stroke": "#f00"}));
+			makeElement(root, makeElement(maskHighlight, {"fill": "none", "stroke": "#f00"}));
 		} else {
 			maskHighlight = overMask = null;
 		}
@@ -106,7 +107,7 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
       },
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	makeElement(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
 	if (remove.checked) {
 		highlightMask(x, y);
 	} else {
@@ -122,7 +123,7 @@ let addOpaque = false,
     overMask: Mask | null = null,
     maskHighlight: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-maskOpacity.wait(v => createHTML(document.body, {"style": {"--maskOpacity": v + ""}}));
+maskOpacity.wait(v => makeElement(document.body, {"style": {"--maskOpacity": v + ""}}));
 
 addTool({
 	"name": lang["TOOL_MASK"],
@@ -172,25 +173,25 @@ addTool({
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			createHTML(masks[node], maskElement = rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			makeElement(masks[node], maskElement = rect({x, y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			rectDrag();
 			setEscape();
 		} else if (circle.checked) {
 			coords[0] = x;
 			coords[1] = y;
 			maskElement?.remove();
-			createHTML(masks[node], maskElement = ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
+			makeElement(masks[node], maskElement = ellipse({"cx": x, "cy": y, "fill": (addOpaque = opaque.checked) ? "#fff" : "#000"}));
 			ellipseDrag();
 			setEscape();
 		} else if (poly.checked) {
 			if (maskElement instanceof SVGPolygonElement) {
 				coords.push(x, y);
-				createSVG(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": undefined});
+				makeElement(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": undefined});
 			} else {
 				coords.splice(0, coords.length, x, y);
 				maskElement?.remove();
 				const fill = (addOpaque = opaque.checked) ? "#fff" : "#000";
-				createHTML(masks[node], maskElement = polygon({fill, "stroke": fill}));
+				makeElement(masks[node], maskElement = polygon({fill, "stroke": fill}));
 				polyMove();
 				setPolyEscape();
 			}
@@ -211,9 +212,9 @@ addTool({
 	},
 	"set": () => {
 		deselectToken();
-		createHTML(snap, {"checked": autosnap.value});
+		makeElement(snap, {"checked": autosnap.value});
 		setupShiftSnap();
-		createSVG(root, {"style": {"cursor": "none"}}, marker);
+		makeElement(root, {"style": {"cursor": "none"}}, marker);
 	},
 	"unset": () => {
 		cancelShiftSnap();
@@ -224,6 +225,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		createSVG(root, {"style": {"cursor": undefined}});
+		makeElement(root, {"style": {"cursor": undefined}});
 	}
 });

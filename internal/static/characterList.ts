@@ -1,6 +1,6 @@
 import type {FolderItems, Uint} from './types.js';
-import {autoFocus, clearElement} from './lib/dom.js';
-import {createHTML, br, button, div, h1, img, input, label} from './lib/html.js';
+import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
@@ -31,7 +31,7 @@ class Character extends DraggableItem {
 	get showOnMouseOver() { return true; }
 	dragName() { return "character"; }
 	setIcon(id: Uint) {
-		createHTML(this.image, {"src": `/images/${id}`});
+		makeElement(this.image, {"src": `/images/${id}`});
 	}
 	show() {
 		characterEdit(this.id, this.name, characterData.get(this.id)!, true);
@@ -90,12 +90,12 @@ menuItems.push([2, () => isAdmin ? [
 		rpcFuncs.list().then(folderList => {
 			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
-			createHTML(clearElement(base), {"id": "characters", "class": "folders"}, [
+			makeElement(clearElement(base), {"id": "characters", "class": "folders"}, [
 				button(lang["CHARACTER_NEW"], {"onclick": () => {
 					let icon = 0;
 					const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
 					      name = autoFocus(input({"onkeypress": enterKey}));
-					createHTML(shell, createHTML(w, [
+					makeElement(shell, makeElement(w, [
 						h1(lang["CHARACTER_NEW"]),
 						labels(`${lang["CHARACTER_NAME"]}: `, name),
 						br(),
@@ -108,7 +108,7 @@ menuItems.push([2, () => isAdmin ? [
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 							const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 							icon = tokenData.id;
-							createHTML(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							makeElement(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button("Create", {"onclick": function(this: HTMLButtonElement) {

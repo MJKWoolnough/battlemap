@@ -1,7 +1,8 @@
 import type {Uint} from './types.js';
+import {makeElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, div, input} from './lib/html.js';
-import {createSVG, circle, g, path, polyline, svg, title} from './lib/svg.js';
+import {br, div, input} from './lib/html.js';
+import {circle, g, path, polyline, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {mapData, panZoom, root, screen2Grid} from './map.js';
 import {inited, isAdmin, rpc} from './rpc.js';
@@ -44,7 +45,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       }),
       [startMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
+	makeElement(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 	if (!isNaN(coords[0])) {
 		measureDistance(x, y);
 		if (send) {
@@ -67,19 +68,19 @@ export const startMeasurement = (x1: Uint, y1: Uint) => {
 	coords.splice(0, coords.length, x1, y1);
 	const l = {"points": `${x1},${y1} ${x1},${y1}`},
 	      [sx, sy] = grid2Screen(x1, y1);
-	createSVG(lone, l);
-	createSVG(ltwo, l);
-	createSVG(spot, {"cx": coords[0], "cy": coords[1]});
+	makeElement(lone, l);
+	makeElement(ltwo, l);
+	makeElement(spot, {"cx": coords[0], "cy": coords[1]});
 	if (!drawnLine.parentNode) {
 		if (marker.parentNode) {
 			root.insertBefore(drawnLine, marker);
 		} else {
-			createHTML(root, drawnLine);
+			makeElement(root, drawnLine);
 		}
 	}
-	createHTML(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
+	makeElement(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
 	if (!info.parentNode) {
-		createHTML(document.body, info);
+		makeElement(document.body, info);
 	}
 },
 measureDistance = (x: Uint, y: Uint) => {
@@ -109,9 +110,9 @@ measureDistance = (x: Uint, y: Uint) => {
 	      dx = x - last[0],
 	      dy = y - last[1];
 	distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
-	createHTML(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
-	createSVG(lone, l);
-	createSVG(ltwo, l);
+	makeElement(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
+	makeElement(lone, l);
+	makeElement(ltwo, l);
 },
 stopMeasurement = () => {
 	drawnLine.remove();
@@ -136,8 +137,8 @@ addTool({
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
-		createSVG(root, {"style": {"--outline-cursor": "none"}});
-		this.addEventListener("mouseout", () => createSVG(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
+		makeElement(root, {"style": {"--outline-cursor": "none"}});
+		this.addEventListener("mouseout", () => makeElement(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
 		return false;
 	},
 	"tokenMouse0": ignore,
@@ -162,13 +163,13 @@ addTool({
 		return false;
 	},
 	"set": () => {
-		createSVG(root, {"style": {"cursor": "none"}}, marker);
-		createHTML(snap, {"checked": autosnap.value});
+		makeElement(root, {"style": {"cursor": "none"}}, marker);
+		makeElement(snap, {"checked": autosnap.value});
 		setupShiftSnap();
 		setupEscape();
 	},
 	"unset": () => {
-		createSVG(root, {"style": {"cursor": undefined}});
+		makeElement(root, {"style": {"cursor": undefined}});
 		marker.remove();
 		cancelMouse0();
 		cancelMouse2();

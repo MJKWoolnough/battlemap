@@ -1,10 +1,11 @@
 import type {Props} from './lib/dom.js';
-import {createSVG, animateTransform, circle, ellipse, g, path, rect, svg, symbol, title, use} from './lib/svg.js';
+import {makeElement} from './lib/dom.js';
+import {animateTransform, circle, ellipse, g, path, rect, svg, symbol, title, use} from './lib/svg.js';
 
 const symbols = svg({"style": "width: 0"})
 
 export const addSymbol = (id: string, s: SVGSymbolElement) => {
-	createSVG(symbols, createSVG(s, {id}));
+	makeElement(symbols, makeElement(s, {id}));
 	return (props: Props = {}) => svg(props, [
 		typeof props["title"] === "string" ? title(props["title"]) : [],
 		use({"href": `#${id}`})

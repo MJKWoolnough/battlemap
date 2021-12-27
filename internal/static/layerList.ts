@@ -1,8 +1,8 @@
 import type {FolderItems, LayerFolder, LayerRPC, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
-import {autoFocus, clearElement} from './lib/dom.js';
+import {autoFocus, clearElement, makeElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
-import {createHTML, br, button, div, h1, input, option, select, span} from './lib/html.js';
+import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {colourPicker, hex2Colour} from './colours.js';
@@ -20,10 +20,10 @@ let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | un
 const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!draggedName) {
 		dragging![node].classList.add("dragged");
-		createHTML(document.body, draggedName = span(dragging!.name, {"class": "beingDragged"}));
+		makeElement(document.body, draggedName = span(dragging!.name, {"class": "beingDragged"}));
 		dragBase.classList.add("dragging");
 	}
-	createHTML(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
+	makeElement(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
       }, () => {
 	dragging![node].classList.remove("dragged");
 	dragging = undefined;
@@ -37,7 +37,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       renameLayer = (self: ItemLayer | FolderLayer) => {
 	const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
 	      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey}));
-	return createHTML(window, {"class": "renameItem"}, [
+	return makeElement(window, {"class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
@@ -121,7 +121,7 @@ class ItemLayer extends Item {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		this.hidden = hidden;
 		if (id < 0) {
-			createHTML(clearElement(this[node]), this.nameElem);
+			makeElement(clearElement(this[node]), this.nameElem);
 		} else {
 			this.copier.remove();
 			if (selectedLayer === undefined) {
@@ -132,7 +132,7 @@ class ItemLayer extends Item {
 			this[node].classList.add("layerHidden");
 		}
 		this[node].insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
-		createHTML(this[node], [
+		makeElement(this[node], [
 			div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 			div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
 		]);
@@ -229,7 +229,7 @@ class FolderLayer extends Folder {
 				showHideLayer(this);
 				e.preventDefault()
 			}}), this.nameElem);
-			createHTML(fc, [
+			makeElement(fc, [
 				div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
 			]);
@@ -346,11 +346,11 @@ menuItems.push([5, () => isAdmin ? [
 					l.show();
 				}
 			});
-			createHTML(clearElement(base), {"id": "layerList"}, [
+			makeElement(clearElement(base), {"id": "layerList"}, [
 				button(lang["LAYER_ADD"], {"onclick": () => {
 					const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
 					      name = autoFocus(input({"onkeypress": enterKey}));
-					createHTML(window, {"id": "layerAdd"}, [
+					makeElement(window, {"id": "layerAdd"}, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
 						br(),

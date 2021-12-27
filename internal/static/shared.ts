@@ -1,10 +1,10 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
-import {createDocumentFragment} from './lib/dom.js';
-import {createHTML, h2, label, style} from './lib/html.js';
+import {createDocumentFragment, makeElement} from './lib/dom.js';
+import {h2, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {createSVG, g} from './lib/svg.js';
+import {g} from './lib/svg.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
@@ -32,7 +32,7 @@ queue = (() => {
 labels = (() => {
 	let next = 0;
 	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Props = {}) => {
-		createHTML(input, {"id": props["for"] = `ID_${next++}`});
+		makeElement(input, {"id": props["for"] = `ID_${next++}`});
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];
 	};
@@ -81,7 +81,7 @@ selected = {
 outline = g(),
 deselectToken = () => {
 	selected.token = null;
-	createSVG(outline, {"style": {"display": "none"}});
+	makeElement(outline, {"style": {"display": "none"}});
 	tokenSelected();
 },
 setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {

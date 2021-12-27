@@ -3,11 +3,11 @@ import type {List} from '../lib/context.js';
 import type {PluginType} from '../plugins.js';
 import type {WindowElement} from '../windows.js';
 import {item, menu} from '../lib/context.js';
-import {clearElement} from '../lib/dom.js';
+import {clearElement, makeElement} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
-import {createHTML, br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, th, thead, tr, ul} from '../lib/html.js';
+import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort} from '../lib/nodes.js';
-import {createSVG, ns as svgNS, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {ns as svgNS, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {characterSelector, iconSelector, tokenSelector} from '../characters.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
@@ -127,9 +127,9 @@ class SVGToken5E extends SVGToken {
 		      nameLength = this.name.getComputedTextLength(),
 		      size = Math.min(this.width, this.height) / 8,
 		      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
-		createSVG(this.name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
-		createSVG(this.acValue, {"style": {"font-size": `${size}px`}});
-		createSVG(this.hpValue, {"style": {"font-size": `${size}px`}});
+		makeElement(this.name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
+		makeElement(this.acValue, {"style": {"font-size": `${size}px`}});
+		makeElement(this.hpValue, {"style": {"font-size": `${size}px`}});
 	}
 	cleanup() {
 		const n = this[node];
@@ -151,7 +151,7 @@ class SVGToken5E extends SVGToken {
 	}
 	unselect() {
 		if (!this.isPattern) {
-			createHTML(this[node], this.extra);
+			makeElement(this[node], this.extra);
 		}
 	}
 	updateSource(source: Uint) {
@@ -177,14 +177,14 @@ class SVGToken5E extends SVGToken {
 			}
 			this[node].replaceWith(this[node] = g([this.tokenNode, this.extra]));
 		}
-		createSVG(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
-		createSVG(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
-		createSVG(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
-		createSVG(this.hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		createSVG(this.hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		createSVG(this.name, {"x": this.width / 2, "style": {"font-size": undefined}});
-		createSVG(this.hpValue, {"x": this.width / 8});
-		createSVG(this.acValue, {"x": 7 * this.width / 8});
+		makeElement(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		makeElement(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
+		makeElement(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
+		makeElement(this.hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+		makeElement(this.hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+		makeElement(this.name, {"x": this.width / 2, "style": {"font-size": undefined}});
+		makeElement(this.hpValue, {"x": this.width / 8});
+		makeElement(this.acValue, {"x": 7 * this.width / 8});
 		this.setTextWidth();
 		this.updateConditions();
 	}
@@ -194,21 +194,21 @@ class SVGToken5E extends SVGToken {
 		      ac: Uint | null = this.getData("5e-ac"),
 		      name = this.getData("name") || "";
 		if (ac === null) {
-			createSVG(this.ac, {"style": "display: none"});
+			makeElement(this.ac, {"style": "display: none"});
 		} else {
-			createSVG(this.ac, {"style": undefined})
+			makeElement(this.ac, {"style": undefined})
 			this.acValue.innerHTML = ac + "";
 		}
 		if (currentHP === null || maxHP === null) {
-			createSVG(this.hp, {"style": "display: none"});
+			makeElement(this.hp, {"style": "display: none"});
 		} else {
-			createSVG(this.hp, {"style": undefined});
+			makeElement(this.hp, {"style": undefined});
 			this.hpValue.innerHTML = currentHP + "";
-			createSVG(this.hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
-			createSVG(this.hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
+			makeElement(this.hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
+			makeElement(this.hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
 		}
 		if (this.name.innerHTML !== name) {
-			createSVG(this.name, {"style": {"font-size": undefined}}, name);
+			makeElement(this.name, {"style": {"font-size": undefined}}, name);
 			this.setTextWidth();
 		}
 		this.updateConditions();
@@ -221,7 +221,7 @@ class SVGToken5E extends SVGToken {
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
 			if (myConditions[i]) {
-				createSVG(this.conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
+				makeElement(this.conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
 				col++;
 				if (col === perRow) {
 					col = 0;
@@ -229,12 +229,12 @@ class SVGToken5E extends SVGToken {
 				}
 			}
 		}
-		createSVG(this.conditions, {"transform": `translate(0, ${this.height})`});
+		makeElement(this.conditions, {"transform": `translate(0, ${this.height})`});
 	}
 
 }
 
-createSVG(symbols, [
+makeElement(symbols, [
 	filter({"id": "saturate-5e"}, feColorMatrix({"type": "saturate", "values": 0})),
 	symbol({"id": "5e-shield", "viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})),
 	symbol({"id": "5e-hp-back", "viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})),
@@ -445,7 +445,7 @@ const defaultLanguage = {
 	initiative,
 	[node]: li({"style": hidden && !isAdmin ? "display: none" : undefined, "onmouseover": () => {
 		if (token[node].parentNode) {
-			createSVG(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
+			makeElement(highlight, {"width": token.width, "height": token.height, "transform": token.transformString()});
 			token[node].parentNode!.insertBefore(highlight, token[node]);
 		}
 	}, "onmouseleave": () => highlight.remove()}, [
@@ -500,7 +500,7 @@ const defaultLanguage = {
 	if (initiativeList.length === 0) {
 		initiativeWindow.remove();
 	} else if (!initiativeWindow.parentNode) {
-		createHTML(shell, initiativeWindow);
+		makeElement(shell, initiativeWindow);
 	}
       },
       displaySettings = {
@@ -524,7 +524,7 @@ const defaultLanguage = {
 		"fn": div([
 			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
 				highlightColour.set(c);
-				createSVG(highlight, {"fill": c, "stroke": c});
+				makeElement(highlight, {"fill": c, "stroke": c});
 			})),
 			table({"id": "display-settings-5e"}, [
 				thead(tr([
@@ -750,7 +750,7 @@ if (isAdmin) {
 								return;
 							}
 							Object.assign(t, token);
-							createHTML(i, {"src": `/images/${t.src}`});
+							makeElement(i, {"src": `/images/${t.src}`});
 						});
 					}}),
 					i
@@ -794,9 +794,9 @@ if (isAdmin) {
 				"images": Array.from({"length": shapechangeTokens.length}, _ => false),
 			      },
 			      p = shapechangeCats.push(c) - 1;
-			createHTML(cats, addCat(c))
+			makeElement(cats, addCat(c))
 			for (let i = 0; i < rows.length; i++) {
-				createHTML(rows[i], addTicker(i, p));
+				makeElement(rows[i], addTicker(i, p));
 			}
 		})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 		button({"onclick": () => {
@@ -811,7 +811,7 @@ if (isAdmin) {
 					return;
 				}
 				const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
-				createHTML(ticks, addToken(t, shapechangeTokens.length));
+				makeElement(ticks, addToken(t, shapechangeTokens.length));
 				shapechangeTokens.push(t);
 				for (const cat of shapechangeCats) {
 					cat["images"].push(false);
@@ -881,7 +881,7 @@ if (isAdmin) {
 			}
 		}
 	      });
-	createHTML(plugin["settings"]!.fn, button({"onclick": () => createHTML(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
+	makeElement(plugin["settings"]!.fn, button({"onclick": () => makeElement(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
 		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {

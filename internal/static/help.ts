@@ -1,8 +1,8 @@
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
-import {clearElement} from './lib/dom.js';
-import {createHTML, div, h1, input} from './lib/html.js';
-import {createSVG, animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, svg, text} from './lib/svg.js';
+import {clearElement, makeElement} from './lib/dom.js';
+import {div, h1, input} from './lib/html.js';
+import {animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, svg, text} from './lib/svg.js';
 import lang from './language.js';
 import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
@@ -139,7 +139,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 
 export default () => {
 	if (!help.parentNode) {
-		createHTML(shell, createHTML(clearElement(help), div({"id": "help"}, [
+		makeElement(shell, makeElement(clearElement(help), div({"id": "help"}, [
 			h1(lang["HELP"]),
 			createDemo(),
 			div({"id": "helpDemos"}, [
@@ -159,7 +159,7 @@ export default () => {
 		])));
 		window.setTimeout(() => {
 			const w = settingsText.getComputedTextLength() + 5;
-			createSVG(settingsOutline, {"d": `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`});
+			makeElement(settingsOutline, {"d": `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`});
 			mapDrag.click();
 		});
 	} else {

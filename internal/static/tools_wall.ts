@@ -1,9 +1,9 @@
 import type {RPCWaits, Uint, Wall} from './types.js';
 import type {WindowElement} from './windows.js';
-import {clearElement} from './lib/dom.js';
+import {clearElement, makeElement} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {createHTML, br, div, fieldset, img, input, legend} from './lib/html.js';
-import {createSVG, svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
+import {br, div, fieldset, img, input, legend} from './lib/html.js';
+import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -21,7 +21,7 @@ let wallColour = hex2Colour("#000"),
 
 const updateCursorState = () => {
 	if (placeWall.checked) {
-		createSVG(root, {"style": {"cursor": "none"}}, marker);
+		makeElement(root, {"style": {"cursor": "none"}}, marker);
 		startCursorMove();
 	} else {
 		cancelCursorMove();
@@ -44,16 +44,16 @@ const updateCursorState = () => {
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	makeElement(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
       }, () => {
-	createSVG(root, {"style": {"cursor": undefined}});
+	makeElement(root, {"style": {"cursor": undefined}});
 	marker.remove()
       }),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	createSVG(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
+	makeElement(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -99,16 +99,16 @@ const updateCursorState = () => {
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
-			createSVG(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
+			makeElement(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				const wall = walls.get(id);
 				if (wall) {
 					const {x1, y1, x2, y2} = wall.wall,
 					      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
-					createHTML(wallOverlay, {"style": {"width": width + "px"}});
-					createSVG(root, [
-						createSVG(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
-						createSVG(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-						createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+					makeElement(wallOverlay, {"style": {"width": width + "px"}});
+					makeElement(root, [
+						makeElement(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
+						makeElement(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+						makeElement(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 					]);
 					selectedWall = id;
 					e.stopPropagation();
@@ -145,8 +145,8 @@ const updateCursorState = () => {
 		      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 		      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
 		      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
-		createSVG(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
-		createSVG(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+		makeElement(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
+		makeElement(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
 	} else {
 		deselectWall();
 	}
@@ -160,12 +160,12 @@ const updateCursorState = () => {
 			      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 			      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
 			      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
-			createSVG(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+			makeElement(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
 			doWallModify({"id": selectedWall, "x1": ax1, "y1": ay1, "x2": ax2, "y2": ay2, colour, scattering})
 		} else {
-			createSVG(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
-			createSVG(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-			createSVG(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+			makeElement(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
+			makeElement(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+			makeElement(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 		}
 	}
       }),
@@ -189,7 +189,7 @@ addTool({
 		]),
 		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
 		br(),
-		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => createSVG(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => makeElement(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
@@ -202,7 +202,7 @@ addTool({
 		}
 		if (placeWall.checked) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			createSVG(root, createSVG(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
+			makeElement(root, makeElement(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
 		} else {
 			deselectWall();
@@ -216,9 +216,9 @@ addTool({
 	"set": () => {
 		active = true;
 		deselectToken();
-		createHTML(snap, {"checked": autosnap.value});
+		makeElement(snap, {"checked": autosnap.value});
 		genWalls();
-		createSVG(root, {"style": {"cursor": placeWall.checked ? "none" : undefined}}, [
+		makeElement(root, {"style": {"cursor": placeWall.checked ? "none" : undefined}}, [
 			wallLayer,
 			placeWall.checked ? marker : []
 		]);
