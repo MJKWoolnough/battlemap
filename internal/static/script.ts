@@ -206,7 +206,12 @@ inited.then(() => {
 	      settings = isAdmin ? mIs.pop()![1] : null;
 	mI.splice(0, mI.length);
 	return pluginInit().then(() => {
-		makeElement(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => e.preventDefault()});
+		makeElement(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => {
+			if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+				return;
+			}
+			e.preventDefault();
+		}});
 		for (const [, fn] of mIs) {
 			const data = fn();
 			if (data) {
