@@ -110,7 +110,7 @@ const lastTab = new StringSetting("lastTab"),
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 				const replaced = div();
-				p.replaceChild(replaced, base);
+				base.replaceWith(replaced);
 				if (windowData[title]) {
 					windowData[title]["out"] = true;
 				} else {
@@ -119,7 +119,7 @@ const lastTab = new StringSetting("lastTab"),
 				updateWindowData();
 				const [x, y, width, height] = windowData[title].data,
 				      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
-					p.replaceChild(base, replaced);
+					replaced.replaceWith(base);
 					makeElement(l, {"style": {"display": undefined}});
 					windowData[title]["out"] = false;
 					updateWindowData();
