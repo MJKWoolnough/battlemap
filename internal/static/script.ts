@@ -109,28 +109,28 @@ const lastTab = new StringSetting("lastTab"),
 			const pos = n++,
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
-					const replaced = div();
-					p.replaceChild(replaced, base);
-					if (windowData[title]) {
-						windowData[title]["out"] = true;
-					} else {
-						windowData[title] = {"out": true, "data": [20, 20, 0, 0]};
-					}
+				const replaced = div();
+				p.replaceChild(replaced, base);
+				if (windowData[title]) {
+					windowData[title]["out"] = true;
+				} else {
+					windowData[title] = {"out": true, "data": [20, 20, 0, 0]};
+				}
+				updateWindowData();
+				const [x, y, width, height] = windowData[title].data,
+				      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
+					p.replaceChild(base, replaced);
+					makeElement(l, {"style": {"display": undefined}});
+					windowData[title]["out"] = false;
 					updateWindowData();
-					const [x, y, width, height] = windowData[title].data,
-					      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
-						p.replaceChild(base, replaced);
-						makeElement(l, {"style": {"display": undefined}});
-						windowData[title]["out"] = false;
-						updateWindowData();
-						base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
-					      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
-					e.preventDefault();
-					makeElement(l, {"style": {"display": "none"}});
-					if (i.checked) {
-						selectFirst()
-					}
-					base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
+					base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
+				      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
+				e.preventDefault();
+				makeElement(l, {"style": {"display": "none"}});
+				if (i.checked) {
+					selectFirst()
+				}
+				base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
 			      }}) : null,
 			      l = t.appendChild(label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, n = 1;
