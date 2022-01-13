@@ -53,11 +53,11 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 		br(),
 		labels(`${lang["COLOUR_ALPHA"]}: `, alphaInput),
 		br(),
-		button(lang["COLOUR_UPDATE"], {"onclick": function(this: HTMLButtonElement) {
+		button({"onclick": function(this: HTMLButtonElement) {
 			this.toggleAttribute("disabled", true);
 			resolve(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)));
 			window.remove();
-		}})
+		}}, lang["COLOUR_UPDATE"])
 	      ]);
 	(parent.parentNode ? parent : shell).addWindow(window);
 }),

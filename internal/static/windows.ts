@@ -26,7 +26,7 @@ export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowEleme
         parent.addWindow(w);
         return p.finally(() => w.remove());
 },
-windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Props | Children) => {
+windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children) => {
 	const w = makeElement(awindows({"hide-maximise": "true", "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
 		if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 			this.close();

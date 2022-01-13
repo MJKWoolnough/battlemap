@@ -38,7 +38,7 @@ export class Item {
 		this.name = name;
 		this.parent = parent;
 		this[node] = li({"class": "foldersItem"}, [
-			this.nameElem = span(name, {"class": "item", "onclick": () => this.show()}),
+			this.nameElem = span({"class": "item", "onclick": () => this.show()}, name),
 			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
 			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
 			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
@@ -49,7 +49,7 @@ export class Item {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
-		      parents = select(getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return makeElement(window, {"class": "renameItem"}, [
@@ -58,21 +58,21 @@ export class Item {
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
 			newName,
 			br(),
-			button(lang["ITEM_MOVE"], {"onclick": function(this: HTMLButtonElement) {
+			button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}})
+			}}, lang["ITEM_MOVE"])
 		]);
 	}
 	copy() {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
-		      parents = select(getPaths(root.folder, "/").map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return makeElement(window, {"class": "copyItem"}, [
@@ -81,14 +81,14 @@ export class Item {
 			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
 			newName,
 			br(),
-			button(lang["ITEM_COPY_ADD"], {"onclick": function(this: HTMLButtonElement) {
+			button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.copy(self.id, parents.value + newName.value).then(copied => {
 					root.copyItem(self.id, copied.id, copied.path);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}}),
+			}}, lang["ITEM_COPY_ADD"]),
 		]);
 	}
 	remove() {
@@ -100,14 +100,14 @@ export class Item {
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
-			autoFocus(button(lang["ITEM_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
+			autoFocus(button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.remove(path).then(() => {
 					root.removeItem(path);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}}))
+			}}, lang["ITEM_REMOVE"]))
 		]);
 	}
 	getPath() {
@@ -224,7 +224,7 @@ export class Folder {
 		const root = this.root,
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
-		      parents = select(getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p, p === parentPath ? {"value": p, "selected": true} : {"value": p}))),
+		      parents = select(getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
 		return makeElement(window, [
@@ -233,14 +233,14 @@ export class Folder {
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
 			newName,
 			br(),
-			button(lang["FOLDER_MOVE"], {"onclick": function(this: HTMLButtonElement) {
+			button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}})
+			}}, lang["FOLDER_MOVE"])
 		])
 	}
 	remove(e: Event) {
@@ -253,14 +253,14 @@ export class Folder {
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
-			autoFocus(button(lang["FOLDER_REMOVE"], {"onclick": function(this: HTMLButtonElement) {
+			autoFocus(button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.removeFolder(path).then(() => {
 					root.removeFolder(path);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}}))
+			}}, lang["FOLDER_MOVE"]))
 		]);
 	}
 	newFolder(e: Event) {
@@ -273,14 +273,14 @@ export class Folder {
 			h1(lang["FOLDER_ADD"]),
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
-			button(lang["FOLDER_ADD"], {"onclick": function(this: HTMLButtonElement) {
+			button({"onclick": function(this: HTMLButtonElement) {
 				this.toggleAttribute("disabled", true);
 				loadingWindow(queue(() => root.rpcFuncs.createFolder(path + "/" + folderName.value).then(folder => {
 					root.addFolder(folder);
 					window.remove();
 				})
 				.finally(() => this.removeAttribute("disabled"))), window);
-			}})
+			}}, lang["FOLDER_ADD"])
 		]);
 	}
 	addItem(id: Uint, name: string) {

@@ -186,7 +186,7 @@ menuItems.push([4, () => isAdmin ? [
 				setUserMap(userMap, s);
 			}
 			makeElement(clearElement(base), {"id": "mapList"}, [
-				button(lang["MAP_NEW"], {"onclick": () => {
+				button({"onclick": () => {
 					const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
 					      name = autoFocus(input({"type": "text"})),
 					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
@@ -211,7 +211,7 @@ menuItems.push([4, () => isAdmin ? [
 						br(),
 						labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 						br(),
-						button(lang["MAP_ADD"], {"onclick": function(this: HTMLButtonElement) {
+						button({"onclick": function(this: HTMLButtonElement) {
 							makeElement(this, {"disabled": true});
 							const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
 							loadingWindow(rpc.newMap({
@@ -227,9 +227,9 @@ menuItems.push([4, () => isAdmin ? [
 								window.remove();
 							})
 							.finally(() => this.removeAttribute("disabled"));
-						}})
+						}}, lang["MAP_ADD"])
 					])
-				}}),
+				}}, lang["MAP_NEW"]),
 				root[node]
 			]);
 		});

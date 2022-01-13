@@ -456,11 +456,11 @@ menuItems.push([3, () => isAdmin ? [
 				musicList.set(name, new AdminPack(name, list[name]));
 			}
 			makeElement(clearElement(base), {"id": "musicPacks"}, [
-				button(lang["MUSIC_ADD"], {"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
+				button({"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 					if (name) {
 						rpc.musicPackAdd(name).then(name => musicList.set(name, new AdminPack(name, newPack())));
 					}
-				})}),
+				})}, lang["MUSIC_ADD"]),
 				musicList[node]
 			]);
 			rpc.waitMusicPackAdd().then(name => musicList.set(name, new AdminPack(name, newPack())));

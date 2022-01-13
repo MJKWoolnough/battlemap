@@ -20,7 +20,7 @@ let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | un
 const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!draggedName) {
 		dragging![node].classList.add("dragged");
-		makeElement(document.body, draggedName = span(dragging!.name, {"class": "beingDragged"}));
+		makeElement(document.body, draggedName = span({"class": "beingDragged"}, dragging!.name));
 		dragBase.classList.add("dragging");
 	}
 	makeElement(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
@@ -41,7 +41,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
-		button(lang["LAYER_RENAME"], {"onclick": function(this: HTMLButtonElement) {
+		button({"onclick": function(this: HTMLButtonElement) {
 			this.toggleAttribute("disabled", true);
 			loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
 				doLayerRename(path, name, false);
@@ -50,7 +50,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 				window.remove();
 			})
 			.finally(() => this.removeAttribute("disabled"))), window);
-		}})
+		}}, lang["LAYER_RENAME"])
 	]);
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
@@ -160,7 +160,7 @@ class ItemLayer extends Item {
 				br(),
 				labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 				br(),
-				button(lang["SAVE"], {"onclick": function(this: HTMLButtonElement) {
+				button({"onclick": function(this: HTMLButtonElement) {
 					this.toggleAttribute("disabled", true);
 					const sq = checkInt(parseInt(sqWidth.value), 10, 1000, 10);
 					loadingWindow(
@@ -180,7 +180,7 @@ class ItemLayer extends Item {
 						}),
 						window
 					);
-				}})
+				}}, lang["SAVE"])
 			      ]));
 		} else if (this.id === -2) { // Light
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
@@ -347,14 +347,14 @@ menuItems.push([5, () => isAdmin ? [
 				}
 			});
 			makeElement(clearElement(base), {"id": "layerList"}, [
-				button(lang["LAYER_ADD"], {"onclick": () => {
+				button({"onclick": () => {
 					const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
 					      name = autoFocus(input({"onkeypress": enterKey}));
 					makeElement(window, {"id": "layerAdd"}, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
 						br(),
-						button(lang["LAYER_ADD"], {"onclick": function(this: HTMLButtonElement) {
+						button({"onclick": function(this: HTMLButtonElement) {
 							this.toggleAttribute("disabled", true);
 							loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
 								doLayerAdd(name, false);
@@ -362,9 +362,9 @@ menuItems.push([5, () => isAdmin ? [
 								window.remove();
 							})
 							.finally(() => this.removeAttribute("disabled"))), window);
-						}})
+						}}, lang["LAYER_ADD"])
 					]);
-				}}),
+				}}, lang["LAYER_ADD"]),
 				list[node]
 			]);
 			loadFn = () => {

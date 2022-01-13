@@ -91,7 +91,7 @@ menuItems.push([2, () => isAdmin ? [
 			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
 			makeElement(clearElement(base), {"id": "characters", "class": "folders"}, [
-				button(lang["CHARACTER_NEW"], {"onclick": () => {
+				button({"onclick": () => {
 					let icon = 0;
 					const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
 					      name = autoFocus(input({"onkeypress": enterKey}));
@@ -111,7 +111,7 @@ menuItems.push([2, () => isAdmin ? [
 							makeElement(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
-						button(lang["CHARACTER_CREATE"], {"onclick": function(this: HTMLButtonElement) {
+						button({"onclick": function(this: HTMLButtonElement) {
 							if (!name.value) {
 								w.alert(lang["ERROR"], lang["CHARACTER_NEED_NAME"]);
 								return;
@@ -124,9 +124,9 @@ menuItems.push([2, () => isAdmin ? [
 							loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
 							.then(() => w.remove())
 							.finally(() => this.removeAttribute("disabled"));
-						}})
+						}}, lang["CHARACTER_CREATE"])
 					]));
-				}}),
+				}}, lang["CHARACTER_NEW"]),
 				root[node]
 			]);
 			rpc.waitCharacterDataChange().then(d => {
