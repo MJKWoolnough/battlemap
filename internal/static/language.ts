@@ -5,6 +5,7 @@ const defaultLanguage = {
 	"AUTH": "Authentication",
 	"AUTOSNAP": "Autosnap",
 	"CHARACTER": "Character",
+	"CHARACTER_CREATE": "Create Character",
 	"CHARACTER_DRAG_ICON": "Drag icon here",
 	"CHARACTER_NEW": "New Character",
 	"CHARACTER_EDIT": "Edit Character",
