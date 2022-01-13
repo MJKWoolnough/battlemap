@@ -111,7 +111,7 @@ menuItems.push([2, () => isAdmin ? [
 							makeElement(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
-						button("Create", {"onclick": function(this: HTMLButtonElement) {
+						button(lang["CHARACTER_CREATE"], {"onclick": function(this: HTMLButtonElement) {
 							if (!name.value) {
 								w.alert(lang["ERROR"], lang["CHARACTER_NEED_NAME"]);
 								return;
