@@ -1,6 +1,6 @@
 import type {Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
-import {clearElement, makeElement} from './lib/dom.js';
+import {clearElement, event, eventOnce, makeElement} from './lib/dom.js';
 import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
@@ -41,10 +41,10 @@ class Track {
 			this.waitPlay()
 			return;
 		}
-		this.audioElement = audio({"src": `/audio/${this.id}`, "onloadeddata": {"handleEvent": () => {
+		this.audioElement = audio({"src": `/audio/${this.id}`, "onloadeddata": event(() => {
 			this.updateVolume();
 			this.waitPlay();
-		}, "eventOptions": {"once": true}}, "onended": () => this.waitPlay()});
+		}, eventOnce), "onended": () => this.waitPlay()});
 	}
 	updateVolume() {
 		if (this.audioElement) {
