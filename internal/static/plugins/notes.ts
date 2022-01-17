@@ -3,7 +3,7 @@ import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import type {WindowElement} from '../windows.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {all} from '../lib/bbcode_tags.js';
-import {clearElement, makeElement} from '../lib/dom.js';
+import {amendNode, clearNode} from '../lib/dom.js';
 import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
@@ -55,7 +55,7 @@ if (isAdmin) {
 		share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name);
-			makeElement(this.image, {"src": icon});
+			amendNode(this.image, {"src": icon});
 			notes.set(id, this);
 		}
 		dragName() {
@@ -68,14 +68,14 @@ if (isAdmin) {
 				this.popWindow.focus();
 			} else {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
-				makeElement(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, data));
+				amendNode(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, data));
 				this.window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
 					if (wp) {
 						this.popWindow = wp;
 						wp.addEventListener("unload", () => this.popWindow = null);
 						wp.document.title = this.name;
-						makeElement(wp.document.body, data);
+						amendNode(wp.document.body, data);
 						this.window?.remove();
 					}
 				}, lang["NOTE_POPOUT"]);
@@ -123,7 +123,7 @@ if (isAdmin) {
 							page.data = {"contents": contents.value, "share": share.checked};
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							makeElement(clearElement(this.window!), div({"class": "plugin-notes"}, bbcode(allTags, contents.value)));
+							clearNode(this.window!, div({"class": "plugin-notes"}, bbcode(allTags, contents.value)));
 							this.setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);

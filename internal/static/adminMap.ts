@@ -3,7 +3,7 @@ import type {List} from './lib/context.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {NodeArray} from './lib/nodes.js';
 import place, {item, menu} from './lib/context.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, h1, img, input} from './lib/html.js';
 import {rect} from './lib/svg.js';
@@ -60,7 +60,7 @@ export default (base: HTMLElement) => {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
-			makeElement(outline, {"class": `cursor_${((rotation + 143) >> 5) % 4}`});
+			amendNode(outline, {"class": `cursor_${((rotation + 143) >> 5) % 4}`});
 		}
 		break;
 		default: {
@@ -119,12 +119,12 @@ export default (base: HTMLElement) => {
 		selectedToken.height = Math.round(height);
 		selectedToken.rotation = Math.round(rotation);
 		selectedToken.updateNode();
-		makeElement(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
+		amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
 	      }, () => {
 		if (!selected.token || !selected.layer) {
 			return;
 		}
-		makeElement(root, {"style": {"--outline-cursor": undefined}});
+		amendNode(root, {"style": {"--outline-cursor": undefined}});
 		tokenDragMode = -1;
 		const {token} = selected,
 		      {x, y, width, height, rotation} = tokenMousePos,
@@ -258,7 +258,7 @@ export default (base: HTMLElement) => {
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(tokens.get(newToken.id)!.layer);
 		selected.token = newToken;
-		makeElement(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
+		amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px; --zoom: ${panZoom.zoom}`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
 		tokenMousePos.x = newToken.x;
 		tokenMousePos.y = newToken.y;
 		tokenMousePos.width = newToken.width;
@@ -271,7 +271,7 @@ export default (base: HTMLElement) => {
 		moved = true;
 		panZoom.x += e.clientX - mX;
 		panZoom.y += e.clientY - mY;
-		makeElement(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		amendNode(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
 		mX = e.clientX;
 		mY = e.clientY;
 	      },
@@ -280,11 +280,11 @@ export default (base: HTMLElement) => {
 			deselectToken();
 			updateCursor(e);
 		}
-		makeElement(root, {"style": {"--outline-cursor": undefined}});
+		amendNode(root, {"style": {"--outline-cursor": undefined}});
 	      }),
-	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => makeElement(root, {"style": {"--outline-cursor": undefined}})),
+	      [startMouseDrag1] = mouseDragEvent(1, mapMove, () => amendNode(root, {"style": {"--outline-cursor": undefined}})),
 	      moveMap = (e: MouseEvent, initFn: () => void) => {
-		makeElement(root, {"style": {"--outline-cursor": "grabbing"}});
+		amendNode(root, {"style": {"--outline-cursor": "grabbing"}});
 		mX = e.clientX;
 		mY = e.clientY;
 		moved = false;
@@ -300,7 +300,7 @@ export default (base: HTMLElement) => {
 		keyRepeats[n] = setInterval(() => {
 			shift(token, 1, 1, e.shiftKey);
 			token.updateNode();
-			makeElement(outline, {"transform": token.transformString(false)});
+			amendNode(outline, {"transform": token.transformString(false)});
 		}, 5);
 	      }, (e: KeyboardEvent) => {
 		if (keyRepeats[n] !== -1) {
@@ -333,11 +333,11 @@ export default (base: HTMLElement) => {
 		const {layer} = selected;
 		overOutline = (target as HTMLElement)?.parentNode === outline;
 		if (!ctrlKey && overOutline) {
-			makeElement(document.body, {"style": {"--outline-cursor": undefined}});
+			amendNode(document.body, {"style": {"--outline-cursor": undefined}});
 		} else if (!ctrlKey && layer && (layer.tokens as SVGToken[]).some(t => t.at(clientX, clientY))) {
-			makeElement(document.body, {"style": {"--outline-cursor": "pointer"}});
+			amendNode(document.body, {"style": {"--outline-cursor": "pointer"}});
 		} else {
-			makeElement(document.body, {"style": {"--outline-cursor": "grab"}});
+			amendNode(document.body, {"style": {"--outline-cursor": "grab"}});
 		}
 	      },
 	      psuedoUpdateCursor = (target: EventTarget | null, ctrlKey: boolean) => updateCursor({target, "clientX": mouseX, "clientY": mouseY, ctrlKey}),
@@ -366,7 +366,7 @@ export default (base: HTMLElement) => {
 				psuedoUpdateCursor(root, e.ctrlKey);
 				return;
 			}
-			makeElement(root, {"style": {"--outline-cursor": undefined}});
+			amendNode(root, {"style": {"--outline-cursor": undefined}});
 			tokenDragMode = -1;
 			const {token} = selected,
 			      {x, y, width, height, rotation} = tokenMousePos;
@@ -377,14 +377,14 @@ export default (base: HTMLElement) => {
 				token.rotation = rotation;
 				token.height = height;
 				token.updateNode();
-				makeElement(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+				amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
 			}
 			stopMeasurement();
 			cancelTokenDrag();
 		}),
 		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
 	      ]);
-	makeElement(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
+	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (selected.token) {
 			for (const [fn] of keys) {
@@ -429,7 +429,7 @@ export default (base: HTMLElement) => {
 		selected.layer = null;
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData));
-		makeElement(root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, makeElement(outline, {"style": "display: none"}));
+		amendNode(root, {"ondragover": mapOnDragOver, "ondrop": mapOnDrop}, amendNode(outline, {"style": "display: none"}));
 		pasteCoords[0] = 0;
 		pasteCoords[1] = 0;
 		mapLoadedSend(true);
@@ -488,7 +488,7 @@ export default (base: HTMLElement) => {
 		}
 		setupTokenDrag();
 		tokenDragMode = n;
-		makeElement(root, {"style": {"--outline-cursor": ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]}});
+		amendNode(root, {"style": {"--outline-cursor": ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]}});
 		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
 		if (n === 0 && measureTokenMove.value) {
 			const {token} = selected;
@@ -547,7 +547,7 @@ export default (base: HTMLElement) => {
 				let c = currToken.lightColour;
 				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
 				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-				makeElement(w, [
+				amendNode(w, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
 					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
 					br(),
@@ -620,7 +620,7 @@ export default (base: HTMLElement) => {
 	defaultTool.unset = () => {
 		cancelMapMouseMove();
 		cancelControlOverride();
-		makeElement(document.body, {"style": {"--outline-cursor": undefined}});
+		amendNode(document.body, {"style": {"--outline-cursor": undefined}});
 	};
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
@@ -666,6 +666,6 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
 	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
 	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
-	hiddenLayerOpacity.wait(v => makeElement(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
-	hiddenLayerSelectedOpacity.wait(v => makeElement(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
+	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
+	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 };

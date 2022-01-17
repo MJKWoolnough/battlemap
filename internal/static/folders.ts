@@ -1,5 +1,5 @@
 import type {FolderItems, FolderRPC, Uint} from './types.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
@@ -52,7 +52,7 @@ export class Item {
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return makeElement(window, {"class": "renameItem"}, [
+		return amendNode(window, {"class": "renameItem"}, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
@@ -75,7 +75,7 @@ export class Item {
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return makeElement(window, {"class": "copyItem"}, [
+		return amendNode(window, {"class": "copyItem"}, [
 			h1(lang["ITEM_COPY_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
@@ -96,7 +96,7 @@ export class Item {
 		      path = this.getPath(),
 		      pathDiv = div(path),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"]}));
-		return makeElement(window, {"class": "removeItem"}, [
+		return amendNode(window, {"class": "removeItem"}, [
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -121,10 +121,10 @@ export abstract class DraggableItem extends Item {
 	icon: HTMLDivElement = div(this.image);
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		makeElement(this[node].firstChild!, {
+		amendNode(this[node].firstChild!, {
 			"draggable": "true",
-			"onmouseover": () => makeElement(document.body, makeElement(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
-			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => makeElement(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
+			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
+			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
 			"ondragstart": (e: DragEvent) => {
 				const img = this.image;
@@ -134,7 +134,7 @@ export abstract class DraggableItem extends Item {
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
 				e.dataTransfer!.setData(this.dragName(), JSON.stringify({"id": this.id, "width": img.naturalWidth, "height": img.naturalHeight, "name": this.name}));
-				makeElement(this.icon, {"style": {"transform": "translateX(-9999px)"}});
+				amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
 			}
 		});
 	}
@@ -144,7 +144,7 @@ export abstract class DraggableItem extends Item {
 		this.removeIcon();
 	}
 	removeIcon() {
-		makeElement(this.icon, {"style": {"transform": undefined}}).remove();
+		amendNode(this.icon, {"style": {"transform": undefined}}).remove();
 	}
 }
 
@@ -227,7 +227,7 @@ export class Folder {
 		      parents = select(getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]})),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return makeElement(window, [
+		return amendNode(window, [
 			h1(lang["FOLDER_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
@@ -249,7 +249,7 @@ export class Folder {
 		      path = this.getPath(),
 		      pathDiv = div(path),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"]}));
-		return makeElement(window, {"class": "folderRemove"}, [
+		return amendNode(window, {"class": "folderRemove"}, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -269,7 +269,7 @@ export class Folder {
 		      path = this.getPath(),
 		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"]})),
 		      folderName = autoFocus(input({"onkeypress": enterKey}));
-		return makeElement(window, {"class": "folderAdd"}, [
+		return amendNode(window, {"class": "folderAdd"}, [
 			h1(lang["FOLDER_ADD"]),
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
@@ -364,7 +364,7 @@ export class Root {
 			return;
 		}
 		this.folder = new this.newFolder(this, null, "", rootFolder);
-		makeElement(this[node] ? clearElement(this[node]) : this[node] = div(), [
+		amendNode(this[node] ? clearNode(this[node]) : this[node] = div(), [
 			this.fileType,
 			this.folder.newer,
 			this.folder.children[node]

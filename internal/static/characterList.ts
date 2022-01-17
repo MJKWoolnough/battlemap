@@ -1,5 +1,5 @@
 import type {FolderItems, Uint} from './types.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
@@ -31,7 +31,7 @@ class Character extends DraggableItem {
 	get showOnMouseOver() { return true; }
 	dragName() { return "character"; }
 	setIcon(id: Uint) {
-		makeElement(this.image, {"src": `/images/${id}`});
+		amendNode(this.image, {"src": `/images/${id}`});
 	}
 	show() {
 		characterEdit(this.id, this.name, characterData.get(this.id)!, true);
@@ -90,12 +90,12 @@ menuItems.push([2, () => isAdmin ? [
 		rpcFuncs.list().then(folderList => {
 			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
-			makeElement(clearElement(base), {"id": "characters", "class": "folders"}, [
+			clearNode(base, {"id": "characters", "class": "folders"}, [
 				button({"onclick": () => {
 					let icon = 0;
 					const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
 					      name = autoFocus(input({"onkeypress": enterKey}));
-					makeElement(shell, makeElement(w, [
+					amendNode(shell, amendNode(w, [
 						h1(lang["CHARACTER_NEW"]),
 						labels(`${lang["CHARACTER_NAME"]}: `, name),
 						br(),
@@ -108,7 +108,7 @@ menuItems.push([2, () => isAdmin ? [
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 							const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 							icon = tokenData.id;
-							makeElement(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {

@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, input, legend} from './lib/html.js';
 import {node} from './lib/nodes.js';
@@ -30,7 +30,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(drawElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
+	amendNode(drawElement, {"x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
@@ -51,7 +51,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(drawElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
+	amendNode(drawElement, {"rx": Math.abs(coords[0] - x), "ry": Math.abs(coords[1] - y)});
       }, (e: MouseEvent) => {
 	if (e.isTrusted) {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
@@ -74,7 +74,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		return;
 	}
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
+	amendNode(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "") + ` ${x},${y}`});
       }),
       [setEscape, cancelEscape] = keyEvent("Escape", () => {
 	cancelRectDrag();
@@ -92,12 +92,12 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 	} else {
 		coords.pop();
 		coords.pop();
-		makeElement(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
+		amendNode(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
 	}
       }),
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	amendNode(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
       }),
       coords: [Uint, Uint, ...Uint[]] = [0, 0],
       icon = svg({"viewBox": "0 0 70 70", "fill": "none", "stroke": "currentColor"}, [
@@ -153,7 +153,7 @@ addTool({
 			} else if (poly.checked) {
 				if (drawElement instanceof SVGPolygonElement) {
 					coords.push(x, y);
-					makeElement(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
+					amendNode(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
 				} else {
 					coords.splice(0, coords.length, x, y);
 					drawElement?.remove();
@@ -204,9 +204,9 @@ addTool({
 	},
 	"set": () => {
 		deselectToken();
-		makeElement(snap, {"checked": autosnap.value});
+		amendNode(snap, {"checked": autosnap.value});
 		setupShiftSnap();
-		makeElement(root, {"style": {"cursor": "none"}}, marker);
+		amendNode(root, {"style": {"cursor": "none"}}, marker);
 	},
 	"unset": () => {
 		cancelShiftSnap();
@@ -217,6 +217,6 @@ addTool({
 		cancelPolyEscape();
 		cancelCursorMove();
 		marker.remove();
-		makeElement(root, {"style": {"cursor": undefined}});
+		amendNode(root, {"style": {"cursor": undefined}});
 	}
 });

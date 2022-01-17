@@ -1,7 +1,7 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
@@ -16,12 +16,12 @@ import {loadingWindow, shell, windows} from './windows.js';
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		makeElement(this.image, {"src": `/images/${id}`});
+		amendNode(this.image, {"src": `/images/${id}`});
 	}
 	get showOnMouseOver() { return true; }
 	dragName() { return "imageasset"; }
 	show() {
-		const w = makeElement(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`})))));
+		const w = amendNode(autoFocus(shell.appendChild(windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`})))));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
 		return w;
 	}
@@ -30,11 +30,11 @@ class ImageAsset extends DraggableItem {
 class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		makeElement(this.image, {"src": audioIcon});
+		amendNode(this.image, {"src": audioIcon});
 	}
 	dragName() { return "audioasset"; }
 	show() {
-		const w = makeElement(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
+		const w = amendNode(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
 		return w;
 	}
@@ -105,7 +105,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 			"response": "json",
 			"onprogress": (e: ProgressEvent) => {
 				if (e.lengthComputable) {
-					makeElement(bar, {"value": e.loaded, "max": e.total});
+					amendNode(bar, {"value": e.loaded, "max": e.total});
 					bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 				}
 			}
@@ -130,7 +130,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		root.setRPCFuncs(rpcFuncs);
 		root.setRoot(folderList);
 		root.windowIcon = icon;
-		makeElement(clearElement(base), {"id": `${id}Items`, "class": "folders"}, [
+		clearNode(base, {"id": `${id}Items`, "class": "folders"}, [
 			button({"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, autoFocus(input({"accept": types, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 					uploadAsset(root, id, new FormData(f), window)

@@ -1,7 +1,7 @@
 import type {Int, Uint} from './types.js';
 import type {DOMBind, Props, Children} from './lib/dom.js';
 import type {ShellElement, WindowElement} from './lib/windows.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {hasKeyEvent} from './lib/events.js';
 import {defaultIcon, desktop, shell as ashell, setDefaultIcon, windows as awindows} from './lib/windows.js';
@@ -27,7 +27,7 @@ export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowEleme
         return p.finally(() => w.remove());
 },
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children) => {
-	const w = makeElement(awindows({"hide-maximise": "true", "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
+	const w = amendNode(awindows({"hide-maximise": "true", "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
 		if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 			this.close();
 		}
@@ -36,16 +36,16 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 	if (saveName) {
 		const settings = new WindowSettings(saveName, getWindowData(w)),
 		      save = () => settings.set(getWindowData(w));
-		makeElement(w, {"style": {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px"}, "onmoved": save, "onresized": save});
+		amendNode(w, {"style": {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px"}, "onmoved": save, "onresized": save});
 	} else if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--window-height"))) {
-		makeElement(w, {"style": {"visibility": "hidden"}});
+		amendNode(w, {"style": {"visibility": "hidden"}});
 		window.setTimeout(() => {
 			if (w.parentNode === shell) {
 				const {offsetWidth: width, offsetHeight: height} = w,
 				      {offsetWidth: swidth, offsetHeight: sheight} = shell;
-				makeElement(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"}});
+				amendNode(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"}});
 			}
-			makeElement(w, {"style": {"visibility": undefined}});
+			amendNode(w, {"style": {"visibility": undefined}});
 			w.focus();
 		});
 	}

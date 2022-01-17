@@ -1,6 +1,6 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
@@ -81,7 +81,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 					return;
 				}
 				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-				makeElement(i, {"src": `/images/${data["src"]}`});
+				amendNode(i, {"src": `/images/${data["src"]}`});
 			})}, lang["TOKEN_USE_SELECTED"]),
 			i,
 			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
@@ -121,7 +121,7 @@ characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, Ke
 		const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
 		      charData = characterData.get(tokenData.id)!;
 		changes["store-character-id"] = {"user": true, "data": tokenData.id};
-		makeElement(clearElement(this), img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTER_EDIT"], charData, true)}));
+		clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTER_EDIT"], charData, true)}));
 		}
 	}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
@@ -132,7 +132,7 @@ iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, Keystor
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 		const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
 		changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
-		makeElement(clearElement(this), img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+		clearNode(this, img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
@@ -196,7 +196,7 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			});
 		}
 	      }});
-	makeElement(shell, autoFocus(makeElement(w, div(characterEdit(w, id, d, character, changes, removes, save) || [
+	amendNode(shell, autoFocus(amendNode(w, div(characterEdit(w, id, d, character, changes, removes, save) || [
 		h1(name),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
@@ -221,7 +221,7 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 					return;
 				}
 				changes[key] = {"user": false, "data": ""};
-				makeElement(inputs, adder(key));
+				amendNode(inputs, adder(key));
 			}
 		})}, lang["ROW_ADD"]),
 		button({"onclick": function(this: HTMLButtonElement) {

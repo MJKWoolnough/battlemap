@@ -1,6 +1,6 @@
 import type {Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
-import {clearElement, event, eventOnce, makeElement} from './lib/dom.js';
+import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
@@ -166,7 +166,7 @@ class Pack {
 	}
 }
 
-const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => makeElement(document.body, div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
+const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => amendNode(document.body, div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
       musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
       newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
       commonWaits = (packs: Map<string, Pack>) => {
@@ -404,9 +404,9 @@ menuItems.push([3, () => isAdmin ? [
 					if (document.body.contains(this.toPause)) {
 						this.toPause.beginElement();
 					} else {
-						makeElement(this.playPauseNode, {"d": pauseIcon});
+						amendNode(this.playPauseNode, {"d": pauseIcon});
 					}
-					makeElement(this.playStatus, {"style": {"visibility": undefined}});
+					amendNode(this.playStatus, {"style": {"visibility": undefined}});
 					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 					if (sendRPC) {
 						rpc.musicPackPlay(this.name, 0).then(playTime => {
@@ -423,9 +423,9 @@ menuItems.push([3, () => isAdmin ? [
 					if (document.body.contains(this.toPlay)) {
 						this.toPlay.beginElement();
 					} else {
-						makeElement(this.playPauseNode, {"d": playIcon});
+						amendNode(this.playPauseNode, {"d": playIcon});
 					}
-					makeElement(this.playStatus, {"style": {"visibility": "hidden"}});
+					amendNode(this.playStatus, {"style": {"visibility": "hidden"}});
 					this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
 					if (sendRPC) {
 						rpc.musicPackStop(this.name);
@@ -455,7 +455,7 @@ menuItems.push([3, () => isAdmin ? [
 			for (const name in list) {
 				musicList.set(name, new AdminPack(name, list[name]));
 			}
-			makeElement(clearElement(base), {"id": "musicPacks"}, [
+			clearNode(base, {"id": "musicPacks"}, [
 				button({"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 					if (name) {
 						rpc.musicPackAdd(name).then(name => musicList.set(name, new AdminPack(name, newPack())));

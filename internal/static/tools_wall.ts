@@ -1,6 +1,6 @@
 import type {RPCWaits, Uint, Wall} from './types.js';
 import type {WindowElement} from './windows.js';
-import {clearElement, makeElement} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
@@ -21,7 +21,7 @@ let wallColour = hex2Colour("#000"),
 
 const updateCursorState = () => {
 	if (placeWall.checked) {
-		makeElement(root, {"style": {"cursor": "none"}}, marker);
+		amendNode(root, {"style": {"cursor": "none"}}, marker);
 		startCursorMove();
 	} else {
 		cancelCursorMove();
@@ -44,16 +44,16 @@ const updateCursorState = () => {
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+	amendNode(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
       }, () => {
-	makeElement(root, {"style": {"cursor": undefined}});
+	amendNode(root, {"style": {"cursor": undefined}});
 	marker.remove()
       }),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
+	amendNode(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
@@ -94,21 +94,21 @@ const updateCursorState = () => {
       }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
       genWalls = () => {
-	clearElement(wallLayer);
+	clearNode(wallLayer);
 	wallMap.clear();
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
-			makeElement(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
+			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				const wall = walls.get(id);
 				if (wall) {
 					const {x1, y1, x2, y2} = wall.wall,
 					      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
-					makeElement(wallOverlay, {"style": {"width": width + "px"}});
-					makeElement(root, [
-						makeElement(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
-						makeElement(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-						makeElement(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+					amendNode(wallOverlay, {"style": {"width": width + "px"}});
+					amendNode(root, [
+						amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
+						amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+						amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 					]);
 					selectedWall = id;
 					e.stopPropagation();
@@ -145,8 +145,8 @@ const updateCursorState = () => {
 		      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 		      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
 		      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
-		makeElement(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
-		makeElement(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+		amendNode(wallRect, {"x": ax1, "y": ay1 - 5, "width": Math.hypot(ax1 - ax2, ay1 - ay2), "transform": `rotate(${Math.atan2(ay2 - ay1, ax2 - ax1) * 180 / Math.PI}, ${ax1}, ${ay1})`});
+		amendNode(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
 	} else {
 		deselectWall();
 	}
@@ -160,12 +160,12 @@ const updateCursorState = () => {
 			      [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 			      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
 			      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
-			makeElement(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
+			amendNode(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
 			doWallModify({"id": selectedWall, "x1": ax1, "y1": ay1, "x2": ax2, "y2": ay2, colour, scattering})
 		} else {
-			makeElement(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
-			makeElement(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-			makeElement(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+			amendNode(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
+			amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+			amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 		}
 	}
       }),
@@ -189,7 +189,7 @@ addTool({
 		]),
 		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
 		br(),
-		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => makeElement(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
@@ -202,7 +202,7 @@ addTool({
 		}
 		if (placeWall.checked) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			makeElement(root, makeElement(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
+			amendNode(root, amendNode(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
 			startWallDraw();
 		} else {
 			deselectWall();
@@ -216,9 +216,9 @@ addTool({
 	"set": () => {
 		active = true;
 		deselectToken();
-		makeElement(snap, {"checked": autosnap.value});
+		amendNode(snap, {"checked": autosnap.value});
 		genWalls();
-		makeElement(root, {"style": {"cursor": placeWall.checked ? "none" : undefined}}, [
+		amendNode(root, {"style": {"cursor": placeWall.checked ? "none" : undefined}}, [
 			wallLayer,
 			placeWall.checked ? marker : []
 		]);

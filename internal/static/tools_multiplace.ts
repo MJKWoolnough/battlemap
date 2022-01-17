@@ -1,5 +1,5 @@
 import type {TokenImage, Uint} from './types.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {mouseMoveEvent} from './lib/events.js';
 import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
@@ -22,9 +22,9 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       }}),
       i = img(),
-      setCursor = () => makeElement((cursor = SVGToken.from(token = setToken!()))[node], {"opacity": 0.5}),
+      setCursor = () => amendNode((cursor = SVGToken.from(token = setToken!()))[node], {"opacity": 0.5}),
       setImg = (id: Uint) => {
-	makeElement(i, {"src": `/images/${id}`});
+	amendNode(i, {"src": `/images/${id}`});
 	setCursor();
       },
       fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
@@ -35,8 +35,8 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
       showCursor = () => {
 	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
-		makeElement(layer[node], cursor[node]);
-		makeElement(root, {"style": {"cursor": "none"}})
+		amendNode(layer[node], cursor[node]);
+		amendNode(root, {"style": {"cursor": "none"}})
 		moveCursor();
 	}
       },
@@ -44,7 +44,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	stopCursor()
 	cursor?.[node].remove();
 	cursor?.cleanup();
-	makeElement(root, {"style": {"cursor": undefined}});
+	amendNode(root, {"style": {"cursor": undefined}});
       };
 
 let setToken: (() => TokenImage) | null = null,
@@ -123,7 +123,7 @@ addTool({
 		token.y = cursor.y;
 		doTokenAdd(layer.path, token);
 		setCursor();
-		makeElement(selected.layer![node], cursor[node]);
+		amendNode(selected.layer![node], cursor[node]);
 		return false;
 	},
 	"mapMouse2": ignore,
@@ -148,6 +148,6 @@ addTool({
 layersRPC.waitLayerSelect().then(() => {
 	const {layer} = selected;
 	if (cursor && cursor[node].parentNode && layer) {
-		makeElement(layer[node], cursor[node]);
+		amendNode(layer[node], cursor[node]);
 	}
 });

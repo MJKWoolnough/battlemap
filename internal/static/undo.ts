@@ -1,4 +1,4 @@
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {button, h1, li, ul} from './lib/html.js';
 import {NodeArray, node} from './lib/nodes.js';
 import lang from './language.js';
@@ -70,7 +70,7 @@ const undos = new NodeArray<FnDesc>(ul()),
 
 showWindow.wait(v => {
 	if (v) {
-		makeElement(shell, w);
+		amendNode(shell, w);
 	}
 });
 

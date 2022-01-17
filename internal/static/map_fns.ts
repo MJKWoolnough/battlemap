@@ -1,6 +1,6 @@
 import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {SVGLayer} from './map.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
@@ -322,7 +322,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (selected.token === token) {
-			makeElement(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
+			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;

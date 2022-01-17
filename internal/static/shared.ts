@@ -1,7 +1,7 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer, SVGShape, SVGToken} from './map.js';
-import {createDocumentFragment, makeElement} from './lib/dom.js';
+import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {g} from './lib/svg.js';
@@ -32,7 +32,7 @@ queue = (() => {
 labels = (() => {
 	let next = 0;
 	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Props = {}) => {
-		makeElement(input, {"id": props["for"] = `ID_${next++}`});
+		amendNode(input, {"id": props["for"] = `ID_${next++}`});
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];
 	};
@@ -81,7 +81,7 @@ selected = {
 outline = g(),
 deselectToken = () => {
 	selected.token = null;
-	makeElement(outline, {"style": {"display": "none"}});
+	amendNode(outline, {"style": {"display": "none"}});
 	tokenSelected();
 },
 setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {

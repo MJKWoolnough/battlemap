@@ -1,6 +1,6 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
 import lang from './language.js';
 import {checkInt, labels} from './shared.js';
@@ -43,7 +43,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 			updatePreview();
 		}
 	      }}),
-	      updatePreview = () => makeElement(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
+	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": reject}, [
@@ -63,7 +63,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 }),
 makeColourPicker = (() => {
 	const sc = (s: HTMLDivElement, c: Colour) => {
-		makeElement(s, {"style": {"background-color": c}});
+		amendNode(s, {"style": {"background-color": c}});
 		return c;
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {

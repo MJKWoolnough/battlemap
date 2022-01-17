@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
@@ -111,17 +111,17 @@ menuItems.push([6, () => isAdmin ? [
 			selectedTool = t;
 			toolNum = n;
 			if (t.options) {
-				makeElement(clearElement(options), t.options);
+				clearNode(options, t.options);
 				if (windowed && miniTools.value) {
-					makeElement(shell, autoFocus(optionsWindow));
+					amendNode(shell, autoFocus(optionsWindow));
 				} else {
-					makeElement(toolOptions, {"style": {"display": undefined}});
+					amendNode(toolOptions, {"style": {"display": undefined}});
 				}
 			} else {
 				if (windowed && miniTools.value) {
 					optionsWindow.remove();
 				} else {
-					makeElement(toolOptions, {"style": {"display": "none"}});
+					amendNode(toolOptions, {"style": {"display": "none"}});
 				}
 			}
 			selected?.classList.remove("selected")
@@ -132,21 +132,21 @@ menuItems.push([6, () => isAdmin ? [
 			span(t.name)
 		      ])),
 		      fc = list[0];
-		makeElement(base, {"id": "toolList", "onpopout": () => {
+		amendNode(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
-				makeElement(optionsWindow, options);
+				amendNode(optionsWindow, options);
 				if (selectedTool.options) {
-					makeElement(toolOptions, {"style": {"display": "none"}});
-					makeElement(shell, autoFocus(optionsWindow));
+					amendNode(toolOptions, {"style": {"display": "none"}});
+					amendNode(shell, autoFocus(optionsWindow));
 				}
 			}
 		}, "onpopin": () => {
 			windowed = false;
 			if (miniTools.value) {
-				makeElement(toolOptions, options);
+				amendNode(toolOptions, options);
 				if (selectedTool.options) {
-					makeElement(toolOptions, {"style": {"display": undefined}});
+					amendNode(toolOptions, {"style": {"display": undefined}});
 					optionsWindow.remove();
 				}
 			}
@@ -159,15 +159,15 @@ menuItems.push([6, () => isAdmin ? [
 				return;
 			}
 			if (on) {
-				makeElement(optionsWindow, options);
+				amendNode(optionsWindow, options);
 				if (selectedTool.options) {
-					makeElement(toolOptions, {"style": {"display": "none"}});
-					makeElement(shell, autoFocus(optionsWindow));
+					amendNode(toolOptions, {"style": {"display": "none"}});
+					amendNode(shell, autoFocus(optionsWindow));
 				}
 			} else {
-				makeElement(toolOptions, options);
+				amendNode(toolOptions, options);
 				if (selectedTool.options) {
-					makeElement(toolOptions, {"style": {"display": undefined}});
+					amendNode(toolOptions, {"style": {"display": undefined}});
 					optionsWindow.remove();
 				}
 			}

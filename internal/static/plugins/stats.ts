@@ -1,6 +1,6 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
-import {clearElement, makeElement} from '../lib/dom.js';
+import {amendNode, clearNode} from '../lib/dom.js';
 import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
@@ -107,9 +107,9 @@ if (isAdmin) {
 							}
 						}
 					}
-					makeElement(clearElement(output), [
+					clearNode(output, [
 						h2(`${lang["MAP"]}: ${mapID}`),
-						makeElement(total, `${lang["TOTAL_SIZE"]}: ${formatNumber.format(totalSize)}`),
+						amendNode(total, `${lang["TOTAL_SIZE"]}: ${formatNumber.format(totalSize)}`),
 						table({"id": "statistics-table"}, [
 							head,
 							tb[node]

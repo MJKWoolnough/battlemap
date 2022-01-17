@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, input} from './lib/html.js';
 import {circle, g, path, polyline, svg, title} from './lib/svg.js';
@@ -45,7 +45,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       }),
       [startMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-	makeElement(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
+	amendNode(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 	if (!isNaN(coords[0])) {
 		measureDistance(x, y);
 		if (send) {
@@ -68,19 +68,19 @@ export const startMeasurement = (x1: Uint, y1: Uint) => {
 	coords.splice(0, coords.length, x1, y1);
 	const l = {"points": `${x1},${y1} ${x1},${y1}`},
 	      [sx, sy] = grid2Screen(x1, y1);
-	makeElement(lone, l);
-	makeElement(ltwo, l);
-	makeElement(spot, {"cx": coords[0], "cy": coords[1]});
+	amendNode(lone, l);
+	amendNode(ltwo, l);
+	amendNode(spot, {"cx": coords[0], "cy": coords[1]});
 	if (!drawnLine.parentNode) {
 		if (marker.parentNode) {
 			root.insertBefore(drawnLine, marker);
 		} else {
-			makeElement(root, drawnLine);
+			amendNode(root, drawnLine);
 		}
 	}
-	makeElement(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
+	amendNode(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
 	if (!info.parentNode) {
-		makeElement(document.body, info);
+		amendNode(document.body, info);
 	}
 },
 measureDistance = (x: Uint, y: Uint) => {
@@ -110,9 +110,9 @@ measureDistance = (x: Uint, y: Uint) => {
 	      dx = x - last[0],
 	      dy = y - last[1];
 	distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
-	makeElement(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
-	makeElement(lone, l);
-	makeElement(ltwo, l);
+	amendNode(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
+	amendNode(lone, l);
+	amendNode(ltwo, l);
 },
 stopMeasurement = () => {
 	drawnLine.remove();
@@ -137,8 +137,8 @@ addTool({
 		return false;
 	},
 	"tokenMouseOver": function(this: SVGElement) {
-		makeElement(root, {"style": {"--outline-cursor": "none"}});
-		this.addEventListener("mouseout", () => makeElement(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
+		amendNode(root, {"style": {"--outline-cursor": "none"}});
+		this.addEventListener("mouseout", () => amendNode(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
 		return false;
 	},
 	"tokenMouse0": ignore,
@@ -163,13 +163,13 @@ addTool({
 		return false;
 	},
 	"set": () => {
-		makeElement(root, {"style": {"cursor": "none"}}, marker);
-		makeElement(snap, {"checked": autosnap.value});
+		amendNode(root, {"style": {"cursor": "none"}}, marker);
+		amendNode(snap, {"checked": autosnap.value});
 		setupShiftSnap();
 		setupEscape();
 	},
 	"unset": () => {
-		makeElement(root, {"style": {"cursor": undefined}});
+		amendNode(root, {"style": {"cursor": undefined}});
 		marker.remove();
 		cancelMouse0();
 		cancelMouse2();

@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {autoFocus, clearElement, makeElement} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
@@ -35,7 +35,7 @@ let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
-		makeElement(this.image, {"src": mapIcon});
+		amendNode(this.image, {"src": mapIcon});
 		this[node].classList.add("mapItem");
 		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
@@ -185,7 +185,7 @@ menuItems.push([4, () => isAdmin ? [
 			if (userMap > 0) {
 				setUserMap(userMap, s);
 			}
-			makeElement(clearElement(base), {"id": "mapList"}, [
+			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
 					const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
 					      name = autoFocus(input({"type": "text"})),
@@ -195,7 +195,7 @@ menuItems.push([4, () => isAdmin ? [
 					      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
 					      sqColour = input({"type": "color"}),
 					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"});
-					return makeElement(window, {"class": "mapAdd"}, [
+					return amendNode(window, {"class": "mapAdd"}, [
 						h1(lang["MAP_NEW"]),
 						labels(`${lang["MAP_NAME"]}: `, name),
 						br(),
@@ -212,7 +212,7 @@ menuItems.push([4, () => isAdmin ? [
 						labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {
-							makeElement(this, {"disabled": true});
+							amendNode(this, {"disabled": true});
 							const sq = checkInt(parseInt(sqWidth.value), 1, 1000, 1);
 							loadingWindow(rpc.newMap({
 								"name": name.value,

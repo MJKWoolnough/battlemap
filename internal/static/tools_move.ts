@@ -1,4 +1,4 @@
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {node} from './lib/nodes.js';
 import {g, line, path, svg, title} from './lib/svg.js';
@@ -21,7 +21,7 @@ const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
 	dx = (x - ox) / panZoom.zoom;
 	dy = (y - oy) / panZoom.zoom;
-	makeElement(selected.layer![node], {"transform": `translate(${dx}, ${dy})`});
+	amendNode(selected.layer![node], {"transform": `translate(${dx}, ${dy})`});
 	if (measure) {
 		measureDistance(x, y);
 	}
@@ -71,9 +71,9 @@ addTool({
 	"tokenMouseOver": ignore,
 	"tokenMouse0": ignore,
 	"tokenMouse2": disable,
-	"set": () => makeElement(root, {"style": {"cursor": "move"}}),
+	"set": () => amendNode(root, {"style": {"cursor": "move"}}),
 	"unset": () => {
-		makeElement(root, {"style": {"cursor": undefined}});
+		amendNode(root, {"style": {"cursor": undefined}});
 		stop();
 	}
 });

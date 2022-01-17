@@ -1,6 +1,6 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, LayerFolder, LayerTokens, MapData, MapDetails, Mask, Token, TokenDrawing, TokenImage, TokenSet, TokenShape, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
-import {makeElement} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
@@ -91,7 +91,7 @@ export class SVGToken extends SVGTransform {
 		const n = image(wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}),
 		      tc = tokenClass() ?? SVGToken,
 		      svgToken = Object.setPrototypeOf(Object.assign(token, {[node]: n}), tc.prototype);
-		makeElement(n, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
+		amendNode(n, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
 		Object.defineProperty(svgToken, node, {"enumerable": false});
 		if (svgToken.init instanceof Function) {
 			svgToken.init();
@@ -114,11 +114,11 @@ export class SVGToken extends SVGTransform {
 	}
 	uncleanup() {
 		if (this.isPattern) {
-			makeElement(this[node], {"fill": `url(#${definitions.add(this)})`});
+			amendNode(this[node], {"fill": `url(#${definitions.add(this)})`});
 		}
 	}
 	updateSource(source: Uint) {
-		makeElement(this[node] instanceof SVGRectElement ? definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild! : this[node], {"href": `images/${this.src = source}`});
+		amendNode(this[node] instanceof SVGRectElement ? definitions.list.get(this[node].getAttribute("fill")!.slice(5, -1))!.firstChild! : this[node], {"href": `images/${this.src = source}`});
 	}
 	updateNode() {
 		if (this[node] instanceof SVGRectElement && !this.isPattern) {
@@ -127,7 +127,7 @@ export class SVGToken extends SVGTransform {
 		} else if (this[node] instanceof SVGImageElement && this.isPattern) {
 			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${definitions.add(this)})`}));
 		}
-		makeElement(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
+		amendNode(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
 	}
 	getData(key: string) {
 		if (this.tokenData[key]) {
@@ -164,7 +164,7 @@ export class SVGShape extends SVGTransform {
 			n = ellipse({"cx": rx, "cy": ry, rx, ry});
 		}
 		const svgShape = Object.setPrototypeOf(Object.assign(token, {[node]: n}), SVGShape.prototype);
-		makeElement(n, {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
+		amendNode(n, {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": svgShape.transformString()});
 		Object.defineProperty(svgShape, node, {"enumerable": false});
 		return svgShape;
 	}
@@ -178,9 +178,9 @@ export class SVGShape extends SVGTransform {
 		if (this.isEllipse) {
 			const rx = this.width / 2,
 			      ry = this.height / 2;
-			makeElement(this[node], {"cx": rx, "cy": ry, rx, ry, "transform": this.transformString()});
+			amendNode(this[node], {"cx": rx, "cy": ry, rx, ry, "transform": this.transformString()});
 		} else {
-			makeElement(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
+			amendNode(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
 		}
 	}
 }
@@ -209,14 +209,14 @@ export class SVGDrawing extends SVGShape {
 		      yr = token.height / oHeight,
 		      n = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth}),
 		      svgDrawing = Object.setPrototypeOf(Object.assign(token, {[node]: n, oWidth, oHeight}), SVGDrawing.prototype);
-		makeElement(n, {"transform": svgDrawing.transformString()});
+		amendNode(n, {"transform": svgDrawing.transformString()});
 		Object.defineProperty(svgDrawing, node, {"enumerable": false});
 		return svgDrawing;
 	}
 	updateNode() {
 		const xr = this.width / this.oWidth,
 		      yr = this.height / this.oHeight;
-		makeElement(this[node], {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
+		amendNode(this[node], {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
 	}
 }
 
@@ -244,7 +244,7 @@ const idNames: Record<string, Int> = {
 			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
-		makeElement(n, {"id": `layer${layer.name}`});
+		amendNode(n, {"id": `layer${layer.name}`});
 		layer.walls = [];
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
@@ -350,12 +350,12 @@ moveLayer = (from: string, to: string, pos: Uint) => {
 },
 setMapDetails = (details: MapDetails) => {
 	Object.assign(mapData, details);
-	makeElement(root, {"width": details["width"], "height": details["height"]});
+	amendNode(root, {"width": details["width"], "height": details["height"]});
 	definitions.setGrid(details);
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	makeElement((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement, {"fill": mapData.lightColour = c});
+	amendNode((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement, {"fill": mapData.lightColour = c});
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
@@ -376,7 +376,7 @@ showSignal = (() => {
 		circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, signalAnim2)
 	      ]);
 	return (pos: [Uint, Uint]) => {
-		makeElement(root, makeElement(signal, {"transform": `translate(${pos[0] - 50}, ${pos[1] - 50})`}));
+		amendNode(root, amendNode(signal, {"transform": `translate(${pos[0] - 50}, ${pos[1] - 50})`}));
 		signalAnim1.beginElement();
 		signalAnim2.beginElement();
 	};
@@ -443,7 +443,7 @@ zoom = (() => {
 	const zoomMove = (e: MouseEvent) => {
 		const v = Math.max(10, Math.min(110, e.clientY)),
 		      z = Math.pow(1.4, (60 - v) / 10);
-		makeElement(zoomerControl, {"cy": v});
+		amendNode(zoomerControl, {"cy": v});
 		zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
 	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
@@ -456,7 +456,7 @@ zoom = (() => {
 		document.body.classList.add("zooming");
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)
-	inited.then(() => makeElement(shell, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+	inited.then(() => amendNode(shell, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
 		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 			if (e.button === 0) {
 				zoomMove(e);
@@ -465,7 +465,7 @@ zoom = (() => {
 		zoomerControl
 	])));
 	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
-	mapLoadedReceive(() => makeElement(zoomerControl, {"cy": "60"}));
+	mapLoadedReceive(() => amendNode(zoomerControl, {"cy": "60"}));
 	return (delta: number, x: number, y: number, moveControl = true) => {
 		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
 		      height = checkInt(parseInt(root.getAttribute("height") || "0"), 0) / 2,
@@ -477,9 +477,9 @@ zoom = (() => {
 		}
 		panZoom.x += x - (panZoom.zoom * ((x + (oldZoom - 1) * width) - panZoom.x) / oldZoom + panZoom.x - (panZoom.zoom - 1) * width);
 		panZoom.y += y - (panZoom.zoom * ((y + (oldZoom - 1) * height) - panZoom.y) / oldZoom + panZoom.y - (panZoom.zoom - 1) * height);
-		makeElement(root, {"transform": `scale(${panZoom.zoom})` ,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px", "--zoom": panZoom.zoom}});
+		amendNode(root, {"transform": `scale(${panZoom.zoom})` ,"style": {"left": panZoom.x + "px", "top": panZoom.y + "px", "--zoom": panZoom.zoom}});
 		if (moveControl) {
-			makeElement(zoomerControl, {"cy": Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4))});
+			amendNode(zoomerControl, {"cy": Math.max(10, 120 - Math.min(110, 60 + 10 * Math.log(panZoom.zoom) / l4))});
 		}
 	};
 })(),
@@ -490,7 +490,7 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	      {zoom} = panZoom;
 	panZoom.x = Math.min(Math.max((iw - width) / 2 - (x - width / 2) * zoom, iw - width * (zoom + 1) / 2), width * (zoom - 1) / 2);
 	panZoom.y = Math.min(Math.max((ih - height) / 2 - (y - height / 2) * zoom, ih - height * (zoom + 1) / 2), height * (zoom - 1) / 2);
-	makeElement(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
+	amendNode(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
 masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
@@ -577,7 +577,7 @@ masks = (() => {
 			masks.splice(index, 1);
 		},
 		set(bO: boolean, maskList: Mask[]) {
-			makeElement(base, {"fill": (baseOpaque = bO) ? "#fff" : "#000"});
+			amendNode(base, {"fill": (baseOpaque = bO) ? "#fff" : "#000"});
 			masks.splice(0, masks.length);
 			for (const mask of maskList) {
 				this.add(mask);
@@ -674,8 +674,8 @@ mapView = (mD: MapData, loadChars = false) => {
 	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
-	makeElement((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	makeElement((getLayer("/Light") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": lightColour}));
+	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
+	amendNode((getLayer("/Light") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": lightColour}));
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {
@@ -705,7 +705,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	wg.onUpdate(({waits, done, errors}) => {
 		const d = done + errors;
 		items.innerText = `${d} / ${waits}`;
-		makeElement(percent, {"max": waits, "value": d});
+		amendNode(percent, {"max": waits, "value": d});
 	});
 	wg.add();
 	wg.done();
@@ -720,7 +720,7 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 		zoom(Math.sign(e.deltaY) * 0.95, e.clientX, e.clientY);
 	} else {
 		const amount = scrollAmount.value || 100;
-		makeElement(root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
+		amendNode(root, {"style": {"left": (panZoom.x += Math.sign(e.shiftKey ? e.deltaY : e.deltaX) * -amount) + "px", "top": (panZoom.y += (e.shiftKey ? 0 : Math.sign(e.deltaY)) * -amount) + "px"}});
 	}
 	return false;
 };
@@ -735,7 +735,7 @@ export default (base: HTMLElement) => {
 	    mX = 0,
 	    mY = 0;
 	const startMapMove = (e: MouseEvent) => {
-		makeElement(root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
+		amendNode(root, {"style": {"left": `${panZoom.x += e.clientX - mX}px`, "top": `${panZoom.y += e.clientY - mY}px`}});
 		mX = e.clientX;
 		mY = e.clientY;
 	      },

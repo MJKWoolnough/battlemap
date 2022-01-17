@@ -1,5 +1,5 @@
 import type {Uint} from '../types.js';
-import {makeElement} from '../lib/dom.js';
+import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
@@ -30,11 +30,11 @@ const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style":
 	      s = gridSize * size / (gridDistance || 1),
 	      sh = s >> 1,
 	      w = gridSize * width / (gridDistance || 1);
-	makeElement(circleCircle, {"r": s})
-	makeElement(conePath, {"d": `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`});
-	makeElement(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
-	makeElement(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
-	makeElement(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
+	amendNode(circleCircle, {"r": s})
+	amendNode(conePath, {"d": `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`});
+	amendNode(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
+	amendNode(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
+	amendNode(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
       types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128) + ""]);
 
@@ -83,7 +83,7 @@ if (isAdmin) {
 		if (selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			setTokenCentre();
 		}
-		makeElement(options, {"style": {"--spell-display": selectedEffect === lineEffect || selectedEffect === wallEffect ? "block" : ""}});
+		amendNode(options, {"style": {"--spell-display": selectedEffect === lineEffect || selectedEffect === wallEffect ? "block" : ""}});
 	      },
 	      sendEffect = () => rpc.broadcast({"type": "plugin-spells", "data": [effectList.indexOf(selectedEffect) ?? 0, size, width, x, y, rotation, damageType]}),
 	      cancelEffect = () => rpc.broadcast({"type": "plugin-spells", "data": null}),
@@ -92,9 +92,9 @@ if (isAdmin) {
 		if (token) {
 			x = Math.round(token.x + token.width / 2);
 			y = Math.round(token.y + token.height / 2);
-			makeElement(selectedEffect, {"transform": `translate(${x}, ${y})`});
+			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
 			if (!selectedEffect.parentNode) {
-				makeElement(root, selectedEffect);
+				amendNode(root, selectedEffect);
 			}
 		} else {
 			coneEffect.remove();
@@ -120,7 +120,7 @@ if (isAdmin) {
 			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
 		} else {
 			[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			makeElement(selectedEffect, {"transform": `translate(${x}, ${y})`});
+			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
 		}
 		if (send) {
 			sendEffect();
@@ -144,7 +144,7 @@ if (isAdmin) {
 			labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				damageType = checkInt(parseInt(this.value), 0, types.length - 1);
 				for (const effect of effectList) {
-					makeElement(effect, {"stroke": types[damageType][0], "fill": types[damageType][1]});
+					amendNode(effect, {"stroke": types[damageType][0], "fill": types[damageType][1]});
 				}
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
@@ -193,9 +193,9 @@ if (isAdmin) {
 			} else {
 				[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			}
-			makeElement(selectedEffect, {"transform": `translate(${x}, ${y})`});
+			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
 			if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
-				makeElement(this, selectedEffect);
+				amendNode(this, selectedEffect);
 			}
 			setupEnter();
 			setupMouseMove();
@@ -271,9 +271,9 @@ if (isAdmin) {
 		}
 		if (lastEffect !== selectedEffect) {
 			lastEffect?.remove();
-			makeElement(root, selectedEffect);
+			amendNode(root, selectedEffect);
 		}
 		setSize(size, width);
-		rotations.get(lastEffect = makeElement(selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]}))?.setAttribute("transform", `rotate(${rotation})`);
+		rotations.get(lastEffect = amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]}))?.setAttribute("transform", `rotate(${rotation})`);
 	});
 }
