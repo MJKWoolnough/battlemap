@@ -470,8 +470,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkColour, "lightColour"], [checkUint, "lightIntensity"]],
-      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"], [checkKeystoreData, "tokenData"]],
+      checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkColour, "lightColour"], [checkUint, "lightIntensity"], [checkKeystoreData, "tokenData"]],
+      checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
@@ -481,9 +481,6 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	case undefined:
 	case 0:
 		checker(data, name, checksTokenImage);
-		for (const c of tokenDataCheckers) {
-			c(data.tokenData);
-		}
 		break;
 	case 2:
 		checkArray(data.points, name, "points")
@@ -501,6 +498,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		break;
 	default:
 		throw new TypeError("invalid Token object, key 'tokenType' contains invalid data");
+	}
+	for (const c of tokenDataCheckers) {
+		c(data.tokenData);
 	}
 	return data;
       },
