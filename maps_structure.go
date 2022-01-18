@@ -266,24 +266,6 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 		p = strconv.AppendBool(append(p, ",\"flop\":"...), t.Flop)
 		p = strconv.AppendUint(append(p, ",\"patternWidth\":"...), t.PatternWidth, 10)
 		p = strconv.AppendUint(append(p, ",\"patternHeight\":"...), t.PatternHeight, 10)
-		p = append(p, ",\"tokenData\":{"...)
-		first := true
-		for key, data := range t.TokenData {
-			if user && !data.User {
-				continue
-			}
-			if !first {
-				p = append(p, ',')
-			} else {
-				first = false
-			}
-			p = append(appendString(p, key), ':')
-			p = strconv.AppendBool(append(p, "{\"user\":"...), data.User)
-			p = append(append(p, ",\"data\":"...), data.Data...)
-			p = append(p, '}')
-
-		}
-		p = append(p, '}')
 	case tokenDrawing:
 		p = append(p, ",\"points\":["...)
 		for n, coords := range t.Points {
@@ -325,6 +307,24 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 		}
 		p = append(p, ']')
 	}
+	p = append(p, ",\"tokenData\":{"...)
+	first := true
+	for key, data := range t.TokenData {
+		if user && !data.User {
+			continue
+		}
+		if !first {
+			p = append(p, ',')
+		} else {
+			first = false
+		}
+		p = append(appendString(p, key), ':')
+		p = strconv.AppendBool(append(p, "{\"user\":"...), data.User)
+		p = append(append(p, ",\"data\":"...), data.Data...)
+		p = append(p, '}')
+
+	}
+	p = append(p, '}')
 	return append(p, '}')
 }
 
@@ -343,7 +343,7 @@ func (t *token) validate(checkID bool) error {
 		}
 		fallthrough
 	case tokenShape:
-		if t.Source != 0 || t.Flip || t.Flop || t.PatternWidth > 0 || t.PatternHeight > 0 || t.TokenData != nil {
+		if t.Source != 0 || t.Flip || t.Flop || t.PatternWidth > 0 || t.PatternHeight > 0 {
 			return ErrInvalidToken
 		}
 	default:
