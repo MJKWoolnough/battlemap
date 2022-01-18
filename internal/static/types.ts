@@ -218,6 +218,7 @@ type TokenShared = TokenLight & {
 	rotation:   Byte;
 	tokenType?: Uint;
 	snap:       boolean;
+	tokenData:  Record<string, KeystoreData>;
 }
 
 export type TokenImage = TokenShared & {
@@ -226,7 +227,6 @@ export type TokenImage = TokenShared & {
 	patternHeight: Uint;
 	flip:        boolean;
 	flop:        boolean;
-	tokenData:   Record<string, KeystoreData>;
 }
 
 export type TokenShape = TokenShared & {
