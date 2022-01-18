@@ -675,55 +675,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					tk.Flop = *setToken.Flop
 					data = strconv.AppendBool(append(data, ",\"flip\":"...), tk.Flop)
 				}
-				var userRemoves []string
-				if len(setToken.TokenData) > 0 {
-					if len(setToken.RemoveTokenData) > 0 {
-						for _, r := range setToken.RemoveTokenData {
-							delete(setToken.TokenData, r)
-						}
-					}
-					data = append(data, ",\"tokenData\":{"...)
-					first := true
-					for key, kd := range setToken.TokenData {
-						if kd.User {
-							if first {
-								first = false
-							} else {
-								data = append(data, ',')
-							}
-							data = append(append(append(appendString(data, key), ":{\"user\":true,\"data\":"...), kd.Data...), '}')
-						} else if td, ok := tk.TokenData[key]; ok && td.User {
-							userRemoves = append(userRemoves, key)
-						}
-						tk.TokenData[key] = kd
-					}
-					data = append(data, '}')
-				}
-				if len(setToken.RemoveTokenData) > 0 {
-					for _, r := range setToken.RemoveTokenData {
-						delete(setToken.TokenData, r)
-						if d, ok := tk.TokenData[r]; ok {
-							if d.User {
-								userRemoves = append(userRemoves, r)
-							}
-							delete(tk.TokenData, r)
-							changed = true
-						}
-					}
-				}
-				if len(userRemoves) > 0 {
-					data = append(data, ",\"removeTokenData\":["...)
-					first := true
-					for _, r := range userRemoves {
-						if first {
-							first = false
-						} else {
-							data = append(data, ',')
-						}
-						data = appendString(data, r)
-					}
-					data = append(data, ']')
-				}
 			case tokenDrawing:
 				if setToken.Points != nil {
 					tk.Points = setToken.Points
@@ -756,6 +707,55 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					tk.StrokeWidth = *setToken.StrokeWidth
 					data = appendNum(append(data, ",\"strokeWidth\":"...), tk.StrokeWidth)
 				}
+			}
+			var userRemoves []string
+			if len(setToken.TokenData) > 0 {
+				if len(setToken.RemoveTokenData) > 0 {
+					for _, r := range setToken.RemoveTokenData {
+						delete(setToken.TokenData, r)
+					}
+				}
+				data = append(data, ",\"tokenData\":{"...)
+				first := true
+				for key, kd := range setToken.TokenData {
+					if kd.User {
+						if first {
+							first = false
+						} else {
+							data = append(data, ',')
+						}
+						data = append(append(append(appendString(data, key), ":{\"user\":true,\"data\":"...), kd.Data...), '}')
+					} else if td, ok := tk.TokenData[key]; ok && td.User {
+						userRemoves = append(userRemoves, key)
+					}
+					tk.TokenData[key] = kd
+				}
+				data = append(data, '}')
+			}
+			if len(setToken.RemoveTokenData) > 0 {
+				for _, r := range setToken.RemoveTokenData {
+					delete(setToken.TokenData, r)
+					if d, ok := tk.TokenData[r]; ok {
+						if d.User {
+							userRemoves = append(userRemoves, r)
+						}
+						delete(tk.TokenData, r)
+						changed = true
+					}
+				}
+			}
+			if len(userRemoves) > 0 {
+				data = append(data, ",\"removeTokenData\":["...)
+				first := true
+				for _, r := range userRemoves {
+					if first {
+						first = false
+					} else {
+						data = append(data, ',')
+					}
+					data = appendString(data, r)
+				}
+				data = append(data, ']')
 			}
 			if len(data) > l {
 				changed = true
