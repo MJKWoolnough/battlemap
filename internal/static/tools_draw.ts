@@ -36,7 +36,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked),
 		      {layer} = selected;
 		if (layer) {
-			doTokenAdd(layer.path, {"id": 0, "x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y), "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "lightColour": noColour, "lightIntensity": 0});
+			doTokenAdd(layer.path, {"id": 0, "x": Math.min(coords[0], x), "y": Math.min(coords[1], y), "width": Math.abs(coords[0] - x), "height": Math.abs(coords[1] - y), "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
 		} else {
 			shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 		}
@@ -59,7 +59,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		if (layer) {
 			const width = Math.abs(coords[0] - x),
 			      height = Math.abs(coords[1] - y);
-			doTokenAdd(layer.path, {"id": 0, "x": coords[0] - width, "y": coords[1] - height, "width": width * 2, "height": height * 2, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "isEllipse": true, "lightColour": noColour, "lightIntensity": 0});
+			doTokenAdd(layer.path, {"id": 0, "x": coords[0] - width, "y": coords[1] - height, "width": width * 2, "height": height * 2, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 1, "isEllipse": true, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
 		} else {
 			shell.alert(lang["ERROR"], lang["TOOL_DRAW_ERROR"]);
 		}
@@ -194,7 +194,7 @@ addTool({
 				}
 				return res;
 			}, [] as [Uint, Uint][]).map(([x, y]) => ({"x": x - minX, "y": y - minY}));
-			doTokenAdd(layer.path, {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0});
+			doTokenAdd(layer.path, {"id": 0, "x": minX, "y": minY, "width": maxX - minX, "height": maxY - minY, "rotation": 0, "snap": snap.checked, fill, stroke, "strokeWidth": checkInt(parseInt(strokeWidth.value), 0, 100), "tokenType": 2, points, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
 			cancelPolyMove();
 			cancelPolyEscape();
 			drawElement.remove();
