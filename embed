@@ -24,7 +24,9 @@ tmpFile="$(mktemp)";
 
 if [ "$1" = "-size" ]; then
 	stat -c %s "$tmpFile";
-	rm -f "$tmpFile";
+	zopfli --gzip --i1000 -c "$tmpFile" > "$tmpFile.gz";
+	stat -c %s "$tmpFile.gz";
+	rm -f "$tmpFile" "$tmpFile.gz";
 	exit 0;
 fi;
 
