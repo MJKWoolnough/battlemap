@@ -41,6 +41,7 @@ class SVGTransform {
 	height: Uint;
 	lightColour: Colour;
 	lightIntensity: Uint;
+	tokenData: Record<string, KeystoreData>;
 	constructor(token: Token) {
 		this.id = token.id;
 		this.width = token.width;
@@ -50,6 +51,7 @@ class SVGTransform {
 		this.rotation = token.rotation;
 		this.lightColour = token.lightColour;
 		this.lightIntensity = token.lightIntensity;
+		this.tokenData = token.tokenData;
 	}
 	at(x: Int, y: Int, n: SVGGraphicsElement) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(n.getScreenCTM()!.inverse());
@@ -68,6 +70,17 @@ class SVGTransform {
 		}
 		return ret;
 	}
+	getData(key: string) {
+		if (this.tokenData[key]) {
+			return this.tokenData[key]["data"];
+		} else if (this.tokenData["store-character-id"]) {
+			const char = characterData.get(this.tokenData["store-character-id"]["data"]);
+			if (char && char[key]) {
+				return char[key]["data"];
+			}
+		}
+		return null;
+	}
 }
 
 export class SVGToken extends SVGTransform {
@@ -77,7 +90,6 @@ export class SVGToken extends SVGTransform {
 	strokeWidth: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
-	tokenData: Record<string, KeystoreData>;
 	tokenType: Uint;
 	snap: boolean;
 	constructor(token: TokenImage) {
@@ -128,17 +140,6 @@ export class SVGToken extends SVGTransform {
 			this[node].replaceWith(this[node] = rect({"class": "mapPattern", "fill": `url(#${definitions.add(this)})`}));
 		}
 		amendNode(this[node], {"width": this.width, "height": this.height, "transform": this.transformString()});
-	}
-	getData(key: string) {
-		if (this.tokenData[key]) {
-			return this.tokenData[key]["data"];
-		} else if (this.tokenData["store-character-id"]) {
-			const char = characterData.get(this.tokenData["store-character-id"]["data"]);
-			if (char && char[key]) {
-				return char[key]["data"];
-			}
-		}
-		return null;
 	}
 }
 
