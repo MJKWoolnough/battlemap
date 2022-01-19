@@ -1,6 +1,6 @@
 import type {KeystoreData, InternalWaits, RPC as RPCType, Uint} from './types.js';
 import {Subscription} from './lib/inter.js';
-import RPC from './lib/rpc_ws.js';
+import RPC from './lib/rpc.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 import {isInt, isUint, queue} from './shared.js';
@@ -298,7 +298,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 		for (const [name, broadcastID, checker] of waiters[k]) {
 			let fn: Function;
 			const waiter = new Subscription(success => fn = success);
-			arpc.await(broadcastID, true).then(checker).then(data => queue(async () => fn(data)));
+			arpc.subscribe(broadcastID).then(checker).then(data => queue(async () => fn(data)));
 			rk[name] = () => waiter;
 			if (ik[name]) {
 				ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
