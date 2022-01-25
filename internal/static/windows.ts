@@ -4,7 +4,7 @@ import type {ShellElement, WindowElement} from './lib/windows.js';
 import {amendNode} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {hasKeyEvent} from './lib/events.js';
-import {defaultIcon, desktop, shell as ashell, setDefaultIcon, windows as awindows} from './lib/windows.js';
+import {defaultIcon, desktop, shell as ashell, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
 import lang from './language.js';
 import {isInt, isUint} from './shared.js';
 import {JSONSetting} from './settings_types.js';
@@ -19,6 +19,7 @@ class WindowSettings extends JSONSetting<WindowData> {
 	}
 }
 
+setLanguage({"CANCEL": lang["CANCEL"], "OK": lang["OK"]});
 setDefaultIcon(document.getElementsByTagName("link")[0]?.getAttribute("href") ?? defaultIcon);
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
