@@ -19,7 +19,7 @@ class WindowSettings extends JSONSetting<WindowData> {
 	}
 }
 
-setLanguage({"CANCEL": lang["CANCEL"], "OK": lang["OK"]});
+setLanguage(Object.fromEntries((["CANCEL", "CLOSE", "MAXIMISE", "MINIMISE", "OK", "RESTORE"] as (keyof typeof lang)[]).map(k => [k, lang[k]])));
 setDefaultIcon(document.getElementsByTagName("link")[0]?.getAttribute("href") ?? defaultIcon);
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
