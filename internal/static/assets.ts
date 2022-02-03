@@ -103,7 +103,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 			data,
 			"method": "POST",
 			"response": "json",
-			"onprogress": (e: ProgressEvent) => {
+			"onuploadprogress": (e: ProgressEvent) => {
 				if (e.lengthComputable) {
 					amendNode(bar, {"value": e.loaded, "max": e.total});
 					bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
