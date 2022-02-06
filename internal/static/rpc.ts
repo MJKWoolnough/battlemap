@@ -256,7 +256,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 				rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
 			} else {
 				let fn: Function;
-				ik[internalWaiter] = Subscription.splitCancel(new Subscription(successFn => fn = successFn));
+				ik[internalWaiter] = new Subscription(successFn => fn = successFn).splitCancel();
 				if (postKey === "") {
 					rk[name] = function() {
 						const a = processArgs(arguments, args as string[]);
@@ -301,7 +301,7 @@ inited = pageLoad.then(() => RPC(`ws${protocol.slice(4)}//${host}/socket`, 1.1).
 			arpc.subscribe(broadcastID).then(checker).then(data => queue(async () => fn(data)));
 			rk[name] = () => waiter;
 			if (ik[name]) {
-				ck[name] = Subscription.splitCancel(Subscription.merge(rk[name](), ik[name]()));
+				ck[name] = Subscription.merge(rk[name](), ik[name]()).splitCancel();
 			} else {
 				ik[name] = pseudoWait;
 				ck[name] = rk[name];
