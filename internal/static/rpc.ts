@@ -40,7 +40,7 @@ handleError = (e: Error | string) => {
 	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
 connID = new Promise<Uint>(success => connIDSet = success),
-inited = pageLoad.then(() => RPC("/socket", 1.1).then(arpc => {
+inited = pageLoad.then(() => RPC("/socket").then(arpc => {
 	const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 		"": () => {},
 		"!": (args: IArguments) => args[0],
