@@ -95,7 +95,7 @@ if (isAdmin) {
 										sizeTD
 									])
 								      };
-								(HTTPRequest(`/images/${id}`, {"method": "head", "response": "xh"}) as Promise<XMLHttpRequest>).then(xh => {
+								HTTPRequest(`/images/${id}`, {"method": "head", "response": "xh"}).then(xh => {
 									const size = parseInt(xh.getResponseHeader("Content-Length") || "0");
 									o.size = size;
 									sizeTD.innerText = formatNumber.format(size);
