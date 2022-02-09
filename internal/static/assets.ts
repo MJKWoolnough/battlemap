@@ -99,7 +99,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
       uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell) => {
 	const bar = progress({"style": "width: 100%"}) as HTMLElement;
 	return loadingWindow(
-		(HTTPRequest(`/${fileType}/`, {
+		HTTPRequest<IDName[]>(`/${fileType}/`, {
 			data,
 			"method": "POST",
 			"response": "json",
@@ -109,8 +109,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 					bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
 				}
 			}
-		}) as Promise<IDName[]>)
-		.then((assets: IDName[]) => {
+		}).then((assets: IDName[]) => {
 			for (const {id, name} of assets) {
 				root.addItem(id, name);
 			}
