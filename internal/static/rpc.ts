@@ -1,6 +1,7 @@
 import type {KeystoreData, InternalWaits, RPC as RPCType, Uint} from './types.js';
+import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
-import RPC from './lib/rpc.js';
+import {RPC} from './lib/rpc.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 import {isInt, isUint, queue} from './shared.js';
@@ -40,8 +41,9 @@ handleError = (e: Error | string) => {
 	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : typeof e  === "object" ? JSON.stringify(e) : e);
 },
 connID = new Promise<Uint>(success => connIDSet = success),
-inited = pageLoad.then(() => RPC("/socket").then(arpc => {
-	const argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
+inited = pageLoad.then(() => WS("/socket").then(ws => {
+	const arpc = new RPC(ws),
+	      argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
 		"": () => {},
 		"!": (args: IArguments) => args[0],
 		"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
