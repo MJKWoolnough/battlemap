@@ -425,9 +425,11 @@ if (isAdmin) {
 						shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
 						return;
 					}
+					const data = {"user": false, "data": {"contents": "", "share": false}};
 					root.addItem(++lastID, name);
 					folders.data.items[name] = lastID;
-					rpc.pluginSetting(importName, {"": folders, [lastID]: {"user": false, "data": {"contents": ""}}}, []);
+					pages.set(lastID, data);
+					rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
 				})}, lang["NOTES_NEW"]),
 				root[node]
 			]), true, icon]
