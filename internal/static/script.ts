@@ -102,8 +102,17 @@ const lastTab = new StringSetting("lastTab"),
 				return;
 			}
 		};
-	      },
-	      o = Object.freeze({
+	      };
+	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
+	keyEvent("F1", (e: KeyboardEvent) => {
+		help();
+		e.preventDefault();
+	})[0]();
+	keyEvent("F9", (e: KeyboardEvent) => {
+		panelShow.set(c.checked = !c.checked);
+		e.preventDefault();
+	})[0]();
+	return Object.freeze({
 		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
@@ -182,16 +191,6 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		},
 		get html() {return createDocumentFragment([c, h]);}
 	});
-	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
-	keyEvent("F9", (e: KeyboardEvent) => {
-		panelShow.set(c.checked = !c.checked);
-		e.preventDefault();
-	})[0]();
-	keyEvent("F1", (e: KeyboardEvent) => {
-		help();
-		e.preventDefault();
-	})[0]();
-	return o;
       })(),
       base = desktop(symbols);
 
