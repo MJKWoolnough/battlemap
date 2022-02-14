@@ -31,7 +31,7 @@ queue = (() => {
 })(),
 labels = (() => {
 	let next = 0;
-	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Props = {}) => {
+	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Exclude<Props, NamedNodeMap> = {}) => {
 		amendNode(input, {"id": props["for"] = `ID_${next++}`});
 		const l = label(props, name);
 		return before ? [l, input] : [input, l];

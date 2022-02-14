@@ -6,7 +6,7 @@ const symbols = svg({"style": "width: 0"})
 
 export const addSymbol = (id: string, s: SVGSymbolElement) => {
 	amendNode(symbols, amendNode(s, {id}));
-	return (props: Props = {}) => svg(props, [
+	return (props: Exclude<Props, NamedNodeMap> = {}) => svg(props, [
 		typeof props["title"] === "string" ? title(props["title"]) : [],
 		use({"href": `#${id}`})
 	]);
