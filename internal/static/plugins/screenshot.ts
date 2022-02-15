@@ -19,7 +19,6 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			}
 		}
 	}
-	const id = n.getAttribute("id");
 	switch (n.nodeName) {
 	case "image":
 		return p.then(() => {
@@ -56,6 +55,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			}});
 		}));
 	case "g":
+		const id = n.getAttribute("id");
 		if (id === "layerGrid") {
 			if (hideGrid.value) {
 				return p;
