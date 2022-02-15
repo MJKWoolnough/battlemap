@@ -283,6 +283,7 @@ menuItems.push([3, () => isAdmin ? [
 				playPauseNode: SVGPathElement;
 				playPauseTitle: SVGTitleElement;
 				playStatus: SVGSVGElement;
+				pauseTime: Uint = 0;
 				window: WindowElement;
 				constructor(name: string, pack: MusicPack) {
 					super(pack);
@@ -340,7 +341,7 @@ menuItems.push([3, () => isAdmin ? [
 							this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 							rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
 								if (this.playTime === 0) {
-									this.play(now(), true);
+									this.play(now() - this.pauseTime, true);
 								} else {
 									this.pause(true);
 								}
@@ -409,17 +410,20 @@ menuItems.push([3, () => isAdmin ? [
 					amendNode(this.playStatus, {"style": {"visibility": undefined}});
 					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 					if (sendRPC) {
-						rpc.musicPackPlay(this.name, 0).then(playTime => {
+						rpc.musicPackPlay(this.name, Math.round(playTime)).then(playTime => {
 							this.playTime = playTime;
 						});
 					}
 					musicList.sort();
 				}
 				pause(sendRPC = false) {
+					const pauseTime = now() - this.playTime;
 					this.stop(sendRPC);
+					this.pauseTime = pauseTime;
 				}
 				stop(sendRPC = false) {
 					super.stop();
+					this.pauseTime = 0;
 					if (document.body.contains(this.toPlay)) {
 						this.toPlay.beginElement();
 					} else {
