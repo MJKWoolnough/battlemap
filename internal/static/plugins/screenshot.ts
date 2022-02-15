@@ -54,6 +54,8 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				sfn();
 			}});
 		}));
+	case "defs":
+		return p;
 	case "g":
 		const id = n.getAttribute("id");
 		if (id === "layerGrid") {
@@ -78,9 +80,6 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 		} else if (n.getAttribute("class") === "hiddenLayer") {
 			return p;
 		}
-		break;
-	case "defs":
-		return p;
 	}
 	for (const c of n.children) {
 		p = walkElements(c, ctx, ctm, p);
