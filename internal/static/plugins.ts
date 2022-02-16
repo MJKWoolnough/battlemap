@@ -1,4 +1,4 @@
-import type {KeystoreData, Plugin, TokenImage, Uint} from './types.js';
+import type {KeystoreData, Plugin, TokenDrawing, TokenShape, TokenImage, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
@@ -6,7 +6,7 @@ import type {WindowElement} from './windows.js';
 import {br, button, h1, input, label, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
-import {SVGToken} from './map_tokens.js';
+import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {setAndReturn} from './shared.js';
 import {shell} from './windows.js';
@@ -20,11 +20,21 @@ export interface SVGTokenConstructor {
 	new (token: TokenImage, wg?: WaitGroup): SVGToken;
 }
 
+export interface SVGShapeConstructor {
+	new (token: TokenShape): SVGShape;
+}
+
+export interface SVGDrawingConstructor {
+	new (token: TokenDrawing): SVGDrawing;
+}
+
 export type PluginType = {
 	settings?: owp<HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
+	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
+	drawingClass?: owp<(c: SVGDrawingConstructor) => SVGDrawingConstructor>;
 	menuItem?: owp<[string, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
 }
@@ -115,7 +125,9 @@ tokenDataFilter = () => {
 },
 menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
-export let tokenClass: SVGTokenConstructor = SVGToken;
+export let tokenClass: SVGTokenConstructor = SVGToken,
+shapeClass: SVGShapeConstructor = SVGShape,
+drawingClass: SVGDrawingConstructor = SVGDrawing;
 
 export default () => {
 	rpc.waitPluginChange().then(askReload);
@@ -132,6 +144,18 @@ export default () => {
 			const ntc = fn(tokenClass);
 			if (ntc.prototype instanceof tokenClass) {
 				tokenClass = ntc;
+			}
+		}
+		for (const [, {"shapeClass": {fn}}] of filterSortPlugins("shapeClass")) {
+			const nsc = fn(shapeClass);
+			if (nsc.prototype instanceof shapeClass) {
+				shapeClass = nsc;
+			}
+		}
+		for (const [, {"drawingClass": {fn}}] of filterSortPlugins("drawingClass")) {
+			const ndc = fn(drawingClass);
+			if (ndc.prototype instanceof drawingClass) {
+				drawingClass = ndc;
 			}
 		}
 	});

@@ -1,5 +1,6 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
+import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import {div, progress} from './lib/html.js';
@@ -7,9 +8,9 @@ import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
 import lang from './language.js';
-import {definitions, masks, SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
+import {SVGToken, definitions, masks} from './map_tokens.js';
 import {inited, isAdmin, rpc} from './rpc.js';
-import {tokenClass} from './plugins.js';
+import {drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, SQRT3, tokens, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
@@ -48,7 +49,7 @@ const idNames: Record<string, Int> = {
 	const tokens = new NodeArray<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new SVGDrawing(t) : new SVGShape(t));
+			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new drawingClass(t) : new shapeClass(t));
 		};
 	} else {
 		amendNode(n, {"id": `layer${layer.name}`});
@@ -450,9 +451,9 @@ export default (base: HTMLElement) => {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 			}
 		} else if (isTokenDrawing(tk.token)) {
-			token = new SVGDrawing(tk.token);
+			token = new drawingClass(tk.token);
 		} else {
-			token = new SVGShape(tk.token);
+			token = new shapeClass(tk.token);
 		}
 		layer.tokens.push(token);
 		tokens.set(token.id, {layer, token});

@@ -5,8 +5,8 @@ import {Subscription} from './lib/inter.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 import {addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
-import {SVGDrawing, SVGShape, SVGToken, masks} from './map_tokens.js';
-import {tokenClass, tokenDataFilter} from './plugins.js';
+import {SVGToken, masks} from './map_tokens.js';
+import {drawingClass, shapeClass, tokenClass, tokenDataFilter} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {cloneObject, deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
 import undo from './undo.js';
@@ -199,7 +199,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		handleError("Invalid layer for token add");
 		return () => {};
 	}
-	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new SVGDrawing(tk) : new SVGShape(tk),
+	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new drawingClass(tk) : new shapeClass(tk),
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
