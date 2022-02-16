@@ -5,7 +5,7 @@ import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {language} from '../language.js';
-import {SVGToken} from '../map.js';
+import {SVGToken} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
 import {addCSS, mapLoadReceive, tokens} from '../shared.js';

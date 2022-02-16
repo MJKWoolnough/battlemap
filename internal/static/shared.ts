@@ -1,6 +1,7 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
-import type {SVGLayer, SVGShape, SVGToken} from './map.js';
+import type {SVGLayer} from './map.js';
+import type {SVGShape, SVGToken} from './map_tokens.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';

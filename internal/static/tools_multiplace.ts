@@ -1,4 +1,5 @@
 import type {TokenImage, Uint} from './types.js';
+import type {SVGToken} from './map_tokens.js';
 import {amendNode} from './lib/dom.js';
 import {mouseMoveEvent} from './lib/events.js';
 import {br, button, div, img, input, label} from './lib/html.js';
@@ -6,7 +7,7 @@ import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
-import {mapData, root, screen2Grid, SVGToken} from './map.js';
+import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {tokenClass} from './plugins.js';
 import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';

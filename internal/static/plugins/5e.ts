@@ -12,8 +12,9 @@ import {ns as svgNS, animate, animateMotion, circle, defs, ellipse, feColorMatri
 import {characterSelector, iconSelector, tokenSelector} from '../characters.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
-import {SVGToken, centreOnGrid, mapData, walkLayers} from '../map.js';
+import {centreOnGrid, mapData, walkLayers} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
+import {SVGToken} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';

@@ -1,6 +1,7 @@
 import type {TokenSet, Token, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {SVGFolder, SVGLayer} from './map.js';
+import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import type {NodeArray} from './lib/nodes.js';
 import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
@@ -11,8 +12,9 @@ import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
-import {SVGDrawing, SVGShape, SVGToken, getLayer, isSVGFolder, isSVGLayer, isTokenDrawing, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {getLayer, isSVGFolder, isSVGLayer, isTokenDrawing, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {SVGToken} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';

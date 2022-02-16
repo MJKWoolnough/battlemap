@@ -6,7 +6,7 @@ import type {WindowElement} from './windows.js';
 import {br, button, h1, input, label, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
-import {SVGToken} from './map.js';
+import {SVGToken} from './map_tokens.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {setAndReturn} from './shared.js';
 import {shell} from './windows.js';
