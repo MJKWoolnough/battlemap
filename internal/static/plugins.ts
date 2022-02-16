@@ -16,7 +16,7 @@ type owp<T> = {
 	fn: T;
 }
 
-interface SVGTokenConstructor {
+export interface SVGTokenConstructor {
 	new (token: TokenImage, wg?: WaitGroup): SVGToken;
 }
 
@@ -24,7 +24,7 @@ export type PluginType = {
 	settings?: owp<HTMLElement>;
 	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
 	tokenContext?: owp<() => List>;
-	tokenClass?: owp<SVGTokenConstructor>;
+	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	menuItem?: owp<[string, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
 }
@@ -106,15 +106,7 @@ tokenContext = () => {
 	}
 	return ret;
 },
-tokenClass = (): SVGTokenConstructor => {
-	for (const p of filterSortPlugins("tokenClass")) {
-		const tc = p[1]["tokenClass"].fn;
-		if (tc) {
-			return tc;
-		}
-	}
-	return SVGToken;
-},
+tokenClass = () => tc,
 tokenDataFilter = () => {
 	const tdf: string[] = [];
 	for (const p of filterSortPlugins("tokenDataFilter")) {
@@ -123,6 +115,8 @@ tokenDataFilter = () => {
 	return tdf;
 },
 menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
+
+let tc: SVGTokenConstructor = SVGToken;
 
 export default () => {
 	rpc.waitPluginChange().then(askReload);
@@ -134,5 +128,12 @@ export default () => {
 			}
 		}
 		return Promise.all(ls);
+	}).then(() => {
+		for (const [, {"tokenClass": {fn}}] of filterSortPlugins("tokenClass")) {
+			const ntc = fn(tc);
+			if (ntc.prototype instanceof tc) {
+				tc = ntc;
+			}
+		}
 	});
 };

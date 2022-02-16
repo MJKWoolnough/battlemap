@@ -1,7 +1,8 @@
 import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
 import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
-import type {PluginType} from '../plugins.js';
+import type {SVGToken} from '../map_tokens.js';
+import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import type {WindowElement} from '../windows.js';
 import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
@@ -14,7 +15,6 @@ import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, mapData, walkLayers} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
-import {SVGToken} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
@@ -82,159 +82,22 @@ type Settings5E = {
 	"store-image-shapechanges": KeystoreData<ShapechangeToken[]>;
 }
 
+type SVGToken5EType = SVGToken & {
+	[select](): void;
+	[unselect](): void;
+	[updateData](): void;
+	tokenData: Record<string, KeystoreData> & TokenFields;
+}
+
+interface SVGToken5EConstructor {
+	new (token: TokenImage, wg?: WaitGroup): SVGToken5EType;
+}
+
 const select = Symbol("select"),
       unselect = Symbol("unselect"),
       updateData = Symbol("updateData");
 
-class SVGToken5E extends SVGToken {
-	#tokenNode: SVGGraphicsElement;
-	#extra: SVGGElement;
-	#hp: SVGGElement;
-	#hpValue: SVGTextElement;
-	#hpBar: SVGUseElement;
-	#hpBack: SVGUseElement;
-	#name: SVGTextElement;
-	#ac: SVGGElement;
-	#acValue: SVGTextElement;
-	#shield: SVGUseElement;
-	#conditions: SVGGElement;
-	declare tokenData: Record<string, KeystoreData> & TokenFields;
-	constructor(token: TokenImage, wg?: WaitGroup) {
-		super(token, wg);
-		const maxHP: Uint | null = this.getData("5e-hp-max"),
-		      currentHP: Uint | null = this.getData("5e-hp-current"),
-		      ac: Uint | null = this.getData("5e-ac"),
-		      size = Math.min(this.width, this.height) / 4
-		this[node] = g([
-			this.#tokenNode = this[node],
-			this.#extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
-				this.#hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
-					this.#hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
-					this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
-					this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
-				]),
-				this.#name = text({"class": "token-name-5e", "style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
-				this.#ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
-					this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
-					this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
-				]),
-				this.#conditions = g({"class": "token-conditions-5e"})
-			])
-		]);
-		window.setTimeout(this.#setTextWidth.bind(this), 0);
-		this.#updateConditions();
-	}
-	#setTextWidth() {
-		const maxNameLength = this.width / 2,
-		      nameLength = this.#name.getComputedTextLength(),
-		      size = Math.min(this.width, this.height) / 8,
-		      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
-		amendNode(this.#name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
-		amendNode(this.#acValue, {"style": {"font-size": `${size}px`}});
-		amendNode(this.#hpValue, {"style": {"font-size": `${size}px`}});
-	}
-	cleanup() {
-		const n = this[node];
-		this[node] = this.#tokenNode;
-		super.cleanup();
-		this[node] = n;
-	}
-	uncleanup() {
-		const n = this[node];
-		this[node] = this.#tokenNode;
-		super.uncleanup();
-		this[node] = n;
-	}
-	at(x: Int, y: Int) {
-		return super.at(x, y, this.#tokenNode);
-	}
-	[select]() {
-		outline.insertAdjacentElement("beforebegin", this.#extra);
-	}
-	[unselect]() {
-		if (!this.isPattern) {
-			amendNode(this[node], this.#extra);
-		}
-	}
-	updateSource(source: Uint) {
-		const n = this[node];
-		this[node] = this.#tokenNode;
-		super.updateSource(source);
-		this[node] = n;
-	}
-	updateNode() {
-		const n = this[node],
-		      wasPattern = this.#tokenNode instanceof SVGRectElement;
-		this[node] = this.#tokenNode;
-		super.updateNode();
-		this.#tokenNode = this[node];
-		this[node] = n;
-		if (this.isPattern) {
-			if (!wasPattern) {
-				this.#extra.remove();
-			}
-		} else if (wasPattern) {
-			if (selected.token === this) {
-				outline.insertAdjacentElement("beforebegin", this.#extra);
-			}
-			this[node].replaceWith(this[node] = g([this.#tokenNode, this.#extra]));
-		}
-		amendNode(this.#tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
-		amendNode(this.#extra, {"transform": `translate(${this.x}, ${this.y})`});
-		amendNode(this.#shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
-		amendNode(this.#hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		amendNode(this.#hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		amendNode(this.#name, {"x": this.width / 2, "style": {"font-size": undefined}});
-		amendNode(this.#hpValue, {"x": this.width / 8});
-		amendNode(this.#acValue, {"x": 7 * this.width / 8});
-		this.#setTextWidth();
-		this.#updateConditions();
-	}
-	[updateData]() {
-		const maxHP: Uint | null = this.getData("5e-hp-max"),
-		      currentHP: Uint | null = this.getData("5e-hp-current"),
-		      ac: Uint | null = this.getData("5e-ac"),
-		      name = this.getData("name") || "";
-		if (ac === null) {
-			amendNode(this.#ac, {"style": "display: none"});
-		} else {
-			amendNode(this.#ac, {"style": undefined})
-			this.#acValue.innerHTML = ac + "";
-		}
-		if (currentHP === null || maxHP === null) {
-			amendNode(this.#hp, {"style": "display: none"});
-		} else {
-			amendNode(this.#hp, {"style": undefined});
-			this.#hpValue.innerHTML = currentHP + "";
-			amendNode(this.#hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
-			amendNode(this.#hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
-		}
-		if (this.#name.innerHTML !== name) {
-			amendNode(this.#name, {"style": {"font-size": undefined}}, name);
-			this.#setTextWidth();
-		}
-		this.#updateConditions();
-	}
-	#updateConditions() {
-		clearNode(this.#conditions);
-		const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
-		      size = Math.min(this.width, this.height) / 4,
-		      perRow = Math.floor(this.width / size);
-		let row = -1, col = 0;
-		for (let i = 0; i < myConditions.length; i++) {
-			if (myConditions[i]) {
-				amendNode(this.#conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
-				col++;
-				if (col === perRow) {
-					col = 0;
-					row--;
-				}
-			}
-		}
-		amendNode(this.#conditions, {"transform": `translate(0, ${this.height})`});
-	}
-
-}
+let SVGToken5E: SVGToken5EConstructor;
 
 amendNode(symbols, [
 	filter({"id": "saturate-5e"}, feColorMatrix({"type": "saturate", "values": 0})),
@@ -385,7 +248,7 @@ const defaultLanguage = {
       },
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
-      isValidToken = (t: SVGToken): t is SVGToken5E => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
+      isValidToken = (t: SVGToken): t is SVGToken => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
       initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -426,7 +289,7 @@ const defaultLanguage = {
 	initiativeList[node]
       ])),
       initTokens = new Set<Uint>(),
-      addToInitiative = (token: SVGToken5E, initiative: Int, hidden: boolean) => (initTokens.add(token.id), initiativeList.push({
+      addToInitiative = (token: SVGToken, initiative: Int, hidden: boolean) => (initTokens.add(token.id), initiativeList.push({
 	token,
 	hidden,
 	initiative,
@@ -530,7 +393,154 @@ const defaultLanguage = {
 	},
 	"tokenClass": {
 		"priority": 0,
-		"fn": SVGToken5E
+		"fn": (c: SVGTokenConstructor) => SVGToken5E = class extends c {
+			#tokenNode: SVGGraphicsElement;
+			#extra: SVGGElement;
+			#hp: SVGGElement;
+			#hpValue: SVGTextElement;
+			#hpBar: SVGUseElement;
+			#hpBack: SVGUseElement;
+			#name: SVGTextElement;
+			#ac: SVGGElement;
+			#acValue: SVGTextElement;
+			#shield: SVGUseElement;
+			#conditions: SVGGElement;
+			declare tokenData: Record<string, KeystoreData> & TokenFields;
+			constructor(token: TokenImage, wg?: WaitGroup) {
+				super(token, wg);
+				const maxHP: Uint | null = this.getData("5e-hp-max"),
+				      currentHP: Uint | null = this.getData("5e-hp-current"),
+				      ac: Uint | null = this.getData("5e-ac"),
+				      size = Math.min(this.width, this.height) / 4
+				this[node] = g([
+					this.#tokenNode = this[node],
+					this.#extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
+						this.#hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
+							this.#hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
+							this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
+							this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
+						]),
+						this.#name = text({"class": "token-name-5e", "style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
+						this.#ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
+							this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
+							this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
+						]),
+						this.#conditions = g({"class": "token-conditions-5e"})
+					])
+				]);
+				window.setTimeout(this.#setTextWidth.bind(this), 0);
+				this.#updateConditions();
+			}
+			#setTextWidth() {
+				const maxNameLength = this.width / 2,
+				      nameLength = this.#name.getComputedTextLength(),
+				      size = Math.min(this.width, this.height) / 8,
+				      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
+				amendNode(this.#name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
+				amendNode(this.#acValue, {"style": {"font-size": `${size}px`}});
+				amendNode(this.#hpValue, {"style": {"font-size": `${size}px`}});
+			}
+			cleanup() {
+				const n = this[node];
+				this[node] = this.#tokenNode;
+				super.cleanup();
+				this[node] = n;
+			}
+			uncleanup() {
+				const n = this[node];
+				this[node] = this.#tokenNode;
+				super.uncleanup();
+				this[node] = n;
+			}
+			at(x: Int, y: Int) {
+				return super.at(x, y, this.#tokenNode);
+			}
+			[select]() {
+				outline.insertAdjacentElement("beforebegin", this.#extra);
+			}
+			[unselect]() {
+				if (!this.isPattern) {
+					amendNode(this[node], this.#extra);
+				}
+			}
+			updateSource(source: Uint) {
+				const n = this[node];
+				this[node] = this.#tokenNode;
+				super.updateSource(source);
+				this[node] = n;
+			}
+			updateNode() {
+				const n = this[node],
+				      wasPattern = this.#tokenNode instanceof SVGRectElement;
+				this[node] = this.#tokenNode;
+				super.updateNode();
+				this.#tokenNode = this[node];
+				this[node] = n;
+				if (this.isPattern) {
+					if (!wasPattern) {
+						this.#extra.remove();
+					}
+				} else if (wasPattern) {
+					if (selected.token === this) {
+						outline.insertAdjacentElement("beforebegin", this.#extra);
+					}
+					this[node].replaceWith(this[node] = g([this.#tokenNode, this.#extra]));
+				}
+				amendNode(this.#tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
+				amendNode(this.#extra, {"transform": `translate(${this.x}, ${this.y})`});
+				amendNode(this.#shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
+				amendNode(this.#hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+				amendNode(this.#hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+				amendNode(this.#name, {"x": this.width / 2, "style": {"font-size": undefined}});
+				amendNode(this.#hpValue, {"x": this.width / 8});
+				amendNode(this.#acValue, {"x": 7 * this.width / 8});
+				this.#setTextWidth();
+				this.#updateConditions();
+			}
+			[updateData]() {
+				const maxHP: Uint | null = this.getData("5e-hp-max"),
+				      currentHP: Uint | null = this.getData("5e-hp-current"),
+				      ac: Uint | null = this.getData("5e-ac"),
+				      name = this.getData("name") || "";
+				if (ac === null) {
+					amendNode(this.#ac, {"style": "display: none"});
+				} else {
+					amendNode(this.#ac, {"style": undefined})
+					this.#acValue.innerHTML = ac + "";
+				}
+				if (currentHP === null || maxHP === null) {
+					amendNode(this.#hp, {"style": "display: none"});
+				} else {
+					amendNode(this.#hp, {"style": undefined});
+					this.#hpValue.innerHTML = currentHP + "";
+					amendNode(this.#hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
+					amendNode(this.#hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
+				}
+				if (this.#name.innerHTML !== name) {
+					amendNode(this.#name, {"style": {"font-size": undefined}}, name);
+					this.#setTextWidth();
+				}
+				this.#updateConditions();
+			}
+			#updateConditions() {
+				clearNode(this.#conditions);
+				const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
+				      size = Math.min(this.width, this.height) / 4,
+				      perRow = Math.floor(this.width / size);
+				let row = -1, col = 0;
+				for (let i = 0; i < myConditions.length; i++) {
+					if (myConditions[i]) {
+						amendNode(this.#conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
+						col++;
+						if (col === perRow) {
+							col = 0;
+							row--;
+						}
+					}
+				}
+				amendNode(this.#conditions, {"transform": `translate(0, ${this.height})`});
+			}
+		}
 	}
       };
 
@@ -656,7 +666,7 @@ if (isAdmin) {
 		}
 		return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
 	      },
-	      setShapechange = (t: SVGToken5E, n?: InitialToken) => {
+	      setShapechange = (t: SVGToken5EType, n?: InitialToken) => {
 		const tk: TokenSet = {"id": t.id, "tokenData": {}, "removeTokenData": []};
 		if (!n) {
 			if (!t.tokenData["store-image-5e-initial-token"]) {
@@ -929,7 +939,7 @@ if (isAdmin) {
 							updateInitiative();
 						}
 						if (!isCharacter) {
-							(tokens.get(id)!.token as SVGToken5E)[updateData]();
+							(tokens.get(id)!.token as SVGToken5EType)[updateData]();
 						} else {
 							for (const [_, {token}] of tokens) {
 								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
@@ -1006,7 +1016,7 @@ if (isAdmin) {
 		}
 	});
 	tokenSelectedReceive((() => {
-		let lastSelectedToken: SVGToken5E | null = null;
+		let lastSelectedToken: SVGToken5EType | null = null;
 		return () => {
 			if (lastSelectedToken) {
 				lastSelectedToken[unselect]();
@@ -1046,7 +1056,7 @@ rpc.waitTokenSet().then(ts => {
 			if (initTokens.has(ts.id)) {
 				updateInitiative();
 			}
-			(tokens.get(ts.id)!.token as SVGToken5E)[updateData]();
+			(tokens.get(ts.id)!.token as SVGToken5EType)[updateData]();
 		}, 0);
 		return;
 	}
@@ -1057,7 +1067,7 @@ rpc.waitTokenSet().then(ts => {
 			case "5e-hp-max":
 			case "5e-hp-current":
 			case "5e-conditions":
-				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5E)[updateData](), 0);
+				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5EType)[updateData](), 0);
 				return;
 			}
 		}
