@@ -21,6 +21,7 @@ class SVGTransform {
 	height: Uint;
 	lightColour: Colour;
 	lightIntensity: Uint;
+	snap: boolean;
 	tokenData: Record<string, KeystoreData>;
 	constructor(token: Token) {
 		this.id = token.id;
@@ -31,6 +32,7 @@ class SVGTransform {
 		this.rotation = token.rotation;
 		this.lightColour = token.lightColour;
 		this.lightIntensity = token.lightIntensity;
+		this.snap = token.snap;
 		this.tokenData = token.tokenData;
 	}
 	at(x: Int, y: Int, n: SVGGraphicsElement) {
@@ -69,7 +71,6 @@ export class SVGToken extends SVGTransform {
 	patternWidth: Uint;
 	patternHeight: Uint;
 	tokenType: Uint;
-	snap: boolean;
 	constructor(token: TokenImage, wg?: WaitGroup) {
 		super(token);
 		if (wg) {
@@ -79,7 +80,6 @@ export class SVGToken extends SVGTransform {
 		this.patternWidth = token.patternWidth;
 		this.patternHeight = token.patternWidth;
 		this.tokenType = token.tokenType ?? 0;
-		this.snap = token.snap;
 		this[node] = image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
 		if (token.patternWidth > 0) {
 			this.updateNode();
@@ -121,14 +121,12 @@ export class SVGShape extends SVGTransform {
 	stroke: Colour;
 	strokeWidth: Uint;
 	isEllipse: boolean;
-	snap: boolean;
 	constructor(token: TokenShape, draw = true) {
 		super(token);
 		this.fill = token.fill;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
 		this.isEllipse = token.isEllipse ?? false;
-		this.snap = token.snap;
 		let n: SVGRectElement | SVGEllipseElement;
 		if (draw) {
 			if (!token.isEllipse) {
