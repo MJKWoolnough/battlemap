@@ -48,7 +48,7 @@ const idNames: Record<string, Int> = {
 	const tokens = new NodeArray<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			tokens.push(isTokenImage(t) ? new (tokenClass())(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
+			tokens.push(isTokenImage(t) ? new (tokenClass())(t, wg) : isTokenDrawing(t) ? new SVGDrawing(t) : new SVGShape(t));
 		};
 	} else {
 		amendNode(n, {"id": `layer${layer.name}`});
@@ -450,9 +450,9 @@ export default (base: HTMLElement) => {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
 			}
 		} else if (isTokenDrawing(tk.token)) {
-			token = SVGDrawing.from(tk.token);
+			token = new SVGDrawing(tk.token);
 		} else {
-			token = SVGShape.from(tk.token);
+			token = new SVGShape(tk.token);
 		}
 		layer.tokens.push(token);
 		tokens.set(token.id, {layer, token});
