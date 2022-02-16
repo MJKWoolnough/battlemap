@@ -278,7 +278,6 @@ amendNode(symbols, [
 	symbol({"id": "5e-CONDITION_UNCONSCIOUS", "viewBox": "0 0 100 100"}, [defs(path({"id": "5e-z", "d": "M3,2 h20 v3 l-15,20 h15 l1,-3 h1 l-1,5 h-20 v-3 l15,-20 h-15 l-1,3 h-1 z", "stroke-width": 1, "stroke": "#000", "fill": "#fff"})), use({"href": "#5e-z", "transform": "scale(1.2) translate(55, 0)"}), use({"href": "#5e-z", "transform": "translate(45, 30)"}), use({"href": "#5e-z", "transform": "scale(0.8) translate(35, 70)"}), use({"href": "#5e-z", "transform": "scale(0.6) translate(25, 130)"})])
 ]);
 
-
 const defaultLanguage = {
 	"ARMOUR_CLASS": "Armour Class",
 	"CONDITION_BANE": "Bane",
