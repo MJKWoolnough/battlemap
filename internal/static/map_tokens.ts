@@ -185,7 +185,7 @@ export class SVGDrawing extends SVGShape {
 	updateNode() {
 		const xr = this.width / this.oWidth,
 		      yr = this.height / this.oHeight;
-		amendNode(this[node], {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
+		this[node] = path({"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
 	}
 }
 
