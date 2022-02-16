@@ -1,11 +1,12 @@
 import type {KeystoreData, Plugin, TokenImage, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
-import type {SVGToken} from './map.js';
+import type {WaitGroup} from './lib/inter.js';
 import type {WindowElement} from './windows.js';
 import {br, button, h1, input, label, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
+import {SVGToken} from './map.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {setAndReturn} from './shared.js';
 import {shell} from './windows.js';
@@ -16,7 +17,7 @@ type owp<T> = {
 }
 
 interface SVGTokenConstructor {
-	new (token: TokenImage): SVGToken;
+	new (token: TokenImage, wg?: WaitGroup): SVGToken;
 }
 
 export type PluginType = {
@@ -105,14 +106,14 @@ tokenContext = () => {
 	}
 	return ret;
 },
-tokenClass = (): SVGTokenConstructor | null => {
+tokenClass = (): SVGTokenConstructor => {
 	for (const p of filterSortPlugins("tokenClass")) {
 		const tc = p[1]["tokenClass"].fn;
 		if (tc) {
 			return tc;
 		}
 	}
-	return null;
+	return SVGToken;
 },
 tokenDataFilter = () => {
 	const tdf: string[] = [];

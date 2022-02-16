@@ -1,5 +1,6 @@
 import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
 import type {List} from '../lib/context.js';
+import type {WaitGroup} from '../lib/inter.js';
 import type {PluginType} from '../plugins.js';
 import type {WindowElement} from '../windows.js';
 import {item, menu} from '../lib/context.js';
@@ -92,12 +93,9 @@ class SVGToken5E extends SVGToken {
 	acValue: SVGTextElement;
 	shield: SVGUseElement;
 	conditions: SVGGElement;
-	tokenData: Record<string, KeystoreData> & TokenFields;
-	constructor(token: TokenImage) {
-		throw(new Error("use from"));
-		super(token);
-	}
-	init() {
+	declare tokenData: Record<string, KeystoreData> & TokenFields;
+	constructor(token: TokenImage, wg?: WaitGroup) {
+		super(token, wg);
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
 		      ac: Uint | null = this.getData("5e-ac"),

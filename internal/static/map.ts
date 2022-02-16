@@ -86,32 +86,24 @@ class SVGTransform {
 export class SVGToken extends SVGTransform {
 	[node]: SVGGraphicsElement;
 	src: Uint;
-	stroke: Colour;
-	strokeWidth: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
 	tokenType: Uint;
 	snap: boolean;
-	constructor(token: TokenImage) {
-		throw new Error("use from");
+	constructor(token: TokenImage, wg?: WaitGroup) {
 		super(token);
-	}
-	static from(token: TokenImage, wg?: WaitGroup) {
 		if (wg) {
 			wg.add();
 		}
-		const n = image(wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}),
-		      tc = tokenClass() ?? SVGToken,
-		      svgToken = Object.setPrototypeOf(Object.assign(token, {[node]: n}), tc.prototype);
-		amendNode(n, {"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": svgToken.transformString()});
-		Object.defineProperty(svgToken, node, {"enumerable": false});
-		if (svgToken.init instanceof Function) {
-			svgToken.init();
-		}
+		this.src = token.src;
+		this.patternWidth = token.patternWidth;
+		this.patternHeight = token.patternWidth;
+		this.tokenType = token.tokenType ?? 0;
+		this.snap = token.snap;
+		this[node] = amendNode(image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {})));
 		if (token.patternWidth > 0) {
-			svgToken.updateNode();
+			this.updateNode();
 		}
-		return svgToken;
 	}
 	at(x: Int, y: Int, n = this[node]) {
 		return super.at(x, y, n);
@@ -242,7 +234,7 @@ const idNames: Record<string, Int> = {
 	const tokens = new NodeArray<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			tokens.push(isTokenImage(t) ? SVGToken.from(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
+			tokens.push(isTokenImage(t) ? new (tokenClass())(t, wg) : isTokenDrawing(t) ? SVGDrawing.from(t) : SVGShape.from(t));
 		};
 	} else {
 		amendNode(n, {"id": `layer${layer.name}`});
@@ -789,7 +781,7 @@ export default (base: HTMLElement) => {
 		delete (tk as Record<string, any>)["path"];
 		let token: SVGToken | SVGShape | SVGDrawing;
 		if (isTokenImage(tk.token)) {
-			token = SVGToken.from(tk.token);
+			token = new (tokenClass())(tk.token);
 			const cID = tk.token.tokenData["store-character-id"];
 			if (cID && typeof cID.data === "number") {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));

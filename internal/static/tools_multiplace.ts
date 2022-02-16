@@ -8,6 +8,7 @@ import {noColour} from './colours.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid, SVGToken} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
+import {tokenClass} from './plugins.js';
 import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';
 import {autosnap} from './settings.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
@@ -22,7 +23,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       }}),
       i = img(),
-      setCursor = () => amendNode((cursor = SVGToken.from(token = setToken!()))[node], {"opacity": 0.5}),
+      setCursor = () => amendNode((cursor = new (tokenClass())(token = setToken!()))[node], {"opacity": 0.5}),
       setImg = (id: Uint) => {
 	amendNode(i, {"src": `/images/${id}`});
 	setCursor();
