@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {amendNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, input} from './lib/html.js';
 import {circle, g, path, polyline, svg, title} from './lib/svg.js';
@@ -110,7 +110,7 @@ measureDistance = (x: Uint, y: Uint) => {
 	      dx = x - last[0],
 	      dy = y - last[1];
 	distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
-	amendNode(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
+	clearNode(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}}, Math.round(distance / gridSize) + "");
 	amendNode(lone, l);
 	amendNode(ltwo, l);
 },
