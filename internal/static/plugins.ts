@@ -106,7 +106,6 @@ tokenContext = () => {
 	}
 	return ret;
 },
-tokenClass = () => tc,
 tokenDataFilter = () => {
 	const tdf: string[] = [];
 	for (const p of filterSortPlugins("tokenDataFilter")) {
@@ -116,7 +115,7 @@ tokenDataFilter = () => {
 },
 menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
 
-let tc: SVGTokenConstructor = SVGToken;
+export let tokenClass: SVGTokenConstructor = SVGToken;
 
 export default () => {
 	rpc.waitPluginChange().then(askReload);
@@ -130,9 +129,9 @@ export default () => {
 		return Promise.all(ls);
 	}).then(() => {
 		for (const [, {"tokenClass": {fn}}] of filterSortPlugins("tokenClass")) {
-			const ntc = fn(tc);
-			if (ntc.prototype instanceof tc) {
-				tc = ntc;
+			const ntc = fn(tokenClass);
+			if (ntc.prototype instanceof tokenClass) {
+				tokenClass = ntc;
 			}
 		}
 	});

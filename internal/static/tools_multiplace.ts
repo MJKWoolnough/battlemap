@@ -24,7 +24,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       }}),
       i = img(),
-      setCursor = () => amendNode((cursor = new (tokenClass())(token = setToken!()))[node], {"opacity": 0.5}),
+      setCursor = () => amendNode((cursor = new tokenClass(token = setToken!()))[node], {"opacity": 0.5}),
       setImg = (id: Uint) => {
 	amendNode(i, {"src": `/images/${id}`});
 	setCursor();

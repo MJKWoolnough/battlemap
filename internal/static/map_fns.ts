@@ -199,7 +199,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		handleError("Invalid layer for token add");
 		return () => {};
 	}
-	const token = isTokenImage(tk) ? new (tokenClass())(tk) : isTokenDrawing(tk) ? new SVGDrawing(tk) : new SVGShape(tk),
+	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new SVGDrawing(tk) : new SVGShape(tk),
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);

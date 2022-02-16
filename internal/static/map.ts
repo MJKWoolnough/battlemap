@@ -48,7 +48,7 @@ const idNames: Record<string, Int> = {
 	const tokens = new NodeArray<SVGToken | SVGShape>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
-			tokens.push(isTokenImage(t) ? new (tokenClass())(t, wg) : isTokenDrawing(t) ? new SVGDrawing(t) : new SVGShape(t));
+			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new SVGDrawing(t) : new SVGShape(t));
 		};
 	} else {
 		amendNode(n, {"id": `layer${layer.name}`});
@@ -444,7 +444,7 @@ export default (base: HTMLElement) => {
 		delete (tk as Record<string, any>)["path"];
 		let token: SVGToken | SVGShape | SVGDrawing;
 		if (isTokenImage(tk.token)) {
-			token = new (tokenClass())(tk.token);
+			token = new tokenClass(tk.token);
 			const cID = tk.token.tokenData["store-character-id"];
 			if (cID && typeof cID.data === "number") {
 				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
