@@ -81,18 +81,22 @@ type Settings5E = {
 	"store-image-shapechanges": KeystoreData<ShapechangeToken[]>;
 }
 
+const select = Symbol("select"),
+      unselect = Symbol("unselect"),
+      updateData = Symbol("updateData");
+
 class SVGToken5E extends SVGToken {
-	tokenNode: SVGGraphicsElement;
-	extra: SVGGElement;
-	hp: SVGGElement;
-	hpValue: SVGTextElement;
-	hpBar: SVGUseElement;
-	hpBack: SVGUseElement;
-	name: SVGTextElement;
-	ac: SVGGElement;
-	acValue: SVGTextElement;
-	shield: SVGUseElement;
-	conditions: SVGGElement;
+	#tokenNode: SVGGraphicsElement;
+	#extra: SVGGElement;
+	#hp: SVGGElement;
+	#hpValue: SVGTextElement;
+	#hpBar: SVGUseElement;
+	#hpBack: SVGUseElement;
+	#name: SVGTextElement;
+	#ac: SVGGElement;
+	#acValue: SVGTextElement;
+	#shield: SVGUseElement;
+	#conditions: SVGGElement;
 	declare tokenData: Record<string, KeystoreData> & TokenFields;
 	constructor(token: TokenImage, wg?: WaitGroup) {
 		super(token, wg);
@@ -101,125 +105,124 @@ class SVGToken5E extends SVGToken {
 		      ac: Uint | null = this.getData("5e-ac"),
 		      size = Math.min(this.width, this.height) / 4
 		this[node] = g([
-			this.tokenNode = this[node],
-			this.extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
-				this.hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
-					this.hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
-					this.hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
-					this.hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
+			this.#tokenNode = this[node],
+			this.#extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
+				this.#hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
+					this.#hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
+					this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
+					this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 				]),
-				this.name = text({"class": "token-name-5e", "style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
-				this.ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
-					this.shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
-					this.acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
+				this.#name = text({"class": "token-name-5e", "style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
+				this.#ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
+					this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
+					this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 				]),
-				this.conditions = g({"class": "token-conditions-5e"})
+				this.#conditions = g({"class": "token-conditions-5e"})
 			])
 		]);
-		window.setTimeout(this.setTextWidth.bind(this), 0);
-		this.updateConditions();
-		Object.defineProperties(this, nonEnumProps);
+		window.setTimeout(this.#setTextWidth.bind(this), 0);
+		this.#updateConditions();
 	}
-	setTextWidth() {
+	#setTextWidth() {
 		const maxNameLength = this.width / 2,
-		      nameLength = this.name.getComputedTextLength(),
+		      nameLength = this.#name.getComputedTextLength(),
 		      size = Math.min(this.width, this.height) / 8,
 		      textSize = Math.min(16 * (maxNameLength / nameLength), this.height / 8);
-		amendNode(this.name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
-		amendNode(this.acValue, {"style": {"font-size": `${size}px`}});
-		amendNode(this.hpValue, {"style": {"font-size": `${size}px`}});
+		amendNode(this.#name, {"style": {"font-size": textSize + "px"}, "stroke-width": textSize / 100});
+		amendNode(this.#acValue, {"style": {"font-size": `${size}px`}});
+		amendNode(this.#hpValue, {"style": {"font-size": `${size}px`}});
 	}
 	cleanup() {
 		const n = this[node];
-		this[node] = this.tokenNode;
+		this[node] = this.#tokenNode;
 		super.cleanup();
 		this[node] = n;
 	}
 	uncleanup() {
 		const n = this[node];
-		this[node] = this.tokenNode;
+		this[node] = this.#tokenNode;
 		super.uncleanup();
 		this[node] = n;
 	}
 	at(x: Int, y: Int) {
-		return super.at(x, y, this.tokenNode);
+		return super.at(x, y, this.#tokenNode);
 	}
-	select() {
-		outline.insertAdjacentElement("beforebegin", this.extra);
+	[select]() {
+		outline.insertAdjacentElement("beforebegin", this.#extra);
 	}
-	unselect() {
+	[unselect]() {
 		if (!this.isPattern) {
-			amendNode(this[node], this.extra);
+			amendNode(this[node], this.#extra);
 		}
 	}
 	updateSource(source: Uint) {
 		const n = this[node];
-		this[node] = this.tokenNode;
+		this[node] = this.#tokenNode;
 		super.updateSource(source);
 		this[node] = n;
 	}
 	updateNode() {
 		const n = this[node],
-		      wasPattern = this.tokenNode instanceof SVGRectElement;
-		this[node] = this.tokenNode;
+		      wasPattern = this.#tokenNode instanceof SVGRectElement;
+		this[node] = this.#tokenNode;
 		super.updateNode();
-		this.tokenNode = this[node];
+		this.#tokenNode = this[node];
 		this[node] = n;
 		if (this.isPattern) {
 			if (!wasPattern) {
-				this.extra.remove();
+				this.#extra.remove();
 			}
 		} else if (wasPattern) {
 			if (selected.token === this) {
-				outline.insertAdjacentElement("beforebegin", this.extra);
+				outline.insertAdjacentElement("beforebegin", this.#extra);
 			}
-			this[node].replaceWith(this[node] = g([this.tokenNode, this.extra]));
+			this[node].replaceWith(this[node] = g([this.#tokenNode, this.#extra]));
 		}
-		amendNode(this.tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
-		amendNode(this.extra, {"transform": `translate(${this.x}, ${this.y})`});
-		amendNode(this.shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
-		amendNode(this.hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		amendNode(this.hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
-		amendNode(this.name, {"x": this.width / 2, "style": {"font-size": undefined}});
-		amendNode(this.hpValue, {"x": this.width / 8});
-		amendNode(this.acValue, {"x": 7 * this.width / 8});
-		this.setTextWidth();
-		this.updateConditions();
+		amendNode(this.#tokenNode, {"width": this.width, "height": this.height, "transform": this.transformString()});
+		amendNode(this.#extra, {"transform": `translate(${this.x}, ${this.y})`});
+		amendNode(this.#shield, {"x": 3 * this.width / 4, "width": this.width / 4, "height": Math.min(this.height, this.width) / 4});
+		amendNode(this.#hpBack, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+		amendNode(this.#hpBar, {"width": this.width / 4, "height": Math.min(this.width, this.height) / 4});
+		amendNode(this.#name, {"x": this.width / 2, "style": {"font-size": undefined}});
+		amendNode(this.#hpValue, {"x": this.width / 8});
+		amendNode(this.#acValue, {"x": 7 * this.width / 8});
+		this.#setTextWidth();
+		this.#updateConditions();
 	}
-	updateData() {
+	[updateData]() {
 		const maxHP: Uint | null = this.getData("5e-hp-max"),
 		      currentHP: Uint | null = this.getData("5e-hp-current"),
 		      ac: Uint | null = this.getData("5e-ac"),
 		      name = this.getData("name") || "";
 		if (ac === null) {
-			amendNode(this.ac, {"style": "display: none"});
+			amendNode(this.#ac, {"style": "display: none"});
 		} else {
-			amendNode(this.ac, {"style": undefined})
-			this.acValue.innerHTML = ac + "";
+			amendNode(this.#ac, {"style": undefined})
+			this.#acValue.innerHTML = ac + "";
 		}
 		if (currentHP === null || maxHP === null) {
-			amendNode(this.hp, {"style": "display: none"});
+			amendNode(this.#hp, {"style": "display: none"});
 		} else {
-			amendNode(this.hp, {"style": undefined});
-			this.hpValue.innerHTML = currentHP + "";
-			amendNode(this.hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
-			amendNode(this.hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
+			amendNode(this.#hp, {"style": undefined});
+			this.#hpValue.innerHTML = currentHP + "";
+			amendNode(this.#hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
+			amendNode(this.#hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
 		}
-		if (this.name.innerHTML !== name) {
-			amendNode(this.name, {"style": {"font-size": undefined}}, name);
-			this.setTextWidth();
+		if (this.#name.innerHTML !== name) {
+			amendNode(this.#name, {"style": {"font-size": undefined}}, name);
+			this.#setTextWidth();
 		}
-		this.updateConditions();
+		this.#updateConditions();
 	}
-	updateConditions() {
-		clearNode(this.conditions);
+	#updateConditions() {
+		clearNode(this.#conditions);
 		const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
 		      size = Math.min(this.width, this.height) / 4,
 		      perRow = Math.floor(this.width / size);
 		let row = -1, col = 0;
 		for (let i = 0; i < myConditions.length; i++) {
 			if (myConditions[i]) {
-				amendNode(this.conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
+				amendNode(this.#conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
 				col++;
 				if (col === perRow) {
 					col = 0;
@@ -227,7 +230,7 @@ class SVGToken5E extends SVGToken {
 				}
 			}
 		}
-		amendNode(this.conditions, {"transform": `translate(0, ${this.height})`});
+		amendNode(this.#conditions, {"transform": `translate(0, ${this.height})`});
 	}
 
 }
@@ -370,20 +373,6 @@ const defaultLanguage = {
       },
       lang = langs[language.value] ?? defaultLanguage,
       importName = pluginName(import.meta),
-      nonEnum = {"enumerable": false},
-      nonEnumProps = {
-	"tokenNode": nonEnum,
-	"extra": nonEnum,
-	"hp": nonEnum,
-	"hpValue": nonEnum,
-	"hpBar": nonEnum,
-	"hpBack": nonEnum,
-	"name": nonEnum,
-	"ac": nonEnum,
-	"acValue": nonEnum,
-	"shield": nonEnum,
-	"conditions": nonEnum
-      },
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "fill": "currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "fill": "currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "fill": "currentColor"})),
@@ -859,10 +848,10 @@ if (isAdmin) {
 					const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
 					if (data >= 0) {
 						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-						token.updateData();
+						token[updateData]();
 					} else {
 						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
-						token.updateData();
+						token[updateData]();
 					}
 				});
 			}
@@ -939,11 +928,11 @@ if (isAdmin) {
 							updateInitiative();
 						}
 						if (!isCharacter) {
-							(tokens.get(id)!.token as SVGToken5E).updateData();
+							(tokens.get(id)!.token as SVGToken5E)[updateData]();
 						} else {
 							for (const [_, {token}] of tokens) {
 								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
-									token.updateData();
+									token[updateData]();
 								}
 							}
 						}
@@ -981,7 +970,7 @@ if (isAdmin) {
 					const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
 					data[n] = !data[n];
 					doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-					token.updateData();
+					token[updateData]();
 				}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"}));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
@@ -1019,14 +1008,14 @@ if (isAdmin) {
 		let lastSelectedToken: SVGToken5E | null = null;
 		return () => {
 			if (lastSelectedToken) {
-				lastSelectedToken.unselect();
+				lastSelectedToken[unselect]();
 			}
 			const {token} = selected;
 			if (token instanceof SVGToken5E && !token.isPattern) {
 				setupHealthButton();
 				setupInitiativeButton();
 				lastSelectedToken = token;
-				token.select();
+				token[select]();
 			} else {
 				cancelHealthButton();
 				cancelInitiativeButton();
@@ -1042,7 +1031,7 @@ mapLoadedReceive(() => {
 	queue(async () => {
 		for (const [_, tk] of tokens) {
 			if (tk instanceof SVGToken5E) {
-				tk.updateData();
+				tk[updateData]();
 			}
 		}
 		updateInitiative();
@@ -1056,7 +1045,7 @@ rpc.waitTokenSet().then(ts => {
 			if (initTokens.has(ts.id)) {
 				updateInitiative();
 			}
-			(tokens.get(ts.id)!.token as SVGToken5E).updateData();
+			(tokens.get(ts.id)!.token as SVGToken5E)[updateData]();
 		}, 0);
 		return;
 	}
@@ -1067,7 +1056,7 @@ rpc.waitTokenSet().then(ts => {
 			case "5e-hp-max":
 			case "5e-hp-current":
 			case "5e-conditions":
-				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5E).updateData(), 0);
+				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5E)[updateData](), 0);
 				return;
 			}
 		}
@@ -1103,7 +1092,7 @@ rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	let ui = false;
 	for (const [_, {token}] of tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
-			token.updateData();
+			token[updateData]();
 			if (!ui && initTokens.has(token.id)) {
 				setTimeout(updateInitiative);
 				ui = true;
