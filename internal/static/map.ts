@@ -488,19 +488,15 @@ export default (base: HTMLElement) => {
 				}
 				break;
 			case "tokenData":
-				if (token instanceof SVGToken) {
-					const tokenData = ts[k];
-					for (const k in tokenData) {
-						token["tokenData"][k] = tokenData[k];
-					}
+				const tokenData = ts[k];
+				for (const k in tokenData) {
+					token["tokenData"][k] = tokenData[k];
 				}
 				break;
 			case "removeTokenData":
-				if (token instanceof SVGToken) {
-					const removeTokenData = ts[k]!;
-					for (const k of removeTokenData) {
-						delete token["tokenData"][k];
-					}
+				const removeTokenData = ts[k]!;
+				for (const k of removeTokenData) {
+					delete token["tokenData"][k];
 				}
 				break;
 			default:
