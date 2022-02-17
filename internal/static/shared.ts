@@ -43,14 +43,19 @@ cloneObject = (o: Object | null | undefined) => o ? JSON.parse(JSON.stringify(o)
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {
 	const tokensSymbol = Symbol("tokens");
+
+	type CharacterRecord = Record<string, KeystoreData> & {
+		[tokensSymbol]?: CharacterToken[];
+	}
+
 	return [
-		(data: Record<string, KeystoreData>) => {
-			let list = (data as any)[tokensSymbol] as CharacterToken[];
+		(data: CharacterRecord) => {
+			let list = data[tokensSymbol];
 			if (list === undefined || list.length === 0) {
 				const tokens = data["store-image-data"];
 				if (tokens) {
 					if (tokens.data instanceof Array) {
-						(data as any)[tokensSymbol] = list = Array.from(tokens.data);
+						data[tokensSymbol] = list = Array.from(tokens.data);
 						if (data?.["tokens_order"]?.data) {
 							for (let p = list.length - 1; p >= 0; p--) {
 								const r = Math.floor(Math.random() * list.length);
@@ -64,13 +69,13 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 					}
 				}
 			}
-			const tk = list.pop();
+			const tk = list?.pop();
 			if (tk) {
 				return Object.assign(cloneObject(tk), {"lightColour": tk.lightColour});
 			}
 			return null;
 		},
-		(data: Record<string, KeystoreData>) => delete (data as any)[tokensSymbol]
+		(data: CharacterRecord) => delete data[tokensSymbol]
 	] as const;
 })(),
 tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
