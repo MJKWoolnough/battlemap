@@ -93,12 +93,6 @@ interface SVGToken5EConstructor {
 	new (token: TokenImage, wg?: WaitGroup): SVGToken5EType;
 }
 
-const select = Symbol("select"),
-      unselect = Symbol("unselect"),
-      updateData = Symbol("updateData");
-
-let SVGToken5E: SVGToken5EConstructor;
-
 amendNode(symbols, [
 	filter({"id": "saturate-5e"}, feColorMatrix({"type": "saturate", "values": 0})),
 	symbol({"id": "5e-shield", "viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})),
@@ -143,7 +137,12 @@ amendNode(symbols, [
 	symbol({"id": "5e-CONDITION_UNCONSCIOUS", "viewBox": "0 0 100 100"}, [defs(path({"id": "5e-z", "d": "M3,2 h20 v3 l-15,20 h15 l1,-3 h1 l-1,5 h-20 v-3 l15,-20 h-15 l-1,3 h-1 z", "stroke-width": 1, "stroke": "#000", "fill": "#fff"})), use({"href": "#5e-z", "transform": "scale(1.2) translate(55, 0)"}), use({"href": "#5e-z", "transform": "translate(45, 30)"}), use({"href": "#5e-z", "transform": "scale(0.8) translate(35, 70)"}), use({"href": "#5e-z", "transform": "scale(0.6) translate(25, 130)"})])
 ]);
 
-const defaultLanguage = {
+let SVGToken5E: SVGToken5EConstructor;
+
+const select = Symbol("select"),
+      unselect = Symbol("unselect"),
+      updateData = Symbol("updateData"),
+      defaultLanguage = {
 	"ARMOUR_CLASS": "Armour Class",
 	"CONDITION_BANE": "Bane",
 	"CONDITION_BLESSED": "Blessed",
