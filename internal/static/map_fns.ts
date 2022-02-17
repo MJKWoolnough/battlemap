@@ -265,23 +265,19 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		case "id":
 			break;
 		case "tokenData":
-			if (token instanceof SVGToken) {
-				const tokenData = ts[k];
-				for (const k in tokenData) {
-					if (token["tokenData"][k]) {
-						original["tokenData"]![k] = token["tokenData"][k];
-					} else {
-						original["removeTokenData"]!.push(k);
-					}
+			const tokenData = ts[k];
+			for (const k in tokenData) {
+				if (token["tokenData"][k]) {
+					original["tokenData"]![k] = token["tokenData"][k];
+				} else {
+					original["removeTokenData"]!.push(k);
 				}
 			}
 			break;
 		case "removeTokenData":
-			if (token instanceof SVGToken) {
-				const removeTokenData = ts[k]!;
-				for (const k of removeTokenData) {
-					original["tokenData"]![k] = token["tokenData"][k];
-				}
+			const removeTokenData = ts[k]!;
+			for (const k of removeTokenData) {
+				original["tokenData"]![k] = token["tokenData"][k];
 			}
 			break;
 		default:
@@ -299,19 +295,15 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 				}
 				break;
 			case "tokenData":
-				if (token instanceof SVGToken) {
-					const tokenData = ts[k];
-					for (const k in tokenData) {
-						token["tokenData"][k] = tokenData[k];
-					}
+				const tokenData = ts[k];
+				for (const k in tokenData) {
+					token["tokenData"][k] = tokenData[k];
 				}
 				break;
 			case "removeTokenData":
-				if (token instanceof SVGToken) {
-					const removeTokenData = ts[k]!;
-					for (const k of removeTokenData) {
-						delete token["tokenData"][k];
-					}
+				const removeTokenData = ts[k]!;
+				for (const k of removeTokenData) {
+					delete token["tokenData"][k];
 				}
 				break;
 			default:
