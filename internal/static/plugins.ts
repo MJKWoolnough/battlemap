@@ -85,12 +85,12 @@ settings = () => {
 			br(),
 			save,
 		] : [],
-		filterSortPlugins("settings").map(([name, plugin]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), plugin["settings"].fn])
+		filterSortPlugins("settings").map(([name, {"settings": {fn}}]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), fn])
 	];
 },
 characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
-	for (const p of filterSortPlugins("characterEdit")) {
-		const h = p[1]["characterEdit"].fn(w, id, data, isCharacter, changes, removes, save);
+	for (const [, {"characterEdit": {fn}}] of filterSortPlugins("characterEdit")) {
+		const h = fn(w, id, data, isCharacter, changes, removes, save);
 		if (h) {
 			return h;
 		}
@@ -108,8 +108,8 @@ askReload = () => {
 },
 tokenContext = () => {
 	const ret: List[] = [];
-	for (const p of filterSortPlugins("tokenContext")) {
-		const r = p[1]["tokenContext"].fn();
+	for (const [, {"tokenContext": {fn}}] of filterSortPlugins("tokenContext")) {
+		const r = fn();
 		if (r) {
 			ret.push(r);
 		}
@@ -118,8 +118,8 @@ tokenContext = () => {
 },
 tokenDataFilter = () => {
 	const tdf: string[] = [];
-	for (const p of filterSortPlugins("tokenDataFilter")) {
-		tdf.push(...p[1]["tokenDataFilter"].fn);
+	for (const [, {"tokenDataFilter": {fn}}] of filterSortPlugins("tokenDataFilter")) {
+		tdf.push(...fn);
 	}
 	return tdf;
 },
