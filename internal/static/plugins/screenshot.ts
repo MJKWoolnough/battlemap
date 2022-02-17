@@ -30,7 +30,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	case "rect":
 		if (n.getAttribute("fill")?.startsWith("url(#Pattern_")) {
 			const pattern = definitions.list.get(n.getAttribute("fill")!.slice(5, -1))?.firstChild;
-			if (pattern && pattern instanceof SVGImageElement) {
+			if (pattern instanceof SVGImageElement) {
 				return p.then(() => {
 					const fs = ctx.fillStyle,
 					      width = parseInt(pattern.getAttribute("width")!),
