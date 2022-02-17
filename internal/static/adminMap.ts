@@ -7,6 +7,7 @@ import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, h1, img, input} from './lib/html.js';
+import {Pipe} from './lib/inter.js';
 import {rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
@@ -18,11 +19,13 @@ import {SVGToken, deselectToken, outline, selected, tokens, tokenSelected, token
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
-import {characterData, checkInt, cloneObject, getCharacterToken, labels, mapLoadReceive, mapLoadedSend, mod, SQRT3} from './shared.js';
+import {characterData, checkInt, cloneObject, getCharacterToken, labels, mapLoadedSend, mod, SQRT3} from './shared.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 import undo from './undo.js';
 import {shell, windows} from './windows.js';
+
+export const [mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3);
 
 export default (base: HTMLElement) => {
 	let copiedToken: Token | null = null,

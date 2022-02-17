@@ -4,11 +4,12 @@ import {amendNode, clearNode} from '../lib/dom.js';
 import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
+import {mapLoadReceive} from '../adminMap.js';
 import {language} from '../language.js';
 import {SVGToken, tokens} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
-import {addCSS, mapLoadReceive} from '../shared.js';
+import {addCSS} from '../shared.js';
 
 type assetSize = {
 	id: Uint;

@@ -17,7 +17,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 		}
 	}
 },
-[mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3),
 [mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(3),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
