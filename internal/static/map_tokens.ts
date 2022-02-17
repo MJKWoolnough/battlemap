@@ -1,6 +1,8 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
-import type {Colour} from './colours.js';
 import type {WaitGroup} from './lib/inter.js';
+import type {Colour} from './colours.js';
+import type {SVGLayer} from './map.js';
+import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
 import {node, NodeArray} from './lib/nodes.js';
 import {characterData, cloneObject, setAndReturn, SQRT3} from './shared.js';
@@ -187,7 +189,19 @@ export class SVGDrawing extends SVGShape {
 	}
 }
 
-export const masks = (() => {
+export const [tokenSelected, tokenSelectedReceive] = new Pipe<void>().bind(3),
+tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
+selected = {
+	"layer": null as SVGLayer | null,
+	"token": null as SVGToken | SVGShape | null
+},
+outline = g(),
+deselectToken = () => {
+	selected.token = null;
+	amendNode(outline, {"style": {"display": "none"}});
+	tokenSelected();
+},
+masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
 	      masks = new NodeArray<MaskNode>(g()),
 	      baseNode = mask({"id": "mapMask"}, [base, masks[node]]);

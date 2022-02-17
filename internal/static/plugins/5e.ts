@@ -15,10 +15,11 @@ import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, mapData, walkLayers} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
+import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
-import {addCSS, characterData, isInt, isUint, labels, mapLoadedReceive, outline, queue, selected, tokens, tokenSelectedReceive} from '../shared.js';
+import {addCSS, characterData, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import symbols, {remove, rename, userVisible} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 

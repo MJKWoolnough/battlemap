@@ -8,8 +8,9 @@ import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doTokenAdd} from './map_fns.js';
+import {deselectToken, selected} from './map_tokens.js';
 import {autosnap} from './settings.js';
-import {checkInt, deselectToken, labels, selected} from './shared.js';
+import {checkInt, labels} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 import {shell} from './windows.js';
 

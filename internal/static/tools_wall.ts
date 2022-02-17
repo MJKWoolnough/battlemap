@@ -8,9 +8,10 @@ import {Colour, hex2Colour, makeColourPicker} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify} from './map_fns.js';
+import {deselectToken, selected} from './map_tokens.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
-import {checkInt, cloneObject, deselectToken, labels, selected, setAndReturn, walls} from './shared.js';
+import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),

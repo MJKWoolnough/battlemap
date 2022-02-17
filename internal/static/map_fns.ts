@@ -5,10 +5,10 @@ import {Subscription} from './lib/inter.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
 import {addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
-import {SVGToken, masks} from './map_tokens.js';
+import {SVGToken, deselectToken, masks, outline, selected, tokens} from './map_tokens.js';
 import {drawingClass, shapeClass, tokenClass, tokenDataFilter} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
-import {cloneObject, deselectToken, outline, queue, selected, SQRT3, tokens, walls} from './shared.js';
+import {cloneObject, queue, SQRT3, walls} from './shared.js';
 import undo from './undo.js';
 
 const subFn = <T>(): [(data: T) => void, Subscription<T>] => {

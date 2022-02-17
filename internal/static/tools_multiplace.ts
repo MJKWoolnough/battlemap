@@ -9,8 +9,9 @@ import {noColour} from './colours.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
+import {deselectToken, selected} from './map_tokens.js';
 import {tokenClass} from './plugins.js';
-import {characterData, cloneObject, deselectToken, getCharacterToken, labels, selected} from './shared.js';
+import {characterData, cloneObject, getCharacterToken, labels} from './shared.js';
 import {autosnap} from './settings.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 

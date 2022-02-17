@@ -1,11 +1,9 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, Props} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
-import type {SVGShape, SVGToken} from './map_tokens.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {g} from './lib/svg.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
@@ -21,7 +19,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent): void {
 },
 [mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3),
 [mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(3),
-[tokenSelected, tokenSelectedReceive] = new Pipe<void>().bind(3),
 isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 checkInt = (n: number, min = -Infinity, max = Infinity, def = 0) => isInt(n, min, max) ? n : def,
@@ -78,18 +75,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 		(data: CharacterRecord) => delete data[tokensSymbol]
 	] as const;
 })(),
-tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
-selected = {
-	"layer": null as SVGLayer | null,
-	"token": null as SVGToken | SVGShape | null
-},
-outline = g(),
-deselectToken = () => {
-	selected.token = null;
-	amendNode(outline, {"style": {"display": "none"}});
-	tokenSelected();
-},
 setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
 	m.set(k, v);
 	return v;

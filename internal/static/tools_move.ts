@@ -5,8 +5,8 @@ import {g, line, path, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {panZoom, root, screen2Grid} from './map.js';
 import {doLayerShift} from './map_fns.js';
+import {deselectToken, selected} from './map_tokens.js';
 import {autosnap, measureTokenMove} from './settings.js';
-import {deselectToken, selected} from './shared.js';
 import {addTool, disable, ignore} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 

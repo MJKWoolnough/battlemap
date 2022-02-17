@@ -7,9 +7,10 @@ import {hex2Colour, noColour} from '../colours.js';
 import mainLang, {language} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
+import {selected, tokenSelectedReceive} from '../map_tokens.js';
 import {isAdmin, rpc} from '../rpc.js';
 import {autosnap} from '../settings.js';
-import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod, selected, tokenSelectedReceive} from '../shared.js';
+import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
 const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},

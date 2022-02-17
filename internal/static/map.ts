@@ -8,11 +8,11 @@ import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
 import lang from './language.js';
-import {SVGToken, definitions, masks} from './map_tokens.js';
+import {SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, SQRT3, tokens, walls} from './shared.js';
+import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, SQRT3, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {shell} from './windows.js';
 

@@ -10,8 +10,9 @@ import {Item, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
+import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
-import {checkInt, deselectToken, enterKey, labels, mapLoadedReceive, menuItems, queue, selected} from './shared.js';
+import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
 import {visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 

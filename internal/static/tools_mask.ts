@@ -7,10 +7,10 @@ import {ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
-import {masks} from './map_tokens.js';
+import {deselectToken, masks} from './map_tokens.js';
 import {autosnap} from './settings.js';
 import {JSONSetting} from './settings_types.js';
-import {deselectToken, labels} from './shared.js';
+import {labels} from './shared.js';
 import {addTool, marker} from './tools.js';
 import {shell} from './windows.js';
 
