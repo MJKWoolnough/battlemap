@@ -168,14 +168,14 @@ class Pack {
 
 const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audio/wav;base64,UklGRiwAAABXQVZFZm10IBAAAAABAAIARKwAABCxAgAEABAAZGF0YQgAAAAAAAAAAAD//w=="}).play().then(enabled).catch(() => amendNode(document.body, div({"style": "position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.75); cursor: pointer", "onclick": function(this: HTMLDivElement) {this.remove(); enabled()}}, div({"style": "display: flex; align-items: center; justify-content: center; height: 100%; font-size: 3em; color: #fff"}, lang["MUSIC_ENABLE"]))))),
       musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
-      newPack = () => ({"tracks": [], "volume": 255, "playTime": 0, "playing": false}),
-      commonWaits = (packs: Map<string, Pack>) => {
-	rpc.waitMusicPackVolume().then(pv => packs.get(pv.musicPack)?.setVolume(pv.volume));
-	rpc.waitMusicPackPlay().then(pp => packs.get(pp.musicPack)?.play(pp.playTime));
-	rpc.waitMusicPackStop().then(name => packs.get(name)?.stop());
-	rpc.waitMusicPackTrackRemove().then(mr => packs.get(mr.musicPack)?.tracks[mr.track]?.remove());
-	rpc.waitMusicPackTrackVolume().then(mv => packs.get(mv.musicPack)?.tracks[mv.track]?.setVolume(mv.volume));
-	rpc.waitMusicPackTrackRepeat().then(mr => packs.get(mr.musicPack)?.tracks[mr.track]?.setRepeat(mr.repeat));
+      newPack = (id: Uint, name = "") => ({id, name, "tracks": [], "volume": 255, "playTime": 0, "playing": false}),
+      commonWaits = (packs: Map<Uint, Pack>) => {
+	rpc.waitMusicPackVolume().then(pv => packs.get(pv.id)?.setVolume(pv.volume));
+	rpc.waitMusicPackPlay().then(pp => packs.get(pp.id)?.play(pp.playTime));
+	rpc.waitMusicPackStop().then(id => packs.get(id)?.stop());
+	rpc.waitMusicPackTrackRemove().then(mr => packs.get(mr.id)?.tracks[mr.track]?.remove());
+	rpc.waitMusicPackTrackVolume().then(mv => packs.get(mv.id)?.tracks[mv.track]?.setVolume(mv.volume));
+	rpc.waitMusicPackTrackRepeat().then(mr => packs.get(mr.id)?.tracks[mr.track]?.setRepeat(mr.repeat));
       },
       now = () => timeShift + Date.now() / 1000;
 
@@ -184,37 +184,30 @@ let timeShift = 0;
 inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000).then(() => {
 	if (!isAdmin) {
 		 audioEnabled().then(rpc.musicPackList).then(list => {
-			const packs = new Map<string, Pack>();
-			for (const name in list) {
-				packs.set(name, new Pack(list[name]));
+			const packs = new Map<Uint, Pack>();
+			for (const pack of list) {
+				packs.set(pack.id, new Pack(pack));
 			}
-			rpc.waitMusicPackAdd().then(name => packs.set(name, new Pack(newPack())));
-			rpc.waitMusicPackRename().then(ft => {
-				const p = packs.get(ft.from);
-				if (p) {
-					packs.delete(ft.from);
-					packs.set(ft.to, p);
-				}
-			});
-			rpc.waitMusicPackRemove().then(name => {
-				const p = packs.get(name);
+			rpc.waitMusicPackAdd().then(({id}) => packs.set(id, new Pack(newPack(id))));
+			rpc.waitMusicPackRemove().then(id => {
+				const p = packs.get(id);
 				if (p) {
 					p.remove();
-					packs.delete(name)
+					packs.delete(id)
 				}
 			});
 			rpc.waitMusicPackCopy().then(ft => {
-				const p = packs.get(ft.from);
+				const p = packs.get(ft.id);
 				if (p) {
 					const tracks: MusicTrack[] = [];
 					for (const track in p.tracks) {
 						tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
 					}
-					packs.set(ft.to, new Pack({tracks, "volume": p.volume, "playTime": 0}));
+					packs.set(ft.newID, new Pack({"id": ft.newID, "name": "", tracks, "volume": p.volume, "playTime": 0}));
 				}
 			});
 			rpc.waitMusicPackTrackAdd().then(mt => {
-				const p = packs.get(mt.musicPack);
+				const p = packs.get(mt.id);
 				if (p) {
 					for (const id of mt.tracks) {
 						p.tracks.push(new Track(p, {id, "volume": 255, "repeat": 0}));
@@ -244,15 +237,15 @@ menuItems.push([3, () => isAdmin ? [
 					this[node] = li([
 						this.nameNode = span(track.name ?? `${lang["MUSIC_TRACK"]} ${track.id}`),
 						this.volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
-							rpc.musicPackTrackVolume(parent.name, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
+							rpc.musicPackTrackVolume(parent.id, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 							this.updateVolume();
 						}}),
-						this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.name, parent.tracks.findIndex(t => t === this), this.repeat = checkInt(parseInt(this.repeatNode.value), -1))}),
+						this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.id, parent.tracks.findIndex(t => t === this), this.repeat = checkInt(parseInt(this.repeatNode.value), -1))}),
 						remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
 							if (!d) {
 								return;
 							}
-							rpc.musicPackTrackRemove(parent.name, this.remove());
+							rpc.musicPackTrackRemove(parent.id, this.remove());
 						})})
 					]);
 					this.cleanup = track.name ? () => {} : audioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
@@ -272,6 +265,7 @@ menuItems.push([3, () => isAdmin ? [
 			}
 			class AdminPack extends Pack {
 				tracks: NodeArray<AdminTrack>;
+				id: Uint;
 				name: string;
 				currentTime: Uint = 0;
 				[node]: HTMLLIElement;
@@ -285,8 +279,10 @@ menuItems.push([3, () => isAdmin ? [
 				playStatus: SVGSVGElement;
 				pauseTime: Uint = 0;
 				window: WindowElement;
-				constructor(name: string, pack: MusicPack) {
+				constructor(id: Uint, pack: MusicPack) {
 					super(pack);
+					this.id = id;
+					this.name = pack.name;
 					this.tracks = new NodeArray<AdminTrack>(ul({"class": "musicTrackList"}), noSort);
 					for (const track of pack.tracks) {
 						this.tracks.push(new AdminTrack(this, track));
@@ -318,7 +314,7 @@ menuItems.push([3, () => isAdmin ? [
 						if (e.dataTransfer.types.includes("audioasset")) {
 							const {id, name} = JSON.parse(e.dataTransfer.getData("audioasset"));
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
-							rpc.musicPackTrackAdd(this.name, [id]);
+							rpc.musicPackTrackAdd(this.id, [id]);
 						} else if (e.dataTransfer.types.includes("Files")) {
 							const f = new FormData();
 							for (const file of e.dataTransfer.files) {
@@ -330,12 +326,12 @@ menuItems.push([3, () => isAdmin ? [
 									this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 									ids.push(id);
 								}
-								rpc.musicPackTrackAdd(this.name, ids);
+								rpc.musicPackTrackAdd(this.id, ids);
 							}).catch(handleError);
 							e.preventDefault();
 						}
 					}}, [
-						this.titleNode = h1(name),
+						this.titleNode = h1(this.name),
 						svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 							this.playPauseTitle,
 							this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
@@ -351,7 +347,7 @@ menuItems.push([3, () => isAdmin ? [
 						stop({"style": "width: 2em; height: 2em", "title": lang["MUSIC_STOP"], "onclick": () => this.stop(true)}),
 						br(),
 						this.volumeNode = input({"type": "range", "max": 255, "value": pack.volume, "onchange": () => {
-							rpc.musicPackSetVolume(this.name, this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
+							rpc.musicPackSetVolume(this.id, this.volume = checkInt(parseInt(this.volumeNode.value), 0, 255, 255));
 							this.updateVolume();
 						}}),
 						this.tracks[node],
@@ -362,10 +358,10 @@ menuItems.push([3, () => isAdmin ? [
 						e.dataTransfer!.setData("musicpack", JSON.stringify({"name": this.name}));
 					}}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
-						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name = name),
+						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
 						rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
 							if (name && name !== this.name) {
-								rpc.musicPackRename(this.name, name).then(name => {
+								rpc.musicPackRename(this.id, name).then(name => {
 									if (name !== this.name) {
 										this.name = name;
 										musicList.sort();
@@ -375,8 +371,10 @@ menuItems.push([3, () => isAdmin ? [
 						})}),
 						copy({"title": lang["MUSIC_COPY"], "class": "itemCopy", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 							if (name) {
-								rpc.musicPackCopy(this.name, name).then(name => {
-									musicList.set(name, new AdminPack(name, {
+								rpc.musicPackCopy(this.id, name).then(({id, name}) => {
+									musicList.set(id, new AdminPack(id, {
+										id,
+										name,
 										"tracks": this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})),
 										"volume": this.volume,
 										"playTime": 0
@@ -387,7 +385,7 @@ menuItems.push([3, () => isAdmin ? [
 						remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 							if (remove) {
 								this.remove();
-								rpc.musicPackRemove(this.name);
+								rpc.musicPackRemove(this.id);
 							}
 						})})
 					]);
@@ -410,7 +408,7 @@ menuItems.push([3, () => isAdmin ? [
 					amendNode(this.playStatus, {"style": {"visibility": undefined}});
 					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 					if (sendRPC) {
-						rpc.musicPackPlay(this.name, Math.round(playTime)).then(playTime => {
+						rpc.musicPackPlay(this.id, Math.round(playTime)).then(playTime => {
 							this.playTime = playTime;
 						});
 					}
@@ -432,7 +430,7 @@ menuItems.push([3, () => isAdmin ? [
 					amendNode(this.playStatus, {"style": {"visibility": "hidden"}});
 					this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
 					if (sendRPC) {
-						rpc.musicPackStop(this.name);
+						rpc.musicPackStop(this.id);
 					}
 					musicList.sort();
 				}
@@ -442,10 +440,10 @@ menuItems.push([3, () => isAdmin ? [
 					for (const t of this.tracks) {
 						t.cleanup();
 					}
-					musicList.delete(this.name);
+					musicList.delete(this.id);
 				}
 			}
-			const musicList = new NodeMap<string, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
+			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
 				const dt = b.playTime - a.playTime;
 				if (dt === 0) {
 					return stringSort(a.name, b.name);
@@ -456,44 +454,44 @@ menuItems.push([3, () => isAdmin ? [
 			      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 			      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"};
-			for (const name in list) {
-				musicList.set(name, new AdminPack(name, list[name]));
+			for (const pack of list) {
+				musicList.set(pack.id, new AdminPack(pack.id, pack));
 			}
 			clearNode(base, {"id": "musicPacks"}, [
 				button({"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 					if (name) {
-						rpc.musicPackAdd(name).then(name => musicList.set(name, new AdminPack(name, newPack())));
+						rpc.musicPackAdd(name).then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
 					}
 				})}, lang["MUSIC_ADD"]),
 				musicList[node]
 			]);
-			rpc.waitMusicPackAdd().then(name => musicList.set(name, new AdminPack(name, newPack())));
+			rpc.waitMusicPackAdd().then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
 			rpc.waitMusicPackRename().then(ft => {
-				const pack = musicList.get(ft.from);
+				const pack = musicList.get(ft.id);
 				if (pack) {
-					pack.name = ft.to;
+					pack.name = ft.name;
 					musicList.sort();
 				}
 			});
-			rpc.waitMusicPackRemove().then(name => {
-				const pack = musicList.get(name);
+			rpc.waitMusicPackRemove().then(id => {
+				const pack = musicList.get(id);
 				if (pack) {
 					pack.remove();
-					musicList.delete(name);
+					musicList.delete(id);
 				}
 			});
 			rpc.waitMusicPackCopy().then(ft => {
-				const pack = musicList.get(ft.from);
+				const pack = musicList.get(ft.id);
 				if (pack) {
 					const tracks: MusicTrack[] = [];
 					for (const track in pack.tracks) {
 						tracks.push({"id": pack.tracks[track].id, "volume": pack.tracks[track].volume, "repeat": pack.tracks[track].repeat});
 					}
-					musicList.set(ft.to, new AdminPack(ft.to, {tracks, "volume": pack.volume, "playTime": 0}));
+					musicList.set(ft.id, new AdminPack(ft.id, {"id": ft.id, "name": ft.name, tracks, "volume": pack.volume, "playTime": 0}));
 				}
 			});
 			rpc.waitMusicPackTrackAdd().then(mt => {
-				const pack = musicList.get(mt.musicPack);
+				const pack = musicList.get(mt.id);
 				if (pack) {
 					for (const id of mt.tracks) {
 						pack.tracks.push(new AdminTrack(pack, {id, "volume": 255, "repeat": 0}));
