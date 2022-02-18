@@ -363,7 +363,7 @@ menuItems.push([3, () => isAdmin ? [
 							if (name && name !== this.name) {
 								rpc.musicPackRename(this.id, name).then(name => {
 									if (name !== this.name) {
-										this.name = name;
+										this.setName(name);
 										musicList.sort();
 									}
 								});
@@ -469,8 +469,7 @@ menuItems.push([3, () => isAdmin ? [
 			rpc.waitMusicPackRename().then(ft => {
 				const pack = musicList.get(ft.id);
 				if (pack) {
-					pack.name = ft.name;
-					musicList.sort();
+					pack.setName(ft.name);
 				}
 			});
 			rpc.waitMusicPackRemove().then(id => {
