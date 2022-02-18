@@ -6,7 +6,7 @@ import (
 )
 
 type links struct {
-	images, audio, chars, maps linkManager
+	images, audio, chars, maps, music linkManager
 }
 
 func newLinks() links {
@@ -15,6 +15,7 @@ func newLinks() links {
 		audio:  make(linkManager),
 		chars:  make(linkManager),
 		maps:   make(linkManager),
+		music:  make(linkManager),
 	}
 }
 
@@ -25,6 +26,8 @@ func (l *links) getLinkKey(key string) linkManager {
 		return l.audio
 	} else if strings.HasPrefix(key, "store-character") {
 		return l.chars
+	} else if strings.HasPrefix(key, "store-music") {
+		return l.music
 	}
 	return nil
 }
