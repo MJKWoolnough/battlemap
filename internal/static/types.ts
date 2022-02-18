@@ -209,8 +209,7 @@ export type GridDetails = {
 
 export type Token = TokenImage | TokenShape | TokenDrawing;
 
-type TokenShared = TokenLight & {
-	id:         Uint;
+type TokenShared = TokenLight & ID & {
 	x:          Int;
 	y:          Int;
 	width:      Uint;
@@ -245,8 +244,7 @@ export type Coords = {
 	y: Int;
 }
 
-export type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & {
-	id:               Uint;
+export type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & ID & {
 	src?:             Uint;
 	patternWidth?:    Uint;
 	patternHeight?:   Uint;
@@ -269,18 +267,14 @@ export type CharacterToken = TokenLight & {
 	tokenData: Record<string, KeystoreData>;
 };
 
-export type LayerTokens = {
-	id: Uint;
-	name: string;
+export type LayerTokens = IDName & {
 	hidden: boolean;
 	mask: Uint;
 	tokens: Token[];
 	walls: Wall[];
 }
 
-export type LayerFolder = FolderItems & {
-	id: Uint;
-	name: string;
+export type LayerFolder = FolderItems & IDName & {
 	hidden: boolean;
 	children: (LayerTokens | LayerFolder)[];
 }
@@ -289,9 +283,8 @@ export type LayerMove = FromTo & {
 	position: Uint;
 }
 
-type BroadcastWindow = {
+type BroadcastWindow = ID & {
 	module: string;
-	id: Uint;
 	contents: string;
 };
 
@@ -330,8 +323,7 @@ export type KeystoreData<T = any> = {
 	data: T;
 }
 
-type CharacterDataChange = {
-	id: Uint;
+type CharacterDataChange = ID & {
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
