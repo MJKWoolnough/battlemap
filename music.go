@@ -211,7 +211,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			m.mu.Unlock()
 			return nil, ErrUnknownMusicPack
 		}
-		delete(m.names, names.Name)
+		delete(m.names, mp.Name)
 		mp.Name = uniqueName(names.Name, func(name string) bool {
 			_, ok := m.names[name]
 			return !ok
@@ -219,7 +219,6 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		if mp.Name != names.Name {
 			data = json.RawMessage(append(appendString(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), names.ID, 10), ",\"name\":"...), names.Name), '}'))
 		}
-		mp.Name = names.Name
 		m.names[mp.Name] = struct{}{}
 		m.mu.Unlock()
 		m.socket.broadcastMapChange(cd, broadcastMusicPackRename, data, userAdmin)
