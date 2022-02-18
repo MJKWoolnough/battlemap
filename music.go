@@ -102,7 +102,16 @@ func (m *musicPacksDir) Init(b *Battlemap, links links) error {
 			return fmt.Errorf("error reading music pack %d: %w", id, err)
 		}
 		m.packs[id] = pack
+		for _, track := range pack.Tracks {
+			links.audio.setLink(track.ID)
+		}
+		if id > m.lastID {
+			m.lastID = id
+		}
 		on := pack.Name
+		if on == "" {
+			continue
+		}
 		pack.Name = uniqueName(pack.Name, func(name string) bool {
 			_, ok := m.names[name]
 			return !ok
@@ -113,12 +122,6 @@ func (m *musicPacksDir) Init(b *Battlemap, links links) error {
 			}
 		}
 		m.names[pack.Name] = struct{}{}
-		for _, track := range pack.Tracks {
-			links.audio.setLink(track.ID)
-		}
-		if id > m.lastID {
-			m.lastID = id
-		}
 	}
 	return nil
 }
@@ -160,6 +163,9 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		j := json.NewEncoder(&buf)
 		m.mu.RLock()
 		for id, p := range m.packs {
+			if p.Name == "" {
+				continue
+			}
 			if first {
 				first = false
 			} else {
@@ -234,6 +240,8 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			m.mu.Unlock()
 			return nil, ErrUnknownMusicPack
 		}
+		mp.Name = ""
+		m.fileStore.Set(strconv.FormatUint(id, 10), mp)
 		delete(m.packs, id)
 		delete(m.names, mp.Name)
 		m.mu.Unlock()
