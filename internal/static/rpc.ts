@@ -80,13 +80,13 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
 			["waitWallRemoved",          broadcastWallRemove,           checkUint],
 			["waitWallModified",         broadcastWallModify,           checkWall],
-			["waitMusicPackAdd",         broadcastMusicPackAdd,         checkString],
-			["waitMusicPackRename",      broadcastMusicPackRename,      checkFromTo],
-			["waitMusicPackRemove",      broadcastMusicPackRemove,      checkString],
-			["waitMusicPackCopy",        broadcastMusicPackCopy,        checkFromTo],
+			["waitMusicPackAdd",         broadcastMusicPackAdd,         checkIDName],
+			["waitMusicPackRename",      broadcastMusicPackRename,      checkIDName],
+			["waitMusicPackRemove",      broadcastMusicPackRemove,      checkUint],
+			["waitMusicPackCopy",        broadcastMusicPackCopy,        checkMusicPackCopy],
 			["waitMusicPackVolume",      broadcastMusicPackVolume,      checkMusicPackVolume],
 			["waitMusicPackPlay",        broadcastMusicPackPlay,        checkMusicPackPlay],
-			["waitMusicPackStop",        broadcastMusicPackStop,        checkString],
+			["waitMusicPackStop",        broadcastMusicPackStop,        checkUint],
 			["waitMusicPackStopAll",     broadcastMusicPackStopAll,     returnVoid],
 			["waitMusicPackTrackAdd",    broadcastMusicPackTrackAdd,    checkMusicPackTrackAdd],
 			["waitMusicPackTrackRemove", broadcastMusicPackTrackRemove, checkMusicPackTrack],
@@ -181,18 +181,18 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["modifyWall",       "maps.modifyWall",        "!",                                       returnVoid,       "waitWallModified", ""],
 
 			["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
-			["musicPackAdd",         "music.new",             "!",                             checkString,     "waitMusicPackAdd", "*"],
-			["musicPackRename",      "music.rename",         ["from", "to"],                   checkString,     "waitMusicPackRename", "*"],
+			["musicPackAdd",         "music.new",             "!",                             checkIDName,     "waitMusicPackAdd", "*"],
+			["musicPackRename",      "music.rename",         ["id", "name"],                   checkString,     "waitMusicPackRename", "*"],
 			["musicPackRemove",      "music.remove",          "!",                             returnVoid,      "waitMusicPackRemove", ""],
-			["musicPackCopy",        "music.copy",           ["from", "to"],                   checkString,     "waitMusicPackCopy", "to"],
-			["musicPackSetVolume",   "music.setVolume",      ["musicPack", "volume"],          returnVoid,      "waitMusicPackVolume", ""],
-			["musicPackPlay",        "music.playPack",       ["musicPack", "playTime"],        checkUint,       "waitMusicPackPlay", "*"],
+			["musicPackCopy",        "music.copy",           ["id", "name"],                   checkIDName,     "waitMusicPackCopy", "name"],
+			["musicPackSetVolume",   "music.setVolume",      ["id", "volume"],                 returnVoid,      "waitMusicPackVolume", ""],
+			["musicPackPlay",        "music.playPack",       ["id", "playTime"],               checkUint,       "waitMusicPackPlay", "*"],
 			["musicPackStop",        "music.stopPack",        "!",                             returnVoid,      "waitMusicPackStop", ""],
 			["musicPackStopAll",     "music.stopAllPacks",    "",                              returnVoid,      "waitMusicPackStopAll", ""],
-			["musicPackTrackAdd",    "music.addTracks",      ["musicPack", "tracks"],          returnVoid,      "waitMusicPackTrackAdd", ""],
-			["musicPackTrackRemove", "music.removeTrack",    ["musicPack", "track"],           returnVoid,      "waitMusicPackTrackRemove", ""],
-			["musicPackTrackVolume", "music.setTrackVolume", ["musicPack", "track", "volume"], returnVoid,      "waitMusicPackTrackVolume", ""],
-			["musicPackTrackRepeat", "music.setTrackRepeat", ["musicPack", "track", "repeat"], returnVoid,      "waitMusicPackTrackRepeat", ""],
+			["musicPackTrackAdd",    "music.addTracks",      ["id", "tracks"],                 returnVoid,      "waitMusicPackTrackAdd", ""],
+			["musicPackTrackRemove", "music.removeTrack",    ["id", "track"],                  returnVoid,      "waitMusicPackTrackRemove", ""],
+			["musicPackTrackVolume", "music.setTrackVolume", ["id", "track", "volume"],        returnVoid,      "waitMusicPackTrackVolume", ""],
+			["musicPackTrackRepeat", "music.setTrackRepeat", ["id", "track", "repeat"],        returnVoid,      "waitMusicPackTrackRepeat", ""],
 
 			["characterCreate", "characters.create", ["path", "data"],              checkIDPath,       "", ""],
 			["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,        "waitCharacterDataChange", ""],
@@ -556,9 +556,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
       checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
       checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
-      checksMusicTrack: checkers = [[checkObject, ""], [checkUint, "volume"], [checkInt, "repeat"]],
+      checksMusicTrack: checkers = [[checkID, ""], [checkUint, "volume"], [checkInt, "repeat"]],
       checkMusicTrack = (data: any) => checker(data, "musicTrack", checksMusicTrack),
-      checksMusicPack: checkers = [[checkObject, ""], [checkArray, "tracks"], [checkUint, "volume"], [checkUint, "playTime"]],
+      checksMusicPack: checkers = [[checkIDName, ""], [checkArray, "tracks"], [checkUint, "volume"], [checkUint, "playTime"]],
       checkMusicPack = (data: any) => {
 	checker(data, "musicPack", checksMusicPack);
 	for (const t of data["tracks"]) {
@@ -567,19 +567,17 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	return data;
       },
       checkMusicPacks = (data: any) => {
-	checkObject(data, "musicPacks");
-	for (const n in data) {
-		checkMusicPack(data[n]);
+	checkArray(data, "musicPacks");
+	for (const pack of data) {
+		checkMusicPack(pack);
 	}
 	return data;
       },
-      checksMusicPackObject: checkers = [[checkObject, ""], [checkString, "musicPack"]],
-      checkMusicPackObject = (data: any, name = "MusicPackObject") => checker(data, name, checksMusicPackObject), 
-      checksMusicPackVolume: checkers = [[checkMusicPackObject, ""], [checkUint, "volume"]],
+      checksMusicPackVolume: checkers = [[checkID, ""], [checkUint, "volume"]],
       checkMusicPackVolume = (data: any) => checker(data, "MusicPackVolume", checksMusicPackVolume),
-      checksMusicPackPlay: checkers = [[checkMusicPackObject, ""], [checkUint, "playTime"]],
+      checksMusicPackPlay: checkers = [[checkID, ""], [checkUint, "playTime"]],
       checkMusicPackPlay = (data: any) => checker(data, "MusicPackPlay", checksMusicPackPlay),
-      checksMusicPackTrackAdd: checkers = [[checkMusicPackObject, ""], [checkArray, "tracks"]],
+      checksMusicPackTrackAdd: checkers = [[checkID, ""], [checkArray, "tracks"]],
       checkMusicPackTrackAdd = (data: any) => {
 	checker(data, "MusicPackTrackAdd", checksMusicPackTrackAdd);
 	for (const t of data["tracks"]) {
@@ -587,12 +585,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksMusicPackTrack: checkers = [[checkMusicPackObject, ""], [checkUint, "track"]],
+      checksMusicPackTrack: checkers = [[checkID, ""], [checkUint, "track"]],
       checkMusicPackTrack = (data: any, name = "MusicPackTrackRemove") => checker(data, name, checksMusicPackTrack),
       checksMusicPackTrackVolume: checkers = [[checkMusicPackTrack, ""], [checkUint, "volume"]],
       checkMusicPackTrackVolume = (data: any) => checker(data, "MusicPackTrackVolume", checksMusicPackTrackVolume),
       checksMusicPackTrackRepeat: checkers = [[checkMusicPackTrack, ""], [checkInt, "repeat"]],
       checkMusicPackTrackRepeat = (data: any) => checker(data, "MusicPackTrackRepeat", checksMusicPackTrackRepeat),
+      checksMusicPackCopy: checkers = [[checkIDName, ""], [checkUint, "newID"]],
+      checkMusicPackCopy = (data: any) => checker(checksMusicPackCopy, "MusicPackCopy", data),
       checkPlugins = (data: any) => {
 	checkObject(data, "plugins");
 	for (const p in data) {
