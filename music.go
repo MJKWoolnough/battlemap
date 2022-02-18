@@ -281,13 +281,13 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return data, nil
 	case "setVolume":
 		var packData struct {
-			MusicPack uint64 `json:"musicPack"`
-			Volume    uint8  `json:"volume"`
+			ID     uint64 `json:"id"`
+			Volume uint8  `json:"volume"`
 		}
 		if err := json.Unmarshal(data, &packData); err != nil {
 			return nil, err
 		}
-		if err := m.getPack(packData.MusicPack, func(mp *musicPack) bool {
+		if err := m.getPack(packData.ID, func(mp *musicPack) bool {
 			if mp.Volume == packData.Volume {
 				return false
 			}
@@ -300,17 +300,17 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		return nil, nil
 	case "playPack":
 		var packData struct {
-			MusicPack uint64 `json:"musicPack"`
-			PlayTime  uint64 `jons:"playTime"`
+			ID       uint64 `json:"id"`
+			PlayTime uint64 `jons:"playTime"`
 		}
 		if err := json.Unmarshal(data, &packData); err != nil {
 			return nil, err
 		}
 		if packData.PlayTime == 0 {
 			packData.PlayTime = uint64(time.Now().Unix())
-			data = json.RawMessage(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), packData.MusicPack, 10), ",\"playTime\":"...), packData.PlayTime, 10), '}'))
+			data = json.RawMessage(append(strconv.AppendUint(append(strconv.AppendUint(append(data[:0], "{\"id\":"...), packData.ID, 10), ",\"playTime\":"...), packData.PlayTime, 10), '}'))
 		}
-		if err := m.getPack(packData.MusicPack, func(mp *musicPack) bool {
+		if err := m.getPack(packData.ID, func(mp *musicPack) bool {
 			if mp.PlayTime == packData.PlayTime {
 				return false
 			}
