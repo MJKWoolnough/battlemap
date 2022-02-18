@@ -77,6 +77,7 @@ func (b *Battlemap) initModules(path string, a Auth) error {
 	b.chars.cleanup(l.chars)
 	b.images.cleanup(l.images)
 	b.audio.cleanup(l.audio)
+	b.musicPacks.cleanup(l.music)
 	return nil
 }
 
