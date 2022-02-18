@@ -122,8 +122,18 @@ func (m *musicPacksDir) Init(b *Battlemap, links links) error {
 			}
 		}
 		m.names[pack.Name] = struct{}{}
+		links.music.setLink(id)
 	}
 	return nil
+}
+
+func (m *musicPacksDir) cleanup(l linkManager) {
+	for id := range m.packs {
+		if _, ok := l[id]; !ok {
+			m.fileStore.Remove(strconv.FormatUint(id, 10))
+			delete(m.packs, id)
+		}
+	}
 }
 
 func (m *musicPacksDir) getPack(id uint64, fn func(*musicPack) bool) error {
