@@ -63,13 +63,13 @@ export type RPCWaits = {
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
 	waitWallModified:            () => Subscription<Wall>;
-	waitMusicPackAdd:            () => Subscription<string>;
-	waitMusicPackRename:         () => Subscription<FromTo>;
-	waitMusicPackRemove:         () => Subscription<string>;
-	waitMusicPackCopy:           () => Subscription<FromTo>;
+	waitMusicPackAdd:            () => Subscription<IDName>;
+	waitMusicPackRename:         () => Subscription<IDName>;
+	waitMusicPackRemove:         () => Subscription<Uint>;
+	waitMusicPackCopy:           () => Subscription<IDName & {newID: Uint}>;
 	waitMusicPackVolume:         () => Subscription<MusicPackVolume>;
 	waitMusicPackPlay:           () => Subscription<MusicPackPlay>;
-	waitMusicPackStop:           () => Subscription<string>;
+	waitMusicPackStop:           () => Subscription<Uint>;
 	waitMusicPackStopAll:        () => Subscription<void>;
 	waitMusicPackTrackAdd:       () => Subscription<MusicPackTrackAdd>;
 	waitMusicPackTrackRemove:    () => Subscription<MusicPackTrackRemove>;
@@ -138,19 +138,19 @@ export type RPC = RPCWaits & {
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 	modifyWall:       (w: Wall)                                                              => Promise<void>;
 
-	musicPackList:        ()                                             => Promise<Record<string, MusicPack>>;
-	musicPackAdd:         (name: string)                                 => Promise<string>;
-	musicPackRename:      (from: string, to: string)                     => Promise<string>;
-	musicPackRemove:      (name: string)                                 => Promise<void>;
-	musicPackCopy:        (from: string, to: string)                     => Promise<string>;
-	musicPackSetVolume:   (musicPack: string, volume: Uint)              => Promise<void>;
-	musicPackPlay:        (musicPack: string, playTime: Uint)            => Promise<Uint>;
-	musicPackStop:        (musicPack: string)                            => Promise<void>;
+	musicPackList:        ()                                             => Promise<MusicPack[]>;
+	musicPackAdd:         (name: string)                                 => Promise<IDName>;
+	musicPackRename:      (id: Uint, name: string)                       => Promise<string>;
+	musicPackRemove:      (id: Uint)                                     => Promise<void>;
+	musicPackCopy:        (id: Uint, name: string)                       => Promise<IDName>;
+	musicPackSetVolume:   (musicPack: Uint, volume: Uint)                => Promise<void>;
+	musicPackPlay:        (musicPack: Uint, playTime: Uint)              => Promise<Uint>;
+	musicPackStop:        (musicPack: Uint)                              => Promise<void>;
 	musicPackStopAll:     ()                                             => Promise<void>;
-	musicPackTrackAdd:    (musicPack: string, tracks: Uint[])            => Promise<void>;
-	musicPackTrackRemove: (musicPack: string, track: Uint)               => Promise<void>;
-	musicPackTrackVolume: (musicPack: string, track: Uint, volume: Uint) => Promise<void>;
-	musicPackTrackRepeat: (musicPack: string, track: Uint, repeat: Int)  => Promise<void>;
+	musicPackTrackAdd:    (musicPack: Uint, tracks: Uint[])              => Promise<void>;
+	musicPackTrackRemove: (musicPack: Uint, track: Uint)                 => Promise<void>;
+	musicPackTrackVolume: (musicPack: Uint, track: Uint, volume: Uint)   => Promise<void>;
+	musicPackTrackRepeat: (musicPack: Uint, track: Uint, repeat: Int)    => Promise<void>;
 
 	characterCreate:     (path: string, data: Record<string, KeystoreData>)                    => Promise<IDPath>;
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
@@ -375,46 +375,39 @@ type KeyData = {
 	data: any;
 }
 
-export type MusicTrack = {
-	id: Uint;
+export type MusicTrack = ID & {
 	volume: Uint;
 	repeat: Int;
 }
 
-export type MusicPack = {
+export type MusicPack = IDName & {
 	tracks: MusicTrack[];
 	volume: Uint;
 	playTime: Uint;
 }
 
-type MusicPackVolume = {
-	musicPack: string;
+type MusicPackVolume = ID & {
 	volume: Uint;
 }
 
-type MusicPackPlay = {
-	musicPack: string;
+type MusicPackPlay = ID & {
 	playTime: Uint;
 }
 
-type MusicPackTrackAdd = {
-	musicPack: string;
+type MusicPackTrackAdd = ID & {
 	tracks: Uint[];
 }
 
-type MusicPackTrackRemove = {
-	musicPack: string;
+type MusicPackTrackRemove = ID & {
 	track: Uint;
 }
 
-type MusicPackTrackVolume = {
-	musicPack: string;
+type MusicPackTrackVolume = ID & {
 	track: Uint;
 	volume: Uint;
 }
 
-type MusicPackTrackRepeat = {
-	musicPack: string;
+type MusicPackTrackRepeat = ID & {
 	track: Uint;
 	repeat: Int;
 }
