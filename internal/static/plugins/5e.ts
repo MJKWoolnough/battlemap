@@ -440,24 +440,22 @@ const select = Symbol("select"),
 				amendNode(this.#acValue, {"style": {"font-size": `${size}px`}});
 				amendNode(this.#hpValue, {"style": {"font-size": `${size}px`}});
 			}
-			cleanup() {
+			#swapNodes<T>(fn: () => T): T {
 				const n = this[node];
 				this[node] = this.#tokenNode;
-				super.cleanup();
-				this[node] = n;
-			}
-			uncleanup() {
-				const n = this[node];
-				this[node] = this.#tokenNode;
-				super.uncleanup();
-				this[node] = n;
-			}
-			at(x: Int, y: Int) {
-				const n = this[node];
-				this[node] = this.#tokenNode;
-				const ret = super.at(x, y);
+				const ret = fn();
+				this.#tokenNode = this[node];
 				this[node] = n;
 				return ret;
+			}
+			cleanup() {
+				this.#swapNodes(() => super.cleanup());
+			}
+			uncleanup() {
+				this.#swapNodes(() => super.uncleanup());
+			}
+			at(x: Int, y: Int) {
+				return this.#swapNodes(() => super.at(x, y));
 			}
 			[select]() {
 				outline.insertAdjacentElement("beforebegin", this.#extra);
@@ -468,18 +466,11 @@ const select = Symbol("select"),
 				}
 			}
 			updateSource(source: Uint) {
-				const n = this[node];
-				this[node] = this.#tokenNode;
-				super.updateSource(source);
-				this[node] = n;
+				this.#swapNodes(() => super.updateSource(source));
 			}
 			updateNode() {
-				const n = this[node],
-				      wasPattern = this.#tokenNode instanceof SVGRectElement;
-				this[node] = this.#tokenNode;
-				super.updateNode();
-				this.#tokenNode = this[node];
-				this[node] = n;
+				const wasPattern = this.#tokenNode instanceof SVGRectElement;
+				this.#swapNodes(() => super.updateNode());
 				if (this.isPattern) {
 					if (!wasPattern) {
 						this.#extra.remove();
