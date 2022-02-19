@@ -38,8 +38,8 @@ abstract class SVGTransform {
 		this.snap = token.snap;
 		this.tokenData = token.tokenData;
 	}
-	at(x: Int, y: Int, n: SVGGraphicsElement) {
-		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(n.getScreenCTM()!.inverse());
+	at(x: Int, y: Int) {
+		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this[node].getScreenCTM()!.inverse());
 		return rx >= 0 && rx < this.width && ry >= 0 && ry < this.height;
 	}
 	transformString(scale = true) {
@@ -84,9 +84,6 @@ export class SVGToken extends SVGTransform {
 		if (token.patternWidth > 0) {
 			this.updateNode();
 		}
-	}
-	at(x: Int, y: Int, n = this[node]) {
-		return super.at(x, y, n);
 	}
 	get isPattern() {
 		return this.patternWidth > 0;
@@ -137,9 +134,6 @@ export class SVGShape extends SVGTransform {
 			}
 			this[node] = amendNode(n, {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
 		}
-	}
-	at(x: Int, y: Int) {
-		return super.at(x, y, this[node]);
 	}
 	get isPattern() {
 		return false;
