@@ -12,7 +12,7 @@ type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
 }
 
-class SVGTransform {
+abstract class SVGTransform {
 	[node]: SVGGraphicsElement;
 	id: Uint;
 	x: Int = 0;
