@@ -8,7 +8,7 @@ import {hex2Colour} from './colours.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
-import {checkInt, labels, loading, menuItems} from './shared.js';
+import {checkInt, labels, loading, menuItems, queue} from './shared.js';
 import {IntSetting} from './settings_types.js';
 import {userSelected} from './symbols.js';
 import undo from './undo.js';
@@ -54,8 +54,8 @@ class MapItem extends DraggableItem {
 				this[node].classList.add("mapCurrent");
 			}
 			selectedCurrent = thisMap;
-			mapLoadSend(thisMap.id);
-			rpc.setCurrentMap(thisMap.id);
+			const id = thisMap.id;
+			queue(() => rpc.setCurrentMap(id).then(() => mapLoadSend(id)));
 			selectedMap.set(thisMap.id);
 			[thisMap, oldMap] = [oldMap, thisMap];
 			return doIt;
