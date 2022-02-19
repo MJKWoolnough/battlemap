@@ -13,6 +13,7 @@ type MaskNode = Mask & {
 }
 
 class SVGTransform {
+	[node]: SVGGraphicsElement;
 	id: Uint;
 	x: Int = 0;
 	y: Int = 0;
@@ -68,7 +69,6 @@ class SVGTransform {
 }
 
 export class SVGToken extends SVGTransform {
-	[node]: SVGGraphicsElement;
 	src: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
@@ -116,7 +116,6 @@ export class SVGToken extends SVGTransform {
 }
 
 export class SVGShape extends SVGTransform {
-	[node]: SVGGraphicsElement;
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
