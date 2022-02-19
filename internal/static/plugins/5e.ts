@@ -453,7 +453,11 @@ const select = Symbol("select"),
 				this[node] = n;
 			}
 			at(x: Int, y: Int) {
-				return super.at(x, y, this.#tokenNode);
+				const n = this[node];
+				this[node] = this.#tokenNode;
+				const ret = super.at(x, y);
+				this[node] = n;
+				return ret;
 			}
 			[select]() {
 				outline.insertAdjacentElement("beforebegin", this.#extra);
