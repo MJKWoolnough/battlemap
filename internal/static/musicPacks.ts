@@ -196,14 +196,14 @@ inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000
 					packs.delete(id)
 				}
 			});
-			rpc.waitMusicPackCopy().then(ft => {
-				const p = packs.get(ft.id);
+			rpc.waitMusicPackCopy().then(({id, newID}) => {
+				const p = packs.get(id);
 				if (p) {
 					const tracks: MusicTrack[] = [];
 					for (const track in p.tracks) {
 						tracks.push({"id": p.tracks[track].id, "volume": p.tracks[track].volume, "repeat": p.tracks[track].repeat});
 					}
-					packs.set(ft.newID, new Pack({"id": ft.newID, "name": "", tracks, "volume": p.volume, "playTime": 0}));
+					packs.set(newID, new Pack({"id": newID, "name": "", tracks, "volume": p.volume, "playTime": 0}));
 				}
 			});
 			rpc.waitMusicPackTrackAdd().then(mt => {
@@ -473,10 +473,10 @@ menuItems.push([3, () => isAdmin ? [
 					musicList.delete(id);
 				}
 			});
-			rpc.waitMusicPackCopy().then(ft => {
-				const pack = musicList.get(ft.id);
+			rpc.waitMusicPackCopy().then(({id, name}) => {
+				const pack = musicList.get(id);
 				if (pack) {
-					musicList.set(ft.id, new AdminPack(ft.id, newPack(ft.id, ft.name, pack.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), pack.volume)));
+					musicList.set(id, new AdminPack(id, newPack(id, name, pack.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), pack.volume)));
 				}
 			});
 			rpc.waitMusicPackTrackAdd().then(mt => {
