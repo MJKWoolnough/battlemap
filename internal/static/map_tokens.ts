@@ -72,7 +72,6 @@ export class SVGToken extends SVGTransform {
 	src: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
-	tokenType: Uint;
 	constructor(token: TokenImage, wg?: WaitGroup) {
 		super(token);
 		if (wg) {
@@ -81,7 +80,6 @@ export class SVGToken extends SVGTransform {
 		this.src = token.src;
 		this.patternWidth = token.patternWidth;
 		this.patternHeight = token.patternWidth;
-		this.tokenType = token.tokenType ?? 0;
 		this[node] = image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
 		if (token.patternWidth > 0) {
 			this.updateNode();
