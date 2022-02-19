@@ -334,17 +334,7 @@ export default (base: HTMLElement) => {
 		}
 	      }),
 	      doTokenRotation = (tk: Token, dir = 1) => tk.rotation = mod(tk.snap ? Math.round(tk.rotation + dir * 256 / (mapData.gridType === 0 ? 8 : 12)) : tk.rotation + dir, 256),
-	      updateCursor = ({target, clientX, clientY, ctrlKey}: {target: EventTarget | null, clientX: number, clientY: number, ctrlKey: boolean}) => {
-		const {layer} = selected;
-		overOutline = (target as HTMLElement)?.parentNode === outline;
-		if (!ctrlKey && overOutline) {
-			amendNode(document.body, {"style": {"--outline-cursor": undefined}});
-		} else if (!ctrlKey && layer && (layer.tokens as SVGToken[]).some(t => t.at(clientX, clientY))) {
-			amendNode(document.body, {"style": {"--outline-cursor": "pointer"}});
-		} else {
-			amendNode(document.body, {"style": {"--outline-cursor": "grab"}});
-		}
-	      },
+	      updateCursor = ({target, clientX, clientY, ctrlKey}: {target: EventTarget | null, clientX: number, clientY: number, ctrlKey: boolean}) => amendNode(document.body, {"style": {"--outline-cursor": !ctrlKey && (overOutline = (target as HTMLElement)?.parentNode === outline) ? undefined : !ctrlKey && (selected.layer?.tokens as SVGToken[]).some(t => t.at(clientX, clientY)) ? "pointer" : "grab"}}),
 	      psuedoUpdateCursor = (target: EventTarget | null, ctrlKey: boolean) => updateCursor({target, "clientX": mouseX, "clientY": mouseY, ctrlKey}),
 	      [startMapMouseMove, cancelMapMouseMove] = mouseMoveEvent(updateCursor),
 	      ctrlOverride = (e: KeyboardEvent) => psuedoUpdateCursor(overOutline ? outline.firstChild : null, e.ctrlKey),
