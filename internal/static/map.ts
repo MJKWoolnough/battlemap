@@ -50,7 +50,7 @@ const idNames: Record<string, Int> = {
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
 			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new drawingClass(t) : new shapeClass(t));
-		};
+		}
 	} else {
 		amendNode(n, {"id": `layer${layer.name}`});
 		layer.walls = [];
