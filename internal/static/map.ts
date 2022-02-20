@@ -122,9 +122,8 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
 	const l = getLayer(path)!;
-	l.name = name
 	l.path = `${splitAfterLastSlash(path)[0]}/${name}`;
-	return name;
+	return l.name = name;
 },
 removeLayer = (path: string) => {
 	const [fromParent, layer] = getParentLayer(path);
