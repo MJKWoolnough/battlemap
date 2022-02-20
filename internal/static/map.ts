@@ -149,7 +149,7 @@ setMapDetails = (details: MapDetails) => {
 	updateLight();
 },
 setLightColour = (c: Colour) => {
-	amendNode((getLayer("/Light") as SVGLayer)[node].firstChild as SVGRectElement, {"fill": mapData.lightColour = c});
+	amendNode((getLayer("/Light") as SVGLayer)[node].firstChild!, {"fill": mapData.lightColour = c});
 	updateLight();
 },
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
