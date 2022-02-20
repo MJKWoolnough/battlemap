@@ -235,10 +235,9 @@ screen2Grid = (() => {
 })(),
 zoom = (() => {
 	const zoomMove = (e: MouseEvent) => {
-		const v = Math.max(10, Math.min(110, e.clientY)),
-		      z = Math.pow(1.4, (60 - v) / 10);
+		const v = Math.max(10, Math.min(110, e.clientY));
 		amendNode(zoomerControl, {"cy": v});
-		zoom(z / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
+		zoom(Math.pow(1.4, (60 - v) / 10) / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
 	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
 	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
