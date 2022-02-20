@@ -79,13 +79,8 @@ export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int)
 	const m = (y2 - y1) / (x2 - x1),
 	      n = (x1 - x2) / (y2 - y1),
 	      c = y1 - m * x1,
-	      d = py - px * n;
-	let cx = (d - c) / (m - n);
-	if (cx < x1) {
-		cx = x1;
-	} else if (cx > x2) {
-		cx = x2;
-	}
+	      d = py - px * n,
+	      cx = Math.min(Math.max((d - c) / (m - n), x1), x2);
 	return Math.hypot(px - cx, py - m * cx - c);
 },
 splitAfterLastSlash = (path: string) => {
