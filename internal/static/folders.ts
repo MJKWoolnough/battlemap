@@ -364,7 +364,7 @@ export class Root {
 			return;
 		}
 		this.folder = new this.newFolder(this, null, "", rootFolder);
-		amendNode(this[node] ? clearNode(this[node]) : this[node] = div(), [
+		clearNode(this[node] ?? (this[node] = div()), [
 			this.fileType,
 			this.folder.newer,
 			this.folder.children[node]
