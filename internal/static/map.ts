@@ -112,10 +112,7 @@ getLayer = (path: string, layer: SVGFolder | SVGLayer = layerList) => path.split
 getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null] => {
 	const [parentStr, name] = splitAfterLastSlash(path),
 	      parent = getLayer(parentStr);
-	if (!parent || !isSVGFolder(parent)) {
-		return [null, null];
-	}
-	return [parent, getLayer(name, parent)];
+	return parent && isSVGFolder(parent) ? [parent, getLayer(name, parent)] : [null, null];
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(path)!;
