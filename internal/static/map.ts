@@ -116,12 +116,7 @@ getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null]
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(path)!;
-	if (visibility) {
-		layer[node].classList.remove("hiddenLayer");
-	} else {
-		layer[node].classList.add("hiddenLayer");
-	}
-	layer.hidden = !visibility;
+	layer[node].classList.toggle("hiddenLayer", layer.hidden = !visibility);
 	updateLight();
 },
 addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
