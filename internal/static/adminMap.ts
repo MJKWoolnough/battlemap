@@ -498,25 +498,22 @@ export default (base: HTMLElement) => {
 			isTokenImage(currToken) ? [
 				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
 				item(lang["CONTEXT_FLIP"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
+					if (currToken instanceof SVGToken) {
+						doTokenSet({"id": currToken.id, "flip": !currToken.flip});
 					}
-					doTokenSet({"id": currToken.id, "flip": !currToken.flip});
 				}),
 				item(lang["CONTEXT_FLOP"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
+					if (currToken instanceof SVGToken) {
+						doTokenSet({"id": currToken.id, "flop": !currToken.flop});
 					}
-					doTokenSet({"id": currToken.id, "flop": !currToken.flop});
 				}),
 				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-					if (!(currToken instanceof SVGToken)) {
-						return;
-					}
-					if (!currToken.isPattern) {
-						doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-					} else {
-						doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+					if (currToken instanceof SVGToken) {
+						if (!currToken.isPattern) {
+							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+						} else {
+							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+						}
 					}
 				}),
 			] : [],
