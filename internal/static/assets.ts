@@ -134,8 +134,8 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 					uploadAsset(root, id, new FormData(f), window)
 					.then(() => window.remove())
 					.catch(handleError)
-					.finally(() => this.removeAttribute("disabled"));
-					this.toggleAttribute("disabled", true);
+					.finally(() => amendNode(this, {"disabled": false}));
+					amendNode(this, {"disabled": true});
 				      }})))),
 				      window = shell.appendChild(windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]));
 			}}, upload),
