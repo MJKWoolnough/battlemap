@@ -559,9 +559,8 @@ export default (base: HTMLElement) => {
 				item(lang["CONTEXT_MOVE_UP"], () => {
 					const tokenLayer = tokens.get(currToken.id);
 					if (tokenLayer) {
-						const currLayer = tokenLayer.layer,
-						      newPos = currLayer.tokens.findIndex(t => t === currToken) + 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+						const currLayer = tokenLayer.layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
 					}
 				})
 			] : [],
@@ -569,9 +568,8 @@ export default (base: HTMLElement) => {
 				item(lang["CONTEXT_MOVE_DOWN"], () => {
 					const tokenLayer = tokens.get(currToken.id);
 					if (tokenLayer) {
-						const currLayer = tokenLayer.layer,
-						      newPos = currLayer.tokens.findIndex(t => t === currToken) - 1;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, newPos);
+						const currLayer = tokenLayer.layer;
+						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
 					}
 				}),
 				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
