@@ -254,11 +254,7 @@ export default (base: HTMLElement) => {
 	      },
 	      allTokens = function* (folder: SVGFolder = layerList): Iterable<SVGToken | SVGShape> {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
-			if (isSVGLayer(e)) {
-				yield* e.tokens;
-			} else {
-				yield* allTokens(e);
-			}
+			yield* isSVGLayer(e) ? e.tokens : allTokens(e);
 		}
 	      },
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
