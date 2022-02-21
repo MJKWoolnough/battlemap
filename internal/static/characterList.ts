@@ -120,10 +120,10 @@ menuItems.push([2, () => isAdmin ? [
 								w.alert(lang["ERROR"], lang["CHARACTER_NEED_ICON"]);
 								return;
 							}
-							this.toggleAttribute("disabled", true);
 							loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
 							.then(() => w.remove())
-							.finally(() => this.removeAttribute("disabled"));
+							.finally(() => amendNode(this, {"disabled": false}));
+							amendNode(this, {"disabled": true});
 						}}, lang["CHARACTER_CREATE"])
 					]));
 				}}, lang["CHARACTER_NEW"]),
