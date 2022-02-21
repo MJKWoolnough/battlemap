@@ -105,8 +105,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 			"response": "json",
 			"onuploadprogress": (e: ProgressEvent) => {
 				if (e.lengthComputable) {
-					amendNode(bar, {"value": e.loaded, "max": e.total});
-					bar.textContent = Math.floor(e.loaded*100/e.total) + "%";
+					clearNode(bar, {"value": e.loaded, "max": e.total}, Math.floor(e.loaded*100/e.total) + "%");
 				}
 			}
 		}).then((assets: IDName[]) => {
