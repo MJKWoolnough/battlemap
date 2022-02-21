@@ -271,9 +271,7 @@ export default (base: HTMLElement) => {
 	      pasteCoords = [0, 0],
 	      mapMove = (e: MouseEvent) => {
 		moved = true;
-		panZoom.x += e.clientX - mX;
-		panZoom.y += e.clientY - mY;
-		amendNode(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}});
+		amendNode(root, {"style": {"left": (panZoom.x += e.clientX - mX) + "px", "top": (panZoom.y += e.clientY - mY) + "px"}});
 		mX = e.clientX;
 		mY = e.clientY;
 	      },
