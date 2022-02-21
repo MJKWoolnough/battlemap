@@ -210,8 +210,9 @@ export default (base: HTMLElement) => {
 			uploadImages(f).then(images => {
 				for (const image of images) {
 					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
-						if (selected.layer === layer && this.width > 0 && this.height > 0) {
-							const token = {"id": 0, "src": image.id, x, y, "width": this.width, "height": this.height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+						const {width, height} = this;
+						if (selected.layer === layer && width > 0 && height > 0) {
+							const token = {"id": 0, "src": image.id, x, y, width, height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 							if (token.snap) {
 								[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 							}
