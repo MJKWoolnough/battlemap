@@ -132,10 +132,7 @@ menuItems.push([2, () => isAdmin ? [
 			rpc.waitCharacterDataChange().then(d => {
 				const icon = d.setting["store-image-icon"];
 				if (icon) {
-					const char = characters.get(d.id);
-					if (char) {
-						char.setIcon(parseInt(icon.data));
-					}
+					characters.get(d.id)?.setIcon(parseInt(icon.data));
 				}
 			});
 		});
