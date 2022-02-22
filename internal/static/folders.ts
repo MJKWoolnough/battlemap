@@ -81,12 +81,11 @@ export abstract class Item {
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.copy(self.id, parents.value + newName.value).then(copied => {
 					root.copyItem(self.id, copied.id, copied.path);
 					window.remove();
-				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				}).finally(() => amendNode(this, {"disabled": false}))), window);
 			}}, lang["ITEM_COPY_ADD"]),
 		]);
 	}
@@ -100,12 +99,12 @@ export abstract class Item {
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
 			autoFocus(button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.remove(path).then(() => {
 					root.removeItem(path);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["ITEM_REMOVE"]))
 		]);
 	}
@@ -233,12 +232,12 @@ export class Folder {
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.moveFolder(oldPath, parents.value + "/" + newName.value).then(newPath => {
 					root.moveFolder(oldPath.slice(0, -1), newPath);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_MOVE"])
 		])
 	}
@@ -253,12 +252,12 @@ export class Folder {
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
 			autoFocus(button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.removeFolder(path).then(() => {
 					root.removeFolder(path);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_MOVE"]))
 		]);
 	}
@@ -273,12 +272,12 @@ export class Folder {
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.createFolder(path + "/" + folderName.value).then(folder => {
 					root.addFolder(folder);
 					window.remove();
 				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_ADD"])
 		]);
 	}
