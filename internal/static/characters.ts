@@ -217,8 +217,8 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			}
 		})}, lang["ROW_ADD"]),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.toggleAttribute("disabled", true);
-			save().finally(() => this.removeAttribute("disabled"));
+			amendNode(this, {"disabled": true});
+			save().finally(() => amendNode(this, {"disabled": false}));
 		}}, lang["SAVE"])
 	]))));
 }
