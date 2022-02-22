@@ -59,12 +59,11 @@ export class Item {
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
-				this.toggleAttribute("disabled", true);
+				amendNode(this, {"disabled": true});
 				loadingWindow(queue(() => root.rpcFuncs.move(parentPath + self.name, parents.value + newName.value).then(newPath => {
 					root.moveItem(parentPath + self.name, newPath);
 					window.remove();
-				})
-				.finally(() => this.removeAttribute("disabled"))), window);
+				}).finally(() => amendNode(this, {"disabled": false}))), window);
 			}}, lang["ITEM_MOVE"])
 		]);
 	}
