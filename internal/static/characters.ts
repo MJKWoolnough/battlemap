@@ -208,14 +208,12 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			if (key) {
 				if (!allowedKey(key, character)) {
 					w.alert(lang["ROW_NAME_RESERVED"], lang["ROW_NAME_RESERVED_LONG"]);
-					return;
-				}
-				if (d[key] !== undefined || changes[key] !== undefined) {
+				} else if (d[key] !== undefined || changes[key] !== undefined) {
 					w.alert(lang["ROW_NAME_EXISTS"], lang["ROW_NAME_EXISTS_LONG"]);
-					return;
+				} else {
+					changes[key] = {"user": false, "data": ""};
+					amendNode(inputs, adder(key));
 				}
-				changes[key] = {"user": false, "data": ""};
-				amendNode(inputs, adder(key));
 			}
 		})}, lang["ROW_ADD"]),
 		button({"onclick": function(this: HTMLButtonElement) {
