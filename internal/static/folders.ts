@@ -199,7 +199,7 @@ export class Folder {
 				return fn;
 			}
 		}
-		const fn =  (a: Item | Folder, b: Item | Folder) => {
+		const fn = (a: Item | Folder, b: Item | Folder) => {
 			if (a instanceof Folder) {
 				if (b instanceof Folder) {
 					return fs(a, b);
