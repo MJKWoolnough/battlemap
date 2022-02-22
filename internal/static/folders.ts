@@ -24,7 +24,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
 
-export class Item {
+export abstract class Item {
 	id: Uint;
 	name: string;
 	parent: Folder;
@@ -44,7 +44,7 @@ export class Item {
 			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()}),
 		]);
 	}
-	show() {}
+	abstract show(): void;
 	rename() {
 		const self = this,
 		      root = this.parent.root,
@@ -344,7 +344,7 @@ export class Root {
 	newFolder: FolderConstructor;
 	windowIcon?: string;
 	[node]: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor = Item, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.fileType = fileType;
