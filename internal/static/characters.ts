@@ -148,13 +148,8 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			labels(k, data),
 			labels(userVisible(), visibility, false),
 			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
-				if (this.checked) {
-					removes.add(k);
-					data.toggleAttribute("disabled", true);
-				} else {
-					removes.delete(k);
-					data.removeAttribute("disabled");
-				}
+				amendNode(data, {"disabled": this.checked});
+				removes[this.checked ? "add" : "delete"](k);
 			}}), false, {"class": "itemRemove"}),
 			br()
 		]
