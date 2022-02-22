@@ -3,7 +3,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
-import {enterKey, labels, queue} from './shared.js';
+import {enterKey, labels, setAndReturn, queue} from './shared.js';
 import {copy, folder, newFolder, rename, remove} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
@@ -272,13 +272,7 @@ export class Folder {
 		]);
 	}
 	addItem(id: Uint, name: string) {
-		const item = this.getItem(name);
-		if (item) {
-			return item;
-		}
-		const newItem = new this.root.newItem(this, id, name);
-		this.children.set(name, newItem);
-		return newItem;
+		return this.getItem(name) ?? setAndReturn(this.children, name, new this.root.newItem(this, id, name));
 	}
 	getItem(name: string) {
 		return this.children.get(name) as (Item | undefined);
@@ -292,16 +286,7 @@ export class Folder {
 		return -1;
 	}
 	addFolder(name: string) {
-		if (name === "") {
-			return this;
-		}
-		const existing = this.getFolder(name);
-		if (existing) {
-			return existing;
-		}
-		const f = new this.root.newFolder(this.root, this, name, {folders: {}, items: {}});
-		this.children.set(name, f);
-		return f;
+		return name === "" ? this : this.getFolder(name) ?? setAndReturn(this.children, name, new this.root.newFolder(this.root, this, name, {folders: {}, items: {}}));
 	}
 	getFolder(name: string) {
 		return this.children.get(name) as Folder | undefined;
