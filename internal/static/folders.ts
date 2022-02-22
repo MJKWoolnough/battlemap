@@ -199,17 +199,7 @@ export class Folder {
 				return fn;
 			}
 		}
-		const fn = (a: Item | Folder, b: Item | Folder) => {
-			if (a instanceof Folder) {
-				if (b instanceof Folder) {
-					return fs(a, b);
-				}
-				return -1;
-			} else if (b instanceof Folder) {
-				return 1;
-			}
-			return is(a, b);
-		};
+		const fn = (a: Item | Folder, b: Item | Folder) => a instanceof Folder ? b instanceof Folder ? fs(a, b) : -1 : b instanceof Folder ? 1 : is(a, b);
 		if (m) {
 			m.set(is, fn);
 		} else {
