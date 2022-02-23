@@ -133,7 +133,7 @@ class ItemLayer extends Item {
 			div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 			div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
 		]);
-		this.nameElem.addEventListener("mousedown", (e: MouseEvent) => dragStart(this, e));
+		amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => dragStart(this, e)});
 	}
 	show() {
 		if (this.id === -1) { // Grid
