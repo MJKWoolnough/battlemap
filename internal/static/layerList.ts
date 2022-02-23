@@ -220,23 +220,19 @@ class FolderLayer extends Folder {
 			}
 		}
 		if (lf.id > 0) {
-			amendNode(this[node], {"class": ["layerFolder"]});
-			const fc = this.open.firstChild as HTMLElement;
-			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
-				showHideLayer(this);
-				e.preventDefault()
-			}}), this.nameElem);
-			amendNode(fc, [
+			amendNode(this.open.firstChild as HTMLElement, [
 				div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
-			]);
-			this.nameElem.addEventListener("mousedown", (e: MouseEvent) => {
+			]).insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
+				showHideLayer(this);
+				e.preventDefault()
+			}}), amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
 				if (this.open.open) {
 					return;
 				}
 				dragStart(this, e);
-			});
-			this[node].append(div(this[node].childNodes));
+			}}));
+			amendNode(this[node], {"class": ["layerFolder"]}, div(this[node].childNodes));
 		}
 	}
 	get sorter() {
