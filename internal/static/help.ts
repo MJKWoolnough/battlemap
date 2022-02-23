@@ -17,16 +17,11 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       panelResize = input({"type": "radio", "name": "helpInstruction"}),
       createDemo = () => {
 	const startNextDemo = () => {
-		if (mapDrag.checked) {
-			startMapDragDemo.beginElement();
-		} else if (mapZoom.checked) {
-			startMapZoomDemo.beginElement();
-		} else if (mapScroll.checked) {
-			startMapScrollDemo.beginElement();
-		} else if (mapSignal.checked) {
-			helpSignalStart.beginElement();
-		} else if (panelOpen.checked || panelResize.checked) {
-			startPanelOpenDemo.beginElement();
+		for (const [c, be] of demos) {
+			if (c.checked) {
+				be.beginElement();
+				return;
+			}
 		}
 	      },
 	      checkPanelOpenEnd = () => window.setTimeout(() => (panelResize.checked ? helpPanelResizeStart : helpPanelCloseClick).beginElement(), 500),
@@ -39,7 +34,8 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 	      endPanelDemo = animateMotion({"dur": "0.5s", "fill": "freeze", "path": "M253,13 L250,150", "begin": "indefinite", "onendEvent": startNextDemo}),
 	      helpPanelCloseClick = animate({"id": "helpPanelOpenClick2", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}),
 	      helpPanelResizeStart = animate({"id": "helpPanelResizeMouseDown", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.5s", "begin": "indefinite"}),
-	      helpSignalStart = animate({"id": "helpSignalClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"});
+	      helpSignalStart = animate({"id": "helpSignalClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}),
+	      demos = [[mapDrag, startMapDragDemo], [mapZoom, startMapZoomDemo], [mapScroll, startMapScrollDemo], [mapSignal, helpSignalStart], [panelOpen, startPanelOpenDemo], [panelResize, startPanelOpenDemo]] as const;
 	return svg({"id": "helpDemo", "viewBox": "0 0 500 300"}, [
 		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
