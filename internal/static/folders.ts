@@ -380,17 +380,11 @@ export class Root {
 	}
 	addItem(id: Uint, path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder) {
-			return folder.addItem(id, name);
-		}
-		return undefined;
+		return folder?.addItem(id, name);
 	}
 	getItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder) {
-			return folder.getItem(name);
-		}
-		return undefined;
+		return folder?.getItem(name);
 	}
 	moveItem(from: string, to: string) {
 		this.addItem(this.removeItem(from), to);
@@ -400,10 +394,7 @@ export class Root {
 	}
 	removeItem(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder) {
-			return folder.removeItem(name);
-		}
-		return -1;
+		return folder?.removeItem(name) ?? -1;
 	}
 	addFolder(path: string) {
 		const parts = path.split("/");
@@ -427,9 +418,6 @@ export class Root {
 	}
 	removeFolder(path: string) {
 		const [folder, name] = this.resolvePath(path);
-		if (folder) {
-			return folder.removeFolder(name);
-		}
-		return undefined;
+		return folder?.removeFolder(name);
 	}
 }
