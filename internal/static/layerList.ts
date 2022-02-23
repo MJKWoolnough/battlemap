@@ -30,7 +30,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	dragging = undefined;
 	draggedName?.remove();
 	draggedName = undefined;
-	amendNode(dragBase, {"class": ["!draggingSpecial"]});
+	amendNode(dragBase, {"class": ["!dragging", "!draggingSpecial"]});
       }),
       layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`,
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
