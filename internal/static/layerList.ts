@@ -20,17 +20,17 @@ let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | un
 
 const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!draggedName) {
-		dragging![node].classList.add("dragged");
+		amendNode(dragging![node], {"class": ["dragged"]});
 		amendNode(document.body, draggedName = span({"class": "beingDragged"}, dragging!.name));
-		dragBase.classList.add("dragging");
+		amendNode(dragBase, {"class": ["dragging"]});
 	}
 	amendNode(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
       }, () => {
-	dragging![node].classList.remove("dragged");
+	amendNode(dragging![node], {"class": ["!dragged"]});
 	dragging = undefined;
 	draggedName?.remove();
 	draggedName = undefined;
-	dragBase.classList.remove("dragging", "draggingSpecial");
+	amendNode(dragBase, {"class": ["!draggingSpecial"]});
       }),
       layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M50,50 l50,25 l-50,25 l-50,-25 Z" fill="%2300f" /%3E%3Cpath d="M50,25 l50,25 l-50,25 l-50,-25 Z" fill="%230f0" /%3E%3Cpath d="M50,0 l50,25 l-50,25 l-50,-25 Z" fill="%23f00" /%3E%3C/svg%3E`,
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
@@ -88,7 +88,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		return;
 	}
 	if (l.id < 0) {
-		dragBase.classList.add("draggingSpecial");
+		amendNode(dragBase, {"class": ["draggingSpecial"]});
 	}
 	dragOffset = l.nameElem.offsetLeft - e.clientX;
 	for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
@@ -130,7 +130,7 @@ class ItemLayer extends Item {
 			}
 		}
 		if (hidden) {
-			this[node].classList.add("layerHidden");
+			amendNode(this[node], {"class": ["layerHidden"]});
 		}
 		this[node].insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
 		amendNode(this[node], [
@@ -187,12 +187,12 @@ class ItemLayer extends Item {
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
 			selectedLayer?.[node].classList.remove("selectedLayer");
-			this[node].classList.add("selectedLayer");
+			amendNode(this[node], {"class": ["selectedLayer"]});
 			selectedLayer = this;
 			deselectToken();
 			selected.layer?.[node].classList.remove("selectedLayer");
 			setLayer(selected.layer = getLayer(this.getPath()) as SVGLayer);
-			selected.layer[node].classList.add("selectedLayer");
+			amendNode(selected.layer[node], {"class": ["selectedLayer"]});
 		}
 	}
 	rename() {
@@ -212,7 +212,7 @@ class FolderLayer extends Folder {
 		this.open = this[node].firstChild as HTMLDetailsElement;
 		this.nameElem = this.open.firstChild!.firstChild as HTMLSpanElement;
 		if (hidden) {
-			this[node].classList.add("layerHidden");
+			amendNode(this[node], {"class": ["layerHidden"]});
 		}
 		if (lf.id === undefined) {
 			lf.id = 1;
@@ -224,7 +224,7 @@ class FolderLayer extends Folder {
 			}
 		}
 		if (lf.id > 0) {
-			this[node].classList.add("layerFolder");
+			amendNode(this[node], {"class": ["layerFolder"]});
 			const fc = this.open.firstChild as HTMLElement;
 			fc.insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
 				showHideLayer(this);
@@ -311,13 +311,13 @@ menuItems.push([5, () => isAdmin ? [
 			layersRPC.waitLayerSetVisible().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
-					l[node].classList.remove("layerHidden");
+					amendNode(l[node], {"class": ["!layerHidden"]});
 				}
 			});
 			layersRPC.waitLayerSetInvisible().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
-					l[node].classList.add("layerHidden");
+					amendNode(l[node], {"class": ["layerHidden"]});
 				}
 			});
 			layersRPC.waitLayerPositionChange().then(ml => {
