@@ -43,14 +43,14 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
 		button({"onclick": function(this: HTMLButtonElement) {
-			this.toggleAttribute("disabled", true);
+			amendNode(this, {"disabled": true});
 			loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
 				doLayerRename(path, name, false);
 				self.name = name;
 				self.nameElem.innerText = name;
 				window.remove();
 			})
-			.finally(() => this.removeAttribute("disabled"))), window);
+			.finally(() => amendNode(this, {"disabled": true}))), window);
 		}}, lang["LAYER_RENAME"])
 	]);
       },
@@ -158,7 +158,7 @@ class ItemLayer extends Item {
 				labels(`${lang["MAP_SQUARE_LINE"]}: `, sqLineWidth),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
-					this.toggleAttribute("disabled", true);
+					amendNode(this, {"disabled": true});
 					const sq = checkInt(parseInt(sqWidth.value), 10, 1000, 10);
 					loadingWindow(
 						queue(() => {
@@ -173,7 +173,7 @@ class ItemLayer extends Item {
 							doMapChange(details, false);
 							return rpc.setMapDetails(details)
 							.then(() => window.remove())
-							.finally(() => this.removeAttribute("disabled"))
+							.finally(() => amendNode(this, {"disabled": false}));
 						}),
 						window
 					);
@@ -352,13 +352,13 @@ menuItems.push([5, () => isAdmin ? [
 						labels(lang["LAYER_NAME"], name),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {
-							this.toggleAttribute("disabled", true);
+							amendNode(this, {"disabled": true});
 							loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
 								doLayerAdd(name, false);
 								list.addItem(1, name);
 								window.remove();
 							})
-							.finally(() => this.removeAttribute("disabled"))), window);
+							.finally(() => amendNode(this, {"disabled": false}))), window);
 						}}, lang["LAYER_ADD"])
 					]);
 				}}, lang["LAYER_ADD"]),
