@@ -249,13 +249,7 @@ class LayerRoot extends Root {
 	}
 	getLayer(path: string) {
 		const [folder, sub] = this.resolvePath(path);
-		if (!folder) {
-			return null;
-		}
-		if (!sub) {
-			return folder as FolderLayer;
-		}
-		return folder.children.get(sub) as FolderLayer | ItemLayer;
+		return !folder ? null : !sub ? folder as FolderLayer : folder.children.get(sub) as FolderLayer | ItemLayer;
 	}
 }
 
