@@ -72,11 +72,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		newPath = l.getPath() + "/";
 		dragging!.parent = l;
 	} else {
-		if (beforeAfter) {
-			l.parent!.children.insertAfter(dragging!.name, dragging!, l.name);
-		} else {
-			l.parent!.children.insertBefore(dragging!.name, dragging!, l.name);
-		}
+		l.parent!.children[beforeAfter ? "insertAfter" : "insertBefore"](dragging!.name, dragging!, l.name);
 		newPath = l.parent!.getPath() + "/";
 		pos = l.parent!.children.position(dragging!.name);
 		dragging!.parent = l.parent!;
