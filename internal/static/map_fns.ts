@@ -68,7 +68,7 @@ doMapChange = (details: MapDetails, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_MAP_CHANGE"]);
-      },
+},
 doSetLightColour = (c: Colour, sendRPC = true) => {
 	let oldColour = mapData.lightColour;
 	const doIt = (sendRPC = true) => {
