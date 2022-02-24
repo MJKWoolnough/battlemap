@@ -46,11 +46,11 @@ abstract class AssetFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children);
 		for (const name in children.items) {
-			this.registerItem(children.items[name], name);
+			this.#registerItem(children.items[name], name);
 		}
 	}
 	abstract get assetMap(): AssetMap;
-	registerItem(id: Uint, name: string) {
+	#registerItem(id: Uint, name: string) {
 		const v = this.assetMap.get(id);
 		if (v) {
 			v[0].send(v[1] = name);
@@ -59,7 +59,7 @@ abstract class AssetFolder extends Folder {
 		}
 	}
 	addItem(id: Uint, name: string) {
-		this.registerItem(id, name);
+		this.#registerItem(id, name);
 		return super.addItem(id, name);
 	}
 	removeItem(path: string) {
