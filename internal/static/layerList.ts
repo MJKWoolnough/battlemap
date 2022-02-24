@@ -45,9 +45,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		button({"onclick": function(this: HTMLButtonElement) {
 			amendNode(this, {"disabled": true});
 			loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
-				doLayerRename(path, name, false);
-				self.name = name;
-				self.nameElem.innerText = name;
+				doLayerRename(path, self.name = self.nameElem.innerText = name, false);
 				window.remove();
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), window);
