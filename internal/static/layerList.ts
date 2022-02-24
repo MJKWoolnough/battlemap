@@ -197,7 +197,6 @@ class ItemLayer extends Item {
 class FolderLayer extends Folder {
 	id: Uint;
 	hidden: boolean;
-	nameElem: HTMLSpanElement;
 	open: HTMLDetailsElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
