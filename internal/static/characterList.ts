@@ -53,6 +53,10 @@ class CharacterFolder extends Folder {
 			characterNames.set(id, [new Pipe(), name]);
 		}
 	}
+	addItem(id: Uint, name: string) {
+		this.#registerItem(id, name);
+		return super.addItem(id, name);
+	}
 }
 
 class CharacterRoot extends Root {
