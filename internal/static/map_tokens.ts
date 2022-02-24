@@ -125,8 +125,8 @@ export class SVGShape extends SVGTransform {
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
 		this.isEllipse = token.isEllipse ?? false;
-		let n: SVGRectElement | SVGEllipseElement;
 		if (draw) {
+			let n: SVGRectElement | SVGEllipseElement;
 			if (!token.isEllipse) {
 				n = rect({"width": token.width, "height": token.height});
 			} else {
