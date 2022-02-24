@@ -42,10 +42,10 @@ class CharacterFolder extends Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children);
 		for (const name in children.items) {
-			this.registerItem(children.items[name], name);
+			this.#registerItem(children.items[name], name);
 		}
 	}
-	registerItem(id: Uint, name: string) {
+	#registerItem(id: Uint, name: string) {
 		const v = characterNames.get(id);
 		if (v) {
 			v[0].send(v[1] = name);
