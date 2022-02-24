@@ -320,8 +320,7 @@ menuItems.push([5, () => isAdmin ? [
 			layersRPC.waitLayerRename().then(lr => {
 				const l = list.getLayer(lr.path);
 				if (l) {
-					l.name = lr.name;
-					l.nameElem.innerText = lr.name;
+					l.nameElem.innerText = l.name = lr.name;
 				}
 			});
 			layersRPC.waitLayerSelect().then(path => {
