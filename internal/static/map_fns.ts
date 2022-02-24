@@ -85,17 +85,13 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 	const doIt = (sendRPC = true) => {
 		setLayerVisibility(path, visibility);
 		if (sendRPC) {
-			if (visibility) {
-				queue(() => {
-					waitLayerShow[0](path);
-					return rpc.showLayer(path);
-				});
-			} else {
-				queue(() => {
-					waitLayerHide[0](path);
-					return rpc.hideLayer(path);
-				});
-			}
+			queue(visibility ? () => {
+				waitLayerShow[0](path);
+				return rpc.showLayer(path);
+			} : () => {
+				waitLayerHide[0](path);
+				return rpc.hideLayer(path);
+			});
 		}
 		visibility = !visibility;
 		return doIt;
