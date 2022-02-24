@@ -66,6 +66,8 @@ abstract class SVGTransform {
 		}
 		return null;
 	}
+	cleanup() {}
+	uncleanup() {}
 }
 
 export class SVGToken extends SVGTransform {
