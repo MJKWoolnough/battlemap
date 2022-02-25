@@ -1,5 +1,5 @@
 import type {WindowElement, WindowData} from './windows.js';
-import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode, createDocumentFragment, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
 import loadMap from './adminMap.js';
@@ -228,7 +228,7 @@ inited.then(() => {
 		amendNode(base, tabs.html);
 		window.setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
-		window.addEventListener("resize", () => shell.realignWindows(), {"passive": true});
+		amendNode(window, {"onresize": event(() => shell.realignWindows(), eventPassive)});
 		rpc.ready();
 	});
 }).catch(handleError);
