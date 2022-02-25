@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {amendNode, clearNode} from './lib/dom.js';
+import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, input} from './lib/html.js';
 import {circle, g, path, polyline, svg, title} from './lib/svg.js';
@@ -138,7 +138,7 @@ addTool({
 	},
 	"tokenMouseOver": function(this: SVGElement) {
 		amendNode(root, {"style": {"--outline-cursor": "none"}});
-		this.addEventListener("mouseout", () => amendNode(root, {"style": {"--outline-cursor": undefined}}), {"once": true});
+		amendNode(this, {"onmouseout": event(() => amendNode(root, {"style": {"--outline-cursor": undefined}}), eventOnce)})
 		return false;
 	},
 	"tokenMouse0": ignore,
