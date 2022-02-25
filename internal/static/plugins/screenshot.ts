@@ -118,7 +118,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				if (b) {
 					const href = URL.createObjectURL(b);
 					amendNode(link, {href});
-					w.addEventListener("onremove", () => URL.revokeObjectURL(href));
+					amendNode(w, {"onremove": () => URL.revokeObjectURL(href)});
 				} else {
 					w.alert(mainLang["ERROR"], lang["ERROR_GENERATING"], icon);
 				}
