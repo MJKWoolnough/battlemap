@@ -56,7 +56,7 @@ class MapItem extends DraggableItem {
 			selectedCurrent = thisMap;
 			const id = thisMap.id;
 			queue(() => rpc.setCurrentMap(id).then(() => mapLoadSend(id)));
-			selectedMap.set(thisMap.id);
+			selectedMap.set(id);
 			[thisMap, oldMap] = [oldMap, thisMap];
 			return doIt;
 		      };
