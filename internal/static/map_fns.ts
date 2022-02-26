@@ -441,10 +441,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 	      undoIt = () => {
 		layer.walls.push(wall);
 		updateLight();
-		queue(() => rpc.addWall(layer.path, wall).then(id => {
-			wall.id = id;
-			walls.set(id, {layer, wall});
-		}));
+		queue(() => rpc.addWall(layer.path, wall).then(id => walls.set(wall.id = id, {layer, wall})));
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_REMOVE"]);
