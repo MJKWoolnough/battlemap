@@ -210,7 +210,7 @@ menuItems.push([4, () => isAdmin ? [
 								root.addItem(id, name);
 								window.remove();
 							})
-							.finally(() => this.removeAttribute("disabled"));
+							.finally(() => amendNode(this, {"disabled": false}));
 						}}, lang["MAP_ADD"])
 					])
 				}}, lang["MAP_NEW"]),
