@@ -67,18 +67,10 @@ class MapItem extends DraggableItem {
 		}
 	}
 	rename() {
-		if (this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))));
-		} else {
-			return super.rename();
-		}
+		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"])))) : super.rename();
 	}
 	remove() {
-		if (this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser")) {
-			return autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))));
-		} else {
-			return super.remove();
-		}
+		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"])))) : super.remove();
 	}
 	setUserMap() {
 		setMap(this, selectedUser, "mapUser", "hasMapUser");
@@ -88,18 +80,10 @@ class MapItem extends DraggableItem {
 
 class MapFolder extends Folder {
 	rename(e: Event) {
-		if (this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"])));
-		} else {
-			return super.rename(e);
-		}
+		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
 	}
 	remove(e: Event) {
-		if (this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser")) {
-			return shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"])));
-		} else {
-			return super.remove(e);
-		}
+		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"]))) : super.remove(e);
 	}
 }
 
