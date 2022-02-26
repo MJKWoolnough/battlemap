@@ -12,7 +12,7 @@ export class Colour {
 	readonly b: Byte = 0;
 	readonly a: Byte = 255;
 	static from(c: {r: Byte; g: Byte; b: Byte; a: Byte;}) {
-		return Object.freeze(Object.setPrototypeOf(c, Colour.prototype));
+		return c instanceof Colour ? c : Object.freeze(Object.setPrototypeOf(c, Colour.prototype));
 	}
 	toString() {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`;
