@@ -111,9 +111,8 @@ class MapRoot extends Root {
 			const t = super.moveFolder(from, to);
 			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
 			return t;
-		} else {
-			return super.moveFolder(from, to);
 		}
+		return super.moveFolder(from, to);
 	}
 	removeFolder(from: string) {
 		const [f] = this.resolvePath(from);
