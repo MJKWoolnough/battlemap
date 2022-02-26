@@ -337,7 +337,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		layer.tokens.splice(pos, 1);
 		tokens.delete(tk);
 		token.cleanup();
-		if (token instanceof SVGToken && token.lightColour.a > 0 && token.lightIntensity > 0) {
+		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 			updateLight();
 		}
 		if (sendRPC) {
@@ -352,7 +352,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			tokens.set(id, {layer, token});
 		}));
 		token.uncleanup();
-		if (token instanceof SVGToken && token.lightColour.a > 0 && token.lightIntensity > 0) {
+		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
 			updateLight();
 		}
 		return doIt;
