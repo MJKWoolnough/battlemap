@@ -37,7 +37,7 @@ class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
 		amendNode(this.image, {"src": mapIcon});
-		this[node].classList.add("mapItem");
+		amendNode(this[node], {"class": ["mapItem"]});
 		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id);
@@ -51,7 +51,7 @@ class MapItem extends DraggableItem {
 			if (oldMap) {
 				setMap(this, oldMap, "mapCurrent", "hasMapCurrent");
 			} else {
-				this[node].classList.add("mapCurrent");
+				amendNode(this[node], {"class": ["mapCurrent"]});
 			}
 			selectedCurrent = thisMap;
 			const id = thisMap.id;
