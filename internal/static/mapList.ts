@@ -23,9 +23,9 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 		}
 	}
 	if (mapItem) {
-		mapItem[node].classList.add(selectedClass);
+		amendNode(mapItem[node], {"class": [selectedClass]});
 		for (let curr: Folder | null = mapItem.parent; curr; curr = curr.parent) {
-			curr[node].classList.add(containsClass);
+			amendNode(curr[node], {"class": [containsClass]});
 		}
 	}
       },
