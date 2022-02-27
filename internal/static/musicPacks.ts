@@ -432,13 +432,7 @@ menuItems.push([3, () => isAdmin ? [
 					musicList.delete(this.id);
 				}
 			}
-			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => {
-				const dt = b.playTime - a.playTime;
-				if (dt === 0) {
-					return stringSort(a.name, b.name);
-				}
-				return dt;
-			      }),
+			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || stringSort(a.name, b.name)),
 			      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
 			      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
