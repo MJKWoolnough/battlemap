@@ -370,9 +370,7 @@ menuItems.push([3, () => isAdmin ? [
 						})}),
 						copy({"title": lang["MUSIC_COPY"], "class": "itemCopy", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 							if (name) {
-								rpc.musicPackCopy(this.id, name).then(({id, name}) => {
-									musicList.set(id, new AdminPack(id, newPack(id, name, this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), this.volume)));
-								});
+								rpc.musicPackCopy(this.id, name).then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name, this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), this.volume))));
 							}
 						})}),
 						remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
@@ -401,9 +399,7 @@ menuItems.push([3, () => isAdmin ? [
 					amendNode(this.playStatus, {"style": {"visibility": undefined}});
 					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
 					if (sendRPC) {
-						rpc.musicPackPlay(this.id, Math.round(playTime)).then(playTime => {
-							this.playTime = playTime;
-						});
+						rpc.musicPackPlay(this.id, Math.round(playTime)).then(playTime => this.playTime = playTime);
 					}
 					musicList.sort();
 				}
