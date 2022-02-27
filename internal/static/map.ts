@@ -239,11 +239,10 @@ zoom = (() => {
 	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
 	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
 	      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
-		if (e.button !== 0) {
-			return;
+		if (e.button === 0) {
+			setupZoomDrag();
+			document.body.classList.add("zooming");
 		}
-		setupZoomDrag();
-		document.body.classList.add("zooming");
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)
 	inited.then(() => amendNode(shell, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
