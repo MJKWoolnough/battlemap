@@ -28,6 +28,10 @@ export type SVGFolder = LayerFolder & {
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
 
+export let root = svg(),
+layerList: SVGFolder,
+mapData: MapData;
+
 const idNames: Record<string, Int> = {
 	"": 0,
 	"Grid": -1,
@@ -56,10 +60,6 @@ const idNames: Record<string, Int> = {
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
-
-export let root = svg(),
-layerList: SVGFolder,
-mapData: MapData;
 
 export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
