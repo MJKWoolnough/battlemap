@@ -377,13 +377,13 @@ export default (base: HTMLElement) => {
 		mX = e.clientX;
 		mY = e.clientY;
 	      },
-	      stopMapMove = () => document.body.classList.remove("dragging"),
+	      stopMapMove = () => amendNode(document.body, {"class": ["!dragging"]}),
 	      [startMapMove0] = mouseDragEvent(0, startMapMove, stopMapMove),
 	      [startMapMove1] = mouseDragEvent(1, startMapMove, stopMapMove),
 	      initMapMove = (e: MouseEvent, initFn: () => void) => {
 		mX = e.clientX;
 		mY = e.clientY;
-		document.body.classList.toggle("dragging", true);
+		amendNode(document.body, {"class": ["dragging"]});
 		initFn();
 		return false;
 	      };
@@ -397,12 +397,12 @@ export default (base: HTMLElement) => {
 	};
 	rpc.waitSignalMovePosition().then(pos => {
 		if (sliding === -1) {
-			document.body.classList.toggle("sliding", true);
+			amendNode(document.body, {"class": ["sliding"]});
 		} else {
 			window.clearTimeout(sliding);
 		}
 		sliding = window.setTimeout(() => {
-			document.body.classList.remove("sliding")
+			amendNode(document.body, {"class": ["!sliding"]});
 			sliding = -1;
 		}, 1000);
 		centreOnGrid(pos[0], pos[1]);
