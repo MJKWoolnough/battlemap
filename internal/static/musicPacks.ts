@@ -397,7 +397,7 @@ menuItems.push([3, () => isAdmin ? [
 						amendNode(this.playPauseNode, {"d": pauseIcon});
 					}
 					amendNode(this.playStatus, {"style": {"visibility": undefined}});
-					this.playPauseTitle.textContent = lang["MUSIC_PAUSE"];
+					clearNode(this.playPauseTitle, lang["MUSIC_PAUSE"]);
 					if (sendRPC) {
 						rpc.musicPackPlay(this.id, Math.round(playTime)).then(playTime => this.playTime = playTime);
 					}
@@ -417,7 +417,7 @@ menuItems.push([3, () => isAdmin ? [
 						amendNode(this.playPauseNode, {"d": playIcon});
 					}
 					amendNode(this.playStatus, {"style": {"visibility": "hidden"}});
-					this.playPauseTitle.textContent = lang["MUSIC_PLAY"];
+					clearNode(this.playPauseTitle, lang["MUSIC_PLAY"]);
 					if (sendRPC) {
 						rpc.musicPackStop(this.id);
 					}
