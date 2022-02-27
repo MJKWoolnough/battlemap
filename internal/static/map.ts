@@ -516,11 +516,10 @@ export default (base: HTMLElement) => {
 	}),
 	rpc.waitWallAdded().then(({path, wall}) => {
 		const layer = getLayer(path);
-		if (!layer || !isSVGLayer(layer)) {
-			return;
+		if (layer && isSVGLayer(layer)) {
+			layer.walls.push(normaliseWall(wall));
+			updateLight();
 		}
-		layer.walls.push(normaliseWall(wall));
-		updateLight();
 	}),
 	rpc.waitWallRemoved().then(wp => {
 		const {layer, wall} = walls.get(wp)!;
@@ -529,10 +528,9 @@ export default (base: HTMLElement) => {
 	}),
 	rpc.waitWallModified().then(w => {
 		const wall = walls.get(w.id);
-		if (!wall) {
-			return;
+		if (wall) {
+			Object.assign(wall.wall, w);
 		}
-		Object.assign(wall.wall, w);
 	});
 	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => {
 		const {token} = tokens.get(id)!;
