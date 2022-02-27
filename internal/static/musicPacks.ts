@@ -242,10 +242,9 @@ menuItems.push([3, () => isAdmin ? [
 						}}),
 						this.repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.id, parent.tracks.findIndex(t => t === this), this.repeat = checkInt(parseInt(this.repeatNode.value), -1))}),
 						remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
-							if (!d) {
-								return;
+							if (d) {
+								rpc.musicPackTrackRemove(parent.id, this.remove());
 							}
-							rpc.musicPackTrackRemove(parent.id, this.remove());
 						})})
 					]);
 					this.cleanup = track.name ? () => {} : audioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
