@@ -80,6 +80,8 @@ export class SVGToken extends SVGTransform {
 			wg.add();
 		}
 		this.src = token.src;
+		this.flip = token.flip;
+		this.flop = token.flop;
 		this.patternWidth = token.patternWidth;
 		this.patternHeight = token.patternWidth;
 		this[node] = image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
@@ -308,8 +310,7 @@ definitions = (() => {
 			list.delete(id);
 		},
 		setGrid(grid: GridDetails) {
-			const old = list.get("grid");
-			old?.remove();
+			list.get("grid")?.remove();
 			switch (grid.gridType) {
 			case 1: {
 				const w = grid.gridSize,
