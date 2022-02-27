@@ -302,7 +302,7 @@ definitions = (() => {
 				i++;
 			}
 			const id = `Pattern_${i}`;
-			list.set(id, base.appendChild(pattern({"id": id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
+			list.set(id, base.appendChild(pattern({id, "patternUnits": "userSpaceOnUse", "width": t.patternWidth, "height": t.patternHeight}, image({"href": `/images/${t.src}`, "width": t.patternWidth, "height": t.patternHeight, "preserveAspectRatio": "none"}))));
 			return id;
 		},
 		remove(id: string) {
