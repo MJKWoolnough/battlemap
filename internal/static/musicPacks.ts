@@ -449,12 +449,7 @@ menuItems.push([3, () => isAdmin ? [
 				musicList[node]
 			]);
 			rpc.waitMusicPackAdd().then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
-			rpc.waitMusicPackRename().then(ft => {
-				const pack = musicList.get(ft.id);
-				if (pack) {
-					pack.setName(ft.name);
-				}
-			});
+			rpc.waitMusicPackRename().then(ft => musicList.get(ft.id)?.setName(ft.name));
 			rpc.waitMusicPackRemove().then(id => {
 				const pack = musicList.get(id);
 				if (pack) {
