@@ -35,10 +35,7 @@ const idNames: Record<string, Int> = {
       },
       processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
 	path += "/" + layer.name
-	const n = g();
-	if (layer.hidden) {
-		n.classList.add("hiddenLayer");
-	}
+	const n = g(layer.hidden ? {"class": "hiddenLayer"} : undefined);
 	if (isLayerFolder(layer)) {
 		const children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of layer.children) {
