@@ -7,7 +7,7 @@ import {Pipe} from './lib/inter.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
-export const enterKey = function(this: Node, e: KeyboardEvent): void {
+export const enterKey = function(this: Node, e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
 			if (e instanceof HTMLButtonElement) {
