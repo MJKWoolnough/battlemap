@@ -13,8 +13,7 @@ abstract class Setting<T> {
 		return v + "";
 	};
 	set(v: T) {
-		const s = this.s(v);
-		this.value = v;
+		const s = this.s(this.value = v);
 		if (s === null) {
 			window.localStorage.removeItem(this.name);
 		} else {
