@@ -84,11 +84,10 @@ menuItems.push([7, () => [
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),
 		button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
-			if (!v) {
-				return;
+			if (v) {
+				window.localStorage.clear();
+				window.location.reload();
 			}
-			window.localStorage.clear();
-			window.location.reload();
 		})}, lang["SETTINGS_CLEAR"])
 	]),
 	false,
