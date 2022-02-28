@@ -66,10 +66,7 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 				}
 			}
 			const tk = list?.pop();
-			if (tk) {
-				return Object.assign(cloneObject(tk), {"lightColour": tk.lightColour});
-			}
-			return null;
+			return tk ? Object.assign(cloneObject(tk), {"lightColour": tk.lightColour}) : null;
 		},
 		(data: CharacterRecord) => delete data[tokensSymbol]
 	] as const;
