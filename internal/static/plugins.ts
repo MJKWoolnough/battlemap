@@ -3,6 +3,7 @@ import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {WindowElement} from './windows.js';
+import {amendNode} from './lib/dom.js';
 import {br, button, h1, input, label, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
@@ -66,17 +67,15 @@ settings = () => {
 			label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
 			select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
 				if (this.value === "") {
-					check.toggleAttribute("disabled", true);
-					check.checked = false;
-					save.toggleAttribute("disabled", true);
+					amendNode(check, {"disabled": true}).checked = false;
+					amendNode(save, {"disabled": true});
 					selected = "";
 					return;
 				}
 				const plugin = pluginList.get(this.value);
 				if (plugin) {
-					check.removeAttribute("disabled");
-					check.checked = pluginList.get(this.value)!.enabled;
-					save.removeAttribute("disabled");
+					amendNode(check, {"disabled": false}).checked = pluginList.get(this.value)!.enabled;
+					amendNode(save, {"disabled": false});
 					selected = this.value;
 				}
 			}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
