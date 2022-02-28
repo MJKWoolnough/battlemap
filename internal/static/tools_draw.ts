@@ -89,7 +89,6 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 		drawElement.remove();
 		drawElement = null;
 		cancelPolyMove();
-		return;
 	} else {
 		coords.pop();
 		coords.pop();
