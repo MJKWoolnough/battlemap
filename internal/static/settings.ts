@@ -78,7 +78,6 @@ menuItems.push([7, () => [
 			}})),
 			br(),
 			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": checkInt(hiddenLayerSelectedOpacity.value, 0, 255, 128), "oninput": function(this: HTMLInputElement) {
-				console.log(this.value);
 				hiddenLayerSelectedOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
 			}})),
 		] : [],
