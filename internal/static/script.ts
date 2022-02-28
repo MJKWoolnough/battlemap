@@ -93,11 +93,7 @@ const lastTab = new StringSetting("lastTab"),
 	      selectFirst = () => {
 		for (const [_, t] of tabs) {
 			if (t.style.getPropertyValue("display") !== "none") {
-				if (t.control) {
-					t.control.click();
-				} else {
-					t.click();
-				}
+				(t.control ?? t).click();
 				return;
 			}
 		};
@@ -178,11 +174,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 	        setTab(title: string) {
 			for (const [t, tab] of tabs) {
 				if (t === title) {
-					if (tab.control) {
-						tab.control.click();
-					} else {
-						tab.click();
-					}
+					(tab.control ?? tab).click();
 					return;
 				}
 			}
