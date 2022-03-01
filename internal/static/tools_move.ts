@@ -10,7 +10,6 @@ import {autosnap, measureTokenMove} from './settings.js';
 import {addTool, disable, ignore} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 
-
 let dx = 0, dy = 0,
     snap = false,
     ox = 0,
