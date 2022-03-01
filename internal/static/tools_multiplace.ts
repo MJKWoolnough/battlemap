@@ -16,12 +16,12 @@ import {autosnap} from './settings.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 
 const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
-	if (!this.checked) {
+	if (this.checked) {
+		hideCursor();
+	} else {
 		deselectToken();
 		showCursor();
 		defaultTool.unset?.();
-	} else {
-		hideCursor();
 	}
       }}),
       i = img(),
