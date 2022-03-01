@@ -33,9 +33,9 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       drawnLine = g([lone, ltwo, spot]),
       coords: [number, number, ...number[]] = [NaN, NaN],
       [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, (e: MouseEvent) => {
-	      if (!e.ctrlKey) {
-		      stopMeasurement()
-	      }
+	if (!e.ctrlKey) {
+	      stopMeasurement()
+	}
       }),
       [setupMouse2, cancelMouse2] = mouseDragEvent(2, undefined, () => {
 	if (send) {
