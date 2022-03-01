@@ -67,18 +67,16 @@ const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_
 	cancelEllipseDrag();
       }),
       [setPolyEscape, cancelPolyEscape] = keyEvent("Escape", () => {
-	if (!maskElement) {
-		return;
-	}
-	if (coords.length === 2) {
-		maskElement.remove();
-		maskElement = null;
-		cancelPolyMove();
-		return;
-	} else {
-		coords.pop();
-		coords.pop();
-		amendNode(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": coords.length === 2 ? addOpaque ? "#fff" : "#000" : undefined});
+	if (maskElement) {
+		if (coords.length === 2) {
+			maskElement.remove();
+			maskElement = null;
+			cancelPolyMove();
+		} else {
+			coords.pop();
+			coords.pop();
+			amendNode(maskElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, ""), "stroke": coords.length === 2 ? addOpaque ? "#fff" : "#000" : undefined});
+		}
 	}
       }),
       highlightMask = (x: Uint, y: Uint) => {
