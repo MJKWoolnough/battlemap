@@ -305,10 +305,10 @@ const select = Symbol("select"),
 	])
       })),
       updateInitiative = (change?: [Uint, Uint | null]) => {
-	const {"5e-initiative": initiative} = mapData.data;
+	const {"5e-initiative": initiative} = mapData.data,
+	      hiddenLayers = new Set<string>();
 	initiativeList.splice(0, initiativeList.length);
 	initTokens.clear();
-	const hiddenLayers = new Set<string>();
 	walkLayers((l, isHidden) => {
 		if (isHidden) {
 			hiddenLayers.add(l.path);
