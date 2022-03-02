@@ -19,7 +19,7 @@ import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js'
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
-import {addCSS, characterData, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
+import {addCSS, characterData, checkInt, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import symbols, {remove, rename, userVisible} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -242,10 +242,6 @@ const select = Symbol("select"),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "fill": "currentColor"})),
       initPrev = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,0 0,1 2,2", "fill": "currentColor"})),
       conditions = (Object.keys(lang) as (keyof typeof lang)[]).filter(k => k.startsWith("CONDITION_")),
-      checkInt = (s: string, min: Int, max: Int, def: Int) => {
-	const n = parseInt(s);
-	return isNaN(n) ? def : n < min ? min : n > max ? max : n;
-      },
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
       isValidToken = (t: SVGToken): t is SVGToken => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
@@ -905,20 +901,20 @@ if (isAdmin) {
 						removes.add("5e-initiative-mod");
 					} else {
 						removes.delete("5e-initiative-mod");
-						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(this.value, -20, 20, 0)};
+						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(parseInt(this.value), -20, 20, 0)};
 					}
 				}})),
 				br(),
 				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-ac"] = {"user": false, "data": checkInt(this.value, 0, 50, 0)};
+					changes["5e-ac"] = {"user": false, "data": checkInt(parseInt(this.value), 0, 50, 0)};
 				}})),
 				br(),
 				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-current"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
+					changes["5e-hp-current"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
 				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
-					changes["5e-hp-max"] = {"user": false, "data": checkInt(this.value, 0, Infinity, 0)};
+					changes["5e-hp-max"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
 				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
