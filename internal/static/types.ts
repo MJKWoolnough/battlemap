@@ -328,7 +328,7 @@ type CharacterDataChange = ID & {
 	removing: string[];
 }
 
-export type WallData = {
+type WallData = {
 	x1: Int;
 	y1: Int;
 	x2: Int;
