@@ -297,11 +297,11 @@ const select = Symbol("select"),
 	}, "onmouseleave": () => highlight.remove()}, [
 		img({"src": `/images/${token.src}`, "onclick": () => centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1))}),
 		span(token.getData("name") ?? ""),
-		span({"class": isAdmin ? "token-initiative-5e" : undefined, "onclick": isAdmin ? () => {
+		span(isAdmin ? {"class": "token-initiative-5e", "onclick": () => {
 			updateInitiative([token.id, null]);
 			saveInitiative();
 			highlight.remove();
-		} : undefined}, initiative + "")
+		}} : {}, initiative + "")
 	])
       })),
       updateInitiative = (change?: [Uint, Uint | null]) => {
