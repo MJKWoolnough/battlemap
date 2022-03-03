@@ -347,7 +347,7 @@ export default (base: HTMLElement) => {
 		}),
 		keyEvent("x", (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
-				doTokenRemove((copiedToken = cloneObject(selected.token)).id);
+				doTokenRemove((copiedToken = cloneObject(selected.token!)).id);
 			}
 		}),
 		keyEvent("Escape", (e: KeyboardEvent) => {
