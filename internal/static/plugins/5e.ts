@@ -808,7 +808,7 @@ if (isAdmin) {
 			for (const t of shapechangeTokens) {
 				if (t["5e-shapechange-name"]) {
 					valid.push(true);
-					tokens.push(JSON.parse(JSON.stringify(t)));
+					tokens.push(cloneObject(t));
 				} else {
 					valid.push(false);
 				}
