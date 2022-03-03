@@ -557,7 +557,7 @@ doMaskRemove = (index: Uint, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_MASK_REMOVE"]);
 },
 doMaskSet = (m: MaskSet, sendRPC = true) => {
-	let oldData = {
+	let oldData: MaskSet = {
 		"baseOpaque": masks.baseOpaque,
 		"masks": masks.masks
 	};
