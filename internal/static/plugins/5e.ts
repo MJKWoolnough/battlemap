@@ -836,14 +836,8 @@ if (isAdmin) {
 			if (currHP !== null) {
 				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
 					if (hp !== null && isValidToken(token)) {
-						const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
-						if (data >= 0) {
-							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-							token[updateData]();
-						} else {
-							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
-							token[updateData]();
-						}
+						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, parseInt(hp) + (hp.startsWith("+") || hp.startsWith("-") ? currHP : 0))}}});
+						token[updateData]();
 					}
 				});
 			}
