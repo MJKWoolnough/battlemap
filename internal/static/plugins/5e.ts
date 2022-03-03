@@ -615,11 +615,10 @@ if (isAdmin) {
 		});
 	      },
 	      initRemove = (token: SVGToken) => {
-		if (!isValidToken(token)) {
-			return;
+		if (isValidToken(token)) {
+			updateInitiative([token.id, null]);
+			saveInitiative();
 		}
-		updateInitiative([token.id, null]);
-		saveInitiative();
 	      },
 	      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
 		if (!initiative) {
@@ -627,11 +626,10 @@ if (isAdmin) {
 		}
 		return parseInt(initiative);
 	})).then(initiative => {
-		if (!isValidToken(token) || !isInt(initiative, -20, 40)) {
-			return;
+		if (isValidToken(token) && isInt(initiative, -20, 40)) {
+			updateInitiative([token.id, initiative]);
+			saveInitiative();
 		}
-		updateInitiative([token.id, initiative]);
-		saveInitiative();
 	      }).catch(() => {}),
 	      shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].data.map(s => JSON.parse(JSON.stringify(s))),
@@ -692,20 +690,18 @@ if (isAdmin) {
 		      t = th([
 			name,
 			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
-				if (!newName || c.name === newName) {
-					return;
+				if (newName && c.name !== newName) {
+					name.innerText = c.name = newName;
 				}
-				name.innerText = c.name = newName;
 			})}),
 			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
-				if (!rm) {
-					return;
+				if (rm) {
+					shapechangeCats[pos].name = "";
+					for (const row of tickers) {
+						row[pos].remove();
+					}
+					t.remove();
 				}
-				shapechangeCats[pos].name = "";
-				for (const row of tickers) {
-					row[pos].remove();
-				}
-				t.remove();
 			})})
 		      ]);
 		return t;
@@ -728,35 +724,32 @@ if (isAdmin) {
 				div({"class": "tokenSelector tokenSelector5E", "style": "width: 100px; height: 100px"}, [
 					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
 						const gt = getToken();
-						if (!gt) {
+						if (gt) {
+							const token = asInitialToken(gt);
+							shell.confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
+								if (replace) {
+									Object.assign(t, token);
+									amendNode(i, {"src": `/images/${t.src}`});
+								}
+							});
+						} else {
 							shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
-							return;
 						}
-						const token = asInitialToken(gt);
-						shell.confirm(mainLang["TOKEN_REPLACE"], mainLang["TOKEN_REPLACE_CONFIRM"]).then(replace => {
-							if (!replace) {
-								return;
-							}
-							Object.assign(t, token);
-							amendNode(i, {"src": `/images/${t.src}`});
-						});
 					}}),
 					i
 				]),
 				br(),
 				name,
 				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
-					if (!newName || t["5e-shapechange-name"] === newName) {
-						return;
+					if (newName && t["5e-shapechange-name"] !== newName) {
+						name.innerText = t["5e-shapechange-name"] = newName;
 					}
-					name.innerText = t["5e-shapechange-name"] = newName;
 				})}),
 				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
-					if (!rm) {
-						return;
+					if (rm) {
+						rows[row].remove();
+						shapechangeTokens[row]["5e-shapechange-name"] = "";
 					}
-					rows[row].remove();
-					shapechangeTokens[row]["5e-shapechange-name"] = "";
 				})})
 			]),
 			shapechangeCats.map((c, col) => addTicker(row, col, c["images"][row]))
@@ -774,37 +767,35 @@ if (isAdmin) {
 	      shapechangeSettings = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 2 2"%3E%3Crect width="2" height="2" fill="%23f00"%3E%3Canimate attributeName="rx" values="0;0;1;1;0" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3Canimate attributeName="fill" values="%23f00;%23f00;%2300f;%2300f;%23f00" dur="16s" repeatCount="indefinite" keyTimes="0;0.375;0.5;0.875;1" /%3E%3C/rect%3E%3C/svg%3E`, "window-title": lang["SHAPECHANGE_TITLE"], "window-data": "shapechange-5e", "resizable": true}, div([
 		h1(lang["SHAPECHANGE_TITLE"]),
 		button({"onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY"], lang["SHAPECHANGE_TOKEN_CATEGORY_LONG"]).then(cat => {
-			if (!cat) {
-				return;
-			}
-			const c = {
-				"name": cat,
-				"images": Array.from({"length": shapechangeTokens.length}, _ => false),
-			      },
-			      p = shapechangeCats.push(c) - 1;
-			amendNode(cats, addCat(c))
-			for (let i = 0; i < rows.length; i++) {
-				amendNode(rows[i], addTicker(i, p));
+			if (cat) {
+				const c = {
+					"name": cat,
+					"images": Array.from({"length": shapechangeTokens.length}, _ => false),
+				      },
+				      p = shapechangeCats.push(c) - 1;
+				amendNode(cats, addCat(c))
+				for (let i = 0; i < rows.length; i++) {
+					amendNode(rows[i], addTicker(i, p));
+				}
 			}
 		})}, lang["SHAPECHANGE_TOKEN_CATEGORY"]),
 		button({"onclick": () => {
 			const t = getToken();
-			if (!t) {
+			if (t) {
+				const token = asInitialToken(t);
+				shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
+					if (name) {
+						const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
+						amendNode(ticks, addToken(t, shapechangeTokens.length));
+						shapechangeTokens.push(t);
+						for (const cat of shapechangeCats) {
+							cat["images"].push(false);
+						}
+					}
+				});
+			} else {
 				shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
-				return;
 			}
-			const token = asInitialToken(t);
-			shell.prompt(lang["SHAPECHANGE_TOKEN_NAME"], lang["SHAPECHANGE_TOKEN_NAME_LONG"]).then(name => {
-				if (!name) {
-					return;
-				}
-				const t = Object.assign(token, {"5e-shapechange-name": name}) as ShapechangeToken;
-				amendNode(ticks, addToken(t, shapechangeTokens.length));
-				shapechangeTokens.push(t);
-				for (const cat of shapechangeCats) {
-					cat["images"].push(false);
-				}
-			});
 		}}, lang["SHAPECHANGE_TOKEN_ADD"]),
 		table({"id": "shapechange-settings-5e"}, [
 			thead(cats),
@@ -844,16 +835,15 @@ if (isAdmin) {
 			const currHP = token.getData("5e-hp-current");
 			if (currHP !== null) {
 				shell.prompt(lang["HP_CURRENT"], lang["HP_CURRENT_ENTER"], currHP).then(hp => {
-					if (hp === null || !isValidToken(token)) {
-						return;
-					}
-					const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
-					if (data >= 0) {
-						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
-						token[updateData]();
-					} else {
-						doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
-						token[updateData]();
+					if (hp !== null && isValidToken(token)) {
+						const data = parseInt(hp) + (hp.startsWith("+") ? currHP : 0);
+						if (data >= 0) {
+							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, data}}});
+							token[updateData]();
+						} else {
+							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, currHP + data)}}});
+							token[updateData]();
+						}
 					}
 				});
 			}
@@ -966,34 +956,31 @@ if (isAdmin) {
 			}
 			if (showConditions) {
 				ctxList.push(menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
-					if (!isValidToken(token)) {
-						return;
+					if (isValidToken(token)) {
+						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
+						data[n] = !data[n];
+						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+						token[updateData]();
 					}
-					const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
-					data[n] = !data[n];
-					doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-					token[updateData]();
 				}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"}));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(menu(lang["SHAPECHANGE"], [
 					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
-						if (!isValidToken(token)) {
-							return;
+						if (isValidToken(token)) {
+							setShapechange(token);
 						}
-						setShapechange(token);
 					}) : [],
 					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
-						if (!b) {
-							return [];
+						if (b) {
+							const newToken = shapechangeTokens[n];
+							return item(newToken["5e-shapechange-name"], () => {
+								if (isValidToken(token)) {
+									setShapechange(token, newToken);
+								}
+							});
 						}
-						const newToken = shapechangeTokens[n];
-						return item(newToken["5e-shapechange-name"], () => {
-							if (!isValidToken(token)) {
-								return;
-							}
-							setShapechange(token, newToken);
-						});
+						return [];
 					})))
 				]));
 			}
