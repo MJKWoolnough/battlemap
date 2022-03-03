@@ -912,10 +912,10 @@ if (isAdmin) {
 				}}, getData("5e-notes")["data"] ?? "")),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
-					this.toggleAttribute("disabled", true);
+					amendNode(this, {"disabled": true});
 					const updateName = changes["name"];
 					save().finally(() => {
-						this.removeAttribute("disabled");
+						amendNode(this, {"disabled": false});
 						if (updateName && initTokens.has(id)) {
 							updateInitiative();
 						}
