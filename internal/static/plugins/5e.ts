@@ -633,7 +633,7 @@ if (isAdmin) {
 	      }).catch(() => {}),
 	      shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
 	      shapechangeTokens = settings["store-image-shapechanges"].data.map(cloneObject),
-	      asInitialToken = (t: InitialToken): InitialToken => {
+	      asInitialToken = (t: Omit<TokenImage, "id" | "x" | "y">): InitialToken => {
 		const tokenData: InitialTokenData = {
 			"name": null,
 			"5e-ac": null,
@@ -664,7 +664,7 @@ if (isAdmin) {
 			n = t.tokenData["store-image-5e-initial-token"].data;
 			tk.removeTokenData!.push("store-image-5e-initial-token");
 		} else if (!t.tokenData["store-image-5e-initial-token"]) {
-			tk.tokenData!["store-image-5e-initial-token"] = {"user": false, "data": asInitialToken(t as InitialToken)};
+			tk.tokenData!["store-image-5e-initial-token"] = {"user": false, "data": asInitialToken(t)};
 		}
 		tk.src = n.src;
 		tk.width = n.width;
