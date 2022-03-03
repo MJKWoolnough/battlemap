@@ -424,7 +424,7 @@ const select = Symbol("select"),
 						this.#conditions = g({"class": "token-conditions-5e"})
 					])
 				]);
-				window.setTimeout(this.#setTextWidth.bind(this), 0);
+				setTimeout(this.#setTextWidth.bind(this), 0);
 				this.#updateConditions();
 			}
 			#setTextWidth() {
