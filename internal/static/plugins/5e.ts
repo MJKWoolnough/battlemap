@@ -19,7 +19,7 @@ import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js'
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {BoolSetting, JSONSetting} from '../settings_types.js';
-import {addCSS, characterData, checkInt, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
+import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import symbols, {remove, rename, userVisible} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -632,7 +632,7 @@ if (isAdmin) {
 		}
 	      }).catch(() => {}),
 	      shapechangeCats = settings["shapechange-categories"].data.map(c => ({"name": c["name"], "images": c["images"].slice()})),
-	      shapechangeTokens = settings["store-image-shapechanges"].data.map(s => JSON.parse(JSON.stringify(s))),
+	      shapechangeTokens = settings["store-image-shapechanges"].data.map(cloneObject),
 	      asInitialToken = (t: InitialToken): InitialToken => {
 		const tokenData: InitialTokenData = {
 			"name": null,
@@ -642,16 +642,16 @@ if (isAdmin) {
 		      },
 		      {name, "5e-ac": ac, "5e-hp-max": hpMax, "5e-hp-current": hpCurrent} = t.tokenData;
 		if (name) {
-			tokenData["name"] = {"user": name.user, "data": name.data};
+			tokenData["name"] = cloneObject(name);
 		}
 		if (ac) {
-			tokenData["5e-ac"] = {"user": ac.user, "data": ac.data};
+			tokenData["5e-ac"] = cloneObject(ac);
 		}
 		if (hpMax) {
-			tokenData["5e-hp-max"] = {"user": hpMax.user, "data": hpMax.data};
+			tokenData["5e-hp-max"] = cloneObject(hpMax);
 		}
 		if (hpCurrent) {
-			tokenData["5e-hp-max"] = {"user": hpCurrent.user, "data": hpCurrent.data};
+			tokenData["5e-hp-max"] = cloneObject(hpCurrent);
 		}
 		return {"src": t["src"], "width": t["width"], "height": t["height"], "flip": t["flip"], "flop": t["flop"], tokenData};
 	      },
@@ -674,7 +674,7 @@ if (isAdmin) {
 		for (const k in tk.tokenData) {
 			const v = tk.tokenData[k];
 			if (v) {
-				tk.tokenData![k] = {"user": v.user, "data": v.data};
+				tk.tokenData![k] = cloneObject(v);
 			} else {
 				tk.removeTokenData!.push(k);
 			}
