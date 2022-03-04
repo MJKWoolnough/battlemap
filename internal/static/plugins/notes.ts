@@ -389,11 +389,7 @@ if (isAdmin) {
 			if (tk && isOpenTag(tk) && tk.attr) {
 				const id = parseInt(tk.attr);
 				if (!isNaN(id)) {
-					process(n.appendChild(span({"class": "noteLink", "onclick": () => {
-						if (notes.has(id)) {
-							notes.get(id)!.show();
-						}
-					}})), t, p, tk.tagName);
+					process(n.appendChild(span({"class": "noteLink", "onclick": () => notes.get(id)?.show()})), t, p, tk.tagName);
 				}
 			}
 		}
