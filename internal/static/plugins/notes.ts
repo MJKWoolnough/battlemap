@@ -81,22 +81,16 @@ if (isAdmin) {
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
-						if (!e.dataTransfer) {
-							return;
-						}
-						if (e.dataTransfer.types.includes("imageasset") || e.dataTransfer.types.includes("audioasset") || e.dataTransfer.types.includes("pluginnote")) {
+						if (e.dataTransfer?.types.includes("imageasset") || e.dataTransfer?.types.includes("audioasset") || e.dataTransfer?.types.includes("pluginnote")) {
 							e.preventDefault();
 							e.dataTransfer.dropEffect = "link";
 						}
 					      }, "ondrop": (e: DragEvent) => {
-						if (!e.dataTransfer) {
-							return;
-						}
-						if (e.dataTransfer.types.includes("imageasset")) {
+						if (e.dataTransfer?.types.includes("imageasset")) {
 							contents.setRangeText(`[img]/images/${JSON.parse(e.dataTransfer.getData("imageasset")).id}[/img]`);
-						} else if (e.dataTransfer.types.includes("audioasset")) {
+						} else if (e.dataTransfer?.types.includes("audioasset")) {
 							contents.setRangeText(`[audio]/audio/${JSON.parse(e.dataTransfer.getData("audioasset")).id}[/audio]`);
-						} else if (e.dataTransfer.types.includes("pluginnote")) {
+						} else if (e.dataTransfer?.types.includes("pluginnote")) {
 							const {selectionStart, selectionEnd} = contents,
 							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
 							      id = JSON.parse(e.dataTransfer.getData("pluginnote")).id;
