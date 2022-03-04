@@ -56,7 +56,7 @@ class Track {
 			return;
 		}
 		if (this.repeatWait !== -1) {
-			window.clearTimeout(this.repeatWait);
+			clearTimeout(this.repeatWait);
 			this.repeatWait = -1;
 		}
 		const tnow = now(),
@@ -77,7 +77,7 @@ class Track {
 				this.audioElement.play();
 			} else {
 				this.audioElement.pause();
-				this.repeatWait = window.setTimeout(() => {
+				this.repeatWait = setTimeout(() => {
 					if (this.audioElement) {
 						this.audioElement.play();
 					}
@@ -91,7 +91,7 @@ class Track {
 			this.audioElement.pause();
 			this.audioElement = null;
 			if (this.repeatWait !== -1) {
-				window.clearTimeout(this.repeatWait);
+				clearTimeout(this.repeatWait);
 				this.repeatWait = -1;
 			}
 		}
@@ -117,7 +117,7 @@ class Pack {
 		this.volume = pack.volume;
 		this.playTime = pack.playTime;
 		if (this.playTime !== 0) {
-			window.setTimeout(() => this.play(this.playTime));
+			setTimeout(() => this.play(this.playTime));
 		}
 	}
 	setVolume(volume: Uint) {

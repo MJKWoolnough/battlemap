@@ -399,9 +399,9 @@ export default (base: HTMLElement) => {
 		if (sliding === -1) {
 			amendNode(document.body, {"class": ["sliding"]});
 		} else {
-			window.clearTimeout(sliding);
+			clearTimeout(sliding);
 		}
-		sliding = window.setTimeout(() => {
+		sliding = setTimeout(() => {
 			amendNode(document.body, {"class": ["!sliding"]});
 			sliding = -1;
 		}, 1000);

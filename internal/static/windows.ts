@@ -34,7 +34,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 		amendNode(w, {"style": {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px"}, "onmoved": save, "onresized": save});
 	} else if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--window-height"))) {
 		amendNode(w, {"style": {"visibility": "hidden"}});
-		window.setTimeout(() => {
+		setTimeout(() => {
 			if (w.parentNode === shell) {
 				const {offsetWidth: width, offsetHeight: height} = w,
 				      {offsetWidth: swidth, offsetHeight: sheight} = shell;

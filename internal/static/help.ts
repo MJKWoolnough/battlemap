@@ -24,7 +24,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 			}
 		}
 	      },
-	      checkPanelOpenEnd = () => window.setTimeout(() => (panelResize.checked ? helpPanelResizeStart : helpPanelCloseClick).beginElement(), 500),
+	      checkPanelOpenEnd = () => setTimeout(() => (panelResize.checked ? helpPanelResizeStart : helpPanelCloseClick).beginElement(), 500),
 	      mouseInit = animateMotion({"dur": "1s", "fill": "freeze", "path": "M0,0 L250,150", "onendEvent": startNextDemo}),
 	      startMapDragDemo = animate({"id": "helpMapDragClick1", "attributeName": "fill", "values": "#000", "fill": "freeze", "dur": "0.2s", "begin": "indefinite"}),
 	      startMapZoomDemo = animateTransform({"id": "helpMapZoom1", "dur": "1s", "attributeName": "transform", "type": "scale", "from": "1 1", "to": "0.5 0.5", "begin": "indefinite"}),
@@ -153,7 +153,7 @@ export default () => {
 				div(bbcode(all, lang["HELP_DEMO_SIDEPANEL_RESIZE"]))
 			])
 		])));
-		window.setTimeout(() => {
+		setTimeout(() => {
 			const w = settingsText.getComputedTextLength() + 5;
 			amendNode(settingsOutline, {"d": `M0,0 v300 M0,23 h10 q5,0 5,-5 v-10 q0,-5 5,-5 h${w} q5,0 5,5 v10 q0,5 5,5 h${470 - w}`});
 			mapDrag.click();

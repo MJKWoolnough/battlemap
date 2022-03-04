@@ -159,7 +159,7 @@ const lastTab = new StringSetting("lastTab"),
 			      ]));
 			tabs.push([title, l]);
 			if (popper && windowData[title] && windowData[title]["out"]) {
-				window.setTimeout(() => popper.dispatchEvent(new MouseEvent("click")));
+				setTimeout(() => popper.dispatchEvent(new MouseEvent("click")));
 			}
 			return base;
 		},
@@ -217,7 +217,7 @@ inited.then(() => {
 		}
 		addCSS(tabs.css);
 		amendNode(base, tabs.html);
-		window.setTimeout(() => tabs.setTab(lastTab.value));
+		setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
 		amendNode(window, {"onresize": event(() => shell.realignWindows(), eventPassive)});
 		rpc.ready();
