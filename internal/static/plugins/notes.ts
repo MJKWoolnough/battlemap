@@ -201,17 +201,12 @@ if (isAdmin) {
 		}
 		return data[""] as KeystoreData<FolderItems>;
 	      },
-	      subFn = <T>(): [(data: T) => void, Subscription<T>] => {
-	        let fn: (data: T) => void;
-		const sub = new Subscription<T>(resolver => fn = resolver);
-		return [fn!, sub];
-	      },
-	      waitAdded = subFn<IDName[]>(),
-	      waitMoved = subFn<{from: string; to: string}>(),
-	      waitRemoved = subFn<string>(),
-	      waitFolderAdded = subFn<string>(),
-	      waitFolderMoved = subFn<{from: string, to: string}>(),
-	      waitFolderRemoved = subFn<string>(),
+	      waitAdded = Subscription.bind<IDName[]>(1),
+	      waitMoved = Subscription.bind<{from: string; to: string}>(1),
+	      waitRemoved = Subscription.bind<string>(1),
+	      waitFolderAdded = Subscription.bind<string>(1),
+	      waitFolderMoved = Subscription.bind<{from: string, to: string}>(1),
+	      waitFolderRemoved = Subscription.bind<string>(1),
 	      unusedWait = new Subscription<any>(() => {}),
 	      folders = checkSettings(getSettings(importName)),
 	      getFolder = (path: string, currPath = folders.data): [FolderItems | null, string] => {
@@ -351,13 +346,13 @@ if (isAdmin) {
 			return Promise.resolve({"id": newID, path})
 		},
 
-		"waitAdded": () => waitAdded[1],
-		"waitMoved": () => waitMoved[1],
-		"waitRemoved": () => waitRemoved[1],
+		"waitAdded": () => waitAdded[0],
+		"waitMoved": () => waitMoved[0],
+		"waitRemoved": () => waitRemoved[0],
 		"waitCopied": () => unusedWait,
-		"waitFolderAdded": () => waitFolderAdded[1],
-		"waitFolderMoved": () => waitFolderMoved[1],
-		"waitFolderRemoved": () => waitFolderRemoved[1],
+		"waitFolderAdded": () => waitFolderAdded[0],
+		"waitFolderMoved": () => waitFolderMoved[0],
+		"waitFolderRemoved": () => waitFolderRemoved[0],
 	      }, NoteItem, NoteFolder),
 	      compareFolderItems = (a: FolderItems, b: FolderItems, path: string, changes: Record<string, number>) => {
 		for (const f in a.folders) {
@@ -452,15 +447,15 @@ if (isAdmin) {
 				} else if (ck.length === 1) {
 					if (changes[ck[0]] < 0) {
 						if (ck[0].endsWith("/")) {
-							waitFolderRemoved[0](ck[0]);
+							waitFolderRemoved[1](ck[0]);
 						} else {
-							waitRemoved[0](ck[0]);
+							waitRemoved[1](ck[0]);
 						}
 					} else {
 						if (ck[0].endsWith("/")) {
-							waitFolderAdded[0](ck[0]);
+							waitFolderAdded[1](ck[0]);
 						} else {
-							waitAdded[0]([{"id": changes[ck[0]], "name": ck[0]}]);
+							waitAdded[1]([{"id": changes[ck[0]], "name": ck[0]}]);
 						}
 					}
 				} else if (ck.length === 2) {
@@ -474,9 +469,9 @@ if (isAdmin) {
 							}
 							if (Object.keys(c).length === 0) {
 								if (changes[ck[0]] < 0) {
-									waitFolderMoved[0]({"from": ck[0], "to": ck[1]});
+									waitFolderMoved[1]({"from": ck[0], "to": ck[1]});
 								} else {
-									waitFolderMoved[0]({"from": ck[1], "to": ck[0]});
+									waitFolderMoved[1]({"from": ck[1], "to": ck[0]});
 								}
 							} else {
 								full = true;
@@ -484,9 +479,9 @@ if (isAdmin) {
 						} else {
 							if (changes[ck[0]] + changes[ck[1]] === 0) {
 								if (changes[ck[0]] < 0) {
-									waitMoved[0]({"from": ck[0], "to": ck[1]});
+									waitMoved[1]({"from": ck[0], "to": ck[1]});
 								} else {
-									waitMoved[0]({"from": ck[1], "to": ck[0]});
+									waitMoved[1]({"from": ck[1], "to": ck[0]});
 								}
 							} else {
 								full = true;
