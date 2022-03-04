@@ -181,7 +181,7 @@ export type IDName = {
 	name: string;
 }
 
-type FromTo = {
+export type FromTo = {
 	from: string;
 	to:   string;
 }
