@@ -610,17 +610,17 @@ export default (base: HTMLElement) => {
 	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
-	rpc.waitLayerShow().then(path => waitLayerShow[0](doShowHideLayer(path, true, false)));
-	rpc.waitLayerHide().then(path => waitLayerHide[0](doShowHideLayer(path, false, false)));
-	rpc.waitLayerAdd().then(name => waitAdded[0]([{id: 1, "name": doLayerAdd(name, false)}]));
-	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[0](doLayerFolderAdd(path, false)));
+	rpc.waitLayerShow().then(path => waitLayerShow[1](doShowHideLayer(path, true, false)));
+	rpc.waitLayerHide().then(path => waitLayerHide[1](doShowHideLayer(path, false, false)));
+	rpc.waitLayerAdd().then(name => waitAdded[1]([{id: 1, "name": doLayerAdd(name, false)}]));
+	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[1](doLayerFolderAdd(path, false)));
 	rpc.waitLayerMove().then(({from, to, position}) => {
 		doLayerMove(from, to, position, false);
-		waitLayerPositionChange[0]({from, to, position});
+		waitLayerPositionChange[1]({from, to, position});
 	});
 	rpc.waitLayerRename().then(lr => {
 		doLayerRename(lr["path"], lr["name"], false);
-		waitLayerRename[0](lr);
+		waitLayerRename[1](lr);
 	});
 	rpc.waitLayerRemove().then(path => {
 		checkSelectedLayer(path);
@@ -629,7 +629,7 @@ export default (base: HTMLElement) => {
 			handleError("Invalid layer remove");
 			return;
 		}
-		(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[0](path);
+		(isSVGFolder(layer) ? waitFolderRemoved : waitRemoved)[1](path);
 		removeLayer(path);
 		undo.clear();
 	});

@@ -11,12 +11,7 @@ import {handleError, rpc} from './rpc.js';
 import {cloneObject, queue, SQRT3, walls} from './shared.js';
 import undo from './undo.js';
 
-const subFn = <T>(): [(data: T) => void, Subscription<T>] => {
-	let fn: (data: T) => void;
-	const sub = new Subscription<T>(resolver => fn = resolver);
-	return [fn!, sub];
-      },
-      unusedWait = new Subscription<any>(() => {}),
+const unusedWait = new Subscription<any>(() => {}),
       unusedWaitFn = () => unusedWait,
       invalidRPC = () => Promise.reject("invalid"),
       removeS = (path: string) => {
@@ -46,17 +41,17 @@ checkSelectedLayer = (path: string) => {
 		}
 	}
 },
-setLayer = (l: SVGLayer) => waitLayerSelect[0](l.path),
+setLayer = (l: SVGLayer) => waitLayerSelect[1](l.path),
 tokenMousePos = {mouseX: 0, mouseY: 0, x: 0, y: 0, width: 0, height: 0, rotation: 0},
-waitAdded = subFn<IDName[]>(),
-waitRemoved = subFn<string>(),
-waitFolderAdded = subFn<string>(),
-waitFolderRemoved = subFn<string>(),
-waitLayerShow = subFn<string>(),
-waitLayerHide = subFn<string>(),
-waitLayerPositionChange = subFn<LayerMove>(),
-waitLayerRename = subFn<LayerRename>(),
-waitLayerSelect = subFn<string>(),
+waitAdded = Subscription.bind<IDName[]>(1),
+waitRemoved = Subscription.bind<string>(1),
+waitFolderAdded = Subscription.bind<string>(1),
+waitFolderRemoved = Subscription.bind<string>(1),
+waitLayerShow = Subscription.bind<string>(1),
+waitLayerHide = Subscription.bind<string>(1),
+waitLayerPositionChange = Subscription.bind<LayerMove>(1),
+waitLayerRename = Subscription.bind<LayerRename>(1),
+waitLayerSelect = Subscription.bind<string>(1),
 doMapChange = (details: MapDetails, sendRPC = true) => {
 	let oldDetails = {"width": mapData.width, "height": mapData.height, "gridType": mapData.gridType, "gridSize": mapData.gridSize, "gridStroke": mapData.gridStroke, "gridColour": mapData.gridColour};
 	const doIt = (sendRPC = true) => {
@@ -86,10 +81,10 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 		setLayerVisibility(path, visibility);
 		if (sendRPC) {
 			queue(visibility ? () => {
-				waitLayerShow[0](path);
+				waitLayerShow[1](path);
 				return rpc.showLayer(path);
 			} : () => {
-				waitLayerHide[0](path);
+				waitLayerHide[1](path);
 				return rpc.hideLayer(path);
 			});
 		}
@@ -105,7 +100,7 @@ doLayerAdd = (name: string, sendRPC = true) => {
 		addLayer(name);
 		if (sendRPC) {
 			queue(() => {
-				waitAdded[0]([{id: 1, name}]);
+				waitAdded[1]([{id: 1, name}]);
 				return rpc.addLayer(name);
 			});
 		}
@@ -115,7 +110,7 @@ doLayerAdd = (name: string, sendRPC = true) => {
 		checkSelectedLayer(path);
 		removeLayer(path);
 		queue(() => {
-			waitRemoved[0](path);
+			waitRemoved[1](path);
 			return rpc.removeLayer(path);
 		});
 		return doIt;
@@ -128,7 +123,7 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 		addLayerFolder(path);
 		if (sendRPC) {
 			queue(() => {
-				waitFolderAdded[0](path);
+				waitFolderAdded[1](path);
 				return rpc.addLayerFolder(path);
 			});
 		}
@@ -138,7 +133,7 @@ doLayerFolderAdd = (path: string, sendRPC = true) => {
 		checkSelectedLayer(path);
 		removeLayer(path);
 		queue(() => {
-			waitFolderRemoved[0](path);
+			waitFolderRemoved[1](path);
 			return rpc.removeLayer(path);
 		});
 		return doIt;
@@ -160,7 +155,7 @@ doLayerMove = (from: string, to: string, position: Uint, sendRPC = true) => {
 		if (sendRPC) {
 			const data = {from, to, position};
 			queue(() => {
-				waitLayerPositionChange[0](data);
+				waitLayerPositionChange[1](data);
 				return rpc.moveLayer(data.from, data.to, data.position);
 			});
 		}
@@ -179,7 +174,7 @@ doLayerRename = (path: string, name: string, sendRPC = true) => {
 		if (sendRPC) {
 			const data = {path, name}
 			queue(() => {
-				waitLayerRename[0](data);
+				waitLayerRename[1](data);
 				return rpc.renameLayer(data.path, data.name);
 			});
 		}
@@ -589,18 +584,18 @@ snapTokenToGrid = (x: Int, y: Int, width: Uint, height: Uint) => {
 	return [Math.round(x / size) * size + ((Math.round(width / size) * size - width) >> 1), Math.round(y / size) * size + ((Math.round(height / size) * size - height) >> 1)];
 },
 layersRPC: LayerRPC = Object.freeze({
-	"waitAdded": () => waitAdded[1],
+	"waitAdded": () => waitAdded[0],
 	"waitMoved": unusedWaitFn,
-	"waitRemoved": () => waitRemoved[1],
+	"waitRemoved": () => waitRemoved[0],
 	"waitCopied": unusedWaitFn,
-	"waitFolderAdded": () => waitFolderAdded[1],
+	"waitFolderAdded": () => waitFolderAdded[0],
 	"waitFolderMoved": unusedWaitFn,
-	"waitFolderRemoved": () => waitFolderRemoved[1],
-	"waitLayerSetVisible": () => waitLayerShow[1],
-	"waitLayerSetInvisible": () => waitLayerHide[1],
-	"waitLayerPositionChange": () => waitLayerPositionChange[1],
-	"waitLayerRename": () => waitLayerRename[1],
-	"waitLayerSelect": () => waitLayerSelect[1],
+	"waitFolderRemoved": () => waitFolderRemoved[0],
+	"waitLayerSetVisible": () => waitLayerShow[0],
+	"waitLayerSetInvisible": () => waitLayerHide[0],
+	"waitLayerPositionChange": () => waitLayerPositionChange[0],
+	"waitLayerRename": () => waitLayerRename[0],
+	"waitLayerSelect": () => waitLayerSelect[0],
 	"list": invalidRPC,
 	"createFolder": (path: string) => rpc.addLayerFolder(path).then(p => doLayerFolderAdd(p, false)),
 	"move": invalidRPC,
