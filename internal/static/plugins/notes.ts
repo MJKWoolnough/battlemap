@@ -400,20 +400,19 @@ if (isAdmin) {
 			"priority": 0,
 			"fn": [lang["MENU_TITLE"], div({"id": "pluginNotes"}, [
 				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
-					if (!name) {
-						return;
-					} else if (name.includes("/")) {
-						shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
-						return;
-					} else if (root.getItem(`/${name}`)) {
-						shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
-						return;
+					if (name) {
+						if (name.includes("/")) {
+							shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
+						} else if (root.getItem(`/${name}`)) {
+							shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
+						} else {
+							const data = {"user": false, "data": {"contents": "", "share": false}};
+							root.addItem(++lastID, name);
+							folders.data.items[name] = lastID;
+							pages.set(lastID, data);
+							rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
+						}
 					}
-					const data = {"user": false, "data": {"contents": "", "share": false}};
-					root.addItem(++lastID, name);
-					folders.data.items[name] = lastID;
-					pages.set(lastID, data);
-					rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
 				})}, lang["NOTES_NEW"]),
 				root[node]
 			]), true, icon]
