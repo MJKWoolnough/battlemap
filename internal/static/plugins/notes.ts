@@ -1,4 +1,4 @@
-import type {FolderItems, IDName, KeystoreData, Uint} from '../types.js';
+import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import type {WindowElement} from '../windows.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
@@ -202,10 +202,10 @@ if (isAdmin) {
 		return data[""] as KeystoreData<FolderItems>;
 	      },
 	      waitAdded = Subscription.bind<IDName[]>(1),
-	      waitMoved = Subscription.bind<{from: string; to: string}>(1),
+	      waitMoved = Subscription.bind<FromTo>(1),
 	      waitRemoved = Subscription.bind<string>(1),
 	      waitFolderAdded = Subscription.bind<string>(1),
-	      waitFolderMoved = Subscription.bind<{from: string, to: string}>(1),
+	      waitFolderMoved = Subscription.bind<FromTo>(1),
 	      waitFolderRemoved = Subscription.bind<string>(1),
 	      unusedWait = new Subscription<any>(() => {}),
 	      folders = checkSettings(getSettings(importName)),
