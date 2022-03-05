@@ -354,7 +354,7 @@ menuItems.push([3, () => isAdmin ? [
 					]);
 					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
 						e.dataTransfer!.setDragImage(dragIcon, -5, -5);
-						e.dataTransfer!.setData("musicpack", JSON.stringify({"name": this.name}));
+						e.dataTransfer!.setData("musicpack", JSON.stringify({"id": this.id, "name": this.name}));
 					}}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
