@@ -1,7 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import {amendNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
@@ -342,7 +342,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	});
 	wg.onUpdate(({waits, done, errors}) => {
 		const d = done + errors;
-		items.innerText = `${d} / ${waits}`;
+		clearNode(items, `${d} / ${waits}`);
 		amendNode(percent, {"max": waits, "value": d});
 	});
 	wg.add();

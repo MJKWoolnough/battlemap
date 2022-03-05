@@ -249,7 +249,7 @@ menuItems.push([3, () => isAdmin ? [
 							}
 						})})
 					]);
-					this.cleanup = track.name ? () => {} : audioAssetName(track.id, (name: string) => this.nameNode.innerText = name);
+					this.cleanup = track.name ? () => {} : audioAssetName(track.id, (name: string) => clearNode(this.nameNode, name));
 				}
 				setVolume(volume: Uint) {
 					super.setVolume(volume);
@@ -384,7 +384,8 @@ menuItems.push([3, () => isAdmin ? [
 					]);
 				}
 				setName(name: string) {
-					this.titleNode.innerText = this.nameNode.innerText = this.name = name;
+					clearNode(this.titleNode, name);
+					clearNode(this.nameNode, this.name = name);
 					musicList.sort();
 				}
 				setVolume(volume: Uint) {

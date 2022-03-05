@@ -98,10 +98,8 @@ if (isAdmin) {
 								      };
 								HTTPRequest(`/images/${id}`, {"method": "head", "response": "xh"}).then(xh => {
 									const size = parseInt(xh.getResponseHeader("Content-Length") || "0");
-									o.size = size;
-									sizeTD.innerText = formatNumber.format(size);
-									totalSize += size;
-									total.innerText = formatNumber.format(totalSize);
+									clearNode(sizeTD, formatNumber.format(o.size = size));
+									clearNode(total, formatNumber.format(totalSize += size));
 									tb.sort();
 								});
 								tb.push(o);

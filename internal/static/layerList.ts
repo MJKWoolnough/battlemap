@@ -45,7 +45,8 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		button({"onclick": function(this: HTMLButtonElement) {
 			amendNode(this, {"disabled": true});
 			loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
-				doLayerRename(path, self.name = self.nameElem.innerText = name, false);
+				clearNode(self.nameElem, self.name = name);
+				doLayerRename(path, name, false);
 				window.remove();
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), window);
@@ -320,7 +321,7 @@ menuItems.push([5, () => isAdmin ? [
 			layersRPC.waitLayerRename().then(lr => {
 				const l = list.getLayer(lr.path);
 				if (l) {
-					l.nameElem.innerText = l.name = lr.name;
+					clearNode(l.nameElem, l.name = lr.name);
 				}
 			});
 			layersRPC.waitLayerSelect().then(path => {
