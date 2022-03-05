@@ -11,6 +11,7 @@ import {ns as svgNS} from '../lib/svg.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
+import {open as musicpackOpen} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, isUint, labels} from '../shared.js';
@@ -156,7 +157,7 @@ if (isAdmin) {
 		}
 	}
 
-	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
+	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
 	let lastID = 0;
 	const importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
@@ -384,6 +385,15 @@ if (isAdmin) {
 		}
 	      },
 	      allTags = Object.assign({
+		"musicpack": (n: Node, t: Tokeniser, p: Parsers) => {
+			const tk = t.next(true).value;
+			if (tk && isOpenTag(tk) && tk.attr) {
+				const id = parseInt(tk.attr);
+				if (!isNaN(id)) {
+					process(n.appendChild(span({"class": "musicpackLink", "onclick": () => musicpackOpen(id)})), t, p, tk.tagName);
+				}
+			}
+		},
 		"note": (n: Node, t: Tokeniser, p: Parsers) => {
 			const tk = t.next(true).value;
 			if (tk && isOpenTag(tk) && tk.attr) {
@@ -500,11 +510,14 @@ if (isAdmin) {
 		}
 	});
 	registerTag("note", allTags.note);
+	registerTag("musicpack", allTags.musicpack);
 } else {
-	registerTag("note", (n: Node, t: Tokeniser, p: Parsers) => {
+	const noTag = (n: Node, t: Tokeniser, p: Parsers) => {
 		const tk = t.next(true).value;
 		if (tk && isOpenTag(tk)) {
 			process(n, t, p, tk.tagName);
 		}
-	});
+	};
+	registerTag("note", noTag);
+	registerTag("musicpack", noTag);
 }
