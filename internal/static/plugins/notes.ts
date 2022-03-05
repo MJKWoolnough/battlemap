@@ -82,7 +82,7 @@ if (isAdmin) {
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
-						if (e.dataTransfer?.types.includes("imageasset") || e.dataTransfer?.types.includes("audioasset") || e.dataTransfer?.types.includes("pluginnote")) {
+						if (e.dataTransfer?.types.includes("imageasset") || e.dataTransfer?.types.includes("audioasset") || e.dataTransfer?.types.includes("pluginnote") || e.dataTransfer?.types.includes("musicpack")) {
 							e.preventDefault();
 							e.dataTransfer.dropEffect = "link";
 						}
@@ -96,6 +96,11 @@ if (isAdmin) {
 							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
 							      id = JSON.parse(e.dataTransfer.getData("pluginnote")).id;
 							contents.setRangeText(`[note=${id}]${selected || notes.get(id)?.name || ""}[/note]`);
+						} else if (e.dataTransfer?.types.includes("musicpack")) {
+							const {selectionStart, selectionEnd} = contents,
+							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
+								{id, name} = JSON.parse(e.dataTransfer.getData("musicpack"));
+							contents.setRangeText(`[musicpack=${id}]${selected || name || ""}[/musicpack]`);
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
