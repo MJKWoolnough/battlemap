@@ -91,9 +91,7 @@ if (isAdmin) {
 	      setTokenCentre = () => {
 		const {token} = selected;
 		if (token) {
-			x = Math.round(token.x + token.width / 2);
-			y = Math.round(token.y + token.height / 2);
-			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
+			amendNode(selectedEffect, {"transform": `translate(${x = Math.round(token.x + token.width / 2)}, ${y = Math.round(token.y + token.height / 2)})`});
 			if (!selectedEffect.parentNode) {
 				amendNode(root, selectedEffect);
 			}
