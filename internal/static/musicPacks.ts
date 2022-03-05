@@ -181,6 +181,8 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
 
 let timeShift = 0;
 
+export let open = (_id: Uint) => {};
+
 inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000).then(() => {
 	if (!isAdmin) {
 		 audioEnabled().then(rpc.musicPackList).then(list => {
@@ -472,6 +474,12 @@ menuItems.push([3, () => isAdmin ? [
 				}
 			});
 			commonWaits(musicList)
+			open = (id: Uint) => {
+				const pack = musicList.get(id);
+				if (pack) {
+					shell.addWindow(pack.window)
+				}
+			};
 		});
 		return base;
 	})(),
