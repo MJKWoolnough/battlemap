@@ -101,11 +101,7 @@ if (isAdmin) {
 		}
 	      },
 	      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
-	      shiftSnap = (e: KeyboardEvent) => {
-		if (e.key === "Shift") {
-			snap.click();
-		}
-	      },
+	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      [setupRotate, cancelRotate] = mouseDragEvent(0, undefined, () => rotate = false),
 	      [setupMouseUp, cancelMouseUp] = mouseDragEvent(2, undefined, () => {
