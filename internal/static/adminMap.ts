@@ -532,7 +532,7 @@ export default (base: HTMLElement) => {
 			}),
 			item(lang["CONTEXT_SET_LIGHTING"], () => {
 				let c = currToken.lightColour;
-				const w = shell.appendChild(windows({"window-title": lang["CONTEXT_SET_LIGHTING"]})),
+				const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
 				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
 				amendNode(w, [
 					h1(lang["CONTEXT_SET_LIGHTING"]),
@@ -547,6 +547,7 @@ export default (base: HTMLElement) => {
 						w.close();
 					}}, lang["SAVE"])
 				]);
+				amendNode(shell, w);
 			}),
 			tokenPos < currLayer.tokens.length - 1 ? [
 				item(lang["CONTEXT_MOVE_TOP"], () => {
