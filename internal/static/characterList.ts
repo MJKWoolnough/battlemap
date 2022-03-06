@@ -110,9 +110,7 @@ menuItems.push([2, () => isAdmin ? [
 								e.dataTransfer.dropEffect = "link";
 							}
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-							const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
-							icon = tokenData.id;
-							clearNode(this, img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": `/images/${icon = JSON.parse(e.dataTransfer!.getData("imageAsset")).id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {
