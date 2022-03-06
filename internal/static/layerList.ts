@@ -36,9 +36,9 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
-	const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]})),
+	const window = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"], "class": "renameItem"}),
 	      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey}));
-	return amendNode(window, {"class": "renameItem"}, [
+	amendNode(shell, amendNode(window, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
@@ -51,7 +51,8 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), window);
 		}}, lang["LAYER_RENAME"])
-	]);
+	]));
+	return window;
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
 	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
@@ -142,7 +143,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize}),
 			      sqColour = input({"type": "color", "value": mapData.gridColour.toHexString()}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke}),
-			      window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+			      window = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
 				br(),
@@ -177,7 +178,8 @@ class ItemLayer extends Item {
 						window
 					);
 				}}, lang["SAVE"])
-			      ]));
+			      ]);
+			amendNode(shell, window);
 		} else if (this.id === -2) { // Light
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
@@ -332,9 +334,9 @@ menuItems.push([5, () => isAdmin ? [
 			});
 			clearNode(base, {"id": "layerList"}, [
 				button({"onclick": () => {
-					const window = shell.appendChild(windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]})),
+					const window = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}),
 					      name = autoFocus(input({"onkeypress": enterKey}));
-					amendNode(window, {"id": "layerAdd"}, [
+					amendNode(shell, amendNode(window, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
 						br(),
@@ -347,7 +349,7 @@ menuItems.push([5, () => isAdmin ? [
 							})
 							.finally(() => amendNode(this, {"disabled": false}))), window);
 						}}, lang["LAYER_ADD"])
-					]);
+					]));
 				}}, lang["LAYER_ADD"]),
 				list[node]
 			]);

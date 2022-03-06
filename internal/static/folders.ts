@@ -50,9 +50,9 @@ export abstract class Item {
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]})),
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"], "class": "renameItem"}),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return amendNode(window, {"class": "renameItem"}, [
+		amendNode(shell, amendNode(window, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
@@ -65,16 +65,17 @@ export abstract class Item {
 					window.remove();
 				}).finally(() => amendNode(this, {"disabled": false}))), window);
 			}}, lang["ITEM_MOVE"])
-		]);
+		]));
+		return window;
 	}
 	copy() {
 		const self = this,
 		      root = this.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]})),
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"], "class": "copyItem"}),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return amendNode(window, {"class": "copyItem"}, [
+		amendNode(shell, amendNode(window, [
 			h1(lang["ITEM_COPY_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
@@ -87,14 +88,15 @@ export abstract class Item {
 					window.remove();
 				}).finally(() => amendNode(this, {"disabled": false}))), window);
 			}}, lang["ITEM_COPY_ADD"]),
-		]);
+		]));
+		return window;
 	}
 	remove() {
 		const root = this.parent.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"]}));
-		return amendNode(window, {"class": "removeItem"}, [
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"], "class": "removeItem"});
+		amendNode(shell, amendNode(window, [
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -106,7 +108,8 @@ export abstract class Item {
 				})
 				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["ITEM_REMOVE"]))
-		]);
+		]));
+		return window;
 	}
 	getPath() {
 		return this.parent.getPath() + "/" + this.name;
@@ -213,9 +216,9 @@ export class Folder {
 		      oldPath = this.getPath() + "/",
 		      parentPath = this.parent ? this.parent.getPath() + "/" : "/",
 		      parents = select(getPaths(root.folder, "/").filter(p => !p.startsWith(oldPath)).map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]})),
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]}),
 		      newName = autoFocus(input({"type": "text", "value": this.name, "onkeypress": enterKey}));
-		return amendNode(window, [
+		amendNode(shell, amendNode(window, [
 			h1(lang["FOLDER_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
@@ -229,15 +232,16 @@ export class Folder {
 				})
 				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_MOVE"])
-		])
+		]));
+		return window;
 	}
 	remove(e: Event) {
 		e.preventDefault();
 		const root = this.root,
 		      path = this.getPath(),
 		      pathDiv = div(path),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"]}));
-		return amendNode(window, {"class": "folderRemove"}, [
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"], "class": "folderRemove"});
+		amendNode(shell, amendNode(window, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -249,15 +253,16 @@ export class Folder {
 				})
 				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_MOVE"]))
-		]);
+		]));
+		return window;
 	}
 	newFolder(e: Event) {
 		e.preventDefault();
 		const root = this.root,
 		      path = this.getPath(),
-		      window = shell.appendChild(windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"]})),
+		      window = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"], "class": "folderAdd"}),
 		      folderName = autoFocus(input({"onkeypress": enterKey}));
-		return amendNode(window, {"class": "folderAdd"}, [
+		amendNode(shell, amendNode(window, [
 			h1(lang["FOLDER_ADD"]),
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
@@ -269,7 +274,8 @@ export class Folder {
 				})
 				.finally(() => amendNode(this, {"disabled": true}))), window);
 			}}, lang["FOLDER_ADD"])
-		]);
+		]));
+		return window;
 	}
 	addItem(id: Uint, name: string) {
 		return this.getItem(name) ?? setAndReturn(this.children, name, new this.root.newItem(this, id, name));

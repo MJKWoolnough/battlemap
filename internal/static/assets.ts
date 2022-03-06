@@ -139,7 +139,8 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 					.finally(() => amendNode(this, {"disabled": false}));
 					amendNode(this, {"disabled": true});
 				      }})))),
-				      window = shell.appendChild(windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]));
+				      window = windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]);
+				amendNode(shell, window);
 			}}, upload),
 			root[node]
 		]);

@@ -171,7 +171,7 @@ menuItems.push([4, () => isAdmin ? [
 			}
 			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
-					const window = shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]})),
+					const window = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"], "class": "mapAdd"}),
 					      name = autoFocus(input({"type": "text"})),
 					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
 					      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
@@ -179,7 +179,7 @@ menuItems.push([4, () => isAdmin ? [
 					      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
 					      sqColour = input({"type": "color"}),
 					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"});
-					return amendNode(window, {"class": "mapAdd"}, [
+					amendNode(shell, amendNode(window, [
 						h1(lang["MAP_NEW"]),
 						labels(`${lang["MAP_NAME"]}: `, name),
 						br(),
@@ -212,7 +212,8 @@ menuItems.push([4, () => isAdmin ? [
 							})
 							.finally(() => amendNode(this, {"disabled": false}));
 						}}, lang["MAP_ADD"])
-					])
+					]));
+					amendNode(shell, window);
 				}}, lang["MAP_NEW"]),
 				root[node]
 			]);

@@ -113,6 +113,7 @@ const lastTab = new StringSetting("lastTab"),
 			const pos = n++,
 			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
+				e.preventDefault();
 				const replaced = div();
 				base.replaceWith(replaced);
 				if (windowData[title]) {
@@ -122,21 +123,21 @@ const lastTab = new StringSetting("lastTab"),
 				}
 				updateWindowData();
 				const [x, y, width, height] = windowData[title].data,
-				      w = shell.appendChild(autoFocus(windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
+				      w = windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 					replaced.replaceWith(base);
 					amendNode(l, {"style": {"display": undefined}});
 					windowData[title]["out"] = false;
 					updateWindowData();
 					base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
-				      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base)));
-				e.preventDefault();
+				      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base);
+				amendNode(shell, autoFocus(w));
 				amendNode(l, {"style": {"display": "none"}});
 				if (i.checked) {
 					selectFirst()
 				}
 				base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
 			      }}) : null,
-			      l = t.appendChild(label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
+			      l = label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, n = 1;
 				switch (e.key) {
 				case "ArrowLeft":
@@ -156,7 +157,8 @@ const lastTab = new StringSetting("lastTab"),
 				img({"src": popIcon}),
 				span(title),
 				popper ? popper : []
-			      ]));
+			      ]);
+			amendNode(t, l);
 			tabs.push([title, l]);
 			if (popper && windowData[title] && windowData[title]["out"]) {
 				setTimeout(() => popper.dispatchEvent(new MouseEvent("click")));

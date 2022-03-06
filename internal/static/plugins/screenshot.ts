@@ -112,7 +112,8 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	}
 	p.then(() => {
 		const link = a({"download": `${title}.png`}, c),
-		      w = shell.appendChild(windows({"window-icon": icon, "window-title": title}, link));
+		      w = windows({"window-icon": icon, "window-title": title}, link);
+		amendNode(shell, w);
 		if (!disablePNG.value) {
 			c.toBlob(b => {
 				if (b) {
