@@ -72,16 +72,15 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 		const i = img({"src": `/images/${tk["src"]}`});
 		return [
 			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
-				if (!proceed) {
-					return;
+				if (proceed) {
+					const data = getToken();
+					if (!data) {
+						w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+						return;
+					}
+					changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+					amendNode(i, {"src": `/images/${data["src"]}`});
 				}
-				const data = getToken();
-				if (!data) {
-					w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
-					return;
-				}
-				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-				amendNode(i, {"src": `/images/${data["src"]}`});
 			})}, lang["TOKEN_USE_SELECTED"]),
 			i,
 			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
