@@ -34,8 +34,9 @@ class AudioAsset extends DraggableItem {
 	}
 	dragName() { return "audioasset"; }
 	show() {
-		const w = amendNode(autoFocus(shell.appendChild(windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"})))));
+		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
+		amendNode(shell, autoFocus(w));
 		return w;
 	}
 }
