@@ -109,9 +109,7 @@ export default (base: HTMLElement) => {
 				height += mDy;
 			}
 			if (snap) {
-				width = Math.max(Math.round(width / sq) * sq, sq);
-				height = Math.max(Math.round(height / sq) * sq, sq);
-				[x, y] = snapTokenToGrid(x, y, width, height);
+				[x, y] = snapTokenToGrid(x, y, width = Math.max(Math.round(width / sq) * sq, sq), height = Math.max(Math.round(height / sq) * sq, sq));
 			}
 			const {x: cx, y: cy} = new DOMPoint(x + width/2, y + height/2).matrixTransform(fr),
 			      {x: nx, y: ny} = new DOMPoint(x, y).matrixTransform(fr).matrixTransform(new DOMMatrix().translateSelf(cx, cy).rotateSelf(r).translateSelf(-cx, -cy));
