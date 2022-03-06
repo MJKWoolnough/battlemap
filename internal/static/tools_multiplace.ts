@@ -80,15 +80,12 @@ addTool({
 					deselectToken();
 				}
 			}, "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer && (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset"))) {
+				if (e.dataTransfer?.types.includes("character") || e.dataTransfer?.types.includes("imageasset")) {
 					e.preventDefault();
 					e.dataTransfer.dropEffect = "link";
 				}
 			}, "ondrop": (e: DragEvent) => {
-				if (!e.dataTransfer) {
-					return;
-				}
-				if (e.dataTransfer.types.includes("character")) {
+				if (e.dataTransfer?.types.includes("character")) {
 					const tD = JSON.parse(e.dataTransfer.getData("character")),
 					      char = characterData.get(tD.id);
 					if (char) {
@@ -102,11 +99,12 @@ addTool({
 						setImg(parseInt(char["store-image-icon"].data));
 						return;
 					}
+				} else if (e.dataTransfer?.types.includes("character")) {
+					const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
+					      tk = {src, width, height};
+					setToken = () => fullToken(tk);
+					setImg(src);
 				}
-				const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
-				      tk = {src, width, height};
-				setToken = () => fullToken(tk);
-				setImg(src);
 			}}, lang["TOKEN_USE_SELECTED"]),
 			i
 		]),

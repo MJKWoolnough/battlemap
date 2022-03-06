@@ -169,36 +169,34 @@ export default (base: HTMLElement) => {
 		stopMeasurement();
 	      }),
 	      mapOnDragOver = (e: DragEvent) => {
-		if (e.dataTransfer) {
-			if (e.dataTransfer.types.includes("character") || e.dataTransfer.types.includes("imageasset")) {
-				e.preventDefault();
-				e.dataTransfer.dropEffect = "link";
-			} else if (e.dataTransfer.types.includes("Files")) {
-				for (const i of e.dataTransfer.items) {
-					if (i["kind"] !== "file") {
-						return;
-					}
-					switch (i["type"]) {
-					case "image/gif":
-					case "image/png":
-					case "image/jpeg":
-					case "image/webp":
-					case "video/apng":
-						break;
-					default:
-						return;
-					}
+		if (e.dataTransfer?.types.includes("character") || e.dataTransfer?.types.includes("imageasset")) {
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "link";
+		} else if (e.dataTransfer?.types.includes("Files")) {
+			for (const i of e.dataTransfer.items) {
+				if (i["kind"] !== "file") {
+					return;
 				}
-				e.preventDefault();
-				e.dataTransfer.dropEffect = "copy";
+				switch (i["type"]) {
+				case "image/gif":
+				case "image/png":
+				case "image/jpeg":
+				case "image/webp":
+				case "video/apng":
+					break;
+				default:
+					return;
+				}
 			}
+			e.preventDefault();
+			e.dataTransfer.dropEffect = "copy";
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
-		if (selected.layer === null || !e.dataTransfer) {
+		if (selected.layer === null) {
 			return;
 		}
-		if (e.dataTransfer.types.includes("Files")) {
+		if (e.dataTransfer?.types.includes("Files")) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
@@ -223,7 +221,7 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-		if (e.dataTransfer.types.includes("character")) {
+		if (e.dataTransfer?.types.includes("character")) {
 			const tD = JSON.parse(e.dataTransfer.getData("character")),
 			      char = characterData.get(tD.id);
 			if (char) {
@@ -236,7 +234,7 @@ export default (base: HTMLElement) => {
 					token.height = tD.height;
 				}
 			}
-		} else if (e.dataTransfer.types.includes("imageasset")) {
+		} else if (e.dataTransfer?.types.includes("imageasset")) {
 			const tokenData = JSON.parse(e.dataTransfer.getData("imageasset"));
 			token.src = tokenData.id;
 			token.width = tokenData.width;

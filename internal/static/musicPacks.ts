@@ -290,11 +290,11 @@ menuItems.push([3, () => isAdmin ? [
 					}
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
-						if (e.dataTransfer && this.currentTime === 0) {
-							if (e.dataTransfer.types.includes("audioasset")) {
+						if (this.currentTime === 0) {
+							if (e.dataTransfer?.types.includes("audioasset")) {
 								e.preventDefault();
 								e.dataTransfer.dropEffect = "link";
-							} else if (e.dataTransfer.types.includes("Files")) {
+							} else if (e.dataTransfer?.types.includes("Files")) {
 								for (const a of e.dataTransfer.items) {
 									switch (a["type"]) {
 									case "application/ogg":
@@ -309,14 +309,11 @@ menuItems.push([3, () => isAdmin ? [
 							}
 						}
 					}, "ondrop": (e: DragEvent) => {
-						if (!e.dataTransfer) {
-							return;
-						}
-						if (e.dataTransfer.types.includes("audioasset")) {
+						if (e.dataTransfer?.types.includes("audioasset")) {
 							const {id, name} = JSON.parse(e.dataTransfer.getData("audioasset"));
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
-						} else if (e.dataTransfer.types.includes("Files")) {
+						} else if (e.dataTransfer?.types.includes("Files")) {
 							const f = new FormData();
 							for (const file of e.dataTransfer.files) {
 								f.append("asset", file);
