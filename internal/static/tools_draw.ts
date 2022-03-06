@@ -140,14 +140,16 @@ addTool({
 				coords[0] = x;
 				coords[1] = y;
 				drawElement?.remove();
-				drawElement = layer[node].appendChild(rect({x, y, fill, stroke, "stroke-width": sw}));
+				drawElement = rect({x, y, fill, stroke, "stroke-width": sw});
+				amendNode(layer[node], drawElement);
 				rectDrag();
 				setEscape();
 			} else if (circle.checked) {
 				coords[0] = x;
 				coords[1] = y;
 				drawElement?.remove();
-				drawElement = layer[node].appendChild(ellipse({"cx": x, "cy": y, fill, stroke, "stroke-width": sw}));
+				drawElement = ellipse({"cx": x, "cy": y, fill, stroke, "stroke-width": sw});
+				amendNode(layer[node], drawElement);
 				ellipseDrag();
 				setEscape();
 			} else if (poly.checked) {
@@ -157,7 +159,8 @@ addTool({
 				} else {
 					coords.splice(0, coords.length, x, y);
 					drawElement?.remove();
-					drawElement = layer[node].appendChild(polygon({stroke, fill, "stroke-width": sw}));
+					drawElement = polygon({stroke, fill, "stroke-width": sw});
+					amendNode(layer[node], drawElement);
 					polyMove();
 					setPolyEscape();
 				}

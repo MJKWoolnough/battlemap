@@ -34,7 +34,7 @@ labels = (() => {
 		return before ? [l, input] : [input, l];
 	};
 })(),
-addCSS = (css: string) => document.head.append(style({"type": "text/css"}, css)),
+addCSS = (css: string) => amendNode(document.head, style({"type": "text/css"}, css)),
 cloneObject = <T extends any>(o: T): T => o ? JSON.parse(JSON.stringify(o)) : o,
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {

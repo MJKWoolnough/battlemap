@@ -395,7 +395,7 @@ if (isAdmin) {
 			if (tk && isOpenTag(tk) && tk.attr) {
 				const id = parseInt(tk.attr);
 				if (!isNaN(id)) {
-					process(n.appendChild(span({"class": "musicpackLink", "onclick": () => musicpackOpen(id)})), t, p, tk.tagName);
+					amendNode(n, process(span({"class": "musicpackLink", "onclick": () => musicpackOpen(id)}), t, p, tk.tagName));
 				}
 			}
 		},
@@ -404,7 +404,7 @@ if (isAdmin) {
 			if (tk && isOpenTag(tk) && tk.attr) {
 				const id = parseInt(tk.attr);
 				if (!isNaN(id)) {
-					process(n.appendChild(span({"class": "noteLink", "onclick": () => notes.get(id)?.show()})), t, p, tk.tagName);
+					amendNode(n, process(span({"class": "noteLink", "onclick": () => notes.get(id)?.show()}), t, p, tk.tagName));
 				}
 			}
 		}
