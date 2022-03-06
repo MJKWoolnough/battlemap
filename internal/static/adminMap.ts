@@ -292,14 +292,13 @@ export default (base: HTMLElement) => {
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
 		const {token} = selected;
-		if (!token || token.snap) {
-			return;
+		if (token && !token.snap) {
+			keyRepeats[n] = setInterval(() => {
+				shift(token, 1, 1, e.shiftKey);
+				token.updateNode();
+				amendNode(outline, {"transform": token.transformString(false)});
+			}, 5);
 		}
-		keyRepeats[n] = setInterval(() => {
-			shift(token, 1, 1, e.shiftKey);
-			token.updateNode();
-			amendNode(outline, {"transform": token.transformString(false)});
-		}, 5);
 	      }, (e: KeyboardEvent) => {
 		if (keyRepeats[n] !== -1) {
 			clearInterval(keyRepeats[n]);
@@ -400,17 +399,16 @@ export default (base: HTMLElement) => {
 		}
 	})[0]();
 	keyEvent("v", () => {
-		if (!copiedToken || !selected.layer) {
-			return;
+		if (copiedToken && selected.layer) {
+			const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords,
+			      tk: Token  = Object.assign(cloneObject(copiedToken), {"id": 0, x, y});
+			tk.lightColour = Colour.from(tk.lightColour);
+			if (isTokenDrawing(tk)) {
+				tk.fill = Colour.from(tk.fill);
+				tk.stroke = Colour.from(tk.stroke);
+			}
+			doTokenAdd(selected.layer.path, tk);
 		}
-		const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords,
-		      tk: Token  = Object.assign(cloneObject(copiedToken), {"id": 0, x, y});
-		tk.lightColour = Colour.from(tk.lightColour);
-		if (isTokenDrawing(tk)) {
-			tk.fill = Colour.from(tk.fill);
-			tk.stroke = Colour.from(tk.stroke);
-		}
-		doTokenAdd(selected.layer.path, tk);
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		deselectToken();
@@ -450,142 +448,139 @@ export default (base: HTMLElement) => {
 		return false;
 	};
 	defaultTool.tokenMouse0 = (e: MouseEvent, n: Uint) => {
-		if ((e.ctrlKey && !e.shiftKey) || !selected.token) {
-			return false;
-		}
-		e.stopPropagation();
-		if (n === 0 && e.shiftKey) {
-			const {layer, token} = selected;
-			if (!layer) {
-				return false;
-			}
-			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
-				if (tk === token) {
-					if (newToken)  {
-						break;
+		if ((!e.ctrlKey || e.shiftKey) && selected.token) {
+			e.stopPropagation();
+			if (n === 0 && e.shiftKey) {
+				const {layer, token} = selected;
+				if (layer) {
+					let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
+					for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+						if (tk === token) {
+							if (newToken)  {
+								break;
+							}
+						} else if (tk.at(e.clientX, e.clientY)) {
+							newToken = tk;
+						}
 					}
-				} else if (tk.at(e.clientX, e.clientY)) {
-					newToken = tk;
+					if (newToken) {
+						selectToken(newToken);
+					}
+				}
+			} else {
+				setupTokenDrag();
+				tokenDragMode = n;
+				amendNode(root, {"style": {"--outline-cursor": ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]}});
+				[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
+				if (n === 0 && measureTokenMove.value) {
+					const {token} = selected;
+					startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 				}
 			}
-			if (newToken) {
-				selectToken(newToken);
-			}
-			return false;
-		}
-		setupTokenDrag();
-		tokenDragMode = n;
-		amendNode(root, {"style": {"--outline-cursor": ["move", "cell", "nwse-resize", "ns-resize", "nesw-resize", "ew-resize"][tokenDragMode < 2 ? tokenDragMode : (3.5 - Math.abs(5.5 - tokenDragMode) + ((selected.token.rotation + 143) >> 5)) % 4 + 2]}});
-		[tokenMousePos.mouseX, tokenMousePos.mouseY] = screen2Grid(e.clientX, e.clientY);
-		if (n === 0 && measureTokenMove.value) {
-			const {token} = selected;
-			startMeasurement(token.x + (token.width >> 1), token.y + (token.height >> 1));
 		}
 		return false;
 	};
 	defaultTool.tokenMouse2 = (e: MouseEvent) => {
 		e.stopPropagation();
 		const {layer: currLayer, token: currToken} = selected;
-		if (!currLayer || !currToken) {
-			return false;
+		if (currLayer && currToken) {
+			const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
+			place(document.body, [e.clientX, e.clientY], [
+				tokenContext(),
+				isTokenImage(currToken) ? [
+					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
+					item(lang["CONTEXT_FLIP"], () => {
+						if (currToken instanceof SVGToken) {
+							doTokenSet({"id": currToken.id, "flip": !currToken.flip});
+						}
+					}),
+					item(lang["CONTEXT_FLOP"], () => {
+						if (currToken instanceof SVGToken) {
+							doTokenSet({"id": currToken.id, "flop": !currToken.flop});
+						}
+					}),
+					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
+						if (currToken instanceof SVGToken) {
+							if (!currToken.isPattern) {
+								doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
+							} else {
+								doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
+							}
+						}
+					}),
+				] : [],
+				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
+					const snap = currToken.snap,
+					      {x, y, width, height, rotation} = currToken;
+					if (!snap) {
+						const [newX, newY] = snapTokenToGrid(x, y, width, height),
+						      newRotation = Math.round(rotation / 32) * 32 % 256;
+						if (x !== newX || y !== newY || rotation !== newRotation) {
+							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
+						}
+					} else {
+						doTokenSet({"id": currToken.id, "snap": !snap});
+					}
+				}),
+				item(lang["CONTEXT_SET_LIGHTING"], () => {
+					let c = currToken.lightColour;
+					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
+					      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+					amendNode(w, [
+						h1(lang["CONTEXT_SET_LIGHTING"]),
+						labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
+						br(),
+						labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
+						br(),
+						button({"onclick": () => {
+							if (selected.token === currToken) {
+								doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
+							}
+							w.close();
+						}}, lang["SAVE"])
+					]);
+					amendNode(shell, w);
+				}),
+				tokenPos < currLayer.tokens.length - 1 ? [
+					item(lang["CONTEXT_MOVE_TOP"], () => {
+						const tokenLayer = tokens.get(currToken.id);
+						if (tokenLayer) {
+							const currLayer = tokenLayer.layer;
+							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
+						}
+					}),
+					item(lang["CONTEXT_MOVE_UP"], () => {
+						const tokenLayer = tokens.get(currToken.id);
+						if (tokenLayer) {
+							const currLayer = tokenLayer.layer;
+							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
+						}
+					})
+				] : [],
+				tokenPos > 0 ? [
+					item(lang["CONTEXT_MOVE_DOWN"], () => {
+						const tokenLayer = tokens.get(currToken.id);
+						if (tokenLayer) {
+							const currLayer = tokenLayer.layer;
+							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
+						}
+					}),
+					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
+						const tokenLayer = tokens.get(currToken.id);
+						if (tokenLayer) {
+							const currLayer = tokenLayer.layer;
+							doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
+						}
+					})
+				] : [],
+				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
+					if (tokens.has(currToken.id)) {
+						doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
+					}
+				}, currLayer.name)),
+				item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
+			]);
 		}
-		const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-		place(document.body, [e.clientX, e.clientY], [
-			tokenContext(),
-			isTokenImage(currToken) ? [
-				item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
-				item(lang["CONTEXT_FLIP"], () => {
-					if (currToken instanceof SVGToken) {
-						doTokenSet({"id": currToken.id, "flip": !currToken.flip});
-					}
-				}),
-				item(lang["CONTEXT_FLOP"], () => {
-					if (currToken instanceof SVGToken) {
-						doTokenSet({"id": currToken.id, "flop": !currToken.flop});
-					}
-				}),
-				item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-					if (currToken instanceof SVGToken) {
-						if (!currToken.isPattern) {
-							doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
-						} else {
-							doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
-						}
-					}
-				}),
-			] : [],
-			item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
-				const snap = currToken.snap,
-				      {x, y, width, height, rotation} = currToken;
-				if (!snap) {
-					const [newX, newY] = snapTokenToGrid(x, y, width, height),
-					      newRotation = Math.round(rotation / 32) * 32 % 256;
-					if (x !== newX || y !== newY || rotation !== newRotation) {
-						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
-					}
-				} else {
-					doTokenSet({"id": currToken.id, "snap": !snap});
-				}
-			}),
-			item(lang["CONTEXT_SET_LIGHTING"], () => {
-				let c = currToken.lightColour;
-				const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
-				      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-				amendNode(w, [
-					h1(lang["CONTEXT_SET_LIGHTING"]),
-					labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
-					br(),
-					labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
-					br(),
-					button({"onclick": () => {
-						if (selected.token === currToken) {
-							doTokenLightChange(currToken.id, c, checkInt(parseInt(i.value), 0));
-						}
-						w.close();
-					}}, lang["SAVE"])
-				]);
-				amendNode(shell, w);
-			}),
-			tokenPos < currLayer.tokens.length - 1 ? [
-				item(lang["CONTEXT_MOVE_TOP"], () => {
-					const tokenLayer = tokens.get(currToken.id);
-					if (tokenLayer) {
-						const currLayer = tokenLayer.layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
-					}
-				}),
-				item(lang["CONTEXT_MOVE_UP"], () => {
-					const tokenLayer = tokens.get(currToken.id);
-					if (tokenLayer) {
-						const currLayer = tokenLayer.layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
-					}
-				})
-			] : [],
-			tokenPos > 0 ? [
-				item(lang["CONTEXT_MOVE_DOWN"], () => {
-					const tokenLayer = tokens.get(currToken.id);
-					if (tokenLayer) {
-						const currLayer = tokenLayer.layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
-					}
-				}),
-				item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-					const tokenLayer = tokens.get(currToken.id);
-					if (tokenLayer) {
-						const currLayer = tokenLayer.layer;
-						doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
-					}
-				})
-			] : [],
-			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
-				if (tokens.has(currToken.id)) {
-					doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
-				}
-			}, currLayer.name)),
-			item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
-		]);
 		return false;
 	};
 	defaultTool.mapMouse2 = (e: MouseEvent) => {
