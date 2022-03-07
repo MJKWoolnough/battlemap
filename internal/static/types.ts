@@ -186,15 +186,17 @@ export type FromTo = {
 	to:   string;
 }
 
+export type WidthHeight = {
+	width: Uint;
+	height: Uint;
+}
+
 export type FolderItems = {
 	folders: Record<string, FolderItems>;
 	items:  Record<string, Uint>;
 }
 
-export type MapDetails = GridDetails & {
-	width: Uint;
-	height: Uint;
-}
+export type MapDetails = GridDetails & WidthHeight;
 
 type NewMap = MapDetails & {
 	name: string;
@@ -209,11 +211,9 @@ export type GridDetails = {
 
 export type Token = TokenImage | TokenShape | TokenDrawing;
 
-type TokenShared = TokenLight & ID & {
+type TokenShared = TokenLight & ID & WidthHeight & {
 	x:          Int;
 	y:          Int;
-	width:      Uint;
-	height:     Uint;
 	rotation:   Byte;
 	tokenType?: Uint;
 	snap:       boolean;
@@ -254,10 +254,8 @@ export type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & ID & {
 	removeTokenData?: string[];
 }
 
-export type CharacterToken = TokenLight & {
+export type CharacterToken = TokenLight & WidthHeight & {
 	src: Uint;
-	width: Uint;
-	height: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
 	rotation: Byte;
