@@ -1,10 +1,11 @@
-import type {Int, MusicPack, MusicTrack, Uint} from './types.js';
+import type {IDName, Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
+import {DragTransfer, audioAsset, musicPack} from './dataTransfer.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -280,6 +281,7 @@ menuItems.push([3, () => isAdmin ? [
 				playStatus: SVGSVGElement;
 				pauseTime: Uint = 0;
 				window: WindowElement;
+				#dragKey: string;
 				constructor(id: Uint, pack: MusicPack) {
 					super(pack);
 					this.id = id;
@@ -288,13 +290,14 @@ menuItems.push([3, () => isAdmin ? [
 					for (const track of pack.tracks) {
 						this.tracks.push(new AdminTrack(this, track));
 					}
+					this.#dragKey = musicPack.register(this);
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
-						if (this.currentTime === 0) {
-							if (e.dataTransfer?.types.includes("audioasset")) {
+						if (this.currentTime === 0 && e.dataTransfer) {
+							if (DragTransfer.has(e.dataTransfer, audioAsset)) {
 								e.preventDefault();
 								e.dataTransfer.dropEffect = "link";
-							} else if (e.dataTransfer?.types.includes("Files")) {
+							} else if (DragTransfer.has(e.dataTransfer, "Files")) {
 								for (const a of e.dataTransfer.items) {
 									switch (a["type"]) {
 									case "application/ogg":
@@ -309,13 +312,13 @@ menuItems.push([3, () => isAdmin ? [
 							}
 						}
 					}, "ondrop": (e: DragEvent) => {
-						if (e.dataTransfer?.types.includes("audioasset")) {
-							const {id, name} = JSON.parse(e.dataTransfer.getData("audioasset"));
+						if (audioAsset.is(e.dataTransfer)) {
+							const {id, name} = audioAsset.get(e.dataTransfer);
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
-						} else if (e.dataTransfer?.types.includes("Files")) {
+						} else if (DragTransfer.has(e.dataTransfer, "Files")) {
 							const f = new FormData();
-							for (const file of e.dataTransfer.files) {
+							for (const file of e.dataTransfer!.files) {
 								f.append("asset", file);
 							}
 							uploadAudio(f, this.window).then(audio => {
@@ -353,7 +356,7 @@ menuItems.push([3, () => isAdmin ? [
 					]);
 					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
 						e.dataTransfer!.setDragImage(dragIcon, -5, -5);
-						e.dataTransfer!.setData("musicpack", JSON.stringify({"id": this.id, "name": this.name}));
+						musicPack.set(e.dataTransfer, this.#dragKey);
 					}}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
@@ -379,6 +382,9 @@ menuItems.push([3, () => isAdmin ? [
 							}
 						})})
 					]);
+				}
+				transfer(): IDName {
+					return {"id": this.id, "name": this.name};
 				}
 				setName(name: string) {
 					clearNode(this.titleNode, name);
@@ -430,6 +436,7 @@ menuItems.push([3, () => isAdmin ? [
 						t.cleanup();
 					}
 					musicList.delete(this.id);
+					musicPack.deregister(this.#dragKey);
 				}
 			}
 			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || stringSort(a.name, b.name)),

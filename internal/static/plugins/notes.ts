@@ -1,5 +1,6 @@
 import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
+import type {FolderDragItem} from '../dataTransfer.js';
 import type {WindowElement} from '../windows.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {all} from '../lib/bbcode_tags.js';
@@ -8,6 +9,7 @@ import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
+import {DragTransfer, audioAsset, imageAsset, musicPack} from '../dataTransfer.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
@@ -59,8 +61,8 @@ if (isAdmin) {
 			amendNode(this.image, {"src": icon});
 			notes.set(id, this);
 		}
-		dragName() {
-			return "pluginnote";
+		dragTransfer() {
+			return pluginNote;
 		}
 		show() {
 			if (this.window) {
@@ -82,24 +84,24 @@ if (isAdmin) {
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
-						if (e.dataTransfer?.types.includes("imageasset") || e.dataTransfer?.types.includes("audioasset") || e.dataTransfer?.types.includes("pluginnote") || e.dataTransfer?.types.includes("musicpack")) {
+						if (DragTransfer.has(e.dataTransfer, imageAsset, audioAsset, musicPack, pluginNote)) {
 							e.preventDefault();
-							e.dataTransfer.dropEffect = "link";
+							e.dataTransfer!.dropEffect = "link";
 						}
 					      }, "ondrop": (e: DragEvent) => {
-						if (e.dataTransfer?.types.includes("imageasset")) {
-							contents.setRangeText(`[img]/images/${JSON.parse(e.dataTransfer.getData("imageasset")).id}[/img]`);
-						} else if (e.dataTransfer?.types.includes("audioasset")) {
-							contents.setRangeText(`[audio]/audio/${JSON.parse(e.dataTransfer.getData("audioasset")).id}[/audio]`);
-						} else if (e.dataTransfer?.types.includes("pluginnote")) {
+						if (imageAsset.is(e.dataTransfer)) {
+							contents.setRangeText(`[img]/images/${imageAsset.get(e.dataTransfer).id}[/img]`);
+						} else if (audioAsset.is(e.dataTransfer)) {
+							contents.setRangeText(`[audio]/audio/${audioAsset.get(e.dataTransfer).id}[/audio]`);
+						} else if (pluginNote.is(e.dataTransfer)) {
 							const {selectionStart, selectionEnd} = contents,
 							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
-							      id = JSON.parse(e.dataTransfer.getData("pluginnote")).id;
-							contents.setRangeText(`[note=${id}]${selected || notes.get(id)?.name || ""}[/note]`);
-						} else if (e.dataTransfer?.types.includes("musicpack")) {
+							      {id, name} = pluginNote.get(e.dataTransfer);
+							contents.setRangeText(`[note=${id}]${selected || name}[/note]`);
+						} else if (musicPack.is(e.dataTransfer)) {
 							const {selectionStart, selectionEnd} = contents,
 							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
-								{id, name} = JSON.parse(e.dataTransfer.getData("musicpack"));
+							      {id, name} = musicPack.get(e.dataTransfer);
 							contents.setRangeText(`[musicpack=${id}]${selected || name || ""}[/musicpack]`);
 						}
 					      }}, page.data.contents),
@@ -164,7 +166,8 @@ if (isAdmin) {
 
 	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
 	let lastID = 0;
-	const importName = pluginName(import.meta),
+	const pluginNote = new DragTransfer<FolderDragItem>("pluginnote"),
+	      importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
 	      popOutIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 15 15"%3E%3Cpath d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="currentColor" /%3E%3C/svg%3E`,
 	      pages = new Map<Uint, KeystoreData<Page>>(),

@@ -6,6 +6,7 @@ import {audio, button, div, form, h1, img, input, progress} from './lib/html.js'
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
+import {audioAsset, imageAsset} from './dataTransfer.js';
 import {DraggableItem, Root, Folder} from './folders.js';
 import lang from './language.js';
 import {register, shareIcon} from './messaging.js'
@@ -19,7 +20,7 @@ class ImageAsset extends DraggableItem {
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
 	get showOnMouseOver() { return true; }
-	dragName() { return "imageasset"; }
+	dragTransfer() { return imageAsset }
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
@@ -33,7 +34,7 @@ class AudioAsset extends DraggableItem {
 		super(parent, id, name);
 		amendNode(this.image, {"src": audioIcon});
 	}
-	dragName() { return "audioasset"; }
+	dragTransfer() { return audioAsset; }
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);

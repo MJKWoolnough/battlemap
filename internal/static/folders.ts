@@ -1,4 +1,5 @@
 import type {FolderItems, FolderRPC, Uint} from './types.js';
+import type {DragTransfer, FolderDragItem} from './dataTransfer.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
@@ -120,8 +121,10 @@ export abstract class Item {
 export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
 	icon: HTMLDivElement = div(this.image);
+	#dragKey: string;
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name);
+		this.#dragKey = this.dragTransfer().register(this);
 		amendNode(this[node].firstChild!, {
 			"draggable": "true",
 			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
@@ -134,15 +137,20 @@ export abstract class DraggableItem extends Item {
 					return;
 				}
 				e.dataTransfer!.setDragImage(this.icon, -5, -5);
-				e.dataTransfer!.setData(this.dragName(), JSON.stringify({"id": this.id, "width": img.naturalWidth, "height": img.naturalHeight, "name": this.name}));
+				this.dragTransfer().set(e.dataTransfer, this.#dragKey);
 				amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
 			}
 		});
 	}
 	get showOnMouseOver() { return false; }
-	abstract dragName(): string;
+	abstract dragTransfer(): DragTransfer<FolderDragItem>;
+	transfer(): FolderDragItem | undefined {
+		const {naturalWidth, naturalHeight} = this.image;
+		return naturalWidth > 0 && naturalHeight > 0 ? {"id": this.id, "width": naturalWidth, "height": naturalHeight, "name": this.name} : undefined;
+	}
 	delete() {
 		this.removeIcon();
+		this.dragTransfer().deregister(this.#dragKey);
 	}
 	removeIcon() {
 		amendNode(this.icon, {"style": {"transform": undefined}}).remove();

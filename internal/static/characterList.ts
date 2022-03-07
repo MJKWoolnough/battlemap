@@ -4,6 +4,7 @@ import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
+import {DragTransfer, character, imageAsset} from './dataTransfer.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -29,7 +30,7 @@ class Character extends DraggableItem {
 		characters.set(id, this);
 	}
 	get showOnMouseOver() { return true; }
-	dragName() { return "character"; }
+	dragTransfer() { return character; }
 	setIcon(id: Uint) {
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
@@ -105,12 +106,12 @@ menuItems.push([2, () => isAdmin ? [
 						br(),
 						label(`${lang["CHARACTER_IMAGE"]}: `),
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-							if (e.dataTransfer?.getData("imageAsset")) {
+							if (DragTransfer.has(e.dataTransfer, imageAsset)) {
 								e.preventDefault();
-								e.dataTransfer.dropEffect = "link";
+								e.dataTransfer!.dropEffect = "link";
 							}
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-							clearNode(this, img({"src": `/images/${icon = JSON.parse(e.dataTransfer!.getData("imageAsset")).id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e.dataTransfer)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {

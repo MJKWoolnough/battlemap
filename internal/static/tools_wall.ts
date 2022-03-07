@@ -5,6 +5,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker} from './colours.js';
+import {DragTransfer, colour, scattering} from './dataTransfer.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify} from './map_fns.js';
@@ -30,16 +31,19 @@ const updateCursorState = () => {
       },
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
-      scattering = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
-	if (e.dataTransfer?.types.includes("scattering")) {
+      scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
+	if (DragTransfer.has(e.dataTransfer, scattering)) {
 		e.preventDefault();
-		e.dataTransfer.dropEffect = "copy";
+		e.dataTransfer!.dropEffect = "copy";
 	}
       }, "ondrop": (e: DragEvent) => {
-	if (e.dataTransfer?.types.includes("scattering")) {
-		scattering.value = e.dataTransfer.getData("scattering");
+	if (scattering.is(e.dataTransfer)) {
+		scatteringI.value = scattering.get(e.dataTransfer) + "";
 	}
       }}),
+      dragKey = scattering.register({"transfer": () => checkInt(parseInt(scatteringI.value), 0, 255, 0)}),
+      scatteringDragKey = scattering.register({"transfer": () => walls.get(selectedWall)?.wall.scattering}),
+      colourDragKey = colour.register({"transfer": () => walls.get(selectedWall)?.wall.colour}),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
@@ -58,26 +62,26 @@ const updateCursorState = () => {
       }, (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour, "scattering": checkInt(parseInt(scattering.value), 0, 255, 0)}});
+		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour, "scattering": checkInt(parseInt(scatteringI.value), 0, 255, 0)}});
 	}
 	wall.remove();
       }),
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = (e: DragEvent) => {
-	if (e.dataTransfer?.types.includes("colour") || e.dataTransfer?.types.includes("scattering")) {
+	if (DragTransfer.has(e.dataTransfer, colour, scattering)) {
 		e.preventDefault();
-		e.dataTransfer.dropEffect = "copy";
+		e.dataTransfer!.dropEffect = "copy";
 	}
       },
       wallDrop = (e: DragEvent, id: Uint) => {
 	const wall = walls.get(id);
 	if (wall) {
 		const override: Partial<Wall> = {"colour": wall.wall.colour};
-		if (e.dataTransfer?.types.includes("colour")) {
-			override["colour"] = Colour.from(JSON.parse(e.dataTransfer.getData("colour")));
-		} else if (e.dataTransfer?.types.includes("scattering")) {
-			override["scattering"] = checkInt(parseInt(e.dataTransfer.getData("scattering")), 0, 255, 0);
+		if (colour.is(e.dataTransfer)) {
+			override["colour"] = colour.get(e.dataTransfer);
+		} else if (scattering.is(e.dataTransfer)) {
+			override["scattering"] = scattering.get(e.dataTransfer);
 		} else {
 			return;
 		}
@@ -89,8 +93,8 @@ const updateCursorState = () => {
 	const wall = walls.get(selectedWall);
 	if (wall) {
 		e.dataTransfer!.setDragImage(iconImg, -5, -5);
-		e.dataTransfer!.setData("colour", JSON.stringify(wall.wall.colour));
-		e.dataTransfer!.setData("scattering", wall.wall.scattering + "");
+		colour.set(e.dataTransfer, colourDragKey);
+		scattering.set(e.dataTransfer, scatteringDragKey);
 	}
       }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
@@ -192,9 +196,9 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
-		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scattering, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
-			e.dataTransfer!.setData("scattering", checkInt(parseInt(scattering.value), 0, 255, 0) + "");
+			scattering.set(e.dataTransfer, dragKey);
 		}})
 	]),
 	"mapMouse0": (e: MouseEvent) => {

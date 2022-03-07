@@ -4,6 +4,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
+import {DragTransfer, character, imageAsset} from './dataTransfer.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';
@@ -112,23 +113,23 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-		if (e.dataTransfer?.getData("character")) {
+		if (DragTransfer.has(e.dataTransfer, character)) {
 			e.preventDefault();
-			e.dataTransfer.dropEffect = "link";
+			e.dataTransfer!.dropEffect = "link";
 		}
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-		const tokenData = JSON.parse(e.dataTransfer!.getData("character")),
+		const tokenData = character.get(e.dataTransfer)!,
 		      charData = characterData.get(tokenData.id)!;
 		changes["store-character-id"] = {"user": true, "data": tokenData.id};
 		clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTER_EDIT"], charData, true)}));
 	}}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-		if (e.dataTransfer?.getData("imageAsset")){
+		if (DragTransfer.has(e.dataTransfer, imageAsset)){
 			e.preventDefault();
-			e.dataTransfer.dropEffect = "link";
+			e.dataTransfer!.dropEffect = "link";
 		}
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-		const tokenData = JSON.parse(e.dataTransfer!.getData("imageAsset"));
+		const tokenData = imageAsset.get(e.dataTransfer)!;
 		changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
 		clearNode(this, img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
 	}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),

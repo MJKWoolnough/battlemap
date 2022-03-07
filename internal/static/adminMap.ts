@@ -12,6 +12,7 @@ import {rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
+import {DragTransfer, character, imageAsset} from './dataTransfer.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenDrawing, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
@@ -169,11 +170,11 @@ export default (base: HTMLElement) => {
 		stopMeasurement();
 	      }),
 	      mapOnDragOver = (e: DragEvent) => {
-		if (e.dataTransfer?.types.includes("character") || e.dataTransfer?.types.includes("imageasset")) {
+		if (DragTransfer.has(e.dataTransfer, character, imageAsset)) {
 			e.preventDefault();
-			e.dataTransfer.dropEffect = "link";
-		} else if (e.dataTransfer?.types.includes("Files")) {
-			for (const i of e.dataTransfer.items) {
+			e.dataTransfer!.dropEffect = "link";
+		} else if (DragTransfer.has(e.dataTransfer, "Files")) {
+			for (const i of e.dataTransfer!.items) {
 				if (i["kind"] !== "file") {
 					return;
 				}
@@ -189,18 +190,18 @@ export default (base: HTMLElement) => {
 				}
 			}
 			e.preventDefault();
-			e.dataTransfer.dropEffect = "copy";
+			e.dataTransfer!.dropEffect = "copy";
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
 		if (selected.layer === null) {
 			return;
 		}
-		if (e.dataTransfer?.types.includes("Files")) {
+		if (DragTransfer.has(e.dataTransfer, "Files")) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
-			for (const file of e.dataTransfer.files) {
+			for (const file of e.dataTransfer!.files) {
 				f.append("asset", file);
 			}
 			uploadImages(f).then(images => {
@@ -221,8 +222,8 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-		if (e.dataTransfer?.types.includes("character")) {
-			const tD = JSON.parse(e.dataTransfer.getData("character")),
+		if (character.is(e.dataTransfer)) {
+			const tD = character.get(e.dataTransfer),
 			      char = characterData.get(tD.id);
 			if (char) {
 				const ct = getCharacterToken(char);
@@ -234,8 +235,8 @@ export default (base: HTMLElement) => {
 					token.height = tD.height;
 				}
 			}
-		} else if (e.dataTransfer?.types.includes("imageasset")) {
-			const tokenData = JSON.parse(e.dataTransfer.getData("imageasset"));
+		} else if (imageAsset.is(e.dataTransfer)) {
+			const tokenData = imageAsset.get(e.dataTransfer);
 			token.src = tokenData.id;
 			token.width = tokenData.width;
 			token.height = tokenData.height;

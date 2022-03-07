@@ -6,6 +6,7 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
 import {noColour} from './colours.js';
+import {DragTransfer, character, imageAsset} from './dataTransfer.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
@@ -80,13 +81,13 @@ addTool({
 					deselectToken();
 				}
 			}, "ondragover": (e: DragEvent) => {
-				if (e.dataTransfer?.types.includes("character") || e.dataTransfer?.types.includes("imageasset")) {
+				if (DragTransfer.has(e.dataTransfer, character, imageAsset)) {
 					e.preventDefault();
-					e.dataTransfer.dropEffect = "link";
+					e.dataTransfer!.dropEffect = "link";
 				}
 			}, "ondrop": (e: DragEvent) => {
-				if (e.dataTransfer?.types.includes("character")) {
-					const tD = JSON.parse(e.dataTransfer.getData("character")),
+				if (character.is(e.dataTransfer)) {
+					const tD = character.get(e.dataTransfer),
 					      char = characterData.get(tD.id);
 					if (char) {
 						setToken = () => {
@@ -99,8 +100,8 @@ addTool({
 						setImg(parseInt(char["store-image-icon"].data));
 						return;
 					}
-				} else if (e.dataTransfer?.types.includes("imageasset")) {
-					const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
+				} else if (imageAsset.is(e.dataTransfer)) {
+					const {id: src, width, height} = imageAsset.get(e.dataTransfer),
 					      tk = {src, width, height};
 					setToken = () => fullToken(tk);
 					setImg(src);
