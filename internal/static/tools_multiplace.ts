@@ -83,7 +83,7 @@ addTool({
 			}, "ondragover": (e: DragEvent) => {
 				if (DragTransfer.has(e, character, imageAsset)) {
 					e.preventDefault();
-					e.dataTransfer!.dropEffect = "link";
+					e.dataTransfer.dropEffect = "link";
 				}
 			}, "ondrop": (e: DragEvent) => {
 				if (character.is(e)) {

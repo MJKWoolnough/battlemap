@@ -35,7 +35,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      }, "ondragover": (e: DragEvent) => {
 		if (DragTransfer.has(e, colourTransfer)) {
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "copy";
+			e.dataTransfer.dropEffect = "copy";
 		}
 	      }, "ondrop": (e: DragEvent) => {
 		if (colourTransfer.is(e)) {
@@ -86,7 +86,7 @@ makeColourPicker = (() => {
 		      }, "ondragover": (e: DragEvent) => {
 			if (DragTransfer.has(e, colourTransfer)) {
 				e.preventDefault();
-				e.dataTransfer!.dropEffect = "copy";
+				e.dataTransfer.dropEffect = "copy";
 			}
 		      }, "ondrop": (e: DragEvent) => {
 			if (colourTransfer.is(e)) {

@@ -115,7 +115,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (DragTransfer.has(e, character)) {
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
+			e.dataTransfer.dropEffect = "link";
 		}
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 		const tokenData = character.get(e)!,
@@ -126,7 +126,7 @@ characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, Ke
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 		if (DragTransfer.has(e, imageAsset)){
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
+			e.dataTransfer.dropEffect = "link";
 		}
 	}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 		const tokenData = imageAsset.get(e)!;

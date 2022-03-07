@@ -108,7 +108,7 @@ menuItems.push([2, () => isAdmin ? [
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
 							if (DragTransfer.has(e, imageAsset)) {
 								e.preventDefault();
-								e.dataTransfer!.dropEffect = "link";
+								e.dataTransfer.dropEffect = "link";
 							}
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));

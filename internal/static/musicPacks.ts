@@ -293,7 +293,7 @@ menuItems.push([3, () => isAdmin ? [
 					this.#dragKey = musicPack.register(this);
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
-						if (this.currentTime === 0 && e.dataTransfer) {
+						if (this.currentTime === 0) {
 							if (DragTransfer.has(e, audioAsset)) {
 								e.preventDefault();
 								e.dataTransfer.dropEffect = "link";
@@ -318,7 +318,7 @@ menuItems.push([3, () => isAdmin ? [
 							rpc.musicPackTrackAdd(this.id, [id]);
 						} else if (DragTransfer.has(e, "Files")) {
 							const f = new FormData();
-							for (const file of e.dataTransfer!.files) {
+							for (const file of e.dataTransfer.files) {
 								f.append("asset", file);
 							}
 							uploadAudio(f, this.window).then(audio => {

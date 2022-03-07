@@ -34,7 +34,7 @@ const updateCursorState = () => {
       scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
 	if (DragTransfer.has(e, scattering)) {
 		e.preventDefault();
-		e.dataTransfer!.dropEffect = "copy";
+		e.dataTransfer.dropEffect = "copy";
 	}
       }, "ondrop": (e: DragEvent) => {
 	if (scattering.is(e)) {
@@ -71,7 +71,7 @@ const updateCursorState = () => {
       validWallDrag = (e: DragEvent) => {
 	if (DragTransfer.has(e, colour, scattering)) {
 		e.preventDefault();
-		e.dataTransfer!.dropEffect = "copy";
+		e.dataTransfer.dropEffect = "copy";
 	}
       },
       wallDrop = (e: DragEvent, id: Uint) => {

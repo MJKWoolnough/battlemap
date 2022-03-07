@@ -172,9 +172,9 @@ export default (base: HTMLElement) => {
 	      mapOnDragOver = (e: DragEvent) => {
 		if (DragTransfer.has(e, character, imageAsset)) {
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "link";
+			e.dataTransfer.dropEffect = "link";
 		} else if (DragTransfer.has(e, "Files")) {
-			for (const i of e.dataTransfer!.items) {
+			for (const i of e.dataTransfer.items) {
 				if (i["kind"] !== "file") {
 					return;
 				}
@@ -190,7 +190,7 @@ export default (base: HTMLElement) => {
 				}
 			}
 			e.preventDefault();
-			e.dataTransfer!.dropEffect = "copy";
+			e.dataTransfer.dropEffect = "copy";
 		}
 	      },
 	      mapOnDrop = (e: DragEvent) => {
@@ -201,7 +201,7 @@ export default (base: HTMLElement) => {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
-			for (const file of e.dataTransfer!.files) {
+			for (const file of e.dataTransfer.files) {
 				f.append("asset", file);
 			}
 			uploadImages(f).then(images => {

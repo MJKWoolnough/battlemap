@@ -86,7 +86,7 @@ if (isAdmin) {
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
 						if (DragTransfer.has(e, imageAsset, audioAsset, musicPack, pluginNote)) {
 							e.preventDefault();
-							e.dataTransfer!.dropEffect = "link";
+							e.dataTransfer.dropEffect = "link";
 						}
 					      }, "ondrop": (e: DragEvent) => {
 						if (imageAsset.is(e)) {
