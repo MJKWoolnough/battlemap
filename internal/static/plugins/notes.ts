@@ -95,14 +95,12 @@ if (isAdmin) {
 							contents.setRangeText(`[audio]/audio/${audioAsset.get(e.dataTransfer).id}[/audio]`);
 						} else if (pluginNote.is(e.dataTransfer)) {
 							const {selectionStart, selectionEnd} = contents,
-							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
 							      {id, name} = pluginNote.get(e.dataTransfer);
-							contents.setRangeText(`[note=${id}]${selected || name}[/note]`);
+							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name}[/note]`);
 						} else if (musicPack.is(e.dataTransfer)) {
 							const {selectionStart, selectionEnd} = contents,
-							      selected = contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)),
 							      {id, name} = musicPack.get(e.dataTransfer);
-							contents.setRangeText(`[musicpack=${id}]${selected || name || ""}[/musicpack]`);
+							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name ?? ""}[/musicpack]`);
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
