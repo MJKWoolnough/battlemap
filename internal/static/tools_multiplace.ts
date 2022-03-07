@@ -98,7 +98,6 @@ addTool({
 							return fullToken({"src": char["store-image-icon"].data});
 						}
 						setImg(parseInt(char["store-image-icon"].data));
-						return;
 					}
 				} else if (imageAsset.is(e.dataTransfer)) {
 					const {id: src, width, height} = imageAsset.get(e.dataTransfer),
