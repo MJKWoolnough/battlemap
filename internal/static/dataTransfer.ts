@@ -7,6 +7,10 @@ interface Transfer<T> {
 	transfer(): T | undefined;
 }
 
+interface CheckedDragEvent extends DragEvent {
+	dataTransfer: DataTransfer;
+}
+
 interface CheckedDT<T, E extends DragEvent> extends DragTransfer<T> {
 	get(e: E): T;
 }
@@ -35,7 +39,7 @@ export class DragTransfer<T = any> {
 	is <CheckedDragEvent extends DragEvent>(e: CheckedDragEvent): this is CheckedDT<T, CheckedDragEvent> {
 		return e.dataTransfer?.types.includes(this.#format) ?? false;
 	}
-	static has(e: DragEvent, ...keys: (DragTransfer | string)[]) {
+	static has(e: DragEvent, ...keys: (DragTransfer | string)[]): e is CheckedDragEvent {
 		for (const key of keys) {
 			if (e.dataTransfer?.types.includes(typeof key === "string" ? key : key.#format)) {
 				return true;
