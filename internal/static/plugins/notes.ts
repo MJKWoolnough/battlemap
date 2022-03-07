@@ -84,22 +84,22 @@ if (isAdmin) {
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => {
-						if (DragTransfer.has(e.dataTransfer, imageAsset, audioAsset, musicPack, pluginNote)) {
+						if (DragTransfer.has(e, imageAsset, audioAsset, musicPack, pluginNote)) {
 							e.preventDefault();
 							e.dataTransfer!.dropEffect = "link";
 						}
 					      }, "ondrop": (e: DragEvent) => {
-						if (imageAsset.is(e.dataTransfer)) {
-							contents.setRangeText(`[img]/images/${imageAsset.get(e.dataTransfer).id}[/img]`);
-						} else if (audioAsset.is(e.dataTransfer)) {
-							contents.setRangeText(`[audio]/audio/${audioAsset.get(e.dataTransfer).id}[/audio]`);
-						} else if (pluginNote.is(e.dataTransfer)) {
+						if (imageAsset.is(e)) {
+							contents.setRangeText(`[img]/images/${imageAsset.get(e).id}[/img]`);
+						} else if (audioAsset.is(e)) {
+							contents.setRangeText(`[audio]/audio/${audioAsset.get(e).id}[/audio]`);
+						} else if (pluginNote.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = pluginNote.get(e.dataTransfer);
+							      {id, name} = pluginNote.get(e);
 							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name}[/note]`);
-						} else if (musicPack.is(e.dataTransfer)) {
+						} else if (musicPack.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = musicPack.get(e.dataTransfer);
+							      {id, name} = musicPack.get(e);
 							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name ?? ""}[/musicpack]`);
 						}
 					      }}, page.data.contents),

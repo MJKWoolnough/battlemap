@@ -7,8 +7,8 @@ interface Transfer<T> {
 	transfer(): T | undefined;
 }
 
-interface CheckedDT<T, D extends DataTransfer | null> extends DragTransfer<T> {
-	get(d: D): T;
+interface CheckedDT<T, E extends DragEvent> extends DragTransfer<T> {
+	get(e: E): T;
 }
 
 export class DragTransfer<T = any> {
@@ -23,21 +23,21 @@ export class DragTransfer<T = any> {
 		this.#data.set(key, t);
 		return key;
 	}
-	get(d: DataTransfer | null): T | undefined {
-		return this.#data.get(d?.getData(this.#format) ?? "")?.transfer();
+	get(e: DragEvent): T | undefined {
+		return this.#data.get(e.dataTransfer?.getData(this.#format) ?? "")?.transfer();
 	}
-	set(d: DataTransfer | null, key: string) {
-		d?.setData(this.#format, key);
+	set(e: DragEvent, key: string) {
+		e.dataTransfer?.setData(this.#format, key);
 	}
 	deregister(key: string) {
 		this.#data.delete(key);
 	}
-	is <CheckedDataTransfer extends DataTransfer | null>(d: CheckedDataTransfer): this is CheckedDT<T, CheckedDataTransfer> {
-		return d?.types.includes(this.#format) ?? false;
+	is <CheckedDragEvent extends DragEvent>(e: CheckedDragEvent): this is CheckedDT<T, CheckedDragEvent> {
+		return e.dataTransfer?.types.includes(this.#format) ?? false;
 	}
-	static has(d: DataTransfer | null, ...keys: (DragTransfer | string)[]) {
+	static has(e: DragEvent, ...keys: (DragTransfer | string)[]) {
 		for (const key of keys) {
-			if (d?.types.includes(typeof key === "string" ? key : key.#format)) {
+			if (e.dataTransfer?.types.includes(typeof key === "string" ? key : key.#format)) {
 				return true;
 			}
 		}

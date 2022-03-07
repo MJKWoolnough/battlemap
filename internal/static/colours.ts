@@ -31,15 +31,15 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	const dragKey = colourTransfer.register({"transfer": () => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}),
 	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
 		e.dataTransfer!.setDragImage(iconImg, -5, -5);
-		colourTransfer.set(e.dataTransfer, dragKey);
+		colourTransfer.set(e, dragKey);
 	      }, "ondragover": (e: DragEvent) => {
-		if (DragTransfer.has(e.dataTransfer, colourTransfer)) {
+		if (DragTransfer.has(e, colourTransfer)) {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "copy";
 		}
 	      }, "ondrop": (e: DragEvent) => {
-		if (colourTransfer.is(e.dataTransfer)) {
-			const c = colourTransfer.get(e.dataTransfer);
+		if (colourTransfer.is(e)) {
+			const c = colourTransfer.get(e);
 			colourInput.value = c.toHexString();
 			alphaInput.value = c.a + "";
 			updatePreview();
@@ -76,7 +76,7 @@ makeColourPicker = (() => {
 		const dragKey = colourTransfer.register({"transfer": () => getColour()}),
 		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
-			colourTransfer.set(e.dataTransfer, dragKey);
+			colourTransfer.set(e, dragKey);
 		      }}),
 		      b = button({"class": "checkboard colourButton", "onclick": () => {
 			if (!active) {
@@ -84,13 +84,13 @@ makeColourPicker = (() => {
 				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(d, c))).finally(() => active = false);
 			}
 		      }, "ondragover": (e: DragEvent) => {
-			if (DragTransfer.has(e.dataTransfer, colourTransfer)) {
+			if (DragTransfer.has(e, colourTransfer)) {
 				e.preventDefault();
 				e.dataTransfer!.dropEffect = "copy";
 			}
 		      }, "ondrop": (e: DragEvent) => {
-			if (colourTransfer.is(e.dataTransfer)) {
-				setColour(sc(d, colourTransfer.get(e.dataTransfer)));
+			if (colourTransfer.is(e)) {
+				setColour(sc(d, colourTransfer.get(e)));
 			}
 		      }}, d);
 		sc(d, getColour());

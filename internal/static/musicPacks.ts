@@ -294,10 +294,10 @@ menuItems.push([3, () => isAdmin ? [
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0 && e.dataTransfer) {
-							if (DragTransfer.has(e.dataTransfer, audioAsset)) {
+							if (DragTransfer.has(e, audioAsset)) {
 								e.preventDefault();
 								e.dataTransfer.dropEffect = "link";
-							} else if (DragTransfer.has(e.dataTransfer, "Files")) {
+							} else if (DragTransfer.has(e, "Files")) {
 								for (const a of e.dataTransfer.items) {
 									switch (a["type"]) {
 									case "application/ogg":
@@ -312,11 +312,11 @@ menuItems.push([3, () => isAdmin ? [
 							}
 						}
 					}, "ondrop": (e: DragEvent) => {
-						if (audioAsset.is(e.dataTransfer)) {
-							const {id, name} = audioAsset.get(e.dataTransfer);
+						if (audioAsset.is(e)) {
+							const {id, name} = audioAsset.get(e);
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
-						} else if (DragTransfer.has(e.dataTransfer, "Files")) {
+						} else if (DragTransfer.has(e, "Files")) {
 							const f = new FormData();
 							for (const file of e.dataTransfer!.files) {
 								f.append("asset", file);
@@ -356,7 +356,7 @@ menuItems.push([3, () => isAdmin ? [
 					]);
 					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
 						e.dataTransfer!.setDragImage(dragIcon, -5, -5);
-						musicPack.set(e.dataTransfer, this.#dragKey);
+						musicPack.set(e, this.#dragKey);
 					}}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),

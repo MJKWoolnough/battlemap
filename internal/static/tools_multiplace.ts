@@ -81,13 +81,13 @@ addTool({
 					deselectToken();
 				}
 			}, "ondragover": (e: DragEvent) => {
-				if (DragTransfer.has(e.dataTransfer, character, imageAsset)) {
+				if (DragTransfer.has(e, character, imageAsset)) {
 					e.preventDefault();
 					e.dataTransfer!.dropEffect = "link";
 				}
 			}, "ondrop": (e: DragEvent) => {
-				if (character.is(e.dataTransfer)) {
-					const tD = character.get(e.dataTransfer),
+				if (character.is(e)) {
+					const tD = character.get(e),
 					      char = characterData.get(tD.id);
 					if (char) {
 						setToken = () => {
@@ -99,8 +99,8 @@ addTool({
 						}
 						setImg(parseInt(char["store-image-icon"].data));
 					}
-				} else if (imageAsset.is(e.dataTransfer)) {
-					const {id: src, width, height} = imageAsset.get(e.dataTransfer),
+				} else if (imageAsset.is(e)) {
+					const {id: src, width, height} = imageAsset.get(e),
 					      tk = {src, width, height};
 					setToken = () => fullToken(tk);
 					setImg(src);

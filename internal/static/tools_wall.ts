@@ -32,13 +32,13 @@ const updateCursorState = () => {
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
       scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
-	if (DragTransfer.has(e.dataTransfer, scattering)) {
+	if (DragTransfer.has(e, scattering)) {
 		e.preventDefault();
 		e.dataTransfer!.dropEffect = "copy";
 	}
       }, "ondrop": (e: DragEvent) => {
-	if (scattering.is(e.dataTransfer)) {
-		scatteringI.value = scattering.get(e.dataTransfer) + "";
+	if (scattering.is(e)) {
+		scatteringI.value = scattering.get(e) + "";
 	}
       }}),
       dragKey = scattering.register({"transfer": () => checkInt(parseInt(scatteringI.value), 0, 255, 0)}),
@@ -69,7 +69,7 @@ const updateCursorState = () => {
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = (e: DragEvent) => {
-	if (DragTransfer.has(e.dataTransfer, colour, scattering)) {
+	if (DragTransfer.has(e, colour, scattering)) {
 		e.preventDefault();
 		e.dataTransfer!.dropEffect = "copy";
 	}
@@ -78,10 +78,10 @@ const updateCursorState = () => {
 	const wall = walls.get(id);
 	if (wall) {
 		const override: Partial<Wall> = {"colour": wall.wall.colour};
-		if (colour.is(e.dataTransfer)) {
-			override["colour"] = colour.get(e.dataTransfer);
-		} else if (scattering.is(e.dataTransfer)) {
-			override["scattering"] = scattering.get(e.dataTransfer);
+		if (colour.is(e)) {
+			override["colour"] = colour.get(e);
+		} else if (scattering.is(e)) {
+			override["scattering"] = scattering.get(e);
 		} else {
 			return;
 		}
@@ -93,8 +93,8 @@ const updateCursorState = () => {
 	const wall = walls.get(selectedWall);
 	if (wall) {
 		e.dataTransfer!.setDragImage(iconImg, -5, -5);
-		colour.set(e.dataTransfer, colourDragKey);
-		scattering.set(e.dataTransfer, scatteringDragKey);
+		colour.set(e, colourDragKey);
+		scattering.set(e, scatteringDragKey);
 	}
       }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
@@ -198,7 +198,7 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer!.setDragImage(iconImg, -5, -5);
-			scattering.set(e.dataTransfer, dragKey);
+			scattering.set(e, dragKey);
 		}})
 	]),
 	"mapMouse0": (e: MouseEvent) => {

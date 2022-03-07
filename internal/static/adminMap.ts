@@ -170,10 +170,10 @@ export default (base: HTMLElement) => {
 		stopMeasurement();
 	      }),
 	      mapOnDragOver = (e: DragEvent) => {
-		if (DragTransfer.has(e.dataTransfer, character, imageAsset)) {
+		if (DragTransfer.has(e, character, imageAsset)) {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "link";
-		} else if (DragTransfer.has(e.dataTransfer, "Files")) {
+		} else if (DragTransfer.has(e, "Files")) {
 			for (const i of e.dataTransfer!.items) {
 				if (i["kind"] !== "file") {
 					return;
@@ -197,7 +197,7 @@ export default (base: HTMLElement) => {
 		if (selected.layer === null) {
 			return;
 		}
-		if (DragTransfer.has(e.dataTransfer, "Files")) {
+		if (DragTransfer.has(e, "Files")) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
@@ -222,8 +222,8 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-		if (character.is(e.dataTransfer)) {
-			const tD = character.get(e.dataTransfer),
+		if (character.is(e)) {
+			const tD = character.get(e),
 			      char = characterData.get(tD.id);
 			if (char) {
 				const ct = getCharacterToken(char);
@@ -235,8 +235,8 @@ export default (base: HTMLElement) => {
 					token.height = tD.height;
 				}
 			}
-		} else if (imageAsset.is(e.dataTransfer)) {
-			const tokenData = imageAsset.get(e.dataTransfer);
+		} else if (imageAsset.is(e)) {
+			const tokenData = imageAsset.get(e);
 			token.src = tokenData.id;
 			token.width = tokenData.width;
 			token.height = tokenData.height;

@@ -106,12 +106,12 @@ menuItems.push([2, () => isAdmin ? [
 						br(),
 						label(`${lang["CHARACTER_IMAGE"]}: `),
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => {
-							if (DragTransfer.has(e.dataTransfer, imageAsset)) {
+							if (DragTransfer.has(e, imageAsset)) {
 								e.preventDefault();
 								e.dataTransfer!.dropEffect = "link";
 							}
 						}, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e.dataTransfer)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {
