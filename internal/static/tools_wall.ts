@@ -92,7 +92,7 @@ const updateCursorState = () => {
       wallOverlay = div({"style": {"position": "absolute", "height": "10px"}, "draggable": "true", "ondragstart": (e: DragEvent) => {
 	const wall = walls.get(selectedWall);
 	if (wall) {
-		e.dataTransfer!.setDragImage(iconImg, -5, -5);
+		e.dataTransfer?.setDragImage(iconImg, -5, -5);
 		colour.set(e, colourDragKey);
 		scattering.set(e, scatteringDragKey);
 	}

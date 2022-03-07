@@ -30,7 +30,7 @@ noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = colourTransfer.register({"transfer": () => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}),
 	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
-		e.dataTransfer!.setDragImage(iconImg, -5, -5);
+		e.dataTransfer?.setDragImage(iconImg, -5, -5);
 		colourTransfer.set(e, dragKey);
 	      }, "ondragover": (e: DragEvent) => {
 		if (DragTransfer.has(e, colourTransfer)) {
@@ -75,7 +75,7 @@ makeColourPicker = (() => {
 		let active = false;
 		const dragKey = colourTransfer.register({"transfer": () => getColour()}),
 		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
-			e.dataTransfer!.setDragImage(iconImg, -5, -5);
+			e.dataTransfer?.setDragImage(iconImg, -5, -5);
 			colourTransfer.set(e, dragKey);
 		      }}),
 		      b = button({"class": "checkboard colourButton", "onclick": () => {

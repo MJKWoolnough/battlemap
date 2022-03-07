@@ -355,7 +355,7 @@ menuItems.push([3, () => isAdmin ? [
 						div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 					]);
 					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
-						e.dataTransfer!.setDragImage(dragIcon, -5, -5);
+						e.dataTransfer?.setDragImage(dragIcon, -5, -5);
 						musicPack.set(e, this.#dragKey);
 					}}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
