@@ -99,7 +99,7 @@ addTool({
 						setImg(parseInt(char["store-image-icon"].data));
 						return;
 					}
-				} else if (e.dataTransfer?.types.includes("character")) {
+				} else if (e.dataTransfer?.types.includes("imageasset")) {
 					const {id: src, width, height} = JSON.parse(e.dataTransfer.getData("imageasset")),
 					      tk = {src, width, height};
 					setToken = () => fullToken(tk);
