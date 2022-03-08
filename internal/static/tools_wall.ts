@@ -4,7 +4,7 @@ import {amendNode, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
-import {Colour, hex2Colour, makeColourPicker} from './colours.js';
+import {Colour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import {DragTransfer, colour, scattering} from './dataTransfer.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
@@ -42,8 +42,8 @@ const updateCursorState = () => {
 	}
       }}),
       dragKey = scattering.register({"transfer": () => checkInt(parseInt(scatteringI.value), 0, 255, 0)}),
-      scatteringDragKey = scattering.register({"transfer": () => walls.get(selectedWall)?.wall.scattering}),
-      colourDragKey = colour.register({"transfer": () => walls.get(selectedWall)?.wall.colour}),
+      scatteringDragKey = scattering.register({"transfer": () => walls.get(selectedWall)?.wall.scattering ?? 0}),
+      colourDragKey = colour.register({"transfer": () => walls.get(selectedWall)?.wall.colour ?? noColour}),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
