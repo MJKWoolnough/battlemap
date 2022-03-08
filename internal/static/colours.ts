@@ -2,7 +2,7 @@ import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
-import {DragTransfer, colour as colourTransfer} from './dataTransfer.js';
+import {DragTransfer, colour as colourTransfer} from './dragTransfer.js';
 import lang from './language.js';
 import {checkInt, labels} from './shared.js';
 import {shell, windows} from './windows.js';

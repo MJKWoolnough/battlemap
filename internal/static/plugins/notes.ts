@@ -1,6 +1,6 @@
 import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
-import type {FolderDragItem} from '../dataTransfer.js';
+import type {FolderDragItem} from '../dragTransfer.js';
 import type {WindowElement} from '../windows.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {all} from '../lib/bbcode_tags.js';
@@ -9,7 +9,7 @@ import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
-import {DragTransfer, audioAsset, imageAsset, musicPack} from '../dataTransfer.js';
+import {DragTransfer, audioAsset, imageAsset, musicPack} from '../dragTransfer.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';

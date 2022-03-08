@@ -4,7 +4,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {DragTransfer, character, imageAsset} from './dataTransfer.js';
+import {DragTransfer, character, imageAsset} from './dragTransfer.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';

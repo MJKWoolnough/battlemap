@@ -1,5 +1,5 @@
 import type {FolderItems, FolderRPC, Uint} from './types.js';
-import type {DragTransfer, FolderDragItem} from './dataTransfer.js';
+import type {DragTransfer, FolderDragItem} from './dragTransfer.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';

@@ -5,7 +5,7 @@ import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {mapLoadSend} from './adminMap.js';
 import {hex2Colour} from './colours.js';
-import {map} from './dataTransfer.js';
+import {map} from './dragTransfer.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';

@@ -12,7 +12,7 @@ import {rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
-import {DragTransfer, character, imageAsset} from './dataTransfer.js';
+import {DragTransfer, character, imageAsset} from './dragTransfer.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenDrawing, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';

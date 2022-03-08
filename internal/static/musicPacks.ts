@@ -5,7 +5,7 @@ import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.j
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
-import {DragTransfer, audioAsset, musicPack} from './dataTransfer.js';
+import {DragTransfer, audioAsset, musicPack} from './dragTransfer.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';

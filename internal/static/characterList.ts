@@ -4,7 +4,7 @@ import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {DragTransfer, character, imageAsset} from './dataTransfer.js';
+import {DragTransfer, character, imageAsset} from './dragTransfer.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
