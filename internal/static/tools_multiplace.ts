@@ -72,13 +72,12 @@ addTool({
 		div({"class": "tokenSelector"}, [
 			button({"onclick": () => {
 				const data = getToken();
-				if (!data) {
-					return;
-				}
-				setToken = () => fullToken(cloneObject(data));
-				setImg(data["src"]);
-				if (!mode.checked) {
-					deselectToken();
+				if (data) {
+					setToken = () => fullToken(cloneObject(data));
+					setImg(data["src"]);
+					if (!mode.checked) {
+						deselectToken();
+					}
 				}
 			}, "ondragover": (e: DragEvent) => {
 				if (DragTransfer.has(e, character, imageAsset)) {
