@@ -73,7 +73,7 @@ makeColourPicker = (() => {
 	};
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
-		const dragKey = colourTransfer.register({"transfer": () => getColour()}),
+		const dragKey = colourTransfer.register({"transfer": getColour}),
 		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
 			e.dataTransfer?.setDragImage(iconImg, -5, -5);
 			colourTransfer.set(e, dragKey);
