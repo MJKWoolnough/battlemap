@@ -4,12 +4,12 @@ import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
-import {br, button, h1, input, label, option, select} from './lib/html.js';
+import {br, button, h1, input, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
-import {setAndReturn} from './shared.js';
+import {labels, setAndReturn} from './shared.js';
 import {shell} from './windows.js';
 
 type owp<T> = {
@@ -49,37 +49,27 @@ settings = () => {
 	if (pluginList.size === 0) {
 		return [];
 	}
-	let selected = "";
-	const check = input({"type": "checkbox", "id": "plugins_ticker", "class": "settings_ticker", "disabled": true}),
+	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
+	      selected = select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
+		const plugin = pluginList.get(this.value),
+		      disabled = !plugin;
+		amendNode(check, {disabled, "checked": plugin?.enabled ?? false});
+		amendNode(save, {disabled});
+	      }}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
 	      save = button({"disabled": true, "onclick": () => {
-		if (selected === "") {
-			return;
-		}
-		const plugin = pluginList.get(selected)!;
-		if (check.checked !== plugin.enabled) {
-			((plugin.enabled = check.checked) ? rpc.enablePlugin : rpc.disablePlugin)(selected).then(askReload).catch(handleError);
+		const s = selected.value,
+		      plugin = pluginList.get(s);
+		if (plugin) {
+			if (check.checked !== plugin.enabled) {
+				((plugin.enabled = check.checked) ? rpc.enablePlugin : rpc.disablePlugin)(s).then(askReload).catch(handleError);
+			}
 		}
 	      }}, lang["SAVE"]);
 	return [
 		isAdmin ? [
 			h1(lang["PLUGINS"]),
-			label({"for": "pluginList"}, `${lang["PLUGINS"]} :`),
-			select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
-				if (this.value === "") {
-					amendNode(check, {"disabled": true}).checked = false;
-					amendNode(save, {"disabled": true});
-					selected = "";
-					return;
-				}
-				const plugin = pluginList.get(this.value);
-				if (plugin) {
-					amendNode(check, {"disabled": false}).checked = pluginList.get(this.value)!.enabled;
-					amendNode(save, {"disabled": false});
-					selected = this.value;
-				}
-			}}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
-			check,
-			label({"for": "plugins_ticker"}),
+			labels(`${lang["PLUGINS"]} :`, selected),
+			labels("", check, false),
 			br(),
 			save,
 		] : [],
