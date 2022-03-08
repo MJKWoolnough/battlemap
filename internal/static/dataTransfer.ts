@@ -30,8 +30,11 @@ export class DragTransfer<T = any> {
 	get(e: DragEvent): T | undefined {
 		return this.#data.get(e.dataTransfer?.getData(this.#format) ?? "")?.transfer();
 	}
-	set(e: DragEvent, key: string) {
+	set(e: DragEvent, key: string, icon?: HTMLDivElement, xOffset = -5, yOffset = -5) {
 		e.dataTransfer?.setData(this.#format, key);
+		if (icon) {
+			e.dataTransfer?.setDragImage(icon, xOffset, yOffset);
+		}
 	}
 	deregister(key: string) {
 		this.#data.delete(key);
