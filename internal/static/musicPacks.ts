@@ -299,6 +299,9 @@ menuItems.push([3, () => isAdmin ? [
 								e.dataTransfer.dropEffect = "link";
 							} else if (DragTransfer.has(e, "Files")) {
 								for (const a of e.dataTransfer.items) {
+									if (a["kind"] !== "file") {
+										return;
+									}
 									switch (a["type"]) {
 									case "application/ogg":
 									case "audio/mpeg":
