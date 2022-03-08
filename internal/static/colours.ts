@@ -42,7 +42,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 			const c = colourTransfer.get(e);
 			colourInput.value = c.toHexString();
 			alphaInput.value = c.a + "";
-			updatePreview();
+			amendNode(preview, {"style": {"background-color": c}});
 		}
 	      }}),
 	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
