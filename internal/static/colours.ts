@@ -29,10 +29,7 @@ export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(p
 noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = colourTransfer.register({"transfer": () => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}),
-	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
-		e.dataTransfer?.setDragImage(iconImg, -5, -5);
-		colourTransfer.set(e, dragKey);
-	      }, "ondragover": (e: DragEvent) => {
+	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => colourTransfer.set(e, dragKey, iconImg), "ondragover": (e: DragEvent) => {
 		if (DragTransfer.has(e, colourTransfer)) {
 			e.preventDefault();
 			e.dataTransfer.dropEffect = "copy";
@@ -74,10 +71,7 @@ makeColourPicker = (() => {
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
 		const dragKey = colourTransfer.register({"transfer": getColour}),
-		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => {
-			e.dataTransfer?.setDragImage(iconImg, -5, -5);
-			colourTransfer.set(e, dragKey);
-		      }}),
+		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => colourTransfer.set(e, dragKey, iconImg)}),
 		      b = button({"class": "checkboard colourButton", "onclick": () => {
 			if (!active) {
 				active = true;

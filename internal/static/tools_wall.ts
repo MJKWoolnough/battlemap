@@ -92,8 +92,7 @@ const updateCursorState = () => {
       wallOverlay = div({"style": {"position": "absolute", "height": "10px"}, "draggable": "true", "ondragstart": (e: DragEvent) => {
 	const wall = walls.get(selectedWall);
 	if (wall) {
-		e.dataTransfer?.setDragImage(iconImg, -5, -5);
-		colour.set(e, colourDragKey);
+		colour.set(e, colourDragKey, iconImg);
 		scattering.set(e, scatteringDragKey);
 	}
       }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
@@ -196,10 +195,7 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
-		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, true, {"draggable": "true", "ondragstart": (e: DragEvent) => {
-			e.dataTransfer!.setDragImage(iconImg, -5, -5);
-			scattering.set(e, dragKey);
-		}})
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, true, {"draggable": "true", "ondragstart": (e: DragEvent) => scattering.set(e, dragKey, iconImg)})
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey) {

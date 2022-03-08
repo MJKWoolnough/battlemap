@@ -357,10 +357,7 @@ menuItems.push([3, () => isAdmin ? [
 						this.tracks[node],
 						div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 					]);
-					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => {
-						e.dataTransfer?.setDragImage(dragIcon, -5, -5);
-						musicPack.set(e, this.#dragKey);
-					}}, [
+					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => musicPack.set(e, this.#dragKey, dragIcon)}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
 						rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {

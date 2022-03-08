@@ -136,8 +136,7 @@ export abstract class DraggableItem extends Item {
 					e.preventDefault();
 					return;
 				}
-				e.dataTransfer?.setDragImage(this.icon, -5, -5);
-				this.dragTransfer().set(e, this.#dragKey);
+				this.dragTransfer().set(e, this.#dragKey, this.icon);
 				amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
 			}
 		});
