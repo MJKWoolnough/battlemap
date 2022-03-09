@@ -15,6 +15,10 @@ interface CheckedDT<T> extends DragTransfer<T> {
 	get(e: DragEvent): T;
 }
 
+interface Is {
+	is(e: DragEvent): boolean;
+}
+
 export class DragTransfer<T = any> {
 	#data = new Map<string, Transfer<T>>();
 	#nextID = 0;
@@ -42,10 +46,27 @@ export class DragTransfer<T = any> {
 	is (e: DragEvent): this is CheckedDT<T> {
 		return e.dataTransfer?.types.includes(this.#format) ?? false;
 	}
-	static has(e: DragEvent, ...keys: (DragTransfer | string)[]): e is CheckedDragEvent {
+	static has(e: DragEvent, ...keys: Is[]) {
 		for (const key of keys) {
-			if (e.dataTransfer?.types.includes(typeof key === "string" ? key : key.#format)) {
+			if (key.is(e)) {
 				return true;
+			}
+		}
+		return false;
+	}
+}
+
+export class DragFiles {
+	readonly mimes: string[];
+	constructor(...mimes: string[]) {
+		this.mimes = mimes;
+	}
+	is (e: DragEvent): e is CheckedDragEvent {
+		if (e.dataTransfer?.types.includes("Files")) {
+			for (const i of e.dataTransfer.items) {
+				if (i["kind"] === "file" && this.mimes.includes(i["type"])) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -58,4 +79,6 @@ colour = new DragTransfer<Colour>("colour"),
 imageAsset = new DragTransfer<FolderDragItem>("imageasset"),
 map = new DragTransfer<FolderDragItem>("map"),
 musicPack = new DragTransfer<IDName>("musicpack"),
-scattering = new DragTransfer<Byte>("scattering");
+scattering = new DragTransfer<Byte>("scattering"),
+images = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng"),
+audio = new DragFiles("application/ogg, audio/mpeg");
