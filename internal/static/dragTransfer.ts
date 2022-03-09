@@ -46,16 +46,6 @@ export class DragTransfer<T = any> {
 	is (e: DragEvent): this is CheckedDT<T> {
 		return e.dataTransfer?.types.includes(this.#format) ?? false;
 	}
-	static setEffect(e: DragEvent, effect: "none" | "copy" | "link" | "move", ...keys: Is[]) {
-		for (const key of keys) {
-			if (key.is(e)) {
-				e.preventDefault();
-				e.dataTransfer!.dropEffect = effect;
-				return true;
-			}
-		}
-		return false;
-	}
 }
 
 export class DragFiles {
@@ -75,7 +65,17 @@ export class DragFiles {
 	}
 }
 
-export const audioAsset = new DragTransfer<FolderDragItem>("audioasset"),
+export const setDragEffect = (e: DragEvent, effect: "none" | "copy" | "link" | "move", ...keys: Is[]) => {
+	for (const key of keys) {
+		if (key.is(e)) {
+			e.preventDefault();
+			e.dataTransfer!.dropEffect = effect;
+			return true;
+		}
+	}
+	return false;
+},
+audioAsset = new DragTransfer<FolderDragItem>("audioasset"),
 character = new DragTransfer<FolderDragItem>("character"),
 colour = new DragTransfer<Colour>("colour"),
 imageAsset = new DragTransfer<FolderDragItem>("imageasset"),

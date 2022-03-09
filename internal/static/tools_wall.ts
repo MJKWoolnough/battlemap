@@ -5,7 +5,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker, noColour} from './colours.js';
-import {DragTransfer, colour, scattering} from './dragTransfer.js';
+import {colour, scattering, setDragEffect} from './dragTransfer.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify} from './map_fns.js';
@@ -31,7 +31,7 @@ const updateCursorState = () => {
       },
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
-      scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "copy", scattering), "ondrop": (e: DragEvent) => {
+      scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => setDragEffect(e, "copy", scattering), "ondrop": (e: DragEvent) => {
 	if (scattering.is(e)) {
 		scatteringI.value = scattering.get(e) + "";
 	}
@@ -63,7 +63,7 @@ const updateCursorState = () => {
       }),
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
-      validWallDrag = (e: DragEvent) => DragTransfer.setEffect(e, "copy", colour, scattering),
+      validWallDrag = (e: DragEvent) => setDragEffect(e, "copy", colour, scattering),
       wallDrop = (e: DragEvent, id: Uint) => {
 	const wall = walls.get(id);
 	if (wall) {

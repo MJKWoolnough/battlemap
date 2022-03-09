@@ -6,7 +6,7 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
 import {noColour} from './colours.js';
-import {DragTransfer, character, imageAsset} from './dragTransfer.js';
+import {character, imageAsset, setDragEffect} from './dragTransfer.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
@@ -79,7 +79,7 @@ addTool({
 						deselectToken();
 					}
 				}
-			}, "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "link", character, imageAsset), "ondrop": (e: DragEvent) => {
+			}, "ondragover": (e: DragEvent) => setDragEffect(e, "link", character, imageAsset), "ondrop": (e: DragEvent) => {
 				if (character.is(e)) {
 					const tD = character.get(e),
 					      char = characterData.get(tD.id);

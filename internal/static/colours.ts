@@ -2,7 +2,7 @@ import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
-import {DragTransfer, colour as colourTransfer} from './dragTransfer.js';
+import {colour as colourTransfer, setDragEffect} from './dragTransfer.js';
 import lang from './language.js';
 import {checkInt, labels} from './shared.js';
 import {shell, windows} from './windows.js';
@@ -29,7 +29,7 @@ export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(p
 noColour = Colour.from({"r": 0, "g": 0, "b": 0, "a": 0}),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = colourTransfer.register({"transfer": () => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}),
-	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => colourTransfer.set(e, dragKey, iconImg), "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "copy", colourTransfer), "ondrop": (e: DragEvent) => {
+	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => colourTransfer.set(e, dragKey, iconImg), "ondragover": (e: DragEvent) => setDragEffect(e, "copy", colourTransfer), "ondrop": (e: DragEvent) => {
 		if (colourTransfer.is(e)) {
 			const c = colourTransfer.get(e);
 			colourInput.value = c.toHexString();
@@ -72,7 +72,7 @@ makeColourPicker = (() => {
 				active = true;
 				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(d, c))).finally(() => active = false);
 			}
-		      }, "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "copy", colourTransfer), "ondrop": (e: DragEvent) => {
+		      }, "ondragover": (e: DragEvent) => setDragEffect(e, "copy", colourTransfer), "ondrop": (e: DragEvent) => {
 			if (colourTransfer.is(e)) {
 				setColour(sc(d, colourTransfer.get(e)));
 			}

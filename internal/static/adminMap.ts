@@ -12,7 +12,7 @@ import {rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
-import {DragTransfer, character, imageAsset, images} from './dragTransfer.js';
+import {character, imageAsset, images, setDragEffect} from './dragTransfer.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
@@ -169,7 +169,7 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      mapOnDragOver = (e: DragEvent) => DragTransfer.setEffect(e, "link", character, imageAsset) || DragTransfer.setEffect(e, "copy", images),
+	      mapOnDragOver = (e: DragEvent) => setDragEffect(e, "link", character, imageAsset) || setDragEffect(e, "copy", images),
 	      mapOnDrop = (e: DragEvent) => {
 		if (selected.layer === null) {
 			return;

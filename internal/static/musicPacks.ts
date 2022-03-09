@@ -5,7 +5,7 @@ import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.j
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
-import {DragTransfer, audio as audioFiles, audioAsset, musicPack} from './dragTransfer.js';
+import {audio as audioFiles, audioAsset, musicPack, setDragEffect} from './dragTransfer.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -294,7 +294,7 @@ menuItems.push([3, () => isAdmin ? [
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0) {
-							DragTransfer.setEffect(e, "link", audioAsset) || DragTransfer.setEffect(e, "copy", audioFiles);
+							setDragEffect(e, "link", audioAsset) || setDragEffect(e, "copy", audioFiles);
 						}
 					}, "ondrop": (e: DragEvent) => {
 						if (audioAsset.is(e)) {

@@ -9,7 +9,7 @@ import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
-import {DragTransfer, audioAsset, imageAsset, musicPack} from '../dragTransfer.js';
+import {DragTransfer, audioAsset, imageAsset, musicPack, setDragEffect} from '../dragTransfer.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
@@ -83,7 +83,7 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "link", imageAsset, audioAsset, musicPack, pluginNote), "ondrop": (e: DragEvent) => {
+					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => setDragEffect(e, "link", imageAsset, audioAsset, musicPack, pluginNote), "ondrop": (e: DragEvent) => {
 						if (imageAsset.is(e)) {
 							contents.setRangeText(`[img]/images/${imageAsset.get(e).id}[/img]`);
 						} else if (audioAsset.is(e)) {
