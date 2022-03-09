@@ -53,6 +53,15 @@ export class DragFiles {
 	constructor(...mimes: string[]) {
 		this.mimes = mimes;
 	}
+	asForm(e: DragEvent, name: string) {
+		const f = new FormData();
+		if (e.dataTransfer) {
+			for (const file of e.dataTransfer.files) {
+				f.append(name, file);
+			}
+		}
+		return f;
+	}
 	is (e: DragEvent): e is CheckedDragEvent {
 		if (e.dataTransfer?.types.includes("Files")) {
 			for (const i of e.dataTransfer.items) {
