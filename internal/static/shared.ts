@@ -35,7 +35,39 @@ labels = (() => {
 	};
 })(),
 addCSS = (css: string) => amendNode(document.head, style({"type": "text/css"}, css)),
-cloneObject = <T extends any>(o: T): T => o ? JSON.parse(JSON.stringify(o)) : o,
+cloneObject = (() => {
+	const refs = new Map(),
+	      clone = <T extends any>(o: T): T => {
+		if (o instanceof Object && !Object.isFrozen(o)) {
+			const r = refs.get(o) as T | undefined;
+			if (r) {
+				return r;
+			}
+			if (Array.isArray(o)) {
+				const a: T[keyof T][] = [];
+				refs.set(o, a);
+				for (const v of o) {
+					a.push(clone(v));
+				}
+				return a as T;
+			}
+			const c = {} as T;
+			refs.set(o, c);
+			for (const k in o) {
+				if (o.hasOwnProperty(k)) {
+					c[k as keyof T] = clone(o[k as keyof T]);
+				}
+			}
+			return c;
+		}
+		return o;
+	      };
+	return <T>(o: T): T => {
+		const c = clone(o);
+		refs.clear();
+		return c;
+	};
+})(),
 characterData = new Map<Uint, Record<string, KeystoreData>>(),
 [getCharacterToken, resetCharacterTokens] = (() => {
 	const tokensSymbol = Symbol("tokens");
