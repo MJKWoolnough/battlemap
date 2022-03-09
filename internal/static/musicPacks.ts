@@ -302,11 +302,7 @@ menuItems.push([3, () => isAdmin ? [
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
 						} else if (audioFiles.is(e)) {
-							const f = new FormData();
-							for (const file of e.dataTransfer.files) {
-								f.append("asset", file);
-							}
-							uploadAudio(f, this.window).then(audio => {
+							uploadAudio(audioFiles.asForm(e, "asset"), this.window).then(audio => {
 								const ids: Uint[] = [];
 								for (const {id, name} of audio) {
 									this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));

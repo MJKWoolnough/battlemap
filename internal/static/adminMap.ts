@@ -175,13 +175,9 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		if (images.is(e)) {
-			const f = new FormData(),
-			      [x, y] = screen2Grid(e.clientX, e.clientY),
+			const [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
-			for (const file of e.dataTransfer.files) {
-				f.append("asset", file);
-			}
-			uploadImages(f).then(images => {
+			uploadImages(images.asForm(e, "asset")).then(images => {
 				for (const image of images) {
 					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
 						const {width, height} = this;
