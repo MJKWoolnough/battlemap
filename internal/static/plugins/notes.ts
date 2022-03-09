@@ -16,7 +16,7 @@ import {register, registerTag, shareIcon} from '../messaging.js';
 import {open as musicpackOpen} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
-import {addCSS, isUint, labels} from '../shared.js';
+import {addCSS, cloneObject, isUint, labels} from '../shared.js';
 import {shell, windows} from '../windows.js';
 
 type Page = {
@@ -346,7 +346,7 @@ if (isAdmin) {
 				return Promise.reject(lang["NAME_EXISTS_LONG"]);
 			}
 			const newID = ++lastID,
-			      newPage = JSON.parse(JSON.stringify(pages.get(id)!));
+			      newPage = cloneObject(pages.get(id)!);
 			currPath.items[item] = newID;
 			pages.set(newID, newPage);
 			rpc.pluginSetting(importName, {"": folders, [newID + ""]: newPage}, []);
