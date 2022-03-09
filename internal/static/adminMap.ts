@@ -12,7 +12,7 @@ import {rect} from './lib/svg.js';
 import {uploadImages} from './assets.js';
 import {edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
-import {DragTransfer, character, imageAsset} from './dragTransfer.js';
+import {DragTransfer, character, imageAsset, images} from './dragTransfer.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
@@ -169,35 +169,12 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      mapOnDragOver = (e: DragEvent) => {
-		if (DragTransfer.has(e, character, imageAsset)) {
-			e.preventDefault();
-			e.dataTransfer.dropEffect = "link";
-		} else if (DragTransfer.has(e, "Files")) {
-			for (const i of e.dataTransfer.items) {
-				if (i["kind"] !== "file") {
-					return;
-				}
-				switch (i["type"]) {
-				case "image/gif":
-				case "image/png":
-				case "image/jpeg":
-				case "image/webp":
-				case "video/apng":
-					break;
-				default:
-					return;
-				}
-			}
-			e.preventDefault();
-			e.dataTransfer.dropEffect = "copy";
-		}
-	      },
+	      mapOnDragOver = (e: DragEvent) => DragTransfer.setEffect(e, "link", character, imageAsset) || DragTransfer.setEffect(e, "copy", images),
 	      mapOnDrop = (e: DragEvent) => {
 		if (selected.layer === null) {
 			return;
 		}
-		if (DragTransfer.has(e, "Files")) {
+		if (images.is(e)) {
 			const f = new FormData(),
 			      [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;

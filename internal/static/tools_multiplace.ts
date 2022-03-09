@@ -79,12 +79,7 @@ addTool({
 						deselectToken();
 					}
 				}
-			}, "ondragover": (e: DragEvent) => {
-				if (DragTransfer.has(e, character, imageAsset)) {
-					e.preventDefault();
-					e.dataTransfer.dropEffect = "link";
-				}
-			}, "ondrop": (e: DragEvent) => {
+			}, "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "link", character, imageAsset), "ondrop": (e: DragEvent) => {
 				if (character.is(e)) {
 					const tD = character.get(e),
 					      char = characterData.get(tD.id);

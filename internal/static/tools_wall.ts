@@ -31,12 +31,7 @@ const updateCursorState = () => {
       },
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
       placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
-      scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => {
-	if (DragTransfer.has(e, scattering)) {
-		e.preventDefault();
-		e.dataTransfer.dropEffect = "copy";
-	}
-      }, "ondrop": (e: DragEvent) => {
+      scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": (e: DragEvent) => DragTransfer.setEffect(e, "copy", scattering), "ondrop": (e: DragEvent) => {
 	if (scattering.is(e)) {
 		scatteringI.value = scattering.get(e) + "";
 	}
@@ -68,12 +63,7 @@ const updateCursorState = () => {
       }),
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
-      validWallDrag = (e: DragEvent) => {
-	if (DragTransfer.has(e, colour, scattering)) {
-		e.preventDefault();
-		e.dataTransfer.dropEffect = "copy";
-	}
-      },
+      validWallDrag = (e: DragEvent) => DragTransfer.setEffect(e, "copy", colour, scattering),
       wallDrop = (e: DragEvent, id: Uint) => {
 	const wall = walls.get(id);
 	if (wall) {

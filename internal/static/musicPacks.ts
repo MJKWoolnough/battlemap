@@ -5,7 +5,7 @@ import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.j
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
-import {DragTransfer, audioAsset, musicPack} from './dragTransfer.js';
+import {DragTransfer, audio as audioFiles, audioAsset, musicPack} from './dragTransfer.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -294,32 +294,14 @@ menuItems.push([3, () => isAdmin ? [
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0) {
-							if (DragTransfer.has(e, audioAsset)) {
-								e.preventDefault();
-								e.dataTransfer.dropEffect = "link";
-							} else if (DragTransfer.has(e, "Files")) {
-								for (const a of e.dataTransfer.items) {
-									if (a["kind"] !== "file") {
-										return;
-									}
-									switch (a["type"]) {
-									case "application/ogg":
-									case "audio/mpeg":
-										break;
-									default:
-										return;
-									}
-								}
-								e.preventDefault();
-								e.dataTransfer.dropEffect = "copy";
-							}
+							DragTransfer.setEffect(e, "link", audioAsset) || DragTransfer.setEffect(e, "copy", audioFiles);
 						}
 					}, "ondrop": (e: DragEvent) => {
 						if (audioAsset.is(e)) {
 							const {id, name} = audioAsset.get(e);
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
-						} else if (DragTransfer.has(e, "Files")) {
+						} else if (audioFiles.is(e)) {
 							const f = new FormData();
 							for (const file of e.dataTransfer.files) {
 								f.append("asset", file);
