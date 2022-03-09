@@ -46,9 +46,11 @@ export class DragTransfer<T = any> {
 	is (e: DragEvent): this is CheckedDT<T> {
 		return e.dataTransfer?.types.includes(this.#format) ?? false;
 	}
-	static has(e: DragEvent, ...keys: Is[]) {
+	static setEffect(e: DragEvent, effect: "none" | "copy" | "link" | "move", ...keys: Is[]) {
 		for (const key of keys) {
 			if (key.is(e)) {
+				e.preventDefault();
+				e.dataTransfer!.dropEffect = effect;
 				return true;
 			}
 		}
