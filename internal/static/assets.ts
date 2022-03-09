@@ -6,7 +6,7 @@ import {audio, button, div, form, h1, img, input, progress} from './lib/html.js'
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {audioAsset, imageAsset} from './dragTransfer.js';
+import {audioAsset, imageAsset, audio as audioFile, images as imagesFile} from './dragTransfer.js';
 import {DraggableItem, Root, Folder} from './folders.js';
 import lang from './language.js';
 import {register, shareIcon} from './messaging.js'
@@ -158,6 +158,6 @@ register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
 menuItems.push(
-	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], "image/gif, image/png, image/jpeg, image/webp"), true, imageIcon] : null],
-	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], "application/ogg, audio/mpeg"), true, audioIcon] : null]
+	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], imagesFile.mimes.join(", ")), true, imageIcon] : null],
+	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], audioFile.mimes.join(", ")), true, audioIcon] : null]
 );
