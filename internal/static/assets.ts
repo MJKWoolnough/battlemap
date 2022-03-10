@@ -1,4 +1,5 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
+import type {DragFiles} from './dragTransfer.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
@@ -125,15 +126,16 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		])
 	);
       },
-      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: string, types: string) => {
-	const base = div(loading());
+      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: string, types: DragFiles) => {
+	const base = div(loading()),
+	      accept = types.mimes.join(", ");
 	rpcFuncs.list().then(folderList => {
 		root.setRPCFuncs(rpcFuncs);
 		root.setRoot(folderList);
 		root.windowIcon = icon;
 		clearNode(base, {"id": `${id}Items`, "class": "folders"}, [
 			button({"onclick": () => {
-				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, autoFocus(input({"accept": types, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, autoFocus(input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
 					uploadAsset(root, id, new FormData(f), window)
 					.then(() => window.remove())
 					.catch(handleError)
@@ -158,6 +160,6 @@ register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
 menuItems.push(
-	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], imagesFile.mimes.join(", ")), true, imageIcon] : null],
-	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], audioFile.mimes.join(", ")), true, audioIcon] : null]
+	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], imagesFile), true, imageIcon] : null],
+	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], audioFile), true, audioIcon] : null]
 );
