@@ -360,11 +360,7 @@ export default (base: HTMLElement) => {
 	});
 	keyEvent("z", (e: KeyboardEvent) => {
 		if (e.ctrlKey) {
-			if (e.shiftKey) {
-				undo.redo();
-			} else {
-				undo.undo();
-			}
+			undo[e.shiftKey ? "redo" : "undo"]();
 		}
 	})[0]();
 	keyEvent(["r", "y"], (e: KeyboardEvent) => {
