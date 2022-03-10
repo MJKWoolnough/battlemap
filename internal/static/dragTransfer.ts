@@ -4,7 +4,7 @@ import type {Colour} from './colours.js';
 export type FolderDragItem = IDName & WidthHeight;
 
 interface Transfer<T> {
-	transfer(): T | undefined;
+	transfer(): T;
 }
 
 interface CheckedDragEvent extends DragEvent {
