@@ -113,15 +113,15 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": setDragEffect({"link": [character]}), "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const tokenData = character.get(e)!,
-	      charData = characterData.get(tokenData.id)!;
-	changes["store-character-id"] = {"user": true, "data": tokenData.id};
-	clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(tokenData.id, lang["CHARACTER_EDIT"], charData, true)}));
+	const {id} = character.get(e)!,
+	      charData = characterData.get(id)!;
+	changes["store-character-id"] = {"user": true, "data": id};
+	clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
 }}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": setDragEffect({"link": [imageAsset]}), "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const tokenData = imageAsset.get(e)!;
-	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": tokenData.id};
-	clearNode(this, img({"src": `/images/${tokenData.id}`, "style": "max-width: 100%; max-height: 100%"}));
+	const {id} = imageAsset.get(e)!;
+	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
+	clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
 }}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
