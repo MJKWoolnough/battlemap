@@ -51,9 +51,9 @@ export class DragTransfer<T = any> {
 }
 
 export class DragFiles {
-	readonly mimes: string[];
+	mimes: Readonly<string[]>;
 	constructor(...mimes: string[]) {
-		this.mimes = mimes;
+		this.mimes = Object.freeze(mimes);
 	}
 	asForm(e: DragEvent, name: string) {
 		const f = new FormData();
