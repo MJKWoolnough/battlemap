@@ -60,15 +60,14 @@ export default (base: HTMLElement) => {
 				measureDistance(x + (width >> 1), y + (height >> 1));
 			}
 			break;
-		case 1: {
+		case 1:
 			rotation = mod(Math.round(-128 * Math.atan2(panZoom.zoom * (x + width / 2) + panZoom.x - (panZoom.zoom - 1) * mapData.width / 2 - e.clientX, panZoom.zoom * (y + height / 2) + panZoom.y - (panZoom.zoom - 1) * mapData.height / 2 - e.clientY) / Math.PI), 256);
 			if (snap) {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
 			amendNode(outline, {"class": `cursor_${((rotation + 143) >> 5) % 4}`});
-		}
-		break;
+			break;
 		default: {
 			const r = -360 * rotation / 256,
 			      {x: aDx, y: aDy} = new DOMPoint(dx, dy).matrixTransform(new DOMMatrix().rotateSelf(r)),
