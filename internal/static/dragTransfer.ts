@@ -19,6 +19,8 @@ interface Is {
 	is(e: DragEvent): boolean;
 }
 
+type EffectRecord = Partial<Record<"none" | "copy" | "link" | "move", Is[]>>;
+
 export class DragTransfer<T = any> {
 	#data = new Map<string, Transfer<T>>();
 	#nextID = 0;
@@ -74,12 +76,14 @@ export class DragFiles {
 	}
 }
 
-export const setDragEffect = (e: DragEvent, effect: "none" | "copy" | "link" | "move", ...keys: Is[]) => {
-	for (const key of keys) {
-		if (key.is(e)) {
-			e.preventDefault();
-			e.dataTransfer!.dropEffect = effect;
-			return true;
+export const setDragEffect = (effects: EffectRecord) => (e: DragEvent) => {
+	for (const effect in effects) {
+		for (const key of effects[effect as keyof EffectRecord] ?? []) {
+			if (key.is(e)) {
+				e.preventDefault();
+				e.dataTransfer!.dropEffect = effect as keyof EffectRecord;
+				return true;
+			}
 		}
 	}
 	return false;

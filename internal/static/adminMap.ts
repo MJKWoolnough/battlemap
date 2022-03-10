@@ -169,7 +169,10 @@ export default (base: HTMLElement) => {
 		}
 		stopMeasurement();
 	      }),
-	      mapOnDragOver = (e: DragEvent) => setDragEffect(e, "link", character, imageAsset) || setDragEffect(e, "copy", images),
+	      mapOnDragOver = setDragEffect({
+		"link": [character, imageAsset],
+		"copy": [images]
+	      }),
 	      mapOnDrop = (e: DragEvent) => {
 		if (selected.layer === null) {
 			return;

@@ -91,7 +91,8 @@ menuItems.push([2, () => isAdmin ? [
 	lang["TAB_CHARACTERS"],
 	(() => {
 		const rpcFuncs = rpc["characters"],
-		      base = div(loading());
+		      base = div(loading()),
+		      dragEffect = setDragEffect({"link": [imageAsset]});
 		rpcFuncs.list().then(folderList => {
 			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
@@ -105,7 +106,7 @@ menuItems.push([2, () => isAdmin ? [
 						labels(`${lang["CHARACTER_NAME"]}: `, name),
 						br(),
 						label(`${lang["CHARACTER_IMAGE"]}: `),
-						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": (e: DragEvent) => setDragEffect(e, "link", imageAsset), "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": dragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),

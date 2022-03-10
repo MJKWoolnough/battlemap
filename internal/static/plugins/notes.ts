@@ -83,7 +83,7 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": (e: DragEvent) => setDragEffect(e, "link", imageAsset, audioAsset, musicPack, pluginNote), "ondrop": (e: DragEvent) => {
+					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [imageAsset, audioAsset, musicPack, pluginNote]}), "ondrop": (e: DragEvent) => {
 						if (imageAsset.is(e)) {
 							contents.setRangeText(`[img]/images/${imageAsset.get(e).id}[/img]`);
 						} else if (audioAsset.is(e)) {

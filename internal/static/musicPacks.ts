@@ -294,7 +294,7 @@ menuItems.push([3, () => isAdmin ? [
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0) {
-							setDragEffect(e, "link", audioAsset) || setDragEffect(e, "copy", audioFiles);
+							dragCheck(e);
 						}
 					}, "ondrop": (e: DragEvent) => {
 						if (audioAsset.is(e)) {
@@ -421,7 +421,11 @@ menuItems.push([3, () => isAdmin ? [
 			      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
 			      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
-			      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"};
+			      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
+			      dragCheck = setDragEffect({
+				      "link": [audioAsset],
+				      "copy": [audioFiles]
+			      });
 			for (const pack of list) {
 				musicList.set(pack.id, new AdminPack(pack.id, pack));
 			}
