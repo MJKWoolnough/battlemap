@@ -343,7 +343,7 @@ export default (base: HTMLElement) => {
 			stopMeasurement();
 			cancelTokenDrag();
 		}),
-		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
+		keyEvent("Delete", () => doTokenRemove(selected.token!.id))
 	      ]);
 	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
