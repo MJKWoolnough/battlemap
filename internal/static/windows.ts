@@ -16,17 +16,19 @@ export type WindowData = [Int, Int, Uint, Uint];
 setLanguage(Object.fromEntries((["CANCEL", "CLOSE", "MAXIMISE", "MINIMISE", "OK", "RESTORE"] as (keyof typeof lang)[]).map(k => [k, lang[k]])));
 setDefaultIcon(document.getElementsByTagName("link")[0]?.getAttribute("href") ?? defaultIcon);
 
+function onkeydown(this: WindowElement, e: KeyboardEvent) {
+	if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
+		this.close();
+	}
+}
+
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
         const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
         parent.addWindow(w);
         return p.finally(() => w.remove());
 },
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children) => {
-	const w = amendNode(awindows({"hide-maximise": true, "tabindex": -1, "onkeydown": function(this: WindowElement, e: KeyboardEvent) {
-		if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
-			this.close();
-		}
-	      }}), props, children),
+	const w = amendNode(awindows({"hide-maximise": true, "tabindex": -1, onkeydown}), props, children),
 	      saveName = w.getAttribute("window-data");
 	if (saveName) {
 		const settings = new JSONSetting(saveName, getWindowData(w), checkWindowData),
