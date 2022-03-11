@@ -43,10 +43,10 @@ handleError = (e: Error | string) => {
 connID = new Promise<Uint>(success => connIDSet = success),
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws),
-	      argProcessors: Record<string, (args: IArguments, names: string[]) => any> = {
+	      argProcessors: Record<string, (args: unknown[], names: string[]) => unknown> = {
 		"": () => {},
-		"!": (args: IArguments) => args[0],
-		"*": (args: IArguments, names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
+		"!": (args: unknown[]) => args[0],
+		"*": (args: unknown[], names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
 	      },
 	      waiters: Record<string, [string, number, (data: any) => any][]> = {
 		"": [
@@ -253,26 +253,24 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
 			const processArgs = argProcessors[typeof args === "string" ? args : "*"];
 			if (internalWaiter === "") {
-				rk[name] = function() {return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError)}
+				rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[])).then(checker).catch(handleError);
 			} else {
 				let fn: Function;
 				ik[internalWaiter] = new Subscription(successFn => fn = successFn).splitCancel();
 				if (postKey === "") {
-					rk[name] = function() {
-						const a = processArgs(arguments, args as string[]);
+					rk[name] = (...params: unknown[]) => {
+						const a = processArgs(params, args as string[]);
 						fn(a);
 						return arpc.request(endpoint, a).then(checker).catch(handleError);
-					}
+					};
 				} else if (postKey === "*") {
-					rk[name] = function() {
-						return arpc.request(endpoint, processArgs(arguments, args as string[])).then(checker).catch(handleError).then(data => {
-							fn(data);
-							return data;
-						});
-					}
+					rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[])).then(checker).catch(handleError).then(data => {
+						fn(data);
+						return data;
+					});
 				} else if (postKey === "token/id") {
-					rk[name] = function() {
-						const a = processArgs(arguments, args as string[]);
+					rk[name] = (...params: unknown[]) => {
+						const a = processArgs(params, args as string[]) as {token: {id: Uint}};
 						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
 							a.token.id = data;
 							fn(a);
@@ -280,8 +278,8 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 						});
 					}
 				} else {
-					rk[name] = function() {
-						const a = processArgs(arguments, args as string[]);
+					rk[name] = (...params: unknown[]) => {
+						const a = processArgs(params, args as string[]) as object;
 						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
 							fn(Object.assign(a, {[postKey]: data}));
 							return data;
