@@ -310,7 +310,9 @@ export class Folder {
 	}
 	getPath() {
 		const breadcrumbs = [];
-		for (let f: Folder | null = this; f; f = f.parent) breadcrumbs.push(f.name);
+		for (let f: Folder | null = this; f; f = f.parent) {
+			breadcrumbs.push(f.name);
+		}
 		return breadcrumbs.reverse().join("/");
 	}
 	delete() {
