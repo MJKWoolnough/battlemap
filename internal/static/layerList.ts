@@ -227,10 +227,9 @@ class FolderLayer extends Folder {
 				showHideLayer(this);
 				e.preventDefault()
 			}}), amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
-				if (this.open.open) {
-					return;
+				if (!this.open.open) {
+					dragStart(this, e);
 				}
-				dragStart(this, e);
 			}}));
 			amendNode(this[node], {"class": ["layerFolder"]}, div(this[node].childNodes));
 		}
@@ -309,15 +308,14 @@ menuItems.push([5, () => isAdmin ? [
 			layersRPC.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
-				if (!l || !(np instanceof FolderLayer)) {
-					return;
-				}
-				l.parent!.children.delete(l.name);
-				l.parent = np;
-				if (ml.position >= np.children.size) {
-					np.children.set(l.name, l);
-				} else {
-					np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
+				if (l && np instanceof FolderLayer) {
+					l.parent!.children.delete(l.name);
+					l.parent = np;
+					if (ml.position >= np.children.size) {
+						np.children.set(l.name, l);
+					} else {
+						np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
+					}
 				}
 			});
 			layersRPC.waitLayerRename().then(lr => {
