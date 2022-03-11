@@ -128,15 +128,9 @@ export class SVGShape extends SVGTransform {
 		this.strokeWidth = token.strokeWidth;
 		this.isEllipse = token.isEllipse ?? false;
 		if (draw) {
-			let n: SVGRectElement | SVGEllipseElement;
-			if (!token.isEllipse) {
-				n = rect({"width": token.width, "height": token.height});
-			} else {
-				const rx = token.width / 2,
-				      ry = token.height / 2;
-				n = ellipse({"cx": rx, "cy": ry, rx, ry});
-			}
-			this[node] = amendNode(n, {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
+			const rx = token.width / 2,
+			      ry = token.height / 2;
+			this[node] = amendNode(token.isEllipse ? ellipse({"cx": rx, "cy": ry, rx, ry}) : rect({"width": token.width, "height": token.height}), {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
 		}
 	}
 	get isPattern() {
