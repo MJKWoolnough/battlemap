@@ -194,10 +194,7 @@ export class Folder {
 		return stringSorter;
 	}
 	get itemSorter() {
-		if (this.parent === null) {
-			return idSorter;
-		}
-		return stringSorter;
+		return this.parent === null ? idSorter : stringSorter;
 	}
 	get sorter() {
 		const fs = this.folderSorter,
