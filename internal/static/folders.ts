@@ -376,7 +376,7 @@ export class Root {
 	}
 	resolvePath(path: string): [Folder | null, string] {
 		const breadcrumbs = path.split("/"),
-		      sub = breadcrumbs.pop() || "";
+		      sub = breadcrumbs.pop() ?? "";
 		let folder: Folder = this.folder;
 		for (const b of breadcrumbs) {
 			if (b) {
