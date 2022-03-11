@@ -144,8 +144,8 @@ export abstract class DraggableItem extends Item {
 	get showOnMouseOver() { return false; }
 	abstract dragTransfer(): DragTransfer<FolderDragItem>;
 	transfer(): FolderDragItem {
-		const {naturalWidth, naturalHeight} = this.image;
-		return {"id": this.id, "width": naturalWidth, "height": naturalHeight, "name": this.name};
+		const {id, name, image: {naturalWidth, naturalHeight}} = this;
+		return {id, "width": naturalWidth, "height": naturalHeight, name};
 	}
 	delete() {
 		this.removeIcon();
