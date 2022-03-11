@@ -65,7 +65,9 @@ const allowedKey = (key: string, character: boolean) => {
 	const t = {id, tokenData, removeTokenData};
 	doTokenSet(t, false);
 	return rpc.setToken(t);
-      };
+      },
+      characterDragEffect = setDragEffect({"link": [character]}),
+      imageDragEffect = setDragEffect({"link": [imageAsset]});
 
 export const characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
@@ -112,13 +114,13 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 		labels(`${lang["TOKEN_ORDER_SHUFFLE"]}: `, input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), false),
 	];
 },
-characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": setDragEffect({"link": [character]}), "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 	const {id} = character.get(e)!,
 	      charData = characterData.get(id)!;
 	changes["store-character-id"] = {"user": true, "data": id};
 	clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
 }}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
-iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": setDragEffect({"link": [imageAsset]}), "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 	const {id} = imageAsset.get(e)!;
 	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
 	clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
