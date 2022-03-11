@@ -302,12 +302,11 @@ export class Folder {
 		return this.children.get(name) as Folder | undefined;
 	}
 	removeFolder(name: string) {
-		const old = this.children.get(name) as Folder;
+		const old = this.children.get(name) as Folder | undefined;
 		if (old) {
 			this.children.delete(name);
-			return old;
 		}
-		return undefined;
+		return old;
 	}
 	getPath() {
 		const breadcrumbs = [];
