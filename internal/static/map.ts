@@ -284,25 +284,23 @@ mapView = (mD: MapData, loadChars = false) => {
 	      {width, height, lightColour, startX, startY} = mapData,
 	      items = div(),
 	      percent = progress(),
-	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items]));
-	layerList = (() => {
-		const n = g(),
-		      children = new NodeArray<SVGFolder | SVGLayer>(n);
-		for (const c of mapData.children) {
-			children.push(processLayers(wg, c));
-		}
-		return {
-			id: 0,
-			name: "",
-			hidden: false,
-			[node]: n,
-			children,
-			folders: {},
-			items: {},
-			path: "/"
-		} as SVGFolder;
-	})();
-	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], layerList[node], rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
+	      loader = div({"id": "mapLoading"}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
+	      n = g(),
+	      children = new NodeArray<SVGFolder | SVGLayer>(n);
+	for (const c of mapData.children) {
+		children.push(processLayers(wg, c));
+	}
+	layerList = {
+		id: 0,
+		name: "",
+		hidden: false,
+		[node]: n,
+		children,
+		folders: {},
+		items: {},
+		path: "/"
+	};
+	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
