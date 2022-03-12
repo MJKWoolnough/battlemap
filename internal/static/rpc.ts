@@ -255,8 +255,8 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			if (internalWaiter === "") {
 				rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[])).then(checker).catch(handleError);
 			} else {
-				let fn: Function;
-				ik[internalWaiter] = new Subscription(successFn => fn = successFn).splitCancel();
+				const [iw, fn] = Subscription.bind(1);
+				ik[internalWaiter] = iw.splitCancel();
 				if (postKey === "") {
 					rk[name] = (...params: unknown[]) => {
 						const a = processArgs(params, args as string[]);
@@ -294,8 +294,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		      ik = (k === "" ? internal : internal[k as keyof InternalWaits]) as Record<string, Function>,
 		      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
 		for (const [name, broadcastID, checker] of waiters[k]) {
-			let fn: Function;
-			const waiter = new Subscription(success => fn = success);
+			const [waiter, fn] = Subscription.bind(1);
 			arpc.subscribe(broadcastID).then(checker).then(data => queue(async () => fn(data)));
 			rk[name] = () => waiter;
 			if (ik[name]) {
