@@ -411,24 +411,23 @@ export default (base: HTMLElement) => {
 	rpc.waitLayerRemove().then(removeLayer),
 	rpc.waitTokenAdd().then(tk => {
 		const layer = getLayer(tk.path);
-		if (!layer || !isSVGLayer(layer)) {
-			return;
-		}
-		delete (tk as Record<string, any>)["path"];
-		let token: SVGToken | SVGShape | SVGDrawing;
-		if (isTokenImage(tk.token)) {
-			token = new tokenClass(tk.token);
-			const cID = tk.token.tokenData["store-character-id"];
-			if (cID && typeof cID.data === "number") {
-				rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
+		if (layer && isSVGLayer(layer)) {
+			delete (tk as Record<string, any>)["path"];
+			let token: SVGToken | SVGShape | SVGDrawing;
+			if (isTokenImage(tk.token)) {
+				token = new tokenClass(tk.token);
+				const cID = tk.token.tokenData["store-character-id"];
+				if (cID && typeof cID.data === "number") {
+					rpc.characterGet(cID.data).then(d => characterData.set(cID.data, d));
+				}
+			} else if (isTokenDrawing(tk.token)) {
+				token = new drawingClass(tk.token);
+			} else {
+				token = new shapeClass(tk.token);
 			}
-		} else if (isTokenDrawing(tk.token)) {
-			token = new drawingClass(tk.token);
-		} else {
-			token = new shapeClass(tk.token);
+			layer.tokens.push(token);
+			tokens.set(token.id, {layer, token});
 		}
-		layer.tokens.push(token);
-		tokens.set(token.id, {layer, token});
 	}),
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
 		const tk = tokens.get(id) ?? {"layer": null, "token": null},
@@ -447,35 +446,34 @@ export default (base: HTMLElement) => {
 	}),
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
-		if (!token) {
-			return;
-		}
-		for (const k in ts) {
-			switch (k) {
-			case "id":
-				break;
-			case "src":
-				if (token instanceof SVGToken && ts["src"]) {
-					token.updateSource(ts["src"]);
+		if (token) {
+			for (const k in ts) {
+				switch (k) {
+				case "id":
+					break;
+				case "src":
+					if (token instanceof SVGToken && ts["src"]) {
+						token.updateSource(ts["src"]);
+					}
+					break;
+				case "tokenData":
+					const tokenData = ts[k];
+					for (const k in tokenData) {
+						token["tokenData"][k] = tokenData[k];
+					}
+					break;
+				case "removeTokenData":
+					const removeTokenData = ts[k]!;
+					for (const k of removeTokenData) {
+						delete token["tokenData"][k];
+					}
+					break;
+				default:
+					(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 				}
-				break;
-			case "tokenData":
-				const tokenData = ts[k];
-				for (const k in tokenData) {
-					token["tokenData"][k] = tokenData[k];
-				}
-				break;
-			case "removeTokenData":
-				const removeTokenData = ts[k]!;
-				for (const k of removeTokenData) {
-					delete token["tokenData"][k];
-				}
-				break;
-			default:
-				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 			}
+			token.updateNode()
 		}
-		token.updateNode()
 	}),
 	rpc.waitTokenRemove().then(tk => {
 		const {layer, token} = tokens.get(tk)!;
@@ -489,21 +487,20 @@ export default (base: HTMLElement) => {
 	}),
 	rpc.waitLayerShift().then(({path, dx, dy}) => {
 		const layer = getLayer(path);
-		if (!layer || !isSVGLayer(layer)) {
-			return;
+		if (layer && isSVGLayer(layer)) {
+			for (const t of layer.tokens) {
+				t.x += dx;
+				t.y += dy;
+				t.updateNode();
+			};
+			for (const w of layer.walls) {
+				w.x1 += dx;
+				w.y1 += dy;
+				w.x2 += dx;
+				w.y2 += dy;
+			};
+			updateLight();
 		}
-		for (const t of layer.tokens) {
-			t.x += dx;
-			t.y += dy;
-			t.updateNode();
-		};
-		for (const w of layer.walls) {
-			w.x1 += dx;
-			w.y1 += dy;
-			w.x2 += dx;
-			w.y2 += dy;
-		};
-		updateLight();
 	}),
 	rpc.waitWallAdded().then(({path, wall}) => {
 		const layer = getLayer(path);
