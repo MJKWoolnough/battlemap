@@ -85,13 +85,7 @@ characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>,
 },
 addPlugin = (name: string, p: PluginType) => plugins.set(name, p),
 getSettings = (name: string) => pluginList.get(name)?.data,
-askReload = () => {
-	if (!isAdmin) {
-		window.location.reload();
-		return;
-	}
-	shell.confirm(lang["PLUGIN_REFRESH"], lang["PLUGIN_REFRESH_REQUEST"]).then(r => r && window.location.reload());
-},
+askReload = () => isAdmin ? shell.confirm(lang["PLUGIN_REFRESH"], lang["PLUGIN_REFRESH_REQUEST"]).then(r => r && window.location.reload()) : window.location.reload(),
 tokenContext = () => {
 	const ret: List[] = [];
 	for (const [, {"tokenContext": {fn}}] of filterSortPlugins("tokenContext")) {
