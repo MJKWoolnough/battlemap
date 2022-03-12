@@ -59,10 +59,8 @@ settings = () => {
 	      save = button({"disabled": true, "onclick": () => {
 		const s = selected.value,
 		      plugin = pluginList.get(s);
-		if (plugin) {
-			if (check.checked !== plugin.enabled) {
-				((plugin.enabled = check.checked) ? rpc.enablePlugin : rpc.disablePlugin)(s).then(askReload).catch(handleError);
-			}
+		if (plugin && check.checked !== plugin.enabled) {
+			((plugin.enabled = check.checked) ? rpc.enablePlugin : rpc.disablePlugin)(s).then(askReload).catch(handleError);
 		}
 	      }}, lang["SAVE"]);
 	return [
