@@ -90,13 +90,12 @@ walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = la
 isSVGFolder = (c: SVGFolder | SVGLayer): c is SVGFolder => (c as SVGFolder).children !== undefined,
 isSVGLayer = (c: SVGFolder | SVGLayer): c is SVGLayer => (c as SVGLayer).tokens !== undefined,
 getLayer = (path: string, layer: SVGFolder | SVGLayer = layerList) => path.split("/").filter(b => b).every(p => {
-	if (!isSVGFolder(layer)) {
-		return false;
-	}
-	const a = (layer.children as NodeArray<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
-	if (a) {
-		layer = a;
-		return true;
+	if (isSVGFolder(layer)) {
+		const a = (layer.children as NodeArray<SVGFolder | SVGLayer>).filter(c => c.name === p).pop();
+		if (a) {
+			layer = a;
+			return true;
+		}
 	}
 	return false;
 }) ? layer : null,
