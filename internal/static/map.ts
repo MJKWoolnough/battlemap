@@ -378,9 +378,9 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false;
 	      };
-	defaultTool.mapMouse0 = (e: MouseEvent) => initMapMove(e, startMapMove0);
-	defaultTool.mapMouse1 = (e: MouseEvent) => initMapMove(e, startMapMove1);
-	defaultTool.mapMouse2 = (e: MouseEvent) => {
+	defaultTool.mapMouse0 = e => initMapMove(e, startMapMove0);
+	defaultTool.mapMouse1 = e => initMapMove(e, startMapMove1);
+	defaultTool.mapMouse2 = e => {
 		const pos = screen2Grid(e.clientX, e.clientY);
 		showSignal(pos);
 		rpc.signalPosition(pos);
