@@ -229,12 +229,12 @@ zoom = (() => {
 		amendNode(zoomerControl, {"cy": v});
 		zoom(Math.pow(1.4, (60 - v) / 10) / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
-	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => document.body.classList.remove("zooming")),
+	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => amendNode(document.body, {"class": ["!zooming"]})),
 	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
 	      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
 		if (e.button === 0) {
 			setupZoomDrag();
-			document.body.classList.add("zooming");
+			amendNode(document.body, {"class": ["zooming"]});
 		}
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)
