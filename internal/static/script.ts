@@ -96,7 +96,7 @@ const lastTab = new StringSetting("lastTab"),
 				(t.control ?? t).click();
 				return;
 			}
-		};
+		}
 	      };
 	hideMenu.wait(v => amendNode(m, {"class": {"menuHide": v}}));
 	keyEvent("F1", (e: KeyboardEvent) => {
