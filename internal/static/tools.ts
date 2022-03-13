@@ -125,8 +125,7 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 			selected?.classList.remove("selected")
-			this.classList.add("selected");
-			selected = this;
+			amendNode(selected = this, {"class": ["selected"]});
 		      }}, [
 			t.icon,
 			span(t.name)
