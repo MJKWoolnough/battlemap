@@ -199,10 +199,9 @@ inited.then(() => {
 	mI.splice(0, mI.length);
 	return pluginInit().then(() => {
 		amendNode(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => {
-			if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
-				return;
+			if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+				e.preventDefault();
 			}
-			e.preventDefault();
 		}});
 		for (const [, fn] of mIs) {
 			const data = fn();
