@@ -98,7 +98,7 @@ const lastTab = new StringSetting("lastTab"),
 			}
 		};
 	      };
-	hideMenu.wait((value: boolean) => m.classList.toggle("menuHide", value));
+	hideMenu.wait(v => amendNode(m, {"class": {"menuHide": v}}));
 	keyEvent("F1", (e: KeyboardEvent) => {
 		help();
 		e.preventDefault();
@@ -189,9 +189,9 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 
 clearNode(document.body, amendNode(shell, {"snap": 50}, base));
 
-invert.wait((v: boolean) => document.documentElement.classList.toggle("invert", v));
-tabIcons.wait((b: boolean) => document.documentElement.classList.toggle("tabIcons", b));
-panelOnTop.wait((p: boolean) => document.documentElement.classList.toggle("panelOnTop", p));
+invert.wait(v => amendNode(document.documentElement, {"class": {"invert": v}}));
+tabIcons.wait(b => amendNode(document.documentElement, {"class": {"tabIcons": b}}));
+panelOnTop.wait(p => amendNode(document.documentElement, {"class": {"panelOnTop": p}}));
 
 inited.then(() => {
 	const mIs = [...mI].sort(([a], [b]) => a - b),

@@ -246,7 +246,7 @@ zoom = (() => {
 		}, "onwheel": zoomWheel}),
 		zoomerControl
 	])));
-	zoomSlider.wait(enabled => document.body.classList.toggle("hideZoomSlider", enabled));
+	zoomSlider.wait(enabled => amendNode(document.body, {"class": {"hideZoomSlider": enabled}}));
 	mapLoadedReceive(() => amendNode(zoomerControl, {"cy": "60"}));
 	return (delta: number, x: number, y: number, moveControl = true) => {
 		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,

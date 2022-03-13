@@ -350,11 +350,11 @@ const select = Symbol("select"),
 	}
       },
       displaySettings = {
-	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => document.body.classList.toggle("hide-token-hp-5e", !b)), new BoolSetting("5e-show-selected-hp").wait(b => document.body.classList.toggle("hide-selected-hp-5e", !b))],
-	"SHOW_AC": [new BoolSetting("5e-show-token-ac").wait(b => document.body.classList.toggle("hide-token-ac-5e", !b)), new BoolSetting("5e-show-selected-ac").wait(b => document.body.classList.toggle("hide-selected-ac-5e", !b))],
-	"SHOW_NAMES": [new BoolSetting("5e-show-token-names").wait(b => document.body.classList.toggle("hide-token-names-5e", !b)), new BoolSetting("5e-show-selected-names").wait(b => document.body.classList.toggle("hide-selected-names-5e", !b))],
-	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => document.body.classList.toggle("hide-token-conditions-5e", b)), new BoolSetting("5e-hide-selected-conditions").wait(b => document.body.classList.toggle("hide-selected-conditions-5e", b))],
-	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => document.body.classList.toggle("desaturate-token-conditions-5e", b)), new BoolSetting("5e-desaturate-selected-conditions").wait(b => document.body.classList.toggle("desaturate-selected-conditions-5e", b))]
+	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => amendNode(document.body, {"class": {"hide-token-hp-5e": !b}})), new BoolSetting("5e-show-selected-hp").wait(b => amendNode(document.body, {"class": {"hide-selected-hp-5e": !b}}))],
+	"SHOW_AC": [new BoolSetting("5e-show-token-ac").wait(b => amendNode(document.body, {"class": {"hide-token-ac-5e": !b}})), new BoolSetting("5e-show-selected-ac").wait(b => amendNode(document.body, {"class": {"hide-selected-ac-5e": !b}}))],
+	"SHOW_NAMES": [new BoolSetting("5e-show-token-names").wait(b => amendNode(document.body, {"class": {"hide-token-names-5e": !b}})), new BoolSetting("5e-show-selected-names").wait(b => amendNode(document.body, {"class": {"hide-selected-names-5e": !b}}))],
+	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => amendNode(document.body, {"class": {"hide-token-conditions-5e": b}})), new BoolSetting("5e-hide-selected-conditions").wait(b => amendNode(document.body, {"class": {"hide-selected-conditions-5e": b}}))],
+	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-token-conditions-5e": b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-selected-conditions-5e": b}}))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", Colour.from({"r": 255, "g": 255, "b": 0, "a": 127}), (v: any): v is Colour => {
 	if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {

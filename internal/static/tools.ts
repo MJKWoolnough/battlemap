@@ -153,7 +153,7 @@ menuItems.push([6, () => isAdmin ? [
 		fc.click();
 		mapLoadedReceive(() => fc.click());
 		miniTools.wait(on => {
-			document.body.classList.toggle("miniTools", on)
+			amendNode(document.body, {"class": {"miniTools": on}})
 			if (!windowed) {
 				return;
 			}
