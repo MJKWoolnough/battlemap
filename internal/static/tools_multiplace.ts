@@ -86,10 +86,7 @@ addTool({
 					if (char) {
 						setToken = () => {
 							const ct = getCharacterToken(char);
-							if (ct) {
-								return fullToken(ct);
-							}
-							return fullToken({"src": char["store-image-icon"].data});
+							return ct ? fullToken(ct) : fullToken({"src": char["store-image-icon"].data});
 						}
 						setImg(parseInt(char["store-image-icon"].data));
 					}
