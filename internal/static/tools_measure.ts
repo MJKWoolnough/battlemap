@@ -180,9 +180,8 @@ addTool({
 });
 
 mapLoadedReceive(() => {
-	const {gridDistance, gridDiagonal} = mapData;
-	cellValue.value = gridDistance + "";
-	diagonals.checked = gridDiagonal;
+	cellValue.value = mapData.gridDistance + "";
+	diagonals.checked = mapData.gridDiagonal;
 });
 
 inited.then(() => {
