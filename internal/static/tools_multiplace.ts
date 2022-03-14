@@ -102,11 +102,8 @@ addTool({
 	]),
 	"mapMouse0": function(this: SVGElement, e: MouseEvent) {
 		const {layer} = selected;
-		if (mode.checked || !token || !cursor || !layer || e.button === 1) {
+		if (mode.checked || !token || !cursor || !layer) {
 			return true;
-		}
-		if (e.button !== 0) {
-			return false;
 		}
 		e.preventDefault();
 		cursor[node].remove();
