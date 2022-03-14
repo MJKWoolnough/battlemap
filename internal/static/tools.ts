@@ -154,20 +154,19 @@ menuItems.push([6, () => isAdmin ? [
 		mapLoadedReceive(() => fc.click());
 		miniTools.wait(on => {
 			amendNode(document.body, {"class": {"miniTools": on}})
-			if (!windowed) {
-				return;
-			}
-			if (on) {
-				amendNode(optionsWindow, options);
-				if (selectedTool.options) {
-					amendNode(toolOptions, {"style": {"display": "none"}});
-					amendNode(shell, autoFocus(optionsWindow));
-				}
-			} else {
-				amendNode(toolOptions, options);
-				if (selectedTool.options) {
-					amendNode(toolOptions, {"style": {"display": undefined}});
-					optionsWindow.remove();
+			if (windowed) {
+				if (on) {
+					amendNode(optionsWindow, options);
+					if (selectedTool.options) {
+						amendNode(toolOptions, {"style": {"display": "none"}});
+						amendNode(shell, autoFocus(optionsWindow));
+					}
+				} else {
+					amendNode(toolOptions, options);
+					if (selectedTool.options) {
+						amendNode(toolOptions, {"style": {"display": undefined}});
+						optionsWindow.remove();
+					}
 				}
 			}
 		});
