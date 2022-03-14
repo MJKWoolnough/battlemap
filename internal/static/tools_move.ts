@@ -55,9 +55,8 @@ addTool({
 			dy = 0;
 			snap = layer.tokens.some(t => t.snap);
 			[ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value);
-			measure = measureTokenMove.value;
 			setupEscape();
-			if (measure) {
+			if (measure = measureTokenMove.value) {
 				startMeasurement(ox, oy);
 			}
 			deselectToken();
