@@ -91,9 +91,8 @@ addTool({
 						setImg(parseInt(char["store-image-icon"].data));
 					}
 				} else if (imageAsset.is(e)) {
-					const {id: src, width, height} = imageAsset.get(e),
-					      tk = {src, width, height};
-					setToken = () => fullToken(tk);
+					const {id: src, width, height} = imageAsset.get(e);
+					setToken = () => fullToken({src, width, height});
 					setImg(src);
 				}
 			}}, lang["TOKEN_USE_SELECTED"]),
