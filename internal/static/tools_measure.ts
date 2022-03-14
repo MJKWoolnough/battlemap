@@ -101,8 +101,8 @@ measureDistance = (x: Uint, y: Uint) => {
 				      dy = y - last[1];
 				distance += cv * (diagonals.checked ? Math.hypot(dx, dy) : Math.max(Math.abs(dx), Math.abs(dy)));
 			}
-			last[0] = coords[i];
-			last[1] = coords[i+1];
+			last[0] = x;
+			last[1] = y;
 		}
 		return res;
 	      }, "") + ` ${x},${y}`},
