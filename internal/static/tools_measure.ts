@@ -104,7 +104,7 @@ measureDistance = (x: Uint, y: Uint) => {
 			last[0] = coords[i];
 			last[1] = coords[i+1];
 		}
-		return res
+		return res;
 	      }, "") + ` ${x},${y}`},
 	      [sx, sy] = grid2Screen(x, y),
 	      dx = x - last[0],
