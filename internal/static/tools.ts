@@ -124,7 +124,7 @@ menuItems.push([6, () => isAdmin ? [
 					amendNode(toolOptions, {"style": {"display": "none"}});
 				}
 			}
-			selected?.classList.remove("selected")
+			selected?.classList.remove("selected");
 			amendNode(selected = this, {"class": ["selected"]});
 		      }}, [
 			t.icon,
@@ -153,7 +153,7 @@ menuItems.push([6, () => isAdmin ? [
 		fc.click();
 		mapLoadedReceive(() => fc.click());
 		miniTools.wait(on => {
-			amendNode(document.body, {"class": {"miniTools": on}})
+			amendNode(document.body, {"class": {"miniTools": on}});
 			if (windowed) {
 				if (on) {
 					amendNode(optionsWindow, options);
