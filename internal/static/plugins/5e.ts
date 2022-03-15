@@ -499,18 +499,17 @@ const select = Symbol("select"),
 					amendNode(this.#ac, {"style": "display: none"});
 				} else {
 					amendNode(this.#ac, {"style": undefined})
-					this.#acValue.innerHTML = ac + "";
+					clearNode(this.#acValue, ac + "");
 				}
 				if (currentHP === null || maxHP === null) {
 					amendNode(this.#hp, {"style": "display: none"});
 				} else {
 					amendNode(this.#hp, {"style": undefined});
-					this.#hpValue.innerHTML = currentHP + "";
-					amendNode(this.#hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`});
+					clearNode(this.#hpValue, {"fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP + "");
 					amendNode(this.#hpBar, {"stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`});
 				}
 				if (this.#name.innerHTML !== name) {
-					amendNode(this.#name, {"style": {"font-size": undefined}}, name);
+					clearNode(this.#name, {"style": {"font-size": undefined}}, name);
 					this.#setTextWidth();
 				}
 				this.#updateConditions();
