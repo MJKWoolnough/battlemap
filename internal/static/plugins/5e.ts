@@ -319,22 +319,21 @@ const select = Symbol("select"),
 	if (initiative) {
 		for (const i of initiative as IDInitiative[]) {
 			if (tokens.has(i.id)) {
-				const {layer, token} = tokens.get(i.id)!,
-				      isHidden = hiddenLayers.has(layer.path);
-				if (!(token instanceof SVGToken5E)) {
-					continue;
-				}
-				let initiative = i.initiative;
-				if (change && change[0] === i.id) {
-					const i = change[1];
-					change = undefined;
-					if (i === null) {
-						continue;
+				const {layer, token} = tokens.get(i.id)!;
+				if (token instanceof SVGToken5E) {
+					let initiative = i.initiative;
+					const isHidden = hiddenLayers.has(layer.path);
+					if (change && change[0] === i.id) {
+						const i = change[1];
+						change = undefined;
+						if (i === null) {
+							continue;
+						}
+						initiative = i;
 					}
-					initiative = i;
-				}
-				if (!isHidden || isAdmin) {
-					addToInitiative(token, initiative, isHidden);
+					if (!isHidden || isAdmin) {
+						addToInitiative(token, initiative, isHidden);
+					}
 				}
 			}
 		}
