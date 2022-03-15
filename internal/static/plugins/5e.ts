@@ -626,7 +626,7 @@ if (isAdmin) {
 			throw new Error("invalid initiative");
 		}
 		return parseInt(initiative);
-	})).then(initiative => {
+	      })).then(initiative => {
 		if (isValidToken(token) && isInt(initiative, -20, 40)) {
 			updateInitiative([token.id, initiative]);
 			saveInitiative();
