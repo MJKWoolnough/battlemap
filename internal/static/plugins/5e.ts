@@ -270,14 +270,16 @@ const select = Symbol("select"),
 		}}, initDesc),
 		br(),
 		button({"title": lang["INITIATIVE_PREV"], "onclick": () => {
-			if (initiativeList.length > 1) {
-				initiativeList.unshift(initiativeList.pop()!);
+			const i = initiativeList.pop();
+			if (i) {
+				initiativeList.unshift(i);
 				saveInitiative();
 			}
 		}}, initPrev),
 		button({"title": lang["INITIATIVE_NEXT"], "onclick": () => {
-			if (initiativeList.length > 1) {
-				initiativeList.push(initiativeList.shift()!);
+			const i = initiativeList.shift();
+			if (i) {
+				initiativeList.push(i);
 				saveInitiative();
 			}
 		}}, initNext)
