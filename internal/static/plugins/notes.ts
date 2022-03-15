@@ -189,9 +189,7 @@ if (isAdmin) {
 			return defaultSettings
 		}
 		for (const k in data) {
-			if (k === "") {
-				continue;
-			} else {
+			if (k !== "") {
 				const id = parseInt(k);
 				if (!isNaN(id) && data[k] instanceof Object && !data[k].user && isPage(data[k].data)) {
 					pages.set(id, data[k]);
