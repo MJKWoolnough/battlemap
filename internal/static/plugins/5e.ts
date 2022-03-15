@@ -318,8 +318,9 @@ const select = Symbol("select"),
 	});
 	if (initiative) {
 		for (const i of initiative as IDInitiative[]) {
-			if (tokens.has(i.id)) {
-				const {layer, token} = tokens.get(i.id)!;
+			const tk = tokens.get(i.id);
+			if (tk) {
+				const {layer, token} = tk;
 				if (token instanceof SVGToken5E) {
 					let initiative = i.initiative;
 					const isHidden = hiddenLayers.has(layer.path);
