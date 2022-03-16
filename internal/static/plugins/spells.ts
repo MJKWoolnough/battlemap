@@ -111,8 +111,7 @@ if (isAdmin) {
 	      [setupMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360);
-			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation})`);
+			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360)})`);
 		} else {
 			[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
