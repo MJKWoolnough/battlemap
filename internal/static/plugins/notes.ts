@@ -214,8 +214,7 @@ if (isAdmin) {
 		      name = parts.pop() ?? "";
 		for (const p of parts) {
 			if (p) {
-				currPath = currPath.folders[p];
-				if (!currPath) {
+				if (!(currPath = currPath.folders[p])) {
 					return [null, name];
 				}
 			}
