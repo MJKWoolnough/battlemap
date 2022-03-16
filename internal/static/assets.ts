@@ -25,7 +25,7 @@ class ImageAsset extends DraggableItem {
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
-		amendNode(shell, autoFocus(w));
+		amendNode(shell, w);
 		return w;
 	}
 }
@@ -39,7 +39,7 @@ class AudioAsset extends DraggableItem {
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
-		amendNode(shell, autoFocus(w));
+		amendNode(shell, w);
 		return w;
 	}
 }

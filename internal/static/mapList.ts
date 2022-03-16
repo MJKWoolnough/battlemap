@@ -68,10 +68,10 @@ class MapItem extends DraggableItem {
 		}
 	}
 	rename() {
-		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"])))) : super.rename();
+		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))) : super.rename();
 	}
 	remove() {
-		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? autoFocus(shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"])))) : super.remove();
+		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))) : super.remove();
 	}
 	setUserMap() {
 		setMap(this, selectedUser, "mapUser", "hasMapUser");
