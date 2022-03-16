@@ -136,14 +136,14 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		clearNode(base, {"id": `${id}Items`, "class": "folders"}, [
 			button({"onclick": () => {
 				const f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, autoFocus(input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
-					uploadAsset(root, id, new FormData(f), window)
-					.then(() => window.remove())
+					uploadAsset(root, id, new FormData(f), w)
+					.then(() => w.remove())
 					.catch(handleError)
 					.finally(() => amendNode(this, {"disabled": false}));
 					amendNode(this, {"disabled": true});
 				      }})))),
-				      window = windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]);
-				amendNode(shell, window);
+				      w = windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]);
+				amendNode(shell, w);
 			}}, upload),
 			root[node]
 		]);

@@ -99,9 +99,8 @@ menuItems.push([2, () => isAdmin ? [
 			clearNode(base, {"id": "characters", "class": "folders"}, [
 				button({"onclick": () => {
 					let icon = 0;
-					const w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}),
-					      name = autoFocus(input({"onkeypress": enterKey}));
-					amendNode(shell, amendNode(w, [
+					const name = autoFocus(input({"onkeypress": enterKey})),
+					      w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 						h1(lang["CHARACTER_NEW"]),
 						labels(`${lang["CHARACTER_NAME"]}: `, name),
 						br(),
@@ -124,7 +123,8 @@ menuItems.push([2, () => isAdmin ? [
 							.finally(() => amendNode(this, {"disabled": false}));
 							amendNode(this, {"disabled": true});
 						}}, lang["CHARACTER_CREATE"])
-					]));
+					      ]);
+					amendNode(shell, w);
 				}}, lang["CHARACTER_NEW"]),
 				root[node]
 			]);

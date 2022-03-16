@@ -172,15 +172,14 @@ menuItems.push([4, () => isAdmin ? [
 			}
 			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
-					const window = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"], "class": "mapAdd"}),
-					      name = autoFocus(input({"type": "text"})),
+					const name = autoFocus(input({"type": "text"})),
 					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
 					      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
 					      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
 					      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
 					      sqColour = input({"type": "color"}),
-					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"});
-					amendNode(shell, amendNode(window, [
+					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"}),
+					      w = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"], "class": "mapAdd"}, [
 						h1(lang["MAP_NEW"]),
 						labels(`${lang["MAP_NAME"]}: `, name),
 						br(),
@@ -207,14 +206,14 @@ menuItems.push([4, () => isAdmin ? [
 								"gridSize": sq,
 								"gridColour": hex2Colour(sqColour.value),
 								"gridStroke": checkInt(parseInt(sqLineWidth.value), 0, 10, 0)
-							}), window).then(({id, name}) => {
+							}), w).then(({id, name}) => {
 								root.addItem(id, name);
-								window.remove();
+								w.remove();
 							})
 							.finally(() => amendNode(this, {"disabled": false}));
 						}}, lang["MAP_ADD"])
-					]));
-					amendNode(shell, window);
+					      ]);
+					amendNode(shell, w);
 				}}, lang["MAP_NEW"]),
 				root[node]
 			]);

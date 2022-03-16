@@ -36,9 +36,8 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
-	const window = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"], "class": "renameItem"}),
-	      newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey}));
-	amendNode(shell, amendNode(window, [
+	const newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
+	      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"], "class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
 		br(),
@@ -47,12 +46,13 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 			loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
 				clearNode(self.nameElem, self.name = name);
 				doLayerRename(path, name, false);
-				window.remove();
+				w.remove();
 			})
-			.finally(() => amendNode(this, {"disabled": true}))), window);
+			.finally(() => amendNode(this, {"disabled": true}))), w);
 		}}, lang["LAYER_RENAME"])
-	]));
-	return window;
+	      ]);
+	amendNode(shell, w);
+	return w;
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
 	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
@@ -332,9 +332,8 @@ menuItems.push([5, () => isAdmin ? [
 			});
 			clearNode(base, {"id": "layerList"}, [
 				button({"onclick": () => {
-					const window = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}),
-					      name = autoFocus(input({"onkeypress": enterKey}));
-					amendNode(shell, amendNode(window, [
+					const name = autoFocus(input({"onkeypress": enterKey})),
+					      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
 						br(),
@@ -343,11 +342,12 @@ menuItems.push([5, () => isAdmin ? [
 							loadingWindow(queue(() => rpc.addLayer(name.value).then(name => {
 								doLayerAdd(name, false);
 								list.addItem(1, name);
-								window.remove();
+								w.remove();
 							})
-							.finally(() => amendNode(this, {"disabled": false}))), window);
+							.finally(() => amendNode(this, {"disabled": false}))), w);
 						}}, lang["LAYER_ADD"])
-					]));
+					      ]);
+					amendNode(shell, w);
 				}}, lang["LAYER_ADD"]),
 				list[node]
 			]);
