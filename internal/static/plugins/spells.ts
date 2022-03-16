@@ -122,13 +122,12 @@ if (isAdmin) {
 	      }, () => over = false),
 	      addSpell = () => {
 		if (selectedEffect !== coneEffect && selectedEffect !== lineEffect) {
-			const {gridSize, gridDistance} = mapData,
-			      {layer} = selected,
-			      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
-			      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w,
-			      token = {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}};
+			const {layer} = selected;
 			if (layer) {
-				doTokenAdd(layer.path, token);
+				const {gridSize, gridDistance} = mapData,
+				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
+				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w;
+				doTokenAdd(layer.path, {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
 			}
 		}
 	      },
