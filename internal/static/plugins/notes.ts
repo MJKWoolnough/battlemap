@@ -225,10 +225,9 @@ if (isAdmin) {
 		const parts = path.split("/");
 		path = "";
 		for (const p of parts) {
-			if (!p) {
-				continue;
+			if (p) {
+				path += `/${p}`;
 			}
-			path += `/${p}`;
 		}
 		return path;
 	      },
