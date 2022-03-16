@@ -491,7 +491,7 @@ export default (base: HTMLElement) => {
 					let c = currToken.lightColour;
 					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
 					      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
-					amendNode(w, [
+					amendNode(shell, amendNode(w, [
 						h1(lang["CONTEXT_SET_LIGHTING"]),
 						labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
 						br(),
@@ -503,8 +503,7 @@ export default (base: HTMLElement) => {
 							}
 							w.close();
 						}}, lang["SAVE"])
-					]);
-					amendNode(shell, w);
+					]));
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(lang["CONTEXT_MOVE_TOP"], () => {
