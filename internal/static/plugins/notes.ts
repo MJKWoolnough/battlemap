@@ -343,7 +343,6 @@ if (isAdmin) {
 			rpc.pluginSetting(importName, {"": folders, [newID + ""]: newPage}, []);
 			return Promise.resolve({"id": newID, path})
 		},
-
 		"waitAdded": () => waitAdded[0],
 		"waitMoved": () => waitMoved[0],
 		"waitRemoved": () => waitRemoved[0],
