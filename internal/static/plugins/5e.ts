@@ -9,6 +9,7 @@ import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, label, li, span, table, tbody, textarea, td, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort} from '../lib/nodes.js';
+import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {ns as svgNS, animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {characterSelector, iconSelector, tokenSelector} from '../characters.js';
 import {Colour, makeColourPicker} from '../colours.js';
@@ -18,7 +19,6 @@ import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js
 import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
-import {BoolSetting, JSONSetting} from '../settings_types.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import symbols, {remove, rename, userVisible} from '../symbols.js';
 import {shell, windows} from '../windows.js';

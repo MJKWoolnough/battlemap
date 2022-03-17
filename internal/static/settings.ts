@@ -1,10 +1,10 @@
 import {button, br, div, form, h1, input, select, option} from './lib/html.js';
+import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
-import {BoolSetting, IntSetting} from './settings_types.js';
 import {checkInt, labels, menuItems} from './shared.js';
 import {shell} from './windows.js';
 

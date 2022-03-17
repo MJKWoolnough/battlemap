@@ -4,10 +4,10 @@ import type {ShellElement, WindowElement} from './lib/windows.js';
 import {amendNode} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {hasKeyEvent} from './lib/events.js';
+import {JSONSetting} from './lib/settings.js';
 import {defaultIcon, desktop, shell as ashell, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
 import lang from './language.js';
 import {isInt, isUint} from './shared.js';
-import {JSONSetting} from './settings_types.js';
 
 export {ShellElement, WindowElement, desktop};
 

@@ -1,4 +1,4 @@
-import {StringSetting} from './settings_types.js';
+import {StringSetting} from './lib/settings.js';
 
 const defaultLanguage = {
 	"ARE_YOU_SURE": "Are you sure?",

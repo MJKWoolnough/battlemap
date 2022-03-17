@@ -1,12 +1,12 @@
 import {keyEvent} from '../lib/events.js';
 import {amendNode} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
+import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
 import mainLang, {language} from '../language.js';
 import {mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
-import {BoolSetting} from '../settings_types.js';
 import {labels} from '../shared.js';
 import {shell, windows} from '../windows.js';
 
