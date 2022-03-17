@@ -111,7 +111,7 @@ if (isAdmin) {
 	      [setupMouseMove, cancelMouseMove] = mouseMoveEvent((e: MouseEvent) => {
 		if (rotate || selectedEffect === coneEffect || selectedEffect === lineEffect) {
 			const [px, py] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			rotations.get(selectedEffect)?.setAttribute("transform", `rotate(${rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360)})`);
+			amendNode(rotations.get(selectedEffect), {"transform": `rotate(${rotation = mod(Math.round(180 * Math.atan2(py - y, px - x) / Math.PI), 360)})`});
 		} else {
 			[x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`});
@@ -266,6 +266,6 @@ if (isAdmin) {
 			amendNode(root, selectedEffect);
 		}
 		setSize(size, width);
-		rotations.get(lastEffect = amendNode(selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]}))?.setAttribute("transform", `rotate(${rotation})`);
+		amendNode(rotations.get(amendNode(lastEffect = selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]})), {"transform": `rotate(${rotation})`});
 	});
 }

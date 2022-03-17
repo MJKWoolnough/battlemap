@@ -183,11 +183,11 @@ class ItemLayer extends Item {
 		} else if (this.id === -2) { // Light
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
-			selectedLayer?.[node].classList.remove("selectedLayer");
+			amendNode(selectedLayer?.[node], {"class": ["!selectedLayer"]});
 			amendNode(this[node], {"class": ["selectedLayer"]});
 			selectedLayer = this;
 			deselectToken();
-			selected.layer?.[node].classList.remove("selectedLayer");
+			amendNode(selected.layer?.[node], {"class": ["!selectedLayer"]});
 			setLayer(selected.layer = getLayer(this.getPath()) as SVGLayer);
 			amendNode(selected.layer[node], {"class": ["selectedLayer"]});
 		}

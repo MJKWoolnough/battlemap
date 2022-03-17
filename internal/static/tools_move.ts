@@ -31,7 +31,7 @@ const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
       stop = () => {
 	cancelMover(false);
 	cancelEscape();
-	selected.layer?.[node].removeAttribute("transform");
+	amendNode(selected.layer?.[node], {"transform": undefined});
 	if (measure) {
 		stopMeasurement();
 	}
