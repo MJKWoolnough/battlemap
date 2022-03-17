@@ -1,11 +1,12 @@
 import type {RPCWaits, Uint, Wall} from './types.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, clearNode} from './lib/dom.js';
+import {setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, hex2Colour, makeColourPicker, noColour} from './colours.js';
-import {colour, scattering, setDragEffect} from './dragTransfer.js';
+import {colour, scattering} from './dragTransfer.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify} from './map_fns.js';

@@ -1,10 +1,11 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {character, imageAsset, setDragEffect} from './dragTransfer.js';
+import {character, imageAsset} from './dragTransfer.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';

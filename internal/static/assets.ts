@@ -1,5 +1,5 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
-import type {DragFiles} from './dragTransfer.js';
+import type {DragFiles} from './lib/drag.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';

@@ -1,11 +1,12 @@
 import type {IDName, Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
+import {setDragEffect} from './lib/drag.js';
 import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, uploadAudio} from './assets.js';
-import {audio as audioFiles, audioAsset, musicPack, setDragEffect} from './dragTransfer.js';
+import {audio as audioFiles, audioAsset, musicPack} from './dragTransfer.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
