@@ -10,10 +10,9 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/ev
 import {br, button, h1, img, input} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {rect} from './lib/svg.js';
-import {uploadImages} from './assets.js';
-import {edit as tokenEdit} from './characters.js';
+import {dragImage, dragImageFiles, uploadImages} from './assets.js';
+import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
-import {character, imageAsset, images} from './dragTransfer.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
@@ -170,17 +169,17 @@ export default (base: HTMLElement) => {
 		stopMeasurement();
 	      }),
 	      mapOnDragOver = setDragEffect({
-		"link": [character, imageAsset],
-		"copy": [images]
+		"link": [dragCharacter, dragImage],
+		"copy": [dragImageFiles]
 	      }),
 	      mapOnDrop = (e: DragEvent) => {
 		if (selected.layer === null) {
 			return;
 		}
-		if (images.is(e)) {
+		if (dragImageFiles.is(e)) {
 			const [x, y] = screen2Grid(e.clientX, e.clientY),
 			      {layer} = selected;
-			uploadImages(images.asForm(e, "asset")).then(images => {
+			uploadImages(dragImageFiles.asForm(e, "asset")).then(images => {
 				for (const image of images) {
 					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
 						const {width, height} = this;
@@ -198,8 +197,8 @@ export default (base: HTMLElement) => {
 			return;
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
-		if (character.is(e)) {
-			const tD = character.get(e),
+		if (dragCharacter.is(e)) {
+			const tD = dragCharacter.get(e),
 			      char = characterData.get(tD.id);
 			if (char) {
 				const ct = getCharacterToken(char);
@@ -211,8 +210,8 @@ export default (base: HTMLElement) => {
 					token.height = tD.height;
 				}
 			}
-		} else if (imageAsset.is(e)) {
-			const tokenData = imageAsset.get(e);
+		} else if (dragImage.is(e)) {
+			const tokenData = dragImage.get(e);
 			token.src = tokenData.id;
 			token.width = tokenData.width;
 			token.height = tokenData.height;

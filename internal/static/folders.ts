@@ -1,6 +1,5 @@
-import type {FolderItems, FolderRPC, Uint} from './types.js';
+import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
 import type {DragTransfer} from './lib/drag.js';
-import type {FolderDragItem} from './dragTransfer.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
@@ -20,6 +19,8 @@ interface FolderConstructor {
 type FolderSorter = (a: Folder, b: Folder) => number;
 type ItemSorter = (a: Item, b: Item) => number;
 type Sorter = (a: Item | Folder, b: Item | Folder) => number;
+
+export type FolderDragItem = IDName & WidthHeight;
 
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,

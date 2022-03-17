@@ -1,13 +1,13 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
-import type {DragFiles} from './lib/drag.js';
+import type {FolderDragItem} from './folders.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {audioAsset, imageAsset, audio as audioFile, images as imagesFile} from './dragTransfer.js';
 import {DraggableItem, Root, Folder} from './folders.js';
 import lang from './language.js';
 import {register, shareIcon} from './messaging.js'
@@ -21,7 +21,7 @@ class ImageAsset extends DraggableItem {
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
 	get showOnMouseOver() { return true; }
-	dragTransfer() { return imageAsset }
+	dragTransfer() { return dragImage; }
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
@@ -35,7 +35,7 @@ class AudioAsset extends DraggableItem {
 		super(parent, id, name);
 		amendNode(this.image, {"src": audioIcon});
 	}
-	dragTransfer() { return audioAsset; }
+	dragTransfer() { return dragAudio; }
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
@@ -154,12 +154,16 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, audioAssets),
 imageAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, imageAssets),
 uploadImages = uploadAsset.bind(null, imageRoot, "images"),
-uploadAudio = uploadAsset.bind(null, audioRoot, "audio");
+uploadAudio = uploadAsset.bind(null, audioRoot, "audio"),
+dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng"),
+dragAudioFiles = new DragFiles("application/ogg, audio/mpeg"),
+dragAudio = new DragTransfer<FolderDragItem>("audioasset"),
+dragImage = new DragTransfer<FolderDragItem>("imageasset");
 
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
 
 menuItems.push(
-	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], imagesFile), true, imageIcon] : null],
-	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], audioFile), true, audioIcon] : null]
+	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], dragImageFiles), true, imageIcon] : null],
+	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], dragAudioFiles), true, audioIcon] : null]
 );

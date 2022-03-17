@@ -1,12 +1,11 @@
 import type {IDName, Int, MusicPack, MusicTrack, Uint} from './types.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
-import {setDragEffect} from './lib/drag.js';
+import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, div, button, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
-import {audioAssetName, uploadAudio} from './assets.js';
-import {audio as audioFiles, audioAsset, musicPack} from './dragTransfer.js';
+import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -181,9 +180,11 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
       },
       now = () => timeShift + Date.now() / 1000;
 
-let timeShift = 0;
+export const dragMusicPack = new DragTransfer<IDName>("musicpack");
 
 export let open = (_id: Uint) => {};
+
+let timeShift = 0;
 
 inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000).then(() => {
 	if (!isAdmin) {
@@ -291,19 +292,19 @@ menuItems.push([3, () => isAdmin ? [
 					for (const track of pack.tracks) {
 						this.tracks.push(new AdminTrack(this, track));
 					}
-					this.#dragKey = musicPack.register(this);
+					this.#dragKey = dragMusicPack.register(this);
 					this.playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
 					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0) {
 							dragCheck(e);
 						}
 					}, "ondrop": (e: DragEvent) => {
-						if (audioAsset.is(e)) {
-							const {id, name} = audioAsset.get(e);
+						if (dragAudio.is(e)) {
+							const {id, name} = dragAudio.get(e);
 							this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
 							rpc.musicPackTrackAdd(this.id, [id]);
-						} else if (audioFiles.is(e)) {
-							uploadAudio(audioFiles.asForm(e, "asset"), this.window).then(audio => {
+						} else if (dragAudioFiles.is(e)) {
+							uploadAudio(dragAudioFiles.asForm(e, "asset"), this.window).then(audio => {
 								const ids: Uint[] = [];
 								for (const {id, name} of audio) {
 									this.tracks.push(new AdminTrack(this, {id, "volume": 255, "repeat": 0, name}));
@@ -336,7 +337,7 @@ menuItems.push([3, () => isAdmin ? [
 						this.tracks[node],
 						div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 					]);
-					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => musicPack.set(e, this.#dragKey, dragIcon)}, [
+					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => dragMusicPack.set(e, this.#dragKey, dragIcon)}, [
 						this.playStatus = playStatus({"style": {"width": "1em", "height": "1em", "visibility": "hidden"}}),
 						this.nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
 						rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
@@ -415,7 +416,7 @@ menuItems.push([3, () => isAdmin ? [
 						t.cleanup();
 					}
 					musicList.delete(this.id);
-					musicPack.deregister(this.#dragKey);
+					dragMusicPack.deregister(this.#dragKey);
 				}
 			}
 			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || stringSort(a.name, b.name)),
@@ -424,8 +425,8 @@ menuItems.push([3, () => isAdmin ? [
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 			      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 			      dragCheck = setDragEffect({
-				      "link": [audioAsset],
-				      "copy": [audioFiles]
+				      "link": [dragAudio],
+				      "copy": [dragAudioFiles]
 			      });
 			for (const pack of list) {
 				musicList.set(pack.id, new AdminPack(pack.id, pack));

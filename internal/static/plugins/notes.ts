@@ -1,6 +1,6 @@
 import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
-import type {FolderDragItem} from '../dragTransfer.js';
+import type {FolderDragItem} from '../folders.js';
 import type {WindowElement} from '../windows.js';
 import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {all} from '../lib/bbcode_tags.js';
@@ -10,11 +10,11 @@ import {br, button, div, input, span, textarea} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
-import {audioAsset, imageAsset, musicPack} from '../dragTransfer.js';
+import {dragAudio, dragImage} from '../assets.js';
 import {Folder, DraggableItem, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
 import {register, registerTag, shareIcon} from '../messaging.js';
-import {open as musicpackOpen} from '../musicPacks.js';
+import {dragMusicPack, open as musicpackOpen} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, cloneObject, isUint, labels} from '../shared.js';
@@ -63,7 +63,7 @@ if (isAdmin) {
 			notes.set(id, this);
 		}
 		dragTransfer() {
-			return pluginNote;
+			return dragNote;
 		}
 		show() {
 			if (this.window) {
@@ -84,18 +84,18 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [imageAsset, audioAsset, musicPack, pluginNote]}), "ondrop": (e: DragEvent) => {
-						if (imageAsset.is(e)) {
-							contents.setRangeText(`[img]/images/${imageAsset.get(e).id}[/img]`);
-						} else if (audioAsset.is(e)) {
-							contents.setRangeText(`[audio]/audio/${audioAsset.get(e).id}[/audio]`);
-						} else if (pluginNote.is(e)) {
+					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [dragImage, dragAudio, dragMusicPack, dragNote]}), "ondrop": (e: DragEvent) => {
+						if (dragImage.is(e)) {
+							contents.setRangeText(`[img]/images/${dragImage.get(e).id}[/img]`);
+						} else if (dragAudio.is(e)) {
+							contents.setRangeText(`[audio]/audio/${dragAudio.get(e).id}[/audio]`);
+						} else if (dragNote.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = pluginNote.get(e);
+							      {id, name} = dragNote.get(e);
 							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name}[/note]`);
-						} else if (musicPack.is(e)) {
+						} else if (dragMusicPack.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = musicPack.get(e);
+							      {id, name} = dragMusicPack.get(e);
 							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name ?? ""}[/musicpack]`);
 						}
 					      }}, page.data.contents),
@@ -160,7 +160,7 @@ if (isAdmin) {
 
 	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
 	let lastID = 0;
-	const pluginNote = new DragTransfer<FolderDragItem>("pluginnote"),
+	const dragNote = new DragTransfer<FolderDragItem>("pluginnote"),
 	      importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
 	      popOutIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 15 15"%3E%3Cpath d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="currentColor" /%3E%3C/svg%3E`,

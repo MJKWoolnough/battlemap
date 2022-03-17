@@ -6,8 +6,9 @@ import {mouseMoveEvent} from './lib/events.js';
 import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
+import {dragImage} from './assets.js';
+import {dragCharacter} from './characters.js';
 import {noColour} from './colours.js';
-import {character, imageAsset} from './dragTransfer.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
@@ -80,9 +81,9 @@ addTool({
 						deselectToken();
 					}
 				}
-			}, "ondragover": setDragEffect({"link": [character, imageAsset]}), "ondrop": (e: DragEvent) => {
-				if (character.is(e)) {
-					const tD = character.get(e),
+			}, "ondragover": setDragEffect({"link": [dragCharacter, dragImage]}), "ondrop": (e: DragEvent) => {
+				if (dragCharacter.is(e)) {
+					const tD = dragCharacter.get(e),
 					      char = characterData.get(tD.id);
 					if (char) {
 						setToken = () => {
@@ -91,8 +92,8 @@ addTool({
 						}
 						setImg(parseInt(char["store-image-icon"].data));
 					}
-				} else if (imageAsset.is(e)) {
-					const {id: src, width, height} = imageAsset.get(e);
+				} else if (dragImage.is(e)) {
+					const {id: src, width, height} = dragImage.get(e);
 					setToken = () => fullToken({src, width, height});
 					setImg(src);
 				}

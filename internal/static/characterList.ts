@@ -1,11 +1,12 @@
 import type {FolderItems, Uint} from './types.js';
+import type {FolderDragItem} from './folders.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
-import {setDragEffect} from './lib/drag.js';
+import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
+import {dragImage} from './assets.js';
 import {edit as characterEdit, characterIcon} from './characters.js';
-import {character, imageAsset} from './dragTransfer.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -31,7 +32,7 @@ class Character extends DraggableItem {
 		characters.set(id, this);
 	}
 	get showOnMouseOver() { return true; }
-	dragTransfer() { return character; }
+	dragTransfer() { return dragCharacter; }
 	setIcon(id: Uint) {
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
@@ -86,14 +87,15 @@ export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
 	fn(character[1]);
 	character[0].receive(fn);
 	return () => character[0].remove(fn);
-};
+},
+dragCharacter = new DragTransfer<FolderDragItem>("character");
 
 menuItems.push([2, () => isAdmin ? [
 	lang["TAB_CHARACTERS"],
 	(() => {
 		const rpcFuncs = rpc["characters"],
 		      base = div(loading()),
-		      dragEffect = setDragEffect({"link": [imageAsset]});
+		      dragEffect = setDragEffect({"link": [dragImage]});
 		rpcFuncs.list().then(folderList => {
 			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
@@ -107,7 +109,7 @@ menuItems.push([2, () => isAdmin ? [
 						br(),
 						label(`${lang["CHARACTER_IMAGE"]}: `),
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": dragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-							clearNode(this, img({"src": `/images/${icon = imageAsset.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
+							clearNode(this, img({"src": `/images/${icon = dragImage.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
 						br(),
 						button({"onclick": function(this: HTMLButtonElement) {

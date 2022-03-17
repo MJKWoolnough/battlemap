@@ -1,11 +1,12 @@
 import type {KeystoreData, Uint} from './types.js';
+import type {FolderDragItem} from './folders.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
-import {setDragEffect} from './lib/drag.js';
+import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {character, imageAsset} from './dragTransfer.js';
+import {dragImage} from './assets.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';
@@ -16,6 +17,8 @@ import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 let lastMapChanged = 0, n = 0;
+
+export const dragCharacter = new DragTransfer<FolderDragItem>("character");
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
@@ -67,8 +70,8 @@ const allowedKey = (key: string, character: boolean) => {
 	doTokenSet(t, false);
 	return rpc.setToken(t);
       },
-      characterDragEffect = setDragEffect({"link": [character]}),
-      imageDragEffect = setDragEffect({"link": [imageAsset]});
+      characterDragEffect = setDragEffect({"link": [dragCharacter]}),
+      imageDragEffect = setDragEffect({"link": [dragImage]});
 
 export const characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
 tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
@@ -116,13 +119,13 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const {id} = character.get(e)!,
+	const {id} = dragCharacter.get(e)!,
 	      charData = characterData.get(id)!;
 	changes["store-character-id"] = {"user": true, "data": id};
 	clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
 }}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
 iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const {id} = imageAsset.get(e)!;
+	const {id} = dragImage.get(e)!;
 	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
 	clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
 }}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
@@ -214,7 +217,7 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			save().finally(() => amendNode(this, {"disabled": false}));
 		}}, lang["SAVE"])
 	]))));
-}
+};
 
 inited.then(() => {
 	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));

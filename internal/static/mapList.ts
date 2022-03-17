@@ -1,11 +1,12 @@
 import type {Uint} from './types.js';
+import type {FolderDragItem} from './folders.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {mapLoadSend} from './adminMap.js';
 import {hex2Colour} from './colours.js';
-import {map} from './dragTransfer.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -32,6 +33,8 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
       },
       selectedMap = new IntSetting("selectedMap")
 
+export const dragMap = new DragTransfer<FolderDragItem>("map");
+
 let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends DraggableItem {
@@ -44,7 +47,7 @@ class MapItem extends DraggableItem {
 			rpc.setUserMap(id);
 		}}), this[node].firstChild);
 	}
-	dragTransfer() { return map; }
+	dragTransfer() { return dragMap; }
 	show() {
 		let thisMap: MapItem = this,
 		    oldMap = selectedCurrent!;
