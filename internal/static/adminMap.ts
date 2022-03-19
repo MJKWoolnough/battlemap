@@ -490,7 +490,7 @@ export default (base: HTMLElement) => {
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
 					let c = currToken.lightColour;
 					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
-					      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0, "step": 1});
+					      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0});
 					amendNode(shell, amendNode(w, [
 						h1(lang["CONTEXT_SET_LIGHTING"]),
 						labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),

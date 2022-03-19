@@ -24,7 +24,7 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
-      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "step": 1, "value": 1}),
+      strokeWidth = input({"id": "strokeWidth", "style": "width: 5em", "type": "number", "min": 0, "max": 100, "value": 1}),
       [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	if (!drawElement) {
 		cancelRectDrag();
