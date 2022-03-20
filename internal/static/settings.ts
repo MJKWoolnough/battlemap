@@ -63,7 +63,7 @@ menuItems.push([7, () => [
 		}})),
 		br(),
 		isAdmin ? [
-			labels(`${lang["UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": "-1", "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": -1, "onchange": function(this: HTMLInputElement) {
 				undoLimit.set(checkInt(parseInt(this.value), -1));
 			}})),
 			br()
