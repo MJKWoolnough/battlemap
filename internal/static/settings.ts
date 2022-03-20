@@ -11,8 +11,8 @@ import {shell} from './windows.js';
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100),
-hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128),
-hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", 128);
+hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128, 0, 255),
+hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", 128, 0, 255);
 
 menuItems.push([7, () => [
 	lang["TAB_SETTINGS"],
@@ -73,11 +73,11 @@ menuItems.push([7, () => [
 		}}), false),
 		isAdmin ? [
 			br(),
-			labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": checkInt(hiddenLayerOpacity.value, 0, 255, 128), "oninput": function(this: HTMLInputElement) {
+			labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
 				hiddenLayerOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
 			}})),
 			br(),
-			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": checkInt(hiddenLayerSelectedOpacity.value, 0, 255, 128), "oninput": function(this: HTMLInputElement) {
+			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerSelectedOpacity.value, "oninput": function(this: HTMLInputElement) {
 				hiddenLayerSelectedOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
 			}})),
 		] : [],
