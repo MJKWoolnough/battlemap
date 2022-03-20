@@ -5,7 +5,7 @@ import help from './help.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
-import {checkInt, labels, menuItems} from './shared.js';
+import {labels, menuItems} from './shared.js';
 import {shell} from './windows.js';
 
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
@@ -59,12 +59,12 @@ menuItems.push([7, () => [
 		}}), false),
 		br(),
 		labels(`${lang["SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
-			scrollAmount.set(checkInt(parseInt(this.value)) );
+			scrollAmount.set(parseInt(this.value));
 		}})),
 		br(),
 		isAdmin ? [
 			labels(`${lang["UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": -1, "onchange": function(this: HTMLInputElement) {
-				undoLimit.set(checkInt(parseInt(this.value), -1));
+				undoLimit.set(parseInt(this.value));
 			}})),
 			br()
 		] : [],
@@ -74,11 +74,11 @@ menuItems.push([7, () => [
 		isAdmin ? [
 			br(),
 			labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
-				hiddenLayerOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
+				hiddenLayerOpacity.set(parseInt(this.value));
 			}})),
 			br(),
 			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerSelectedOpacity.value, "oninput": function(this: HTMLInputElement) {
-				hiddenLayerSelectedOpacity.set(checkInt(parseInt(this.value), 0, 255, 128));
+				hiddenLayerSelectedOpacity.set(parseInt(this.value));
 			}})),
 		] : [],
 		pluginSettings(),
