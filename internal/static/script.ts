@@ -39,7 +39,7 @@ const lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	let n = 0, moved = false;
 	const panelShow = new BoolSetting("panelShow"),
-	      panelWidth = new IntSetting("panelWidth", "300"),
+	      panelWidth = new IntSetting("panelWidth", 300),
 	      windowSettings = new JSONSetting<Record<string, savedWindow>>("windowData", {}, (v: any): v is Record<string, savedWindow> => {
 		if (!(v instanceof Object)) {
 			return false;
