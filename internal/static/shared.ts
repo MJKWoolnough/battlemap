@@ -7,6 +7,15 @@ import {Pipe} from './lib/inter.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
+type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
+
+type LProps = Exclude<Props, NamedNodeMap>;
+
+interface Labeller {
+	(name: Children, input: Input, props?: LProps): Children;
+	(input: Input, name: Children, props?: LProps): Children;
+}
+
 export const enterKey = function(this: Node, e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
@@ -26,12 +35,11 @@ queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
 })(),
-labels = (() => {
+labels: Labeller = (() => {
 	let next = 0;
-	return (name: Children, input: HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement, before = true, props: Exclude<Props, NamedNodeMap> = {}) => {
-		amendNode(input, {"id": props["for"] = `ID_${next++}`});
-		const l = label(props, name);
-		return before ? [l, input] : [input, l];
+	return (name: Children | Input, input: Input | Children, props: LProps = {}) => {
+		const iProps = {"id": props["for"] = `ID_${next++}`};
+		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
 	};
 })(),
 addCSS = (css: string) => amendNode(document.head, style({"type": "text/css"}, css)),

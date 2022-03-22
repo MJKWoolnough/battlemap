@@ -112,7 +112,7 @@ if (isAdmin) {
 					      }}, [
 						labels(`${lang["NOTE"]}: `, contents),
 						br(),
-						labels(`${lang["NOTE_SHARE"]}: `, share, false),
+						labels(share, `${lang["NOTE_SHARE"]}: `),
 						br(),
 						button({"onclick": () => {
 							page.data = {"contents": contents.value, "share": share.checked};

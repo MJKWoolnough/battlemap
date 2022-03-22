@@ -114,8 +114,8 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 		}}, lang["TOKEN_ADD"]),
 		br(),
 		label(`${lang["TOKEN_ORDER"]}: `),
-		labels(`${lang["TOKEN_ORDER_NORMAL"]}: `, input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), false),
-		labels(`${lang["TOKEN_ORDER_SHUFFLE"]}: `, input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), false),
+		labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
+		labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `),
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
@@ -142,11 +142,11 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 		      }});
 		return [
 			labels(k, data),
-			labels(userVisible(), visibility, false),
-			labels(removeSymbol(), input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
+			labels(visibility, userVisible()),
+			labels(input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
 				amendNode(data, {"disabled": this.checked});
 				removes[this.checked ? "add" : "delete"](k);
-			}}), false, {"class": "itemRemove"}),
+			}}), removeSymbol(), {"class": "itemRemove"}),
 			br()
 		]
 	      },

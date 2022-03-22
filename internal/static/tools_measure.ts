@@ -124,11 +124,11 @@ addTool({
 	"name": lang["TOOL_MEASURE"],
 	"icon": svg({"viewBox": "0 0 50 50"}, [title(lang["TOOL_MEASURE"]), path({"d": "M0,40 l10,10 l40,-40 l-10,-10 z m5,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5 m-3,-7 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l3,3 m-1,-5 l5,5", "style": "stroke: currentColor", "stroke-linejoin": "round", "fill": "none"})]),
 	"options": div([
-		labels(`${lang["TOOL_MEASURE_SNAP"]}: `, snap, false),
+		labels(snap, `${lang["TOOL_MEASURE_SNAP"]}: `),
 		br(),
-		labels(`${lang["TOOL_MEASURE_DIAGONALS"]}: `, diagonals, false),
+		labels(diagonals, `${lang["TOOL_MEASURE_DIAGONALS"]}: `),
 		br(),
-		labels(`${lang["TOOL_MEASURE_MULTI"]}: `, multiPoint, false),
+		labels(multiPoint, `${lang["TOOL_MEASURE_MULTI"]}: `),
 		br(),
 		labels(`${lang["TOOL_MEASURE_CELL"]}: `, cellValue)
 	]),

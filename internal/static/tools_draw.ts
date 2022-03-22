@@ -113,13 +113,13 @@ addTool({
 	"options": div([
 		fieldset([
 			legend(lang["TOOL_DRAW_SHAPE"]),
-			labels(`${lang["TOOL_DRAW_RECT"]}: `, rectangle, false),
+			labels(rectangle, `${lang["TOOL_DRAW_RECT"]}: `),
 			br(),
-			labels(`${lang["TOOL_DRAW_ELLIPSE"]}: `, circle, false),
+			labels(circle, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
 			br(),
-			labels(`${lang["TOOL_DRAW_POLYGON"]}: `, poly, false),
+			labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `),
 		]),
-		labels(`${lang["TOOL_DRAW_SNAP"]}: `, snap, false),
+		labels(snap, `${lang["TOOL_DRAW_SNAP"]}: `),
 		br(),
 		labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
 		br(),

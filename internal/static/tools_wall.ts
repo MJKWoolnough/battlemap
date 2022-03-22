@@ -178,15 +178,15 @@ addTool({
 	"options": div([
 		fieldset([
 			legend(lang["TOOL_WALL_MODE"]),
-			labels(`${lang["TOOL_WALL_SELECT"]}: `, selectWall, false),
+			labels(selectWall, `${lang["TOOL_WALL_SELECT"]}: `),
 			br(),
-			labels(`${lang["TOOL_WALL_PLACE"]}: `, placeWall, false)
+			labels(placeWall, `${lang["TOOL_WALL_PLACE"]}: `)
 		]),
-		labels(`${lang["TOOL_WALL_SNAP"]}: `, snap, false),
+		labels(snap, `${lang["TOOL_WALL_SNAP"]}: `),
 		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
-		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, true, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)})
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)})
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey) {

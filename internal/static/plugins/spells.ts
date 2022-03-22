@@ -141,17 +141,17 @@ if (isAdmin) {
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
 				legend(lang["SPELL_TYPE"]),
-				labels(`${lang["SPELL_TYPE_CIRCLE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), false),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), `${lang["SPELL_TYPE_CIRCLE"]}: `),
 				br(),
-				labels(`${lang["SPELL_TYPE_CONE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), false),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), `${lang["SPELL_TYPE_CONE"]}: `),
 				br(),
-				labels(`${lang["SPELL_TYPE_CUBE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), false),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), `${lang["SPELL_TYPE_CUBE"]}: `),
 				br(),
-				labels(`${lang["SPELL_TYPE_LINE"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(lineEffect)}), false),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(lineEffect)}), `${lang["SPELL_TYPE_LINE"]}: `),
 				br(),
-				labels(`${lang["SPELL_TYPE_WALL"]}: `, input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), false),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), `${lang["SPELL_TYPE_WALL"]}: `),
 			]),
-			labels(`${mainLang["TOOL_MEASURE_SNAP"]}: `, snap, false),
+			labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			br(),
 			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);

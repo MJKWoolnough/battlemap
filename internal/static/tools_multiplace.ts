@@ -68,7 +68,7 @@ addTool({
 		path({"d": "M98,39 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h49 s10,0 10,-10 z M84,28 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3 M71,15 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3", "stroke-width": 4})
 	]),
 	"options": div({"style": {"overflow": "hidden"}}, [
-		labels(`${lang["TOOL_MULTIPLACE_MODE"]}: `, mode, false),
+		labels(mode, `${lang["TOOL_MULTIPLACE_MODE"]}: `),
 		br(),
 		label(`${lang["TOKEN"]}: `),
 		div({"class": "tokenSelector"}, [

@@ -382,9 +382,9 @@ const select = Symbol("select"),
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
 					td(`${lang[name as keyof typeof defaultLanguage]}: `),
-					settings.map(setting => td(labels("", input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+					settings.map(setting => td(labels(input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
-					}}), false))),
+					}}), ""))),
 				])))
 			]),
 		])
@@ -709,9 +709,9 @@ if (isAdmin) {
 	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => {
 		const t = td([
-			labels("", input({"class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
+			labels(input({"class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 				shapechangeCats[col]["images"][row] = this.checked;
-			}}), false),
+			}}), ""),
 		      ]);
 		tickers[row].push(t);
 		return t;
@@ -868,7 +868,7 @@ if (isAdmin) {
 			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": name["user"] !== false, "onchange": nameUpdate});
 			return [
 				labels(`${lang["NAME"]}: `, nameInput),
-				labels(userVisible(), nameVisibility, false),
+				labels(nameVisibility, userVisible()),
 				br(),
 				isCharacter ? [
 					label(`${mainLang["CHARACTER_IMAGE"]}: `),

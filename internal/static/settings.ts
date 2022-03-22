@@ -26,37 +26,37 @@ menuItems.push([7, () => [
 			language.set(this.value);
 		}}, languages.map(l => option({"selected": l === language.value}, l)))),
 		h1(lang["THEME"]),
-		labels(`${lang["DARK_MODE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
 			invert.set(this.checked);
-		}}), false),
+		}}), `${lang["DARK_MODE"]}: `),
 		br(),
-		labels(`${lang["TAB_ICONS"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 			tabIcons.set(this.checked);
-		}}), false),
+		}}), `${lang["TAB_ICONS"]}: `),
 		br(),
-		labels(`${lang["PANEL_ON_TOP"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 			panelOnTop.set(this.checked);
-		}}), false),
+		}}), `${lang["PANEL_ON_TOP"]}: `),
 		isAdmin ? [
 			br(),
-			labels(`${lang["MINI_TOOLS"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 				miniTools.set(this.checked);
-			}}), false)
+			}}), `${lang["MINI_TOOLS"]}: `)
 		] : [],
 		h1(lang["MAP_SETTINGS"]),
 		isAdmin ? [
-			labels(`${lang["AUTOSNAP"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 				autosnap.set(this.checked);
-			}}), false),
+			}}), `${lang["AUTOSNAP"]}: `),
 			br(),
-			labels(`${lang["MEASURE_TOKEN_MOVE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
 				measureTokenMove.set(this.checked);
-			}}), false),
+			}}), `${lang["MEASURE_TOKEN_MOVE"]}: `),
 			br(),
 		] : [],
-		labels(`${lang["ZOOM_SLIDER_HIDE"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 			zoomSlider.set(this.checked);
-		}}), false),
+		}}), `${lang["ZOOM_SLIDER_HIDE"]}: `),
 		br(),
 		labels(`${lang["SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 			scrollAmount.set(parseInt(this.value));
@@ -68,9 +68,9 @@ menuItems.push([7, () => [
 			}})),
 			br()
 		] : [],
-		labels(`${lang["HIDE_MENU"]}: `, input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 			hideMenu.set(this.checked);
-		}}), false),
+		}}), `${lang["HIDE_MENU"]}: `),
 		isAdmin ? [
 			br(),
 			labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
