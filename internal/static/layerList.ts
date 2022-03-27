@@ -234,9 +234,7 @@ class FolderLayer extends Folder {
 			amendNode(this[node], {"class": ["layerFolder"]}, div(this[node].childNodes));
 		}
 	}
-	get sorter() {
-		return noSort;
-	}
+	get sorter() { return noSort; }
 	rename() {
 		return renameLayer(this);
 	}

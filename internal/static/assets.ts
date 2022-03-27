@@ -77,15 +77,11 @@ abstract class AssetFolder extends Folder {
 }
 
 class AudioFolder extends AssetFolder {
-	get assetMap() {
-		return audioAssets;
-	}
+	get assetMap() { return audioAssets; }
 }
 
 class ImageFolder extends AssetFolder {
-	get assetMap() {
-		return imageAssets;
-	}
+	get assetMap() { return imageAssets; }
 }
 
 const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], null, ImageAsset, ImageFolder),

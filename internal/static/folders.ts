@@ -204,12 +204,8 @@ export class Folder {
 			this.children.set(name, new this.root.newItem(this, children.items[name], name));
 		}
 	}
-	get folderSorter() {
-		return stringSorter;
-	}
-	get itemSorter() {
-		return this.parent === null ? idSorter : stringSorter;
-	}
+	get folderSorter() { return stringSorter; }
+	get itemSorter() { return this.parent === null ? idSorter : stringSorter; }
 	get sorter() {
 		const fs = this.folderSorter,
 		      is = this.itemSorter,
@@ -411,9 +407,7 @@ export class Root {
 		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
 	}
 	get filter() { return true; }
-	get root() {
-		return this;
-	}
+	get root() { return this; }
 	resolvePath(path: string): [Folder | null, string] {
 		const breadcrumbs = path.split("/"),
 		      sub = breadcrumbs.pop() ?? "";

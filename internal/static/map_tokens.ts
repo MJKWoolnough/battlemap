@@ -89,9 +89,7 @@ export class SVGToken extends SVGTransform {
 			this.updateNode();
 		}
 	}
-	get isPattern() {
-		return this.patternWidth > 0;
-	}
+	get isPattern() { return this.patternWidth > 0; }
 	cleanup() {
 		if (this.isPattern) {
 			definitions.remove(this[node].getAttribute("fill")!.slice(5, -1));
@@ -133,9 +131,7 @@ export class SVGShape extends SVGTransform {
 			this[node] = amendNode(token.isEllipse ? ellipse({"cx": rx, "cy": ry, rx, ry}) : rect({"width": token.width, "height": token.height}), {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
 		}
 	}
-	get isPattern() {
-		return false;
-	}
+	get isPattern() { return false; }
 	updateNode() {
 		if (this.isEllipse) {
 			const rx = this.width / 2,
