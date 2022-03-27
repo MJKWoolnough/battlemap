@@ -37,6 +37,7 @@ const defaultLanguage = {
 	"DARK_MODE": "Dark Mode",
 	"ERROR": "Error",
 	"ERROR_UNKNOWN": "Unknown error occurred, connection closed",
+	"FILTER": "Filter",
 	"FOLDER_ADD": "Add Folder",
 	"FOLDER_MOVE": "Move Folder",
 	"FOLDER_NAME": "Folder Name",
