@@ -142,6 +142,17 @@ if (isAdmin) {
 				}, lang["SHARE"]);
 			}
 		}
+		filter(terms: string[]) {
+			const text = pages.get(this.id)?.data.contents.toLowerCase() || "";
+			let ret = true;
+			for (const term of terms) {
+				if (!text.includes(term)) {
+					ret = false;
+					break;
+				}
+			}
+			return super.filter(ret ? [] : terms);
+		}
 	}
 
 	class NoteFolder extends Folder {
