@@ -341,11 +341,9 @@ export class Folder {
 				break;
 			}
 		}
-		if (!ret) {
-			for (const [, c] of this.children) {
-				if (c.filter(terms)) {
-					ret = true;
-				}
+		for (const [, c] of this.children) {
+			if (c.filter(terms)) {
+				ret = true;
 			}
 		}
 		if (this.name) {
