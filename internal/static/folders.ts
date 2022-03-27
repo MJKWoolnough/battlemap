@@ -383,7 +383,19 @@ export class Root {
 			this.filter ? [
 				br(),
 				input({"placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
-					f.filter(this.value.toLowerCase().split(" "));
+					const terms = this.value.toLowerCase().split(" ");
+					for (let i = 0; i < terms.length; i++) {
+						if (terms[i].charAt(0) === '"') {
+							while (terms.length > i+1) {
+								if (terms[i].slice(-1) === '"') {
+									break;
+								}
+								terms[i] += " " + terms.splice(i+1, 1)[0];
+							}
+							terms[i] = terms[i].slice(1, terms[i].slice(-1) === '"' ? -1 : undefined);
+						}
+					}
+					f.filter(terms);
 				}}),
 			] : [],
 			f.children[node]
