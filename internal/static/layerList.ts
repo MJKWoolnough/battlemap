@@ -246,6 +246,7 @@ class LayerRoot extends Root {
 	constructor(layers: FolderItems, rpc: LayerRPC) {
 		super(layers, "Layer", rpc, ItemLayer, FolderLayer);
 	}
+	get filter() { return false; }
 	getLayer(path: string) {
 		const [folder, sub] = this.resolvePath(path);
 		return !folder ? null : !sub ? folder as FolderLayer : folder.children.get(sub) as FolderLayer | ItemLayer;
