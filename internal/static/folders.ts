@@ -382,11 +382,15 @@ export class Root {
 		if (!this.rpcFuncs) {
 			return;
 		}
-		this.folder = new this.newFolder(this, null, "", rootFolder);
+		const f = this.folder = new this.newFolder(this, null, "", rootFolder);
 		clearNode(this[node] ?? (this[node] = div()), [
 			this.fileType,
-			this.folder.newer,
-			this.folder.children[node]
+			f.newer,
+			br(),
+			input({"placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+				f.filter(this.value.toLowerCase().split(" "));
+			}}),
+			f.children[node]
 		]);
 	}
 	setRPCFuncs(rpcFuncs: FolderRPC) {
