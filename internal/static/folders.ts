@@ -381,8 +381,7 @@ export class Root {
 			this.fileType,
 			f.newer,
 			this.filter ? [
-				br(),
-				input({"placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+				input({"style": "float: right", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
 					const terms = this.value.toLowerCase().split(" ");
 					for (let i = 0; i < terms.length; i++) {
 						if (terms[i].charAt(0) === '"') {
@@ -397,6 +396,7 @@ export class Root {
 					}
 					f.filter(terms);
 				}}),
+				br({"style": "clear: right"})
 			] : [],
 			f.children[node]
 		]);
