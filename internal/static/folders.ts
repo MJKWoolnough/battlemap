@@ -384,10 +384,12 @@ export class Root {
 		clearNode(this[node] ?? (this[node] = div()), [
 			this.fileType,
 			f.newer,
-			br(),
-			input({"placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
-				f.filter(this.value.toLowerCase().split(" "));
-			}}),
+			this.filter ? [
+				br(),
+				input({"placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+					f.filter(this.value.toLowerCase().split(" "));
+				}}),
+			] : [],
 			f.children[node]
 		]);
 	}
@@ -408,6 +410,7 @@ export class Root {
 		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
 		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
 	}
+	get filter() { return true; }
 	get root() {
 		return this;
 	}
