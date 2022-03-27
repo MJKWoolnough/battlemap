@@ -118,6 +118,18 @@ export abstract class Item {
 		return this.parent.getPath() + "/" + this.name;
 	}
 	delete() {}
+	filter(terms: string[]) {
+		const name = this.name.toLowerCase();
+		let ret = true;
+		for (const term of terms) {
+			if (!name.includes(term)) {
+				ret = false;
+				break;
+			}
+		}
+		amendNode(this[node], {"style": {"display": ret ? undefined : "none"}});
+		return ret;
+	}
 }
 
 export abstract class DraggableItem extends Item {
@@ -319,6 +331,27 @@ export class Folder {
 	}
 	delete() {
 		this.children.clear();
+	}
+	filter(terms: string[]) {
+		const name = this.name.toLowerCase();
+		let ret = true;
+		for (const term of terms) {
+			if (!name.includes(term)) {
+				ret = false;
+				break;
+			}
+		}
+		if (!ret) {
+			for (const [, c] of this.children) {
+				if (c.filter(terms)) {
+					ret = true;
+				}
+			}
+		}
+		if (this.name) {
+			amendNode(this[node], {"style": {"display": ret ? undefined : "none"}});
+		}
+		return ret;
 	}
 }
 
