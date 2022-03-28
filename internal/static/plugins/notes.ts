@@ -144,14 +144,7 @@ if (isAdmin) {
 		}
 		filter(terms: string[]) {
 			const text = pages.get(this.id)?.data.contents.toLowerCase() || "";
-			let t: string[] = [];
-			for (const term of terms) {
-				if (!text.includes(term)) {
-					t = terms;
-					break;
-				}
-			}
-			return super.filter(t);
+			return super.filter(terms.every(term => text.includes(term)) ? [] : terms);
 		}
 	}
 
