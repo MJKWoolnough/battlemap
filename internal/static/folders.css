@@ -56,3 +56,11 @@ summary::-webkit-details-marker {
 	z-index: 2;
 }
 
+.filter {
+	float: right;
+	text-align: right;
+}
+
+.filter + br {
+	clear: right;
+}
