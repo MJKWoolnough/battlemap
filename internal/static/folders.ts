@@ -373,50 +373,48 @@ export class Root {
 		}
 	}
 	setRoot(rootFolder: FolderItems) {
-		if (!this.rpcFuncs) {
-			return;
-		}
-		const f = this.folder = new this.newFolder(this, null, "", rootFolder);
-		clearNode(this[node] ?? (this[node] = div()), [
-			this.fileType,
-			f.newer,
-			this.filter ? [
-				input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
-					const terms = this.value.toLowerCase().split(" ");
-					for (let i = 0; i < terms.length; i++) {
-						if (terms[i].charAt(0) === '"') {
-							while (terms.length > i+1) {
-								if (terms[i].slice(-1) === '"') {
-									break;
+		if (this.rpcFuncs) {
+			const f = this.folder = new this.newFolder(this, null, "", rootFolder);
+			clearNode(this[node] ?? (this[node] = div()), [
+				this.fileType,
+				f.newer,
+				this.filter ? [
+					input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+						const terms = this.value.toLowerCase().split(" ");
+						for (let i = 0; i < terms.length; i++) {
+							if (terms[i].charAt(0) === '"') {
+								while (terms.length > i+1) {
+									if (terms[i].slice(-1) === '"') {
+										break;
+									}
+									terms[i] += " " + terms.splice(i+1, 1)[0];
 								}
-								terms[i] += " " + terms.splice(i+1, 1)[0];
+								terms[i] = terms[i].slice(1, terms[i].slice(-1) === '"' ? -1 : undefined);
 							}
-							terms[i] = terms[i].slice(1, terms[i].slice(-1) === '"' ? -1 : undefined);
 						}
-					}
-					f.filter(terms);
-				}}),
-				br()
-			] : [],
-			f.children[node]
-		]);
+						f.filter(terms);
+					}}),
+					br()
+				] : [],
+				f.children[node]
+			]);
+		}
 	}
 	setRPCFuncs(rpcFuncs: FolderRPC) {
-		if (this.rpcFuncs) {
-			return;
+		if (!this.rpcFuncs) {
+			this.rpcFuncs = rpcFuncs;
+			rpcFuncs.waitAdded().then(items => {
+				for (const {id, name} of items) {
+					this.addItem(id, name);
+				}
+			});
+			rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
+			rpcFuncs.waitRemoved().then(item => this.removeItem(item));
+			rpcFuncs.waitCopied().then(({oldID, newID, path}) => this.copyItem(oldID, newID, path));
+			rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
+			rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
+			rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
 		}
-		this.rpcFuncs = rpcFuncs;
-		rpcFuncs.waitAdded().then(items => {
-			for (const {id, name} of items) {
-				this.addItem(id, name);
-			}
-		});
-		rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
-		rpcFuncs.waitRemoved().then(item => this.removeItem(item));
-		rpcFuncs.waitCopied().then(({oldID, newID, path}) => this.copyItem(oldID, newID, path));
-		rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
-		rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
-		rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
 	}
 	get filter() { return true; }
 	get root() { return this; }
