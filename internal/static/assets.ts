@@ -97,7 +97,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 	return () => asset[0].remove(fn);
       },
       uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell) => {
-	const bar = progress({"style": "width: 100%"}) as HTMLElement;
+	const bar = progress({"style": "width: 100%"});
 	return loadingWindow(
 		HTTPRequest<IDName[]>(`/${fileType}/`, {
 			data,
