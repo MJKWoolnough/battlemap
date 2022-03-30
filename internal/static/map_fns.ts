@@ -444,6 +444,7 @@ doWallRemove = (wID: Uint, sendRPC = true) => {
 doWallModify = (wall: Wall, sendRPC = true) => {
 	const wl = walls.get(wall.id);
 	if (!wl) {
+		handleError("invalid wall to modify");
 		return;
 	}
 	let oldWall = cloneObject(wl.wall);
