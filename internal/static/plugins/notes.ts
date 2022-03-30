@@ -129,10 +129,8 @@ if (isAdmin) {
 		}
 		setShareButton() {
 			if (!pages.has(this.id) || !pages.get(this.id)!.data.share) {
-				if (this.share) {
-					this.share();
-					this.share = null;
-				}
+				this.share?.();
+				this.share = null;
 			} else {
 				this.share = this.window!.addControlButton(shareIcon, () => {
 					const page = pages.get(this.id);
