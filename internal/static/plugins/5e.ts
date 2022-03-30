@@ -991,9 +991,7 @@ if (isAdmin) {
 	tokenSelectedReceive((() => {
 		let lastSelectedToken: SVGToken5EType | null = null;
 		return () => {
-			if (lastSelectedToken) {
-				lastSelectedToken[unselect]();
-			}
+			lastSelectedToken?.[unselect]();
 			const {token} = selected;
 			if (token instanceof SVGToken5E && !token.isPattern) {
 				setupHealthButton();
