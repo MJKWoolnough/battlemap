@@ -210,10 +210,7 @@ class FolderLayer extends Folder {
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
-		if (lf.id === undefined) {
-			lf.id = 1;
-		}
-		this.id = lf.id;
+		this.id = lf.id ??= 1;
 		if (lf.children) {
 			for (const c of lf.children) {
 				this.children.set(c.name, isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
