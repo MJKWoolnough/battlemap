@@ -82,17 +82,16 @@ const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, 
 	cancelEllipseDrag();
       }),
       [setPolyEscape, cancelPolyEscape] = keyEvent("Escape", () => {
-	if (!drawElement) {
-		return;
-	}
-	if (coords.length === 2) {
-		drawElement.remove();
-		drawElement = null;
-		cancelPolyMove();
-	} else {
-		coords.pop();
-		coords.pop();
-		amendNode(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
+	if (drawElement) {
+		if (coords.length === 2) {
+			drawElement.remove();
+			drawElement = null;
+			cancelPolyMove();
+		} else {
+			coords.pop();
+			coords.pop();
+			amendNode(drawElement, {"points": coords.reduce((res, _, i) => i % 2 === 0 ? `${res} ${coords[i]},${coords[i+1]}` : res, "")});
+		}
 	}
       }),
       [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
