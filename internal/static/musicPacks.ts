@@ -79,9 +79,7 @@ class Track {
 			} else {
 				this.audioElement.pause();
 				this.repeatWait = setTimeout(() => {
-					if (this.audioElement) {
-						this.audioElement.play();
-					}
+					this.audioElement?.play();
 					this.repeatWait = -1;
 				}, (cycle - p) * 1000);
 			}
