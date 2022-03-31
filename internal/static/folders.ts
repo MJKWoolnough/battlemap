@@ -352,7 +352,7 @@ export class Folder {
 
 export class Root {
 	fileType: string;
-	folder: Folder;
+	folder: Folder = undefined!;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
@@ -362,14 +362,14 @@ export class Root {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.fileType = fileType;
-		this.folder = undefined as any as Folder;    // INIT HACK
-		this[node] = undefined as any as HTMLElement; // INIT HACK
+		this.folder = undefined!; // INIT HACK
+		this[node] = undefined!;  // INIT HACK
 		if (rpcFuncs) {
 			this.setRPCFuncs(rpcFuncs);
 			this.rpcFuncs = rpcFuncs;
 			Root.prototype.setRoot.call(this, rootFolder);
 		} else {
-			this.rpcFuncs = null as any as FolderRPC;
+			this.rpcFuncs = null!; // INIT HACK
 		}
 	}
 	setRoot(rootFolder: FolderItems) {
