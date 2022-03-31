@@ -53,35 +53,34 @@ class Track {
 		}
 	}
 	waitPlay() {
-		if (!this.audioElement) {
-			return;
-		}
-		if (this.repeatWait !== -1) {
-			clearTimeout(this.repeatWait);
-			this.repeatWait = -1;
-		}
-		const tnow = now(),
-		      length = this.audioElement.duration;
-		if (this.repeat === -1) {
-			if (tnow < this.parent.playTime + length) {
-				this.audioElement.currentTime = tnow - this.parent.playTime;
-				this.audioElement.play();
-			} else {
-				this.stop();
-				this.parent.checkPlayState();
+		if (this.audioElement) {
+			if (this.repeatWait !== -1) {
+				clearTimeout(this.repeatWait);
+				this.repeatWait = -1;
 			}
-		} else {
-			const cycle = length + this.repeat,
-			      p = (tnow - this.parent.playTime) % cycle;
-			if (p < length) {
-				this.audioElement.currentTime = p;
-				this.audioElement.play();
+			const tnow = now(),
+			      length = this.audioElement.duration;
+			if (this.repeat === -1) {
+				if (tnow < this.parent.playTime + length) {
+					this.audioElement.currentTime = tnow - this.parent.playTime;
+					this.audioElement.play();
+				} else {
+					this.stop();
+					this.parent.checkPlayState();
+				}
 			} else {
-				this.audioElement.pause();
-				this.repeatWait = setTimeout(() => {
-					this.audioElement?.play();
-					this.repeatWait = -1;
-				}, (cycle - p) * 1000);
+				const cycle = length + this.repeat,
+				      p = (tnow - this.parent.playTime) % cycle;
+				if (p < length) {
+					this.audioElement.currentTime = p;
+					this.audioElement.play();
+				} else {
+					this.audioElement.pause();
+					this.repeatWait = setTimeout(() => {
+						this.audioElement?.play();
+						this.repeatWait = -1;
+					}, (cycle - p) * 1000);
+				}
 			}
 		}
 	}
