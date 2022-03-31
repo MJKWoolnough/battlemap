@@ -375,7 +375,7 @@ export class Root {
 	setRoot(rootFolder: FolderItems) {
 		if (this.rpcFuncs) {
 			const f = this.folder = new this.newFolder(this, null, "", rootFolder);
-			clearNode(this[node] ?? (this[node] = div()), [
+			clearNode(this[node] ??= div(), [
 				this.fileType,
 				f.newer,
 				this.filter ? [
