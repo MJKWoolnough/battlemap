@@ -316,10 +316,10 @@ menuItems.push([3, () => isAdmin ? [
 							this.playPauseTitle,
 							this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
 							rect({"width": "100%", "height": "100%", "fill-opacity": 0, "onclick": () => {
-								if (this.playTime === 0) {
-									this.play(now() - this.pauseTime, true);
-								} else {
+								if (this.playTime) {
 									this.pause(true);
+								} else {
+									this.play(now() - this.pauseTime, true);
 								}
 
 							}})
