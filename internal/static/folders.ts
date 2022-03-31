@@ -362,14 +362,12 @@ export class Root {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.fileType = fileType;
-		this.folder = undefined!; // INIT HACK
-		this[node] = undefined!;  // INIT HACK
+		this.folder = undefined!;   // INIT HACK
+		this[node] = undefined!;    // INIT HACK
+		this.rpcFuncs = undefined!; // INIT HACK
 		if (rpcFuncs) {
 			this.setRPCFuncs(rpcFuncs);
-			this.rpcFuncs = rpcFuncs;
 			Root.prototype.setRoot.call(this, rootFolder);
-		} else {
-			this.rpcFuncs = null!; // INIT HACK
 		}
 	}
 	setRoot(rootFolder: FolderItems) {
