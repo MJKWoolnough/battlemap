@@ -114,7 +114,7 @@ class Pack {
 		}
 		this.volume = pack.volume;
 		this.playTime = pack.playTime;
-		if (this.playTime !== 0) {
+		if (this.playTime) {
 			setTimeout(() => this.play(this.playTime));
 		}
 	}
@@ -123,13 +123,13 @@ class Pack {
 		this.updateVolume();
 	}
 	play(playTime: Uint) {
-		if (playTime === 0) {
+		if (playTime) {
+			this.playTime = playTime;
+			for (const t of this.tracks) {
+				t.play();
+			}
+		} else {
 			this.stop();
-			return;
-		}
-		this.playTime = playTime;
-		for (const t of this.tracks) {
-			t.play();
 		}
 	}
 	pause() {
@@ -142,15 +142,14 @@ class Pack {
 		}
 	}
 	checkPlayState() {
-		if (this.playTime === 0) {
-			return;
-		}
-		for (const t of this.tracks) {
-			if (t.audioElement !== null) {
-				return;
+		if (this.playTime) {
+			for (const t of this.tracks) {
+				if (t.audioElement !== null) {
+					return;
+				}
 			}
+			this.stop();
 		}
-		this.stop();
 	}
 	updateVolume() {
 		for (const t of this.tracks) {
