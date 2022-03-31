@@ -247,7 +247,7 @@ masks = (() => {
 			return [selectedMask, selected] as const;
 		},
 		add(m: Mask) {
-			const fill = (m[0] & 1) === 1 ? "#000" : "#fff";
+			const fill = m[0] & 1 ? "#000" : "#fff";
 			let shape: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
 			switch (m[0]) {
 			case 0:
