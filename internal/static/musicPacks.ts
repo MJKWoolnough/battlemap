@@ -421,8 +421,8 @@ menuItems.push([3, () => isAdmin ? [
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 			      toPauseOptions = {"attributeName": "d", "to": pauseIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
 			      dragCheck = setDragEffect({
-				      "link": [dragAudio],
-				      "copy": [dragAudioFiles]
+				"link": [dragAudio],
+				"copy": [dragAudioFiles]
 			      });
 			for (const pack of list) {
 				musicList.set(pack.id, new AdminPack(pack.id, pack));
