@@ -26,6 +26,7 @@ abstract class SVGTransform {
 	lightIntensity: Uint;
 	snap: boolean;
 	tokenData: Record<string, KeystoreData>;
+	tokenType: Uint;
 	constructor(token: Token) {
 		this.id = token.id;
 		this.width = token.width;
@@ -37,6 +38,7 @@ abstract class SVGTransform {
 		this.lightIntensity = token.lightIntensity;
 		this.snap = token.snap;
 		this.tokenData = token.tokenData;
+		this.tokenType = token.tokenType ?? 0;
 	}
 	at(x: Int, y: Int) {
 		const {x: rx, y: ry} = new DOMPoint(x, y).matrixTransform(this[node].getScreenCTM()!.inverse());
