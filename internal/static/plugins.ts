@@ -52,9 +52,10 @@ settings = () => {
 	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
 	      selected = select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
 		const plugin = pluginList.get(this.value),
-		      disabled = !plugin;
-		amendNode(check, {disabled, "checked": plugin?.enabled ?? false});
-		amendNode(save, {disabled});
+		      disabled = {"disabled": !plugin};
+		amendNode(check, disabled);
+		amendNode(save, disabled);
+		check.checked = plugin?.enabled ?? false;
 	      }}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
 	      save = button({"disabled": true, "onclick": () => {
 		const s = selected.value,
