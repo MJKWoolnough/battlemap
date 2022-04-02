@@ -92,7 +92,7 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 				ID:     broadcastCurrentUserMap,
 				Result: cd.CurrentMap,
 			})
-		} else {
+		} else if cd.CurrentMap > 0 {
 			c.maps.mu.RLock()
 			mapData := c.maps.maps[uint64(cd.CurrentMap)]
 			c.maps.mu.RUnlock()
