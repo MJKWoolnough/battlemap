@@ -266,7 +266,7 @@ export class Folder {
 				w.remove();
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), w);
-		      }}, lang["FOLDER_MOVE"]),
+		      }}, lang["FOLDER_REMOVE"]),
 		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"], "class": "folderRemove"}, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
