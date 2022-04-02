@@ -376,7 +376,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 		}
 		if err := m.getPack(trackData.ID, func(mp *musicPack) bool {
 			for _, t := range trackData.Tracks {
-				mp.Tracks = append(mp.Tracks, musicTrack{ID: t, Volume: 255, Repeat: -1})
+				mp.Tracks = append(mp.Tracks, musicTrack{ID: t, Volume: 255})
 			}
 			return true
 		}); err != nil {
