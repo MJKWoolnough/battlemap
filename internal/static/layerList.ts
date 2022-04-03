@@ -36,7 +36,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
       isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
       renameLayer = (self: ItemLayer | FolderLayer) => {
-	const newName = autoFocus(input({"type": "text", "value": self.name, "onkeypress": enterKey})),
+	const newName = input({"type": "text", "value": self.name, "onkeypress": enterKey}),
 	      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"], "class": "renameItem"}, [
 		h1(lang["LAYER_RENAME"]),
 		labels(`${lang["LAYER_NAME"]}: `, newName),
@@ -52,6 +52,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		}}, lang["LAYER_RENAME"])
 	      ]);
 	amendNode(shell, w);
+	autoFocus(newName);
 	return w;
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
@@ -328,7 +329,7 @@ menuItems.push([5, () => isAdmin ? [
 			});
 			clearNode(base, {"id": "layerList"}, [
 				button({"onclick": () => {
-					const name = autoFocus(input({"onkeypress": enterKey})),
+					const name = input({"onkeypress": enterKey}),
 					      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
@@ -344,6 +345,7 @@ menuItems.push([5, () => isAdmin ? [
 						}}, lang["LAYER_ADD"])
 					      ]);
 					amendNode(shell, w);
+					autoFocus(name);
 				}}, lang["LAYER_ADD"]),
 				list[node]
 			]);
