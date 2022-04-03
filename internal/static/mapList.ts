@@ -11,7 +11,7 @@ import {hex2Colour} from './colours.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
-import {checkInt, labels, loading, menuItems, queue} from './shared.js';
+import {checkInt, enterKey, labels, loading, menuItems, queue} from './shared.js';
 import {userSelected} from './symbols.js';
 import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -175,7 +175,7 @@ menuItems.push([4, () => isAdmin ? [
 			}
 			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
-					const name = autoFocus(input({"type": "text"})),
+					const name = input({"type": "text", "onkeypress": enterKey}),
 					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
 					      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
 					      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
@@ -217,6 +217,7 @@ menuItems.push([4, () => isAdmin ? [
 						}}, lang["MAP_ADD"])
 					      ]);
 					amendNode(shell, w);
+					autoFocus(name);
 				}}, lang["MAP_NEW"]),
 				root[node]
 			]);
