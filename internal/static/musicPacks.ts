@@ -308,7 +308,6 @@ menuItems.push([3, () => isAdmin ? [
 								}
 								rpc.musicPackTrackAdd(this.id, ids);
 							}).catch(handleError);
-							e.preventDefault();
 						}
 					}}, [
 						this.titleNode = h1(this.name),
