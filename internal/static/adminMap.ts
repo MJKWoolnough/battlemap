@@ -506,32 +506,28 @@ export default (base: HTMLElement) => {
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(lang["CONTEXT_MOVE_TOP"], () => {
-						const tokenLayer = tokens.get(currToken.id);
-						if (tokenLayer) {
-							const currLayer = tokenLayer.layer;
+						const currLayer = tokens.get(currToken.id)?.layer;
+						if (currLayer) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 						}
 					}),
 					item(lang["CONTEXT_MOVE_UP"], () => {
-						const tokenLayer = tokens.get(currToken.id);
-						if (tokenLayer) {
-							const currLayer = tokenLayer.layer;
+						const currLayer = tokens.get(currToken.id)?.layer;
+						if (currLayer) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
 						}
 					})
 				] : [],
 				tokenPos > 0 ? [
 					item(lang["CONTEXT_MOVE_DOWN"], () => {
-						const tokenLayer = tokens.get(currToken.id);
-						if (tokenLayer) {
-							const currLayer = tokenLayer.layer;
+						const currLayer = tokens.get(currToken.id)?.layer;
+						if (currLayer) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
 						}
 					}),
 					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
-						const tokenLayer = tokens.get(currToken.id);
-						if (tokenLayer) {
-							const currLayer = tokenLayer.layer;
+						const currLayer = tokens.get(currToken.id)?.layer;
+						if (currLayer) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 						}
 					})
