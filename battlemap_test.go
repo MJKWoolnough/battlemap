@@ -17,6 +17,7 @@ import (
 var (
 	srv       *httptest.Server
 	battlemap Battlemap
+	dir       = flag.String("httptest.dir", "./test/", "server dir")
 )
 
 func TestMain(m *testing.M) {
@@ -24,7 +25,7 @@ func TestMain(m *testing.M) {
 		if strings.HasPrefix(arg, "-httptest.serve=") {
 			pluginTest := flag.Bool("plugintest", false, "disable cached plugins for easier testing")
 			flag.Parse()
-			if err := battlemap.initModules("./test/", nil); err != nil {
+			if err := battlemap.initModules(*dir, nil); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
