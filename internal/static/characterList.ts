@@ -102,7 +102,7 @@ menuItems.push([2, () => isAdmin ? [
 			clearNode(base, {"id": "characters", "class": "folders"}, [
 				button({"onclick": () => {
 					let icon = 0;
-					const name = autoFocus(input({"onkeypress": enterKey})),
+					const name = input({"onkeypress": enterKey}),
 					      w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 						h1(lang["CHARACTER_NEW"]),
 						labels(`${lang["CHARACTER_NAME"]}: `, name),
@@ -128,6 +128,7 @@ menuItems.push([2, () => isAdmin ? [
 						}}, lang["CHARACTER_CREATE"])
 					      ]);
 					amendNode(shell, w);
+					autoFocus(name);
 				}}, lang["CHARACTER_NEW"]),
 				root[node]
 			]);
