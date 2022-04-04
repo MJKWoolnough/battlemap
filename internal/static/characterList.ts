@@ -1,12 +1,11 @@
 import type {FolderItems, Uint} from './types.js';
-import type {FolderDragItem} from './folders.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
-import {DragTransfer, setDragEffect} from './lib/drag.js';
+import {setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {dragImage} from './assets.js';
-import {edit as characterEdit, characterIcon} from './characters.js';
+import {dragCharacter, edit as characterEdit, characterIcon} from './characters.js';
 import {DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
@@ -87,8 +86,7 @@ export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
 	fn(character[1]);
 	character[0].receive(fn);
 	return () => character[0].remove(fn);
-},
-dragCharacter = new DragTransfer<FolderDragItem>("character");
+};
 
 menuItems.push([2, () => isAdmin ? [
 	lang["TAB_CHARACTERS"],
