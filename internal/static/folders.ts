@@ -148,19 +148,20 @@ export abstract class DraggableItem extends Item {
 			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
 			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
-			"ondragstart": (e: DragEvent) => {
-				const img = this.image;
-				if (img.naturalWidth === 0 || img.naturalHeight === 0) {
-					e.preventDefault();
-					return;
-				}
-				this.dragTransfer().set(e, this.#dragKey, this.icon);
-				amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
-			}
+			"ondragstart": (e: DragEvent) => this.startDrag(e)
 		});
 	}
 	get dragKey() { return this.#dragKey; }
 	get showOnMouseOver() { return false; }
+	startDrag(e: DragEvent) {
+		const img = this.image;
+		if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+			e.preventDefault();
+			return;
+		}
+		this.dragTransfer().set(e, this.#dragKey, this.icon);
+		amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
+	}
 	abstract dragTransfer(): DragTransfer<FolderDragItem>;
 	transfer(): FolderDragItem {
 		const {id, name, image: {naturalWidth, naturalHeight}} = this;
