@@ -84,8 +84,6 @@ func (c *conn) HandleRPC(method string, data json.RawMessage) (interface{}, erro
 		userState:  c.userState,
 	}
 	switch method {
-	case "conn.connID":
-		return cd.ID, nil
 	case "conn.ready":
 		if c.IsAdmin() {
 			c.rpc.Send(jsonrpc.Response{
