@@ -151,7 +151,6 @@ export abstract class DraggableItem extends Item {
 			"ondragstart": (e: DragEvent) => this.startDrag(e)
 		});
 	}
-	get dragKey() { return this.#dragKey; }
 	get showOnMouseOver() { return false; }
 	startDrag(e: DragEvent) {
 		const img = this.image;
