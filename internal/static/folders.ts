@@ -25,7 +25,7 @@ export type FolderDragItem = IDName & WidthHeight;
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
-      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")));
+      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort));
 
 export abstract class Item {
 	id: Uint;
@@ -159,6 +159,7 @@ export abstract class DraggableItem extends Item {
 			}
 		});
 	}
+	get dragKey() { return this.#dragKey; }
 	get showOnMouseOver() { return false; }
 	abstract dragTransfer(): DragTransfer<FolderDragItem>;
 	transfer(): FolderDragItem {
