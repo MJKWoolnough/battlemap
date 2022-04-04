@@ -37,7 +37,7 @@ class AudioAsset extends DraggableItem {
 	}
 	dragTransfer() { return dragAudio; }
 	show() {
-		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls"}));
+		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": (e: DragEvent) => this.startDrag(e)}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
