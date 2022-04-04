@@ -23,10 +23,7 @@ class ImageAsset extends DraggableItem {
 	get showOnMouseOver() { return true; }
 	dragTransfer() { return dragImage; }
 	show() {
-		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": (e: DragEvent) => {
-			dragImage.set(e, this.dragKey, this.icon);
-			amendNode(document.body, amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}}));
-		}}));
+		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": (e: DragEvent) => this.startDrag(e)}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
