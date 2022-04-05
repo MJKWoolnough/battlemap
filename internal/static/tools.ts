@@ -48,12 +48,9 @@ disable = (e: Event) => {
 marker = g({"fill": "#000", "stroke": "#fff", "stroke-width": 0.5}, ["5,0 16,0 10.5,5", "0,5 0,16 5,10.5", "5,21 16,21 10.5,16", "21,16 21,5 16,10.5"].map(points => polygon({points}))),
 toolTokenMouseDown = function(this: SVGElement, e: MouseEvent, n: Uint = 0) {
 	e.preventDefault();
-	if (e.button === 0 && (selectedTool.tokenMouse0?.call(this, e, n) ?? true)) {
-		defaultTool.tokenMouse0?.call(this, e, n);
-	} else if (e.button === 1 && (selectedTool.tokenMouse1?.call(this, e, n) ?? true)) {
-		defaultTool.tokenMouse1?.call(this, e, n);
-	} else if (e.button === 2 && (selectedTool.tokenMouse2?.call(this, e, n) ?? true)) {
-		defaultTool.tokenMouse2?.call(this, e, n);
+	const fn = "tokenMouse" + e.button as "tokenMouse0" | "tokenMouse1" | "tokenMouse2";
+	if (selectedTool[fn]?.call(this, e, n) ?? true) {
+		defaultTool[fn]?.call(this, e, n);
 	}
 },
 toolTokenWheel = function(this: SVGElement, e: WheelEvent) {
@@ -70,12 +67,9 @@ toolTokenMouseOver = function(this: SVGElement, e: MouseEvent) {
 },
 toolMapMouseDown = function(this: SVGElement, e: MouseEvent) {
 	e.preventDefault();
-	if (e.button === 0 && (selectedTool.mapMouse0?.call(this, e) ?? true)) {
-		defaultTool.mapMouse0?.call(this, e);
-	} else if (e.button === 1 && (selectedTool.mapMouse1?.call(this, e) ?? true)) {
-		defaultTool.mapMouse1?.call(this, e);
-	} else if (e.button === 2 && (selectedTool.mapMouse2?.call(this, e) ?? true)) {
-		defaultTool.mapMouse2?.call(this, e);
+	const fn = "mapMouse" + e.button as "mapMouse0" | "mapMouse1" | "mapMouse2";
+	if (selectedTool[fn]?.call(this, e) ?? true) {
+		defaultTool[fn]?.call(this, e);
 	}
 },
 toolMapWheel = function(this: SVGElement, e: WheelEvent) {
