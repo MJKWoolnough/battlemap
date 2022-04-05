@@ -8,7 +8,7 @@ import mainLang, {language} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
-import {isAdmin, rpc} from '../rpc.js';
+import {isAdmin, combined, rpc} from '../rpc.js';
 import {autosnap} from '../settings.js';
 import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
@@ -39,14 +39,15 @@ const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style":
       },
       types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128) + ""]);
 
+let size = 20,
+    width = 5;
+
 if (isAdmin) {
 	let selectedEffect = circleEffect,
 	    over = false,
 	    x = 0,
 	    y = 0,
 	    rotation = 0,
-	    size = 20,
-	    width = 5,
 	    damageType = 0,
 	    send = false,
 	    rotate = false;
@@ -246,12 +247,12 @@ if (isAdmin) {
 			console.log("plugin spells: broadcast data must be an array with length 7");
 			return;
 		}
-		const [effect, size, width, x, y, rotation, damageType] = data,
+		const [effect, spellSize, spellWidth, x, y, rotation, damageType] = data,
 		      selectedEffect = effectList[effect];
 		for (const [a, log] of [
 			[isUint(effect, effectList.length - 1), "invalid type"],
-			[isInt(size, 1, 1000), "invalid size"],
-			[isInt(width, 1, 1000), "invalid width"],
+			[isInt(spellSize, 1, 1000), "invalid size"],
+			[isInt(spellWidth, 1, 1000), "invalid width"],
 			[isInt(x) && isInt(y), "invalid coords"],
 			[isUint(rotation, 360), "invalid rotation"],
 			[isUint(damageType, types.length - 1), "invalid damage type"]
@@ -265,7 +266,9 @@ if (isAdmin) {
 			lastEffect?.remove();
 			amendNode(root, selectedEffect);
 		}
-		setSize(size, width);
+		setSize(size = spellSize, width = spellWidth);
 		amendNode(rotations.get(amendNode(lastEffect = selectedEffect, {"transform": `translate(${x}, ${y})`, "stroke": types[damageType][0], "fill": types[damageType][1]})), {"transform": `rotate(${rotation})`});
 	});
 }
+
+combined.waitGridDistanceChange().then(() => setTimeout(setSize, 0, size, width));
