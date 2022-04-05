@@ -310,7 +310,7 @@ menuItems.push([3, () => isAdmin ? [
 							}).catch(handleError);
 						}
 					}}, [
-						this.titleNode = h1(this.name),
+						this.titleNode = h1({"draggable": "true", "ondragstart": (e: DragEvent) => dragMusicPack.set(e, this.#dragKey, dragIcon)}, this.name),
 						svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 							this.playPauseTitle,
 							this.playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.toPlay, this.toPause]),
