@@ -131,12 +131,12 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		root.windowIcon = icon;
 		clearNode(base, {"id": `${id}Items`, "class": "folders"}, [
 			button({"onclick": () => {
-				const file = input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": function(this: HTMLInputElement) {
+				const file = input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": () => {
 					uploadAsset(root, id, new FormData(f), w)
 					.then(() => w.remove())
 					.catch(handleError)
-					.finally(() => amendNode(this, {"disabled": false}));
-					amendNode(this, {"disabled": true});
+					.finally(() => amendNode(file, {"disabled": false}));
+					amendNode(file, {"disabled": true});
 				      }}),
 				      f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, file)),
 				      w = windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]);
