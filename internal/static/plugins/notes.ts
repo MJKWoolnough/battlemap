@@ -92,11 +92,11 @@ if (isAdmin) {
 						} else if (dragNote.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
 							      {id, name} = dragNote.get(e);
-							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name}[/note]`);
+							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) || name}[/note]`);
 						} else if (dragMusicPack.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
 							      {id, name} = dragMusicPack.get(e);
-							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) ?? name ?? ""}[/musicpack]`);
+							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) || name}[/musicpack]`);
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
