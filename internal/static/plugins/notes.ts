@@ -160,7 +160,7 @@ if (isAdmin) {
 		}
 	}
 
-	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text}");
+	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}");
 	let lastID = 0;
 	const dragNote = new DragTransfer<FolderDragItem>("pluginnote"),
 	      importName = pluginName(import.meta),
