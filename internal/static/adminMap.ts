@@ -18,7 +18,7 @@ import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, map
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenLightChange, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {SVGToken, deselectToken, outline, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
-import {handleError, rpc} from './rpc.js';
+import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, checkInt, cloneObject, getCharacterToken, labels, mapLoadedSend, mod, SQRT3} from './shared.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
@@ -604,6 +604,8 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
 	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
 	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
+	combined.waitGridDistanceChange().then(v => mapData.gridDistance = v);
+	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 };
