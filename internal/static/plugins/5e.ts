@@ -35,11 +35,11 @@ type InitialTokenData = {
 	"5e-ac": KeystoreData<Uint> | null;
 	"5e-hp-max": KeystoreData<Uint> | null;
 	"5e-hp-current": KeystoreData<Uint> | null;
-};
+}
 
 type InitialToken = Pick<TokenImage, "src" | "width" | "height" | "flip" | "flop"> & {
 	tokenData: InitialTokenData;
-};
+}
 
 type TokenFields = {
 	"name"?: KeystoreData<string>;
