@@ -140,9 +140,11 @@ export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy"});
 	icon: HTMLDivElement = div(this.image);
 	#dragKey: string;
-	constructor(parent: Folder, id: Uint, name: string) {
+	#dragTransfer: DragTransfer;
+	constructor(parent: Folder, id: Uint, name: string, dt: DragTransfer) {
 		super(parent, id, name);
-		this.#dragKey = this.dragTransfer().register(this);
+		this.#dragTransfer = dt;
+		this.#dragKey = dt.register(this);
 		amendNode(this[node].firstChild!, {
 			"draggable": "true",
 			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
@@ -158,17 +160,16 @@ export abstract class DraggableItem extends Item {
 			e.preventDefault();
 			return;
 		}
-		this.dragTransfer().set(e, this.#dragKey, this.icon);
+		this.#dragTransfer.set(e, this.#dragKey, this.icon);
 		amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
 	}
-	abstract dragTransfer(): DragTransfer<FolderDragItem>;
 	transfer(): FolderDragItem {
 		const {id, name, image: {naturalWidth, naturalHeight}} = this;
 		return {id, "width": naturalWidth, "height": naturalHeight, name};
 	}
 	delete() {
 		this.removeIcon();
-		this.dragTransfer().deregister(this.#dragKey);
+		this.#dragTransfer.deregister(this.#dragKey);
 	}
 	removeIcon() {
 		amendNode(this.icon, {"style": {"transform": undefined}}).remove();

@@ -39,7 +39,7 @@ let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
 class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name);
+		super(parent, id, name, dragMap);
 		amendNode(this.image, {"src": mapIcon});
 		amendNode(this[node], {"class": ["mapItem"]});
 		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
@@ -47,7 +47,6 @@ class MapItem extends DraggableItem {
 			rpc.setUserMap(id);
 		}}), this[node].firstChild);
 	}
-	dragTransfer() { return dragMap; }
 	show() {
 		let thisMap: MapItem = this,
 		    oldMap = selectedCurrent!;

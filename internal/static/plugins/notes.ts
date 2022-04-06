@@ -58,12 +58,9 @@ if (isAdmin) {
 		popWindow: Window | null = null;
 		share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
-			super(parent, id, name);
+			super(parent, id, name, dragNote);
 			amendNode(this.image, {"src": icon});
 			notes.set(id, this);
-		}
-		dragTransfer() {
-			return dragNote;
 		}
 		show() {
 			if (this.window) {

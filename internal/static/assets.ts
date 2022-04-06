@@ -17,11 +17,10 @@ import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name);
+		super(parent, id, name, dragImage);
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
 	get showOnMouseOver() { return true; }
-	dragTransfer() { return dragImage; }
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": (e: DragEvent) => this.startDrag(e)}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
@@ -32,10 +31,9 @@ class ImageAsset extends DraggableItem {
 
 class AudioAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name);
+		super(parent, id, name, dragAudio);
 		amendNode(this.image, {"src": audioIcon});
 	}
-	dragTransfer() { return dragAudio; }
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": (e: DragEvent) => this.startDrag(e)}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);

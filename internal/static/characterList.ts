@@ -14,7 +14,7 @@ import {loadingWindow, shell, windows} from './windows.js';
 
 class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name);
+		super(parent, id, name, dragCharacter);
 		if (!characterData.has(id)) {
 			rpc.characterGet(id).then(d => {
 				characterData.set(id, d);
@@ -31,7 +31,6 @@ class Character extends DraggableItem {
 		characters.set(id, this);
 	}
 	get showOnMouseOver() { return true; }
-	dragTransfer() { return dragCharacter; }
 	setIcon(id: Uint) {
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
