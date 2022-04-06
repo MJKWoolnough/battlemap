@@ -78,9 +78,7 @@ export class SVGToken extends SVGTransform {
 	patternHeight: Uint;
 	constructor(token: TokenImage, wg?: WaitGroup) {
 		super(token);
-		if (wg) {
-			wg.add();
-		}
+		wg?.add();
 		this.src = token.src;
 		this.flip = token.flip;
 		this.flop = token.flop;
