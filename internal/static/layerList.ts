@@ -56,43 +56,42 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	return w;
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
-	if (dragging!.id < 0 && l.parent !== dragging!.parent) {
-		return;
-	}
-	dragging!.parent!.children.delete(dragging!.name);
-	const oldPath = dragging!.getPath();
-	let pos = 0,
-	    newPath: string;
-	if (dragging!.id >= 0 && isFolder(l) && beforeAfter && l.open.open) {
-		if (l.children.size === 0) {
-			l.children.set(dragging!.name, dragging!);
+	//if (dragging!.id < 0 && l.parent !== dragging!.parent) {
+	if (dragging!.id >= 0 || l.parent === dragging!.parent) {
+		dragging!.parent!.children.delete(dragging!.name);
+		const oldPath = dragging!.getPath();
+		let pos = 0,
+		    newPath: string;
+		if (dragging!.id >= 0 && isFolder(l) && beforeAfter && l.open.open) {
+			if (l.children.size === 0) {
+				l.children.set(dragging!.name, dragging!);
+			} else {
+				l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0)!);
+				pos = l.children.position(dragging!.name);
+			}
+			newPath = l.getPath() + "/";
+			dragging!.parent = l;
 		} else {
-			l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0)!);
-			pos = l.children.position(dragging!.name);
+			l.parent!.children[beforeAfter ? "insertAfter" : "insertBefore"](dragging!.name, dragging!, l.name);
+			newPath = l.parent!.getPath() + "/";
+			pos = l.parent!.children.position(dragging!.name);
+			dragging!.parent = l.parent!;
 		}
-		newPath = l.getPath() + "/";
-		dragging!.parent = l;
-	} else {
-		l.parent!.children[beforeAfter ? "insertAfter" : "insertBefore"](dragging!.name, dragging!, l.name);
-		newPath = l.parent!.getPath() + "/";
-		pos = l.parent!.children.position(dragging!.name);
-		dragging!.parent = l.parent!;
+		loadingWindow(queue(() => (doLayerMove(oldPath, newPath, pos, false), rpc.moveLayer(oldPath, newPath, pos))), shell);
 	}
-	loadingWindow(queue(() => (doLayerMove(oldPath, newPath, pos, false), rpc.moveLayer(oldPath, newPath, pos))), shell);
       },
       dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
-	if (dragging || e.button !== 0) {
-		return;
+	if (!dragging && e.button === 0) {
+		if (l.id < 0) {
+			amendNode(dragBase, {"class": ["draggingSpecial"]});
+		}
+		dragOffset = l.nameElem.offsetLeft - e.clientX;
+		for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
+			dragOffset += e.offsetLeft;
+		}
+		dragging = l;
+		setupDrag();
 	}
-	if (l.id < 0) {
-		amendNode(dragBase, {"class": ["draggingSpecial"]});
-	}
-	dragOffset = l.nameElem.offsetLeft - e.clientX;
-	for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
-		dragOffset += e.offsetLeft;
-	}
-	dragging = l;
-	setupDrag();
       },
       showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
 	const visible = !l[node].classList.toggle("layerHidden");
