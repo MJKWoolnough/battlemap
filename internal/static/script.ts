@@ -11,7 +11,7 @@ import pluginInit, {menuItems} from './plugins.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
 import {addCSS, menuItems as mI, mod} from './shared.js';
-import symbols, {popout} from './symbols.js';
+import {popout, symbols} from './symbols.js';
 import {checkWindowData, desktop, getWindowData, shell, windows} from './windows.js';
 import './assets.js';
 import './characterList.js';

@@ -2,9 +2,8 @@ import type {Props} from './lib/dom.js';
 import {amendNode} from './lib/dom.js';
 import {animateTransform, circle, ellipse, g, path, rect, svg, symbol, title, use} from './lib/svg.js';
 
-const symbols = svg({"style": "width: 0"})
-
-export const addSymbol = (id: string, s: SVGSymbolElement) => {
+export const symbols = svg({"style": "width: 0"}),
+addSymbol = (id: string, s: SVGSymbolElement) => {
 	amendNode(symbols, amendNode(s, {id}));
 	return (props: Exclude<Props, NamedNodeMap> = {}) => svg(props, [
 		typeof props["title"] === "string" ? title(props["title"]) : [],
@@ -45,5 +44,3 @@ visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
 		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
 	])
 ]));
-
-export default symbols;
