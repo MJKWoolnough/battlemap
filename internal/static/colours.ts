@@ -38,7 +38,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
-	      window = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": () => {
+	      w = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": () => {
 		      dragColour.deregister(dragKey);
 		      reject();
 	      }}, [
@@ -51,10 +51,10 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 		button({"onclick": function(this: HTMLButtonElement) {
 			amendNode(this, {"disabled": true});
 			resolve(hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)));
-			window.remove();
+			w.remove();
 		}}, lang["COLOUR_UPDATE"])
 	      ]);
-	(parent.parentNode ? parent : shell).addWindow(window);
+	(parent.parentNode ? parent : shell).addWindow(w);
 }),
 makeColourPicker = (() => {
 	const sc = (s: HTMLDivElement, c: Colour) => {
