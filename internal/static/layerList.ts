@@ -144,7 +144,7 @@ class ItemLayer extends Item {
 			      sqWidth = input({"type": "number", "min": "10", "max": "1000", "value": mapData.gridSize}),
 			      sqColour = input({"type": "color", "value": mapData.gridColour.toHexString()}),
 			      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": mapData.gridStroke}),
-			      window = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+			      w = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
 				h1(lang["MAP_EDIT"]),
 				labels(`${lang["MAP_SQUARE_WIDTH"]}: `, width),
 				br(),
@@ -173,14 +173,14 @@ class ItemLayer extends Item {
 							      };
 							doMapChange(details, false);
 							return rpc.setMapDetails(details)
-							.then(() => window.remove())
+							.then(() => w.remove())
 							.finally(() => amendNode(this, {"disabled": false}));
 						}),
-						window
+						w
 					);
 				}}, lang["SAVE"])
 			      ]);
-			amendNode(shell, window);
+			amendNode(shell, w);
 		} else if (this.id === -2) { // Light
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 		} else {
