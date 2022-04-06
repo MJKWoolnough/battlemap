@@ -141,19 +141,18 @@ export abstract class DraggableItem extends Item {
 	icon: HTMLDivElement = div(this.image);
 	#dragKey: string;
 	#dragTransfer: DragTransfer;
-	constructor(parent: Folder, id: Uint, name: string, dt: DragTransfer) {
+	constructor(parent: Folder, id: Uint, name: string, dt: DragTransfer, showOnMouseOver = false) {
 		super(parent, id, name);
 		this.#dragTransfer = dt;
 		this.#dragKey = dt.register(this);
 		amendNode(this[node].firstChild!, {
 			"draggable": "true",
-			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": this.showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
-			"onmousemove": this.showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
+			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
+			"onmousemove": showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
 			"ondragstart": (e: DragEvent) => this.startDrag(e)
 		});
 	}
-	get showOnMouseOver() { return false; }
 	startDrag(e: DragEvent) {
 		const img = this.image;
 		if (img.naturalWidth === 0 || img.naturalHeight === 0) {

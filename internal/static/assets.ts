@@ -17,10 +17,9 @@ import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
-		super(parent, id, name, dragImage);
+		super(parent, id, name, dragImage, true);
 		amendNode(this.image, {"src": `/images/${id}`});
 	}
-	get showOnMouseOver() { return true; }
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": (e: DragEvent) => this.startDrag(e)}));
 		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
