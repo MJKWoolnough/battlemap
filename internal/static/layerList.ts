@@ -289,18 +289,8 @@ menuItems.push([5, () => isAdmin ? [
 					return false;
 				});
 			})[0]();
-			layersRPC.waitLayerSetVisible().then(path => {
-				const l = list.getLayer(path);
-				if (l) {
-					amendNode(l[node], {"class": ["!layerHidden"]});
-				}
-			});
-			layersRPC.waitLayerSetInvisible().then(path => {
-				const l = list.getLayer(path);
-				if (l) {
-					amendNode(l[node], {"class": ["layerHidden"]});
-				}
-			});
+			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerHidden"]}));
+			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerHidden"]}));
 			layersRPC.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
