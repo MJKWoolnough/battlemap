@@ -267,7 +267,7 @@ const defaultLanguage = {
 		"TOOL_DRAW_STROKE_COLOUR": "Stroke Color",
 		"TOOL_WALL_COLOUR": "Wall Color",
 		"UNDO_LIGHT_COLOUR": "Map Light Color",
-	}, defaultLanguage),
+	}, defaultLanguage)
       };
 
 export const languages: string[] = Object.keys(languagePacks),
