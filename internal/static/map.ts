@@ -77,7 +77,34 @@ const idNames: Record<string, Int> = {
 	return Math.hypot(px - cx, py - m * cx - c);
       },
       makeLight = (l: LightSource, walls: Wall[]) => {
-	      return [];
+	type Vertex = {
+		wall: Wall;
+		x: Int;
+		y: Int;
+		angle: number;
+		other: number;
+	}
+	const [_c, _i, x, y] = l,
+	      vertices: Vertex[] = [];
+	for (const wall of walls) {
+		const {x1, y1, x2, y2} = wall,
+		      a1 = Math.atan2(y1 - y, x1 - x),
+		      a2 = Math.atan2(y2 - y, x2 - x);
+		vertices.push({
+			wall,
+			x: x1,
+			y: y1,
+			angle: a1,
+			other: a2
+		}, {
+			wall,
+			x: x2,
+			y: y2,
+			angle: a2,
+			other: a1
+		});
+	}
+	return [];
       };
 
 export const splitAfterLastSlash = (path: string) => {
