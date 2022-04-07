@@ -1,6 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Children} from './lib/dom.js';
 import type {Colour} from './colours.js';
+import type {LightSource} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -9,6 +10,7 @@ import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
 import lang from './language.js';
+import {makeLight} from './map_lighting.js';
 import {SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {drawingClass, shapeClass, tokenClass} from './plugins.js';
@@ -28,16 +30,6 @@ export type SVGFolder = LayerFolder & {
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
-
-type LightSource = [Colour, Uint, Int, Int];
-
-type Vertex = {
-	wall: Wall;
-	x: Int;
-	y: Int;
-	angle: number;
-	other: number;
-}
 
 export let root = svg(),
 layerList: SVGFolder,
@@ -70,47 +62,7 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-      point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
-	if (x1 === x2) {
-		return py >= y1 && py <= y2 ? Math.abs(px - x1) : Math.hypot(px - x1, Math.min(Math.abs(py - y1), Math.abs(py - y2)));
-	} else if (y1 === y2) {
-		return px >= x1 && px <= x2 ? Math.abs(py - y1) : Math.hypot(Math.min(Math.abs(px - x1), Math.abs(px - x2)), py - y1);
-	}
-	const m = (y2 - y1) / (x2 - x1),
-	      n = (x1 - x2) / (y2 - y1),
-	      c = y1 - m * x1,
-	      d = py - px * n,
-	      cx = Math.min(Math.max((d - c) / (m - n), x1), x2);
-	return Math.hypot(px - cx, py - m * cx - c);
-      },
-      vertexSort = (a: Vertex, b: Vertex) => {
-	return b.angle - a.angle;
-      },
-      makeLight = (l: LightSource, walls: Wall[]) => {
-	const [_c, _i, x, y] = l,
-	      vertices: Vertex[] = [];
-	for (const wall of walls) {
-		const {x1, y1, x2, y2} = wall,
-		      a1 = Math.atan2(y1 - y, x1 - x),
-		      a2 = Math.atan2(y2 - y, x2 - x);
-		vertices.push({
-			wall,
-			x: x1,
-			y: y1,
-			angle: a1,
-			other: a2
-		}, {
-			wall,
-			x: x2,
-			y: y2,
-			angle: a2,
-			other: a1
-		});
-	}
-	vertices.sort(vertexSort);
-	return [];
-      };
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
