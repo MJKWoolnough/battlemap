@@ -31,6 +31,14 @@ export type SVGFolder = LayerFolder & {
 
 type LightSource = [Colour, Uint, Int, Int];
 
+type Vertex = {
+	wall: Wall;
+	x: Int;
+	y: Int;
+	angle: number;
+	other: number;
+}
+
 export let root = svg(),
 layerList: SVGFolder,
 mapData: MapData;
@@ -76,14 +84,10 @@ const idNames: Record<string, Int> = {
 	      cx = Math.min(Math.max((d - c) / (m - n), x1), x2);
 	return Math.hypot(px - cx, py - m * cx - c);
       },
+      vertexSort = (a: Vertex, b: Vertex) => {
+	return b.angle - a.angle;
+      },
       makeLight = (l: LightSource, walls: Wall[]) => {
-	type Vertex = {
-		wall: Wall;
-		x: Int;
-		y: Int;
-		angle: number;
-		other: number;
-	}
 	const [_c, _i, x, y] = l,
 	      vertices: Vertex[] = [];
 	for (const wall of walls) {
@@ -104,6 +108,7 @@ const idNames: Record<string, Int> = {
 			other: a1
 		});
 	}
+	vertices.sort(vertexSort);
 	return [];
       };
 
