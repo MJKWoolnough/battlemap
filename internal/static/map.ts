@@ -164,9 +164,9 @@ updateLight = () => {
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
 			walls.push(...l.walls);
-			for (const t of l.tokens) {
-				if (t.lightIntensity && t.lightColour.a) {
-					lights.push([t.lightColour, t.lightIntensity, 0, 0]);
+			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
+				if (lightIntensity && lightColour.a) {
+					lights.push([lightColour, lightIntensity, x + width / 2, y + height / 2]);
 				}
 			}
 		}
