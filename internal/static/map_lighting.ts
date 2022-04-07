@@ -17,20 +17,7 @@ type Range = {
 	max: number;
 }
 
-const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
-	if (x1 === x2) {
-		return py >= y1 && py <= y2 ? Math.abs(px - x1) : Math.hypot(px - x1, Math.min(Math.abs(py - y1), Math.abs(py - y2)));
-	} else if (y1 === y2) {
-		return px >= x1 && px <= x2 ? Math.abs(py - y1) : Math.hypot(Math.min(Math.abs(px - x1), Math.abs(px - x2)), py - y1);
-	}
-	const m = (y2 - y1) / (x2 - x1),
-	      n = (x1 - x2) / (y2 - y1),
-	      c = y1 - m * x1,
-	      d = py - px * n,
-	      cx = Math.min(Math.max((d - c) / (m - n), x1), x2);
-	return Math.hypot(px - cx, py - m * cx - c);
-      },
-      vertexSort = (a: Vertex, b: Vertex) => {
+const vertexSort = (a: Vertex, b: Vertex) => {
 	return b.angle - a.angle;
       };
 
