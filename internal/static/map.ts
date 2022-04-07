@@ -9,6 +9,7 @@ import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
+import {noColour} from './colours.js';
 import lang from './language.js';
 import {makeLight} from './map_lighting.js';
 import {SVGToken, definitions, masks, tokens} from './map_tokens.js';
@@ -142,7 +143,45 @@ normaliseWall = (w: Wall) => {
 },
 updateLight = () => {
 	const ll = (getLayer("/Light") as SVGLayer)[node],
-	      walls: Wall[] = [],
+	      {width, height} = mapData,
+	      walls: Wall[] = [
+		{
+			"id": -1,
+			"x1": 0,
+			"y1": 0,
+			"x2": width,
+			"y2": 0,
+			"colour": noColour,
+			"scattering": 0
+		},
+		{
+			"id": -2,
+			"x1": width,
+			"y1": 0,
+			"x2": width,
+			"y2": height,
+			"colour": noColour,
+			"scattering": 0
+		},
+		{
+			"id": -3,
+			"x1": 0,
+			"y1": height,
+			"x2": width,
+			"y2": height,
+			"colour": noColour,
+			"scattering": 0
+		},
+		{
+			"id": -4,
+			"x1": 0,
+			"y1": 0,
+			"x2": 0,
+			"y2": height,
+			"colour": noColour,
+			"scattering": 0
+		}
+	      ],
 	      lights: LightSource[] = [],
 	      masks: Children[] = [ll.firstChild!];
 	walkLayers((l: SVGLayer, hidden: boolean) => {
