@@ -1,4 +1,5 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
+import type {Children} from './lib/dom.js';
 import type {Colour} from './colours.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
@@ -27,6 +28,8 @@ export type SVGFolder = LayerFolder & {
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 };
+
+type LightSource = [Colour, Uint, Int, Int];
 
 export let root = svg(),
 layerList: SVGFolder,
@@ -59,9 +62,8 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
-
-export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+      point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int) => {
 	if (x1 === x2) {
 		return py >= y1 && py <= y2 ? Math.abs(px - x1) : Math.hypot(px - x1, Math.min(Math.abs(py - y1), Math.abs(py - y2)));
 	} else if (y1 === y2) {
@@ -73,8 +75,12 @@ export const point2Line = (px: Int, py: Int, x1: Int, y1: Int, x2: Int, y2: Int)
 	      d = py - px * n,
 	      cx = Math.min(Math.max((d - c) / (m - n), x1), x2);
 	return Math.hypot(px - cx, py - m * cx - c);
-},
-splitAfterLastSlash = (path: string) => {
+      },
+      makeLight = (l: LightSource, walls: Wall[]) => {
+	      return [];
+      };
+
+export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
@@ -151,6 +157,24 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
+	const ll = (getLayer("/Light") as SVGLayer)[node],
+	      walls: Wall[] = [],
+	      lights: LightSource[] = [],
+	      masks: Children[] = [ll.firstChild!];
+	walkLayers((l: SVGLayer, hidden: boolean) => {
+		if (!hidden) {
+			walls.push(...l.walls);
+			for (const t of l.tokens) {
+				if (t.lightIntensity && t.lightColour.a) {
+					lights.push([t.lightColour, t.lightIntensity, 0, 0]);
+				}
+			}
+		}
+	});
+	for (const light of lights) {
+		masks.push(makeLight(light, walls));
+	}
+	clearNode(ll, masks);
 },
 showSignal = (() => {
 	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
