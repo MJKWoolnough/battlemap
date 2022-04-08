@@ -107,7 +107,7 @@ export type RPC = RPCWaits & {
 
 	newMap:           (map: NewMap)                => Promise<IDName>;
 	setMapDetails:    (map: GridDetails)           => Promise<void>;
-	setMapStart:      (startX: Uint, startY: Uint) => Promise<void>;
+	setMapStart:      (start: MapStart)            => Promise<void>;
 	setGridDistance:  (distance: Uint)             => Promise<void>;
 	setGridDiagonal:  (diagonal: boolean)          => Promise<void>;
 	setLightColour:   (c: Colour)                  => Promise<void>;
@@ -406,10 +406,7 @@ type IDPath = ID & {
 	path: string;
 }
 
-type MapStart = {
-	startX: Uint;
-	startY: Uint;
-}
+type MapStart = [Uint, Uint];
 
 type Copy = {
 	oldID: Uint;
