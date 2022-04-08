@@ -1,5 +1,5 @@
 import type {WindowElement, WindowData} from './windows.js';
-import {amendNode, autoFocus, clearNode, createDocumentFragment, event, eventPassive} from './lib/dom.js';
+import {amendNode, clearNode, createDocumentFragment, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
 import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './lib/settings.js';
@@ -130,7 +130,7 @@ const lastTab = new StringSetting("lastTab"),
 					updateWindowData();
 					base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
 				      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base);
-				amendNode(shell, autoFocus(w));
+				amendNode(shell, w);
 				amendNode(l, {"style": {"display": "none"}});
 				if (i.checked) {
 					selectFirst()
