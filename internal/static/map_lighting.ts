@@ -3,6 +3,7 @@ import type {Colour} from './colours.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
+	point: Wall[];
 	x: Int;
 	y: Int;
 	angle: number;
@@ -40,6 +41,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			ranges.push({wall, "min": a1, "max": a2});
 			if (!points1.length) {
 				vertices.push({
+					point: points1,
 					x: x1,
 					y: y1,
 					angle: a1
@@ -47,6 +49,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			}
 			if (!points2.length) {
 				vertices.push({
+					point: points2,
 					x: x2,
 					y: y2,
 					angle: a2
