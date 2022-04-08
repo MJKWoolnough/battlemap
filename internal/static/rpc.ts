@@ -146,7 +146,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 
 			["newMap",           "maps.new",             "!",                 checkIDName, "", ""],
 			["setMapDetails",    "maps.setMapDetails",   "!",                 returnVoid,  "waitMapChange", ""],
-			["setMapStart",      "maps.setMapStart",    ["startX", "startY"], returnVoid,  "waitMapStartChange", ""],
+			["setMapStart",      "maps.setMapStart",     "!",                 returnVoid,  "waitMapStartChange", ""],
 			["setGridDistance",  "maps.setGridDistance", "!",                 returnVoid,  "waitGridDistanceChange", ""],
 			["setGridDiagonal",  "maps.setGridDiagonal", "!",                 returnVoid,  "waitGridDiagonalChange", ""],
 			["setLightColour",   "maps.setLightColour",  "!",                 returnVoid,  "waitMapLightChange", ""],
