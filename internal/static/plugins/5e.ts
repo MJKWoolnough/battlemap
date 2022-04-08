@@ -358,22 +358,22 @@ const select = Symbol("select"),
 	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => amendNode(document.body, {"class": {"hide-token-conditions-5e": b}})), new BoolSetting("5e-hide-selected-conditions").wait(b => amendNode(document.body, {"class": {"hide-selected-conditions-5e": b}}))],
 	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-token-conditions-5e": b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-selected-conditions-5e": b}}))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
+      highlight = rect({"stroke-width": 20}),
       highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", Colour.from({"r": 255, "g": 255, "b": 0, "a": 127}), (v: any): v is Colour => {
 	if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
 		Colour.from(v);
 		return true;
 	}
 	return false;
+      }).wait(c => {
+	const h = c.toHexString();
+	amendNode(highlight, {"fill": h, "stroke": h, "opacity": c.a / 255});
       }),
-      highlight = rect({"fill": highlightColour.value, "stroke": highlightColour.value, "opacity": highlightColour.value.a / 255, "stroke-width": 20}),
       plugin: PluginType = {
 	"settings": {
 		"priority": 0,
 		"fn": div([
-			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => {
-				highlightColour.set(c);
-				amendNode(highlight, {"fill": c, "stroke": c});
-			})),
+			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => highlightColour.set(c))),
 			table({"id": "display-settings-5e"}, [
 				thead(tr([
 					td(),
