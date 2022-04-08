@@ -78,24 +78,21 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return true
 		})
 	case "setMapStart":
-		var ms struct {
-			StartX uint64 `json:"startX"`
-			StartY uint64 `json:"startY"`
-		}
+		var ms [2]uint64
 		err := json.Unmarshal(data, &ms)
 		if err != nil {
 			return nil, err
 		}
 		if errr := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			if ms.StartX > mp.Width || ms.StartY > mp.Height {
+			if ms[0] > mp.Width || ms[1] > mp.Height {
 				err = ErrInvalidStart
 				return false
 			}
-			if ms.StartX == mp.StartX && ms.StartY == mp.StartY {
+			if ms[0] == mp.StartX && ms[1] == mp.StartY {
 				return false
 			}
-			mp.StartX = ms.StartX
-			mp.StartY = ms.StartY
+			mp.StartX = ms[0]
+			mp.StartY = ms[1]
 			m.socket.broadcastMapChange(cd, broadcastMapStartChange, data, userAdmin)
 			return true
 		}); errr != nil {
