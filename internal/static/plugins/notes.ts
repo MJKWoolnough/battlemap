@@ -171,8 +171,7 @@ if (isAdmin) {
 			return false;
 		}
 		for (const i in data["items"]) {
-			const id = data["items"][i];
-			if (!isUint(id)) {
+			if (!isUint(data["items"][i])) {
 				return false;
 			}
 		}
