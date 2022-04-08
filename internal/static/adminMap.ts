@@ -547,7 +547,7 @@ export default (base: HTMLElement) => {
 		showSignal(pos);
 		if (e.ctrlKey) {
 			if (e.altKey) {
-				rpc.setMapStart(pos[0], pos[1]);
+				rpc.setMapStart(pos);
 			}
 			rpc.signalMovePosition(pos);
 		} else {
