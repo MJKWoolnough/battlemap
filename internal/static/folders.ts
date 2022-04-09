@@ -50,7 +50,7 @@ export abstract class Item {
 	abstract show(): void;
 	rename() {
 		const self = this,
-		      root = this.parent.root,
+		      root = self.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
@@ -74,7 +74,7 @@ export abstract class Item {
 	}
 	copy() {
 		const self = this,
-		      root = this.parent.root,
+		      root = self.parent.root,
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
