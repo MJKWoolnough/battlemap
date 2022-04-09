@@ -176,6 +176,7 @@ addTool({
 		cancelMouseMove();
 		cancelShiftSnap();
 		cancelEscape();
+		stopMeasurement();
 	}
 });
 
