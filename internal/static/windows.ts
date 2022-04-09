@@ -23,9 +23,9 @@ const defaultParams = {"hide-maximise": true, "tabindex": -1, "onkeydown": funct
       }};
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
-        const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
-        parent.addWindow(w);
-        return p.finally(() => w.remove());
+	const w = awindows({"windows-title": title}, content || div({"class": "loadSpinner"}));
+	parent.addWindow(w);
+	return p.finally(() => w.remove());
 },
 windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children) => {
 	const w = amendNode(awindows(defaultParams), props, children),
