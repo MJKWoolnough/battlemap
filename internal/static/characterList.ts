@@ -111,16 +111,14 @@ menuItems.push([2, () => isAdmin ? [
 						button({"onclick": function(this: HTMLButtonElement) {
 							if (!name.value) {
 								w.alert(lang["ERROR"], lang["CHARACTER_NEED_NAME"]);
-								return;
-							}
-							if (!icon) {
+							} else if (!icon) {
 								w.alert(lang["ERROR"], lang["CHARACTER_NEED_ICON"]);
-								return;
+							} else {
+								loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
+								.then(() => w.remove())
+								.finally(() => amendNode(this, {"disabled": false}));
+								amendNode(this, {"disabled": true});
 							}
-							loadingWindow(rpc.characterCreate(name.value, {"name": {"user": false, "data": name.value}, "store-image-icon": {"user": false, "data": icon}}).then(({id, path}) => root.addItem(id, path)), w)
-							.then(() => w.remove())
-							.finally(() => amendNode(this, {"disabled": false}));
-							amendNode(this, {"disabled": true});
 						}}, lang["CHARACTER_CREATE"])
 					      ]);
 					amendNode(shell, w);
