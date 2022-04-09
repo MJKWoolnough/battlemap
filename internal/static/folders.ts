@@ -150,10 +150,10 @@ export abstract class DraggableItem extends Item {
 			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
 			"onmousemove": showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
-			"ondragstart": (e: DragEvent) => this.startDrag(e)
+			"ondragstart": this
 		});
 	}
-	startDrag(e: DragEvent) {
+	handleEvent(e: DragEvent) {
 		const img = this.image;
 		if (img.naturalWidth === 0 || img.naturalHeight === 0) {
 			e.preventDefault();
