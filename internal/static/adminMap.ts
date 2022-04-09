@@ -173,7 +173,7 @@ export default (base: HTMLElement) => {
 		"copy": [dragImageFiles]
 	      }),
 	      mapOnDrop = (e: DragEvent) => {
-		if (selected.layer === null) {
+		if (!selected.layer) {
 			return;
 		}
 		if (dragImageFiles.is(e)) {
