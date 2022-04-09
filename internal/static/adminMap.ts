@@ -124,7 +124,7 @@ export default (base: HTMLElement) => {
 		selectedToken.updateNode();
 		amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": selectedToken.transformString(false)});
 	      }, () => {
-		if (!selected.token || !selected.layer) {
+		if (!selected.token) {
 			return;
 		}
 		amendNode(root, {"style": {"--outline-cursor": undefined}});
