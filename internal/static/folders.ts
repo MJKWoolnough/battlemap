@@ -160,7 +160,7 @@ export abstract class DraggableItem extends Item {
 			return;
 		}
 		this.#dragTransfer.set(e, this.#dragKey, this.icon);
-		amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}});
+		amendNode(this.icon.parentNode ? null : document.body, amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}}));
 	}
 	transfer(): FolderDragItem {
 		const {id, name, image: {naturalWidth, naturalHeight}} = this;
