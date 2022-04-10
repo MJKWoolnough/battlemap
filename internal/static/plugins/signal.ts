@@ -3,6 +3,7 @@ import {br, div, input} from '../lib/html.js';
 import {circle, svg} from '../lib/svg.js';
 import {language} from '../language.js';
 import {screen2Grid, showSignal} from '../map.js';
+import {deselectToken} from '../map_tokens.js';
 import {isAdmin, rpc} from '../rpc.js';
 import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
@@ -44,6 +45,7 @@ if (isAdmin) {
 				rpc.signalPosition(pos);
 			}
 			return false;
-		}
+		},
+		"set": deselectToken
 	});
 }
