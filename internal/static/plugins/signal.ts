@@ -2,7 +2,8 @@ import {amendNode} from '../lib/dom.js';
 import {br, div, input} from '../lib/html.js';
 import {circle, svg} from '../lib/svg.js';
 import {language} from '../language.js';
-import {isAdmin} from '../rpc.js';
+import {screen2Grid, showSignal} from '../map.js';
+import {isAdmin, rpc} from '../rpc.js';
 import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
 
@@ -31,7 +32,17 @@ if (isAdmin) {
 			br(),
 			labels(home, `${lang["HOME"]}: `),
 		]),
-		"mapMouse1": (e: MouseEvent) => {
+		"mapMouse0": (e: MouseEvent) => {
+			const pos = screen2Grid(e.clientX, e.clientY);
+			showSignal(pos);
+			if (move.checked) {
+				if (home.checked) {
+					rpc.setMapStart(pos);
+				}
+				rpc.signalMovePosition(pos);
+			} else {
+				rpc.signalPosition(pos);
+			}
 			return false;
 		}
 	});
