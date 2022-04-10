@@ -2,6 +2,10 @@
 	display: none;
 }
 
+.settings_ticker[disabled] + label {
+	color: #888;
+}
+
 .settings_ticker[disabled] + label:after {
 	display: none;
 }
