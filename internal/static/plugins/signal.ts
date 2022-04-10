@@ -18,10 +18,10 @@ if (isAdmin) {
 		      "en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      move = input({"id": "signalMove", "type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
+	      move = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
 		      amendNode(home, {"disabled": !this.checked});
 	      }}),
-	      home = input({"id": "signalHome", "type": "checkbox", "class": "settings_ticker", "disabled": true});
+	      home = input({"type": "checkbox", "class": "settings_ticker", "disabled": true});
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100", "fill": "none", "stroke": "currentColor", "stroke-width": 3}, [
