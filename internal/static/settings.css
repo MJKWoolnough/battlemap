@@ -7,7 +7,7 @@
 }
 
 .settings_ticker[disabled] + label:after {
-	display: none;
+	background-image: none !important;
 }
 
 .settings_ticker + label:after {
