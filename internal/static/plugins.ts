@@ -50,7 +50,7 @@ settings = () => {
 		return [];
 	}
 	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
-	      selected = select({"id": "pluginList", "onchange": function(this: HTMLSelectElement) {
+	      selected = select({"onchange": function(this: HTMLSelectElement) {
 		const plugin = pluginList.get(this.value),
 		      disabled = {"disabled": !plugin};
 		amendNode(check, disabled);
