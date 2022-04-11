@@ -56,7 +56,7 @@ settings = () => {
 		amendNode(check, disabled);
 		amendNode(save, disabled);
 		check.checked = plugin?.enabled ?? false;
-	      }}, [option({"value": ""}), Array.from(pluginList.keys()).map(name => option({"value": name}, name))]),
+	      }}, [option({"value": ""}), Array.from(pluginList.keys()).sort().map(name => option({"value": name}, name))]),
 	      save = button({"disabled": true, "onclick": () => {
 		const s = selected.value,
 		      plugin = pluginList.get(s);
