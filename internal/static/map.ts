@@ -347,7 +347,7 @@ mapView = (mD: MapData, loadChars = false) => {
 		items: {},
 		path: "/"
 	};
-	root = svg({"id": "map", "style": {"position": "absolute"}, width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
+	root = svg({"id": "map", width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
