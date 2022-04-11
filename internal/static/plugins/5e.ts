@@ -257,7 +257,7 @@ const select = Symbol("select"),
 	}
       },
       initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px"}, "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
-	isAdmin ? div({"id": "initiative-ordering-5e"}, [
+	isAdmin ? div([
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
 			initiativeList.sort(noSort);
