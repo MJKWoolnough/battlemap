@@ -158,7 +158,7 @@ if (isAdmin) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}})),
 			div({"style": "display: var(--spell-display, none)"}, [
-				labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "id": "plugin-spell-width", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
+				labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 					setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 				}}))
 			])
