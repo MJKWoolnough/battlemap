@@ -426,7 +426,7 @@ menuItems.push([3, () => isAdmin ? [
 			for (const pack of list) {
 				musicList.set(pack.id, new AdminPack(pack.id, pack));
 			}
-			clearNode(base, {"id": "musicPacks"}, [
+			clearNode(base, [
 				button({"onclick": () => shell.prompt(lang["MUSIC_ADD"], lang["MUSIC_ADD_NAME"]).then(name => {
 					if (name) {
 						rpc.musicPackAdd(name).then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
