@@ -67,7 +67,7 @@ settings = () => {
 	return [
 		isAdmin ? [
 			h1(lang["PLUGINS"]),
-			labels(`${lang["PLUGINS"]} :`, selected),
+			labels(`${lang["PLUGINS"]}: `, selected),
 			labels(check, ""),
 			br(),
 			save,
