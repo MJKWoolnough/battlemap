@@ -10,7 +10,7 @@ import loadUserMap from './map.js';
 import pluginInit, {menuItems} from './plugins.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
-import {addCSS, menuItems as mI, mod} from './shared.js';
+import {addCSS, labels, menuItems as mI, mod} from './shared.js';
 import {popout, symbols} from './symbols.js';
 import {checkWindowData, desktop, getWindowData, shell, windows} from './windows.js';
 import './assets.js';
@@ -111,7 +111,6 @@ const lastTab = new StringSetting("lastTab"),
 		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
-			      i = tc.insertBefore(input({"id": `tabSelector_${n}`, "name": "tabSelector", "type": "radio"}), t),
 			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
 				e.preventDefault();
 				const replaced = div();
@@ -137,7 +136,11 @@ const lastTab = new StringSetting("lastTab"),
 				}
 				base.dispatchEvent(new CustomEvent("popout", {"cancelable": false, "detail": w}));
 			      }}) : null,
-			      l = label({title, "tabindex": -1, "for": `tabSelector_${n}`, "onkeyup": (e: KeyboardEvent) => {
+			      [l, i] = labels([
+				img({"src": popIcon}),
+				span(title),
+				popper ? popper : []
+			      ], tc.insertBefore(input({"name": "tabSelector", "type": "radio"}), t), {title, "tabindex": -1, "onkeyup": (e: KeyboardEvent) => {
 				let a = pos, n = 1;
 				switch (e.key) {
 				case "ArrowLeft":
@@ -153,11 +156,7 @@ const lastTab = new StringSetting("lastTab"),
 					return;
 				}
 				tabs[a]![1].focus();
-			      }, "onclick": () => lastTab.set(title)}, [
-				img({"src": popIcon}),
-				span(title),
-				popper ? popper : []
-			      ]);
+			      }, "onclick": () => lastTab.set(title)});
 			amendNode(t, l);
 			tabs.push([title, l]);
 			if (popper && windowData[title] && windowData[title]["out"]) {
