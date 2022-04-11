@@ -32,8 +32,8 @@ labels = (() => {
 	type LProps = Exclude<Props, NamedNodeMap>;
 
 	interface Labeller {
-		(name: Children, input: Input, props?: LProps): Children;
-		(input: Input, name: Children, props?: LProps): Children;
+		<T extends Input>(name: Children, input: T, props?: LProps): [HTMLLabelElement, T];
+		<T extends Input>(input: T, name: Children, props?: LProps): [T, HTMLLabelElement];
 	}
 
 	let next = 0;
