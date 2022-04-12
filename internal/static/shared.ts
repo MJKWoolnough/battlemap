@@ -47,7 +47,7 @@ cloneObject = (() => {
 	const refs = new Map(),
 	      clone = <T extends any>(o: T): T => {
 		if (o instanceof Object && !Object.isFrozen(o)) {
-			const r = refs.get(o) as T | undefined;
+			const r = refs.get(o);
 			if (r) {
 				return r;
 			}
