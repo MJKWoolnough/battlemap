@@ -25,7 +25,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	const [_c, _i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      ranges: Range[] = [],
-	      points = new Map<string, Wall[]>();
+	      points = new Map<string, Wall[]>(),
+	      polyPoints: [number, number][] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
 		const a1 = Math.atan2(y1 - lightY, x1 - lightX),
 		    a2 = Math.atan2(y2 - lightY, x2 - lightX);
@@ -55,6 +56,31 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			points1.push(wall);
 			points2.push(wall);
 		}
+	}
+	for (const {x, y} of vertices) {
+		const dlx = (lightX - x),
+		      dly = (lightY - y);
+		let ex = x,
+		    ey = y,
+		    ed = Math.hypot(y - lightY, x - lightX);
+		for (const {x1, y1, x2, y2} of walls) {
+			const dx = x1 - x2,
+			      dy = y1 - y2,
+			      d = dlx * dy - dly * dx;
+			if (d) {
+				const a = (lightX * y - lightY * x),
+				      b = (x1 * y2 - y1 * x2),
+				      px = (dx * a - dlx * b) / d,
+				      py = (dy * a - dly * b) / d,
+				      distance = Math.hypot(py - lightY, px - lightX);
+				if (distance < ed) {
+					ex = px;
+					ey = py;
+					ed = distance;
+				}
+			}
+		}
+		polyPoints.push([ex, ey]);
 	}
 	vertices.sort(vertexSort);
 	return [];
