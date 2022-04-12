@@ -26,12 +26,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	      vertices: Vertex[] = [],
 	      ranges: Range[] = [],
 	      points = new Map<string, Wall[]>();
-	for (let {id, x1, y1, x2, y2, colour, scattering} of walls) {
-		let a1 = Math.atan2(y1 - y, x1 - x),
+	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
+		const a1 = Math.atan2(y1 - y, x1 - x),
 		    a2 = Math.atan2(y2 - y, x2 - x);
-		if (a1 > a2) {
-			[a1, a2, x1, y1, x2, y2] = [a2, a1, x2, y2, x1, y1]
-		}
 		if (a1 !== a2) {
 			const wall = {id, x1, y1, x2, y2, colour, scattering},
 			      p1 = `${x1},${y1}`,
