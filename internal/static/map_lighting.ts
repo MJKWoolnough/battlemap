@@ -1,5 +1,6 @@
 import type {Int, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
+import {polygon, radialGradient, stop} from './lib/svg.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
@@ -17,16 +18,14 @@ type Range = {
 	max: number;
 }
 
-const vertexSort = (a: Vertex, b: Vertex) => {
-	return b.angle - a.angle;
-      };
+let rg = 0;
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
-	const [_c, _i, lightX, lightY] = l,
+	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      ranges: Range[] = [],
 	      points = new Map<string, Wall[]>(),
-	      polyPoints: [number, number][] = [];
+	      polyPoints: [number, number, number][] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
 		const a1 = Math.atan2(y1 - lightY, x1 - lightX),
 		    a2 = Math.atan2(y2 - lightY, x2 - lightX);
@@ -57,7 +56,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			points2.push(wall);
 		}
 	}
-	for (const {x, y} of vertices) {
+	for (const {x, y, angle} of vertices) {
 		const dlx = (lightX - x),
 		      dly = (lightY - y);
 		let ex = x,
@@ -80,8 +79,14 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				}
 			}
 		}
-		polyPoints.push([ex, ey]);
+		polyPoints.push([ex, ey, angle]);
 	}
-	vertices.sort(vertexSort);
-	return [];
+	rg++;
+	return [
+		radialGradient({"id": `RG_${rg}`, "r": i}, [
+			stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
+			stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
+		]),
+		polygon({"points": "M" + polyPoints.sort(([, , a], [, , b]) => b - a).map(([x, y]) => `${x},${y}`).join(" L"), "fill": `url(#RG_${rg})`})
+	];
 };
