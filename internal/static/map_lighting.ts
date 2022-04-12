@@ -87,6 +87,6 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
 			stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
 		]),
-		polygon({"points": "M" + polyPoints.sort(([, , a], [, , b]) => b - a).map(([x, y]) => `${x},${y}`).join(" L"), "fill": `url(#RG_${rg})`})
+		polygon({"points": polyPoints.sort(([, , a], [, , b]) => b - a).map(([x, y]) => `${x},${y}`).join(" "), "fill": `url(#RG_${rg})`})
 	];
 };
