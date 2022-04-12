@@ -83,7 +83,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	}
 	rg++;
 	return [
-		radialGradient({"id": `RG_${rg}`, "r": i}, [
+		radialGradient({"id": `RG_${rg}`, "r": i, "cx": lightX, "cy": lightY, "gradientUnits": "userSpaceOnUse"}, [
 			stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
 			stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
 		]),
