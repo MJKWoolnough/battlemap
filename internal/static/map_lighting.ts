@@ -12,18 +12,11 @@ type Vertex = {
 
 export type LightSource = [Colour, Uint, Int, Int];
 
-type Range = {
-	wall: Wall;
-	min: number;
-	max: number;
-}
-
 let rg = 0;
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
-	      ranges: Range[] = [],
 	      points = new Map<string, Wall[]>(),
 	      polyPoints: [number, number, number][] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
@@ -35,7 +28,6 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			      p2 = `${x2},${y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []);
-			ranges.push({wall, "min": a1, "max": a2});
 			if (!points1.length) {
 				vertices.push({
 					point: points1,
