@@ -28,7 +28,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	      polyPoints: [number, number, number][] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
 		const a1 = Math.atan2(y1 - lightY, x1 - lightX),
-		    a2 = Math.atan2(y2 - lightY, x2 - lightX);
+		      a2 = Math.atan2(y2 - lightY, x2 - lightX);
 		if (a1 !== a2) {
 			const wall = {id, x1, y1, x2, y2, colour, scattering},
 			      p1 = `${x1},${y1}`,
