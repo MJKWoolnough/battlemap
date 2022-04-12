@@ -22,13 +22,13 @@ const vertexSort = (a: Vertex, b: Vertex) => {
       };
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
-	const [_c, _i, x, y] = l,
+	const [_c, _i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      ranges: Range[] = [],
 	      points = new Map<string, Wall[]>();
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
-		const a1 = Math.atan2(y1 - y, x1 - x),
-		    a2 = Math.atan2(y2 - y, x2 - x);
+		const a1 = Math.atan2(y1 - lightY, x1 - lightX),
+		    a2 = Math.atan2(y2 - lightY, x2 - lightX);
 		if (a1 !== a2) {
 			const wall = {id, x1, y1, x2, y2, colour, scattering},
 			      p1 = `${x1},${y1}`,
