@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {dragImage} from './assets.js';
 import {dragCharacter, edit as characterEdit, characterIcon} from './characters.js';
-import {DraggableItem, Folder, Root} from './folders.js';
+import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
 import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
@@ -38,9 +38,9 @@ export class Character extends DraggableItem {
 	}
 }
 
-class CharacterFolder extends Folder {
+class CharacterFolder extends DragFolder<Character> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children);
+		super(root, parent, name, children, dragCharacter);
 		for (const name in children.items) {
 			this.#registerItem(children.items[name], name);
 		}
