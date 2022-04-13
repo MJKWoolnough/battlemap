@@ -361,6 +361,41 @@ export class Folder {
 	}
 }
 
+export class DragFolder<T extends DraggableItem> extends Folder {
+	#dragTransfer: DragTransfer<T>;
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>) {
+		super(root, parent, name, children);
+		this.#dragTransfer = dragTransfer;
+		const params = {"ondragover": this, "ondrop": this}
+		amendNode(this.nameElem, params);
+		amendNode(this.children[node], params);
+	}
+	handleEvent (e: DragEvent) {
+		switch (e.type) {
+		case "dragover":
+			return this.ondragover(e);
+		case "drop":
+			return this.ondrop(e);
+		}
+	}
+	ondragover (e: DragEvent) {
+		if (this.#dragTransfer.is(e)) {
+			e.preventDefault();
+			e.dataTransfer!.dropEffect = "move";
+		}
+	}
+	ondrop (e: DragEvent) {
+		if (this.#dragTransfer.is(e)) {
+			const item = this.#dragTransfer.get(e),
+			      parent = item.parent;
+			if (parent !== this) {
+				const parentPath = parent.getPath() + "/";
+				queue(() => this.root.rpcFuncs.move(parentPath + item.name, this.getPath() + "/" + item.name).then(newPath => this.root.moveItem(parentPath + item.name, newPath)));
+			}
+		}
+	}
+}
+
 export class Root {
 	fileType: string;
 	folder: Folder = undefined!;
