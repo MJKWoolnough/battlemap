@@ -1,5 +1,4 @@
-import type {Uint} from './types.js';
-import type {FolderDragItem} from './folders.js';
+import type {FolderItems, Uint} from './types.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
@@ -8,7 +7,7 @@ import {IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import {mapLoadSend} from './adminMap.js';
 import {hex2Colour} from './colours.js';
-import {DraggableItem, Folder, Root} from './folders.js';
+import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
 import {checkInt, enterKey, labels, loading, menuItems, queue} from './shared.js';
@@ -33,7 +32,7 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
       },
       selectedMap = new IntSetting("selectedMap")
 
-export const dragMap = new DragTransfer<FolderDragItem>("map");
+export const dragMap = new DragTransfer<MapItem>("map");
 
 let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
 
@@ -81,7 +80,10 @@ class MapItem extends DraggableItem {
 	}
 }
 
-class MapFolder extends Folder {
+class MapFolder extends DragFolder<MapItem> {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems){
+		super(root, parent, name, children, dragMap);
+	}
 	rename(e: Event) {
 		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
 	}
