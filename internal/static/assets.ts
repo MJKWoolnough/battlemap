@@ -1,5 +1,4 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
-import type {FolderDragItem} from './folders.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
@@ -8,7 +7,7 @@ import {audio, button, div, form, h1, img, input, progress} from './lib/html.js'
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {DraggableItem, Folder, Root} from './folders.js';
+import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {register, shareIcon} from './messaging.js'
 import {handleError, isAdmin, rpc} from './rpc.js';
@@ -43,9 +42,9 @@ class AudioAsset extends DraggableItem {
 
 type AssetMap = Map<Uint, [Pipe<string>, string]>;
 
-abstract class AssetFolder extends Folder {
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children);
+abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder<T> {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>) {
+		super(root, parent, name, children, dragTransfer);
 		for (const name in children.items) {
 			this.#registerItem(children.items[name], name);
 		}
@@ -73,11 +72,17 @@ abstract class AssetFolder extends Folder {
 	}
 }
 
-class AudioFolder extends AssetFolder {
+class AudioFolder extends AssetFolder<AudioAsset> {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
+		super(root, parent, name, children, dragAudio);
+	}
 	get assetMap() { return audioAssets; }
 }
 
-class ImageFolder extends AssetFolder {
+class ImageFolder extends AssetFolder<ImageAsset> {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
+		super(root, parent, name, children, dragImage);
+	}
 	get assetMap() { return imageAssets; }
 }
 
@@ -152,8 +157,8 @@ uploadImages = uploadAsset.bind(null, imageRoot, "images"),
 uploadAudio = uploadAsset.bind(null, audioRoot, "audio"),
 dragImageFiles = new DragFiles("image/gif", "image/png", "image/jpeg", "image/webp", "video/apng"),
 dragAudioFiles = new DragFiles("application/ogg", "audio/mpeg"),
-dragAudio = new DragTransfer<FolderDragItem>("audioasset"),
-dragImage = new DragTransfer<FolderDragItem>("imageasset");
+dragAudio = new DragTransfer<AudioAsset>("audioasset"),
+dragImage = new DragTransfer<ImageAsset>("imageasset");
 
 register("imageAsset", [imageIcon, lang["TAB_IMAGES"]]);
 register("audioAsset", [audioIcon, lang["TAB_AUDIO"]]);
