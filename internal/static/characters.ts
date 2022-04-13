@@ -1,5 +1,5 @@
 import type {KeystoreData, Uint} from './types.js';
-import type {FolderDragItem} from './folders.js';
+import type {Character} from './characterList.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
@@ -18,7 +18,7 @@ import {loadingWindow, shell, windows} from './windows.js';
 
 let lastMapChanged = 0, n = 0;
 
-export const dragCharacter = new DragTransfer<FolderDragItem>("character");
+export const dragCharacter = new DragTransfer<Character>("character");
 
 const allowedKey = (key: string, character: boolean) => {
 	switch (key) {
