@@ -141,7 +141,7 @@ export abstract class DraggableItem extends Item {
 		this.width = this.image.naturalWidth;
 		this.height = this.image.naturalHeight;
 	}});
-	icon: HTMLDivElement = div(this.image);
+	#icon: HTMLDivElement = div(this.image);
 	width: Uint = -1;
 	height: Uint = -1;
 	#dragKey: string;
@@ -152,8 +152,8 @@ export abstract class DraggableItem extends Item {
 		this.#dragKey = dt.register(this);
 		amendNode(this[node].firstChild!, {
 			"draggable": "true",
-			"onmouseover": () => amendNode(document.body, amendNode(this.icon, {"style": showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
-			"onmousemove": showOnMouseOver ? (e: MouseEvent) => amendNode(this.icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
+			"onmouseover": () => amendNode(document.body, amendNode(this.#icon, {"style": showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
+			"onmousemove": showOnMouseOver ? (e: MouseEvent) => amendNode(this.#icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
 			"ondragstart": this
 		});
@@ -163,8 +163,8 @@ export abstract class DraggableItem extends Item {
 			e.preventDefault();
 			return;
 		}
-		this.#dragTransfer.set(e, this.#dragKey, this.icon);
-		amendNode(this.icon.parentNode ? null : document.body, amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}}));
+		this.#dragTransfer.set(e, this.#dragKey, this.#icon);
+		amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
 	}
 	transfer(): FolderDragItem {
 		return this;
@@ -174,7 +174,7 @@ export abstract class DraggableItem extends Item {
 		this.#dragTransfer.deregister(this.#dragKey);
 	}
 	removeIcon() {
-		amendNode(this.icon, {"style": {"transform": undefined}}).remove();
+		amendNode(this.#icon, {"style": {"transform": undefined}}).remove();
 	}
 }
 
