@@ -137,8 +137,13 @@ export abstract class Item {
 }
 
 export abstract class DraggableItem extends Item {
-	image = img({"class": "imageIcon", "loading": "lazy"});
+	image = img({"class": "imageIcon", "loading": "lazy", "onload": () => {
+		this.width = this.image.naturalWidth;
+		this.height = this.image.naturalHeight;
+	}});
 	icon: HTMLDivElement = div(this.image);
+	width: Uint = -1;
+	height: Uint = -1;
 	#dragKey: string;
 	#dragTransfer: DragTransfer;
 	constructor(parent: Folder, id: Uint, name: string, dt: DragTransfer, showOnMouseOver = false) {
@@ -154,8 +159,7 @@ export abstract class DraggableItem extends Item {
 		});
 	}
 	handleEvent(e: DragEvent) {
-		const img = this.image;
-		if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+		if (this.width === -1 || this.height === -1) {
 			e.preventDefault();
 			return;
 		}
@@ -163,8 +167,7 @@ export abstract class DraggableItem extends Item {
 		amendNode(this.icon.parentNode ? null : document.body, amendNode(this.icon, {"style": {"transform": "translateX(-9999px)"}}));
 	}
 	transfer(): FolderDragItem {
-		const {id, name, image: {naturalWidth, naturalHeight}} = this;
-		return {id, "width": naturalWidth, "height": naturalHeight, name};
+		return this;
 	}
 	delete() {
 		this.removeIcon();
@@ -357,7 +360,6 @@ export class Folder {
 		return ret;
 	}
 }
-
 
 export class Root {
 	fileType: string;
