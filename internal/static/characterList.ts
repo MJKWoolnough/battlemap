@@ -12,7 +12,7 @@ import {isAdmin, rpc} from './rpc.js';
 import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
-class Character extends DraggableItem {
+export class Character extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragCharacter, true);
 		if (!characterData.has(id)) {
