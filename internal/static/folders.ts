@@ -25,7 +25,8 @@ export type FolderDragItem = IDName & WidthHeight;
 const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, b.name),
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
-      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort));
+      getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
+      folderIcon = div({"style": {"transform": "translateX(-9999px)"}}, folder({"style": "width: 2em; color: #000"}));
 
 export abstract class Item {
 	id: Uint;
@@ -363,12 +364,14 @@ export class Folder {
 
 export abstract class DragFolder<T extends DraggableItem> extends Folder {
 	#dragTransfer: DragTransfer<T>;
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>) {
+	#dragFolder?: DragTransfer<Folder>;
+	#dragKey: string;
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>, dragFolder?: DragTransfer<Folder>) {
 		super(root, parent, name, children);
 		this.#dragTransfer = dragTransfer;
-		const params = {"ondragover": this, "ondrop": this}
-		amendNode(this.nameElem, params);
-		amendNode(this.children[node], params);
+		this.#dragKey = (this.#dragFolder = dragFolder)?.register(this) ?? "";
+		amendNode(this.nameElem, {"ondragover": this, "ondrop": this, "draggable": dragFolder ? "true" : undefined, "ondragstart": dragFolder ? this : undefined});
+		amendNode(this.children[node], {"ondragover": this, "ondrop": this});
 	}
 	handleEvent (e: DragEvent) {
 		switch (e.type) {
@@ -376,10 +379,15 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			return this.ondragover(e);
 		case "drop":
 			return this.ondrop(e);
+		case "dragstart":
+			if (!folderIcon.parentNode) {
+				amendNode(document.body, folderIcon);
+			}
+			this.#dragFolder?.set(e, this.#dragKey, folderIcon);
 		}
 	}
 	ondragover (e: DragEvent) {
-		if (this.#dragTransfer.is(e)) {
+		if (this.#dragTransfer.is(e) || this.#dragFolder?.is(e)) {
 			e.preventDefault();
 			e.dataTransfer!.dropEffect = "move";
 		}
@@ -392,7 +400,24 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 				const parentPath = parent.getPath() + "/";
 				queue(() => this.root.rpcFuncs.move(parentPath + item.name, this.getPath() + "/" + item.name).then(newPath => this.root.moveItem(parentPath + item.name, newPath)));
 			}
+		} else if (this.#dragFolder?.is(e)) {
+			const folder = this.#dragFolder.get(e),
+			      parent = folder.parent;
+			if (parent !== this) {
+				let f: Folder | null = this;
+				while (f) {
+					if (f === folder) {
+						return;
+					}
+					f = f.parent;
+				}
+				const oldPath = folder.getPath();
+				queue(() => this.root.rpcFuncs.moveFolder(oldPath + "/", this.getPath() + "/" + folder.name).then(newPath => this.root.moveFolder(oldPath, newPath)));
+			}
 		}
+	}
+	transfer() {
+		return this;
 	}
 }
 
