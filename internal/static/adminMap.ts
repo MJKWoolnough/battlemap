@@ -197,23 +197,23 @@ export default (base: HTMLElement) => {
 		}
 		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
 		if (dragCharacter.is(e)) {
-			const tD = dragCharacter.get(e),
-			      char = characterData.get(tD.id);
+			const {id, width, height} = dragCharacter.get(e),
+			      char = characterData.get(id);
 			if (char) {
 				const ct = getCharacterToken(char);
 				if (ct) {
 					Object.assign(token, ct);
 				} else {
 					token.src = parseInt(char["store-image-icon"].data);
-					token.width = tD.width;
-					token.height = tD.height;
+					token.width = width;
+					token.height = height;
 				}
 			}
 		} else if (dragImage.is(e)) {
-			const tokenData = dragImage.get(e);
-			token.src = tokenData.id;
-			token.width = tokenData.width;
-			token.height = tokenData.height;
+			const {id, width, height}= dragImage.get(e);
+			token.src = id;
+			token.width = width;
+			token.height = height;
 		} else {
 			return;
 		}
