@@ -361,7 +361,7 @@ export class Folder {
 	}
 }
 
-export class DragFolder<T extends DraggableItem> extends Folder {
+export abstract class DragFolder<T extends DraggableItem> extends Folder {
 	#dragTransfer: DragTransfer<T>;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>) {
 		super(root, parent, name, children);
