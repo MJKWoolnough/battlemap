@@ -30,7 +30,8 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 		}
 	}
       },
-      selectedMap = new IntSetting("selectedMap");
+      selectedMap = new IntSetting("selectedMap"),
+      dragMapFolder = new DragTransfer<MapFolder>("mapfolder");
 
 export const dragMap = new DragTransfer<MapItem>("map");
 
@@ -82,7 +83,7 @@ class MapItem extends DraggableItem {
 
 class MapFolder extends DragFolder<MapItem> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems){
-		super(root, parent, name, children, dragMap);
+		super(root, parent, name, children, dragMap, dragMapFolder);
 	}
 	rename(e: Event) {
 		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
