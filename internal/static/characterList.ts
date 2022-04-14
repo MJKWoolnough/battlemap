@@ -1,6 +1,6 @@
 import type {FolderItems, Uint} from './types.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
-import {setDragEffect} from './lib/drag.js';
+import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
@@ -40,7 +40,7 @@ export class Character extends DraggableItem {
 
 class CharacterFolder extends DragFolder<Character> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children, dragCharacter);
+		super(root, parent, name, children, dragCharacter, dragCharacterFolder);
 		for (const name in children.items) {
 			this.#registerItem(children.items[name], name);
 		}
@@ -77,7 +77,8 @@ class CharacterRoot extends Root {
 }
 
 const characters = new Map<Uint, Character>(),
-      characterNames = new Map<Uint, [Pipe<string>, string]>();
+      characterNames = new Map<Uint, [Pipe<string>, string]>(),
+      dragCharacterFolder = new DragTransfer<CharacterFolder>("characterfolder");
 
 export const getCharacterName = (id: Uint, fn: (name: string) => void) => {
 	const character = characterNames.get(id) ?? setAndReturn(characterNames, id, [new Pipe(), ""]);
