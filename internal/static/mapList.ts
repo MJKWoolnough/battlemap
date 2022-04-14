@@ -30,7 +30,7 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 		}
 	}
       },
-      selectedMap = new IntSetting("selectedMap")
+      selectedMap = new IntSetting("selectedMap");
 
 export const dragMap = new DragTransfer<MapItem>("map");
 
