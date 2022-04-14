@@ -206,7 +206,6 @@ class FolderLayer extends Folder {
 		this.hidden = hidden;
 		const lf = children as LayerFolder;
 		this.open = this[node].firstChild as HTMLDetailsElement;
-		this.nameElem = this.open.firstChild!.firstChild as HTMLSpanElement;
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
