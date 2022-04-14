@@ -43,8 +43,8 @@ class AudioAsset extends DraggableItem {
 type AssetMap = Map<Uint, [Pipe<string>, string]>;
 
 abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder<T> {
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>) {
-		super(root, parent, name, children, dragTransfer);
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>, dragFolder: DragTransfer<Folder>) {
+		super(root, parent, name, children, dragTransfer, dragFolder);
 		for (const name in children.items) {
 			this.#registerItem(children.items[name], name);
 		}
@@ -74,14 +74,14 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 
 class AudioFolder extends AssetFolder<AudioAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children, dragAudio);
+		super(root, parent, name, children, dragAudio, dragAudioFolder);
 	}
 	get assetMap() { return audioAssets; }
 }
 
 class ImageFolder extends AssetFolder<ImageAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children, dragImage);
+		super(root, parent, name, children, dragImage, dragImageFolder);
 	}
 	get assetMap() { return imageAssets; }
 }
@@ -149,7 +149,9 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		]);
 	});
 	return base;
-      };
+      },
+      dragImageFolder = new DragTransfer<ImageFolder>("imagefolder"),
+      dragAudioFolder = new DragTransfer<ImageFolder>("audiofolder");
 
 export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, audioAssets),
 imageAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, imageAssets),
