@@ -394,11 +394,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 	}
 	ondrop (e: DragEvent) {
 		if (this.#dragTransfer.is(e)) {
-			const item = this.#dragTransfer.get(e),
-			      parent = item.parent;
+			const {parent, name} = this.#dragTransfer.get(e);
 			if (parent !== this) {
 				const parentPath = parent.getPath() + "/";
-				queue(() => this.root.rpcFuncs.move(parentPath + item.name, this.getPath() + "/" + item.name).then(newPath => this.root.moveItem(parentPath + item.name, newPath)));
+				queue(() => this.root.rpcFuncs.move(parentPath + name, this.getPath() + "/" + name).then(newPath => this.root.moveItem(parentPath + name, newPath)));
 			}
 		} else if (this.#dragFolder?.is(e)) {
 			const folder = this.#dragFolder.get(e),
