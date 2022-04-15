@@ -8,6 +8,7 @@ var (
 	ErrDuplicateKey              = errors.New("duplicate key")
 	ErrItemNotFound              = errors.New("item not found")
 	ErrFolderNotFound            = errors.New("folder not found")
+	ErrCircularFolder            = errors.New("cannot move folder to own child")
 	ErrUnknownMap                = errors.New("unknown map")
 	ErrUnknownLayer              = errors.New("unknown layer")
 	ErrUnknownToken              = errors.New("unknown token")
