@@ -370,7 +370,8 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		super(root, parent, name, children);
 		this.#dragTransfer = dragTransfer;
 		this.#dragKey = (this.#dragFolder = dragFolder)?.register(this) ?? "";
-		amendNode(this.nameElem, {"ondragover": this, "ondrop": this, "draggable": dragFolder ? "true" : undefined, "ondragstart": dragFolder ? this : undefined});
+		const df = name && dragFolder;
+		amendNode(this.nameElem, {"ondragover": this, "ondrop": this, "draggable": df ? "true" : undefined, "ondragstart": df ? this : undefined});
 		amendNode(this.children[node], {"ondragover": this, "ondrop": this});
 	}
 	handleEvent (e: DragEvent) {
