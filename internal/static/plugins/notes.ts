@@ -144,7 +144,7 @@ if (isAdmin) {
 
 	class NoteFolder extends DragFolder<NoteItem> {
 		constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-			super(root, parent, name, children, dragNote);
+			super(root, parent, name, children, dragNote, dragNoteFolder);
 		}
 		removeItem(name: string) {
 			for (const c of this.children) {
@@ -162,6 +162,7 @@ if (isAdmin) {
 	addCSS("#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}");
 	let lastID = 0;
 	const dragNote = new DragTransfer<NoteItem>("pluginnote"),
+	      dragNoteFolder = new DragTransfer<NoteFolder>("pluginnotefolder"),
 	      importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
 	      popOutIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 15 15"%3E%3Cpath d="M7,1 H1 V14 H14 V8 M9,1 h5 v5 m0,-5 l-6,6" stroke-linejoin="round" fill="none" stroke="currentColor" /%3E%3C/svg%3E`,
