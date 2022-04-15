@@ -80,3 +80,9 @@ summary::-webkit-details-marker {
 .folderDragging .foldersFolder {
 	pointer-events: auto;
 }
+
+.folderDragging > ul:after {
+	content: " ";
+	height: 1em;
+	display: block;
+}
