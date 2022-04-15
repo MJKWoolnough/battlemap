@@ -431,12 +431,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			const folder = this.#dragFolder.get(e),
 			      parent = folder.parent;
 			if (parent !== this) {
-				let f: Folder | null = this;
-				while (f) {
+				for (let f: Folder | null = this; f; f = f.parent) {
 					if (f === folder) {
 						return;
 					}
-					f = f.parent;
 				}
 				const oldPath = folder.getPath();
 				queue(() => this.root.rpcFuncs.moveFolder(oldPath + "/", this.getPath() + "/" + folder.name).then(newPath => this.root.moveFolder(oldPath, newPath)));
