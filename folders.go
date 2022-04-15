@@ -330,6 +330,9 @@ func (f *folders) folderMove(cd ConnData, data json.RawMessage) (string, error) 
 		folderMove.To = strings.TrimRight(path, "/")
 		newParent = f.getFolder(folderMove.To)
 	}
+	if strings.HasSuffix(folderMove.To, folderMove.From) {
+		return "", ErrCircularFolder
+	}
 	delete(oldParent.Folders, oldName)
 	newName = addFolderTo(newParent.Folders, newName, fd)
 	f.saveFolders()
