@@ -395,8 +395,17 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		case "drop":
 			return this.ondrop(e);
 		case "dragenter":
-			amendNode(this[node], {"class": ["dragover"]});
 			e.stopPropagation();
+			if (this.#dragFolder) {
+				const folder = this.#dragFolder.get(e);
+				for (let f: Folder | null = this; f; f = f.parent) {
+					if (f === folder) {
+						e.dataTransfer!.dropEffect = "none";
+						return;
+					}
+				}
+			}
+			amendNode(this[node], {"class": ["dragover"]});
 			break;
 		case "dragleave":
 			amendNode(this[node], {"class": ["!dragover"]});
@@ -414,13 +423,24 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		}
 	}
 	ondragover (e: DragEvent) {
-		if (this.#dragTransfer.is(e) || this.#dragFolder?.is(e)) {
-			e.dataTransfer!.dropEffect = "move";
-			e.stopPropagation();
-			e.preventDefault();
+		e.stopPropagation();
+		if (this.#dragFolder?.is(e)) {
+			const folder = this.#dragFolder.get(e);
+			for (let f: Folder | null = this; f; f = f.parent) {
+				if (f === folder) {
+					e.dataTransfer!.dropEffect = "none";
+					return;
+				}
+			}
+		} else if (!this.#dragTransfer.is(e)) {
+			return;
 		}
+		e.preventDefault();
+		e.dataTransfer!.dropEffect = "move";
 	}
 	ondrop (e: DragEvent) {
+		amendNode(this[node], {"class": ["!dragover"]});
+		e.stopPropagation();
 		if (this.#dragTransfer.is(e)) {
 			const {parent, name} = this.#dragTransfer.get(e);
 			if (parent !== this) {
@@ -440,8 +460,6 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 				queue(() => this.root.rpcFuncs.moveFolder(oldPath + "/", this.getPath() + "/" + folder.name).then(newPath => this.root.moveFolder(oldPath, newPath)));
 			}
 		}
-		amendNode(this[node], {"class": ["!dragover"]});
-		e.stopPropagation();
 	}
 	transfer() {
 		return this;
