@@ -64,3 +64,19 @@ summary::-webkit-details-marker {
 .filter + br {
 	clear: right;
 }
+
+.dragover {
+	background-color: #aaa;
+}
+
+.dragover > details > summary, .dragover > span {
+	background-color: #888;
+}
+
+.folderDragging * {
+	pointer-events: none;
+}
+
+.folderDragging .foldersFolder {
+	pointer-events: auto;
+}

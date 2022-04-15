@@ -156,16 +156,22 @@ export abstract class DraggableItem extends Item {
 			"onmouseover": () => amendNode(document.body, amendNode(this.#icon, {"style": showOnMouseOver ? undefined : {"transform": "translateX(-9999px)"}})),
 			"onmousemove": showOnMouseOver ? (e: MouseEvent) => amendNode(this.#icon, {"style": {"--icon-top": (e.clientY + 5) + "px", "--icon-left": (e.clientX + 5) + "px"}}) : undefined,
 			"onmouseout": () => this.removeIcon(),
-			"ondragstart": this
+			"ondragstart": this,
+			"ondragend": this
 		});
 	}
 	handleEvent(e: DragEvent) {
-		if (this.width === -1 || this.height === -1) {
-			e.preventDefault();
-			return;
+		if (e.type === "dragend") {
+			amendNode(this.parent.root[node], {"class": ["!folderDragging"]});
+		} else {
+			if (this.width === -1 || this.height === -1) {
+				e.preventDefault();
+				return;
+			}
+			this.#dragTransfer.set(e, this.#dragKey, this.#icon);
+			amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
+			amendNode(this.parent.root[node], {"class": ["folderDragging"]});
 		}
-		this.#dragTransfer.set(e, this.#dragKey, this.#icon);
-		amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
 	}
 	transfer(): FolderDragItem {
 		return this;
@@ -193,19 +199,26 @@ export class Folder {
 		this.root = root;
 		this.parent = parent;
 		this.children = new NodeMap<string, Folder | Item>(ul({"class": "folders"}), this.sorter);
-		this.name = name;
-		this[node] = li({"class": "foldersFolder"}, [
-			details([
-				summary([
-					folder({"class": "folderIcon"}),
-					this.nameElem = span(name),
-					this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
-					this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
-					this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
-				]),
-				this.children[node],
-			])
-		]);
+		this.nameElem = span(name),
+		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
+		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
+		this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
+		if (this.name = name) {
+			this[node] = li({"class": "foldersFolder"}, [
+				details([
+					summary([
+						folder({"class": "folderIcon"}),
+						this.nameElem,
+						this.renamer,
+						this.newer,
+						this.remover
+					]),
+					this.children[node],
+				])
+			]);
+		}  else {
+			this[node] = div();
+		}
 		for (const name in children.folders) {
 			this.children.set(name, new this.root.newFolder(root, this, name, children.folders[name]));
 		}
@@ -370,9 +383,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		super(root, parent, name, children);
 		this.#dragTransfer = dragTransfer;
 		this.#dragKey = (this.#dragFolder = dragFolder)?.register(this) ?? "";
-		const df = name && dragFolder;
-		amendNode(this.nameElem, {"ondragover": this, "ondrop": this, "draggable": df ? "true" : undefined, "ondragstart": df ? this : undefined});
-		amendNode(this.children[node], {"ondragover": this, "ondrop": this});
+		if (name && dragFolder) {
+			amendNode(this.nameElem, {"draggable": "true", "ondragstart": this, "ondragend": this});
+		}
+		amendNode(this[node], {"ondragover": this, "ondrop": this, "ondragenter": this, "ondragleave": this});
 	}
 	handleEvent (e: DragEvent) {
 		switch (e.type) {
@@ -380,17 +394,30 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			return this.ondragover(e);
 		case "drop":
 			return this.ondrop(e);
+		case "dragenter":
+			amendNode(this[node], {"class": ["dragover"]});
+			e.stopPropagation();
+			break;
+		case "dragleave":
+			amendNode(this[node], {"class": ["!dragover"]});
+			e.stopPropagation();
+			break;
 		case "dragstart":
 			if (!folderIcon.parentNode) {
 				amendNode(document.body, folderIcon);
 			}
 			this.#dragFolder?.set(e, this.#dragKey, folderIcon);
+			amendNode(this.root[node], {"class": ["folderDragging"]});
+			break;
+		case "dragend":
+			amendNode(this.root[node], {"class": ["!folderDragging"]});
 		}
 	}
 	ondragover (e: DragEvent) {
 		if (this.#dragTransfer.is(e) || this.#dragFolder?.is(e)) {
-			e.preventDefault();
 			e.dataTransfer!.dropEffect = "move";
+			e.stopPropagation();
+			e.preventDefault();
 		}
 	}
 	ondrop (e: DragEvent) {
@@ -415,6 +442,8 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 				queue(() => this.root.rpcFuncs.moveFolder(oldPath + "/", this.getPath() + "/" + folder.name).then(newPath => this.root.moveFolder(oldPath, newPath)));
 			}
 		}
+		amendNode(this[node], {"class": ["!dragover"]});
+		e.stopPropagation();
 	}
 	transfer() {
 		return this;
@@ -444,8 +473,8 @@ export class Root {
 	setRoot(rootFolder: FolderItems) {
 		if (this.rpcFuncs) {
 			const f = this.folder = new this.newFolder(this, null, "", rootFolder);
-			clearNode(this[node] ??= div(), [
-				clearNode(f.nameElem, this.fileType),
+			clearNode(this[node] ??= this.folder[node], [
+				span(this.fileType),
 				f.newer,
 				this.filter ? [
 					input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
