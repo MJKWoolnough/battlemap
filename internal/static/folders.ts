@@ -396,7 +396,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			return this.ondrop(e);
 		case "dragenter":
 			e.stopPropagation();
-			if (this.#dragFolder) {
+			if (this.#dragFolder?.is(e)) {
 				const folder = this.#dragFolder.get(e);
 				for (let f: Folder | null = this; f; f = f.parent) {
 					if (f === folder) {
