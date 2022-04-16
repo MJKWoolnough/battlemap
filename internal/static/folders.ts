@@ -9,6 +9,8 @@ import {enterKey, labels, setAndReturn, queue} from './shared.js';
 import {copy, folder, newFolder, rename, remove} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
+declare function setTimeout<T extends (...args: any) => any>(handler: T, timeout?: number, ...arguments: Parameters<T>): number;
+
 interface ItemConstructor {
 	new (parent: Folder, id: Uint, name: string): Item;
 }
@@ -419,10 +421,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 				amendNode(document.body, folderIcon);
 			}
 			this.#dragFolder?.set(e, this.#dragKey, folderIcon);
-			amendNode(this.root[node], {"class": ["folderDragging"]});
+			setTimeout(amendNode, 0, this.root[node], {"class": ["folderDragging"]});
 			break;
 		case "dragend":
-			amendNode(this.root[node], {"class": ["!folderDragging"]});
+			setTimeout(amendNode, 0, this.root[node], {"class": ["!folderDragging"]});
 		}
 	}
 	ondragover (e: DragEvent) {
