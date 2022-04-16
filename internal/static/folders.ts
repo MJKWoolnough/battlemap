@@ -4,6 +4,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
+import {invert} from './settings.js';
 import {enterKey, labels, setAndReturn, queue} from './shared.js';
 import {copy, folder, newFolder, rename, remove} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -26,7 +27,9 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
-      folderIcon = div({"style": {"transform": "translateX(-9999px); display: inline-block"}}, folder({"style": "width: 2em; height: 2em; color: #000"}));
+      folderIcon = div({"style": {"transform": "translateX(-9999px); display: inline-block"}}, folder({"style": "width: 2em; height: 2em"}));
+
+invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
 export abstract class Item {
 	id: Uint;
