@@ -144,12 +144,12 @@ export abstract class Item {
 
 export abstract class DraggableItem extends Item {
 	image = img({"class": "imageIcon", "loading": "lazy", "onload": () => {
-		this.width = this.image.naturalWidth;
-		this.height = this.image.naturalHeight;
+		this.#width = this.image.naturalWidth;
+		this.#height = this.image.naturalHeight;
 	}});
 	#icon: HTMLDivElement = div(this.image);
-	width: Uint = -1;
-	height: Uint = -1;
+	#width: Uint = -1;
+	#height: Uint = -1;
 	#dragKey: string;
 	#dragTransfer: DragTransfer;
 	constructor(parent: Folder, id: Uint, name: string, dt: DragTransfer, showOnMouseOver = false) {
@@ -165,11 +165,13 @@ export abstract class DraggableItem extends Item {
 			"ondragend": this
 		});
 	}
+	get width() { return this.#width }
+	get height() { return this.#height }
 	handleEvent(e: DragEvent) {
 		if (e.type === "dragend") {
 			amendNode(this.parent.root[node], {"class": ["!folderDragging"]});
 		} else {
-			if (this.width === -1 || this.height === -1) {
+			if (this.#width === -1 || this.#height === -1) {
 				e.preventDefault();
 				return;
 			}
