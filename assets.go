@@ -8,6 +8,7 @@ import (
 	"hash"
 	"io"
 	"net/http"
+	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -108,11 +109,21 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	var (
-		added []idName
-		gft   getFileType
-		hash  [sha256.Size]byte
+		added  []idName
+		gft    getFileType
+		hash   [sha256.Size]byte
+		folder map[string]uint64
 	)
 	h := sha256.New()
+	r.ParseForm()
+	folderPath := path.Clean("/" + r.Form.Get("path"))
+	if f := a.getFolder(folderPath); f != nil {
+		folder = f.Items
+		folderPath += "/"
+	} else {
+		folderPath = ""
+		folder = a.root.Items
+	}
 	for {
 		p, err := m.NextPart()
 		if err != nil {
@@ -187,7 +198,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		if filename == "" || strings.ContainsAny(filename, invalidFilenameChars) {
 			filename = idStr
 		}
-		newName := addItemTo(a.root.Items, filename, id)
+		newName := addItemTo(folder, filename, id)
 		added = append(added, idName{id, newName})
 	}
 	if len(added) == 0 {
@@ -198,9 +209,9 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	a.saveFolders()
 	a.mu.Unlock()
 	var buf memio.Buffer
-	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}", added[0].ID, added[0].Name)
+	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}", added[0].ID, folderPath+added[0].Name)
 	for _, id := range added[1:] {
-		fmt.Fprintf(&buf, ",{\"id\":%d,\"name\":%q}", id.ID, id.Name)
+		fmt.Fprintf(&buf, ",{\"id\":%d,\"name\":%q}", id.ID, folderPath+id.Name)
 	}
 	fmt.Fprint(&buf, "]")
 	bid := broadcastImageItemAdd
