@@ -26,7 +26,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
-      folderIcon = div({"style": {"transform": "translateX(-9999px)"}}, folder({"style": "width: 2em; color: #000"}));
+      folderIcon = div({"style": {"transform": "translateX(-9999px); display: inline-block"}}, folder({"style": "width: 2em; height: 2em; color: #000"}));
 
 export abstract class Item {
 	id: Uint;
