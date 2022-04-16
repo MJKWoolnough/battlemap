@@ -43,8 +43,12 @@ class AudioAsset extends DraggableItem {
 type AssetMap = Map<Uint, [Pipe<string>, string]>;
 
 abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder<T> {
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>, dragFolder: DragTransfer<Folder>) {
+	#dragUpload: DragFiles;
+	#upload: (data: FormData, shell: ShellElement, path: string) => void;
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, dragTransfer: DragTransfer<T>, dragFolder: DragTransfer<Folder>, dragUpload: DragFiles, upload: (data: FormData, shell: ShellElement, path: string) => void) {
 		super(root, parent, name, children, dragTransfer, dragFolder);
+		this.#dragUpload = dragUpload;
+		this.#upload = upload;
 		for (const name in children.items) {
 			this.#registerItem(children.items[name], name);
 		}
@@ -70,18 +74,30 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 		}
 		return id;
 	}
+	ondragover(e: DragEvent) {
+		super.ondragover(e);
+		if (this.#dragUpload.is(e)) {
+			e.dataTransfer.dropEffect = "copy";
+		}
+	}
+	ondrop(e: DragEvent) {
+		super.ondrop(e);
+		if (this.#dragUpload.is(e)) {
+			this.#upload(this.#dragUpload.asForm(e, "asset"), shell, this.getPath());
+		}
+	}
 }
 
 class AudioFolder extends AssetFolder<AudioAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children, dragAudio, dragAudioFolder);
+		super(root, parent, name, children, dragAudio, dragAudioFolder, dragAudioFiles, uploadAudio);
 	}
 	get assetMap() { return audioAssets; }
 }
 
 class ImageFolder extends AssetFolder<ImageAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
-		super(root, parent, name, children, dragImage, dragImageFolder);
+		super(root, parent, name, children, dragImage, dragImageFolder, dragImageFiles, uploadImages);
 	}
 	get assetMap() { return imageAssets; }
 }
@@ -98,10 +114,10 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 	asset[0].receive(fn);
 	return () => asset[0].remove(fn);
       },
-      uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell) => {
+      uploadAsset = (root: Root, fileType: string, data: FormData, window: WindowElement | ShellElement = shell, path = "/") => {
 	const bar = progress({"style": "width: 100%"});
 	return loadingWindow(
-		HTTPRequest<IDName[]>(`/${fileType}/`, {
+		HTTPRequest<IDName[]>(`/${fileType}/?path=${encodeURIComponent(path)}`, {
 			data,
 			"method": "POST",
 			"response": "json",
