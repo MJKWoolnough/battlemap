@@ -188,7 +188,7 @@ export abstract class DraggableItem extends Item {
 			}
 			this.#dragTransfer.set(e, this.#dragKey, this.#icon);
 			amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
-			amendNode(this.parent.root[node], {"class": ["folderDragging"]});
+			setTimeout(amendNode, 0, this.parent.root[node], {"class": ["folderDragging"]});
 		}
 	}
 	transfer(): FolderDragItem {
@@ -437,7 +437,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			this.#dragFolder?.set(e, this.#dragKey, folderIcon);
 			break;
 		case "dragend":
-			setTimeout(amendNode, 0, this.root[node], {"class": ["!folderDragging"]});
+			amendNode(this.root[node], {"class": ["!folderDragging"]});
 		}
 	}
 	ondragover(e: DragEvent) {
