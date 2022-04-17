@@ -121,7 +121,7 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		folder = f.Items
 		folderPath += "/"
 	} else {
-		folderPath = ""
+		folderPath = "/"
 		folder = a.root.Items
 	}
 	for {
