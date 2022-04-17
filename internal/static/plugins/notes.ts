@@ -114,7 +114,7 @@ if (isAdmin) {
 							page.data = {"contents": contents.value, "share": share.checked};
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							clearNode(this.window!, div({"class": "plugin-notes"}, bbcode(allTags, contents.value)));
+							clearNode(data, bbcode(allTags, contents.value));
 							this.setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);
