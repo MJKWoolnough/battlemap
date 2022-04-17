@@ -438,6 +438,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			break;
 		case "dragend":
 			amendNode(this.root[node], {"class": ["!folderDragging"]});
+			walkFolders(this.root.folder, f => amendNode(f[node], {"class": ["!dragover"]}));
 		}
 	}
 	ondragover(e: DragEvent) {
