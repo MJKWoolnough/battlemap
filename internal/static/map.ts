@@ -18,7 +18,7 @@ import {drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, SQRT3, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
-import {shell} from './windows.js';
+import {desktop} from './windows.js';
 
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
@@ -285,7 +285,7 @@ zoom = (() => {
 		}
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4)
-	inited.then(() => amendNode(shell, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+	inited.then(() => amendNode(desktop, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
 		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 			if (e.button === 0) {
 				zoomMove(e);
@@ -293,7 +293,7 @@ zoom = (() => {
 		}, "onwheel": zoomWheel}),
 		zoomerControl
 	])));
-	zoomSlider.wait(enabled => amendNode(document.body, {"class": {"hideZoomSlider": enabled}}));
+	zoomSlider.wait(enabled => amendNode(desktop, {"class": {"hideZoomSlider": enabled}}));
 	mapLoadedReceive(() => amendNode(zoomerControl, {"cy": "60"}));
 	return (delta: number, x: number, y: number, moveControl = true) => {
 		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
