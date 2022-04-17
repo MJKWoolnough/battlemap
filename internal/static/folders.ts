@@ -29,7 +29,15 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
-      folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"}));
+      folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
+      walkFolders = (folder: Folder, fn: (folder: Folder) => void) => {
+	fn(folder);
+	for (const [, f] of folder.children) {
+		if (f instanceof Folder) {
+			walkFolders(f, fn);
+		}
+	}
+      };
 
 invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
@@ -170,6 +178,9 @@ export abstract class DraggableItem extends Item {
 	handleEvent(e: DragEvent) {
 		if (e.type === "dragend") {
 			amendNode(this.parent.root[node], {"class": ["!folderDragging"]});
+			if (this.parent instanceof DragFolder) {
+				walkFolders(this.parent.root.folder, f => amendNode(f[node], {"class": ["!dragover"]}));
+			}
 		} else {
 			if (this.#width === -1 || this.#height === -1) {
 				e.preventDefault();
