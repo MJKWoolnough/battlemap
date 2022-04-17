@@ -84,7 +84,8 @@ toolMapMouseOver = function(this: SVGElement, e: MouseEvent) {
 		defaultTool.mapMouseOver?.call(this, e);
 	}
 },
-optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon});
+optionsWindow = windows({"window-title": lang["TOOL_OPTIONS"], "window-icon": toolsIcon}),
+isDefaultTool = () => selectedTool === defaultTool;
 
 let selectedTool = defaultTool;
 
