@@ -454,8 +454,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		}
 	}
 	ondrop(e: DragEvent) {
-		amendNode(this[node], {"class": ["!dragover"]});
 		amendNode(this.root[node], {"class": ["!folderDragging"]});
+		for (const f of Array.from(this.root[node].getElementsByClassName("dragover"))) {
+			amendNode(f, {"class": ["!dragover"]});
+		}
 		e.stopPropagation();
 		if (this.#dragTransfer.is(e)) {
 			const {parent, name} = this.#dragTransfer.get(e);
