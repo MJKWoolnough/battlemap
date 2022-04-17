@@ -5,11 +5,11 @@ import {amendNode} from './lib/dom.js';
 import {div} from './lib/html.js';
 import {hasKeyEvent} from './lib/events.js';
 import {JSONSetting} from './lib/settings.js';
-import {defaultIcon, desktop, shell as ashell, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
+import {defaultIcon, desktop as adesktop, shell as ashell, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
 import lang from './language.js';
 import {isInt, isUint} from './shared.js';
 
-export {ShellElement, WindowElement, desktop};
+export {ShellElement, WindowElement};
 
 export type WindowData = [Int, Int, Uint, Uint];
 
@@ -49,5 +49,6 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 	return w;
 },
 shell = ashell(),
+desktop = adesktop(),
 getWindowData = (w: WindowElement): WindowData => [parseInt(w.style.getPropertyValue("--window-left") || "0"), parseInt(w.style.getPropertyValue("--window-top") || "0"), parseInt(w.style.getPropertyValue("--window-width") || "200"), parseInt(w.style.getPropertyValue("--window-height") || "600")],
 checkWindowData = (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3]);

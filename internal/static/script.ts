@@ -184,7 +184,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 		get html() {return createDocumentFragment([c, h]);}
 	});
       })(),
-      base = desktop(symbols);
+      base = amendNode(desktop, symbols);
 
 clearNode(document.body, amendNode(shell, {"snap": 50}, base));
 
