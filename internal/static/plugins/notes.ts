@@ -68,7 +68,10 @@ if (isAdmin) {
 				this.popWindow.focus();
 			} else {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
-				amendNode(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => this.window = null}, data));
+				amendNode(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+					this.window = null;
+					this.share = null;
+				}}, data));
 				this.window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
 					if (wp) {
@@ -128,7 +131,7 @@ if (isAdmin) {
 				this.share?.();
 				this.share = null;
 			} else {
-				this.share = this.window!.addControlButton(shareIcon, () => {
+				this.share ??= this.window!.addControlButton(shareIcon, () => {
 					const page = pages.get(this.id);
 					if (page) {
 						rpc.broadcastWindow("plugin-notes", this.id, page.data.contents);
