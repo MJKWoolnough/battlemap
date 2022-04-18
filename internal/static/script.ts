@@ -1,5 +1,5 @@
 import type {WindowElement, WindowData} from './windows.js';
-import {amendNode, clearNode, createDocumentFragment, event, eventPassive} from './lib/dom.js';
+import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
 import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './lib/settings.js';
@@ -181,7 +181,7 @@ ${Array.from({"length": n}, (_, n) => `#tabs > input:nth-child(${n+1}):checked ~
 			}
 			selectFirst();
 		},
-		get html() {return createDocumentFragment([c, h]);}
+		get html() {return [c, h];}
 	});
       })(),
       base = amendNode(desktop, symbols);
