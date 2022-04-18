@@ -74,6 +74,12 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 		}
 		return id;
 	}
+	ondragenter(e: DragEvent) {
+		if (this.#dragUpload.is(e)) {
+			amendNode(this[node], {"class": ["dragover"]});
+			amendNode(this.root[node], {"class": ["folderDragging"]});
+		}
+	}
 	ondragover(e: DragEvent) {
 		super.ondragover(e);
 		if (this.#dragUpload.is(e)) {
