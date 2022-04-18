@@ -165,12 +165,12 @@ const lastTab = new StringSetting("lastTab"),
 			return base;
 		},
 		get css() {
-			const a = Array.from({"length": n});
+			const a = Array.from({"length": n}, (_, n) => n+1);
 			return `
-${a.map((_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #panelContainer > div:nth-child(${n+1})`).join(",")}{display: block}
-${a.map((_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1})`).join(",")}{border-bottom-color:var(--c);z-index:2;background:var(--c) !important;cursor:default !important}
-${a.map((_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):before`).join(",")}{box-shadow: 2px 2px 0 var(--c)}
-${a.map((_, n) => `#tabs > input:nth-child(${n+1}):checked ~ #tabLabels > label:nth-child(${n+1}):after`).join(",")}{box-shadow: -2px 2px 0 var(--c)}
+${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #panelContainer > div:nth-child(${n})`).join(",")}{display: block}
+${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n})`).join(",")}{border-bottom-color:var(--c);z-index:2;background:var(--c) !important;cursor:default !important}
+${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n}):before`).join(",")}{box-shadow: 2px 2px 0 var(--c)}
+${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n}):after`).join(",")}{box-shadow: -2px 2px 0 var(--c)}
 `;
 		},
 	        setTab(title: string) {
