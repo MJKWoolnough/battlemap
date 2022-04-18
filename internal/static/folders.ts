@@ -410,23 +410,9 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		case "drop":
 			return this.ondrop(e);
 		case "dragenter":
-			e.stopPropagation();
-			if (this.#dragFolder?.is(e)) {
-				const folder = this.#dragFolder.get(e);
-				for (let f: Folder | null = this; f; f = f.parent) {
-					if (f === folder) {
-						e.dataTransfer!.dropEffect = "none";
-						return;
-					}
-				}
-			}
-			amendNode(this[node], {"class": ["dragover"]});
-			amendNode(this.root[node], {"class": ["folderDragging"]});
-			break;
+			return this.ondragenter(e);
 		case "dragleave":
-			amendNode(this[node], {"class": ["!dragover"]});
-			e.stopPropagation();
-			break;
+			return this.ondragleave(e);
 		case "dragstart":
 			if (!folderIcon.parentNode) {
 				amendNode(document.body, folderIcon);
@@ -453,6 +439,24 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		} else if (this.#dragTransfer.is(e)) {
 			e.dataTransfer!.dropEffect = "move";
 		}
+	}
+	ondragenter(e: DragEvent) {
+		e.stopPropagation();
+		if (this.#dragFolder?.is(e)) {
+			const folder = this.#dragFolder.get(e);
+			for (let f: Folder | null = this; f; f = f.parent) {
+				if (f === folder) {
+					e.dataTransfer!.dropEffect = "none";
+					return;
+				}
+			}
+		}
+		amendNode(this[node], {"class": ["dragover"]});
+		amendNode(this.root[node], {"class": ["folderDragging"]});
+	}
+	ondragleave(e: DragEvent) {
+		amendNode(this[node], {"class": ["!dragover"]});
+		e.stopPropagation();
 	}
 	ondrop(e: DragEvent) {
 		amendNode(this.root[node], {"class": ["!folderDragging"]});
