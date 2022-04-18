@@ -29,7 +29,12 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       idSorter = (a: Item, b: Item) => b.id - a.id,
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
-      folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"}));
+      folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
+      clearDragOver = (folder: Folder) => {
+	for (const f of Array.from(folder.root[node].getElementsByClassName("dragover"))) {
+		amendNode(f, {"class": ["!dragover"]});
+	}
+      };
 
 invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
@@ -171,9 +176,7 @@ export abstract class DraggableItem extends Item {
 		if (e.type === "dragend") {
 			amendNode(this.parent.root[node], {"class": ["!folderDragging"]});
 			if (this.parent instanceof DragFolder) {
-				for (const f of Array.from(this.parent.root[node].getElementsByClassName("dragover"))) {
-					amendNode(f, {"class": ["!dragover"]});
-				}
+				clearDragOver(this.parent);
 			}
 		} else {
 			if (this.#width === -1 || this.#height === -1) {
@@ -432,9 +435,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			break;
 		case "dragend":
 			amendNode(this.root[node], {"class": ["!folderDragging"]});
-			for (const f of Array.from(this.root[node].getElementsByClassName("dragover"))) {
-				amendNode(f, {"class": ["!dragover"]});
-			}
+			clearDragOver(this);
 		}
 	}
 	ondragover(e: DragEvent) {
@@ -455,9 +456,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 	}
 	ondrop(e: DragEvent) {
 		amendNode(this.root[node], {"class": ["!folderDragging"]});
-		for (const f of Array.from(this.root[node].getElementsByClassName("dragover"))) {
-			amendNode(f, {"class": ["!dragover"]});
-		}
+		clearDragOver(this);
 		e.stopPropagation();
 		if (this.#dragTransfer.is(e)) {
 			const {parent, name} = this.#dragTransfer.get(e);
