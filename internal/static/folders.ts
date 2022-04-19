@@ -31,6 +31,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
       folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
       clearDragOver = (folder: Folder) => {
+	amendNode(folder.root[node], {"class": ["!folderDragging"]});
 	for (const f of Array.from(folder.root[node].getElementsByClassName("dragover")).concat(folder.root[node])) {
 		amendNode(f, {"class": ["!dragover"]});
 	}
@@ -174,7 +175,6 @@ export abstract class DraggableItem extends Item {
 	get height() { return this.#height }
 	handleEvent(e: DragEvent) {
 		if (e.type === "dragend") {
-			amendNode(this.parent.root[node], {"class": ["!folderDragging"]});
 			if (this.parent instanceof DragFolder) {
 				clearDragOver(this.parent);
 			}
@@ -420,7 +420,6 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			this.#dragFolder?.set(e, this.#dragKey, folderIcon);
 			break;
 		case "dragend":
-			amendNode(this.root[node], {"class": ["!folderDragging"]});
 			clearDragOver(this);
 		}
 	}
@@ -461,7 +460,6 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		e.stopPropagation();
 	}
 	ondrop(e: DragEvent) {
-		amendNode(this.root[node], {"class": ["!folderDragging"]});
 		clearDragOver(this);
 		e.stopPropagation();
 		if (this.#dragTransfer.is(e)) {
