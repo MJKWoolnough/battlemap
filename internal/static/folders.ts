@@ -31,7 +31,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
       folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
       clearDragOver = (folder: Folder) => {
-	for (const f of Array.from(folder.root[node].getElementsByClassName("dragover"))) {
+	for (const f of Array.from(folder.root[node].getElementsByClassName("dragover")).concat(folder.root[node])) {
 		amendNode(f, {"class": ["!dragover"]});
 	}
       };
