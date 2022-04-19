@@ -309,7 +309,7 @@ export default (base: HTMLElement) => {
 		["Down", (tk: Token, dy: Uint) => tk.y += dy],
 		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
-	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat(
+	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
 		keyEvent("c", (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
 				copiedToken = cloneObject(selected.token);
@@ -343,7 +343,7 @@ export default (base: HTMLElement) => {
 			cancelTokenDrag();
 		}),
 		keyEvent("Delete", () => doTokenRemove(selected.token!.id))
-	      );
+	      ]);
 	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (selected.token) {
