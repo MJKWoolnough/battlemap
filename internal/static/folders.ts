@@ -30,9 +30,9 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       sorts = new WeakMap<FolderSorter, WeakMap<ItemSorter, Sorter>>(),
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb].concat(...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)),
       folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
-      clearDragOver = (folder: Folder) => {
-	amendNode(folder.root[node], {"class": ["!folderDragging"]});
-	for (const f of Array.from(folder.root[node].getElementsByClassName("dragover")).concat(folder.root[node])) {
+      clearDragOver = ({root: {[node]: n}}: Folder) => {
+	amendNode(n, {"class": ["!folderDragging"]});
+	for (const f of Array.from(n.getElementsByClassName("dragover")).concat(n)) {
 		amendNode(f, {"class": ["!dragover"]});
 	}
       };
