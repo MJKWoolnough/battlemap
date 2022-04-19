@@ -434,8 +434,10 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 					return;
 				}
 			}
+			e.preventDefault();
 			e.dataTransfer!.dropEffect = "move";
 		} else if (this.#dragTransfer.is(e)) {
+			e.preventDefault();
 			e.dataTransfer!.dropEffect = "move";
 		}
 	}
