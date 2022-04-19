@@ -425,7 +425,6 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		}
 	}
 	ondragover(e: DragEvent) {
-		e.preventDefault();
 		e.stopPropagation();
 		if (this.#dragFolder?.is(e)) {
 			const folder = this.#dragFolder.get(e);
