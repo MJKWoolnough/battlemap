@@ -48,7 +48,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 	}
 	return w;
 },
-shell = ashell(),
 desktop = adesktop(),
+shell = ashell(desktop),
 getWindowData = (w: WindowElement): WindowData => [parseInt(w.style.getPropertyValue("--window-left") || "0"), parseInt(w.style.getPropertyValue("--window-top") || "0"), parseInt(w.style.getPropertyValue("--window-width") || "200"), parseInt(w.style.getPropertyValue("--window-height") || "600")],
 checkWindowData = (v: any): v is WindowData => v instanceof Array && v.length === 4 && isInt(v[0]) && isInt(v[1]) && isUint(v[2]) && isUint(v[3]);
