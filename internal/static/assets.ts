@@ -83,6 +83,7 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 	ondragover(e: DragEvent) {
 		super.ondragover(e);
 		if (this.#dragUpload.is(e)) {
+			e.preventDefault();
 			e.dataTransfer.dropEffect = "copy";
 		}
 	}
