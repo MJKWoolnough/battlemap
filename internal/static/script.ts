@@ -184,10 +184,11 @@ ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-chi
 		},
 		get html() {return [c, h];}
 	});
-      })(),
-      base = amendNode(desktop, symbols);
+      })();
 
-clearNode(document.body, amendNode(shell, {"snap": 50}, base));
+amendNode(desktop, symbols);
+
+clearNode(document.body, amendNode(shell, {"snap": 50}));
 
 invert.wait(v => amendNode(document.documentElement, {"class": {"invert": v}}));
 tabIcons.wait(b => amendNode(document.documentElement, {"class": {"tabIcons": b}}));
@@ -212,12 +213,12 @@ inited.then(() => {
 		for (const mi of menuItems()) {
 			tabs.add(mi);
 		}
-		(isAdmin ? loadMap : loadUserMap)(base.appendChild(div()));
+		(isAdmin ? loadMap : loadUserMap)(desktop.appendChild(div()));
 		if (settings) {
 			tabs.add(settings()!);
 		}
 		addCSS(tabs.css);
-		amendNode(base, tabs.html);
+		amendNode(desktop, tabs.html);
 		setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
 		amendNode(window, {"onresize": event(() => shell.realignWindows(), eventPassive)});
