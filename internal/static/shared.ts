@@ -9,7 +9,7 @@ import {spinner} from './symbols.js';
 
 export const enterKey = function(this: Node, e: KeyboardEvent) {
 	if (e.key === "Enter") {
-		for (let e = this.nextSibling; e != null; e = e.nextSibling) {
+		for (let e = this.nextSibling; e; e = e.nextSibling) {
 			if (e instanceof HTMLButtonElement) {
 				e.click();
 				break;
