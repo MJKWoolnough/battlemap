@@ -148,4 +148,4 @@ addPlugin("screenshot", {
 keyEvent("PrintScreen", (e: KeyboardEvent) => {
 	makeScreenshot();
 	e.preventDefault();
-});
+})[0]();
