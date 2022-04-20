@@ -555,7 +555,7 @@ doMaskSet = (m: MaskSet, sendRPC = true) => {
 	let oldData: MaskSet = {
 		"baseOpaque": masks.baseOpaque,
 		"masks": masks.masks
-	};
+	    };
 	const doIt = (sendRPC = true) => {
 		masks.set(m.baseOpaque, m.masks);
 		if (sendRPC) {
