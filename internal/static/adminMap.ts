@@ -210,7 +210,7 @@ export default (base: HTMLElement) => {
 				}
 			}
 		} else if (dragImage.is(e)) {
-			const {id, width, height}= dragImage.get(e);
+			const {id, width, height} = dragImage.get(e);
 			token.src = id;
 			token.width = width;
 			token.height = height;
