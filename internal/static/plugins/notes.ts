@@ -77,8 +77,8 @@ if (isAdmin) {
 					if (wp) {
 						amendNode(this.popWindow = wp, {"onunload": () => this.popWindow = null});
 						wp.document.title = this.name;
-						amendNode(wp.document.head, style({"type": "text/css"}, css));
-						amendNode(wp.document.body, data);
+						wp.document.head.appendChild(style({"type": "text/css"}, css));
+						wp.document.body.appendChild(data);
 						this.window?.remove();
 					}
 				}, lang["NOTE_POPOUT"]);
