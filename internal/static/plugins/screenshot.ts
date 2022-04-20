@@ -1,6 +1,7 @@
 import {keyEvent} from '../lib/events.js';
 import {amendNode} from '../lib/dom.js';
 import {a, br, button, div, canvas, img, input} from '../lib/html.js';
+import {node} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
 import mainLang, {language} from '../language.js';
@@ -50,7 +51,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	case "ellipse":
 		return p.then(() => new Promise<void>(sfn => {
 			const {width, height} = mapData;
-			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}">${n.outerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
+			img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}">${definitions[node].outerHTML}${n.outerHTML}</svg>`)}`, width, height, "onload": function(this: HTMLImageElement) {
 				ctx.drawImage(this, 0, 0);
 				sfn();
 			}});
