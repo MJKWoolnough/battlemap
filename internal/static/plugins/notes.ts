@@ -75,7 +75,7 @@ if (isAdmin) {
 				this.window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
 					if (wp) {
-						amendNode(this.popWindow = wp, {"onunload": () => this.popWindow = null});
+						(this.popWindow = wp).addEventListener("unload", () => this.popWindow = null);
 						wp.document.title = this.name;
 						wp.document.head.appendChild(style({"type": "text/css"}, css));
 						wp.document.body.appendChild(data);
