@@ -35,7 +35,7 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 			amendNode(preview, {"style": {"background-color": c}});
 		}
 	      }}),
-	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255)) + ""}}),
+	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      w = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": () => {
