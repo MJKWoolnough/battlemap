@@ -5,7 +5,7 @@ import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
 import {all} from '../lib/bbcode_tags.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
-import {br, button, div, input, link, span, style, textarea} from '../lib/html.js';
+import {br, button, div, input, link, span, style, textarea, title} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
@@ -76,8 +76,7 @@ if (isAdmin) {
 					const wp = window.open("", "", "");
 					if (wp) {
 						(this.popWindow = wp).addEventListener("unload", () => this.popWindow = null);
-						wp.document.title = this.name;
-						wp.document.head.append(style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+						wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 						wp.document.body.append(data);
 						this.window?.remove();
 					}
