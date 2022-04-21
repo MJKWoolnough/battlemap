@@ -70,7 +70,7 @@ if (isAdmin) {
 		"TYPE_5": "Necrotic",
 		"TYPE_6": "Lightning",
 		"TYPE_7": "Earth",
-		"TYPE_8": "Darkness",
+		"TYPE_8": "Darkness"
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
@@ -150,7 +150,7 @@ if (isAdmin) {
 				br(),
 				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(lineEffect)}), `${lang["SPELL_TYPE_LINE"]}: `),
 				br(),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), `${lang["SPELL_TYPE_WALL"]}: `),
+				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), `${lang["SPELL_TYPE_WALL"]}: `)
 			]),
 			labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			br(),
@@ -173,7 +173,7 @@ if (isAdmin) {
 				use({"href": `#${sparkID}`, "transform": "translate(5, 0) scale(1.5)"}),
 				use({"href": `#${sparkID}`, "transform": "translate(-45, 30) scale(1.2)"}),
 				use({"href": `#${sparkID}`, "transform": "translate(-30, -5) scale(0.8)"}),
-			]),
+			])
 		]),
 		options,
 		"mapMouseOver": function(this: SVGElement, e: MouseEvent) {
