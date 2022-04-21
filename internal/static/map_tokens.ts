@@ -86,7 +86,7 @@ export class SVGToken extends SVGTransform {
 		this.patternHeight = token.patternWidth;
 		this[node] = image(Object.assign({"class": "mapToken", "href": `/images/${token.src}`, "preserveAspectRatio": "none", "width": token.patternWidth > 0 ? token.patternWidth : token.width, "height": token.patternHeight > 0 ? token.patternHeight : token.height, "transform": this.transformString()}, wg ? {"onload": () => wg.done(), "onerror": () => wg.error()} : {}));
 		if (token.patternWidth > 0) {
-			this.updateNode();
+			setTimeout(() => this.updateNode());
 		}
 	}
 	get isPattern() { return this.patternWidth > 0; }
