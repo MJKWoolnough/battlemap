@@ -139,7 +139,7 @@ if (isAdmin) {
 				for (const effect of effectList) {
 					amendNode(effect, {"stroke": types[damageType][0], "fill": types[damageType][1]});
 				}
-			}}, Array.from({length: types.length}, (_, n) => option({"value": n+""}, lang["TYPE_"+n as keyof typeof lang])))),
+			}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
 				legend(lang["SPELL_TYPE"]),
 				labels(input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), `${lang["SPELL_TYPE_CIRCLE"]}: `),
