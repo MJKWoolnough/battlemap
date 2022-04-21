@@ -157,11 +157,9 @@ if (isAdmin) {
 			labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 				setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 			}})),
-			div({"style": "display: var(--spell-display, none)"}, [
-				labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
-					setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
-				}}))
-			])
+			div({"style": "display: var(--spell-display, none)"}, labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
+				setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
+			}})))
 		]);
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
