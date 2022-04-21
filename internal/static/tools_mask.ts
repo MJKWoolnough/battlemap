@@ -122,7 +122,7 @@ let addOpaque = false,
     overMask: Mask | null = null,
     maskHighlight: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-maskOpacity.wait(v => amendNode(document.body, {"style": {"--maskOpacity": v + ""}}));
+maskOpacity.wait(v => amendNode(document.body, {"style": {"--maskOpacity": v}}));
 
 addTool({
 	"name": lang["TOOL_MASK"],
