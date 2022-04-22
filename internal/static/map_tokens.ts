@@ -305,13 +305,13 @@ definitions = (() => {
 			case 1: {
 				const w = grid.gridSize,
 				      h = 2 * w / SQRT3,
-				      maxH = 2 * Math.round(1.5 * w / SQRT3);
+				      maxH = 3 * w / SQRT3;
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 			}; break;
 			case 2: {
 				const h = grid.gridSize,
 				      w = 2 * h / SQRT3,
-				      maxW = 2 * Math.round(1.5 * h / SQRT3);
+				      maxW = 3 * h / SQRT3;
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
 			}; break;
 			default:
