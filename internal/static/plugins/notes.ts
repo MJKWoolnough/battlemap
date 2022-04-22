@@ -150,13 +150,10 @@ if (isAdmin) {
 			super(root, parent, name, children, dragNote, dragNoteFolder);
 		}
 		removeItem(name: string) {
-			for (const c of this.children) {
-				if (c instanceof NoteItem && c.name === name && c.window) {
-					c.window.remove();
-					break;
-				}
-			}
-			const id = super.removeItem(name);
+			const note = this.getItem(name) as NoteItem | undefined,
+			      id = super.removeItem(name);
+			note?.window?.remove();
+			note?.popWindow?.close();
 			notes.delete(id);
 			return id;
 		}
