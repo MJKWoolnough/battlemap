@@ -149,7 +149,7 @@ export abstract class Item {
 }
 
 export abstract class DraggableItem extends Item {
-	image = img({"class": "imageIcon", "loading": "lazy", "onload": () => {
+	readonly image = img({"class": "imageIcon", "loading": "lazy", "onload": () => {
 		this.#width = this.image.naturalWidth;
 		this.#height = this.image.naturalHeight;
 	}});
