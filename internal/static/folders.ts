@@ -488,7 +488,7 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 }
 
 export class Root {
-	fileType: string;
+	#fileType: string;
 	folder: Folder = undefined!;
 	rpcFuncs: FolderRPC;
 	newItem: ItemConstructor;
@@ -498,7 +498,7 @@ export class Root {
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
-		this.fileType = fileType;
+		this.#fileType = fileType;
 		this.folder = undefined!;   // INIT HACK
 		this[node] = undefined!;    // INIT HACK
 		this.rpcFuncs = undefined!; // INIT HACK
@@ -511,7 +511,7 @@ export class Root {
 		if (this.rpcFuncs) {
 			const f = this.folder = new this.newFolder(this, null, "", rootFolder);
 			clearNode(this[node] ??= this.folder[node], [
-				span(this.fileType),
+				span(this.#fileType),
 				f.newer,
 				this.filter ? [
 					input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
