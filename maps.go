@@ -17,8 +17,6 @@ type mapsDir struct {
 	handler, indexes http.Handler
 }
 
-var zeroJSON = json.RawMessage{'0'}
-
 func (m *mapsDir) Init(b *Battlemap, links links) error {
 	var location keystore.String
 	err := b.config.Get("MapsDir", &location)
