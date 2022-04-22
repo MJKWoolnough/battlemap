@@ -81,7 +81,6 @@ func (a *assetsDir) makeHashMap() {
 }
 
 func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	a.Once.Do(a.makeHashMap)
 	switch r.Method {
 	case http.MethodGet, http.MethodHead:
 		if r.URL.Path == folderMetadata {
@@ -103,6 +102,7 @@ func (a *assetsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
+	a.Once.Do(a.makeHashMap)
 	m, err := r.MultipartReader()
 	defer r.Body.Close()
 	if err != nil {
