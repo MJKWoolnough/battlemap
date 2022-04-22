@@ -940,5 +940,5 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 }
 
 func validTokenLayer(path string) bool {
-	return path != "/Grid" && path != "Light"
+	return path != "/Grid" && path != "/Light"
 }
