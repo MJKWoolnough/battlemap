@@ -299,23 +299,21 @@ definitions = (() => {
 			base.removeChild(list.get(id)!).firstChild as SVGImageElement;
 			list.delete(id);
 		},
-		setGrid(grid: GridDetails) {
+		setGrid({gridSize, gridColour, gridStroke, gridType}: GridDetails) {
 			list.get("grid")?.remove();
-			switch (grid.gridType) {
+			switch (gridType) {
 			case 1: {
-				const w = grid.gridSize,
-				      h = 2 * w / SQRT3,
-				      maxH = 3 * w / SQRT3;
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": w, "height": maxH}, path({"d": `M${w / 2},${maxH} V${h} l${w / 2},-${h / 4} V${h / 4} L${w / 2},0 L0,${h / 4} v${h / 2} L${w / 2},${h}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+				const h = 2 * gridSize / SQRT3,
+				      maxH = 3 * gridSize / SQRT3;
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": maxH}, path({"d": `M${gridSize / 2},${maxH} V${h} l${gridSize / 2},-${h / 4} V${h / 4} L${gridSize / 2},0 L0,${h / 4} v${h / 2} L${gridSize / 2},${h}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}; break;
 			case 2: {
-				const h = grid.gridSize,
-				      w = 2 * h / SQRT3,
-				      maxW = 3 * h / SQRT3;
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": h}, path({"d": `M${maxW},${h / 2} H${w} l-${w / 4},${h / 2} H${w / 4} L0,${h / 2} L${w / 4},0 h${w / 2} L${w},${h/2}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+				const w = 2 * gridSize / SQRT3,
+				      maxW = 3 * gridSize / SQRT3;
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": gridSize}, path({"d": `M${maxW},${gridSize / 2} H${w} l-${w / 4},${gridSize / 2} H${w / 4} L0,${gridSize / 2} L${w / 4},0 h${w / 2} L${w},${gridSize/2}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}; break;
 			default:
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": grid.gridSize, "height": grid.gridSize}, path({"d": `M0,${grid.gridSize} V0 H${grid.gridSize}`, "stroke": grid.gridColour, "stroke-width": grid.gridStroke, "fill": "transparent"}))));
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
 		getLighting(id: string) {
