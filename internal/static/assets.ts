@@ -55,11 +55,12 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 	}
 	abstract assetMap(): AssetMap;
 	#registerItem(id: Uint, name: string) {
-		const v = this.assetMap().get(id);
+		const am = this.assetMap(),
+		      v = am.get(id);
 		if (v) {
 			v[0].send(v[1] = name);
 		} else {
-			this.assetMap().set(id, [new Pipe(), name]);
+			am.set(id, [new Pipe(), name]);
 		}
 	}
 	addItem(id: Uint, name: string) {
