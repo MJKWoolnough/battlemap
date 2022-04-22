@@ -53,13 +53,13 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 			this.#registerItem(children.items[name], name);
 		}
 	}
-	abstract get assetMap(): AssetMap;
+	abstract assetMap(): AssetMap;
 	#registerItem(id: Uint, name: string) {
-		const v = this.assetMap.get(id);
+		const v = this.assetMap().get(id);
 		if (v) {
 			v[0].send(v[1] = name);
 		} else {
-			this.assetMap.set(id, [new Pipe(), name]);
+			this.assetMap().set(id, [new Pipe(), name]);
 		}
 	}
 	addItem(id: Uint, name: string) {
@@ -69,7 +69,7 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 	removeItem(path: string) {
 		const id = super.removeItem(path);
 		if (id > 0) {
-			const v = this.assetMap.get(id)!;
+			const v = this.assetMap().get(id)!;
 			v[0].send(v[1] = "");
 		}
 		return id;
@@ -100,14 +100,14 @@ class AudioFolder extends AssetFolder<AudioAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children, dragAudio, dragAudioFolder, dragAudioFiles, uploadAudio);
 	}
-	get assetMap() { return audioAssets; }
+	assetMap() { return audioAssets; }
 }
 
 class ImageFolder extends AssetFolder<ImageAsset> {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		super(root, parent, name, children, dragImage, dragImageFolder, dragImageFiles, uploadImages);
 	}
-	get assetMap() { return imageAssets; }
+	assetMap() { return imageAssets; }
 }
 
 const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], null, ImageAsset, ImageFolder),
