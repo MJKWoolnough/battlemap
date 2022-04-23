@@ -112,10 +112,8 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       };
 
 class ItemLayer extends Item {
-	hidden: boolean;
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
-		this.hidden = hidden;
 		if (id < 0) {
 			clearNode(this[node], this.nameElem);
 		} else {
@@ -198,11 +196,9 @@ class ItemLayer extends Item {
 
 class FolderLayer extends Folder {
 	id: Uint;
-	hidden: boolean;
 	open: HTMLDetailsElement;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
 		super(root, parent, name, {folders: {}, items: {}});
-		this.hidden = hidden;
 		const lf = children as LayerFolder;
 		this.open = this[node].firstChild as HTMLDetailsElement;
 		if (hidden) {
