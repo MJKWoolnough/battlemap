@@ -55,7 +55,7 @@ if (isAdmin) {
 	class NoteItem extends DraggableItem {
 		window: WindowElement | null = null;
 		popWindow: Window | null = null;
-		share: (() => void) | null = null;
+		#share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragNote);
 			amendNode(this.image, {"src": icon});
@@ -70,7 +70,7 @@ if (isAdmin) {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
 				amendNode(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
 					this.window = null;
-					this.share = null;
+					this.#share = null;
 				}}, data));
 				this.window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
@@ -118,20 +118,20 @@ if (isAdmin) {
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
 							clearNode(data, bbcode(allTags, contents.value));
-							this.setShareButton();
+							this.#setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);
 					this.window!.addWindow(w);
 				}, lang["NOTE_EDIT"]);
-				this.setShareButton();
+				this.#setShareButton();
 			}
 		}
-		setShareButton() {
+		#setShareButton() {
 			if (!pages.has(this.id) || !pages.get(this.id)!.data.share) {
-				this.share?.();
-				this.share = null;
+				this.#share?.();
+				this.#share = null;
 			} else {
-				this.share ??= this.window!.addControlButton(shareIcon, () => {
+				this.#share ??= this.window!.addControlButton(shareIcon, () => {
 					const page = pages.get(this.id);
 					if (page) {
 						rpc.broadcastWindow("plugin-notes", this.id, page.data.contents);
