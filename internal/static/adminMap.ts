@@ -253,7 +253,7 @@ export default (base: HTMLElement) => {
 		mY = e.clientY;
 		moved = false;
 		initFn();
-		return false
+		return false;
 	      },
 	      keyRepeats = [-1, -1, -1, -1],
 	      keyMoveToken = (n: Uint, dir: string, shift: (tk: Token, dx: Uint, dy: Uint, shiftKey?: boolean) => void) => keyEvent(`Arrow${dir}`, (e: KeyboardEvent) => {
