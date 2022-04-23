@@ -148,7 +148,7 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 				removes[this.checked ? "add" : "delete"](k);
 			}}), removeSymbol(), {"class": "itemRemove"}),
 			br()
-		]
+		];
 	      },
 	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
 	      save = (): Promise<void> => {
