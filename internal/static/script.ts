@@ -28,15 +28,15 @@ import './tools_move.js';
 import './tools_multiplace.js';
 import './tools_wall.js';
 
-type savedWindow = {
-	out: boolean;
-	data: WindowData
-}
-
 document.title = lang["TITLE"];
 
 const lastTab = new StringSetting("lastTab"),
       tabs = (() => {
+	type savedWindow = {
+		out: boolean;
+		data: WindowData
+	}
+
 	let n = 0, moved = false;
 	const panelShow = new BoolSetting("panelShow"),
 	      panelWidth = new IntSetting("panelWidth", 300, 0),
