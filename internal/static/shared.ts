@@ -116,6 +116,5 @@ setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
 	m.set(k, v);
 	return v;
 },
-SQRT3 = Math.sqrt(3),
 loading = (id?: string) => createDocumentFragment([h2({"id": id}, lang["LOADING"]), spinner({"style": "width: 64px"})]),
 menuItems: [Uint, () => ([string, HTMLDivElement, boolean, string] | null)][] = [];

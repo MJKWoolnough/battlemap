@@ -5,7 +5,7 @@ import type {SVGLayer} from './map.js';
 import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
 import {node, NodeArray} from './lib/nodes.js';
-import {characterData, cloneObject, setAndReturn, SQRT3} from './shared.js';
+import {characterData, cloneObject, setAndReturn} from './shared.js';
 import {defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect} from './lib/svg.js';
 
 type MaskNode = Mask & {
@@ -279,6 +279,7 @@ masks = (() => {
 		}
 	}
 })(),
+SQRT3 = Math.sqrt(3),
 definitions = (() => {
 	const base = defs(masks[node]),
 	      list = new Map<string, SVGPatternElement>(),

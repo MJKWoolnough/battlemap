@@ -12,11 +12,11 @@ import {animate, circle, g, rect, svg} from './lib/svg.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
 import {makeLight} from './map_lighting.js';
-import {SVGToken, definitions, masks, tokens} from './map_tokens.js';
+import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {scrollAmount, zoomSlider} from './settings.js';
-import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, SQRT3, walls} from './shared.js';
+import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
 
