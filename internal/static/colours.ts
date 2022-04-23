@@ -60,7 +60,7 @@ makeColourPicker = (() => {
 	const sc = (s: HTMLDivElement, c: Colour) => {
 		amendNode(s, {"style": {"background-color": c}});
 		return c;
-	};
+	      };
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
 		const dragKey = dragColour.register({"transfer": getColour}),
