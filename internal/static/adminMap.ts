@@ -200,14 +200,7 @@ export default (base: HTMLElement) => {
 			const {id, width, height} = dragCharacter.get(e),
 			      char = characterData.get(id);
 			if (char) {
-				const ct = getCharacterToken(char);
-				if (ct) {
-					Object.assign(token, ct);
-				} else {
-					token.src = parseInt(char["store-image-icon"].data);
-					token.width = width;
-					token.height = height;
-				}
+				Object.assign(token, getCharacterToken(char) ?? {"src": parseInt(char["store-image-icon"].data), width, height});
 			}
 		} else if (dragImage.is(e)) {
 			const {id, width, height} = dragImage.get(e);
