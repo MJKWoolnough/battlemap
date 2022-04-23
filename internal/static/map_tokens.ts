@@ -145,8 +145,8 @@ export class SVGShape extends SVGTransform {
 
 export class SVGDrawing extends SVGShape {
 	points: Coords[];
-	oWidth: Uint;
-	oHeight: Uint;
+	#oWidth: Uint;
+	#oHeight: Uint;
 	constructor(token: TokenDrawing) {
 		super(token, false);
 		this.points = token.points;
@@ -161,15 +161,15 @@ export class SVGDrawing extends SVGShape {
 				oHeight = c.y;
 			}
 		}
-		this.oWidth = oWidth;
-		this.oHeight = oHeight;
+		this.#oWidth = oWidth;
+		this.#oHeight = oHeight;
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight;
 		this[node] = amendNode(path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth}), {"transform": this.transformString()});
 	}
 	updateNode() {
-		const xr = this.width / this.oWidth,
-		      yr = this.height / this.oHeight;
+		const xr = this.width / this.#oWidth,
+		      yr = this.height / this.#oHeight;
 		this[node] = path({"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
 	}
 }
