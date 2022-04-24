@@ -32,11 +32,11 @@
 	height: 100%;
 }
 
-.miniTools windows-window #toolList > ul svg + span {
+.miniTools #toolList > ul svg + span {
 	display: none;
 }
 
-.miniTools windows-window #toolList > ul {
+.miniTools #toolList > ul {
 	margin-bottom: 0;
 	padding-bottom: 0;
 }
