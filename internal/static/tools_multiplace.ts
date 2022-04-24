@@ -42,7 +42,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	const {layer} = selected;
 	if (!mode.checked && cursor && token && layer) {
 		amendNode(layer[node], cursor[node]);
-		amendNode(root, {"style": {"cursor": "none"}})
+		amendNode(root, {"style": {"cursor": "none"}});
 		moveCursor();
 	}
       },
