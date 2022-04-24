@@ -10,7 +10,7 @@ import {shell, windows} from './windows.js';
 type Fn = () => Fn;
 
 type FnDesc = {
-	fn: Fn
+	fn: Fn;
 	[node]: HTMLLIElement;
 };
 
