@@ -77,7 +77,7 @@ html, body {
 }
 
 #tabLabels > label:hover, #tabLabels > label:focus {
-	background : linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
+	background: linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%);
 	cursor: pointer;
 	outline: none;
 }
