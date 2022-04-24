@@ -384,7 +384,7 @@ const select = Symbol("select"),
 					td(`${lang[name as keyof typeof defaultLanguage]}: `),
 					settings.map(setting => td(labels(input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
-					}}), ""))),
+					}}), "")))
 				])))
 			]),
 		])
