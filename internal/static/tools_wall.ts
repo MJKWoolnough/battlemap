@@ -156,7 +156,7 @@ const updateCursorState = () => {
 			      [ax1, ay1] = selectedMarker === 0 ? [x, y] : [x1, y1],
 			      [ax2, ay2] = selectedMarker === 1 ? [x, y] : [x2, y2];
 			amendNode(selectedMarker ? draggableMarker2 : draggableMarker1, {"transform": `translate(${x - 10}, ${y - 10})`});
-			doWallModify({"id": selectedWall, "x1": ax1, "y1": ay1, "x2": ax2, "y2": ay2, colour, scattering})
+			doWallModify({"id": selectedWall, "x1": ax1, "y1": ay1, "x2": ax2, "y2": ay2, colour, scattering});
 		} else {
 			amendNode(wallRect, {"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`});
 			amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
