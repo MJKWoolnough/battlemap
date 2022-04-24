@@ -229,7 +229,7 @@ export type TokenImage = TokenShared & {
 }
 
 export type TokenShape = TokenShared & {
-	fill:        Colour
+	fill:        Colour;
 	stroke:      Colour;
 	strokeWidth: Uint;
 	isEllipse?:  boolean;
