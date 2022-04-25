@@ -101,19 +101,21 @@ const updateCursorState = () => {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
 			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
-				const wall = walls.get(id);
-				if (wall) {
-					const {x1, y1, x2, y2} = wall.wall,
-					      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
-					amendNode(wallOverlay, {"style": {"width": width + "px"}});
-					amendNode(root, [
-						amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
-						amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-						amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
-					]);
-					selectedWall = id;
-					startWallDelete();
-					e.stopPropagation();
+				if (selectWall.checked) {
+					const wall = walls.get(id);
+					if (wall) {
+						const {x1, y1, x2, y2} = wall.wall,
+						      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
+						amendNode(wallOverlay, {"style": {"width": width + "px"}});
+						amendNode(root, [
+							amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1 - 5})`}),
+							amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+							amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+						]);
+						selectedWall = id;
+						startWallDelete();
+						e.stopPropagation();
+					}
 				}
 			}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
 		}
