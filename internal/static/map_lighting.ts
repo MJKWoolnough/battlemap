@@ -20,10 +20,14 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	      points = new Map<string, Wall[]>(),
 	      polyPoints: [number, number, number][] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
-		const a1 = Math.atan2(y1 - lightY, x1 - lightX),
-		      a2 = Math.atan2(y2 - lightY, x2 - lightX);
-		if (a1 !== a2) {
-			const wall = {id, x1, y1, x2, y2, colour, scattering},
+		const dx1 = x1 - lightX,
+		      dx2 = x2 - lightX,
+		      dy1 = y1 - lightY,
+		      dy2 = y2 - lightY;
+		if (Math.abs(dx1) * Math.abs(dy2) !== Math.abs(dx2) * Math.abs(dy1)) {
+			const a1 = Math.atan2(dy1, dx1),
+			      a2 = Math.atan2(dy2, dx2),
+			      wall = {id, x1, y1, x2, y2, colour, scattering},
 			      p1 = `${x1},${y1}`,
 			      p2 = `${x2},${y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
