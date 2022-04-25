@@ -24,9 +24,10 @@ let wallColour = hex2Colour("#000"),
 
 const updateCursorState = () => {
 	if (placeWall.checked) {
-		amendNode(root, {"style": {"cursor": "none"}}, marker);
+		amendNode(root, {"style": {"cursor": "none"}, "class": ["!selectWall"]}, marker);
 		startCursorMove();
 	} else {
+		amendNode(root, {"class": ["selectWall"]});
 		cancelCursorMove();
 	}
       },
