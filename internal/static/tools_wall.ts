@@ -9,7 +9,7 @@ import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from '
 import {Colour, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
-import {doWallAdd, doWallModify} from './map_fns.js';
+import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
@@ -50,6 +50,12 @@ const updateCursorState = () => {
       }, () => {
 	amendNode(root, {"style": {"cursor": undefined}});
 	marker.remove()
+      }),
+      [startWallDelete, cancelWallDelete] = keyEvent("Delete", () => {
+	if (selectedWall) {
+		doWallRemove(selectedWall);
+		deselectWall();
+	}
       }),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
@@ -106,6 +112,7 @@ const updateCursorState = () => {
 						amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 					]);
 					selectedWall = id;
+					startWallDelete();
 					e.stopPropagation();
 				}
 			}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
@@ -170,6 +177,7 @@ const updateCursorState = () => {
 	draggableMarker1.remove();
 	draggableMarker2.remove();
 	cancelMarkerDrag();
+	cancelWallDelete();
       };
 
 addTool({
