@@ -62,16 +62,12 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		    ed = Infinity,
 		    edges = 0;
 		for (const {x1, y1, x2, y2} of point) {
-			const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1];
-			let a = Math.atan2(lightY - j, lightX - i);
-			if (angle > pi2 && a < angle - Math.PI) {
-				a += 2 * Math.PI;
-			} else if (angle < -pi2 && a > angle + Math.PI) {
-				a -= 2 * Math.PI;
-			}
-			if (a < angle) {
+			const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
+			      a = Math.atan2(lightY - j, lightX - i),
+			      b = a + (angle > pi2 && a < angle - Math.PI ? 1 : angle < -pi2 && a > angle + Math.PI ? -1 : 0) * 2 * Math.PI;
+			if (b < angle) {
 				edges |= 1;
-			} else if (a > angle) {
+			} else if (b > angle) {
 				edges |= 2;
 			}
 		}
