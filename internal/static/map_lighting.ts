@@ -14,6 +14,8 @@ export type LightSource = [Colour, Uint, Int, Int];
 
 let rg = 0;
 
+const pi2 = Math.PI/2;
+
 export const makeLight = (l: LightSource, walls: Wall[]) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
@@ -62,6 +64,11 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		for (const {x1, y1, x2, y2} of point) {
 			const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1];
 			let a = Math.atan2(lightY - j, lightX - i);
+			if (angle > pi2 && a < angle - Math.PI) {
+				a += 2 * Math.PI;
+			} else if (angle < -pi2 && a > angle + Math.PI) {
+				a -= 2 * Math.PI;
+			}
 			if (a < angle) {
 				edges |= 1;
 			} else if (a > angle) {
