@@ -53,8 +53,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		}
 	}
 	for (const {x, y, angle} of vertices) {
-		const dlx = (lightX - x),
-		      dly = (lightY - y);
+		const dlx = lightX - x,
+		      dly = lightY - y;
 		let ex = x,
 		    ey = y,
 		    ed = Math.hypot(y - lightY, x - lightX);
