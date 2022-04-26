@@ -84,7 +84,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      px = (dx * a - dlx * b) / d,
 				      py = (dy * a - dly * b) / d,
 				      distance = Math.hypot(py - lightY, px - lightX);
-				if (distance < ed) {
+				if (distance < ed && Math.sign(ex - lightX) === Math.sign(px - lightX) && Math.sign(ey - lightY) === Math.sign(py - lightY)) {
 					ex = px;
 					ey = py;
 					ed = distance;
