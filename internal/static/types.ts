@@ -59,7 +59,6 @@ export type RPCWaits = {
 	waitTokenMoveLayerPos:       () => Subscription<TokenMoveLayerPos>;
 	waitTokenSet:                () => Subscription<TokenSet>;
 	waitLayerShift:              () => Subscription<LayerShift>;
-	waitTokenLightChange:        () => Subscription<LightChange>;
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
 	waitWallModified:            () => Subscription<Wall>;
@@ -133,7 +132,6 @@ export type RPC = RPCWaits & {
 	setToken:         (t: TokenSet)                                                          => Promise<void>;
 	setTokenLayerPos: (id: Uint, to: string, newPos: Uint)                                   => Promise<void>;
 	shiftLayer:       (path: string, dx: Int, dy: Int)                                       => Promise<void>;
-	setTokenLight:    (id: Uint, lightColour: Colour, lightIntensity: Uint)                  => Promise<void>;
 	addWall:          (path: string, wall: Wall)                                             => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 	modifyWall:       (w: Wall)                                                              => Promise<void>;
@@ -346,8 +344,6 @@ type TokenLight = {
 	lightColour: Colour;
 	lightIntensity: Uint;
 }
-
-type LightChange = ID & TokenLight;
 
 export type Plugin = {
 	enabled: boolean;
