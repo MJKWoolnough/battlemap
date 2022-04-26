@@ -459,26 +459,6 @@ doWallModify = (wall: Wall, sendRPC = true) => {
 	};
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_MODIFY"]);
 },
-doTokenLightChange = (id: Uint, lightColour: Colour, lightIntensity: Uint, sendRPC = true) => {
-	const {token} = tokens.get(id)!;
-	if (!token) {
-		handleError("invalid token for light change");
-		return;
-	}
-	let {lightColour: oldLightColour, lightIntensity: oldLightIntensity} = token;
-	const doIt = (sendRPC = true) => {
-		token.lightColour = lightColour;
-		token.lightIntensity = lightIntensity;
-		updateLight();
-		if (sendRPC) {
-			queue(rpc.setTokenLight.bind(rpc, id, lightColour, lightIntensity));
-		}
-		[lightColour, oldLightColour] = [oldLightColour, lightColour];
-		[lightIntensity, oldLightIntensity] = [oldLightIntensity, lightIntensity];
-		return doIt;
-	      };
-	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_LIGHT_CHANGE"]);
-},
 doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	const oldData = mapData.data[key],
 	      doIt = (sendRPC = true) => {
