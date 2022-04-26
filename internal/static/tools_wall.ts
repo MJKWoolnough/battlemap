@@ -115,6 +115,7 @@ const updateCursorState = () => {
 						]);
 						selectedWall = id;
 						startWallDelete();
+						startWallEscape();
 						e.stopPropagation();
 					}
 				}
@@ -181,7 +182,9 @@ const updateCursorState = () => {
 	draggableMarker2.remove();
 	cancelMarkerDrag();
 	cancelWallDelete();
-      };
+	cancelWallEscape();
+      },
+      [startWallEscape, cancelWallEscape] = keyEvent("Escape", deselectWall);
 
 addTool({
 	"name": lang["TOOL_WALL"],
