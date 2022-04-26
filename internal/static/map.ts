@@ -567,14 +567,6 @@ export default (base: HTMLElement) => {
 			Object.assign(wall.wall, w);
 		}
 	});
-	rpc.waitTokenLightChange().then(({id, lightColour, lightIntensity}) => {
-		const {token} = tokens.get(id)!;
-		if (token instanceof SVGToken) {
-			token.lightColour = lightColour;
-			token.lightIntensity = lightIntensity;
-			updateLight();
-		}
-	}),
 	rpc.waitMapDataSet().then(kd => {
 		if (kd.key) {
 			mapData.data[kd.key] = kd.data;
