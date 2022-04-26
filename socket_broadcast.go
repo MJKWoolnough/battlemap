@@ -76,7 +76,6 @@ const (
 	broadcastTokenSet
 	broadcastLayerShift
 
-	broadcastTokenLightChange
 	broadcastWallAdd
 	broadcastWallRemove
 	broadcastWallModify
@@ -115,6 +114,7 @@ func (s *socket) KickAdmins(except ID) {
 	}
 	s.mu.RUnlock()
 }
+
 func (c *conn) kickAdmin() {
 	atomic.StoreUint64((*uint64)(&c.ID), 0)
 	c.rpc.SendData(loggedOut)
