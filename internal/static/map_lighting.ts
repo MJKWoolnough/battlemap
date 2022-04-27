@@ -100,7 +100,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		    ey = y,
 		    ws = point,
 		    ed = Infinity;
-		if (isConvex(lightX, lightY, x, y, angle, point)) {
+		if (!isConvex(lightX, lightY, x, y, angle, point)) {
 			ed = Math.hypot(y - lightY, x - lightX);
 		}
 		for (const w of walls) {
@@ -117,7 +117,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpy, lpx),
 				      point = points.get(`${px},${py}`);
-				if (((point && !isConvex(lightX, lightY, px, py, angle, point)) || (px > Math.min(x1, x2) && px < Math.max(x1, x2) && py > Math.min(y1, y2) && py < Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				if (((point && !isConvex(lightX, lightY, px, py, angle, point)) || (!point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
