@@ -275,7 +275,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
 		}
 	}
-	const lightUpdate = ts["lightColour"] || ts["lightIntensity"],
+	const lightUpdate = ts["lightColour"] || ts["lightIntensity"] !== undefined || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
 	      doIt = (sendRPC = true) => {
 		for (const k in ts) {
 			switch (k) {
