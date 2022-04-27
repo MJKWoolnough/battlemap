@@ -22,6 +22,20 @@ export type LightSource = [Colour, Uint, Int, Int];
 let rg = 0;
 
 const pi2 = Math.PI/2,
+      isConvex = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
+	let edges = 0;
+	for (const {x1, y1, x2, y2} of point) {
+		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
+		      a = Math.atan2(lightY - j, lightX - i),
+		      b = a + (angle > pi2 && a < angle - Math.PI ? 1 : angle < -pi2 && a > angle + Math.PI ? -1 : 0) * 2 * Math.PI;
+		if (b < angle) {
+			edges |= 1;
+		} else if (b > angle) {
+			edges |= 2;
+		}
+	}
+	return edges !== 3;
+      },
       isSameWall = (prev: Wall[], curr: Wall[], next?: Wall[]) => {
 	for (const p of prev) {
 		for (const c of curr) {
@@ -85,19 +99,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		let ex = x,
 		    ey = y,
 		    ws = point,
-		    ed = Infinity,
-		    edges = 0;
-		for (const {x1, y1, x2, y2} of point) {
-			const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
-			      a = Math.atan2(lightY - j, lightX - i),
-			      b = a + (angle > pi2 && a < angle - Math.PI ? 1 : angle < -pi2 && a > angle + Math.PI ? -1 : 0) * 2 * Math.PI;
-			if (b < angle) {
-				edges |= 1;
-			} else if (b > angle) {
-				edges |= 2;
-			}
-		}
-		if (edges === 3) {
+		    ed = Infinity;
+		if (isConvex(lightX, lightY, x, y, angle, point)) {
 			ed = Math.hypot(y - lightY, x - lightX);
 		}
 		for (const w of walls) {
@@ -112,8 +115,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      py = (dy * a - dly * b) / d,
 				      lpx = lightX - px,
 				      lpy = lightY - py,
-				      distance = Math.hypot(lpy, lpx);
-				if (px > Math.min(x1, x2) && px < Math.max(x1, x2) && py > Math.min(y1, y2) && py < Math.max(y1, y2) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				      distance = Math.hypot(lpy, lpx),
+				      point = points.get(`${px},${py}`);
+				if (((point && !isConvex(lightX, lightY, px, py, angle, point)) || (px > Math.min(x1, x2) && px < Math.max(x1, x2) && py > Math.min(y1, y2) && py < Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
