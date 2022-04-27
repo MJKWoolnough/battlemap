@@ -95,14 +95,12 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	for (const v of vertices) {
 		const {x, y, angle, point} = v,
 		      dlx = lightX - x,
-		      dly = lightY - y;
+		      dly = lightY - y,
+		      concave = !isConvex(lightX, lightY, x, y, angle, point);
 		let ex = x,
 		    ey = y,
 		    ws = point,
-		    ed = Infinity;
-		if (!isConvex(lightX, lightY, x, y, angle, point)) {
-			ed = Math.hypot(y - lightY, x - lightX);
-		}
+		    ed = concave ? Math.hypot(y - lightY, x - lightX) : Infinity;
 		for (const w of walls) {
 			const {x1, y1, x2, y2} = w,
 			      dx = x1 - x2,
@@ -124,6 +122,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 					ws = [w];
 				}
 			}
+		}
+		if (concave) {
+			v.point = ws;
 		}
 		polyPoints.push({
 			x: ex,
