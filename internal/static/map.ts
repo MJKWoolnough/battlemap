@@ -143,7 +143,7 @@ normaliseWall = (w: Wall) => {
 },
 updateLight = () => {
 	const ll = (getLayer("/Light") as SVGLayer)[node],
-	      {width, height} = mapData,
+	      {gridSize, width, height} = mapData,
 	      walls: Wall[] = [
 		{
 			"id": -1,
@@ -189,7 +189,7 @@ updateLight = () => {
 			walls.push(...l.walls);
 			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
 				if (lightIntensity && lightColour.a) {
-					lights.push([lightColour, lightIntensity, x + width / 2, y + height / 2]);
+					lights.push([lightColour, lightIntensity * (gridSize || 1), x + width / 2, y + height / 2]);
 				}
 			}
 		}
