@@ -10,17 +10,42 @@ type Vertex = {
 	angle: number;
 }
 
+type PolyPoint = {
+	x: Uint;
+	y: Uint;
+	v: Vertex;
+	w: Wall[];
+}
+
 export type LightSource = [Colour, Uint, Int, Int];
 
 let rg = 0;
 
-const pi2 = Math.PI/2;
+const pi2 = Math.PI/2,
+      isSameWall = (prev: Wall[], curr: Wall[], next?: Wall[]) => {
+	for (const p of prev) {
+		for (const c of curr) {
+			if (p === c) {
+				if (!next) {
+					return true;
+				}
+				for (const n of next) {
+					if (p === n) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+      };
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
+	console.log(l);
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, Wall[]>(),
-	      polyPoints: [number, number, number][] = [];
+	      polyPoints: PolyPoint[] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
 		const dx1 = x1 - lightX,
 		      dx2 = x2 - lightX,
@@ -54,11 +79,13 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			points2.push(wall);
 		}
 	}
-	for (const {x, y, angle, point} of vertices) {
-		const dlx = lightX - x,
+	for (const v of vertices) {
+		const {x, y, angle, point} = v,
+		      dlx = lightX - x,
 		      dly = lightY - y;
 		let ex = x,
 		    ey = y,
+		    ws = point,
 		    ed = Infinity,
 		    edges = 0;
 		for (const {x1, y1, x2, y2} of point) {
@@ -74,8 +101,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		if (edges === 3) {
 			ed = Math.hypot(y - lightY, x - lightX);
 		}
-		for (const {x1, y1, x2, y2} of walls) {
-			const dx = x1 - x2,
+		for (const w of walls) {
+			const {x1, y1, x2, y2} = w,
+			      dx = x1 - x2,
 			      dy = y1 - y2,
 			      d = dlx * dy - dly * dx;
 			if (d) {
@@ -90,10 +118,34 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 					ex = px;
 					ey = py;
 					ed = distance;
+					ws = [w];
 				}
 			}
 		}
-		polyPoints.push([ex, ey, angle]);
+		polyPoints.push({
+			x: ex,
+			y: ey,
+			v, // original
+			w: ws // hit
+		});
+	}
+	polyPoints.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
+	let p = "";
+	for (let i = 0; i < polyPoints.length; i++) {
+		const prev = polyPoints[i === 0 ? polyPoints.length - 1 : i - 1],
+		      curr = polyPoints[i],
+		      next = polyPoints[i === polyPoints.length - 1 ? 0 : i + 1];
+		if (!isSameWall(prev.w, curr.w, next.w)) {
+			if (curr.w !== curr.v.point) {
+				if (isSameWall(prev.w, curr.w)) {
+					p += `${curr.v.x},${curr.v.y} ${curr.x},${curr.y} `;
+				} else {
+					p += `${curr.x},${curr.y} ${curr.v.x},${curr.v.y} `;
+				}
+			} else {
+				p += `${curr.x},${curr.y} `;
+			}
+		}
 	}
 	rg++;
 	return [
@@ -101,6 +153,6 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
 			stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
 		]),
-		polygon({"points": polyPoints.sort(([, , a], [, , b]) => b - a).map(([x, y]) => `${x},${y}`).join(" "), "fill": `url(#RG_${rg})`})
+		polygon({"points": p, "fill": `url(#RG_${rg})`})
 	];
 };
