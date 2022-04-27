@@ -275,7 +275,8 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
 		}
 	}
-	const doIt = (sendRPC = true) => {
+	const lightUpdate = ts["lightColour"] || ts["lightIntensity"],
+	      doIt = (sendRPC = true) => {
 		for (const k in ts) {
 			switch (k) {
 			case "id":
@@ -312,6 +313,9 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			tokenMousePos.width = token.width;
 			tokenMousePos.height = token.height;
 			tokenMousePos.rotation = token.rotation;
+		}
+		if (lightUpdate) {
+			updateLight();
 		}
 		[original, ts] = [ts, original];
 		return doIt;
