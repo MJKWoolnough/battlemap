@@ -41,7 +41,6 @@ const pi2 = Math.PI/2,
       };
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
-	console.log(l);
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, Wall[]>(),
@@ -114,7 +113,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      lpx = lightX - px,
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpy, lpx);
-				if (distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				if (px > Math.min(x1, x2) && px < Math.max(x1, x2) && py > Math.min(y1, y2) && py < Math.max(y1, y2) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
