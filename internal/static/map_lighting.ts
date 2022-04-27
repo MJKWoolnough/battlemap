@@ -26,7 +26,7 @@ const pi2 = Math.PI/2,
 	let edges = 0;
 	for (const {x1, y1, x2, y2} of point) {
 		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
-		      a = Math.atan2(lightY - j, lightX - i),
+		      a = Math.atan2(j - lightY, i - lightX),
 		      b = a + (angle > pi2 && a < angle - Math.PI ? 1 : angle < -pi2 && a > angle + Math.PI ? -1 : 0) * 2 * Math.PI;
 		if (b < angle) {
 			edges |= 1;
