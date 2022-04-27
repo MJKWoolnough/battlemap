@@ -22,7 +22,7 @@ export type LightSource = [Colour, Uint, Int, Int];
 let rg = 0;
 
 const pi2 = Math.PI/2,
-      isConvex = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
+      isConcave = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
 	let edges = 0;
 	for (const {x1, y1, x2, y2} of point) {
 		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
@@ -34,7 +34,7 @@ const pi2 = Math.PI/2,
 			edges |= 2;
 		}
 	}
-	return edges !== 3;
+	return edges === 3;
       },
       isSameWall = (prev: Wall[], curr: Wall[], next?: Wall[]) => {
 	for (const p of prev) {
@@ -96,7 +96,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		const {x, y, angle, point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
-		      concave = !isConvex(lightX, lightY, x, y, angle, point);
+		      concave = isConcave(lightX, lightY, x, y, angle, point);
 		let ex = x,
 		    ey = y,
 		    ws = point,
@@ -115,7 +115,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpy, lpx),
 				      point = points.get(`${px},${py}`);
-				if (((point && !isConvex(lightX, lightY, px, py, angle, point)) || (!point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				if (((point && isConcave(lightX, lightY, px, py, angle, point)) || (!point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
