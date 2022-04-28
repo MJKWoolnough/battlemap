@@ -62,16 +62,17 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	      vertices: Vertex[] = [],
 	      points = new Map<string, Wall[]>(),
 	      collisions: Collision[] = [],
-	      polyPoints: PolyPoint[] = [];
-	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
-		const dx1 = x1 - lightX,
+	      polyPoints: PolyPoint[] = [],
+	      gWalls: Wall[] = [];
+	for (const wall of walls) {
+		const {x1, y1, x2, y2} = wall,
+		      dx1 = x1 - lightX,
 		      dx2 = x2 - lightX,
 		      dy1 = y1 - lightY,
 		      dy2 = y2 - lightY;
-		if (Math.abs(dx1) * Math.abs(dy2) !== Math.abs(dx2) * Math.abs(dy1)) {
+		if (dy1 * (dx2 - dx1) !== dx1 * (dy2 - dy1)) {
 			const a1 = Math.atan2(dy1, dx1),
 			      a2 = Math.atan2(dy2, dx2),
-			      wall = {id, x1, y1, x2, y2, colour, scattering},
 			      p1 = `${x1},${y1}`,
 			      p2 = `${x2},${y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
@@ -94,6 +95,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			};
 			points1.push(wall);
 			points2.push(wall);
+			gWalls.push(wall);
 		}
 	}
 	for (const v of vertices) {
@@ -105,26 +107,24 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		    ey = y,
 		    ws = point,
 		    ed = concave ? Math.hypot(y - lightY, x - lightX) : Infinity;
-		for (const w of walls) {
+		for (const w of gWalls) {
 			const {x1, y1, x2, y2} = w,
 			      dx = x1 - x2,
 			      dy = y1 - y2,
-			      d = dlx * dy - dly * dx;
-			if (d) {
-				const a = (lightX * y - lightY * x),
-				      b = (x1 * y2 - y1 * x2),
-				      px = (dx * a - dlx * b) / d,
-				      py = (dy * a - dly * b) / d,
-				      lpx = lightX - px,
-				      lpy = lightY - py,
-				      distance = Math.hypot(lpy, lpx),
-				      point = points.get(`${px},${py}`);
-				if (((point && isConcave(lightX, lightY, px, py, angle, point)) || (!point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
-					ex = px;
-					ey = py;
-					ed = distance;
-					ws = [w];
-				}
+			      d = dlx * dy - dly * dx,
+			      a = (lightX * y - lightY * x),
+			      b = (x1 * y2 - y1 * x2),
+			      px = (dx * a - dlx * b) / d,
+			      py = (dy * a - dly * b) / d,
+			      lpx = lightX - px,
+			      lpy = lightY - py,
+			      distance = Math.hypot(lpy, lpx),
+			      point = points.get(`${px},${py}`);
+			if (((point && isConcave(lightX, lightY, px, py, angle, point)) || (!point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2))) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				ex = px;
+				ey = py;
+				ed = distance;
+				ws = [w];
 			}
 		}
 		if (concave) {
