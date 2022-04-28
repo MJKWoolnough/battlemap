@@ -1,6 +1,7 @@
 import type {Int, Uint, Wall} from './types.js';
 import type {Colour} from './colours.js';
-import {polygon, radialGradient, stop} from './lib/svg.js';
+import {polygon} from './lib/svg.js';
+import {definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
@@ -21,8 +22,6 @@ type PolyPoint = {
 }
 
 export type LightSource = [Colour, Uint, Int, Int];
-
-let rg = 0;
 
 const pi2 = Math.PI/2,
       isConcave = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
@@ -165,12 +164,5 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			p += `${curr.x},${curr.y} `;
 		}
 	}
-	rg++;
-	return [
-		radialGradient({"id": `RG_${rg}`, "r": i, "cx": lightX, "cy": lightY, "gradientUnits": "userSpaceOnUse"}, [
-			stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
-			stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
-		]),
-		polygon({"points": p, "fill": `url(#RG_${rg})`})
-	];
+	return polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`});
 };
