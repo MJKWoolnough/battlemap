@@ -140,21 +140,25 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		});
 	}
 	collisions.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
+	let lastWall = collisions[0].w,
+	    p = "";
 	for (let i = 0; i < collisions.length; i++) {
 		const curr = collisions[i];
 		if (curr.w !== curr.v.point) {
-			if (isSameWall(collisions[i === 0 ? collisions.length - 1 : i - 1].w, curr.w)) {
+			if (isSameWall(lastWall, curr.w)) {
 				polyPoints.push(curr);
 				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
+				lastWall = curr.v.point;
 			} else {
 				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
 				polyPoints.push(curr);
+				lastWall = curr.w;
 			}
 		} else {
 			polyPoints.push(curr);
+			lastWall = curr.w;
 		}
 	}
-	let p = "";
 	for (let i = 0; i < polyPoints.length; i++) {
 		const curr = polyPoints[i];
 		if (!isSameWall(polyPoints[i === 0 ? polyPoints.length - 1 : i - 1].w, curr.w, polyPoints[i === polyPoints.length - 1 ? 0 : i + 1].w)) {
