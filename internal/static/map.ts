@@ -142,6 +142,7 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
+	definitions.clearLighting();
 	const ll = (getLayer("/Light") as SVGLayer)[node],
 	      {gridSize, width, height} = mapData,
 	      walls: Wall[] = [
