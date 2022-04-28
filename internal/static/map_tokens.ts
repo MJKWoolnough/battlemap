@@ -6,7 +6,7 @@ import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
 import {node, NodeArray} from './lib/nodes.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
-import {defs, ellipse, filter, g, image, mask, path, pattern, polygon, rect} from './lib/svg.js';
+import {defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 
 type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
@@ -284,6 +284,7 @@ definitions = (() => {
 	const base = defs(masks[node]),
 	      list = new Map<string, SVGPatternElement>(),
 	      lighting = new Map<string, SVGFilterElement>();
+	let nextLightID = 0;
 	return {
 		get [node]() {return base;},
 		get list() {return list;},
@@ -317,14 +318,20 @@ definitions = (() => {
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
-		getLighting(id: string) {
-			return lighting.get(id) ?? setAndReturn(lighting, id, base.appendChild(filter({id})));
+		addLighting(cx: Uint, cy: Uint, r: Uint, c: Colour) {
+			const id = `LG_${nextLightID++}`;
+			amendNode(base, radialGradient({id, r, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
+				stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
+				stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
+			]));
+			return id;
 		},
 		clearLighting() {
 			for (const l of lighting.values()) {
 				l.remove();
 			}
 			lighting.clear();
+			nextLightID = 0;
 		},
 		clear() {
 			this.clearLighting();
