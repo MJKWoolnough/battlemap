@@ -10,7 +10,7 @@ type Vertex = {
 	angle: number;
 }
 
-type PolyPoint = {
+type Collision = {
 	x: Uint;
 	y: Uint;
 	v: Vertex;
@@ -58,7 +58,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, Wall[]>(),
-	      polyPoints: PolyPoint[] = [];
+	      collisions: Collision[] = [];
 	for (const {id, x1, y1, x2, y2, colour, scattering} of walls) {
 		const dx1 = x1 - lightX,
 		      dx2 = x2 - lightX,
@@ -126,19 +126,19 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		if (concave) {
 			v.point = ws;
 		}
-		polyPoints.push({
+		collisions.push({
 			x: ex,
 			y: ey,
 			v, // original
 			w: ws // hit
 		});
 	}
-	polyPoints.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
+	collisions.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
 	let p = "";
-	for (let i = 0; i < polyPoints.length; i++) {
-		const prev = polyPoints[i === 0 ? polyPoints.length - 1 : i - 1],
-		      curr = polyPoints[i],
-		      next = polyPoints[i === polyPoints.length - 1 ? 0 : i + 1];
+	for (let i = 0; i < collisions.length; i++) {
+		const prev = collisions[i === 0 ? collisions.length - 1 : i - 1],
+		      curr = collisions[i],
+		      next = collisions[i === collisions.length - 1 ? 0 : i + 1];
 		if (!isSameWall(prev.w, curr.w, next.w)) {
 			if (curr.w !== curr.v.point) {
 				if (isSameWall(prev.w, curr.w)) {
