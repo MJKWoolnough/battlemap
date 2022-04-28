@@ -42,12 +42,12 @@ const pi2 = Math.PI/2,
       isSameWall = (prev: Wall[], curr: Wall[], next?: Wall[]) => {
 	for (const p of prev) {
 		for (const c of curr) {
-			if (p === c) {
+			if (p.id === c.id) {
 				if (!next) {
 					return true;
 				}
 				for (const n of next) {
-					if (p === n) {
+					if (p.id === n.id) {
 						return true;
 					}
 				}
@@ -142,11 +142,11 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		const curr = collisions[i];
 		if (curr.w !== curr.v.point) {
 			if (isSameWall(collisions[i === 0 ? collisions.length - 1 : i - 1].w, curr.w)) {
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
 				polyPoints.push(curr);
+				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
 			} else {
-				polyPoints.push(curr);
 				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
+				polyPoints.push(curr);
 			}
 		} else {
 			polyPoints.push(curr);
