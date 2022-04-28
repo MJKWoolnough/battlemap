@@ -102,11 +102,12 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		const {x, y, angle, point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
-		      concave = isConcave(lightX, lightY, x, y, angle, point);
+		      concave = isConcave(lightX, lightY, x, y, angle, point),
+		      oDistance = Math.hypot(y - lightY, x - lightX);
 		let ex = x,
 		    ey = y,
 		    ws = point,
-		    ed = concave ? Math.hypot(y - lightY, x - lightX) : Infinity;
+		    ed = concave ? oDistance : Infinity;
 		for (const w of gWalls) {
 			const {x1, y1, x2, y2} = w,
 			      dx = x1 - x2,
@@ -128,7 +129,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				ws = [w];
 			}
 		}
-		if (concave) {
+		if (concave || oDistance > ed) {
 			v.point = ws;
 		}
 		collisions.push({
