@@ -283,7 +283,7 @@ SQRT3 = Math.sqrt(3),
 definitions = (() => {
 	const base = defs(masks[node]),
 	      list = new Map<string, SVGPatternElement>(),
-	      lighting = new Map<string, SVGFilterElement>();
+	      lighting: SVGRadialGradientElement[] = [];
 	let nextLightID = 0;
 	return {
 		get [node]() {return base;},
@@ -319,18 +319,20 @@ definitions = (() => {
 			}
 		},
 		addLighting(cx: Uint, cy: Uint, r: Uint, c: Colour) {
-			const id = `LG_${nextLightID++}`;
-			amendNode(base, radialGradient({id, r, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
+			const id = `LG_${nextLightID++}`,
+			      rg = radialGradient({id, r, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 				stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
 				stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
-			]));
+			      ]);
+			lighting.push(rg);
+			amendNode(base, rg);
 			return id;
 		},
 		clearLighting() {
-			for (const l of lighting.values()) {
+			for (const l of lighting) {
 				l.remove();
 			}
-			lighting.clear();
+			lighting.splice(0, lighting.length);
 			nextLightID = 0;
 		},
 		clear() {
