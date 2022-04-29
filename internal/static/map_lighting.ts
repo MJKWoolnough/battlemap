@@ -128,7 +128,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				ex = px;
 				ey = py;
 				ed = distance;
-				ws = [w];
+				ws = point ?? [w];
 			}
 		}
 		if (concave || oDistance > ed) {
