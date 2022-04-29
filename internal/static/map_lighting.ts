@@ -9,6 +9,7 @@ type Vertex = {
 	x: Int;
 	y: Int;
 	angle: number;
+	d: number;
 }
 
 type Collision = PolyPoint & {
@@ -81,7 +82,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 					point: points1,
 					x: x1,
 					y: y1,
-					angle: a1
+					angle: a1,
+					d: Math.hypot(dx1, dy1)
 				});
 			}
 			if (!points2.length) {
@@ -89,7 +91,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 					point: points2,
 					x: x2,
 					y: y2,
-					angle: a2
+					angle: a2,
+					d: Math.hypot(dx2, dy2)
 				});
 			};
 			points1.push(wall);
@@ -97,7 +100,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			gWalls.push(wall);
 		}
 	}
-	for (const v of vertices) {
+	for (const v of Array.from(vertices.values()).sort(({angle: aa, d: da}, {angle: ab, d: db}) => ab - aa || db - da)) {
 		const {x, y, angle, point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
@@ -131,14 +134,15 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		if (concave || oDistance > ed) {
 			v.point = ws;
 		}
-		collisions.push({
-			x: ex,
-			y: ey,
-			v, // original
-			w: ws // hit
-		});
+		if (!collisions.length || collisions[collisions.length - 1].x !== ex || collisions[collisions.length - 1].y !== ey) {
+			collisions.push({
+				x: ex,
+				y: ey,
+				v, // original
+				w: ws // hit
+			});
+		}
 	}
-	collisions.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
 	let lastWall: Wall[] | null = null,
 	    p = "";
 	for (let i = 0; i < collisions.length; i++) {
