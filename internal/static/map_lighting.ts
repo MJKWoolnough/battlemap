@@ -144,14 +144,14 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	for (let i = 0; i < collisions.length; i++) {
 		const curr = collisions[i];
 		if (curr.w !== curr.v.point) {
-			if (isSameWall(lastWall, curr.w)) {
-				polyPoints.push(curr);
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
-				lastWall = curr.v.point;
-			} else {
+			if (isSameWall(lastWall, curr.v.point)) {
 				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
 				polyPoints.push(curr);
 				lastWall = curr.w;
+			} else {
+				polyPoints.push(curr);
+				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
+				lastWall = curr.v.point;
 			}
 		} else {
 			polyPoints.push(curr);
