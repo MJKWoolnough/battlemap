@@ -5,10 +5,10 @@ import {definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
-	point: Wall[];
+	w: Wall[];
 	x: Int;
 	y: Int;
-	angle: number;
+	a: number;
 	d: number;
 }
 
@@ -79,19 +79,19 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []);
 			if (!points1.length) {
 				vertices.push({
-					point: points1,
+					w: points1,
 					x: x1,
 					y: y1,
-					angle: a1,
+					a: a1,
 					d: Math.hypot(dx1, dy1)
 				});
 			}
 			if (!points2.length) {
 				vertices.push({
-					point: points2,
+					w: points2,
 					x: x2,
 					y: y2,
-					angle: a2,
+					a: a2,
 					d: Math.hypot(dx2, dy2)
 				});
 			};
@@ -100,8 +100,8 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			gWalls.push(wall);
 		}
 	}
-	for (const v of Array.from(vertices.values()).sort(({angle: aa, d: da}, {angle: ab, d: db}) => ab - aa || da - db)) {
-		const {x, y, angle, point} = v,
+	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
+		const {x, y, a: angle, w: point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
 		      concave = isConcave(lightX, lightY, x, y, angle, point),
@@ -132,7 +132,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			}
 		}
 		if (concave || oDistance > ed) {
-			v.point = ws;
+			v.w = ws;
 		}
 		if (!collisions.length || collisions[collisions.length - 1].x !== ex || collisions[collisions.length - 1].y !== ey) {
 			collisions.push({
@@ -148,22 +148,22 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 	for (let i = 0; i < collisions.length; i++) {
 		const curr = collisions[i];
 		if (lastWall === null) {
-			if (curr.w === curr.v.point) {
+			if (curr.w === curr.v.w) {
 				lastWall = curr.w;
 			}
 			collisions.push(collisions.shift()!);
 			i--;
 			continue;
 		}
-		if (curr.w !== curr.v.point) {
-			if (isSameWall(lastWall, curr.v.point)) {
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
+		if (curr.w !== curr.v.w) {
+			if (isSameWall(lastWall, curr.v.w)) {
+				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.w});
 				polyPoints.push(curr);
 				lastWall = curr.w;
 			} else {
 				polyPoints.push(curr);
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
-				lastWall = curr.v.point;
+				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.w});
+				lastWall = curr.v.w;
 			}
 		} else {
 			polyPoints.push(curr);
