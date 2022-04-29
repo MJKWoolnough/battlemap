@@ -139,10 +139,18 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		});
 	}
 	collisions.sort(({v: {angle: a}}, {v: {angle: b}}) => b - a);
-	let lastWall = collisions[0].w,
+	let lastWall: Wall[] | null = null,
 	    p = "";
 	for (let i = 0; i < collisions.length; i++) {
 		const curr = collisions[i];
+		if (lastWall === null) {
+			if (curr.w === curr.v.point) {
+				lastWall = curr.w;
+			}
+			collisions.push(collisions.shift()!);
+			i--;
+			continue;
+		}
 		if (curr.w !== curr.v.point) {
 			if (isSameWall(lastWall, curr.v.point)) {
 				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.point});
