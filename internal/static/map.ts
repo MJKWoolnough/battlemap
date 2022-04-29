@@ -495,6 +495,7 @@ export default (base: HTMLElement) => {
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
 		if (token) {
+			const hasLight = token.lightColour.a && token.lightIntensity;
 			for (const k in ts) {
 				switch (k) {
 				case "id":
@@ -520,7 +521,10 @@ export default (base: HTMLElement) => {
 					(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 				}
 			}
-			token.updateNode()
+			if (hasLight || token.lightColour.a && token.lightIntensity) {
+				token.updateNode()
+			}
+			updateLight();
 		}
 	}),
 	rpc.waitTokenRemove().then(tk => {
