@@ -123,6 +123,14 @@
 	display: none;
 }
 
+#layerLight {
+	mix-blend-mode: multiply;
+}
+
+#layerLight > * {
+	mix-blend-mode: screen;
+}
+
 .isUser :is(.mapToken, .mapShape, .mapDrawing) {
 	transition-property: transform, width, height;
 	transition-duration: 1s;
