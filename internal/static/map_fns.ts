@@ -191,10 +191,14 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		return () => {};
 	}
 	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new drawingClass(tk) : new shapeClass(tk),
+	      hasLight = tk.lightIntensity && tk.lightColour.a,
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
 		tokens.set(id, {layer, token});
+		if (hasLight) {
+			updateLight();
+		}
 	      },
 	      doIt = (sendRPC = true) => {
 		if (sendRPC) {
@@ -209,6 +213,9 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		tokens.delete(token.id);
 		layer.tokens.pop();
 		queue(() => rpc.removeToken(token.id));
+		if (hasLight) {
+			updateLight();
+		}
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_ADD"]);
@@ -329,6 +336,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		return;
 	}
 	const pos = layer.tokens.findIndex(t => t === token),
+	      hasLight = token.lightIntensity && token.lightColour.a,
 	      doIt = (sendRPC = true) => {
 		if (token === selected.token) {
 			deselectToken();
@@ -336,7 +344,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		layer.tokens.splice(pos, 1);
 		tokens.delete(tk);
 		token.cleanup();
-		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+		if (hasLight) {
 			updateLight();
 		}
 		if (sendRPC) {
@@ -351,7 +359,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 			tokens.set(id, {layer, token});
 		}));
 		token.uncleanup();
-		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+		if (hasLight) {
 			updateLight();
 		}
 		return doIt;
