@@ -100,7 +100,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			gWalls.push(wall);
 		}
 	}
-	for (const v of Array.from(vertices.values()).sort(({angle: aa, d: da}, {angle: ab, d: db}) => ab - aa || db - da)) {
+	for (const v of Array.from(vertices.values()).sort(({angle: aa, d: da}, {angle: ab, d: db}) => ab - aa || da - db)) {
 		const {x, y, angle, point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
