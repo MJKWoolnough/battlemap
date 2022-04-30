@@ -129,10 +129,7 @@ setMapDetails = (details: MapDetails) => {
 	definitions.setGrid(details);
 	updateLight();
 },
-setLightColour = (c: Colour) => {
-	amendNode((getLayer("/Light") as SVGLayer)[node].firstChild!, {"fill": mapData.lightColour = c});
-	updateLight();
-},
+setLightColour = (c: Colour) => amendNode((getLayer("/Light") as SVGLayer)[node].firstChild!, {"fill": mapData.lightColour = c}),
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
 normaliseWall = (w: Wall) => {
