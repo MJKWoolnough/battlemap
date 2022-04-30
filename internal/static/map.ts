@@ -484,7 +484,7 @@ export default (base: HTMLElement) => {
 			}
 			newParent.tokens.splice(newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 			tk.layer = newParent;
-			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+			if (token.lightColour.a && token.lightIntensity) {
 				updateLight();
 			}
 		}
