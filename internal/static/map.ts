@@ -567,6 +567,7 @@ export default (base: HTMLElement) => {
 		const wall = walls.get(w.id);
 		if (wall) {
 			Object.assign(wall.wall, w);
+			updateLight();
 		}
 	});
 	rpc.waitMapDataSet().then(kd => {
