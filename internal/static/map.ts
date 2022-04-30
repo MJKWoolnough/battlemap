@@ -582,6 +582,9 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(masks.add);
 	rpc.waitMaskRemove().then(masks.remove);
 	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
-	rpc.waitGridDistanceChange().then(v => mapData.gridDistance = v);
+	rpc.waitGridDistanceChange().then(v => {
+		mapData.gridDistance = v;
+		updateLight();
+	});
 	rpc.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 };
