@@ -233,10 +233,11 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 		newPos = newParent.tokens.length;
 	}
 	let currentPos = layer.tokens.findIndex(t => t === token);
-	const doIt = (sendRPC = true) => {
+	const hasLight = token.lightColour.a && token.lightIntensity,
+	      doIt = (sendRPC = true) => {
 		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
 		tokens.get(id)!.layer = newParent;
-		if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+		if (hasLight) {
 			updateLight();
 		}
 		if (selected.token === token) {
