@@ -522,9 +522,9 @@ export default (base: HTMLElement) => {
 				}
 			}
 			if (hasLight || token.lightColour.a && token.lightIntensity) {
-				token.updateNode()
+				updateLight();
 			}
-			updateLight();
+			token.updateNode()
 		}
 	}),
 	rpc.waitTokenRemove().then(tk => {
