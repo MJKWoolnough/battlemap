@@ -472,6 +472,9 @@ export default (base: HTMLElement) => {
 			}
 			layer.tokens.push(token);
 			tokens.set(token.id, {layer, token});
+			if (token.lightColour.a && token.lightIntensity) {
+				updateLight();
+			}
 		}
 	}),
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
