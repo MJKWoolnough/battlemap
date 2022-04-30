@@ -14,7 +14,7 @@ import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
-import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
 import {SQRT3, SVGToken, deselectToken, outline, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
@@ -596,7 +596,10 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
 	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
 	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
-	combined.waitGridDistanceChange().then(v => mapData.gridDistance = v);
+	combined.waitGridDistanceChange().then(v => {
+		mapData.gridDistance = v;
+		updateLight();
+	});
 	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
