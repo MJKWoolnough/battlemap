@@ -105,7 +105,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		      dlx = lightX - x,
 		      dly = lightY - y,
 		      concave = isConcave(lightX, lightY, x, y, angle, point),
-		      oDistance = Math.hypot(y - lightY, x - lightX);
+		      oDistance = Math.hypot(x - lightX, y - lightY);
 		let ex = x,
 		    ey = y,
 		    ws = point,
@@ -121,7 +121,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			      py = (dy * a - dly * b) / d,
 			      lpx = lightX - px,
 			      lpy = lightY - py,
-			      distance = Math.hypot(lpy, lpx),
+			      distance = Math.hypot(lpx, lpy),
 			      point = points.get(`${px},${py}`);
 			if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 
