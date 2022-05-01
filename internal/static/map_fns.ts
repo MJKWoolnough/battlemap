@@ -472,6 +472,30 @@ doWallModify = (wall: Wall, sendRPC = true) => {
 	};
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_MODIFY"]);
 },
+doWallMove = (wall: Uint, path: string, sendRPC = true) => {
+	const wl = walls.get(wall);
+	if (!wl) {
+		handleError("invalid wall to modify");
+		return;
+	}
+	let oldLayer = wl.layer,
+	    oldPath = oldLayer.path,
+	    newLayer = getLayer(path) as SVGLayer;
+	if (!newLayer || !isSVGLayer(newLayer)) {
+		handleError("invalid layer for wall move")
+		return;
+	}
+	const doIt = (sendRPC = true) => {
+		wl.layer = newLayer;
+		newLayer.walls.push(oldLayer.walls.splice(oldLayer.walls.findIndex(({id}) => id === wall), 1)[0]);
+		if (sendRPC) {
+			queue(rpc.moveWall.bind(rpc, wall, path));
+		}
+		[oldLayer, oldPath, newLayer, path] = [newLayer, path, oldLayer, oldPath];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang["UNDO_WALL_MOVE"]);
+},
 doMapDataSet = (key: string, data: any, sendRPC = true) => {
 	const oldData = mapData.data[key],
 	      doIt = (sendRPC = true) => {
