@@ -62,6 +62,7 @@ export type RPCWaits = {
 	waitWallAdded:               () => Subscription<WallPath>;
 	waitWallRemoved:             () => Subscription<Uint>;
 	waitWallModified:            () => Subscription<Wall>;
+	waitWallMoved:               () => Subscription<IDPath>;
 	waitMusicPackAdd:            () => Subscription<IDName>;
 	waitMusicPackRename:         () => Subscription<IDName>;
 	waitMusicPackRemove:         () => Subscription<Uint>;
@@ -135,6 +136,7 @@ export type RPC = RPCWaits & {
 	addWall:          (path: string, wall: Wall)                                             => Promise<Uint>;
 	removeWall:       (id: Uint)                                                             => Promise<void>;
 	modifyWall:       (w: Wall)                                                              => Promise<void>;
+	moveWall:         (id: Uint, path: string)                                               => Promise<void>;
 
 	musicPackList:        ()                                             => Promise<MusicPack[]>;
 	musicPackAdd:         (name: string)                                 => Promise<IDName>;
