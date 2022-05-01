@@ -76,6 +76,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
 			["waitWallRemoved",          broadcastWallRemove,           checkUint],
 			["waitWallModified",         broadcastWallModify,           checkWall],
+			["waitWallMoved",            broadcastWallMoveLayer,        checkIDPath],
 			["waitMusicPackAdd",         broadcastMusicPackAdd,         checkIDName],
 			["waitMusicPackRename",      broadcastMusicPackRename,      checkIDName],
 			["waitMusicPackRemove",      broadcastMusicPackRemove,      checkUint],
@@ -174,6 +175,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["addWall",          "maps.addWall",          ["path", "wall"],                           checkUint,        "waitWallAdded", "wall/id"],
 			["removeWall",       "maps.removeWall",        "!",                                       returnVoid,       "waitWallRemoved", ""],
 			["modifyWall",       "maps.modifyWall",        "!",                                       returnVoid,       "waitWallModified", ""],
+			["moveWall",         "maps.moveWall",         ["id", "path"],                             returnVoid,       "waitWallMoved", ""],
 
 			["musicPackList",        "music.list",            "",                              checkMusicPacks, "", ""],
 			["musicPackAdd",         "music.new",             "!",                             checkIDName,     "waitMusicPackAdd", "*"],
