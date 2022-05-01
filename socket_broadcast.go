@@ -79,6 +79,7 @@ const (
 	broadcastWallAdd
 	broadcastWallRemove
 	broadcastWallModify
+	broadcastWallMoveLayer
 
 	broadcastMusicPackAdd
 	broadcastMusicPackRename
