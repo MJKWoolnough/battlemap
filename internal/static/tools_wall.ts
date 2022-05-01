@@ -1,5 +1,9 @@
 import type {Byte, RPCWaits, Uint, Wall} from './types.js';
+import type {List} from './lib/context.js';
+import type {NodeArray} from './lib/nodes.js';
+import type {SVGFolder, SVGLayer} from './map.js';
 import type {WindowElement} from './windows.js';
+import place, {item, menu} from './lib/context.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {setDragEffect} from './lib/drag.js';
@@ -8,8 +12,8 @@ import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
 import {Colour, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
-import {root, screen2Grid} from './map.js';
-import {doWallAdd, doWallModify, doWallRemove} from './map_fns.js';
+import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
+import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
@@ -19,6 +23,7 @@ import {addTool, marker, optionsWindow} from './tools.js';
 let wallColour = hex2Colour("#000"),
     active = false,
     selectedWall = 0,
+    selectedLayer: SVGLayer | null = null,
     selectedMarker = 0,
     w: WindowElement | null = null;
 
@@ -88,12 +93,19 @@ const updateCursorState = () => {
 		doWallModify(Object.assign(cloneObject(wall.wall), override));
 	}
       },
+      makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(fn, disabled, e)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
       wallOverlay = div({"style": {"position": "absolute", "height": "10px"}, "draggable": "true", "ondragstart": (e: DragEvent) => {
 	if (walls.has(selectedWall)) {
 		dragColour.set(e, colourDragKey, iconImg);
 		dragScattering.set(e, scatteringDragKey);
 	}
-      }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: Event) => e.stopPropagation()}),
+      }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: MouseEvent) => {
+	e.stopPropagation();
+	if (e.button === 2 && selectedLayer) {
+		const wall = selectedWall;
+		place(document.body, [e.clientX, e.clientY], [menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => doWallMove(wall, sl.path), selectedLayer.name))]);
+	}
+      }}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
       genWalls = () => {
 	clearNode(wallLayer);
@@ -104,7 +116,7 @@ const updateCursorState = () => {
 			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				if (selectWall.checked) {
 					const wall = walls.get(id);
-					if (wall) {
+					if (wall && e.button === 0) {
 						const {x1, y1, x2, y2} = wall.wall,
 						      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
 						amendNode(wallOverlay, {"style": {"width": width + "px"}});
@@ -114,6 +126,7 @@ const updateCursorState = () => {
 							amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
 						]);
 						selectedWall = id;
+						selectedLayer = layer;
 						startWallDelete();
 						startWallEscape();
 						e.stopPropagation();
@@ -177,6 +190,7 @@ const updateCursorState = () => {
       }),
       deselectWall = () => {
 	selectedWall = 0;
+	selectedLayer = null;
 	fWallOverlay.remove();
 	draggableMarker1.remove();
 	draggableMarker2.remove();
@@ -252,7 +266,7 @@ inited.then(() => {
 			setTimeout(genWalls, 0);
 		}
 	};
-	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]) {
+	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]) {
 		(combined as Omit<typeof combined, "images" | "audio" | "characters" | "map">)[wait]().then(gw);
 	}
 });
