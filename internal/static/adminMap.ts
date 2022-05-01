@@ -37,7 +37,7 @@ export default (base: HTMLElement) => {
 	    moved = false,
 	    overOutline = false;
 
-	const makeLayerContext = (folder: SVGFolder, fn: (sl: SVGLayer) => void, disabled = ""): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(e, fn, disabled)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+	const makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(fn, disabled, e)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
@@ -525,7 +525,7 @@ export default (base: HTMLElement) => {
 						}
 					})
 				] : [],
-				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext(layerList, (sl: SVGLayer) => {
+				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => {
 					if (tokens.has(currToken.id)) {
 						doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
 					}
