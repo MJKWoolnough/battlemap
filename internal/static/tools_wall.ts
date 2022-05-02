@@ -104,6 +104,24 @@ const updateCursorState = () => {
 	if (e.button === 2 && selectedLayer) {
 		const wallID = selectedWall;
 		place(document.body, [e.clientX, e.clientY], [
+			item(lang["TOOL_WALL_COLOUR_SET"], () => {
+				if (selectedWall === wallID) {
+					const wall = walls.get(wallID);
+					if (wall) {
+						wall.wall["colour"] = wallColour;
+						doWallModify(cloneObject(wall.wall));
+					}
+				}
+			}),
+			item(lang["TOOL_WALL_SCATTER_SET"], () => {
+				if (selectedWall === wallID) {
+					const wall = walls.get(wallID);
+					if (wall) {
+						wall.wall["scattering"] = checkInt(parseInt(scatteringI.value), 0, 255, 0);
+						doWallModify(cloneObject(wall.wall));
+					}
+				}
+			}),
 			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => {
 				if (selectedWall === wallID) {
 					doWallMove(wallID, sl.path);
