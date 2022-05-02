@@ -469,7 +469,7 @@ doWallModify = (wall: Wall, sendRPC = true) => {
 		updateLight();
 		[oldWall, wall] = [wall, oldWall];
 		return doIt;
-	};
+	      };
 	undo.add(doIt(sendRPC), lang["UNDO_WALL_MODIFY"]);
 },
 doWallMove = (wall: Uint, path: string, sendRPC = true) => {
