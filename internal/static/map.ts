@@ -573,6 +573,15 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
+	rpc.waitWallMoved().then(({id, path}) => {
+		const wall = walls.get(id),
+		      layer = getLayer(path);
+		if (wall && layer && isSVGLayer(layer)) {
+			wall.layer.walls.splice(wall.layer.walls.findIndex(w => w === wall.wall));
+			layer.walls.push(wall.wall);
+			wall.layer = layer;
+		}
+	});
 	rpc.waitMapDataSet().then(kd => {
 		if (kd.key) {
 			mapData.data[kd.key] = kd.data;
