@@ -102,12 +102,16 @@ const updateCursorState = () => {
       }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: MouseEvent) => {
 	e.stopPropagation();
 	if (e.button === 2 && selectedLayer) {
-		const wall = selectedWall;
+		const wallID = selectedWall;
 		place(document.body, [e.clientX, e.clientY], [
-			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => doWallMove(wall, sl.path), selectedLayer.name)),
+			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => {
+				if (selectedWall === wallID) {
+					doWallMove(wallID, sl.path);
+				}
+			}, selectedLayer.name)),
 			item(lang["CONTEXT_DELETE"], () => {
-				if (selectedWall) {
-					doWallRemove(selectedWall);
+				if (selectedWall === wallID) {
+					doWallRemove(wallID);
 					deselectWall();
 				}
 			})
