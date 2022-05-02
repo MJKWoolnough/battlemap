@@ -138,11 +138,23 @@ func (m *mapsDir) updateMapData(id uint64, fn func(*levelMap) bool) error {
 	return nil
 }
 
-func (m *mapsDir) updateMapLayer(mid uint64, path string, fn func(*levelMap, *layer) bool) error {
+type layerType uint8
+
+const (
+	anyLayer layerType = iota
+	tokenLayer
+	folderLayer
+)
+
+func (m *mapsDir) updateMapLayer(mid uint64, path string, lt layerType, fn func(*levelMap, *layer) bool) error {
 	var err error
 	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
 		l := getLayer(&mp.layer, path)
 		if l != nil {
+			if lt == tokenLayer && l.Layers != nil || lt == folderLayer && l.Layers == nil {
+				err = ErrInvalidLayerPath
+				return false
+			}
 			return fn(mp, l)
 		}
 		err = ErrUnknownLayer

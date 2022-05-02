@@ -263,7 +263,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if !validTokenLayer(wallAdd.Path) {
 			return nil, ErrInvalidLayerPath
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, func(mp *levelMap, l *layer) bool {
+		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, tokenLayer, func(mp *levelMap, l *layer) bool {
 			if _, ok := mp.walls[wallAdd.Wall.ID]; ok || wallAdd.Wall.ID == 0 || wallAdd.Wall.ID > mp.lastWallID {
 				mp.lastWallID++
 				wallAdd.Wall.ID = mp.lastWallID
@@ -343,7 +343,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		var errr error
-		if err := m.updateMapLayer(cd.CurrentMap, ip.Path+"/", func(mp *levelMap, l *layer) bool {
+		if err := m.updateMapLayer(cd.CurrentMap, ip.Path+"/", tokenLayer, func(mp *levelMap, l *layer) bool {
 			lw, ok := mp.walls[ip.ID]
 			if !ok {
 				errr = ErrInvalidWall
@@ -389,7 +389,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, err
 		}
 		parent, name := splitAfterLastSlash(path)
-		err := m.updateMapLayer(cd.CurrentMap, parent, func(lm *levelMap, l *layer) bool {
+		err := m.updateMapLayer(cd.CurrentMap, parent, folderLayer, func(lm *levelMap, l *layer) bool {
 			newName := uniqueLayer(lm.layers, name)
 			if newName != name {
 				name = newName
@@ -415,7 +415,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if !validTokenLayer(rename.Path) {
 			return nil, ErrInvalidLayerPath
 		}
-		err := m.updateMapLayer(cd.CurrentMap, rename.Path, func(lm *levelMap, l *layer) bool {
+		err := m.updateMapLayer(cd.CurrentMap, rename.Path, anyLayer, func(lm *levelMap, l *layer) bool {
 			if l.Name == rename.Name {
 				return false
 			}
@@ -469,7 +469,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if len(path) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, path, func(_ *levelMap, l *layer) bool {
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayer, func(_ *levelMap, l *layer) bool {
 			if !l.Hidden {
 				return false
 			}
@@ -485,7 +485,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if len(path) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, path, func(_ *levelMap, l *layer) bool {
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayer, func(_ *levelMap, l *layer) bool {
 			if l.Hidden {
 				return false
 			}
@@ -503,7 +503,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, ErrInvalidLayerPath
 		}
 		parent, name := splitAfterLastSlash(path)
-		err = m.updateMapLayer(cd.CurrentMap, parent, func(mp *levelMap, l *layer) bool {
+		err = m.updateMapLayer(cd.CurrentMap, parent, anyLayer, func(mp *levelMap, l *layer) bool {
 			l.removeLayer(name)
 			delete(mp.layers, name)
 			m.socket.broadcastMapChange(cd, broadcastLayerRemove, data, userAny)
@@ -525,7 +525,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := newToken.Token.validate(false); err != nil {
 			return nil, err
 		}
-		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, func(mp *levelMap, l *layer) bool {
+		if err := m.updateMapLayer(cd.CurrentMap, newToken.Path, tokenLayer, func(mp *levelMap, l *layer) bool {
 			if _, ok := mp.tokens[newToken.Token.ID]; ok || newToken.Token.ID == 0 {
 				mp.lastTokenID++
 				newToken.Token.ID = mp.lastTokenID
@@ -830,7 +830,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if layerShift.DX == 0 && layerShift.DY == 0 {
 			return nil, nil
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, layerShift.Path, func(mp *levelMap, l *layer) bool {
+		return nil, m.updateMapLayer(cd.CurrentMap, layerShift.Path, tokenLayer, func(mp *levelMap, l *layer) bool {
 			for _, t := range l.Tokens {
 				t.X += layerShift.DX
 				t.Y += layerShift.DY
