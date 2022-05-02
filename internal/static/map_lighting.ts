@@ -101,6 +101,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		}
 	}
 	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
+		if (collisions.length && collisions[collisions.length - 1].v.a === v.a) {
+			continue;
+		}
 		const {x, y, a: angle, w: point} = v,
 		      dlx = lightX - x,
 		      dly = lightY - y,
@@ -136,14 +139,12 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		if (concave || oDistance > ed) {
 			v.w = ws;
 		}
-		if (!collisions.length || collisions[collisions.length - 1].x !== ex || collisions[collisions.length - 1].y !== ey) {
-			collisions.push({
-				x: ex,
-				y: ey,
-				v, // original
-				w: ws // hit
-			});
-		}
+		collisions.push({
+			x: ex,
+			y: ey,
+			v, // original
+			w: ws // hit
+		});
 	}
 	let lastWall: Wall[] | null = null,
 	    p = "";
