@@ -103,7 +103,15 @@ const updateCursorState = () => {
 	e.stopPropagation();
 	if (e.button === 2 && selectedLayer) {
 		const wall = selectedWall;
-		place(document.body, [e.clientX, e.clientY], [menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => doWallMove(wall, sl.path), selectedLayer.name))]);
+		place(document.body, [e.clientX, e.clientY], [
+			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => doWallMove(wall, sl.path), selectedLayer.name)),
+			item(lang["CONTEXT_DELETE"], () => {
+				if (selectedWall) {
+					doWallRemove(selectedWall);
+					deselectWall();
+				}
+			})
+		]);
 	}
       }}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
