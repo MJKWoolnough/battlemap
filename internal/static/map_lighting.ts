@@ -114,21 +114,23 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			const {x1, y1, x2, y2} = w,
 			      dx = x1 - x2,
 			      dy = y1 - y2,
-			      d = dlx * dy - dly * dx,
-			      a = (lightX * y - lightY * x),
-			      b = (x1 * y2 - y1 * x2),
-			      px = (dx * a - dlx * b) / d,
-			      py = (dy * a - dly * b) / d,
-			      lpx = lightX - px,
-			      lpy = lightY - py,
-			      distance = Math.hypot(lpx, lpy),
-			      point = points.get(`${px},${py}`);
-			if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+			      d = dlx * dy - dly * dx;
+			if (d) {
+				const a = (lightX * y - lightY * x),
+				      b = (x1 * y2 - y1 * x2),
+				      px = (dx * a - dlx * b) / d,
+				      py = (dy * a - dly * b) / d,
+				      lpx = lightX - px,
+				      lpy = lightY - py,
+				      distance = Math.hypot(lpx, lpy),
+				      point = points.get(`${px},${py}`);
+				if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 
-				ex = px;
-				ey = py;
-				ed = distance;
-				ws = point ?? [w];
+					ex = px;
+					ey = py;
+					ed = distance;
+					ws = point ?? [w];
+				}
 			}
 		}
 		if (concave || oDistance > ed) {
