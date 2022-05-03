@@ -109,7 +109,7 @@ func (l *levelMap) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (l *levelMap) validate() error {
-	return l.layer.validate(l.layers, l, true)
+	return l.layer.validate(l, true)
 }
 
 type layer struct {
@@ -120,8 +120,8 @@ type layer struct {
 	Layers []*layer `json:"children"`
 }
 
-func (l *layer) validate(layers map[string]struct{}, lm *levelMap, first bool) error {
-	if _, ok := layers[l.Name]; ok {
+func (l *layer) validate(lm *levelMap, first bool) error {
+	if _, ok := lm.layers[l.Name]; ok {
 		return ErrDuplicateLayer
 	}
 	lm.layers[l.Name] = struct{}{}
@@ -136,7 +136,7 @@ func (l *layer) validate(layers map[string]struct{}, lm *levelMap, first bool) e
 		if !first && (l.Name == "Grid" || l.Name == "Light") {
 			return ErrInvalidLayer
 		}
-		if err := layer.validate(layers, lm, false); err != nil {
+		if err := layer.validate(lm, false); err != nil {
 			return err
 		}
 	}
