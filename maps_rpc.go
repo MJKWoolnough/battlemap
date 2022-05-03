@@ -793,9 +793,11 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenLayerPos); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayerPos.ID, func(mp *levelMap, l *layer, tk *token) bool {
+		var err error
+		if errr := m.updateMapsLayerToken(cd.CurrentMap, tokenLayerPos.ID, func(mp *levelMap, l *layer, tk *token) bool {
 			ml := getLayer(&mp.layer, tokenLayerPos.To)
 			if ml == nil || ml.Layers != nil {
+				err = ErrInvalidLayerPath
 				return false
 			}
 			l.removeToken(tokenLayerPos.ID)
@@ -805,7 +807,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			m.socket.broadcastMapChange(cd, broadcastTokenMoveLayerPos, data, userAny)
 			return true
-		})
+		}); errr != nil {
+			return nil, errr
+		}
+		return nil, err
 	case "shiftLayer":
 		var layerShift struct {
 			Path string `json:"path"`
