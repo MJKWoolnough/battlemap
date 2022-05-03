@@ -153,21 +153,19 @@ const updateCursorState = () => {
 				hasSelected = true;
 			}
 			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
-				if (selectWall.checked) {
-					if (wall && e.button === 0) {
-						const width = Math.round(Math.hypot(x1 - x2, y1 - y2));
-						amendNode(wallOverlay, {"style": {"width": width + "px"}});
-						amendNode(root, [
-							amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`}),
-							amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
-							amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
-						]);
-						selectedWall = id;
-						selectedLayer = layer;
-						startWallDelete();
-						startWallEscape();
-						e.stopPropagation();
-					}
+				if (selectWall.checked && wall && e.button === 0) {
+					const width = Math.round(Math.hypot(x1 - x2, y1 - y2));
+					amendNode(wallOverlay, {"style": {"width": width + "px"}});
+					amendNode(root, [
+						amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`}),
+						amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
+						amendNode(draggableMarker2, {"transform": `translate(${x2 - 10}, ${y2 - 10})`})
+					]);
+					selectedWall = id;
+					selectedLayer = layer;
+					startWallDelete();
+					startWallEscape();
+					e.stopPropagation();
 				}
 			}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
 		}
