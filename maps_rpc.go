@@ -260,9 +260,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &wallAdd); err != nil {
 			return nil, err
 		}
-		if !validTokenLayer(wallAdd.Path) {
-			return nil, ErrInvalidLayerPath
-		}
 		if err := m.updateMapLayer(cd.CurrentMap, wallAdd.Path, tokenLayer, func(mp *levelMap, l *layer) bool {
 			if _, ok := mp.walls[wallAdd.Wall.ID]; ok || wallAdd.Wall.ID == 0 || wallAdd.Wall.ID > mp.lastWallID {
 				mp.lastWallID++
@@ -412,9 +409,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &rename); err != nil {
 			return nil, err
 		}
-		if !validTokenLayer(rename.Path) {
-			return nil, ErrInvalidLayerPath
-		}
 		err := m.updateMapLayer(cd.CurrentMap, rename.Path, anyLayer, func(lm *levelMap, l *layer) bool {
 			if l.Name == rename.Name {
 				return false
@@ -439,7 +433,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if !validTokenLayer(moveLayer.From) && moveLayer.To != "/" {
+		if (moveLayer.From == "/Light" || moveLayer.From == "Grid") && moveLayer.To != "/" {
 			return nil, ErrInvalidLayerPath
 		}
 		if e := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
@@ -499,10 +493,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if !validTokenLayer(path) {
+		parent, name := splitAfterLastSlash(path)
+		if name == "Light" || name == "Grid" {
 			return nil, ErrInvalidLayerPath
 		}
-		parent, name := splitAfterLastSlash(path)
 		err = m.updateMapLayer(cd.CurrentMap, parent, anyLayer, func(mp *levelMap, l *layer) bool {
 			l.removeLayer(name)
 			delete(mp.layers, name)
@@ -518,9 +512,6 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		newToken.Token = new(token)
 		if err := json.Unmarshal(data, &newToken); err != nil {
 			return nil, err
-		}
-		if !validTokenLayer(newToken.Path) {
-			return nil, ErrInvalidLayerPath
 		}
 		if err := newToken.Token.validate(false); err != nil {
 			return nil, err
@@ -802,12 +793,9 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &tokenLayerPos); err != nil {
 			return nil, err
 		}
-		if len(tokenLayerPos.To) == 0 || !validTokenLayer(tokenLayerPos.To) {
-			return nil, ErrInvalidLayerPath
-		}
 		return nil, m.updateMapsLayerToken(cd.CurrentMap, tokenLayerPos.ID, func(mp *levelMap, l *layer, tk *token) bool {
 			ml := getLayer(&mp.layer, tokenLayerPos.To)
-			if ml == nil {
+			if ml == nil || ml.Layers != nil {
 				return false
 			}
 			l.removeToken(tokenLayerPos.ID)
@@ -969,8 +957,4 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		return data, nil
 	}
 	return m.folders.RPCData(cd, method, data)
-}
-
-func validTokenLayer(path string) bool {
-	return path != "/Grid" && path != "/Light"
 }
