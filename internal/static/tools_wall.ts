@@ -154,10 +154,8 @@ const updateCursorState = () => {
 			}
 			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				if (selectWall.checked) {
-					const wall = walls.get(id);
 					if (wall && e.button === 0) {
-						const {x1, y1, x2, y2} = wall.wall,
-						      width = Math.round(Math.hypot(x1 - x2, y1 - y2));
+						const width = Math.round(Math.hypot(x1 - x2, y1 - y2));
 						amendNode(wallOverlay, {"style": {"width": width + "px"}});
 						amendNode(root, [
 							amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`}),
