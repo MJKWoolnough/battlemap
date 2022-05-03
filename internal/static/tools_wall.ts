@@ -293,7 +293,7 @@ addTool({
 inited.then(() => {
 	const gw = () => {
 		if (active) {
-			setTimeout(genWalls, 0);
+			setTimeout(genWalls);
 		}
 	};
 	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]) {
