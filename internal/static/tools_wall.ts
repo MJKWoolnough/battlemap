@@ -140,9 +140,11 @@ const updateCursorState = () => {
       genWalls = () => {
 	clearNode(wallLayer);
 	wallMap.clear();
+	let hasSelected = false;
 	for (const {layer, wall} of walls.values()) {
 		if (!layer.hidden) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
+			hasSelected ||= id === selectedWall;
 			amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 				if (selectWall.checked) {
 					const wall = walls.get(id);
@@ -165,7 +167,7 @@ const updateCursorState = () => {
 			}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
 		}
 	}
-	if (selectedWall && !walls.has(selectedWall)) {
+	if (!hasSelected) {
 		deselectWall();
 	}
       },
