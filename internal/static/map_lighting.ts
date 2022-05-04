@@ -219,9 +219,9 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		}
 	}
 	for (let i = 0; i < polyPoints.length; i++) {
-		const curr = polyPoints[i];
-		if (!isSameWall(polyPoints[i === 0 ? polyPoints.length - 1 : i - 1].w, curr.w, polyPoints[i === polyPoints.length - 1 ? 0 : i + 1].w)) {
-			p += `${curr.x},${curr.y} `;
+		const {w, x, y} = polyPoints[i];
+		if (!isSameWall(polyPoints[i === 0 ? polyPoints.length - 1 : i - 1].w, w, polyPoints[i === polyPoints.length - 1 ? 0 : i + 1].w)) {
+			p += `${x},${y} `;
 		}
 	}
 	return polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`});
