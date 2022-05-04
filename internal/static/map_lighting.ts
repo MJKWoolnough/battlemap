@@ -226,11 +226,11 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			if (lastPoint[2]) {
 				const sw = isSameWall(lastPoint[2], w);
 				if (sw) {
-					const {colour: {r, g, b, a}, x1, y1, x2, y2} = sw,
+					const {id, colour: {r, g, b, a}, x1, y1, x2, y2} = sw,
 					      {r: lr, g: lg, b: lb, a: la} = c,
 					      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY),
 					      fw = {
-						"id": -5,
+						id,
 						"x1": x,
 						"y1": y,
 						"x2": lastPoint[0],
