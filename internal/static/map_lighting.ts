@@ -185,10 +185,10 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			v.w = ws;
 		}
 		collisions.push({
-			x: ex,
-			y: ey,
+			"x": ex,
+			"y": ey,
 			v, // original
-			w: ws // hit
+			"w": ws // hit
 		});
 	}
 	let lastWall: Wall[] | null = null,
@@ -235,8 +235,8 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						"y1": y,
 						"x2": lastPoint[0],
 						"y2": lastPoint[1],
-						colour: noColour,
-						scattering: 0
+						"colour": noColour,
+						"scattering": 0
 					      };
 					if (cd < i) {
 						if (a < 255) {
