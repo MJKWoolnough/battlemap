@@ -80,7 +80,7 @@ const pi2 = Math.PI/2,
 	return [x3, y3, Math.hypot(x3 - lightX, y3 - lightY)];
       };
 
-export const makeLight = (l: LightSource, walls: Wall[]) => {
+export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
@@ -122,7 +122,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			};
 			points1.push(wx);
 			points2.push(wx);
-			gWalls.push(wx);
+			if (wall.id === lens?.id) {
+				gWalls.push(wx);
+			}
 		}
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
@@ -138,7 +140,22 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		let ex = x,
 		    ey = y,
 		    ws = point,
-		    ed = concave ? oDistance : Infinity;
+		    ed = concave ? oDistance : Infinity,
+		    min = 0;
+		if (lens) {
+			const {x1, y1, x2, y2} = lens,
+			      dx = x1 - x2,
+			      dy = y1 - y2,
+			      d = dlx * dy - dly * dx,
+			      a = (lightX * y - lightY * x),
+			      b = (x1 * y2 - y1 * x2),
+			      px = (dx * a - dlx * b) / d,
+			      py = (dy * a - dly * b) / d;
+			if (px < Math.min(x1, x2) || px > Math.max(x1, x2) || py < Math.min(y1, y2) || py > Math.max(y1, y2)) {
+				continue;
+			}
+			min = Math.hypot(lightX - px, lightY - py);
+		}
 		for (const w of gWalls) {
 			if (w.cl > ed) {
 				break;
@@ -156,7 +173,7 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
