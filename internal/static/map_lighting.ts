@@ -50,17 +50,17 @@ const pi2 = Math.PI/2,
 		for (const c of curr) {
 			if (p.id === c.id) {
 				if (!next) {
-					return true;
+					return p;
 				}
 				for (const n of next) {
 					if (p.id === n.id) {
-						return true;
+						return p;
 					}
 				}
 			}
 		}
 	}
-	return false;
+	return null;
       },
       closestPoint = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, lightX: Uint, lightY: Uint) => {
 	if (x1 === x2) {
