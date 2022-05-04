@@ -22,6 +22,12 @@ type PolyPoint = {
 	w: Wall[];
 }
 
+type XWall = Wall & {
+	cx: Int;
+	cy: Int;
+	cl: Uint;
+}
+
 export type LightSource = [Colour, Uint, Int, Int];
 
 const pi2 = Math.PI/2,
@@ -55,15 +61,32 @@ const pi2 = Math.PI/2,
 		}
 	}
 	return false;
+      },
+      closestPoint = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, lightX: Uint, lightY: Uint) => {
+	if (x1 === x2) {
+		const min = Math.min(y1, y2),
+		      max = Math.max(y1, y2),
+		      y = min > lightY ? min : max < lightY ? max : lightY;
+		return [x1, y, Math.hypot(x1 - lightX, y - lightY)];
+	}
+	const m = (y2 - y1) / (x2 - x1),
+	      x3 = lightX - ((y1 - lightY) - (x1 - lightX) * m) / (m + 1 / m),
+	      y3 = m * x3 + (y1 - x1 * m);
+	if (x3 < Math.min(x1, x2) || x3 > Math.max(x1, x2)) {
+		const a = Math.hypot(x1 - lightX, y1 - lightY),
+		      b = Math.hypot(x2 - lightX, y2 - lightY);
+		return a < b ? [x1, y1, a] : [x2, y2, b];
+	}
+	return [x3, y3, Math.hypot(x3 - lightX, y3 - lightY)];
       };
 
 export const makeLight = (l: LightSource, walls: Wall[]) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
-	      points = new Map<string, Wall[]>(),
+	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
 	      polyPoints: PolyPoint[] = [],
-	      gWalls: Wall[] = [];
+	      gWalls: XWall[] = [];
 	for (const wall of walls) {
 		const {x1, y1, x2, y2} = wall,
 		      dx1 = x1 - lightX,
@@ -76,7 +99,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 			      p1 = `${x1},${y1}`,
 			      p2 = `${x2},${y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
-			      points2 = points.get(p2) ?? setAndReturn(points, p2, []);
+			      points2 = points.get(p2) ?? setAndReturn(points, p2, []),
+			      [cx, cy, cl] = closestPoint(x1, y1, x2, y2, lightX, lightY),
+			      wx = Object.assign({cx, cy, cl}, wall);
 			if (!points1.length) {
 				vertices.push({
 					w: points1,
@@ -95,11 +120,12 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 					d: Math.hypot(dx2, dy2)
 				});
 			};
-			points1.push(wall);
-			points2.push(wall);
-			gWalls.push(wall);
+			points1.push(wx);
+			points2.push(wx);
+			gWalls.push(wx);
 		}
 	}
+	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
 	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
 		if (collisions.length && collisions[collisions.length - 1].v.a === v.a) {
 			continue;
@@ -114,6 +140,9 @@ export const makeLight = (l: LightSource, walls: Wall[]) => {
 		    ws = point,
 		    ed = concave ? oDistance : Infinity;
 		for (const w of gWalls) {
+			if (w.cl > ed) {
+				break;
+			}
 			const {x1, y1, x2, y2} = w,
 			      dx = x1 - x2,
 			      dy = y1 - y2,
