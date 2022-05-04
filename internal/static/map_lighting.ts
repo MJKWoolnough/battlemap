@@ -1,6 +1,6 @@
 import type {Int, Uint, Wall} from './types.js';
-import type {Colour} from './colours.js';
 import {polygon} from './lib/svg.js';
+import {Colour, noColour} from './colours.js';
 import {definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
@@ -192,7 +192,8 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		});
 	}
 	let lastWall: Wall[] | null = null,
-	    p = "";
+	    p = "",
+	    lastPoint: [number, number, Wall[]] = [NaN, NaN, []];
 	for (let i = 0; i < collisions.length; i++) {
 		const curr = collisions[i];
 		if (lastWall === null) {
@@ -222,6 +223,36 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		const {w, x, y} = polyPoints[i];
 		if (!isSameWall(polyPoints[i === 0 ? polyPoints.length - 1 : i - 1].w, w, polyPoints[i === polyPoints.length - 1 ? 0 : i + 1].w)) {
 			p += `${x},${y} `;
+			if (lastPoint[2]) {
+				const sw = isSameWall(lastPoint[2], w);
+				if (sw) {
+					const {colour: {r, g, b, a}, x1, y1, x2, y2} = sw,
+					      {r: lr, g: lg, b: lb, a: la} = c,
+					      inva = 1 - (la / 255),
+					      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
+					if (cd < i) {
+						if (a < 255) {
+							makeLight([
+								Colour.from({"r": Math.pow(r * lr, 0.5) * inva, "g": Math.pow(g * lg, 0.5) * inva, "b": Math.pow(b * lb, 0.5) * inva, "a": inva * a}),
+								cd + (i - cd) * inva,
+								lightX,
+								lightY
+							], walls, {
+								"id": -5,
+								"x1": x,
+								"y1": y,
+								"x2": lastPoint[0],
+								"y2": lastPoint[1],
+								colour: noColour,
+								scattering: 0
+							});
+						}
+					}
+				}
+			}
+			lastPoint[0] = x;
+			lastPoint[1] = y;
+			lastPoint[2] = w;
 		}
 	}
 	return polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`});
