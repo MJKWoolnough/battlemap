@@ -231,17 +231,17 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 					const {id, colour: {r, g, b, a}, x1, y1, x2, y2} = sw;
 					if (r || g || b) {
 						const {r: lr, g: lg, b: lb, a: la} = c,
-						      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY),
-						      fw = {
-							id,
-							"x1": x,
-							"y1": y,
-							"x2": lastPoint[0],
-							"y2": lastPoint[1],
-							"colour": noColour,
-							"scattering": 0
-						      };
+						      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
 						if (cd < i) {
+							const fw = {
+								id,
+								"x1": x,
+								"y1": y,
+								"x2": lastPoint[0],
+								"y2": lastPoint[1],
+								"colour": noColour,
+								"scattering": 0
+							      };
 							if (a < 255) {
 								const inva = 1 - (la / 255),
 								      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
