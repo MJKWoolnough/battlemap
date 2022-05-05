@@ -243,13 +243,19 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						      };
 						if (cd < i) {
 							if (a < 255) {
-								const inva = 1 - (la / 255);
-								ret.push(makeLight([
-									Colour.from({"r": Math.pow(r * lr, 0.5) * inva, "g": Math.pow(g * lg, 0.5) * inva, "b": Math.pow(b * lb, 0.5) * inva, "a": inva * a}),
-									cd + (i - cd) * inva,
-									lightX,
-									lightY
-								], walls, fw));
+								const inva = 1 - (la / 255),
+								      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
+								      ng = Math.round(Math.pow(g * lg, 0.5) * inva),
+								      nb = Math.round(Math.pow(b * lb, 0.5) * inva),
+								      na = Math.round(a * inva);
+								if (na && (nr || ng || nb || na)) {
+									ret.push(makeLight([
+										Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+										cd + (i - cd) * inva,
+										lightX,
+										lightY
+									], walls, fw));
+								}
 							}
 						}
 					}
