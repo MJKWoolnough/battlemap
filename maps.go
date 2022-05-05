@@ -151,15 +151,7 @@ func (m *mapsDir) updateMapLayer(mid uint64, path string, lt layerType, fn func(
 	var err error
 	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
 		var l *layer
-		l = getLayer(&mp.layer, path)
-		if lt == anyLayerAll && l == nil && (path == "/Light" || path == "/Grid") {
-			for _, m := range mp.Layers {
-				if m.Name == path[1:] {
-					l = m
-					break
-				}
-			}
-		}
+		l = getLayer(&mp.layer, path, lt == anyLayerAll)
 		if l != nil {
 			if lt == tokenLayer && l.Layers != nil || lt == folderLayer && l.Layers == nil {
 				err = ErrInvalidLayerPath
@@ -218,14 +210,16 @@ func uniqueLayer(l map[string]struct{}, name string) string {
 	})
 }
 
-func getLayer(l *layer, p string) *layer {
+func getLayer(l *layer, p string, all bool) *layer {
 Loop:
 	for _, p := range strings.Split(strings.TrimRight(strings.TrimLeft(p, "/"), "/"), "/") {
 		switch p {
 		case "":
 			continue
 		case "Light", "Grid":
-			return nil
+			if !all {
+				return nil
+			}
 		}
 		for _, m := range l.Layers {
 			if m.Name == p {
@@ -238,13 +232,13 @@ Loop:
 	return l
 }
 
-func getParentLayer(l *layer, p string) (*layer, *layer) {
+func getParentLayer(l *layer, p string, all bool) (*layer, *layer) {
 	parentStr, name := splitAfterLastSlash(strings.TrimRight(p, "/"))
-	parent := getLayer(l, parentStr)
+	parent := getLayer(l, parentStr, false)
 	if parent == nil || parent.Layers == nil {
 		return nil, nil
 	}
-	return parent, getLayer(parent, name)
+	return parent, getLayer(parent, name, all)
 }
 
 func (l *layer) removeLayer(name string) {

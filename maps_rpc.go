@@ -433,16 +433,16 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if (moveLayer.From == "/Light" || moveLayer.From == "/Grid") && isRoot(moveLayer.To) {
+		if (moveLayer.From == "/Light" || moveLayer.From == "/Grid") && !isRoot(moveLayer.To) {
 			return nil, ErrInvalidLayerPath
 		}
 		if e := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
-			op, l := getParentLayer(&mp.layer, moveLayer.From)
+			op, l := getParentLayer(&mp.layer, moveLayer.From, true)
 			if l == nil {
 				err = ErrUnknownLayer
 				return false
 			}
-			np := getLayer(&mp.layer, moveLayer.To)
+			np := getLayer(&mp.layer, moveLayer.To, false)
 			if np == nil || np.Layers == nil {
 				err = ErrUnknownLayer
 				return false
@@ -795,7 +795,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		}
 		var err error
 		if errr := m.updateMapsLayerToken(cd.CurrentMap, tokenLayerPos.ID, func(mp *levelMap, l *layer, tk *token) bool {
-			ml := getLayer(&mp.layer, tokenLayerPos.To)
+			ml := getLayer(&mp.layer, tokenLayerPos.To, false)
 			if ml == nil || ml.Layers != nil {
 				err = ErrInvalidLayerPath
 				return false
