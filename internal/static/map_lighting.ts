@@ -1,4 +1,5 @@
 import type {Int, Uint, Wall} from './types.js';
+import type {Children} from './lib/dom.js';
 import {polygon} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import {definitions} from './map_tokens.js';
@@ -86,7 +87,8 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
 	      polyPoints: PolyPoint[] = [],
-	      gWalls: XWall[] = [];
+	      gWalls: XWall[] = [],
+	      ret: Children = [];
 	for (const wall of walls) {
 		const {x1, y1, x2, y2} = wall,
 		      dx1 = x1 - lightX,
@@ -242,12 +244,12 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						if (cd < i) {
 							if (a < 255) {
 								const inva = 1 - (la / 255);
-								makeLight([
+								ret.push(makeLight([
 									Colour.from({"r": Math.pow(r * lr, 0.5) * inva, "g": Math.pow(g * lg, 0.5) * inva, "b": Math.pow(b * lb, 0.5) * inva, "a": inva * a}),
 									cd + (i - cd) * inva,
 									lightX,
 									lightY
-								], walls, fw);
+								], walls, fw));
 							}
 						}
 					}
@@ -258,5 +260,6 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			lastPoint[2] = w;
 		}
 	}
-	return polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`});
+	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`}));
+	return ret;
 };
