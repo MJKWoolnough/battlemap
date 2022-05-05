@@ -63,22 +63,22 @@ const pi2 = Math.PI/2,
 	}
 	return null;
       },
-      closestPoint = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, lightX: Uint, lightY: Uint) => {
+      iPoint = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, lightX: Uint, lightY: Uint) => {
 	if (x1 === x2) {
-		const min = Math.min(y1, y2),
-		      max = Math.max(y1, y2),
-		      y = min > lightY ? min : max < lightY ? max : lightY;
-		return [x1, y, Math.hypot(x1 - lightX, y - lightY)];
+		return [x1, lightY];
 	}
 	const m = (y2 - y1) / (x2 - x1),
-	      x3 = lightX - ((y1 - lightY) - (x1 - lightX) * m) / (m + 1 / m),
-	      y3 = m * x3 + (y1 - x1 * m);
-	if (x3 < Math.min(x1, x2) || x3 > Math.max(x1, x2)) {
+	      x3 = lightX - ((y1 - lightY) - (x1 - lightX) * m) / (m + 1 / m);
+	return [x3, m * x3 + (y1 - x1 * m)];
+      },
+      closestPoint = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, lightX: Uint, lightY: Uint) => {
+	const [x, y] = iPoint(x1, y1, x2, y2, lightX, lightY);
+	if (x < Math.min(x1, x2) || x > Math.max(x1, x2) || y < Math.min(y1, y2) || y > Math.max(y1, y2)) {
 		const a = Math.hypot(x1 - lightX, y1 - lightY),
 		      b = Math.hypot(x2 - lightX, y2 - lightY);
 		return a < b ? [x1, y1, a] : [x2, y2, b];
 	}
-	return [x3, y3, Math.hypot(x3 - lightX, y3 - lightY)];
+	return [x, y, Math.hypot(x - lightX, y - lightY)];
       };
 
 export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
