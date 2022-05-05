@@ -463,7 +463,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if len(path) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayer, func(_ *levelMap, l *layer) bool {
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayerAll, func(_ *levelMap, l *layer) bool {
 			if !l.Hidden {
 				return false
 			}
@@ -479,7 +479,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if len(path) == 0 {
 			return nil, ErrInvalidLayerPath
 		}
-		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayer, func(_ *levelMap, l *layer) bool {
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayerAll, func(_ *levelMap, l *layer) bool {
 			if l.Hidden {
 				return false
 			}
