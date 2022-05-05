@@ -142,6 +142,7 @@ type layerType uint8
 
 const (
 	anyLayer layerType = iota
+	anyLayerAll
 	tokenLayer
 	folderLayer
 )
@@ -149,7 +150,16 @@ const (
 func (m *mapsDir) updateMapLayer(mid uint64, path string, lt layerType, fn func(*levelMap, *layer) bool) error {
 	var err error
 	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
-		l := getLayer(&mp.layer, path)
+		var l *layer
+		l = getLayer(&mp.layer, path)
+		if lt == anyLayerAll && l == nil && (path == "/Light" || path == "/Grid") {
+			for _, m := range mp.Layers {
+				if m.Name == path[1:] {
+					l = m
+					break
+				}
+			}
+		}
 		if l != nil {
 			if lt == tokenLayer && l.Layers != nil || lt == folderLayer && l.Layers == nil {
 				err = ErrInvalidLayerPath
