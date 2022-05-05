@@ -433,7 +433,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err != nil {
 			return nil, err
 		}
-		if (moveLayer.From == "/Light" || moveLayer.From == "Grid") && moveLayer.To != "/" {
+		if (moveLayer.From == "/Light" || moveLayer.From == "Grid") && isRoot(moveLayer.To) {
 			return nil, ErrInvalidLayerPath
 		}
 		if e := m.updateMapData(cd.CurrentMap, func(mp *levelMap) bool {
