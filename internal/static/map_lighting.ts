@@ -257,6 +257,22 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 									], walls, fw));
 								}
 							}
+							if (a > 0) {
+								const ia = (la / 255),
+								      nr = Math.round(Math.pow(r * lr, 0.5) * ia),
+								      ng = Math.round(Math.pow(g * lg, 0.5) * ia),
+								      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
+								      na = Math.round(a * ia);
+								if (na && (nr || ng || nb || na)) {
+									const [cx, cy] = iPoint(x, y, lastPoint[0], lastPoint[1], lightX, lightY);
+									ret.push(makeLight([
+										Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+										cd + (i - cd) * ia,
+										cx + cx - lightX,
+										cy + cy - lightY
+									], walls, fw));
+								}
+							}
 						}
 					}
 				}
