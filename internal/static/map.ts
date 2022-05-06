@@ -11,7 +11,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
-import {makeLight} from './map_lighting.js';
+import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {drawingClass, shapeClass, tokenClass} from './plugins.js';
@@ -63,7 +63,8 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+      pointSort = ([x1, y1]: [Uint, Uint], [x2, y2]: [Uint, Uint]) => x1 - x2 || y1 - y2;
 
 export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
@@ -184,6 +185,26 @@ updateLight = () => {
 	      masks: Children[] = [ll.firstChild!];
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
+			for (const {id, x1, y1, x2, y2, colour, scattering} of l.walls) {
+				const l = walls.length,
+				      points: [Uint, Uint][] = [[x1, y1], [x2, y2]];
+				for (let i = 0; i < l; i++) {
+					const {id: wid, x1: x3, y1: y3, x2: x4, y2: y4, colour: wc, scattering: ws} = walls[i],
+					      [ix, iy] = intersection(x1, y1, x2, y2, x3, y3, x4, y4);
+					if (ix > Math.min(x1, x2) && ix > Math.min(x3, x4) && ix < Math.max(x1, x2) && ix < Math.max(x3, x4) && iy > Math.min(y1, y2) && iy > Math.min(y3, y4) && iy < Math.max(y1, y2) && iy < Math.max(y3, y4)) {
+						walls[i].x2 = ix;
+						walls[i].y2 = iy;
+						walls.push({"id": wid, "x1": ix, "y1": iy, "x2": x4, "y2": y4, "colour": wc, "scattering": ws});
+						points.push([ix, iy]);
+					}
+				}
+				points.sort(pointSort);
+				for (let i = 1; i < points.length; i++) {
+					const [x1, y1] = points[i-1],
+					      [x2, y2] = points[i];
+					walls.push({id, x1, y1, x2, y2, colour, scattering});
+				}
+			}
 			walls.push(...l.walls);
 			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
 				if (lightIntensity && lightColour.a) {
