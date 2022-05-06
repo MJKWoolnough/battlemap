@@ -24,6 +24,8 @@ type PolyPoint = {
 }
 
 type XWall = Wall & {
+	a1: number;
+	a2: number;
 	cx: Int;
 	cy: Int;
 	cl: Uint;
@@ -31,20 +33,18 @@ type XWall = Wall & {
 
 export type LightSource = [Colour, Uint, Int, Int];
 
-const hasAntiClockwise = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
-	for (const {x1, y1, x2, y2} of point) {
-		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
-		      a = Math.atan2(j - lightY, i - lightX);
+const hasAntiClockwise = (x: Uint, y: Uint, angle: number, point: XWall[]) => {
+	for (const {x1, y1, a1, a2} of point) {
+		const a = x1 === x && y1 === y ? a2 : a1;
 		if (a > angle && a < angle + Math.PI || a < angle - Math.PI) {
 			return true;
 		}
 	}
 	return false;
       },
-      hasClockwise = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
-	for (const {x1, y1, x2, y2} of point) {
-		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
-		      a = Math.atan2(j - lightY, i - lightX);
+      hasClockwise = (x: Uint, y: Uint, angle: number, point: XWall[]) => {
+	for (const {x1, y1, a1, a2} of point) {
+		const a = x1 === x && y1 === y ? a2 : a1;
 		if (a < angle && a > angle - Math.PI || a > angle + Math.PI) {
 			return true;
 		}
@@ -120,7 +120,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []),
 			      [cx, cy, cl] = closestPoint(x1, y1, x2, y2, lightX, lightY),
-			      wx = Object.assign({cx, cy, cl}, wall);
+			      wx = Object.assign({cx, cy, cl, a1, a2}, wall);
 			if (!points1.length) {
 				vertices.push({
 					"w": points1,
@@ -154,7 +154,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		const {x, y, a: angle, w: point} = v,
 		      dlx = x - lightX,
 		      dly = y - lightY,
-		      cw = hasAntiClockwise(lightX, lightY, x, y, angle, point);
+		      cw = hasAntiClockwise(x, y, angle, point);
 		let ex = x,
 		    ey = y,
 		    ws = point,
@@ -185,7 +185,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point ? hasClockwise(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
+				if ((point ? hasClockwise(px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
