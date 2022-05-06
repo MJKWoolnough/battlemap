@@ -124,7 +124,7 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			};
 			points1.push(wx);
 			points2.push(wx);
-			if (wall.id === lens?.id) {
+			if (wall.id !== lens?.id) {
 				gWalls.push(wx);
 			}
 		}
