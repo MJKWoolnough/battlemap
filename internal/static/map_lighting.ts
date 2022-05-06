@@ -119,20 +119,20 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			      wx = Object.assign({cx, cy, cl}, wall);
 			if (!points1.length) {
 				vertices.push({
-					w: points1,
-					x: x1,
-					y: y1,
-					a: a1,
-					d: Math.hypot(dx1, dy1)
+					"w": points1,
+					"x": x1,
+					"y": y1,
+					"a": a1,
+					"d": Math.hypot(dx1, dy1)
 				});
 			}
 			if (!points2.length) {
 				vertices.push({
-					w: points2,
-					x: x2,
-					y: y2,
-					a: a2,
-					d: Math.hypot(dx2, dy2)
+					"w": points2,
+					"x": x2,
+					"y": y2,
+					"a": a2,
+					"d": Math.hypot(dx2, dy2)
 				});
 			};
 			points1.push(wx);
