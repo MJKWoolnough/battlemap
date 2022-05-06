@@ -205,7 +205,6 @@ updateLight = () => {
 					walls.push({id, x1, y1, x2, y2, colour, scattering});
 				}
 			}
-			walls.push(...l.walls);
 			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
 				if (lightIntensity && lightColour.a) {
 					lights.push([lightColour, lightIntensity * gridSize / (gridDistance || 1), x + width / 2, y + height / 2]);
