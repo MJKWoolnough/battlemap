@@ -81,7 +81,20 @@ const pi2 = Math.PI/2,
 	return [x, y, Math.hypot(x - lightX, y - lightY)];
       };
 
-export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
+export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y3: Uint, x4: Uint, y4: Uint) => {
+	const dx1 = x1 - x2,
+	      dy1 = y1 - y2,
+	      dx2 = x3 - x4,
+	      dy2 = y3 - y4,
+	      d = dx2 * dy1 - dy2 * dx1;
+	if (d) {
+		const a = (x3 * y4 - y3 * x4),
+		      b = (x1 * y2 - y1 * x2);
+		return [(dx1 * a - dx2 * b) / d, (dy1 * a - dy2 * b) / d];
+	}
+	return [NaN, NaN];
+},
+makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	const [c, i, lightX, lightY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
@@ -163,15 +176,9 @@ export const makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				break;
 			}
 			const {x1, y1, x2, y2} = w,
-			      dx = x1 - x2,
-			      dy = y1 - y2,
-			      d = dlx * dy - dly * dx;
-			if (d) {
-				const a = (lightX * y - lightY * x),
-				      b = (x1 * y2 - y1 * x2),
-				      px = (dx * a - dlx * b) / d,
-				      py = (dy * a - dly * b) / d,
-				      lpx = lightX - px,
+			      [px, py] = intersection(x1, y1, x2, y2, lightX, lightY, x, y);
+			if (!isNaN(px)) {
+				const lpx = lightX - px,
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
