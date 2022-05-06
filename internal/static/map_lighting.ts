@@ -6,7 +6,7 @@ import {definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
-	w: Wall[];
+	w: XWall[];
 	x: Int;
 	y: Int;
 	a: number;
@@ -20,7 +20,7 @@ type Collision = PolyPoint & {
 type PolyPoint = {
 	x: Uint;
 	y: Uint;
-	w: Wall[];
+	w: XWall[];
 }
 
 type XWall = Wall & {
@@ -31,20 +31,25 @@ type XWall = Wall & {
 
 export type LightSource = [Colour, Uint, Int, Int];
 
-const pi2 = Math.PI/2,
-      isConcave = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
-	let edges = 0;
+const hasAntiClockwise = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
 	for (const {x1, y1, x2, y2} of point) {
 		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
-		      a = Math.atan2(j - lightY, i - lightX),
-		      b = a + (angle > pi2 && a < angle - Math.PI ? 1 : angle < -pi2 && a > angle + Math.PI ? -1 : 0) * 2 * Math.PI;
-		if (b < angle) {
-			edges |= 1;
-		} else if (b > angle) {
-			edges |= 2;
+		      a = Math.atan2(j - lightY, i - lightX);
+		if (a > angle && a < angle + Math.PI || a < angle - Math.PI) {
+			return true;
 		}
 	}
-	return edges === 3;
+	return false;
+      },
+      hasClockwise = (lightX: Uint, lightY: Uint, x: Uint, y: Uint, angle: number, point: Wall[]) => {
+	for (const {x1, y1, x2, y2} of point) {
+		const [i, j] = x1 === x && y1 === y ? [x2, y2] : [x1, y1],
+		      a = Math.atan2(j - lightY, i - lightX);
+		if (a < angle && a > angle - Math.PI || a > angle + Math.PI) {
+			return true;
+		}
+	}
+	return false;
       },
       isSameWall = (prev: Wall[], curr: Wall[], next?: Wall[]) => {
 	for (const p of prev) {
@@ -99,7 +104,6 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
-	      polyPoints: PolyPoint[] = [],
 	      gWalls: XWall[] = [],
 	      ret: Children = [];
 	for (const wall of walls) {
@@ -148,14 +152,13 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			continue;
 		}
 		const {x, y, a: angle, w: point} = v,
-		      dlx = lightX - x,
-		      dly = lightY - y,
-		      concave = isConcave(lightX, lightY, x, y, angle, point),
-		      oDistance = Math.hypot(x - lightX, y - lightY);
+		      dlx = x - lightX,
+		      dly = y - lightY,
+		      cw = hasAntiClockwise(lightX, lightY, x, y, angle, point);
 		let ex = x,
 		    ey = y,
 		    ws = point,
-		    ed = concave ? oDistance : Infinity,
+		    ed = Infinity,
 		    min = 0;
 		if (lens) {
 			const {x1, y1, x2, y2} = lens,
@@ -182,7 +185,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point ? isConcave(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(dlx) === Math.sign(lpx) && Math.sign(dly) === Math.sign(lpy)) {
+				if ((point ? hasClockwise(lightX, lightY, px, py, angle, point) : !point && px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
@@ -190,8 +193,8 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				}
 			}
 		}
-		if (concave || oDistance > ed) {
-			v.w = ws;
+		if (cw && ed > v.d) {
+			collisions.push({x, y, v, w: point});
 		}
 		collisions.push({
 			"x": ex,
@@ -199,38 +202,15 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			v, // original
 			"w": ws // hit
 		});
+		if (!cw && ed > v.d) {
+			collisions.push({x, y, v, w: point});
+		}
 	}
-	let lastWall: Wall[] | null = null,
-	    p = "",
+	let p = "",
 	    lastPoint: [number, number, Wall[]] = [NaN, NaN, []];
 	for (let i = 0; i < collisions.length; i++) {
-		const curr = collisions[i];
-		if (lastWall === null) {
-			if (curr.w === curr.v.w) {
-				lastWall = curr.w;
-			}
-			collisions.push(collisions.shift()!);
-			i--;
-			continue;
-		}
-		if (curr.w !== curr.v.w) {
-			if (isSameWall(lastWall, curr.v.w)) {
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.w});
-				polyPoints.push(curr);
-				lastWall = curr.w;
-			} else {
-				polyPoints.push(curr);
-				polyPoints.push({"x": curr.v.x, "y": curr.v.y, "w": curr.v.w});
-				lastWall = curr.v.w;
-			}
-		} else {
-			polyPoints.push(curr);
-			lastWall = curr.w;
-		}
-	}
-	for (let i = 0; i < polyPoints.length; i++) {
-		const {w, x, y} = polyPoints[i];
-		if (!isSameWall(polyPoints[i === 0 ? polyPoints.length - 1 : i - 1].w, w, polyPoints[i === polyPoints.length - 1 ? 0 : i + 1].w)) {
+		const {w, x, y} = collisions[i];
+		if (!isSameWall(collisions[i === 0 ? collisions.length - 1 : i - 1].w, w, collisions[i === collisions.length - 1 ? 0 : i + 1].w)) {
 			p += `${x},${y} `;
 			if (lastPoint[2]) {
 				const sw = isSameWall(lastPoint[2], w);
