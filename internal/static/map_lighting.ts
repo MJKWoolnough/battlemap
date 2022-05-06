@@ -33,19 +33,19 @@ type XWall = Wall & {
 
 export type LightSource = [Colour, Uint, Int, Int];
 
-const hasAntiClockwise = (x: Uint, y: Uint, angle: number, point: XWall[]) => {
+const hasAntiClockwise = (x: Uint, y: Uint, point: XWall[]) => {
 	for (const {x1, y1, a1, a2} of point) {
-		const a = x1 === x && y1 === y ? a2 : a1;
-		if (a > angle && a < angle + Math.PI || a < angle - Math.PI) {
+		const [a, b] = x1 === x && y1 === y ? [a2, a1] : [a1, a2];
+		if (a > b && a < b + Math.PI || a < b - Math.PI) {
 			return true;
 		}
 	}
 	return false;
       },
-      hasClockwise = (x: Uint, y: Uint, angle: number, point: XWall[]) => {
+      hasClockwise = (x: Uint, y: Uint, point: XWall[]) => {
 	for (const {x1, y1, a1, a2} of point) {
-		const a = x1 === x && y1 === y ? a2 : a1;
-		if (a < angle && a > angle - Math.PI || a > angle + Math.PI) {
+		const [a, b] = x1 === x && y1 === y ? [a2, a1] : [a1, a2];
+		if (a < b && a > b - Math.PI || a > b + Math.PI) {
 			return true;
 		}
 	}
@@ -151,10 +151,10 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		if (collisions.length && collisions[collisions.length - 1].v.a === v.a) {
 			continue;
 		}
-		const {x, y, a: angle, w: point} = v,
+		const {x, y, w: point} = v,
 		      dlx = x - lightX,
 		      dly = y - lightY,
-		      cw = hasAntiClockwise(x, y, angle, point);
+		      cw = hasAntiClockwise(x, y, point);
 		let ex = x,
 		    ey = y,
 		    ws = point,
@@ -185,7 +185,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point ? hasClockwise(px, py, angle, point) : px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
+				if ((point ? hasClockwise(px, py, point) : px >= Math.min(x1, x2) && px <= Math.max(x1, x2) && py >= Math.min(y1, y2) && py <= Math.max(y1, y2)) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
