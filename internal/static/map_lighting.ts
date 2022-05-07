@@ -13,11 +13,7 @@ type Vertex = {
 	d: number;
 }
 
-type Collision = PolyPoint & {
-	v: Vertex;
-}
-
-type PolyPoint = {
+type Collision = {
 	x: Uint;
 	y: Uint;
 	w: XWall[];
@@ -147,10 +143,14 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		}
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
+	let lastAngle = NaN,
+	    p = "",
+	    lastPoint: [number, number, Wall[]] = [NaN, NaN, []];
 	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
-		if (collisions.length && collisions[collisions.length - 1].v.a === v.a) {
+		if (lastAngle === v.a) {
 			continue;
 		}
+		lastAngle = v.a;
 		const {x, y, w: point} = v,
 		      dlx = x - lightX,
 		      dly = y - lightY,
@@ -194,20 +194,17 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			}
 		}
 		if (cw && ed > v.d) {
-			collisions.push({x, y, v, w: point});
+			collisions.push({x, y, w: point});
 		}
 		collisions.push({
 			"x": ex,
 			"y": ey,
-			v, // original
-			"w": ws // hit
+			"w": ws
 		});
 		if (!cw && ed > v.d) {
-			collisions.push({x, y, v, w: point});
+			collisions.push({x, y, w: point});
 		}
 	}
-	let p = "",
-	    lastPoint: [number, number, Wall[]] = [NaN, NaN, []];
 	for (let i = 0; i < collisions.length; i++) {
 		const {w, x, y} = collisions[i];
 		if (!isSameWall(collisions[i === 0 ? collisions.length - 1 : i - 1].w, w, collisions[i === collisions.length - 1 ? 0 : i + 1].w)) {
