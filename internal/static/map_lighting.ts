@@ -30,19 +30,10 @@ type XWall = Wall & {
 export type LightSource = [Colour, Uint, Int, Int];
 
 const roundingOffset = 10e-9,
-      hasAntiClockwise = (x: Uint, y: Uint, point: XWall[]) => {
+      hasDirection = (x: Uint, y: Uint, point: XWall[], anti: boolean = false) => {
 	for (const {x1, y1, a1, a2} of point) {
-		const [a, b] = x1 === x && y1 === y ? [a2, a1] : [a1, a2];
+		const [a, b] = (x1 === x && y1 === y) === anti ? [a2, a1] : [a1, a2];
 		if (a > b && a < b + Math.PI || a < b - Math.PI) {
-			return true;
-		}
-	}
-	return false;
-      },
-      hasClockwise = (x: Uint, y: Uint, point: XWall[]) => {
-	for (const {x1, y1, a1, a2} of point) {
-		const [a, b] = x1 === x && y1 === y ? [a2, a1] : [a1, a2];
-		if (a < b && a > b - Math.PI || a > b + Math.PI) {
 			return true;
 		}
 	}
@@ -154,7 +145,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		const {x, y, w: point} = v,
 		      dlx = x - lightX,
 		      dly = y - lightY,
-		      cw = hasAntiClockwise(x, y, point);
+		      cw = hasDirection(x, y, point, true);
 		let ex = x,
 		    ey = y,
 		    ws = point,
@@ -185,7 +176,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point?.some(({id: wid}) => id === wid) ? cw && hasClockwise(px, py, point) : px + roundingOffset >= Math.min(x1, x2) && px <= Math.max(x1, x2) + roundingOffset && py + roundingOffset >= Math.min(y1, y2) && py <= Math.max(y1, y2) + roundingOffset) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
+				if ((point?.some(({id: wid}) => id === wid) ? cw && hasDirection(px, py, point) : px + roundingOffset >= Math.min(x1, x2) && px <= Math.max(x1, x2) + roundingOffset && py + roundingOffset >= Math.min(y1, y2) && py <= Math.max(y1, y2) + roundingOffset) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
