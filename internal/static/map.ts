@@ -206,7 +206,7 @@ updateLight = () => {
 				}
 			}
 			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
-				if (lightIntensity && lightColour.a) {
+				if (lightIntensity && (lightColour.r || lightColour.g || lightColour.b) && lightColour.a) {
 					lights.push([lightColour, lightIntensity * gridSize / (gridDistance || 1), x + width / 2, y + height / 2]);
 				}
 			}
