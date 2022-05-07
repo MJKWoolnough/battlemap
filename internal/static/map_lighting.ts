@@ -265,6 +265,8 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			lastPoint[0] = x;
 			lastPoint[1] = y;
 			lastPoint[2] = w;
+		} else {
+			collisions.splice(i--, 1);
 		}
 	}
 	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`}));
