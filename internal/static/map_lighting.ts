@@ -142,13 +142,13 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			continue;
 		}
 		lastAngle = v.a;
-		const {x, y, w: point} = v,
+		const {x, y, w} = v,
 		      dlx = x - lightX,
 		      dly = y - lightY,
-		      cw = hasDirection(x, y, point, true);
+		      cw = hasDirection(x, y, w, true);
 		let ex = x,
 		    ey = y,
-		    ws = point,
+		    ws = w,
 		    ed = Infinity,
 		    min = 0;
 		if (lens) {
@@ -185,7 +185,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			}
 		}
 		if (cw && ed > v.d) {
-			collisions.push({x, y, w: point});
+			collisions.push({x, y, w});
 		}
 		collisions.push({
 			"x": ex,
@@ -193,7 +193,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			"w": ws
 		});
 		if (!cw && ed > v.d) {
-			collisions.push({x, y, w: point});
+			collisions.push({x, y, w});
 		}
 	}
 	while(isSameWall(collisions[collisions.length - 2].w, collisions[collisions.length - 1].w, collisions[0].w)) {
