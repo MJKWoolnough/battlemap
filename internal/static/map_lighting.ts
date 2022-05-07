@@ -179,14 +179,14 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			if (w.cl > ed) {
 				break;
 			}
-			const {x1, y1, x2, y2} = w,
+			const {id, x1, y1, x2, y2} = w,
 			      [px, py] = intersection(x1, y1, x2, y2, lightX, lightY, x, y);
 			if (!isNaN(px)) {
 				const lpx = lightX - px,
 				      lpy = lightY - py,
 				      distance = Math.hypot(lpx, lpy),
 				      point = points.get(`${px},${py}`);
-				if ((point ? cw && hasClockwise(px, py, point) : px + roundingOffset >= Math.min(x1, x2) && px <= Math.max(x1, x2) + roundingOffset && py + roundingOffset >= Math.min(y1, y2) && py <= Math.max(y1, y2) + roundingOffset) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
+				if ((point?.some(({id: wid}) => id === wid) ? cw && hasClockwise(px, py, point) : px + roundingOffset >= Math.min(x1, x2) && px <= Math.max(x1, x2) + roundingOffset && py + roundingOffset >= Math.min(y1, y2) && py <= Math.max(y1, y2) + roundingOffset) && distance < ed && distance > min && Math.sign(-dlx) === Math.sign(lpx) && Math.sign(-dly) === Math.sign(lpy)) {
 					ex = px;
 					ey = py;
 					ed = distance;
