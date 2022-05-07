@@ -145,8 +145,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
 	let lastAngle = NaN,
-	    p = "",
-	    lastPoint: [number, number, Wall[]] = [NaN, NaN, []];
+	    p = "";
 	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
 		if (lastAngle === v.a) {
 			continue;
@@ -210,64 +209,60 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		collisions.splice(collisions.length - 1, 1);
 	}
 	for (let i = 0; i < collisions.length; i++) {
-		const {w, x, y} = collisions[i];
-		if (!isSameWall(collisions[i === 0 ? collisions.length - 1 : i - 1].w, w, collisions[i === collisions.length - 1 ? 0 : i + 1].w)) {
+		const {w, x, y} = collisions[i],
+		       prev = collisions[i === 0 ? collisions.length - 1 : i - 1];
+		if (!isSameWall(prev.w, w, collisions[i === collisions.length - 1 ? 0 : i + 1].w)) {
 			p += `${x},${y} `;
-			if (lastPoint[2]) {
-				const sw = isSameWall(lastPoint[2], w);
-				if (sw) {
-					const {id, colour: {r, g, b, a}, x1, y1, x2, y2} = sw;
-					if (r || g || b) {
-						const {r: lr, g: lg, b: lb, a: la} = c,
-						      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
-						if (cd < i) {
-							const fw = {
-								id,
-								"x1": x,
-								"y1": y,
-								"x2": lastPoint[0],
-								"y2": lastPoint[1],
-								"colour": noColour,
-								"scattering": 0
-							      };
-							if (a < 255) {
-								const inva = 1 - (la / 255),
-								      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
-								      ng = Math.round(Math.pow(g * lg, 0.5) * inva),
-								      nb = Math.round(Math.pow(b * lb, 0.5) * inva),
-								      na = Math.round(a * inva);
-								if (na && (nr || ng || nb || na)) {
-									ret.push(makeLight([
-										Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
-										cd + (i - cd) * inva,
-										lightX,
-										lightY
-									], walls, fw));
-								}
+			const sw = isSameWall(prev.w, w);
+			if (sw) {
+				const {id, colour: {r, g, b, a}, x1, y1, x2, y2} = sw;
+				if (r || g || b) {
+					const {r: lr, g: lg, b: lb, a: la} = c,
+					      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
+					if (cd < i) {
+						const fw = {
+							id,
+							"x1": x,
+							"y1": y,
+							"x2": prev.x,
+							"y2": prev.y,
+							"colour": noColour,
+							"scattering": 0
+						      };
+						if (a < 255) {
+							const inva = 1 - (la / 255),
+							      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
+							      ng = Math.round(Math.pow(g * lg, 0.5) * inva),
+							      nb = Math.round(Math.pow(b * lb, 0.5) * inva),
+							      na = Math.round(a * inva);
+							if (na && (nr || ng || nb || na)) {
+								ret.push(makeLight([
+									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+									cd + (i - cd) * inva,
+									lightX,
+									lightY
+								], walls, fw));
 							}
-							if (a > 0) {
-								const ia = (la / 255),
-								      nr = Math.round(Math.pow(r * lr, 0.5) * ia),
-								      ng = Math.round(Math.pow(g * lg, 0.5) * ia),
-								      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
-								      na = Math.round(a * ia);
-								if (na && (nr || ng || nb || na)) {
-									const [cx, cy] = iPoint(x, y, lastPoint[0], lastPoint[1], lightX, lightY);
-									ret.push(makeLight([
-										Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
-										cd + (i - cd) * ia,
-										cx + cx - lightX,
-										cy + cy - lightY
-									], walls, fw));
-								}
+						}
+						if (a > 0) {
+							const ia = (la / 255),
+							      nr = Math.round(Math.pow(r * lr, 0.5) * ia),
+							      ng = Math.round(Math.pow(g * lg, 0.5) * ia),
+							      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
+							      na = Math.round(a * ia);
+							if (na && (nr || ng || nb || na)) {
+								const [cx, cy] = iPoint(x, y, prev.x, prev.y, lightX, lightY);
+								ret.push(makeLight([
+									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+									cd + (i - cd) * ia,
+									cx + cx - lightX,
+									cy + cy - lightY
+								], walls, fw));
 							}
 						}
 					}
 				}
 			}
-			lastPoint[0] = x;
-			lastPoint[1] = y;
-			lastPoint[2] = w;
 		} else {
 			collisions.splice(i--, 1);
 		}
