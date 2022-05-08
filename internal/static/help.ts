@@ -56,7 +56,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 			settingsOutline,
 			circle({"cy": 11, "r": 10, "stroke": "#f00", "stroke-width": 2, "fill": "#000"}, [
 				animate({"attributeName": "fill", "dur": "1s", "values": "#000;#fff", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
-				animate({"attributeName": "fill", "dur": "1s", "values": "#fff;#000", "fill": "freeze", "begin": "helpPanelOpenClick2.end 0.1s"}),
+				animate({"attributeName": "fill", "dur": "1s", "values": "#fff;#000", "fill": "freeze", "begin": "helpPanelOpenClick2.end 0.1s"})
 			]),
 			settingsText,
 			animateTransform({"id": "helpPanelOpenOpen", "attributeName": "transform", "type": "translate", "from": "500 0", "to": "250 0", "dur": "1s", "fill": "freeze", "begin": "helpPanelOpenClick1.end 0.1s"}),
@@ -69,14 +69,14 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 			}}),
 			animateTransform({"id": "helpPanelResize1", "attributeName": "transform", "type": "translate", "from": "250 0", "to": "100 0", "dur": "1s", "begin": "helpPanelResizeMouseDown.end"}),
 			animateTransform({"id": "helpPanelResize2", "attributeName": "transform", "type": "translate", "from": "100 0", "to": "400 0", "dur": "2s", "begin": "helpPanelResize1.end"}),
-			animateTransform({"id": "helpPanelResize3", "attributeName": "transform", "type": "translate", "from": "400 0", "to": "250 0", "dur": "1s", "begin": "helpPanelResize2.end"}),
+			animateTransform({"id": "helpPanelResize3", "attributeName": "transform", "type": "translate", "from": "400 0", "to": "250 0", "dur": "1s", "begin": "helpPanelResize2.end"})
 		]),
 		g([
 			circle({"cx": 50, "cy": 50, "stroke": "#f00", "stroke-width": 8, "fill": "none"}, animate({"attributeName": "r", "values": "4;46", "dur": "1s", "begin": "helpSignalClick1.end; helpSignalClick2.end; helpSignalClick3.end"})),
 			circle({"cx": 50, "cy": 50, "stroke": "#00f", "stroke-width": 4, "fill": "none"}, animate({"attributeName": "r", "values": "4;46", "dur": "1s", "begin": "helpSignalClick1.end; helpSignalClick2.end; helpSignalClick3.end"})),
 			animateTransform({"attributeName": "transform", "type": "translate", "from": "200 100", "to": "200 100", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick1.end"}),
 			animateTransform({"attributeName": "transform", "type": "translate", "from": "50 150", "to": "50 150", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick2.end"}),
-			animateTransform({"attributeName": "transform", "type": "translate", "from": "300 200", "to": "300 200", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick3.end"}),
+			animateTransform({"attributeName": "transform", "type": "translate", "from": "300 200", "to": "300 200", "fill": "freeze", "dur": "0.1s", "begin": "helpSignalClick3.end"})
 		]),
 		g({"stroke": "#000", "fill": "#fff"}, [
 			path({"d": "M0,0 v12 l3,-1 l2,5 l2,-0.75 l-2,-5 l3,-1 z"}),
@@ -103,7 +103,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom1.begin"}),
 					animate({"attributeName": "fill", "values": "#000", "dur": "1s", "begin": "helpMapZoom3.begin"}),
 					animate({"attributeName": "fill", "values": "#000", "dur": "3s", "begin": "helpMapScroll1.begin"})
-				]),
+				])
 			]),
 			g([
 				rect({"y": 37, "width": 15, "height": 7, "rx": 2}),
@@ -115,7 +115,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 				rect({"y": 44, "width": 15, "height": 7, "rx": 2}),
 				text({"x": 2, "y": 49, "style": "font:arial;font-size:5px", "stroke-width": 0.3}, "Ctrl"),
 				animate({"attributeName": "fill", "values": "#000", "dur": "4s", "begin": "helpMapZoom1.begin"}),
-				animate({"attributeName": "stroke", "values": "#fff", "dur": "4s", "begin": "helpMapZoom1.begin"}),
+				animate({"attributeName": "stroke", "values": "#fff", "dur": "4s", "begin": "helpMapZoom1.begin"})
 			]),
 			mouseInit,
 			animateMotion({"id": "helpMapDragMouse", "dur": "4s", "path": "M250,150 C200,300 100,0 0,0 C100,300 500,300 250,150", "begin": "helpMapDragClick1.end"}),
