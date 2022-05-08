@@ -174,7 +174,7 @@ export type MapData = LayerFolder & MapDetails & MaskSet & {
 	gridDiagonal: boolean;
 	lightColour: Colour;
 	data: Record<string, any>;
-};
+}
 
 export type IDName = {
 	id:   Uint;
@@ -263,7 +263,7 @@ export type CharacterToken = TokenLight & WidthHeight & {
 	flop: boolean;
 	snap: boolean;
 	tokenData: Record<string, KeystoreData>;
-};
+}
 
 export type LayerTokens = IDName & {
 	hidden: boolean;
@@ -284,12 +284,12 @@ export type LayerMove = FromTo & {
 type BroadcastWindow = ID & {
 	module: string;
 	contents: string;
-};
+}
 
 export type Broadcast = {
 	type: any;
 	data: any;
-};
+}
 
 export type LayerRename = {
 	path: string;
