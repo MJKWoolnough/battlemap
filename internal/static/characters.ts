@@ -115,7 +115,7 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 		br(),
 		label(`${lang["TOKEN_ORDER"]}: `),
 		labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
-		labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `),
+		labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
 	];
 },
 characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
