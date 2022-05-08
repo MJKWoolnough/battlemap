@@ -63,8 +63,7 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-      pointSort = ([x1, y1]: [Uint, Uint], [x2, y2]: [Uint, Uint]) => x1 - x2 || y1 - y2;
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/")
@@ -198,7 +197,7 @@ updateLight = () => {
 						points.push([ix, iy]);
 					}
 				}
-				points.sort(pointSort);
+				points.sort(([x1, y1], [x2, y2]) => x1 - x2 || y1 - y2);
 				for (let i = 1; i < points.length; i++) {
 					const [x1, y1] = points[i-1],
 					      [x2, y2] = points[i];
