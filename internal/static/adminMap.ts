@@ -590,7 +590,7 @@ export default (base: HTMLElement) => {
 	rpc.waitWallMoved().then(({id, path}) => doWallMove(id, path, false));
 	rpc.waitMapDataSet().then(({key, data}) => {
 		if (key) {
-			doMapDataSet(key, data, false)
+			doMapDataSet(key, data, false);
 		}
 	});
 	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
