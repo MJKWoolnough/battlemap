@@ -251,7 +251,7 @@ addTool({
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)})
 	]),
 	"mapMouse0": (e: MouseEvent) => {
-		if (e.ctrlKey) {
+		if (e.ctrlKey && !e.shiftKey) {
 			return true;
 		}
 		if (placeWall.checked) {
