@@ -19,7 +19,7 @@ export class Colour {
 		return `rgba(${this.r}, ${this.g}, ${this.b}, ${this.a / 255})`;
 	}
 	toHexString() {
-		return `#${this.r.toString(16).padStart(2, "0")}${this.g.toString(16).padStart(2, "0")}${this.b.toString(16).padStart(2, "0")}`;
+		return `#${Math.round(this.r).toString(16).padStart(2, "0")}${Math.round(this.g).toString(16).padStart(2, "0")}${Math.round(this.b).toString(16).padStart(2, "0")}`;
 	}
 }
 
