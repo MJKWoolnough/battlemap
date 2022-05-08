@@ -148,7 +148,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		      cw = hasDirection(x, y, w, true);
 		let ex = x,
 		    ey = y,
-		    ws = w,
+		    ew = w,
 		    ed = Infinity,
 		    min = 0;
 		if (lens) {
@@ -181,7 +181,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 					ex = px;
 					ey = py;
 					ed = distance;
-					ws = hasPoint ? point! : [w];
+					ew = hasPoint ? point! : [w];
 				}
 			}
 		}
@@ -191,7 +191,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		collisions.push({
 			"x": ex,
 			"y": ey,
-			"w": ws
+			"w": ew
 		});
 		if (!cw && ed > v.d) {
 			collisions.push({x, y, w});
