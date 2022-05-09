@@ -175,10 +175,10 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		if (lens) {
 			const {x1, y1, x2, y2} = lens,
 			      [px, py] = intersection(x1, y1, x2, y2, lightX, lightY, x, y);
-			if (px < Math.min(x1, x2) || px > Math.max(x1, x2) || py < Math.min(y1, y2) || py > Math.max(y1, y2)) {
+			if (px + roundingOffset < Math.min(x1, x2) || px > Math.max(x1, x2) + roundingOffset || py + roundingOffset < Math.min(y1, y2) || py > Math.max(y1, y2) + roundingOffset) {
 				continue;
 			}
-			min = Math.hypot(lightX - px, lightY - py);
+			min = Math.hypot(lightX - px, lightY - py) - roundingOffset;
 		}
 		for (const w of gWalls) {
 			if (w.cl > ed) {
