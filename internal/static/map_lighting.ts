@@ -180,7 +180,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			if (px + roundingOffset < Math.min(x1, x2) || px > Math.max(x1, x2) + roundingOffset || py + roundingOffset < Math.min(y1, y2) || py > Math.max(y1, y2) + roundingOffset || Math.sign(-dlx) !== Math.sign(lpx) || Math.sign(-dly) !== Math.sign(lpy)) {
 				continue;
 			}
-			min = Math.hypot(lightX - px, lightY - py) - roundingOffset;
+			min = Math.hypot(lpx, lpy) - roundingOffset;
 		}
 		for (const w of gWalls) {
 			if (w.cl > ed) {
