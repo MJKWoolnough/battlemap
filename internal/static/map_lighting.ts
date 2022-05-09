@@ -16,7 +16,7 @@ type Vertex = {
 type Collision = {
 	x: Uint;
 	y: Uint;
-	w: XWall[];
+	w: Wall[];
 }
 
 type XWall = Wall & {
@@ -153,13 +153,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		    min = 0;
 		if (lens) {
 			const {x1, y1, x2, y2} = lens,
-			      dx = x1 - x2,
-			      dy = y1 - y2,
-			      d = dlx * dy - dly * dx,
-			      a = (lightX * y - lightY * x),
-			      b = (x1 * y2 - y1 * x2),
-			      px = (dx * a - dlx * b) / d,
-			      py = (dy * a - dly * b) / d;
+			      [px, py] = intersection(x1, y1, x2, y2, lightX, lightY, x, y);
 			if (px < Math.min(x1, x2) || px > Math.max(x1, x2) || py < Math.min(y1, y2) || py > Math.max(y1, y2)) {
 				continue;
 			}
