@@ -94,7 +94,30 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	      collisions: Collision[] = [],
 	      gWalls: XWall[] = [],
 	      ret: Children = [];
+	if (lens) {
+		const {id, x1, y1, x2, y2} = lens;
+		walls.push({
+			"id": id + 0.1,
+			x1,
+			y1,
+			"x2": x1 + x1 - x2,
+			"y2": y1 + y1 - y2,
+			"colour": noColour,
+			"scattering": 0
+		}, {
+			"id": id + 0.2,
+			"x1": x2 + x2 - x1,
+			"y1": y2 + y2 - y1,
+			x2,
+			y2,
+			"colour": noColour,
+			"scattering": 0
+		});
+	}
 	for (const wall of walls) {
+		if (wall.id === lens?.id) {
+			continue;
+		}
 		const {x1, y1, x2, y2} = wall,
 		      dx1 = x1 - lightX,
 		      dx2 = x2 - lightX,
@@ -129,9 +152,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			};
 			points1.push(wx);
 			points2.push(wx);
-			if (wall.id !== lens?.id) {
 				gWalls.push(wx);
-			}
 		}
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
