@@ -95,9 +95,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	      gWalls: XWall[] = [],
 	      ret: Children = [];
 	if (lens) {
-		const {id, x1, y1, x2, y2} = lens;
+		const {x1, y1, x2, y2} = lens;
 		walls.push({
-			"id": id + 0.1,
+			"id": 0,
 			x1,
 			y1,
 			"x2": x1 + x1 - x2,
@@ -105,7 +105,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			"colour": noColour,
 			"scattering": 0
 		}, {
-			"id": id + 0.2,
+			"id": 0,
 			"x1": x2 + x2 - x1,
 			"y1": y2 + y2 - y1,
 			x2,
@@ -118,7 +118,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 		if (wall.id === lens?.id) {
 			continue;
 		}
-		const {x1, y1, x2, y2} = wall,
+		const {id, x1, y1, x2, y2} = wall,
 		      dx1 = x1 - lightX,
 		      dx2 = x2 - lightX,
 		      dy1 = y1 - lightY,
@@ -152,7 +152,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			};
 			points1.push(wx);
 			points2.push(wx);
+			if (id) {
 				gWalls.push(wx);
+			}
 		}
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
