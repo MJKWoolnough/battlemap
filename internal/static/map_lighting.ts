@@ -226,8 +226,8 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
 							      ng = Math.round(Math.pow(g * lg, 0.5) * inva),
 							      nb = Math.round(Math.pow(b * lb, 0.5) * inva),
-							      na = Math.round(a * inva);
-							if (na && (nr || ng || nb || na)) {
+							      na = Math.round(255 * (1 - ((1 - a / 255) * inva)));
+							if (na && (nr || ng || nb)) {
 								ret.push(makeLight([
 									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
 									cd + (i - cd) * inva,
@@ -237,11 +237,11 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							}
 						}
 						if (a > 0) {
-							const ia = (la / 255),
+							const ia = la / 255,
 							      nr = Math.round(Math.pow(r * lr, 0.5) * ia),
 							      ng = Math.round(Math.pow(g * lg, 0.5) * ia),
 							      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
-							      na = Math.round(a * ia);
+							      na = Math.round(255 * a * ia);
 							if (na && (nr || ng || nb || na)) {
 								const [cx, cy] = iPoint(x, y, prev.x, prev.y, lightX, lightY);
 								ret.push(makeLight([
