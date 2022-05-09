@@ -200,10 +200,10 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	while(isSameWall(collisions[collisions.length - 2].w, collisions[collisions.length - 1].w, collisions[0].w)) {
 		collisions.splice(collisions.length - 1, 1);
 	}
-	for (let i = 0; i < collisions.length; i++) {
-		const {w, x, y} = collisions[i],
-		       prev = collisions[i === 0 ? collisions.length - 1 : i - 1];
-		if (!isSameWall(prev.w, w, collisions[i === collisions.length - 1 ? 0 : i + 1].w)) {
+	for (let j = 0; j < collisions.length; j++) {
+		const {w, x, y} = collisions[j],
+		       prev = collisions[j === 0 ? collisions.length - 1 : j - 1];
+		if (!isSameWall(prev.w, w, collisions[j === collisions.length - 1 ? 0 : j + 1].w)) {
 			p += `${x},${y} `;
 			const sw = isSameWall(prev.w, w);
 			if (sw) {
@@ -256,7 +256,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 				}
 			}
 		} else {
-			collisions.splice(i--, 1);
+			collisions.splice(j--, 1);
 		}
 	}
 	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`}));
