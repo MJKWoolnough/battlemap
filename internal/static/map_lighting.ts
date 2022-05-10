@@ -27,7 +27,7 @@ type XWall = Wall & {
 	cl: Uint;
 }
 
-export type LightSource = [Colour, Uint, Int, Int];
+export type LightSource = [Colour, Uint, Int, Int] | [Colour, Uint, Int, Int, Int, Int];
 
 const roundingOffset = 10e-9,
       hasDirection = (x: Uint, y: Uint, point: XWall[], anti: boolean = false) => {
@@ -88,7 +88,7 @@ export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y
 	return [NaN, NaN];
 },
 makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
-	const [c, i, lightX, lightY] = l,
+	const [c, i, lightX, lightY, lightPX, lightPY] = l,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
@@ -282,6 +282,6 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightX, lightY, i, c)})`}));
+	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightPX ?? lightX, lightPY ?? lightY, i, c)})`}));
 	return ret;
 };
