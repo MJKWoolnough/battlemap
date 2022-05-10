@@ -89,6 +89,8 @@ export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y
 },
 makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	const [c, i, lightX, lightY, lightPX, lightPY] = l,
+	      lx = lightPX ?? lightX,
+	      ly = lightPY ?? lightY,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
@@ -230,10 +232,10 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			p += `${x},${y} `;
 			const sw = isSameWall(prev.w, w);
 			if (sw) {
-				const {id, colour: {r, g, b, a}, x1, y1, x2, y2} = sw;
+				const {id, colour: {r, g, b, a}, x1, y1, x2, y2, scattering} = sw;
 				if (r || g || b) {
 					const {r: lr, g: lg, b: lb, a: la} = c,
-					      [, , cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
+					      [cx, cy, cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
 					if (cd < i) {
 						const fw = {
 							id,
@@ -243,7 +245,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							"y2": prev.y,
 							"colour": noColour,
 							"scattering": 0
-						      };
+						      },
+						      sx = lx + scattering * (cx - lx) / 255,
+						      sy = ly + scattering * (cy - ly) / 255;
 						if (a < 255) {
 							const inva = 1 - (a / 255),
 							      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
@@ -254,7 +258,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 								ret.push(makeLight([
 									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
 									cd + (i - cd) * inva,
-									lightX,
+									sx,
+									sy,
+								        lightX,
 									lightY
 								], walls, fw));
 							}
@@ -266,12 +272,14 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
 							      na = Math.round(255 * a * ia);
 							if (na && (nr || ng || nb)) {
-								const [cx, cy] = iPoint(x, y, prev.x, prev.y, lightX, lightY);
+								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
 								ret.push(makeLight([
 									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
 									cd + (i - cd) * ia,
-									cx + cx - lightX,
-									cy + cy - lightY
+									cx + cx - sx,
+									cy + cy - sy,
+									cx + cx - lx,
+									cy + cy - ly
 								], walls, fw));
 							}
 						}
@@ -282,6 +290,6 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lightPX ?? lightX, lightPY ?? lightY, i, c)})`}));
+	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lx, ly, i, c)})`}));
 	return ret;
 };
