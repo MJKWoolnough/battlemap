@@ -297,12 +297,7 @@ export default (base: HTMLElement) => {
 	      [startMapMouseMove, cancelMapMouseMove] = mouseMoveEvent(updateCursor),
 	      ctrlOverride = (e: KeyboardEvent) => psuedoUpdateCursor(overOutline ? outline.firstChild : null, e.ctrlKey),
 	      [startControlOverride, cancelControlOverride] = keyEvent("Control", ctrlOverride, ctrlOverride),
-	      keys = ([
-		["Up", (tk: Token, dy: Uint) => tk.y -= dy],
-		["Down", (tk: Token, dy: Uint) => tk.y += dy],
-		["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
-		["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
-	      ] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn)).concat([
+	      keys = [
 		keyEvent("c", (e: KeyboardEvent) => {
 			if (e.ctrlKey) {
 				copiedToken = cloneObject(selected.token);
@@ -335,8 +330,14 @@ export default (base: HTMLElement) => {
 			stopMeasurement();
 			cancelTokenDrag();
 		}),
-		keyEvent("Delete", () => doTokenRemove(selected.token!.id))
-	      ]);
+		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
+		...([
+			["Up", (tk: Token, dy: Uint) => tk.y -= dy],
+			["Down", (tk: Token, dy: Uint) => tk.y += dy],
+			["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
+			["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
+		] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn))
+	      ];
 	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (selected.token) {
