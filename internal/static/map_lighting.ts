@@ -157,6 +157,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			}
 		}
 	}
+	if (lens) {
+		walls.splice(walls.length - 2, 2);
+	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
 	let lastAngle = NaN,
 	    p = "";
