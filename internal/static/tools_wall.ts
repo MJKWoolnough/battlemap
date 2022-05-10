@@ -38,7 +38,10 @@ const updateCursorState = () => {
       },
       dragScattering = new DragTransfer<Byte>("scattering"),
       selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
-      placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": updateCursorState}),
+      placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": () => {
+	updateCursorState();
+	deselectWall();
+      }}),
       scatteringI = input({"type": "range", "min": 0, "max": 255, "value": 0, "ondragover": setDragEffect({"copy": [dragScattering]}), "ondrop": (e: DragEvent) => {
 	if (dragScattering.is(e)) {
 		scatteringI.value = dragScattering.get(e) + "";
