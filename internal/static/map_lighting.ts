@@ -206,7 +206,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 					ex = px;
 					ey = py;
 					ed = distance;
-					ew = hasPoint ? point! : [w].concat(point ?? []);
+					ew = hasPoint ? point! : [w, ...(point ?? [])];
 				}
 			}
 		}
