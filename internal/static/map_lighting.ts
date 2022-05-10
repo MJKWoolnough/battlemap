@@ -246,8 +246,8 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							"colour": noColour,
 							"scattering": 0
 						      },
-						      sx = lx + scattering * (cx - lx) / 255,
-						      sy = ly + scattering * (cy - ly) / 255;
+						      sx = lx + scattering * (cx - lx) / 256,
+						      sy = ly + scattering * (cy - ly) / 256;
 						if (a < 255) {
 							const inva = 1 - (a / 255),
 							      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
