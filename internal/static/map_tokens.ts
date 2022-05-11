@@ -214,8 +214,8 @@ masks = (() => {
 				case 2:
 				case 3: {
 					const [, cx, cy, rx, ry] = m,
-					      rx2 = Math.pow(rx, 2),
-					      ry2 = Math.pow(ry, 2);
+					      rx2 = rx * rx,
+					      ry2 = ry * ry;
 					if (ry2 * Math.pow(x - cx, 2) + rx2 * Math.pow(y - cy, 2) <= rx2 * ry2) {
 						selected = n;
 						selectedMask = m;
