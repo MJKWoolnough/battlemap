@@ -250,9 +250,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						      sy = ly + scattering * (cy - ly) / 256;
 						if (a < 255) {
 							const inva = 1 - (a / 255),
-							      nr = Math.round(Math.pow(r * lr, 0.5) * inva),
-							      ng = Math.round(Math.pow(g * lg, 0.5) * inva),
-							      nb = Math.round(Math.pow(b * lb, 0.5) * inva),
+							      nr = Math.round(Math.sqrt(r * lr) * inva),
+							      ng = Math.round(Math.sqrt(g * lg) * inva),
+							      nb = Math.round(Math.sqrt(b * lb) * inva),
 							      na = Math.round(255 * (1 - ((1 - la / 255) * inva)));
 							if (na && (nr || ng || nb)) {
 								ret.push(makeLight([
@@ -267,9 +267,9 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						}
 						if (a > 0) {
 							const ia = la / 255,
-							      nr = Math.round(Math.pow(r * lr, 0.5) * ia),
-							      ng = Math.round(Math.pow(g * lg, 0.5) * ia),
-							      nb = Math.round(Math.pow(b * lb, 0.5) * ia),
+							      nr = Math.round(Math.sqrt(r * lr) * ia),
+							      ng = Math.round(Math.sqrt(g * lg) * ia),
+							      nb = Math.round(Math.sqrt(b * lb) * ia),
 							      na = Math.round(255 * a * ia);
 							if (na && (nr || ng || nb)) {
 								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
