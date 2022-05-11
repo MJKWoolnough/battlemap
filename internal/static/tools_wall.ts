@@ -47,6 +47,7 @@ const updateCursorState = () => {
 		scatteringI.value = dragScattering.get(e) + "";
 	}
       }}),
+      continuous = input({"type": "checkbox", "class": "settings_ticker"}),
       dragKey = dragScattering.register({"transfer": () => checkInt(parseInt(scatteringI.value), 0, 255, 0)}),
       scatteringDragKey = dragScattering.register({"transfer": () => walls.get(selectedWall)?.wall.scattering ?? 0}),
       colourDragKey = dragColour.register({"transfer": () => walls.get(selectedWall)?.wall.colour ?? noColour}),
@@ -68,16 +69,19 @@ const updateCursorState = () => {
       }),
       coords = [0, 0],
       wall = rect({"height": 10, "fill": "#000", "stroke": "#000", "stroke-width": 2}),
-      [startWallDraw, cancelWallDraw] = mouseDragEvent(0, (e: MouseEvent) => {
+      wallMouseMove = (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 	amendNode(wall, {"width": Math.hypot(x - coords[0], y - coords[1]), "transform": `rotate(${Math.atan2(y - coords[1], x - coords[0]) * 180 / Math.PI}, ${coords[0]}, ${coords[1]})`});
-      }, (e: MouseEvent) => {
+      },
+      wallMouseStop = (e: MouseEvent) => {
 	if (e.isTrusted && selected.layer) {
 		const [x2, y2] = screen2Grid(e.clientX, e.clientY, snap.checked);
 		doWallAdd({"path": selected.layer.path, "wall": {"id": 0, "x1": coords[0], "y1": coords[1], x2, y2, "colour": wallColour, "scattering": checkInt(parseInt(scatteringI.value), 0, 255, 0)}});
 	}
 	wall.remove();
-      }),
+      },
+      [startWallDraw, cancelWallDraw] = mouseDragEvent(0, wallMouseMove, wallMouseStop),
+      [startWallMove, cancelWallMove] = mouseMoveEvent(wallMouseMove, () => wall.remove()),
       wallLayer = g(),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = setDragEffect({"copy": [dragColour, dragScattering]}),
@@ -179,6 +183,7 @@ const updateCursorState = () => {
       [startEscape, cancelEscape] = keyEvent("Escape", () => {
 	      cancelWallDraw();
 	      cancelMarkerDrag();
+	      cancelWallMove();
       }),
       icon = svg({"width": 30, "height": 20, "viewBox": "0 0 90 60"}, [
 		defs(pattern({"id": "brick", "patternUnits": "userSpaceOnUse", "width": 30, "height": 30}, path({"d": "M15,30 V15 H0 V0 H30 V15 H15 M0,30 H30", "fill": "none", "style": "stroke: currentColor", "stroke-width": 3}))),
@@ -249,6 +254,8 @@ addTool({
 		]),
 		labels(snap, `${lang["TOOL_WALL_SNAP"]}: `),
 		br(),
+		labels(continuous, `${lang["TOOL_WALL_CONTINUOUS"]}: `),
+		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)})
@@ -258,12 +265,23 @@ addTool({
 			return true;
 		}
 		if (placeWall.checked) {
+			if (continuous.checked) {
+				if (wall.parentNode) {
+					wallMouseStop(e);
+				}
+				startWallMove();
+			} else {
+				startWallDraw();
+			}
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
 			amendNode(root, amendNode(wall, {"width": 0, "x": coords[0] = x, "y": (coords[1] = y) - 5, "transform": undefined}));
-			startWallDraw();
 		} else {
 			deselectWall();
 		}
+		return false;
+	},
+	"mapMouse2": () => {
+		cancelWallMove();
 		return false;
 	},
 	"mapMouseOver": () => {
@@ -287,6 +305,7 @@ addTool({
 		cancelShiftSnap();
 		cancelCursorMove();
 		cancelWallDraw();
+		cancelWallMove();
 		cancelEscape();
 		wallLayer.remove();
 		if (w) {
