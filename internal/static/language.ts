@@ -204,6 +204,7 @@ const defaultLanguage = {
 	"TOOL_WALL": "Wall Tool",
 	"TOOL_WALL_COLOUR": "Wall Colour",
 	"TOOL_WALL_COLOUR_SET": "Set Wall Colour",
+	"TOOL_WALL_CONTINUOUS": "Continuous Placement",
 	"TOOL_WALL_LAYER": "Wall Layer",
 	"TOOL_WALL_MODE": "Wall Mode",
 	"TOOL_WALL_PLACE": "Place Wall",
