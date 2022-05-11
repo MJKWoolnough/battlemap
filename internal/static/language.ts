@@ -231,7 +231,6 @@ const defaultLanguage = {
 	"UNDO_MASK_SET": "Mask Set",
 	"UNDO_REDO": "Redo",
 	"UNDO_TOKEN_ADD": "Token Add",
-	"UNDO_TOKEN_LIGHT_CHANGE": "Token Light Change",
 	"UNDO_TOKEN_MOVE": "Token Move Layer/Position",
 	"UNDO_TOKEN_REMOVE": "Token Remove",
 	"UNDO_TOKEN_SET": "Token Update",
