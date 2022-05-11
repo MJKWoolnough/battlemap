@@ -32,7 +32,7 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       folderIcon = div({"style": {"transform": "translateX(-9999px)", "display": "inline-block"}}, folder({"style": "width: 2em; height: 2em"})),
       clearDragOver = ({root: {[node]: n}}: Folder) => {
 	amendNode(n, {"class": ["!folderDragging"]});
-	for (const f of Array.from(n.getElementsByClassName("dragover")).concat(n)) {
+	for (const f of [...n.getElementsByClassName("dragover"), n]) {
 		amendNode(f, {"class": ["!dragover"]});
 	}
       };
