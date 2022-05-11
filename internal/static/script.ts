@@ -164,7 +164,7 @@ const lastTab = new StringSetting("lastTab"),
 			}
 			return base;
 		},
-		get css() {
+		css() {
 			const a = Array.from({"length": n}, (_, n) => n+1);
 			return `
 ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #panelContainer > div:nth-child(${n})`).join(",")}{display: block}
@@ -182,7 +182,7 @@ ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-chi
 			}
 			selectFirst();
 		},
-		get html() {return [c, h];}
+		html() {return [c, h];}
 	});
       })();
 
@@ -217,8 +217,8 @@ inited.then(() => {
 		if (settings) {
 			tabs.add(settings()!);
 		}
-		addCSS(tabs.css);
-		amendNode(desktop, tabs.html);
+		addCSS(tabs.css());
+		amendNode(desktop, tabs.html());
 		setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
 		amendNode(window, {"onresize": event(() => shell.realignWindows(), eventPassive)});
