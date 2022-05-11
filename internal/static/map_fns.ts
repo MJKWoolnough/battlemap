@@ -405,14 +405,15 @@ doWallAdd = (w: WallPath, sendRPC = true) => {
 	      wall = normaliseWall({id, x1, y1, x2, y2, colour, scattering}),
 	      doIt = (sendRPC = true) => {
 		layer.walls.push(wall);
-		updateLight();
 		if (sendRPC) {
 			queue(() => rpc.addWall(path, {id, x1, y1, x2, y2, colour, scattering}).then(id => {
 				wall.id = id;
 				walls.set(id, {layer, wall});
+				updateLight();
 			}));
 		} else if (id > 0) {
 			walls.set(id, {layer, wall});
+			updateLight();
 		}
 		return undoIt;
 	      },
