@@ -56,7 +56,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	return w;
       },
       dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
-	if (dragging!.id >= 0 || l.parent === dragging!.parent) {
+	if (dragging && (dragging.id >= 0 || l.parent === dragging.parent)) {
 		dragging!.parent!.children.delete(dragging!.name);
 		const oldPath = dragging!.getPath();
 		let pos = 0,
