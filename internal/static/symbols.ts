@@ -43,4 +43,10 @@ visibility = addSymbol("visibility", symbol({"viewBox": "0 0 100 70"}, [
 		circle({"cx": 50, "cy": 35, "r": 27, "stroke": "#888", "stroke-width": 10}),
 		circle({"cx": 59, "cy": 27, "r": 10, "fill": "#fff"})
 	])
+])),
+lightOnOff = addSymbol("lightOnOff", symbol({"viewBox": "0 0 84 75", "stroke": "currentColor", "fill": "none", "stroke-linejoin": "round", "stroke-linecap": "round"}, [
+	path({"d": "M32,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2, "style": "fill: var(--off, #fff)"}),
+	path({"id": "lightCoil", "d": "M32,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4"}),
+	use({"href": "#lightCoil", "y": 4}),
+	use({"href": "#lightCoil", "y": 8}),
 ]));
