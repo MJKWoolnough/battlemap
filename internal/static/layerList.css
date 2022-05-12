@@ -76,3 +76,7 @@
 #layerList .foldersItem {
 	grid-template-columns: auto 1em 1em;
 }
+
+.adminHideLight #toggleAdminLight {
+	--off: #000;
+}
