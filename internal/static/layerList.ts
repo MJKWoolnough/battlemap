@@ -13,7 +13,7 @@ import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, d
 import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
 import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
-import {visibility} from './symbols.js';
+import {lightOnOff, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 let selectedLayer: ItemLayer | undefined, dragging: ItemLayer | FolderLayer | undefined, draggedName: HTMLSpanElement | undefined, dragOffset = 0, dragBase: HTMLElement;
@@ -109,13 +109,14 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		}
 	}
 	return false;
-      };
+      },
+      adminLightToggle = lightOnOff({"onclick": () => amendNode(adminLightToggle, {"style": {"--off": document.body.classList.toggle("adminHideLight") ? "#000": undefined}}), "style": "height: 1em; width: 1em", "title": lang["LAYER_LIGHT_TOGGLE"]});
 
 class ItemLayer extends Item {
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		if (id < 0) {
-			clearNode(this[node], this.nameElem);
+			clearNode(this[node], [this.nameElem, id === -2 ? adminLightToggle : []]);
 		} else {
 			this.copier.remove();
 			if (selectedLayer === undefined) {
