@@ -12,6 +12,13 @@ export class Colour {
 	readonly g: Byte = 0;
 	readonly b: Byte = 0;
 	readonly a: Byte = 255;
+	constructor(r: Byte, g: Byte, b: Byte, a: Byte = 255) {
+		this.r = checkInt(r, 0, 255);
+		this.g = checkInt(g, 0, 255);
+		this.b = checkInt(b, 0, 255);
+		this.a = checkInt(a, 0, 255);
+		return Object.freeze(this);
+	}
 	static from(c: {r: Byte; g: Byte; b: Byte; a: Byte;}) {
 		return c instanceof Colour ? c : Object.freeze(Object.setPrototypeOf(c, Colour.prototype));
 	}
