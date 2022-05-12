@@ -110,7 +110,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	}
 	return false;
       },
-      adminLightToggle = lightOnOff({"onclick": () => amendNode(adminLightToggle, {"style": {"--off": document.body.classList.toggle("adminHideLight") ? "#000": undefined}}), "style": "height: 1em; width: 1em", "title": lang["LAYER_LIGHT_TOGGLE"]});
+      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
 
 class ItemLayer extends Item {
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
