@@ -75,6 +75,7 @@ const defaultLanguage = {
 	"LAYER_HIDDEN_OPACITY": "Hidden Layer Opacity",
 	"LAYER_HIDDEN_SELECTED_OPACITY": "Selected Hidden Layer Opacity",
 	"LAYER_LIGHT": "Light",
+	"LAYER_LIGHT_TOGGLE": "Toggle Light Display",
 	"LAYER_LIGHT_COLOUR": "Change Light Colour",
 	"LAYER_NAME": "Name",
 	"LAYER_RENAME": "Rename Layer",
