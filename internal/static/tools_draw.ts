@@ -15,7 +15,7 @@ import {addTool, marker, optionsWindow} from './tools.js';
 import {shell} from './windows.js';
 
 let fill = noColour,
-    stroke = Colour.from({"r": 0, "g": 0, "b": 0, "a": 255}),
+    stroke = new Colour(0, 0, 0, 255),
     drawElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
 const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
