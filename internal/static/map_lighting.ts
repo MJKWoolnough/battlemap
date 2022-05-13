@@ -227,9 +227,12 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	}
 	for (let j = 0; j < collisions.length; j++) {
 		const {w, x, y} = collisions[j],
-		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1];
-		if (!isSameWall(prev.w, w, collisions[j === collisions.length - 1 ? 0 : j + 1].w)) {
-			p += `${x},${y} `;
+		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1],
+		      next = collisions[j === collisions.length - 1 ? 0 : j + 1];
+		if (!isSameWall(prev.w, w, next.w)) {
+			if ((prev.y - y) * (x - next.x) != (y - next.y) * (prev.x - x)) {
+				p += `${x},${y} `;
+			}
 			const sw = isSameWall(prev.w, w);
 			if (sw) {
 				const {id, colour: {r, g, b, a}, x1, y1, x2, y2, scattering} = sw;
