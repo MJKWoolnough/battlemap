@@ -256,7 +256,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							      na = Math.round(255 * (1 - ((1 - la / 255) * inva)));
 							if (na && (nr || ng || nb)) {
 								ret.push(makeLight([
-									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+									new Colour(nr, ng, nb, na),
 									cd + (i - cd) * inva,
 									sx,
 									sy,
@@ -274,7 +274,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 							if (na && (nr || ng || nb)) {
 								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
 								ret.push(makeLight([
-									Colour.from({"r": nr, "g": ng, "b": nb, "a": na}),
+									new Colour(nr, ng, nb, na),
 									cd + (i - cd) * ia,
 									cx + cx - sx,
 									cy + cy - sy,
