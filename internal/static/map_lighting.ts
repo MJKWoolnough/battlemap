@@ -227,7 +227,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 	}
 	for (let j = 0; j < collisions.length; j++) {
 		const {w, x, y} = collisions[j],
-		       prev = collisions[j === 0 ? collisions.length - 1 : j - 1];
+		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1];
 		if (!isSameWall(prev.w, w, collisions[j === collisions.length - 1 ? 0 : j + 1].w)) {
 			p += `${x},${y} `;
 			const sw = isSameWall(prev.w, w);
