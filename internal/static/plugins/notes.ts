@@ -41,7 +41,7 @@ const defaultLanguage = {
 	"NOTE_SHARE": "Allow Note Sharing",
 	"NOTES_NEW": "New Note",
 	"NOTES_NEW_LONG": "Enter new note name",
-	"SHARE": "Share",
+	"SHARE": "Share"
       },
       langs: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage
