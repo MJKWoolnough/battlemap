@@ -95,7 +95,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	"SCREENSHOT_TAKE": "Take Screenshot"
       },
       langs: Record<string, typeof defaultLanguage> = {
-	"en-GB": defaultLanguage,
+	"en-GB": defaultLanguage
       },
       lang = langs[language.value] ?? defaultLanguage,
       disablePNG = new BoolSetting("plugin-screenshot-png"),
