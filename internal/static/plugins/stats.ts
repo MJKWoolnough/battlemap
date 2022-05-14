@@ -28,7 +28,7 @@ if (isAdmin) {
 		"MENU_TITLE": "Statistics",
 		"NO_MAP": "No map loaded",
 		"SIZE": "Size",
-		"TOTAL_SIZE": "Total Size",
+		"TOTAL_SIZE": "Total Size"
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
