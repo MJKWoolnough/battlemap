@@ -224,7 +224,7 @@ const select = Symbol("select"),
 	"SHOW_NAMES": "Show Token Names",
 	"HIDE_CONDITIONS": "Hide Token Conditions",
 	"TOKEN_SELECTED": "Selected",
-	"TOKENS_UNSELECTED": "Unselected",
+	"TOKENS_UNSELECTED": "Unselected"
       },
       langs: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
@@ -232,7 +232,7 @@ const select = Symbol("select"),
 		"ARMOUR_CLASS": "Armor Class",
 		"DESATURATE_CONDITIONS": "Grayscale Conditions",
 		"HIGHLIGHT_COLOUR": "Token Highlight Color",
-		"SHOW_AC": "Show Token Armor Class",
+		"SHOW_AC": "Show Token Armor Class"
 	}, defaultLanguage)
       },
       lang = langs[language.value] ?? defaultLanguage,
