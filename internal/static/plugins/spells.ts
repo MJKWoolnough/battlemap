@@ -170,7 +170,7 @@ if (isAdmin) {
 				path({"d": "M50,10 q0,10 10,10 q-10,0 -10,10 q0,-10 -10,-10 q10,0 10,-10", "id": sparkID}),
 				use({"href": `#${sparkID}`, "transform": "translate(5, 0) scale(1.5)"}),
 				use({"href": `#${sparkID}`, "transform": "translate(-45, 30) scale(1.2)"}),
-				use({"href": `#${sparkID}`, "transform": "translate(-30, -5) scale(0.8)"}),
+				use({"href": `#${sparkID}`, "transform": "translate(-30, -5) scale(0.8)"})
 			])
 		]),
 		options,
