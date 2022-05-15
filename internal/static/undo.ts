@@ -12,7 +12,7 @@ type Fn = () => Fn;
 type FnDesc = {
 	fn: Fn;
 	[node]: HTMLLIElement;
-};
+}
 
 const undos = new NodeArray<FnDesc>(ul()),
       redos = new NodeArray<FnDesc>(ul()),
