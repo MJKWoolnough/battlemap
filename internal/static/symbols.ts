@@ -48,5 +48,5 @@ lightOnOff = addSymbol("lightOnOff", symbol({"viewBox": "0 0 44 75", "stroke": "
 	path({"d": "M12,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2, "style": "fill: var(--off, #fff)"}),
 	path({"id": "lightCoil", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4"}),
 	use({"href": "#lightCoil", "y": 4}),
-	use({"href": "#lightCoil", "y": 8}),
+	use({"href": "#lightCoil", "y": 8})
 ]));

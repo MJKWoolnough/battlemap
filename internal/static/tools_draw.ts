@@ -116,7 +116,7 @@ addTool({
 			br(),
 			labels(circle, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
 			br(),
-			labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `),
+			labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `)
 		]),
 		labels(snap, `${lang["TOOL_DRAW_SNAP"]}: `),
 		br(),

@@ -52,7 +52,7 @@ menuItems.push([7, () => [
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
 				measureTokenMove.set(this.checked);
 			}}), `${lang["MEASURE_TOKEN_MOVE"]}: `),
-			br(),
+			br()
 		] : [],
 		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 			zoomSlider.set(this.checked);
@@ -79,7 +79,7 @@ menuItems.push([7, () => [
 			br(),
 			labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerSelectedOpacity.value, "oninput": function(this: HTMLInputElement) {
 				hiddenLayerSelectedOpacity.set(parseInt(this.value));
-			}})),
+			}}))
 		] : [],
 		pluginSettings(),
 		h1(lang["SETTINGS_RESET"]),

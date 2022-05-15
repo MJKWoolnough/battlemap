@@ -45,7 +45,7 @@ addTool({
 		title(lang["TOOL_MOVE"]),
 		g({"stroke-width": 1, "style": "stroke: currentColor", "stroke-linecap": "round"}, [
 			line({"x1": 11, "y1": 6, "x2": 11, "y2": 16}),
-			line({"x1": 6, "y1": 11, "x2": 16, "y2": 11}),
+			line({"x1": 6, "y1": 11, "x2": 16, "y2": 11})
 		]),
 		path({"d": "M11,0 L6,5 L16,5 Z M0,11 L5,6 L 5,16 Z M11,22 L6,17 L16,17 Z M22,11 L17,16 L17,6 Z"})
 	]),

@@ -37,7 +37,7 @@ const tools: Tool[] = [],
 
 export const defaultTool: Tool = {
 	"name": lang["TOOL_DEFAULT"],
-	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})]),
+	"icon": svg({"viewBox": "0 0 20 20"}, [title(lang["TOOL_DEFAULT"]), path({"d": "M1,1 L20,20 M1,10 V1 H10", "fill": "none", "stroke": "currentColor", "stroke-width": 2})])
 },
 addTool = (t: Tool) => tools.push(t),
 ignore = () => false,

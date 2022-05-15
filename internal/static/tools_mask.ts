@@ -135,7 +135,7 @@ addTool({
 			legend(lang["TOOL_MASK_DRAW_TYPE"]),
 			labels(opaque, `${lang["TOOL_MASK_OPAQUE"]}: `),
 			br(),
-			labels(input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), `${lang["TOOL_MASK_TRANSPARENT"]}: `),
+			labels(input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), `${lang["TOOL_MASK_TRANSPARENT"]}: `)
 		]),
 		fieldset([
 			legend(lang["TOOL_MASK_DRAW_SHAPE"]),
@@ -144,7 +144,7 @@ addTool({
 			labels(circle, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
 			br(),
 			labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `),
-			br(),
+			br()
 		]),
 		labels(remove, `${lang["TOOL_MASK_REMOVE"]}: `),
 		br(),

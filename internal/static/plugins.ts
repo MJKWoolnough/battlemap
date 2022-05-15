@@ -70,7 +70,7 @@ settings = () => {
 			labels(`${lang["PLUGINS"]}: `, selected),
 			labels(check, ""),
 			br(),
-			save,
+			save
 		] : [],
 		filterSortPlugins("settings").map(([name, {"settings": {fn}}]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), fn])
 	];
