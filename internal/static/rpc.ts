@@ -203,7 +203,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["pluginSetting", "plugins.set",    ["id", "setting", "removing"], returnVoid,   "waitPluginSetting", ""],
 
 			["broadcastWindow", "broadcastWindow", ["module", "id", "contents"], returnVoid, "waitBroadcastWindow", ""],
-			["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""],
+			["broadcast",       "broadcast",        "!",                         returnVoid, "waitBroadcast", ""]
 		],
 		"images": [
 			["list",         "imageAssets.list",          "",            checkFolderItems, "", ""],
