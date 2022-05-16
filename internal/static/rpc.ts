@@ -450,6 +450,9 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"]],
       checkTokenSet = (data: any) => {
 	checker(data, "TokenSet", checksTokenSet);
+	if (data["lightColour"]) {
+		checkColour(data["lightColour"], "tokenSet->lightColour");
+	}
 	if (data["removeTokenData"]) {
 		for (const k of data["removeTokenData"]) {
 			checkString(k, "TokenSet", "removeTokenData");
