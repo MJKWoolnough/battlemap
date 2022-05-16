@@ -156,7 +156,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		root.setRPCFuncs(rpcFuncs);
 		root.setRoot(folderList);
 		root.windowIcon = icon;
-		clearNode(base, {"id": `${id}Items`, "class": "folders"}, [
+		clearNode(base, {"class": "assets folders"}, [
 			button({"onclick": () => {
 				const file = input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": () => {
 					uploadAsset(root, id, new FormData(f), w)

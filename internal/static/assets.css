@@ -1,10 +1,10 @@
-:is(#imagesItems, #audioItems) ul {
+.assets ul {
 	margin: 0;
 	padding-left: calc(1em + 4px);
 	list-style: none;
 }
 
-:is(#imagesItems, #audioItems) > div > ul {
+.assets > div > ul {
 	padding-left: 0;
 }
 
