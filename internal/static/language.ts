@@ -270,6 +270,7 @@ const defaultLanguage = {
 		"TOOL_DRAW_FILL_COLOUR": "Fill Color",
 		"TOOL_DRAW_STROKE_COLOUR": "Stroke Color",
 		"TOOL_WALL_COLOUR": "Wall Color",
+		"TOOL_WALL_COLOUR_SET": "Set Wall Color",
 		"UNDO_LIGHT_COLOUR": "Map Light Color"
 	}, defaultLanguage)
       };
