@@ -359,7 +359,7 @@ const select = Symbol("select"),
 	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-token-conditions-5e": b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-selected-conditions-5e": b}}))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
       highlight = rect({"stroke-width": 20}),
-      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", Colour.from({"r": 255, "g": 255, "b": 0, "a": 127}), (v: any): v is Colour => {
+      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", new Colour(255, 255, 0, 127), (v: any): v is Colour => {
 	if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
 		Colour.from(v);
 		return true;
