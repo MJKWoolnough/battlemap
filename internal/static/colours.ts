@@ -30,7 +30,7 @@ export class Colour {
 	}
 }
 
-export const hex2Colour = (hex: string, a = 255) => Colour.from({"r": checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), "g": checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), "b": checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a}),
+export const hex2Colour = (hex: string, a = 255) => new Colour(checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a),
 noColour = new Colour(0, 0, 0, 0),
 colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = dragColour.register({"transfer": () => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}),
