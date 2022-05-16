@@ -464,15 +464,15 @@ export default (base: HTMLElement) => {
 		showSignal(pos);
 	});
 	rpc.waitSignalPosition().then(showSignal);
-	rpc.waitMapChange().then(setMapDetails),
-	rpc.waitMapLightChange().then(setLightColour),
-	rpc.waitLayerShow().then(path => setLayerVisibility(path, true)),
-	rpc.waitLayerHide().then(path => setLayerVisibility(path, false)),
-	rpc.waitLayerAdd().then(addLayer),
-	rpc.waitLayerFolderAdd().then(addLayerFolder),
-	rpc.waitLayerMove().then(({from, to, position}) => moveLayer(from, to, position)),
-	rpc.waitLayerRename().then(({path, name}) => renameLayer(path, name)),
-	rpc.waitLayerRemove().then(removeLayer),
+	rpc.waitMapChange().then(setMapDetails);
+	rpc.waitMapLightChange().then(setLightColour);
+	rpc.waitLayerShow().then(path => setLayerVisibility(path, true));
+	rpc.waitLayerHide().then(path => setLayerVisibility(path, false));
+	rpc.waitLayerAdd().then(addLayer);
+	rpc.waitLayerFolderAdd().then(addLayerFolder);
+	rpc.waitLayerMove().then(({from, to, position}) => moveLayer(from, to, position));
+	rpc.waitLayerRename().then(({path, name}) => renameLayer(path, name));
+	rpc.waitLayerRemove().then(removeLayer);
 	rpc.waitTokenAdd().then(tk => {
 		const layer = getLayer(tk.path);
 		if (layer && isSVGLayer(layer)) {
@@ -495,7 +495,7 @@ export default (base: HTMLElement) => {
 				updateLight();
 			}
 		}
-	}),
+	});
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
 		const tk = tokens.get(id) ?? {"layer": null, "token": null},
 		      {layer, token} = tk,
@@ -510,7 +510,7 @@ export default (base: HTMLElement) => {
 				updateLight();
 			}
 		}
-	}),
+	});
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
 		if (token) {
@@ -545,7 +545,7 @@ export default (base: HTMLElement) => {
 			}
 			token.updateNode()
 		}
-	}),
+	});
 	rpc.waitTokenRemove().then(tk => {
 		const {layer, token} = tokens.get(tk)!;
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
@@ -555,7 +555,7 @@ export default (base: HTMLElement) => {
 				updateLight();
 			}
 		}
-	}),
+	});
 	rpc.waitLayerShift().then(({path, dx, dy}) => {
 		const layer = getLayer(path);
 		if (layer && isSVGLayer(layer)) {
@@ -572,19 +572,19 @@ export default (base: HTMLElement) => {
 			};
 			updateLight();
 		}
-	}),
+	});
 	rpc.waitWallAdded().then(({path, wall}) => {
 		const layer = getLayer(path);
 		if (layer && isSVGLayer(layer)) {
 			layer.walls.push(normaliseWall(wall));
 			updateLight();
 		}
-	}),
+	});
 	rpc.waitWallRemoved().then(wp => {
 		const {layer, wall} = walls.get(wp)!;
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
-	}),
+	});
 	rpc.waitWallModified().then(w => {
 		const wall = walls.get(w.id);
 		if (wall) {
@@ -605,8 +605,8 @@ export default (base: HTMLElement) => {
 		if (kd.key) {
 			mapData.data[kd.key] = kd.data;
 		}
-	}),
-	rpc.waitMapDataRemove().then(key => delete mapData.data[key])
+	});
+	rpc.waitMapDataRemove().then(key => delete mapData.data[key]);
 	rpc.waitMaskAdd().then(masks.add);
 	rpc.waitMaskRemove().then(masks.remove);
 	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
