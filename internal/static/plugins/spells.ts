@@ -1,4 +1,5 @@
 import type {Uint} from '../types.js';
+import type {Colour} from '../colours.js';
 import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
@@ -37,7 +38,7 @@ const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style":
 	amendNode(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
 	amendNode(wallRect, {"x": -sh, "y": -w/2, "width": s, "height": w});
       },
-      types: [string, string][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [c, hex2Colour(c, n === 8 ? 255 : 128) + ""]);
+      types: [Colour, Colour][] = ["#ff0000", "#ddddff", "#00ff00", "#0000ff", "#ffffff", "#000000", "#ffff00", "#996622", "#000000"].map((c, n) => [hex2Colour(c), hex2Colour(c, n === 8 ? 255 : 128)]);
 
 let size = 20,
     width = 5;
@@ -128,7 +129,7 @@ if (isAdmin) {
 				const {gridSize, gridDistance} = mapData,
 				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w;
-				doTokenAdd(layer.path, {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": hex2Colour(types[damageType][0], 128), "stroke": hex2Colour(types[damageType][0]), "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
+				doTokenAdd(layer.path, {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": types[damageType][1], "stroke": types[damageType][0], "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
 			}
 		}
 	      },
