@@ -446,6 +446,9 @@ func appendNum(p []byte, n uint8) []byte {
 		c := n / 100
 		n -= c * 100
 		p = append(p, '0'+c)
+		if n < 10 {
+			p = append(p, '0')
+		}
 	}
 	if n >= 10 {
 		c := n / 10
