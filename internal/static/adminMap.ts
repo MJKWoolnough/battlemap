@@ -363,7 +363,7 @@ export default (base: HTMLElement) => {
 	})[0]();
 	keyEvent("v", () => {
 		if (copiedToken && selected.layer) {
-			const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0], pasteCoords[1], copiedToken.width, copiedToken.height) : pasteCoords,
+			const [x, y] = copiedToken.snap ? snapTokenToGrid(pasteCoords[0] - (copiedToken.width >> 1), pasteCoords[1] - (copiedToken.height >> 1), copiedToken.width, copiedToken.height) : [pasteCoords[0] - (copiedToken.width >> 1), pasteCoords[1] - (copiedToken.width >> 1)],
 			      tk: Token  = Object.assign(cloneObject(copiedToken), {"id": 0, x, y});
 			doTokenAdd(selected.layer.path, tk);
 		}
