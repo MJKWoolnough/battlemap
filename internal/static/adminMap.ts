@@ -351,7 +351,7 @@ export default (base: HTMLElement) => {
 		if (copiedToken && selected.layer) {
 			const {snap, width, height} = copiedToken,
 			      [x, y] = snap ? snapTokenToGrid(pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1), width, height) : [pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1)],
-			      tk: Token  = Object.assign(cloneObject(copiedToken), {"id": 0, "x": Math.min(Math.max(0, x), mapData.width - width), "y": Math.min(Math.max(0, y), mapData.height - height)});
+			      tk: Token = Object.assign(cloneObject(copiedToken), {"id": 0, "x": Math.min(Math.max(0, x), mapData.width - width), "y": Math.min(Math.max(0, y), mapData.height - height)});
 			doTokenAdd(selected.layer.path, tk);
 		}
 	})[0]();
