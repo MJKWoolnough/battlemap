@@ -460,9 +460,7 @@ export default (base: HTMLElement) => {
 					if (!snap) {
 						const [newX, newY] = snapTokenToGrid(x, y, width, height),
 						      newRotation = Math.round(rotation / 32) * 32 % 256;
-						if (x !== newX || y !== newY || rotation !== newRotation) {
-							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
-						}
+						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
 					} else {
 						doTokenSet({"id": currToken.id, "snap": !snap});
 					}
