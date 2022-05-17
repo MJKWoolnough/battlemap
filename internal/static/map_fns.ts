@@ -315,7 +315,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (selected.token === token) {
-			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "transform": token.transformString(false)})
+			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": `cursor_${((token.rotation + 143) >> 5) % 4}`, "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;
