@@ -5,7 +5,7 @@ import {amendNode} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
 import lang from './language.js';
 import {addLayer, addLayerFolder, getLayer, getParentLayer, isSVGLayer, isTokenDrawing, isTokenImage, mapData, moveLayer, normaliseWall, removeLayer, renameLayer, setLayerVisibility, setLightColour, setMapDetails, splitAfterLastSlash, updateLight} from './map.js';
-import {SQRT3, SVGToken, deselectToken, masks, outline, selected, tokens} from './map_tokens.js';
+import {SQRT3, SVGToken, deselectToken, masks, outline, outlineRotationClass, selected, tokens} from './map_tokens.js';
 import {drawingClass, shapeClass, tokenClass, tokenDataFilter} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {cloneObject, queue, walls} from './shared.js';
@@ -315,7 +315,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (selected.token === token) {
-			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": `cursor_${((token.rotation + 143) >> 5) % 4}`, "transform": token.transformString(false)})
+			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": outlineRotationClass(token.rotation), "transform": token.transformString(false)})
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;

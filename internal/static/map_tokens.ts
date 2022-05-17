@@ -181,6 +181,7 @@ selected = {
 	"token": null as SVGToken | SVGShape | null
 },
 outline = g(),
+outlineRotationClass = (rotation: Uint) => `cursor_${((rotation + 143) >> 5) % 4}`,
 deselectToken = () => {
 	selected.token = null;
 	amendNode(outline, {"style": {"display": "none"}});

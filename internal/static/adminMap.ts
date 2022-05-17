@@ -16,7 +16,7 @@ import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
-import {SQRT3, SVGToken, deselectToken, outline, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
+import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
@@ -66,7 +66,7 @@ export default (base: HTMLElement) => {
 				const deg = 256 / (mapData.gridType === 1 || mapData.gridType === 2 ? 12 : 8);
 				rotation = Math.round(rotation / deg) * deg % 256;
 			}
-			amendNode(outline, {"class": `cursor_${((rotation + 143) >> 5) % 4}`});
+			amendNode(outline, {"class": outlineRotationClass(rotation)});
 			break;
 		default: {
 			const r = -360 * rotation / 256,
@@ -208,7 +208,7 @@ export default (base: HTMLElement) => {
 	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		setLayer(tokens.get(newToken.id)!.layer);
 		selected.token = newToken;
-		amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
+		amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "class": outlineRotationClass(newToken.rotation)});
 		for (const k of ["x", "y", "rotation", "width", "height"] as const) {
 			tokenMousePos[k] = newToken[k];
 		}
@@ -311,7 +311,7 @@ export default (base: HTMLElement) => {
 				token.rotation = rotation;
 				token.height = height;
 				token.updateNode();
-				amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "class": `cursor_${((rotation + 143) >> 5) % 4}`, "transform": token.transformString(false)});
+				amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "class": outlineRotationClass(rotation), "transform": token.transformString(false)});
 			}
 			stopMeasurement();
 			cancelTokenDrag();
