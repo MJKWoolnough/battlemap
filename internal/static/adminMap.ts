@@ -130,38 +130,22 @@ export default (base: HTMLElement) => {
 		amendNode(root, {"style": {"--outline-cursor": undefined}});
 		tokenDragMode = -1;
 		const {token} = selected,
-		      {x, y, width, height, rotation} = tokenMousePos,
-		      newX = Math.round(token.x),
-		      newY = Math.round(token.y),
-		      newRotation = Math.round(token.rotation),
-		      newWidth = Math.round(token.width),
-		      newHeight = Math.round(token.height),
-		      ts: TokenSet = {"id": token.id};
+		      ts: TokenSet = {
+			"id": token.id,
+			"x": Math.round(token.x),
+			"y": Math.round(token.y),
+			"rotation": Math.round(token.rotation),
+			"width": Math.round(token.width),
+			"height": Math.round(token.height)
+		      };
 		let changed = false;
-		if (newX !== x) {
-			token.x = x;
-			ts.x = newX;
-			changed = true;
-		}
-		if (newY !== y) {
-			token.y = y;
-			ts.y = newY;
-			changed = true;
-		}
-		if (newWidth !== width) {
-			token.width = width;
-			ts.width = newWidth;
-			changed = true;
-		}
-		if (newHeight !== height) {
-			token.height = height;
-			ts.height = newHeight;
-			changed = true;
-		}
-		if (newRotation !== rotation) {
-			token.rotation = rotation;
-			ts.rotation = newRotation;
-			changed = true;
+		for (const k of ["x", "y", "rotation", "width", "height"] as const) {
+			if (tokenMousePos[k] !== ts[k]) {
+				token[k] = tokenMousePos[k];
+				changed = true;
+			} else {
+				delete ts[k];
+			}
 		}
 		if (changed) {
 			doTokenSet(ts);
