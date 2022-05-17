@@ -311,7 +311,7 @@ export default (base: HTMLElement) => {
 				token.rotation = rotation;
 				token.height = height;
 				token.updateNode();
-				amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "transform": token.transformString(false)});
+				amendNode(outline, {"style": {"--outline-width": width + "px", "--outline-height": height + "px"}, "class": `cursor_${((rotation + 143) >> 5) % 4}`, "transform": token.transformString(false)});
 			}
 			stopMeasurement();
 			cancelTokenDrag();
