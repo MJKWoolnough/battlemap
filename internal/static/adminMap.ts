@@ -261,6 +261,8 @@ export default (base: HTMLElement) => {
 		if (token && !token.snap) {
 			keyRepeats[n] = setInterval(() => {
 				shift(token, 1, 1, e.shiftKey);
+				token.x = Math.min(Math.max(0, token.x), mapData.width - token.width);
+				token.y = Math.min(Math.max(0, token.y), mapData.height - token.height);
 				token.updateNode();
 				amendNode(outline, {"transform": token.transformString(false)});
 			}, 5);
@@ -277,10 +279,12 @@ export default (base: HTMLElement) => {
 				doTokenSet({id, x, y, rotation});
 			}
 		} else {
-			const {gridSize, gridType} = mapData,
+			const {gridSize, gridType, width, height} = mapData,
 			      {token} = selected;
 			if (e.isTrusted && token) {
 				shift(token, gridType === 1 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 2 ? gridSize >> 1 : gridSize, gridType === 2 ? Math.round(1.5 * gridSize / SQRT3) : gridType === 1 ? gridSize >> 1 : gridSize, e.shiftKey);
+				token.x = Math.min(Math.max(0, token.x), width - token.width);
+				token.y = Math.min(Math.max(0, token.y), height - token.height);
 				if (lastToken) {
 					const {id, x, y, rotation} = lastToken;
 					lastToken.x = tokenMousePos.x;
