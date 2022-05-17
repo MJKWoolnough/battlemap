@@ -209,11 +209,9 @@ export default (base: HTMLElement) => {
 		setLayer(tokens.get(newToken.id)!.layer);
 		selected.token = newToken;
 		amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "class": `cursor_${((newToken.rotation + 143) >> 5) % 4}`});
-		tokenMousePos.x = newToken.x;
-		tokenMousePos.y = newToken.y;
-		tokenMousePos.width = newToken.width;
-		tokenMousePos.height = newToken.height;
-		tokenMousePos.rotation = newToken.rotation;
+		for (const k of ["x", "y", "rotation", "width", "height"] as const) {
+			tokenMousePos[k] = newToken[k];
+		}
 		tokenSelected();
 	      },
 	      pasteCoords = [0, 0],
