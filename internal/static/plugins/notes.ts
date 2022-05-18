@@ -417,8 +417,7 @@ if (isAdmin) {
 						} else {
 							const data = {"user": false, "data": {"contents": "", "share": false}};
 							root.addItem(++lastID, name);
-							folders.data.items[name] = lastID;
-							pages.set(lastID, data);
+							pages.set(folders.data.items[name] = lastID, data);
 							rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
 						}
 					}
