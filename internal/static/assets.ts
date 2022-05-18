@@ -67,14 +67,6 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 		this.#registerItem(id, name);
 		return super.addItem(id, name);
 	}
-	removeItem(path: string) {
-		const id = super.removeItem(path);
-		if (id > 0) {
-			const v = this.assetMap().get(id)!;
-			v[0].send(v[1] = "");
-		}
-		return id;
-	}
 	ondragenter(e: DragEvent) {
 		super.ondragenter(e);
 		if (this.#dragUpload.is(e)) {
