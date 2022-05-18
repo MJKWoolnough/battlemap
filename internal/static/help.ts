@@ -88,7 +88,7 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 					animate({"id": "helpPanelOpenClick1", "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "helpPanelOpenInit.end 0.5s;helpPanelOpenRestart.end 0.5s"}),
 					helpPanelCloseClick,
 					helpPanelResizeStart,
-					animate({"attributeName": "fill", "values": "#fff", "dur": "0.2s", "fill": "freeze", "begin": "helpPanelResize3.end 0.5s", "onendEvent": checkPanelOpenEnd}),
+					animate({"attributeName": "fill", "values": "#fff", "dur": "0.2s", "fill": "freeze", "begin": "helpPanelResize3.end 0.5s", "onendEvent": checkPanelOpenEnd})
 				]),
 				rect({"x": 11, "y": 18, "width": 3, "height": 10, "rx": 1}, [
 					helpSignalStart,
