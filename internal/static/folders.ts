@@ -228,7 +228,7 @@ export class Folder {
 						this.newer,
 						this.remover
 					]),
-					this.children[node],
+					this.children[node]
 				])
 			]);
 		}  else {
