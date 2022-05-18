@@ -257,7 +257,6 @@ const defaultLanguage = {
       },
       languagePacks: Record<string, typeof defaultLanguage> = {
 	"en-GB": defaultLanguage,
-	"en": defaultLanguage,
 	"en-US": overlayLang({
 		"COLOUR": "Color",
 		"COLOUR_UPDATE": "Update Color",
