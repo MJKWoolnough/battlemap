@@ -386,7 +386,7 @@ const select = Symbol("select"),
 						setting.set(this.checked);
 					}}), "")))
 				])))
-			]),
+			])
 		])
 	},
 	"tokenClass": {
