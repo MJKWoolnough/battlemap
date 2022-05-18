@@ -143,15 +143,7 @@ if (isAdmin) {
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
 				legend(lang["SPELL_TYPE"]),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "checked": true, "class": "settings_ticker", "onclick": () => setEffect(circleEffect)}), `${lang["SPELL_TYPE_CIRCLE"]}: `),
-				br(),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(coneEffect)}), `${lang["SPELL_TYPE_CONE"]}: `),
-				br(),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(cubeEffect)}), `${lang["SPELL_TYPE_CUBE"]}: `),
-				br(),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(lineEffect)}), `${lang["SPELL_TYPE_LINE"]}: `),
-				br(),
-				labels(input({"type": "radio", "name": "plugin-spell-type", "class": "settings_ticker", "onclick": () => setEffect(wallEffect)}), `${lang["SPELL_TYPE_WALL"]}: `)
+				([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": n === 0, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)]),
 			]),
 			labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			br(),
