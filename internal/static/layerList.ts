@@ -1,4 +1,4 @@
-import type {FolderItems, LayerFolder, LayerRPC, LayerTokens, Uint} from './types.js';
+import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
@@ -222,8 +222,8 @@ class FolderLayer extends Folder {
 }
 
 class LayerRoot extends Root {
-	constructor(layers: FolderItems, rpc: LayerRPC) {
-		super(layers, "Layer", rpc, ItemLayer, FolderLayer);
+	constructor(layers: FolderItems) {
+		super(layers, "Layer", layersRPC, ItemLayer, FolderLayer);
 	}
 	get filter() { return false; }
 	getLayer(path: string) {
@@ -237,7 +237,7 @@ menuItems.push([5, () => isAdmin ? [
 	(() => {
 		const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
 		let loadFn = () => {
-			const list = new LayerRoot(layerList, layersRPC),
+			const list = new LayerRoot(layerList),
 			      setLayer = (sl: ItemLayer) => {
 				const mo = {"clientX": mouseX, "clientY": mouseY};
 				root.dispatchEvent(new MouseEvent("mouseout", mo));
