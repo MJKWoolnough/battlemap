@@ -23,9 +23,9 @@ export class Character extends DraggableItem {
 				}
 			});
 		} else {
-			const d = characterData.get(id)!;
-			if (d["store-image-icon"]) {
-				this.setIcon(d["store-image-icon"].data);
+			const d = characterData.get(id)?.["store-image-icon"];
+			if (d) {
+				this.setIcon(d.data);
 			}
 		}
 		characters.set(id, this);
