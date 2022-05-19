@@ -216,7 +216,7 @@ type token struct {
 	Flop           bool                    `json:"flop"`
 	Snap           bool                    `json:"snap"`
 	LightColour    colour                  `json:"lightColour"`
-	LightIntensity uint64                  `jons:"lightIntensity"`
+	LightIntensity uint64                  `json:"lightIntensity"`
 	TokenType      tokenType               `json:"tokenType"`
 	IsEllipse      bool                    `json:"isEllipse"`
 	StrokeWidth    uint8                   `json:"strokeWidth"`
