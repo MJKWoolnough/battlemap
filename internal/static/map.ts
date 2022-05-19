@@ -1,6 +1,5 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Children} from './lib/dom.js';
-import type {Colour} from './colours.js';
 import type {LightSource} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
@@ -9,7 +8,7 @@ import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
-import {noColour} from './colours.js';
+import {Colour, noColour} from './colours.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
@@ -204,15 +203,15 @@ updateLight = () => {
 					walls.push({id, x1, y1, x2, y2, colour, scattering});
 				}
 			}
-			for (const {lightColour, lightIntensity, x, y, width, height} of l.tokens) {
-				if (lightIntensity && (lightColour.r || lightColour.g || lightColour.b) && lightColour.a) {
-					lights.push([lightColour, lightIntensity * gridSize / (gridDistance || 1), x + width / 2, y + height / 2]);
+			for (const tk of l.tokens) {
+				if (tk.lightStages.length && tk.lightTimings.length) {
+					lights.push(tk);
 				}
 			}
 		}
 	});
 	for (const light of lights) {
-		masks.push(makeLight(light, walls));
+		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
 	clearNode(ll, masks);
 },
@@ -491,7 +490,7 @@ export default (base: HTMLElement) => {
 			}
 			layer.tokens.push(token);
 			tokens.set(token.id, {layer, token});
-			if (token.lightColour.a && token.lightIntensity) {
+			if (token.hasLight()) {
 				updateLight();
 			}
 		}
@@ -506,7 +505,7 @@ export default (base: HTMLElement) => {
 			}
 			newParent.tokens.splice(newPos, 0, layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0]);
 			tk.layer = newParent;
-			if (token.lightColour.a && token.lightIntensity) {
+			if (token.hasLight()) {
 				updateLight();
 			}
 		}
@@ -514,7 +513,7 @@ export default (base: HTMLElement) => {
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
 		if (token) {
-			const hasLight = token.lightColour.a && token.lightIntensity;
+			const hasLight = token.hasLight();
 			for (const k in ts) {
 				switch (k) {
 				case "id":
@@ -540,7 +539,7 @@ export default (base: HTMLElement) => {
 					(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 				}
 			}
-			if (hasLight || token.lightColour.a && token.lightIntensity) {
+			if (hasLight || token.hasLight()) {
 				updateLight();
 			}
 			token.updateNode()
@@ -551,7 +550,7 @@ export default (base: HTMLElement) => {
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 		if (token instanceof SVGToken) {
 			token.cleanup();
-			if (token.lightColour.a > 0 && token.lightIntensity > 0) {
+			if (token.hasLight()) {
 				updateLight();
 			}
 		}
