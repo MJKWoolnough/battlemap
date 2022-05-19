@@ -27,7 +27,34 @@ type XWall = Wall & {
 	cl: Uint;
 }
 
-export type LightSource = [Colour, Uint, Int, Int] | [Colour, Uint, Int, Int, Int, Int];
+export interface LightSource {
+	lightColours: Colour[][];
+	lightStages: Uint[];
+	lightTimings: Uint[];
+	getCentre(): [Int, Int];
+	getLightPos(): [Int, Int];
+};
+
+export class Lighting {
+	x: Int;
+	y: Int;
+	lightX: Int;
+	lightY: Int;
+	lightColours: Colour[][];
+	lightStages: Uint[];
+	lightTimings: Uint[];
+	constructor(x: Int, y: Int, lightX: Int, lightY: Int, lightColours: Colour[][], lightStages: Uint[], lightTimings: Uint[]) {
+		this.x = x;
+		this.y = y;
+		this.lightX = lightX;
+		this.lightY = lightY;
+		this.lightColours = lightColours;
+		this.lightStages = lightStages;
+		this.lightTimings = lightTimings;
+	}
+	getCentre(): [Int, Int] { return [this.x, this.y]; }
+	getLightPos(): [Int, Int] { return [this.lightX, this.lightY]; }
+}
 
 const roundingOffset = 10e-9,
       hasDirection = (x: Uint, y: Uint, point: XWall[], anti: boolean = false) => {
@@ -87,8 +114,10 @@ export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y
 	}
 	return [NaN, NaN];
 },
-makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
-	const [c, i, lightX, lightY, lightPX, lightPY] = l,
+makeLight = (l: LightSource, walls: Wall[], scale: number, lens?: Wall) => {
+	const [lightX, lightY] = l.getLightPos(),
+	      [lightPX, lightPY] = l.getCentre(),
+	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
 	      lx = lightPX ?? lightX,
 	      ly = lightPY ?? lightY,
 	      vertices: Vertex[] = [],
@@ -237,8 +266,7 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			if (sw) {
 				const {id, colour: {r, g, b, a}, x1, y1, x2, y2, scattering} = sw;
 				if (r || g || b) {
-					const {r: lr, g: lg, b: lb, a: la} = c,
-					      [cx, cy, cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
+					const [cx, cy, cd] = closestPoint(x1, y1, x2, y2, lightX, lightY);
 					if (cd < i) {
 						const fw = {
 							id,
@@ -252,39 +280,15 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 						      sx = lx + scattering * (cx - lx) / 256,
 						      sy = ly + scattering * (cy - ly) / 256;
 						if (a < 255) {
-							const inva = 1 - (a / 255),
-							      nr = Math.round(Math.sqrt(r * lr) * inva),
-							      ng = Math.round(Math.sqrt(g * lg) * inva),
-							      nb = Math.round(Math.sqrt(b * lb) * inva),
-							      na = Math.round(255 * (1 - ((1 - la / 255) * inva)));
-							if (na && (nr || ng || nb)) {
-								ret.push(makeLight([
-									new Colour(nr, ng, nb, na),
-									cd + (i - cd) * inva,
-									sx,
-									sy,
-								        lightX,
-									lightY
-								], walls, fw));
-							}
+							const colours: Colour[][] = [],
+							      stages: Uint[] = [];
+							ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 						if (a > 0) {
-							const ia = la / 255,
-							      nr = Math.round(Math.sqrt(r * lr) * ia),
-							      ng = Math.round(Math.sqrt(g * lg) * ia),
-							      nb = Math.round(Math.sqrt(b * lb) * ia),
-							      na = Math.round(255 * a * ia);
-							if (na && (nr || ng || nb)) {
-								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
-								ret.push(makeLight([
-									new Colour(nr, ng, nb, na),
-									cd + (i - cd) * ia,
-									cx + cx - sx,
-									cy + cy - sy,
-									cx + cx - lx,
-									cy + cy - ly
-								], walls, fw));
-							}
+							const colours: Colour[][] = [],
+							      stages: Uint[] = [],
+						              [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
+							ret.push(makeLight(new Lighting(cx + cx - sx, cy + cy - sy, cx + cx - lx, cy + cy - ly, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 					}
 				}
@@ -293,6 +297,6 @@ makeLight = (l: LightSource, walls: Wall[], lens?: Wall) => {
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(lx, ly, i, c)})`}));
+	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(l)})`}));
 	return ret;
 };
