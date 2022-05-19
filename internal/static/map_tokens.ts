@@ -2,6 +2,7 @@ import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDra
 import type {WaitGroup} from './lib/inter.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
+import type {LightSource} from './map_lighting.js';
 import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
 import {node, NodeArray} from './lib/nodes.js';
@@ -22,8 +23,9 @@ abstract class SVGTransform {
 	flop: boolean = false;
 	width: Uint;
 	height: Uint;
-	lightColour: Colour;
-	lightIntensity: Uint;
+	lightColours: Colour[][];
+	lightStages: Uint[];
+	lightTimings: Uint[];
 	snap: boolean;
 	tokenData: Record<string, KeystoreData>;
 	tokenType: Uint;
@@ -34,8 +36,9 @@ abstract class SVGTransform {
 		this.x = token.x;
 		this.y = token.y;
 		this.rotation = token.rotation;
-		this.lightColour = token.lightColour;
-		this.lightIntensity = token.lightIntensity;
+		this.lightColours = token.lightColours;
+		this.lightStages = token.lightStages;
+		this.lightTimings = token.lightTimings;
 		this.snap = token.snap;
 		this.tokenData = token.tokenData;
 		this.tokenType = token.tokenType ?? 0;
@@ -68,6 +71,9 @@ abstract class SVGTransform {
 		}
 		return null;
 	}
+	hasLight() { return !!(this.lightStages.length && this.lightTimings.length); }
+	getCentre(): [Int, Int] { return [this.x + this.width / 2, this.y + this.y / 2]; }
+	getLightPos() { return this.getCentre(); }
 	cleanup() {}
 	uncleanup() {}
 }
@@ -319,11 +325,13 @@ definitions = (() => {
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
-		addLighting(cx: Uint, cy: Uint, r: Uint, c: Colour) {
+		addLighting(l: LightSource) {
 			const id = `LG_${nextLightID++}`,
-			      rg = radialGradient({id, r, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
-				stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
-				stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
+			      [x, y] = l.getLightPos(),
+			      c = l.lightColours[0][0],
+			      rg = radialGradient({id, "r": l.lightStages[0], x, y, "gradientUnits": "userSpaceOnUse"}, [
+				  stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
+				  stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
 			      ]);
 			lighting.push(rg);
 			amendNode(base, rg);
