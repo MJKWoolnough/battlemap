@@ -343,8 +343,9 @@ export type WallPath = {
 }
 
 type TokenLight = {
-	lightColour: Colour;
-	lightIntensity: Uint;
+	lightColours: Colour[][];
+	lightStages: Uint[];
+	lightTimings: Uint[];
 }
 
 export type Plugin = {
