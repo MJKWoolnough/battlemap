@@ -447,12 +447,10 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
       checksTokenMoveLayerPos: checkers = [[checkID, ""], [checkString, "to"], [checkUint, "newPos"]],
       checkTokenMoveLayerPos = (data: any) => checker(data, "TokenMoveLayer", checksTokenMoveLayerPos),
-      checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"]],
+      checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"], [checkArray, "?lightColours"], [checkArray, "?lightStages"], [checkArray, "?lightTimings"]],
       checkTokenSet = (data: any) => {
 	checker(data, "TokenSet", checksTokenSet);
-	if (data["lightColour"]) {
-		checkColour(data["lightColour"], "tokenSet->lightColour");
-	}
+	// TODO: Check lighting
 	if (data["removeTokenData"]) {
 		for (const k of data["removeTokenData"]) {
 			checkString(k, "TokenSet", "removeTokenData");
@@ -465,13 +463,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkColour, "lightColour"], [checkUint, "lightIntensity"], [checkKeystoreData, "tokenData"]],
+      checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkArray, "lightColours"], [checkArray, "lightStages"], [checkArray, "lightTimings"], [checkKeystoreData, "tokenData"]],
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
       checkToken = (data: any, name = "Token") => {
 	checker(data, name, checksToken);
+	// TODO: Check lighting
 	switch (data.tokenType) {
 	case undefined:
 	case 0:
