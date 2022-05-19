@@ -202,29 +202,61 @@ type layerToken struct {
 	*token
 }
 
+type lightColours [][]colour
+
+func (lc lightColours) appendTo(p []byte) []byte {
+	for n, cs := range lc {
+		if n > 0 {
+			p = append(p, ',')
+		}
+		p = append(p, '[')
+		for n, c := range cs {
+			if n > 0 {
+				p = append(p, ',')
+			}
+			c.appendTo(p)
+		}
+		p = append(p, ']')
+	}
+	return p
+}
+
+type lightData []uint64
+
+func (ld lightData) appendTo(p []byte) []byte {
+	for n, l := range ld {
+		if n > 0 {
+			p = append(p, ',')
+		}
+		strconv.AppendUint(p, l, 10)
+	}
+	return p
+}
+
 type token struct {
 	ID     uint64 `json:"id"`
 	Source uint64 `json:"src"`
 	coords
-	Width          uint64                  `json:"width"`
-	Height         uint64                  `json:"height"`
-	PatternWidth   uint64                  `json:"patternWidth"`
-	PatternHeight  uint64                  `json:"patternHeight"`
-	TokenData      map[string]keystoreData `json:"tokenData"`
-	Rotation       uint8                   `json:"rotation"`
-	Flip           bool                    `json:"flip"`
-	Flop           bool                    `json:"flop"`
-	Snap           bool                    `json:"snap"`
-	LightColour    colour                  `json:"lightColour"`
-	LightIntensity uint64                  `json:"lightIntensity"`
-	TokenType      tokenType               `json:"tokenType"`
-	IsEllipse      bool                    `json:"isEllipse"`
-	StrokeWidth    uint8                   `json:"strokeWidth"`
-	Fill           colour                  `json:"fill"`
-	Fills          []fill                  `json:"fills"`
-	FillType       fillType                `json:"fillType"`
-	Stroke         colour                  `json:"stroke"`
-	Points         []coords                `json:"points"`
+	Width         uint64                  `json:"width"`
+	Height        uint64                  `json:"height"`
+	PatternWidth  uint64                  `json:"patternWidth"`
+	PatternHeight uint64                  `json:"patternHeight"`
+	TokenData     map[string]keystoreData `json:"tokenData"`
+	Rotation      uint8                   `json:"rotation"`
+	Flip          bool                    `json:"flip"`
+	Flop          bool                    `json:"flop"`
+	Snap          bool                    `json:"snap"`
+	LightColours  lightColours            `json:"lightColours"`
+	LightStages   lightData               `json:"lightStages"`
+	LightTimings  lightData               `json:"lightTimings"`
+	TokenType     tokenType               `json:"tokenType"`
+	IsEllipse     bool                    `json:"isEllipse"`
+	StrokeWidth   uint8                   `json:"strokeWidth"`
+	Fill          colour                  `json:"fill"`
+	Fills         []fill                  `json:"fills"`
+	FillType      fillType                `json:"fillType"`
+	Stroke        colour                  `json:"stroke"`
+	Points        []coords                `json:"points"`
 }
 
 type coords struct {
@@ -257,8 +289,10 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 	p = strconv.AppendUint(append(p, ",\"height\":"...), t.Height, 10)
 	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
-	p = t.LightColour.appendTo(append(p, ",\"lightColour\":"...))
-	p = strconv.AppendUint(append(p, ",\"lightIntensity\":"...), t.LightIntensity, 10)
+	p = t.LightColours.appendTo(append(p, ",\"lightColours\":"...))
+	p = t.LightStages.appendTo(append(p, "],\"lightStages\":["...))
+	p = t.LightTimings.appendTo(append(p, "],\"lightTimings\":["...))
+	p = append(p, ']')
 	switch t.TokenType {
 	case tokenImage:
 		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)
@@ -331,6 +365,14 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 func (t *token) validate(checkID bool) error {
 	if checkID && t.ID == 0 {
 		return ErrInvalidTokenID
+	}
+	if len(t.LightColours) != len(t.LightStages) {
+		return ErrInvalidLighting
+	}
+	for _, l := range t.LightColours {
+		if len(l) != len(t.LightTimings) {
+			return ErrInvalidLighting
+		}
 	}
 	switch t.TokenType {
 	case tokenImage:
