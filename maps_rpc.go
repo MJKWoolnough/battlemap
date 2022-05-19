@@ -608,16 +608,16 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		})
 	case "setToken":
 		var setToken struct {
-			ID             uint64  `json:"id"`
-			X              *int64  `json:"x"`
-			Y              *int64  `json:"y"`
-			Width          *uint64 `json:"width"`
-			Height         *uint64 `json:"height"`
-			Rotation       *uint8  `json:"rotation"`
-			Snap           *bool   `json:"snap"`
-			LightColour    *colour `json:"lightColour"`
-			LightIntensity *uint64 `json:"lightIntensity"`
-
+			ID              uint64                  `json:"id"`
+			X               *int64                  `json:"x"`
+			Y               *int64                  `json:"y"`
+			Width           *uint64                 `json:"width"`
+			Height          *uint64                 `json:"height"`
+			Rotation        *uint8                  `json:"rotation"`
+			Snap            *bool                   `json:"snap"`
+			LightColours    *[][]colour             `json:"lightColours"`
+			LightStages     *[]uint64               `json:"lightStages"`
+			LightTimings    *[]uint64               `json:"lightTimings"`
 			Source          *uint64                 `json:"src"`
 			PatternWidth    *uint64                 `json:"patternWidth"`
 			PatternHeight   *uint64                 `json:"patternHeight"`
@@ -636,7 +636,47 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 		if err := json.Unmarshal(data, &setToken); err != nil {
 			return nil, err
 		}
-		return nil, m.updateMapsLayerToken(cd.CurrentMap, setToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
+		var err error
+		if errr := m.updateMapsLayerToken(cd.CurrentMap, setToken.ID, func(_ *levelMap, _ *layer, tk *token) bool {
+			if setToken.LightStages != nil {
+				if setToken.LightColours != nil {
+					if len(*setToken.LightColours) != len(*setToken.LightStages) {
+						err = ErrInvalidLighting
+						return false
+					}
+				} else if len(tk.LightColours) != len(*setToken.LightStages) {
+					err = ErrInvalidLighting
+					return false
+				}
+			}
+			if setToken.LightTimings != nil {
+				if setToken.LightColours != nil {
+					for _, cs := range *setToken.LightColours {
+						if len(cs) != len(*setToken.LightTimings) {
+							err = ErrInvalidLighting
+							return false
+						}
+					}
+				} else {
+					for _, cs := range tk.LightColours {
+						if len(cs) != len(*setToken.LightTimings) {
+							err = ErrInvalidLighting
+							return false
+						}
+					}
+				}
+			} else if setToken.LightColours != nil && setToken.LightStages == nil {
+				if len(*setToken.LightColours) != len(tk.LightStages) {
+					err = ErrInvalidLighting
+					return false
+				}
+				for _, cs := range *setToken.LightColours {
+					if len(cs) != len(tk.LightTimings) {
+						err = ErrInvalidLighting
+						return false
+					}
+				}
+			}
 			m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userAdmin)
 			data = strconv.AppendUint(append(data[:0], "{\"id\":"...), setToken.ID, 10)
 			l := len(data)
@@ -664,13 +704,17 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				tk.Snap = *setToken.Snap
 				data = strconv.AppendBool(append(data, ",\"snap\":"...), tk.Snap)
 			}
-			if setToken.LightColour != nil && *setToken.LightColour != tk.LightColour {
-				tk.LightColour = *setToken.LightColour
-				data = tk.LightColour.appendTo(append(data, ",\"lightColour\":"...))
+			if setToken.LightColours != nil {
+				tk.LightColours = *setToken.LightColours
+				data = tk.LightColours.appendTo(append(data, ",\"lightColours\":"...))
 			}
-			if setToken.LightIntensity != nil && *setToken.LightIntensity != tk.LightIntensity {
-				tk.LightIntensity = *setToken.LightIntensity
-				data = strconv.AppendUint(append(data, ",\"lightIntensity\":"...), tk.LightIntensity, 10)
+			if setToken.LightStages != nil {
+				tk.LightStages = *setToken.LightStages
+				data = tk.LightStages.appendTo(append(data, ",\"lightStages\":"...))
+			}
+			if setToken.LightTimings != nil {
+				tk.LightStages = *setToken.LightStages
+				data = tk.LightTimings.appendTo(append(data, ",\"lightTimings\":"...))
 			}
 			var changed bool
 			switch tk.TokenType {
@@ -783,7 +827,10 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				m.socket.broadcastMapChange(cd, broadcastTokenSet, data, userNotAdmin)
 			}
 			return changed
-		})
+		}); errr != nil {
+			return nil, errr
+		}
+		return nil, err
 	case "setTokenLayerPos":
 		var tokenLayerPos struct {
 			ID     uint64 `jons:"id"`
