@@ -33,4 +33,5 @@ var (
 	ErrUnknownPlugin             = errors.New("unknown plugin")
 	ErrUnknownMethod             = errors.New("unknown method")
 	ErrInvalidPassword           = errors.New("invalid password")
+	ErrInvalidLighting           = errors.New("invalid lighting")
 )
