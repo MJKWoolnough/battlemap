@@ -99,6 +99,20 @@ const roundingOffset = 10e-9,
 		return a < b ? [x1, y1, a] : [x2, y2, b];
 	}
 	return [x, y, Math.hypot(x - lightX, y - lightY)];
+      },
+      lightWallInteraction = (l: LightSource, wallColour: Colour, refraction = false): [Colour[][], Uint[]] | null => {
+	const newColours: Colour[][] = [],
+	      newStages: Uint[] = [],
+	      {r, g, b, a} = wallColour,
+	      ma = refraction ? 1 - (a / 255) : a / 255;
+	for (const cs of l.lightColours) {
+		const nc = [];
+		for (const {r: lr, g: lg, b: lb, a: la} of cs) {
+			nc.push(new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma)))));
+		}
+		newColours.push(nc);
+	}
+	return [newColours, newStages];
       };
 
 export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y3: Uint, x4: Uint, y4: Uint) => {
@@ -280,31 +294,17 @@ makeLight = (l: LightSource, walls: Wall[], scale: number, lens?: Wall) => {
 						      sx = lx + scattering * (cx - lx) / 256,
 						      sy = ly + scattering * (cy - ly) / 256;
 						if (a < 255) {
-							const colours: Colour[][] = [],
-							      stages: Uint[] = [],
-							      inva = 1 - (a / 255);
-							for (const cs of l.lightColours) {
-								const nc = [];
-								for (const {r: lr, g: lg, b: lb, a: la} of cs) {
-									nc.push(new Colour(Math.round(Math.sqrt(r * lr) * inva), Math.round(Math.sqrt(g * lg) * inva), Math.round(Math.sqrt(b * lb) * inva), Math.round(255 * (1 - ((1 - la / 255) * inva)))));
-								}
-								colours.push(nc);
+							const lw = lightWallInteraction(l, sw.colour, true);
+							if (lw) {
+								ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, lw[0], lw[1], l.lightTimings), walls, scale, fw));
 							}
-							ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 						if (a > 0) {
-							const colours: Colour[][] = [],
-							      stages: Uint[] = [],
-						              [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
-							      ia = a / 255;
-							for (const cs of l.lightColours) {
-								const nc = [];
-								for (const {r: lr, g: lg, b: lb, a: la} of cs) {
-									nc.push(new Colour(Math.round(Math.sqrt(r * lr) * ia), Math.round(Math.sqrt(g * lg) * ia), Math.round(Math.sqrt(b * lb) * ia), Math.round(255 * (1 - ((1 - la / 255) * ia)))));
-								}
-								colours.push(nc);
+							const lw = lightWallInteraction(l, sw.colour);
+							if (lw) {
+								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
+								ret.push(makeLight(new Lighting(cx + cx - sx, cy + cy - sy, cx + cx - lx, cy + cy - ly, lw[0], lw[1], l.lightTimings), walls, scale, fw));
 							}
-							ret.push(makeLight(new Lighting(cx + cx - sx, cy + cy - sy, cx + cx - lx, cy + cy - ly, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 					}
 				}
