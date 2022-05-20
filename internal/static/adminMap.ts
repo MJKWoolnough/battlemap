@@ -168,7 +168,7 @@ export default (base: HTMLElement) => {
 					img({"src": `/images/${image.id}`, "onload": function(this: HTMLImageElement) {
 						const {width, height} = this;
 						if (selected.layer === layer && width > 0 && height > 0) {
-							const token = {"id": 0, "src": image.id, x, y, width, height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+							const token = {"id": 0, "src": image.id, x, y, width, height, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []};
 							if (token.snap) {
 								[token.x, token.y] = snapTokenToGrid(token.x, token.y, token.width, token.height);
 							}
@@ -179,7 +179,7 @@ export default (base: HTMLElement) => {
 			}).catch(handleError);
 			return;
 		}
-		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0};
+		const token = {"id": 0, "src": 0, "x": 0, "y": 0, "width": 0, "height": 0, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []};
 		if (dragCharacter.is(e)) {
 			const {id, width, height} = dragCharacter.get(e),
 			      char = characterData.get(id);
@@ -466,9 +466,9 @@ export default (base: HTMLElement) => {
 					}
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
-					let c = currToken.lightColour;
+					let c = currToken.lightColours?.[0]?.[0] ?? noColour;
 					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
-					      i = input({"type": "number", "value": currToken.lightIntensity, "min": 0});
+					      i = input({"type": "number", "value": currToken.lightStages[0] ?? 0, "min": 0});
 					amendNode(shell, amendNode(w, [
 						h1(lang["CONTEXT_SET_LIGHTING"]),
 						labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
@@ -477,7 +477,7 @@ export default (base: HTMLElement) => {
 						br(),
 						button({"onclick": () => {
 							if (selected.token === currToken) {
-								doTokenSet({"id": currToken.id, "lightColour": c, "lightIntensity": checkInt(parseInt(i.value), 0)});
+								doTokenSet({"id": currToken.id, "lightColours": [[c]], "lightStages": [checkInt(parseInt(i.value), 0)], "lightTimings": [0]});
 							}
 							w.close();
 						}}, lang["SAVE"])
