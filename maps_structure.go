@@ -205,6 +205,7 @@ type layerToken struct {
 type lightColours [][]colour
 
 func (lc lightColours) appendTo(p []byte) []byte {
+	p = append(p, '[')
 	for n, cs := range lc {
 		if n > 0 {
 			p = append(p, ',')
@@ -214,22 +215,25 @@ func (lc lightColours) appendTo(p []byte) []byte {
 			if n > 0 {
 				p = append(p, ',')
 			}
-			c.appendTo(p)
+			p = c.appendTo(p)
 		}
 		p = append(p, ']')
 	}
+	p = append(p, ']')
 	return p
 }
 
 type lightData []uint64
 
 func (ld lightData) appendTo(p []byte) []byte {
+	p = append(p, '[')
 	for n, l := range ld {
 		if n > 0 {
 			p = append(p, ',')
 		}
-		strconv.AppendUint(p, l, 10)
+		p = strconv.AppendUint(p, l, 10)
 	}
+	p = append(p, ']')
 	return p
 }
 
@@ -290,9 +294,8 @@ func (t *token) appendTo(p []byte, user bool) []byte {
 	p = appendNum(append(p, ",\"rotation\":"...), t.Rotation)
 	p = strconv.AppendBool(append(p, ",\"snap\":"...), t.Snap)
 	p = t.LightColours.appendTo(append(p, ",\"lightColours\":"...))
-	p = t.LightStages.appendTo(append(p, "],\"lightStages\":["...))
-	p = t.LightTimings.appendTo(append(p, "],\"lightTimings\":["...))
-	p = append(p, ']')
+	p = t.LightStages.appendTo(append(p, ",\"lightStages\":"...))
+	p = t.LightTimings.appendTo(append(p, ",\"lightTimings\":"...))
 	switch t.TokenType {
 	case tokenImage:
 		p = strconv.AppendUint(append(p, ",\"src\":"...), t.Source, 10)
