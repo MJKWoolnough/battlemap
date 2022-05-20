@@ -72,7 +72,7 @@ abstract class SVGTransform {
 		return null;
 	}
 	hasLight() { return !!(this.lightStages.length && this.lightTimings.length); }
-	getCentre(): [Int, Int] { return [this.x + this.width / 2, this.y + this.y / 2]; }
+	getCentre(): [Int, Int] { return [this.x + this.width / 2, this.y + this.height / 2]; }
 	getLightPos() { return this.getCentre(); }
 	cleanup() {}
 	uncleanup() {}
