@@ -325,11 +325,11 @@ definitions = (() => {
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
-		addLighting(l: LightSource) {
+		addLighting(l: LightSource, scale: number) {
 			const id = `LG_${nextLightID++}`,
-			      [x, y] = l.getLightPos(),
+			      [cx, cy] = l.getLightPos(),
 			      c = l.lightColours[0][0],
-			      rg = radialGradient({id, "r": l.lightStages[0], x, y, "gradientUnits": "userSpaceOnUse"}, [
+			      rg = radialGradient({id, "r": l.lightStages[0] * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 				  stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
 				  stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
 			      ]);
