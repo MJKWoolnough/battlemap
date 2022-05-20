@@ -23,12 +23,12 @@ const unusedWait = new Subscription<any>(() => {}),
 export const getToken = () => {
 	const {token} = selected;
 	if (token instanceof SVGToken && !token.isPattern) {
-		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity} = token,
+		const {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColours, lightStages, lightTimings} = token,
 		      tokenData = cloneObject(token.tokenData);
 		for (const f of tokenDataFilter()) {
 			delete(tokenData[f]);
 		}
-		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, lightColour, lightIntensity, tokenData};
+		return {src, width, height, patternWidth, patternHeight, rotation, flip, flop, snap, "lightColours": cloneObject(lightColours), "lightStages": cloneObject(lightStages), "lightTimings": cloneObject(lightTimings), tokenData};
 	}
 	return undefined;
 },
@@ -191,7 +191,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		return () => {};
 	}
 	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new drawingClass(tk) : new shapeClass(tk),
-	      hasLight = tk.lightIntensity && tk.lightColour.a,
+	      hasLight = tk.lightStages.length && tk.lightTimings.length,
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
@@ -233,7 +233,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 		newPos = newParent.tokens.length;
 	}
 	let currentPos = layer.tokens.findIndex(t => t === token);
-	const hasLight = token.lightColour.a && token.lightIntensity,
+	const hasLight = token.lightStages.length && token.lightTimings.length,
 	      doIt = (sendRPC = true) => {
 		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
 		tokens.get(id)!.layer = newParent;
@@ -283,7 +283,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
 		}
 	}
-	const lightUpdate = ts["lightColour"] || ts["lightIntensity"] !== undefined || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
+	const lightUpdate = ts["lightStages"]?.length || ts?.["lightTimings"]?.length || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
 	      doIt = (sendRPC = true) => {
 		for (const k in ts) {
 			switch (k) {
@@ -337,7 +337,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		return;
 	}
 	const pos = layer.tokens.findIndex(t => t === token),
-	      hasLight = token.lightIntensity && token.lightColour.a,
+	      hasLight = token.lightStages.length && token.lightTimings.length,
 	      doIt = (sendRPC = true) => {
 		if (token === selected.token) {
 			deselectToken();
