@@ -33,7 +33,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	amendNode(i, {"src": `/images/${id}`});
 	setCursor();
       },
-      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColour": noColour, "lightIntensity": 0}, tk),
+      fullToken = (tk: Partial<TokenImage>) => Object.assign({"id": 0, "src": 0, "x": 0, "y": 0, "width": mapData.gridSize, "height": mapData.gridSize, "patternWidth": 0, "patternHeight": 0, "stroke": noColour, "strokeWidth": 0, "rotation": 0, "flip": false, "flop": false, "tokenData": {}, "tokenType": 0, "snap": autosnap.value, "lightColours": [], "lightStages": [], "lightTimings": []}, tk),
       [moveCursor, stopCursor] = mouseMoveEvent((e: MouseEvent) => {
 	[cursor!.x, cursor!.y] = screen2Grid(e.clientX - cursor!.width / 2, e.clientY - cursor!.height / 2, token!.snap);
 	cursor!.updateNode();

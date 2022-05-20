@@ -4,7 +4,7 @@ import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
-import {hex2Colour, noColour} from '../colours.js';
+import {hex2Colour} from '../colours.js';
 import mainLang, {language} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
@@ -129,7 +129,7 @@ if (isAdmin) {
 				const {gridSize, gridDistance} = mapData,
 				      w = (selectedEffect === circleEffect ? 2 : 1) * gridSize * size / gridDistance,
 				      h = selectedEffect === wallEffect ? gridSize * width / gridDistance : w;
-				doTokenAdd(layer.path, {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": types[damageType][1], "stroke": types[damageType][0], "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColour": noColour, "lightIntensity": 0, "tokenData": {}});
+				doTokenAdd(layer.path, {"id": 0, "x": x - (w >> 1), "y": y - (h >> 1), "width": w, "height": h, "rotation": mod(Math.floor(256 * rotation / 360), 256), "snap": snap.checked, "fill": types[damageType][1], "stroke": types[damageType][0], "strokeWidth": 1, "tokenType": 1, "isEllipse": selectedEffect === circleEffect, "lightColours": [], "lightStages": [], "lightTimings": [], "tokenData": {}});
 			}
 		}
 	      },
