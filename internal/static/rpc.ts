@@ -450,7 +450,24 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"], [checkArray, "?lightColours"], [checkArray, "?lightStages"], [checkArray, "?lightTimings"]],
       checkTokenSet = (data: any) => {
 	checker(data, "TokenSet", checksTokenSet);
-	// TODO: Check lighting
+	if (data["lightColours"]) {
+		for (const cs of data["lightColours"]) {
+			checkArray(cs, "TokenSet", "lightColours");
+			for (const c of cs) {
+				checkColour(c, "TokenSet->lightColours");
+			}
+		}
+	}
+	if (data["lightStages"]) {
+		for (const s of data["lightStages"]) {
+			checkUint(s, "TokenSet", "lightStages")
+		}
+	}
+	if (data["lightTimings"]) {
+		for (const s of data["lightTimings"]) {
+			checkUint(s, "TokenSet", "lightTimings")
+		}
+	}
 	if (data["removeTokenData"]) {
 		for (const k of data["removeTokenData"]) {
 			checkString(k, "TokenSet", "removeTokenData");
@@ -470,7 +487,18 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
       checkToken = (data: any, name = "Token") => {
 	checker(data, name, checksToken);
-	// TODO: Check lighting
+	for (const cs of data["lightColours"]) {
+		checkArray(cs, "TokenSet", "lightColours");
+		for (const c of cs) {
+			checkColour(c, "TokenSet->lightColours");
+		}
+	}
+	for (const s of data["lightStages"]) {
+		checkUint(s, "TokenSet", "lightStages")
+	}
+	for (const s of data["lightTimings"]) {
+		checkUint(s, "TokenSet", "lightTimings")
+	}
 	switch (data.tokenType) {
 	case undefined:
 	case 0:
