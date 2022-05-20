@@ -713,7 +713,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 				data = tk.LightStages.appendTo(append(data, ",\"lightStages\":"...))
 			}
 			if setToken.LightTimings != nil {
-				tk.LightStages = *setToken.LightStages
+				tk.LightTimings = *setToken.LightTimings
 				data = tk.LightTimings.appendTo(append(data, ",\"lightTimings\":"...))
 			}
 			var changed bool
