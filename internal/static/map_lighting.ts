@@ -281,13 +281,29 @@ makeLight = (l: LightSource, walls: Wall[], scale: number, lens?: Wall) => {
 						      sy = ly + scattering * (cy - ly) / 256;
 						if (a < 255) {
 							const colours: Colour[][] = [],
-							      stages: Uint[] = [];
+							      stages: Uint[] = [],
+							      inva = 1 - (a / 255);
+							for (const cs of l.lightColours) {
+								const nc = [];
+								for (const {r: lr, g: lg, b: lb, a: la} of cs) {
+									nc.push(new Colour(Math.round(Math.sqrt(r * lr) * inva), Math.round(Math.sqrt(g * lg) * inva), Math.round(Math.sqrt(b * lb) * inva), Math.round(255 * (1 - ((1 - la / 255) * inva)))));
+								}
+								colours.push(nc);
+							}
 							ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 						if (a > 0) {
 							const colours: Colour[][] = [],
 							      stages: Uint[] = [],
-						              [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy);
+						              [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
+							      ia = a / 255;
+							for (const cs of l.lightColours) {
+								const nc = [];
+								for (const {r: lr, g: lg, b: lb, a: la} of cs) {
+									nc.push(new Colour(Math.round(Math.sqrt(r * lr) * ia), Math.round(Math.sqrt(g * lg) * ia), Math.round(Math.sqrt(b * lb) * ia), Math.round(255 * (1 - ((1 - la / 255) * ia)))));
+								}
+								colours.push(nc);
+							}
 							ret.push(makeLight(new Lighting(cx + cx - sx, cy + cy - sy, cx + cx - lx, cy + cy - ly, colours, stages, l.lightTimings), walls, scale, fw));
 						}
 					}
