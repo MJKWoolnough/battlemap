@@ -311,6 +311,6 @@ makeLight = (l: LightSource, walls: Wall[], scale: number, lens?: Wall) => {
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(l)})`}));
+	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(l, scale)})`}));
 	return ret;
 };
