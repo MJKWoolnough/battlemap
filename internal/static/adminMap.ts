@@ -452,7 +452,7 @@ export default (base: HTMLElement) => {
 								doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
 							}
 						}
-					}),
+					})
 				] : [],
 				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
 					const snap = currToken.snap,
