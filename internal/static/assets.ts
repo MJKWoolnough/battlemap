@@ -9,7 +9,7 @@ import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
-import {register, shareIcon} from './messaging.js'
+import {register, shareIcon} from './messaging.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {labels, loading, menuItems, setAndReturn} from './shared.js';
 import {loadingWindow, shell, windows} from './windows.js';
