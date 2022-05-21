@@ -130,10 +130,8 @@ export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y
 },
 makeLight = (l: LightSource, walls: Wall[], scale: number, lens?: Wall) => {
 	const [lightX, lightY] = l.getLightPos(),
-	      [lightPX, lightPY] = l.getCentre(),
+	      [lx, ly] = l.getCentre(),
 	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
-	      lx = lightPX ?? lightX,
-	      ly = lightPY ?? lightY,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
