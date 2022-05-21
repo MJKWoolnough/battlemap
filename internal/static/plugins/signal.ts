@@ -26,12 +26,12 @@ if (isAdmin) {
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100", "fill": "none", "stroke": "currentColor", "stroke-width": 3}, [
 			circle({"cx": 50, "cy": 50, "r": 48}),
-			circle({"cx": 50, "cy": 50, "r": 38}),
+			circle({"cx": 50, "cy": 50, "r": 38})
 		]),
 		"options": div([
 			labels(move, `${lang["MOVE"]}: `),
 			br(),
-			labels(home, `${lang["HOME"]}: `),
+			labels(home, `${lang["HOME"]}: `)
 		]),
 		"mapMouse0": (e: MouseEvent) => {
 			const pos = screen2Grid(e.clientX, e.clientY);
