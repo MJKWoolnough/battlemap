@@ -351,11 +351,11 @@ if (isAdmin) {
 		"waitCopied": () => unusedWait,
 		"waitFolderAdded": () => waitFolderAdded[0],
 		"waitFolderMoved": () => waitFolderMoved[0],
-		"waitFolderRemoved": () => waitFolderRemoved[0],
+		"waitFolderRemoved": () => waitFolderRemoved[0]
 	      }, NoteItem, NoteFolder),
 	      compareFolderItems = (a: FolderItems, b: FolderItems, path: string, changes: Record<string, number>) => {
 		for (const f in a.folders) {
-			const fp = path + f + "/"
+			const fp = path + f + "/";
 			if (!b.folders[f]) {
 				changes[fp] = -1;
 			} else {
