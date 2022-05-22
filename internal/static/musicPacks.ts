@@ -39,7 +39,7 @@ class Track {
 	}
 	play() {
 		if (this.audioElement) {
-			this.waitPlay()
+			this.waitPlay();
 			return;
 		}
 		this.audioElement = audio({"src": `/audio/${this.id}`, "onloadeddata": event(() => {
@@ -457,7 +457,7 @@ menuItems.push([3, () => isAdmin ? [
 					}
 				}
 			});
-			commonWaits(musicList)
+			commonWaits(musicList);
 			open = (id: Uint) => {
 				const pack = musicList.get(id);
 				if (pack) {
