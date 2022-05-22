@@ -214,10 +214,10 @@ export class Folder {
 		this.root = root;
 		this.parent = parent;
 		this.children = new NodeMap<string, Folder | Item>(ul({"class": "folders"}), this.sorter);
-		this.nameElem = span(name),
-		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)}),
-		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)}),
-		this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)})
+		this.nameElem = span(name);
+		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)});
+		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)});
+		this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)});
 		if (this.name = name) {
 			this[node] = li({"class": "foldersFolder"}, [
 				details([
