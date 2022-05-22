@@ -12,7 +12,7 @@ if (isAdmin) {
 	const defaultLanguage = {
 		"HOME": "Set Map Start Location",
 		"MOVE": "Move User Map",
-		"TITLE": "Signal",
+		"TITLE": "Signal"
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		      "en-GB": defaultLanguage
