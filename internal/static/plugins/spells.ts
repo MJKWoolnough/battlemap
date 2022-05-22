@@ -32,7 +32,7 @@ const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style":
 	      s = gridSize * size / (gridDistance || 1),
 	      sh = s >> 1,
 	      w = gridSize * width / (gridDistance || 1);
-	amendNode(circleCircle, {"r": s})
+	amendNode(circleCircle, {"r": s});
 	amendNode(conePath, {"d": `M0,0 L${s},-${sh} q${s * 0.425},${sh} 0,${s} z`});
 	amendNode(cubeRect, {"x": -sh, "y": -sh, "width": s, "height": s});
 	amendNode(lineRect, {"x": 0, "y": -w/2, "width": s, "height": w});
@@ -143,7 +143,7 @@ if (isAdmin) {
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
 				legend(lang["SPELL_TYPE"]),
-				([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": n === 0, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)]),
+				([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": n === 0, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)])
 			]),
 			labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			br(),
@@ -230,7 +230,7 @@ if (isAdmin) {
 			return;
 		}
 		if (data === null) {
-			lastEffect?.remove()
+			lastEffect?.remove();
 			lastEffect = null;
 			return;
 		}
