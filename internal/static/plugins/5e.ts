@@ -498,7 +498,7 @@ const select = Symbol("select"),
 				if (ac === null) {
 					amendNode(this.#ac, {"style": "display: none"});
 				} else {
-					amendNode(this.#ac, {"style": undefined})
+					amendNode(this.#ac, {"style": undefined});
 					clearNode(this.#acValue, ac + "");
 				}
 				if (currentHP === null || maxHP === null) {
@@ -711,7 +711,7 @@ if (isAdmin) {
 		const t = td([
 			labels(input({"class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 				shapechangeCats[col]["images"][row] = this.checked;
-			}}), ""),
+			}}), "")
 		      ]);
 		tickers[row].push(t);
 		return t;
@@ -760,7 +760,7 @@ if (isAdmin) {
 	      },
 	      cats = tr([
 		td(),
-		shapechangeCats.map(addCat),
+		shapechangeCats.map(addCat)
 	      ]),
 	      rows: HTMLTableRowElement[] = [],
 	      tickers: HTMLTableCellElement[][] = [],
@@ -771,10 +771,10 @@ if (isAdmin) {
 			if (cat) {
 				const c = {
 					"name": cat,
-					"images": Array.from({"length": shapechangeTokens.length}, _ => false),
+					"images": Array.from({"length": shapechangeTokens.length}, _ => false)
 				      },
 				      p = shapechangeCats.push(c) - 1;
-				amendNode(cats, addCat(c))
+				amendNode(cats, addCat(c));
 				for (let i = 0; i < rows.length; i++) {
 					amendNode(rows[i], addTicker(i, p));
 				}
@@ -943,7 +943,7 @@ if (isAdmin) {
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
-					item(lang["INITIATIVE_REMOVE"], () => initRemove(token)),
+					item(lang["INITIATIVE_REMOVE"], () => initRemove(token))
 				);
 				showConditions = true;
 			} else {
