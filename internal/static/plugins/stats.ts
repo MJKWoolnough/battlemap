@@ -41,7 +41,7 @@ if (isAdmin) {
 	      head = thead(tr([
 		th({"onclick": () => tb.sort(sortID)}, lang["ID"]),
 		th(lang["IMAGE"]),
-		th({"onclick": () => tb.sort(sortSize)}, lang["SIZE"]),
+		th({"onclick": () => tb.sort(sortSize)}, lang["SIZE"])
 	      ])),
 	      formatNumber = new Intl.NumberFormat(language.value, {"style": "unit", "unit": "byte", "unitDisplay": "narrow"});
 	let mapID = 0;
