@@ -17,19 +17,19 @@ export const internal = {
 	"images":     {},
 	"audio":      {},
 	"characters": {},
-	"maps":       {},
+	"maps":       {}
 } as InternalWaits,
 combined = {
 	"images":     {},
 	"audio":      {},
 	"characters": {},
-	"maps":       {},
+	"maps":       {}
 } as InternalWaits,
 rpc = {
 	"images":     {},
 	"audio":      {},
 	"characters": {},
-	"maps":       {},
+	"maps":       {}
 } as RPCType,
 addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
@@ -391,7 +391,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksMapKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
       checkMapKeyData = (data: any) => {
-	checker(data, "KeyData", checksMapKeyData)
+	checker(data, "KeyData", checksMapKeyData);
 	const d = {[data.key]: data.data};
 	for (const c of mapDataCheckers) {
 		c(d);
@@ -414,7 +414,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksKeystoreDataChange: checkers = [[checkObject, ""], [checkKeystoreData, "setting"], [checkArray, "removing"]],
       checkKeystoreDataChange = (data: any, name: string) => {
-	checker(data, name, checksKeystoreDataChange)
+	checker(data, name, checksKeystoreDataChange);
 	for (const r of data.removing) {
 		checkString(r, name, "removing");
 	}
@@ -429,7 +429,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksCharacterDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
       checkCharacterDataChange = (data: any) => {
-	checker(data, "CharacterDataChange", checksCharacterDataChange)
+	checker(data, "CharacterDataChange", checksCharacterDataChange);
 	for (const c of characterDataCheckers) {
 		c(data.setting);
 	}
@@ -437,7 +437,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       },
       checksTokenDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
       checkTokenDataChange = (data: any) => {
-	checker(data, "TokenDataChange", checksTokenDataChange)
+	checker(data, "TokenDataChange", checksTokenDataChange);
 	for (const c of tokenDataCheckers) {
 		c(data.setting);
 	}
@@ -505,7 +505,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 		checker(data, name, checksTokenImage);
 		break;
 	case 2:
-		checkArray(data.points, name, "points")
+		checkArray(data.points, name, "points");
 		for (const p of data.points) {
 			checker(p, "Token->Points", checksCoords);
 		}
