@@ -310,12 +310,12 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 			}
 		}
-		token.updateNode()
+		token.updateNode();
 		if (sendRPC) {
 			queue(rpc.setToken.bind(rpc, ts));
 		}
 		if (selected.token === token) {
-			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": outlineRotationClass(token.rotation), "transform": token.transformString(false)})
+			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": outlineRotationClass(token.rotation), "transform": token.transformString(false)});
 			tokenMousePos.x = token.x;
 			tokenMousePos.y = token.y;
 			tokenMousePos.width = token.width;
@@ -398,7 +398,7 @@ doLayerShift = (path: string, dx: Uint, dy: Uint, sendRPC = true) => {
 doWallAdd = (w: WallPath, sendRPC = true) => {
 	const layer = getLayer(w.path);
 	if (!layer || !isSVGLayer(layer)) {
-		handleError("invalid layer for wall add")
+		handleError("invalid layer for wall add");
 		return;
 	}
 	const {path, wall: {id, x1, y1, x2, y2, colour, scattering}} = w,
@@ -485,7 +485,7 @@ doWallMove = (wall: Uint, path: string, sendRPC = true) => {
 	    oldPath = oldLayer.path,
 	    newLayer = getLayer(path) as SVGLayer;
 	if (!newLayer || !isSVGLayer(newLayer)) {
-		handleError("invalid layer for wall move")
+		handleError("invalid layer for wall move");
 		return;
 	}
 	const doIt = (sendRPC = true) => {
@@ -532,7 +532,7 @@ doMapDataRemove = (key: string, sendRPC = true) => {
 		return undoIt;
 	      },
 	      undoIt = () => {
-		mapData.data[key] = oldData
+		mapData.data[key] = oldData;
 		queue(() => rpc.setMapKeyData(key, oldData));
 		return doIt;
 	      };
