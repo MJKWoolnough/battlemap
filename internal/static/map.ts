@@ -38,10 +38,10 @@ mapData: MapData;
 const idNames: Record<string, Int> = {
 	"": 0,
 	"Grid": -1,
-	"Light": -2,
+	"Light": -2
       },
       processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
-	path += "/" + layer.name
+	path += "/" + layer.name;
 	const n = g(layer.hidden ? {"class": "hiddenLayer"} : undefined);
 	if (isLayerFolder(layer)) {
 		const children = new NodeArray<SVGFolder | SVGLayer>(n);
@@ -65,7 +65,7 @@ const idNames: Record<string, Int> = {
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
 
 export const splitAfterLastSlash = (path: string) => {
-	const pos = path.lastIndexOf("/")
+	const pos = path.lastIndexOf("/");
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
 walkLayers = (fn: (e: SVGLayer, hidden: boolean) => void, folder: SVGFolder = layerList, hidden = false) => {
@@ -300,7 +300,7 @@ zoom = (() => {
 			amendNode(document.body, {"class": ["zooming"]});
 		}
 	      }, "onwheel": zoomWheel}),
-	      l4 = Math.log(1.4)
+	      l4 = Math.log(1.4);
 	inited.then(() => amendNode(desktop, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
 		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 			if (e.button === 0) {
