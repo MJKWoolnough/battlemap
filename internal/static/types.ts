@@ -85,17 +85,17 @@ export type RPCWaits = {
 }
 
 export type InternalWaits = RPCWaits & {
-	images:     FolderWaits,
-	audio:      FolderWaits,
-	characters: FolderWaits,
-	maps:       FolderWaits,
+	images:     FolderWaits;
+	audio:      FolderWaits;
+	characters: FolderWaits;
+	maps:       FolderWaits;
 }
 
 export type RPC = RPCWaits & {
-	images:     FolderRPC,
-	audio:      FolderRPC,
-	characters: FolderRPC,
-	maps:       FolderRPC,
+	images:     FolderRPC;
+	audio:      FolderRPC;
+	characters: FolderRPC;
+	maps:       FolderRPC;
 
 	ready:       () => Promise<void>;
 	currentTime: () => Promise<Uint>;
