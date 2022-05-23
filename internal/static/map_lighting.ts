@@ -124,7 +124,7 @@ export const intersection = (x1: Uint, y1: Uint, x2: Uint, y2: Uint, x3: Uint, y
 	if (d) {
 		const a = (x3 * y4 - y3 * x4),
 		      b = (x1 * y2 - y1 * x2);
-		return [(dx1 * a - dx2 * b) / d, (dy1 * a - dy2 * b) / d];
+		return [Math.round((dx1 * a - dx2 * b) / d), Math.round((dy1 * a - dy2 * b) / d)];
 	}
 	return [NaN, NaN];
 },
