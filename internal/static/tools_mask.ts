@@ -217,7 +217,7 @@ addTool({
 	},
 	"unset": () => {
 		cancelShiftSnap();
-		cancelRectDrag()
+		cancelRectDrag();
 		cancelEllipseDrag();
 		cancelPolyMove();
 		cancelEscape();
