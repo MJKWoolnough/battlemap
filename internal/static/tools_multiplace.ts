@@ -47,7 +47,7 @@ const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": 
 	}
       },
       hideCursor = () => {
-	stopCursor()
+	stopCursor();
 	cursor?.[node].remove();
 	cursor?.cleanup();
 	amendNode(root, {"style": {"cursor": undefined}});
@@ -118,7 +118,7 @@ addTool({
 	},
 	"mapMouse2": ignore,
 	"mapMouseOver": () => {
-		showCursor()
+		showCursor();
 		return !mode.checked;
 	},
 	"tokenMouse2": disable,
