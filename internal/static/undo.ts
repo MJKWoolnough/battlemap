@@ -30,7 +30,7 @@ const undos = new NodeArray<FnDesc>(ul()),
 			}
 			undos.push({
 				fn,
-				[node]: li(description),
+				[node]: li(description)
 			});
 		});
 	},
