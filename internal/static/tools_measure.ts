@@ -138,7 +138,7 @@ addTool({
 	},
 	"tokenMouseOver": function(this: SVGElement) {
 		amendNode(root, {"style": {"--outline-cursor": "none"}});
-		amendNode(this, {"onmouseout": event(() => amendNode(root, {"style": {"--outline-cursor": undefined}}), eventOnce)})
+		amendNode(this, {"onmouseout": event(() => amendNode(root, {"style": {"--outline-cursor": undefined}}), eventOnce)});
 		return false;
 	},
 	"tokenMouse0": ignore,
