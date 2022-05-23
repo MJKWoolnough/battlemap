@@ -1,6 +1,6 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Children} from './lib/dom.js';
-import type {LightSource} from './map_lighting.js';
+import type {LightSource, LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -9,6 +9,7 @@ import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
+import Fraction from './fraction.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
@@ -141,40 +142,42 @@ updateLight = () => {
 	definitions.clearLighting();
 	const ll = (getLayer("/Light") as SVGLayer)[node],
 	      {gridSize, gridDistance, width, height} = mapData,
-	      walls: Wall[] = [
+	      fWidth = new Fraction(BigInt(width)),
+	      fHeight = new Fraction(BigInt(height)),
+	      walls: LightWall[] = [
 		{
 			"id": -1,
-			"x1": 0,
-			"y1": 0,
-			"x2": width,
-			"y2": 0,
+			"x1": Fraction.zero,
+			"y1": Fraction.zero,
+			"x2": fWidth,
+			"y2": Fraction.zero,
 			"colour": noColour,
 			"scattering": 0
 		},
 		{
 			"id": -2,
-			"x1": width,
-			"y1": 0,
-			"x2": width,
-			"y2": height,
+			"x1": fWidth,
+			"y1": Fraction.zero,
+			"x2": fWidth,
+			"y2": fHeight,
 			"colour": noColour,
 			"scattering": 0
 		},
 		{
 			"id": -3,
-			"x1": 0,
-			"y1": height,
-			"x2": width,
-			"y2": height,
+			"x1": Fraction.zero,
+			"y1": fHeight,
+			"x2": fWidth,
+			"y2": fHeight,
 			"colour": noColour,
 			"scattering": 0
 		},
 		{
 			"id": -4,
-			"x1": 0,
-			"y1": 0,
-			"x2": 0,
-			"y2": height,
+			"x1": Fraction.zero,
+			"y1": Fraction.zero,
+			"x2": Fraction.zero,
+			"y2": fHeight,
 			"colour": noColour,
 			"scattering": 0
 		}
@@ -183,20 +186,24 @@ updateLight = () => {
 	      masks: Children[] = [ll.firstChild!];
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
-			for (const {id, x1, y1, x2, y2, colour, scattering} of l.walls) {
+			for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of l.walls) {
 				const l = walls.length,
-				      points: [Uint, Uint][] = [[x1, y1], [x2, y2]];
+				      x1 = new Fraction(BigInt(nx1)),
+				      y1 = new Fraction(BigInt(ny1)),
+				      x2 = new Fraction(BigInt(nx2)),
+				      y2 = new Fraction(BigInt(ny2)),
+				      points: [Fraction, Fraction][] = [[x1, y1], [x2, y2]];
 				for (let i = 0; i < l; i++) {
 					const {id: wid, x1: x3, y1: y3, x2: x4, y2: y4, colour: wc, scattering: ws} = walls[i],
 					      [ix, iy] = intersection(x1, y1, x2, y2, x3, y3, x4, y4);
-					if (ix > Math.min(x1, x2) && ix > Math.min(x3, x4) && ix < Math.max(x1, x2) && ix < Math.max(x3, x4) && iy > Math.min(y1, y2) && iy > Math.min(y3, y4) && iy < Math.max(y1, y2) && iy < Math.max(y3, y4)) {
+					if (ix.cmp(Fraction.min(x1, x2)) === 1 && ix.cmp(Fraction.min(x3, x4)) === 1 && ix.cmp(Fraction.max(x1, x2)) === -1 && ix.cmp(Fraction.max(x3, x4)) === -1 && iy.cmp(Fraction.min(y1, y2)) === 1 && iy.cmp(Fraction.min(y3, y4)) === 1 && iy.cmp(Fraction.max(y1, y2)) === -1 && iy.cmp(Fraction.max(y3, y4)) === -1) {
 						walls[i].x2 = ix;
 						walls[i].y2 = iy;
 						walls.push({"id": wid, "x1": ix, "y1": iy, "x2": x4, "y2": y4, "colour": wc, "scattering": ws});
 						points.push([ix, iy]);
 					}
 				}
-				points.sort(([x1, y1], [x2, y2]) => x1 - x2 || y1 - y2);
+				points.sort(([x1, y1], [x2, y2]) => x1.cmp(x2) || y1.cmp(y2));
 				for (let i = 1; i < points.length; i++) {
 					const [x1, y1] = points[i-1],
 					      [x2, y2] = points[i];
