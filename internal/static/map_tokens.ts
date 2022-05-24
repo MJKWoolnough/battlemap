@@ -6,8 +6,9 @@ import type {LightSource} from './map_lighting.js';
 import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
 import {node, NodeArray} from './lib/nodes.js';
+import {noColour} from './colours.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
-import {defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
+import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 
 type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
@@ -326,12 +327,20 @@ definitions = (() => {
 			}
 		},
 		addLighting(l: LightSource, scale: number) {
+			let pos = 0;
 			const id = `LG_${nextLightID++}`,
 			      [cx, cy] = l.getLightPos(),
-			      c = l.lightColours[0][0],
-			      rg = radialGradient({id, "r": l.lightStages[0] * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
-				  stop({"offset": "0%", "stop-color": c.toHexString(), "stop-opacity": c.a / 255}),
-				  stop({"offset": "100%", "stop-color": c.toHexString(), "stop-opacity": 0})
+			      dur = l.lightTimings.reduce((a, b) => a + b, 0),
+			      keyTimes = "0;" + l.lightTimings.map(t => t / dur).join(";"),
+			      times = l.lightTimings.length > 1 ? l.lightTimings : -1,
+			      r = l.lightStages.reduce((a, b) => a + b, 0),
+			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
+				l.lightColours.map((cs, n) => {
+				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": cs.length !== times ? cs[0] ?? noColour : undefined}, cs.length !== times ? [] : animate({"attributeName": "stop-color", keyTimes, "values": cs.join(";")}));
+				      pos += l.lightStages[n];
+				      return s;
+				}),
+				stop({"offset": "100%", "stop-color": noColour})
 			      ]);
 			lighting.push(rg);
 			amendNode(base, rg);
