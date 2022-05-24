@@ -14,8 +14,8 @@ import {mapData, root, screen2Grid} from './map.js';
 import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {tokenClass} from './plugins.js';
-import {characterData, cloneObject, getCharacterToken, labels} from './shared.js';
 import {autosnap} from './settings.js';
+import {characterData, cloneObject, getCharacterToken, labels} from './shared.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 
 const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
