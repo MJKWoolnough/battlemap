@@ -15,8 +15,8 @@ import lang from './language.js';
 import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
-import {autosnap} from './settings.js';
 import {combined, inited} from './rpc.js';
+import {autosnap} from './settings.js';
 import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
