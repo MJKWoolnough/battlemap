@@ -1,8 +1,8 @@
 import type {TokenSet, Token, Uint} from './types.js';
 import type {List} from './lib/context.js';
+import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import type {NodeArray} from './lib/nodes.js';
 import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
 import {setDragEffect} from './lib/drag.js';
