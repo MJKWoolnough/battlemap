@@ -3,12 +3,12 @@ import type {WaitGroup} from './lib/inter.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import type {LightSource} from './map_lighting.js';
-import {Pipe} from './lib/inter.js';
 import {amendNode} from './lib/dom.js';
+import {Pipe} from './lib/inter.js';
 import {node, NodeArray} from './lib/nodes.js';
+import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {noColour} from './colours.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
-import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 
 type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
