@@ -192,7 +192,6 @@ makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []),
 			      [cx, cy, cl] = closestPoint(x1, y1, x2, y2, lightX, lightY),
 			      wx = Object.assign({cx, cy, cl, a1, a2}, wall);
-			console.log(x1.toFloat(), y1.toFloat(), x2.toFloat(), y2.toFloat(), cl);
 			if (!points1.length) {
 				vertices.push({
 					"w": points1,
