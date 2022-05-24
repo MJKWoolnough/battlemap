@@ -111,7 +111,7 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 	}
 	return [x, y, Math.hypot(x.toFloat() - lightX, y.toFloat() - lightY)];
       },
-      lightWallInteraction = (l: LightSource, wallColour: Colour, refraction = false): [Colour[][], Uint[]] | null => {
+      lightWallInteraction = (l: LightSource, wallColour: Colour, cp: number, refraction = false): [Colour[][], Uint[]] | null => {
 	const newColours: Colour[][] = [],
 	      newStages: Uint[] = [],
 	      {r, g, b, a} = wallColour,
@@ -122,6 +122,17 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 			nc.push(new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma)))));
 		}
 		newColours.push(nc);
+	}
+	let total = 0;
+	for (const s of l.lightStages) {
+		if (total > cp) {
+			newStages.push(Math.round(s * ma));
+		} else if (total + s > cp) {
+			newStages.push(Math.round(cp - total + (total + s - cp) * ma));
+		} else {
+			newStages.push(s);
+		}
+		total += s;
 	}
 	return [newColours, newStages];
       };
@@ -309,13 +320,13 @@ makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall
 						      sx = Math.round(lx + scattering * (cx.toFloat() - lx) / 256),
 						      sy = Math.round(ly + scattering * (cy.toFloat() - ly) / 256);
 						if (a < 255) {
-							const lw = lightWallInteraction(l, sw.colour, true);
+							const lw = lightWallInteraction(l, sw.colour, cd, true);
 							if (lw) {
 								ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, lw[0], lw[1], l.lightTimings), walls, scale, fw));
 							}
 						}
 						if (a > 0) {
-							const lw = lightWallInteraction(l, sw.colour);
+							const lw = lightWallInteraction(l, sw.colour, cd);
 							if (lw) {
 								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
 								      dcx = cx.add(cx).toFloat(),
