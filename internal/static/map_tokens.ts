@@ -5,7 +5,7 @@ import type {SVGLayer} from './map.js';
 import type {LightSource} from './map_lighting.js';
 import {amendNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
-import {node, NodeArray} from './lib/nodes.js';
+import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {noColour} from './colours.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
