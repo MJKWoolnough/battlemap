@@ -9,7 +9,7 @@ import mainLang, {language} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
-import {isAdmin, combined, rpc} from '../rpc.js';
+import {combined, isAdmin, rpc} from '../rpc.js';
 import {autosnap} from '../settings.js';
 import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
