@@ -9,7 +9,7 @@ import {DragTransfer} from './lib/drag.js';
 import {setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
-import {svgData, defs, foreignObject, g, path, pattern, rect, svg, title} from './lib/svg.js';
+import {defs, foreignObject, g, path, pattern, rect, svg, svgData, title} from './lib/svg.js';
 import {Colour, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
