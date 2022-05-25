@@ -1,6 +1,6 @@
 import {amendNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
-import {a, br, button, div, canvas, img, input} from '../lib/html.js';
+import {a, br, button, canvas, div, img, input} from '../lib/html.js';
 import {node} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
