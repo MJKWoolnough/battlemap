@@ -1,4 +1,4 @@
-import type {TokenSet, Token, Uint} from './types.js';
+import type {Token, TokenSet, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
@@ -15,7 +15,7 @@ import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
-import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataSet, doMapDataRemove, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitRemoved, waitFolderAdded, waitFolderRemoved, waitLayerShow, waitLayerHide, waitLayerPositionChange, waitLayerRename} from './map_fns.js';
+import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitRemoved} from './map_fns.js';
 import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
