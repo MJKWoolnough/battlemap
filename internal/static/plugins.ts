@@ -1,4 +1,4 @@
-import type {KeystoreData, Plugin, TokenDrawing, TokenShape, TokenImage, Uint} from './types.js';
+import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
