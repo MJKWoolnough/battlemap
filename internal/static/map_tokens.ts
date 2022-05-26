@@ -50,10 +50,11 @@ abstract class SVGTransform {
 	}
 	transformString(scale = true) {
 		let ret = "";
-		if (this.x !== 0 || this.y !== 0) {
+		const s = scale && (this.flip || this.flop);
+		if (this.x !== 0 || this.y !== 0 || s) {
 			ret += `translate(${this.x + (scale && this.flop ? this.width : 0)}, ${this.y + (scale && this.flip ? this.height : 0)}) `;
 		}
-		if (scale && (this.flip || this.flop)) {
+		if (s) {
 			ret += `scale(${this.flop ? -1 : 1}, ${this.flip ? -1 : 1}) `;
 		}
 		if (this.rotation !== 0) {
