@@ -335,15 +335,14 @@ definitions = (() => {
 			      keyTimes = "0;" + l.lightTimings.map(t => t / dur).join(";"),
 			      times = l.lightTimings.length > 1 ? l.lightTimings : -1,
 			      r = l.lightStages.reduce((a, b) => a + b, 0),
-			      lc = l.lightColours[l.lightColours.length-1],
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 				l.lightColours.map((cs, n) => {
 				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": cs.length !== times ? cs[0] ?? noColour : undefined}, cs.length !== times ? [] : animate({"attributeName": "stop-color", keyTimes, "values": cs.join(";")}));
 				      pos += l.lightStages[n];
 				      return s;
-				}),
-				stop({"offset": "100%", "stop-color": lc.length !== times ? lc[0] ?? noColour : undefined, "stop-opacity": 0}, lc.length !== times ? [] : animate({"attributeName": "stop-color", keyTimes, "values": lc.join(";")}))
+				})
 			      ]);
+			amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0}));
 			lighting.push(rg);
 			amendNode(base, rg);
 			return id;
