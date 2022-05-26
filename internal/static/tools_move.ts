@@ -3,7 +3,7 @@ import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {node} from './lib/nodes.js';
 import {g, line, path, svg, title} from './lib/svg.js';
 import lang from './language.js';
-import {panZoom, root, screen2Grid} from './map.js';
+import {root, screen2Grid} from './map.js';
 import {doLayerShift} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {autosnap, measureTokenMove} from './settings.js';
@@ -19,8 +19,8 @@ let dx = 0,
 
 const [setupMover, cancelMover] = mouseDragEvent(0, (e: MouseEvent) => {
 	const [x, y] = screen2Grid(e.clientX, e.clientY, snap !== e.shiftKey);
-	dx = (x - ox) / panZoom.zoom;
-	dy = (y - oy) / panZoom.zoom;
+	dx = x - ox;
+	dy = y - oy;
 	amendNode(selected.layer![node], {"transform": `translate(${dx}, ${dy})`});
 	if (measure) {
 		measureDistance(x, y);
