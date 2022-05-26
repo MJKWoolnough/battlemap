@@ -942,12 +942,12 @@ if (isAdmin) {
 			let showConditions = tokenConditions.some(a => a);
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
-					item(lang["INITIATIVE_CHANGE"], () => initChange(token)),
-					item(lang["INITIATIVE_REMOVE"], () => initRemove(token))
+					item(lang["INITIATIVE_CHANGE"], () => isValidToken(token) && initChange(token)),
+					item(lang["INITIATIVE_REMOVE"], () => isValidToken(token) && initRemove(token))
 				);
 				showConditions = true;
 			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => initAdd(token, initMod)));
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => isValidToken(token) && initAdd(token, initMod)));
 			}
 			if (showConditions) {
 				ctxList.push(menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
