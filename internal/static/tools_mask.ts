@@ -1,7 +1,7 @@
 import type {Mask, Uint} from './types.js';
 import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
-import {br, button, div, fieldset, legend, input} from './lib/html.js';
+import {br, button, div, fieldset, input, legend} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {JSONSetting} from './lib/settings.js';
 import {ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
