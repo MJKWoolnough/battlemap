@@ -433,19 +433,19 @@ export default (base: HTMLElement) => {
 			place(document.body, [e.clientX, e.clientY], [
 				tokenContext(),
 				isTokenImage(currToken) ? [
-					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
+					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokens.has(currToken.id) && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
 					item(lang["CONTEXT_FLIP"], () => {
-						if (currToken instanceof SVGToken) {
+						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							doTokenSet({"id": currToken.id, "flip": !currToken.flip});
 						}
 					}),
 					item(lang["CONTEXT_FLOP"], () => {
-						if (currToken instanceof SVGToken) {
+						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							doTokenSet({"id": currToken.id, "flop": !currToken.flop});
 						}
 					}),
 					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
-						if (currToken instanceof SVGToken) {
+						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							if (!currToken.isPattern) {
 								doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
 							} else {
@@ -457,12 +457,14 @@ export default (base: HTMLElement) => {
 				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
 					const snap = currToken.snap,
 					      {x, y, width, height, rotation} = currToken;
-					if (!snap) {
-						const [newX, newY] = snapTokenToGrid(x, y, width, height),
-						      newRotation = Math.round(rotation / 32) * 32 % 256;
-						doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
-					} else {
-						doTokenSet({"id": currToken.id, "snap": !snap});
+					if (tokens.has(currToken.id)) {
+						if (!snap) {
+							const [newX, newY] = snapTokenToGrid(x, y, width, height),
+							      newRotation = Math.round(rotation / 32) * 32 % 256;
+							doTokenSet({"id": currToken.id, "x": newX, "y": newY, "rotation": newRotation, "snap": !snap});
+						} else {
+							doTokenSet({"id": currToken.id, "snap": !snap});
+						}
 					}
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
@@ -476,7 +478,7 @@ export default (base: HTMLElement) => {
 						labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
 						br(),
 						button({"onclick": () => {
-							if (selected.token === currToken) {
+							if (tokens.has(currToken.id)) {
 								doTokenSet({"id": currToken.id, "lightColours": [[c]], "lightStages": [checkInt(parseInt(i.value), 0)], "lightTimings": [0]});
 							}
 							w.close();
@@ -486,13 +488,13 @@ export default (base: HTMLElement) => {
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(lang["CONTEXT_MOVE_TOP"], () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
-						if (currLayer) {
+						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 						}
 					}),
 					item(lang["CONTEXT_MOVE_UP"], () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
-						if (currLayer) {
+						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
 						}
 					})
@@ -500,13 +502,13 @@ export default (base: HTMLElement) => {
 				tokenPos > 0 ? [
 					item(lang["CONTEXT_MOVE_DOWN"], () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
-						if (currLayer) {
+						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
 						}
 					}),
 					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
-						if (currLayer) {
+						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 						}
 					})
