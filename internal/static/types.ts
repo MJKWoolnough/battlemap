@@ -31,7 +31,7 @@ export type LayerRPC = Readonly<FolderRPC & {
 	waitLayerPositionChange: () => Subscription<LayerMove>;
 	waitLayerRename:         () => Subscription<LayerRename>;
 	waitLayerSelect:         () => Subscription<string>;
-}>
+}>;
 
 export type RPCWaits = {
 	waitCurrentUserMap:       () => Subscription<Uint>;
