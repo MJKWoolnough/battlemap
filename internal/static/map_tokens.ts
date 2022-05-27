@@ -333,12 +333,12 @@ definitions = (() => {
 			      [cx, cy] = l.getLightPos(),
 			      dur = l.lightTimings.reduce((a, b) => a + b, 0),
 			      keyTimes = "0;" + l.lightTimings.map(t => t / dur).join(";"),
-			      times = l.lightTimings.length > 1 ? l.lightTimings : -1,
+			      times = l.lightTimings.length > 1 ? l.lightTimings.length : -1,
 			      r = l.lightStages.reduce((a, b) => a + b, 0),
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
-				l.lightColours.map((cs, n) => {
-				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": cs.length !== times ? cs[0] ?? noColour : undefined}, cs.length !== times ? [] : animate({"attributeName": "stop-color", keyTimes, "values": cs.join(";")}));
-				      pos += l.lightStages[n];
+				l.lightStages.map((stage, n) => {
+				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": times === 1 ? l.lightColours[n]?.[0] ?? noColour : undefined}, times === 1 ? [] : animate({"attributeName": "stop-color", keyTimes, "values": l.lightTimings.map((_, m) => l.lightColours[n]?.[m] ?? noColour).join(";")}));
+				      pos += stage;
 				      return s;
 				})
 			      ]);
