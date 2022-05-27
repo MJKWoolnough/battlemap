@@ -485,8 +485,8 @@ export default (base: HTMLElement) => {
 						}
 						const {lightColours, lightStages, lightTimings} = currToken,
 						      lStages = lightStages.length ? lightStages : [0],
-						      lTimings = lightTimings.length ? lightTimings : [0],
-						      w = windows(),
+						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
+						      w = windows({"resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}),
 						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
 						      stagesHeader = th({"rowspan": lStages.length, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
 						      addTiming = (t = 0) => {
