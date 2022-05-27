@@ -488,8 +488,8 @@ export default (base: HTMLElement) => {
 						      lTimings = lightTimings.length ? lightTimings : [0],
 						      w = windows(),
 						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
-						      stagesHeader = th({"rowspan": lStages.length, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_DISTANCES"]),
-						      addTiming = (t = -1) => {
+						      stagesHeader = th({"rowspan": lStages.length, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
+						      addTiming = (t = 0) => {
 							const o = {
 								[node]: th(input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
 									o.value = checkInt(parseInt(this.value), 0);
@@ -521,6 +521,14 @@ export default (base: HTMLElement) => {
 						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(), noSort, lStages.map(addStage));
 						amendNode(shell, amendNode(w, [
 							h1(lang["CONTEXT_SET_LIGHTING"]),
+							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage())})}, lang["LIGHTING_ADD_STAGE"]),
+							button({"onclick": () => {
+								amendNode(timingHeader, {"colspan": timings.push(addTiming())});
+								lTimings.push(0);
+								for (const s of stages) {
+									s.colours.push(addColour());
+								}
+							}}, lang["LIGHTING_ADD_TIMING"]),
 							table([
 								thead([
 									tr([
