@@ -331,13 +331,14 @@ definitions = (() => {
 			let pos = 0;
 			const id = `LG_${nextLightID++}`,
 			      [cx, cy] = l.getLightPos(),
-			      dur = l.lightTimings.reduce((a, b) => a + b, 0),
-			      keyTimes = "0;" + l.lightTimings.map(t => t / dur).join(";"),
-			      multiTimes = l.lightTimings.length !== 1,
-			      r = l.lightStages.reduce((a, b) => a + b, 0),
+			      {lightTimings, lightStages, lightColours} = l,
+			      dur = lightTimings.reduce((a, b) => a + b, 0),
+			      keyTimes = "0;" + lightTimings.map(t => t / dur).join(";"),
+			      multiTimes = lightTimings.length !== 1,
+			      r = lightStages.reduce((a, b) => a + b, 0),
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
-				l.lightStages.map((stage, n) => {
-				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : l.lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", keyTimes, "values": l.lightTimings.map((_, m) => l.lightColours[n]?.[m] ?? noColour).join(";")}) : []);
+				lightStages.map((stage, n) => {
+				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", keyTimes, "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";")}) : []);
 				      pos += stage;
 				      return s;
 				})
