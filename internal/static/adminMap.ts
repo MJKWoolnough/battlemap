@@ -487,7 +487,9 @@ export default (base: HTMLElement) => {
 						      lStages = lightStages.length ? lightStages : [0],
 						      lTimings = lightTimings.length ? lightTimings : [0],
 						      w = windows(),
-						      addTiming = (t = 0) => {
+						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
+						      stagesHeader = th({"rowspan": lStages.length, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_DISTANCES"]),
+						      addTiming = (t = -1) => {
 							const o = {
 								[node]: th(input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
 									o.value = checkInt(parseInt(this.value), 0);
@@ -515,12 +517,18 @@ export default (base: HTMLElement) => {
 							      };
 							return o;
 						      },
-						      timings = new NodeArray<Timing>(amendNode(tr(), td()), noSort, lTimings.map(addTiming)),
+						      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
 						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(), noSort, lStages.map(addStage));
 						amendNode(shell, amendNode(w, [
 							h1(lang["CONTEXT_SET_LIGHTING"]),
 							table([
-								thead(timings[node]),
+								thead([
+									tr([
+										td({"colspan": 2}),
+										timingHeader
+									]),
+									timings[node]
+								]),
 								stages[node]
 							]),
 							button({"onclick": () => {
@@ -530,25 +538,8 @@ export default (base: HTMLElement) => {
 								w.close();
 							}}, lang["SAVE"])
 						]));
+						stages[node].firstChild?.insertBefore(stagesHeader, stages[node].firstChild!.firstChild!);
 					}
-					/*
-					let c = currToken.lightColours?.[0]?.[0] ?? noColour;
-					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
-					      i = input({"type": "number", "value": currToken.lightStages[0] ?? 0, "min": 0});
-					amendNode(shell, amendNode(w, [
-						h1(lang["CONTEXT_SET_LIGHTING"]),
-						labels(`${lang["LIGHTING_COLOUR"]}: `, makeColourPicker(w, lang["LIGHTING_PICK_COLOUR"], () => c, d => c = d)),
-						br(),
-						labels(`${lang["LIGHTING_INTENSITY"]}: `, i),
-						br(),
-						button({"onclick": () => {
-							if (tokens.has(currToken.id)) {
-								doTokenSet({"id": currToken.id, "lightColours": [[c]], "lightStages": [checkInt(parseInt(i.value), 0)], "lightTimings": [0]});
-							}
-							w.close();
-						}}, lang["SAVE"])
-					]));
-					*/
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(lang["CONTEXT_MOVE_TOP"], () => {
