@@ -1,14 +1,15 @@
 import type {Token, TokenSet, Uint} from './types.js';
 import type {List} from './lib/context.js';
-import type {NodeArray} from './lib/nodes.js';
+import type {Colour} from './colours.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
 import {setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
-import {br, button, h1, img, input} from './lib/html.js';
+import {button, h1, img, input, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
+import {NodeArray, node, noSort} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
 import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
@@ -20,7 +21,7 @@ import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected,
 import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
-import {characterData, checkInt, cloneObject, getCharacterToken, labels, mapLoadedSend, mod} from './shared.js';
+import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 import undo from './undo.js';
@@ -468,6 +469,69 @@ export default (base: HTMLElement) => {
 					}
 				}),
 				item(lang["CONTEXT_SET_LIGHTING"], () => {
+					if (tokens.has(currToken.id)) {
+						type Timing = {
+							[node]: HTMLTableCellElement;
+							value: Uint;
+						}
+						type Stage = {
+							[node]: HTMLTableRowElement;
+							stage: Uint;
+							colours: NodeArray<ColourCell>;
+						}
+						type ColourCell = {
+							[node]: HTMLTableCellElement;
+							value: Colour;
+						}
+						const {lightColours, lightStages, lightTimings} = currToken,
+						      lStages = lightStages.length ? lightStages : [0],
+						      lTimings = lightTimings.length ? lightTimings : [0],
+						      w = windows(),
+						      addTiming = (t = 0) => {
+							const o = {
+								[node]: th(input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
+									o.value = checkInt(parseInt(this.value), 0);
+								}})),
+								value: t
+							      };
+							return o;
+						      },
+						      addColour = (n = -1, m = -1) => {
+							const o: ColourCell = {
+								[node]: td(),
+								value: lightColours[n]?.[m] ?? noColour
+							      };
+							amendNode(o[node], makeColourPicker(w, "", () => o.value, c => o.value = c));
+							return o;
+						      },
+						      addStage = (s = 0, n = -1) => {
+							const p = tr(td(input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
+									o.stage = checkInt(parseInt(this.value), 0);
+							      }}))),
+							      o = {
+								[node]: p,
+								stage: s,
+								colours: new NodeArray<ColourCell>(p, noSort, lightTimings.map((_, m) => addColour(n, m))),
+							      };
+							return o;
+						      },
+						      timings = new NodeArray<Timing>(amendNode(tr(), td()), noSort, lTimings.map(addTiming)),
+						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(), noSort, lStages.map(addStage));
+						amendNode(shell, amendNode(w, [
+							h1(lang["CONTEXT_SET_LIGHTING"]),
+							table([
+								thead(timings[node]),
+								stages[node]
+							]),
+							button({"onclick": () => {
+								if (tokens.has(currToken.id)) {
+
+								}
+								w.close();
+							}}, lang["SAVE"])
+						]));
+					}
+					/*
 					let c = currToken.lightColours?.[0]?.[0] ?? noColour;
 					const w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"]}),
 					      i = input({"type": "number", "value": currToken.lightStages[0] ?? 0, "min": 0});
@@ -484,6 +548,7 @@ export default (base: HTMLElement) => {
 							w.close();
 						}}, lang["SAVE"])
 					]));
+					*/
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
 					item(lang["CONTEXT_MOVE_TOP"], () => {
