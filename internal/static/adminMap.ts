@@ -513,7 +513,7 @@ export default (base: HTMLElement) => {
 							      o = {
 								[node]: p,
 								stage: s,
-								colours: new NodeArray<ColourCell>(p, noSort, lightTimings.map((_, m) => addColour(n, m))),
+								colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m))),
 							      };
 							return o;
 						      },
