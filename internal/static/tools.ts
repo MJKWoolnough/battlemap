@@ -3,7 +3,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
-import {ns as svgNS, g, path, polygon, svg, title} from './lib/svg.js';
+import {g, ns as svgNS, path, polygon, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {isAdmin} from './rpc.js';
 import {miniTools} from './settings.js';
