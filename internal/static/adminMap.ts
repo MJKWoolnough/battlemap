@@ -22,6 +22,7 @@ import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
+import {remove} from './symbols.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 import undo from './undo.js';
@@ -488,12 +489,22 @@ export default (base: HTMLElement) => {
 						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
 						      w = windows({"resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}),
 						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
-						      stagesHeader = th({"rowspan": lStages.length, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
+						      stagesHeader = th({"rowspan": lStages.length + 1, "style": "writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
 						      addTiming = (t = 0) => {
 							const o = {
-								[node]: th(input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
-									o.value = checkInt(parseInt(this.value), 0);
-								}})),
+								[node]: th([
+									input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
+										o.value = checkInt(parseInt(this.value), 0);
+									}}),
+									remove({"title": lang["LIGHTING_REMOVE_TIMING"], "class": "itemRemove", "onclick": () => {
+										const pos = timings.findIndex(t => Object.is(t, o));
+										timings.splice(pos, 1);
+										lTimings.pop();
+										for (const s of stages) {
+											s.colours.splice(pos, 1);
+										}
+									}})
+								]),
 								value: t
 							      };
 							return o;
@@ -507,9 +518,12 @@ export default (base: HTMLElement) => {
 							return o;
 						      },
 						      addStage = (s = 0, n = -1) => {
-							const p = tr(td(input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
+							const p = tr(td([
+								input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
 									o.stage = checkInt(parseInt(this.value), 0);
-							      }}))),
+								}}),
+								remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": "itemRemove", "onclick": () => stages.filterRemove(t => t === o)})
+							      ])),
 							      o = {
 								[node]: p,
 								stage: s,
@@ -518,10 +532,10 @@ export default (base: HTMLElement) => {
 							return o;
 						      },
 						      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
-						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(), noSort, lStages.map(addStage));
+						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), noSort, lStages.map(addStage));
 						amendNode(shell, amendNode(w, [
 							h1(lang["CONTEXT_SET_LIGHTING"]),
-							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage())})}, lang["LIGHTING_ADD_STAGE"]),
+							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage()) + 1})}, lang["LIGHTING_ADD_STAGE"]),
 							button({"onclick": () => {
 								amendNode(timingHeader, {"colspan": timings.push(addTiming())});
 								lTimings.push(0);
@@ -546,7 +560,6 @@ export default (base: HTMLElement) => {
 								w.close();
 							}}, lang["SAVE"])
 						]));
-						stages[node].firstChild?.insertBefore(stagesHeader, stages[node].firstChild!.firstChild!);
 					}
 				}),
 				tokenPos < currLayer.tokens.length - 1 ? [
