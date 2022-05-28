@@ -477,7 +477,7 @@ export default (base: HTMLElement) => {
 						}
 						type Stage = {
 							[node]: HTMLTableRowElement;
-							stage: Uint;
+							value: Uint;
 							colours: NodeArray<ColourCell>;
 						}
 						type ColourCell = {
@@ -520,13 +520,13 @@ export default (base: HTMLElement) => {
 						      addStage = (s = 0, n = -1) => {
 							const p = tr(td([
 								input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
-									o.stage = checkInt(parseInt(this.value), 0);
+									o.value = checkInt(parseInt(this.value), 0);
 								}}),
 								remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": "itemRemove", "onclick": () => stages.filterRemove(t => t === o)})
 							      ])),
 							      o = {
 								[node]: p,
-								stage: s,
+								value: s,
 								colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m))),
 							      };
 							return o;
@@ -555,7 +555,7 @@ export default (base: HTMLElement) => {
 							]),
 							button({"onclick": () => {
 								if (tokens.has(currToken.id)) {
-
+									doTokenSet({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages": stages.map(s => s.value), "lightTimings": timings.map(t => t.value)});
 								}
 								w.close();
 							}}, lang["SAVE"])
