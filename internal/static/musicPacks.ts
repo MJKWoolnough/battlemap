@@ -7,7 +7,7 @@ import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {ns as svgNS, animate, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import lang from './language.js';
-import {handleError, inited, isAdmin, rpc} from './rpc.js';
+import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
 import {checkInt, loading, menuItems} from './shared.js';
 import {copy, playStatus, remove, rename, stop} from './symbols.js';
 import {shell, windows} from './windows.js';
@@ -180,9 +180,7 @@ export const dragMusicPack = new DragTransfer<IDName>("musicpack");
 
 export let open = (_id: Uint) => {};
 
-let timeShift = 0;
-
-inited.then(() => rpc.currentTime()).then(t => timeShift = t - Date.now() / 1000).then(() => {
+inited.then(() => {
 	if (!isAdmin) {
 		 audioEnabled().then(rpc.musicPackList).then(list => {
 			const packs = new Map<Uint, Pack>();
