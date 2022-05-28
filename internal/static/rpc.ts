@@ -9,7 +9,9 @@ import {shell} from './windows.js';
 
 const broadcastIsAdmin = -1, broadcastCurrentUserMap = -2, broadcastCurrentUserMapData = -3, broadcastMapDataSet = -4, broadcastMapDataRemove = -5, broadcastMapStartChange = -6, broadcastImageItemAdd = -7, broadcastAudioItemAdd = -8, broadcastCharacterItemAdd = -9, broadcastMapItemAdd = -10, broadcastImageItemMove = -11, broadcastAudioItemMove = -12, broadcastCharacterItemMove = -13, broadcastMapItemMove = -14, broadcastImageItemRemove = -15, broadcastAudioItemRemove = -16, broadcastCharacterItemRemove = -17, broadcastMapItemRemove = -18, broadcastImageItemCopy = -19, broadcastAudioItemCopy = -20, broadcastCharacterItemCopy = -21, broadcastMapItemCopy = -22, broadcastImageFolderAdd = -23, broadcastAudioFolderAdd = -24, broadcastCharacterFolderAdd = -25, broadcastMapFolderAdd = -26, broadcastImageFolderMove = -27, broadcastAudioFolderMove = -28, broadcastCharacterFolderMove = -29, broadcastMapFolderMove = -30, broadcastImageFolderRemove = -31, broadcastAudioFolderRemove = -32, broadcastCharacterFolderRemove = -33, broadcastMapFolderRemove = -34, broadcastMapItemChange = -35, broadcastCharacterDataChange = -36, broadcastTokenDataChange = -37, broadcastLayerAdd = -38, broadcastLayerFolderAdd = -39, broadcastLayerMove = -40, broadcastLayerRename = -41, broadcastLayerRemove = -42, broadcastGridDistanceChange = -43, broadcastGridDiagonalChange = -44, broadcastMapLightChange = -45, broadcastLayerShow = -46, broadcastLayerHide = -47, broadcastMaskAdd = -48, broadcastMaskRemove = -49, broadcastMaskSet = -50, broadcastTokenAdd = -51, broadcastTokenRemove = -52, broadcastTokenMoveLayerPos = -53, broadcastTokenSet = -54, broadcastLayerShift = -55, broadcastWallAdd = -56, broadcastWallRemove = -57, broadcastWallModify = -58, broadcastWallMoveLayer = -59, broadcastMusicPackAdd = -60, broadcastMusicPackRename = -61, broadcastMusicPackRemove = -62, broadcastMusicPackCopy = -63, broadcastMusicPackVolume = -64, broadcastMusicPackPlay = -65, broadcastMusicPackStop = -66, broadcastMusicPackStopAll = -67, broadcastMusicPackTrackAdd = -68, broadcastMusicPackTrackRemove = -69, broadcastMusicPackTrackVolume = -70, broadcastMusicPackTrackRepeat = -71, broadcastPluginChange = -72, broadcastPluginSettingChange = -73, broadcastWindow = -74, broadcastSignalMeasure = -75, broadcastSignalPosition = -76, broadcastSignalMovePosition = -77, broadcastAny = -78;
 
-export let isAdmin: boolean, isUser: boolean;
+export let isAdmin: boolean,
+isUser: boolean,
+timeShift = 0;
 
 declare const pageLoad: Promise<void>;
 
@@ -137,7 +139,6 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 	      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
 		"": [
 			["ready"      , "conn.ready"      , "", returnVoid, "", ""],
-			["currentTime", "conn.currentTime", "", checkUint,  "", ""],
 
 			["setCurrentMap", "maps.setCurrentMap", "!", returnVoid,   "", ""],
 			["getUserMap",    "maps.getUserMap",    "",  checkUint,    "", ""],
@@ -307,6 +308,9 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 	return arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
 		isAdmin = userLevel === 2;
 		isUser = userLevel === 1;
+		return arpc.request("conn.currentTime");
+	}).then(t => {
+		timeShift = checkUint(t, "currentTime") - Date.now() / 1000;
 	});
 })).catch(handleError);
 
