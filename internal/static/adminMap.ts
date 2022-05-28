@@ -514,7 +514,7 @@ export default (base: HTMLElement) => {
 								[node]: td(),
 								value: lightColours[n]?.[m] ?? noColour
 							      };
-							amendNode(o[node], makeColourPicker(w, "", () => o.value, c => o.value = c));
+							amendNode(o[node], makeColourPicker(w, lang["LIGHTING_SET_COLOUR"], () => o.value, c => o.value = c));
 							return o;
 						      },
 						      addStage = (s = 0, n = -1) => {
