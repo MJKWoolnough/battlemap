@@ -98,7 +98,6 @@ export type RPC = RPCWaits & {
 	maps:       FolderRPC;
 
 	ready:       () => Promise<void>;
-	currentTime: () => Promise<Uint>;
 
 	setCurrentMap: (id: Uint) => Promise<void>;
 	getUserMap:    ()         => Promise<Uint>;
