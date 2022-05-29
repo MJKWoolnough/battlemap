@@ -8,7 +8,7 @@ import {isAdmin} from './rpc.js';
 import {labels, menuItems} from './shared.js';
 import {shell} from './windows.js';
 
-export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove"].map(n => new BoolSetting(n)),
+export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128, 0, 255),
@@ -37,6 +37,10 @@ menuItems.push([7, () => [
 		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 			panelOnTop.set(this.checked);
 		}}), `${lang["PANEL_ON_TOP"]}: `),
+		br(),
+		labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
+			enableLightingAnimation.set(this.checked);
+		}}), `${lang["LIGHTING_ENABLE_ANIMATION"]}: `),
 		isAdmin ? [
 			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
