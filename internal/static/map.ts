@@ -211,7 +211,7 @@ updateLight = () => {
 				}
 			}
 			for (const tk of l.tokens) {
-				if (tk.lightStages.length && tk.lightTimings.length) {
+				if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
 					lights.push(tk);
 				}
 			}
