@@ -8,6 +8,7 @@ import {Pipe} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {noColour} from './colours.js';
+import {timeShift} from './rpc.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
 
 type MaskNode = Mask & {
@@ -182,6 +183,8 @@ export class SVGDrawing extends SVGShape {
 	}
 }
 
+const loadTime = Date.now() / 1000;
+
 export const [tokenSelected, tokenSelectedReceive] = new Pipe<void>().bind(3),
 tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
 selected = {
@@ -337,9 +340,10 @@ definitions = (() => {
 			      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
 			      multiTimes = lightTimings.length !== 1,
 			      r = lightStages.reduce((a, b) => a + b, 0),
+			      begin = timeShift - loadTime + "s",
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 				lightStages.map((stage, n) => {
-				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
+				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", begin, keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
 				      pos += stage;
 				      return s;
 				})
