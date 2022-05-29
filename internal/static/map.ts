@@ -15,7 +15,7 @@ import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {inited, isAdmin, rpc} from './rpc.js';
-import {scrollAmount, zoomSlider} from './settings.js';
+import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
@@ -423,6 +423,8 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 	}
 	return false;
 };
+
+enableLightingAnimation.wait(() => mapData && updateLight());
 
 export default (base: HTMLElement) => {
 	rpc.waitCurrentUserMapData().then(mapData => {
