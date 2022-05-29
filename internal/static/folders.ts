@@ -5,8 +5,8 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {invert} from './settings.js';
-import {enterKey, labels, setAndReturn, queue} from './shared.js';
-import {copy, folder, newFolder, rename, remove} from './symbols.js';
+import {enterKey, labels, queue, setAndReturn} from './shared.js';
+import {copy, folder, newFolder, remove, rename} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 declare function setTimeout<T extends (...args: any) => any>(handler: T, timeout?: number, ...arguments: Parameters<T>): number;
