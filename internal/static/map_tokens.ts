@@ -339,7 +339,7 @@ definitions = (() => {
 			      r = lightStages.reduce((a, b) => a + b, 0),
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 				lightStages.map((stage, n) => {
-				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", keyTimes, "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
+				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
 				      pos += stage;
 				      return s;
 				})
