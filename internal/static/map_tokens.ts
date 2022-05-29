@@ -328,12 +328,13 @@ definitions = (() => {
 			}
 		},
 		addLighting(l: LightSource, scale: number) {
-			let pos = 0;
+			let pos = 0,
+			    times = 0;
 			const id = `LG_${nextLightID++}`,
 			      [cx, cy] = l.getLightPos(),
 			      {lightTimings, lightStages, lightColours} = l,
 			      dur = lightTimings.reduce((a, b) => a + b, 0),
-			      keyTimes = "0;" + lightTimings.map(t => t / dur).join(";"),
+			      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
 			      multiTimes = lightTimings.length !== 1,
 			      r = lightStages.reduce((a, b) => a + b, 0),
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
