@@ -9,6 +9,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {noColour} from './colours.js';
 import {timeShift} from './rpc.js';
+import {enableLightingAnimation} from './settings.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
 
 type MaskNode = Mask & {
@@ -338,7 +339,7 @@ definitions = (() => {
 			      {lightTimings, lightStages, lightColours} = l,
 			      dur = lightTimings.reduce((a, b) => a + b, 0),
 			      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
-			      multiTimes = lightTimings.length !== 1,
+			      multiTimes = enableLightingAnimation.value && lightTimings.length !== 1,
 			      r = lightStages.reduce((a, b) => a + b, 0),
 			      begin = timeShift - loadTime + "s",
 			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
