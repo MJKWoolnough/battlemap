@@ -82,6 +82,7 @@ const defaultLanguage = {
 	"LAYER_TOGGLE_VISIBILITY": "Toggle Visibility",
 	"LIGHTING_ADD_STAGE": "Add Light Stage",
 	"LIGHTING_ADD_TIMING": "Add Timing",
+	"LIGHTING_ENABLE_ANIMATION": "Enable Lighting Animations",
 	"LIGHTING_REMOVE_STAGE": "Remove Light Stage",
 	"LIGHTING_REMOVE_TIMING": "Remove Timing",
 	"LIGHTING_SET_COLOUR": "Set Lighting Colour",
