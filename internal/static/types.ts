@@ -295,7 +295,7 @@ export type LayerRename = {
 	name: string;
 }
 
-type ID = {
+export type ID = {
 	id: Uint;
 }
 
@@ -341,7 +341,7 @@ export type WallPath = {
 	wall: Wall;
 }
 
-type TokenLight = {
+export type TokenLight = {
 	lightColours: Colour[][];
 	lightStages: Uint[];
 	lightTimings: Uint[];
