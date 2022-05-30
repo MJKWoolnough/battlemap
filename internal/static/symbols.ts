@@ -49,4 +49,8 @@ lightOnOff = addSymbol("lightOnOff", symbol({"viewBox": "0 0 44 75", "stroke": "
 	path({"id": "lightCoil", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4"}),
 	use({"href": "#lightCoil", "y": 4}),
 	use({"href": "#lightCoil", "y": 8})
+])),
+lightGrid = addSymbol("lightGrid", symbol({"viewBox": "0 0 33 33"}, [
+	path({"d": "M11,0 V33 M22,0 V33 M0,11 H33 M0,22 H33", "stroke": "#000"}),
+	["#800", "#880", "#808", "#880", "#080", "#088", "#088", "#808", "#008"].map((fill, n) => rect({"x": (n / 3 | 0) * 11 + 2, "y": (n % 3) * 11 + 2, "width": 7, "height": 7, fill}))
 ]));
