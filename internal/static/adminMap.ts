@@ -1,13 +1,13 @@
-import type {Token, TokenSet, Uint} from './types.js';
+import type {ID, Token, TokenLight, TokenSet, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {Colour} from './colours.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
-import {setDragEffect} from './lib/drag.js';
+import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
-import {button, h1, img, input, table, tbody, td, th, thead, tr} from './lib/html.js';
+import {button, div, h1, img, input, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {NodeArray, node, noSort} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
@@ -22,13 +22,14 @@ import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
-import {remove} from './symbols.js';
+import {lightGrid, remove} from './symbols.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 import undo from './undo.js';
 import {shell, windows} from './windows.js';
 
-export const [mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3);
+export const [mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3),
+dragLighting = new DragTransfer<ID & TokenLight>("light");
 
 export default (base: HTMLElement) => {
 	let copiedToken: Token | null = null,
@@ -325,7 +326,9 @@ export default (base: HTMLElement) => {
 			["Left", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk, -1) : tk.x -= dx],
 			["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
 		] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn))
-	      ];
+	      ],
+	      dragLightingOver = setDragEffect({"copy": [dragLighting]});
+
 	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (selected.token) {
@@ -485,7 +488,10 @@ export default (base: HTMLElement) => {
 							value: Colour;
 						}
 						const {lightColours, lightStages, lightTimings} = currToken,
-						      lStages = lightStages.length ? lightStages : [0],
+						      makeChange = () => ({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages":   stages.map(s => s.value), "lightTimings": timings.map(t => t.value)}),
+						      dragKey = dragLighting.register({"transfer": makeChange}),
+						      lColours = cloneObject(lightColours),
+						      lStages = lightStages.length ? cloneObject(lightStages) : [0],
 						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
 						      w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}),
 						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
@@ -512,7 +518,7 @@ export default (base: HTMLElement) => {
 						      addColour = (n = -1, m = -1) => {
 							const o: ColourCell = {
 								[node]: td(),
-								value: lightColours[n]?.[m] ?? noColour
+								value: lColours[n]?.[m] ?? noColour
 							      };
 							amendNode(o[node], makeColourPicker(w, lang["LIGHTING_SET_COLOUR"], () => o.value, c => o.value = c));
 							return o;
@@ -533,8 +539,22 @@ export default (base: HTMLElement) => {
 						      },
 						      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
 						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), noSort, lStages.map(addStage));
-						amendNode(shell, amendNode(w, [
-							h1(lang["CONTEXT_SET_LIGHTING"]),
+						amendNode(shell, amendNode(w, {"onremove": () => dragLighting.deregister(dragKey), "ondragover": dragLightingOver, "ondrop": (e: DragEvent) => {
+							if (dragLighting.is(e)) {
+								const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
+								if (id !== currToken.id) {
+									lColours.splice(0, lColours.length, ...lightColours);
+									lStages.splice(0, lStages.length, ...lightStages);
+									lTimings.splice(0, lTimings.length, ...lightTimings);
+									timings.splice(0, timings.length, ...lightTimings.map(addTiming));
+									stages.splice(0, stages.length, ...lightStages.map(addStage));
+								}
+							}
+						}}, [
+							h1([
+								div({"draggable": "true", "style": "display: inline-block", "ondragstart": (e: DragEvent) => dragLighting.set(e, dragKey)}, lightGrid({"title": lang["LIGHTING_DRAG"], "width": "1em", "height": "1em"})),
+								lang["CONTEXT_SET_LIGHTING"]
+							]),
 							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage()) + 1})}, lang["LIGHTING_ADD_STAGE"]),
 							button({"onclick": () => {
 								amendNode(timingHeader, {"colspan": timings.push(addTiming())});
@@ -555,7 +575,7 @@ export default (base: HTMLElement) => {
 							]),
 							button({"onclick": () => {
 								if (tokens.has(currToken.id)) {
-									doTokenSet({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages": stages.map(s => s.value), "lightTimings": timings.map(t => t.value)});
+									doTokenSet(makeChange());
 								}
 								w.close();
 							}}, lang["SAVE"])
