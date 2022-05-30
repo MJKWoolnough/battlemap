@@ -51,6 +51,7 @@ if (isAdmin) {
 			}
 		}
 		ondragstart(e: DragEvent) {
+			super.ondragstart(e);
 			if (!e.defaultPrevented) {
 				dragLighting.set(e, this.#dragLightID);
 			}
