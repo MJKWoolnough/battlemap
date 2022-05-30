@@ -116,25 +116,36 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 	      newStages: Uint[] = [],
 	      {r, g, b, a} = wallColour,
 	      ma = refraction ? 1 - (a / 255) : a / 255;
-	for (const cs of l.lightColours) {
-		const nc = [];
-		for (const {r: lr, g: lg, b: lb, a: la} of cs) {
-			nc.push(new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma)))));
-		}
-		newColours.push(nc);
-	}
-	let total = 0;
-	for (const s of l.lightStages) {
-		if (total > cp) {
-			newStages.push(Math.round(s * ma));
-		} else if (total + s > cp) {
-			newStages.push(Math.round(cp - total + (total + s - cp) * ma));
-		} else {
+	let hasColour = false,
+	    total = 0;
+	for (let n = 0; n < l.lightStages.length; n++) {
+		const s = l.lightStages[n],
+		      cs = l.lightColours[n] ?? [];
+		if (total + s <= cp) {
 			newStages.push(s);
+			newColours.push(cs);
+		} else {
+			if (total > cp) {
+				newStages.push(Math.round(s * ma));
+			} else {
+				newStages.push(Math.round(cp - total + (total + s - cp) * ma));
+			}
+			const nc = [];
+			for (const {r: lr, g: lg, b: lb, a: la} of cs) {
+				const c = new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma))));
+				if (c.a && (c.r || c.g || c.b)) {
+					hasColour = true;
+				}
+				nc.push(c);
+			}
+			newColours.push(nc);
 		}
 		total += s;
 	}
-	return [newColours, newStages];
+	if (hasColour) {
+		return [newColours, newStages];
+	}
+	return null;
       };
 
 export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fraction, x3: Fraction, y3: Fraction, x4: Fraction, y4: Fraction) => {
@@ -320,13 +331,13 @@ makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall
 						      sx = Math.round(lx + scattering * (cx.toFloat() - lx) / 256),
 						      sy = Math.round(ly + scattering * (cy.toFloat() - ly) / 256);
 						if (a < 255) {
-							const lw = lightWallInteraction(l, sw.colour, cd, true);
+							const lw = lightWallInteraction(l, sw.colour, cd / scale, true);
 							if (lw) {
 								ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, lw[0], lw[1], l.lightTimings), walls, scale, fw));
 							}
 						}
 						if (a > 0) {
-							const lw = lightWallInteraction(l, sw.colour, cd);
+							const lw = lightWallInteraction(l, sw.colour, cd / scale);
 							if (lw) {
 								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
 								      dcx = cx.add(cx).toFloat(),
