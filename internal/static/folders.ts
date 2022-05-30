@@ -175,17 +175,23 @@ export abstract class DraggableItem extends Item {
 	get height() { return this.#height }
 	handleEvent(e: DragEvent) {
 		if (e.type === "dragend") {
-			if (this.parent instanceof DragFolder) {
-				clearDragOver(this.parent);
-			}
-		} else {
-			if (this.#width === -1 || this.#height === -1) {
-				e.preventDefault();
-				return;
-			}
-			this.#dragTransfer.set(e, this.#dragKey, this.#icon);
-			amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
-			setTimeout(amendNode, 0, this.parent.root[node], {"class": ["folderDragging"]});
+			this.ondragend(e);
+		} else if (e.type === "dragstart") {
+			this.ondragstart(e);
+		}
+	}
+	ondragstart(e: DragEvent) {
+		if (this.#width === -1 || this.#height === -1) {
+			e.preventDefault();
+			return;
+		}
+		this.#dragTransfer.set(e, this.#dragKey, this.#icon);
+		amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
+		setTimeout(amendNode, 0, this.parent.root[node], {"class": ["folderDragging"]});
+	}
+	ondragend(_e: DragEvent) {
+		if (this.parent instanceof DragFolder) {
+			clearDragOver(this.parent);
 		}
 	}
 	transfer(): FolderDragItem {
