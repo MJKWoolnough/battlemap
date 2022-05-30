@@ -1,5 +1,4 @@
 import type {FolderItems, FromTo, IDName, Int, KeystoreData, TokenLight, Uint} from '../types.js';
-import type {Colour} from '../colours.js';
 import type {WindowElement} from '../windows.js';
 import {amendNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
@@ -8,6 +7,7 @@ import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {svgData} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
+import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
@@ -141,7 +141,33 @@ if (isAdmin) {
 		}
 		return true;
 	      },
-	      isLightData = (data: any): data is TokenLight => data instanceof Object && data["lightColours"] instanceof Array && data["lightStages"] instanceof Array && data["lightTimings"] instanceof Array,
+	      isLightData = (data: any): data is TokenLight => {
+		      if (data instanceof Object && data["lightColours"] instanceof Array && data["lightStages"] instanceof Array && data["lightTimings"] instanceof Array && data["lightColours"].length === data["lightStages"].length) {
+			      for (const cs of data["lightColours"]) {
+				      if (!(cs instanceof Array) || cs.length !== data["lightTimings"].length) {
+					      return false;
+				      }
+				      for (const c of cs) {
+					      if (!(c instanceof Object) || !isUint(c["r"], 255) || !isUint(c["g"], 255) || !isUint(c["b"], 255) || !isUint(c["a"], 255)) {
+						      return false;
+					      }
+					      Colour.from(c);
+				      }
+			      }
+			      for (const s of data["lightStages"]) {
+				      if (!isUint(s)) {
+					      return false;
+				      }
+			      }
+			      for (const s of data["lightTimings"]) {
+				      if (!isUint(s)) {
+					      return false;
+				      }
+			      }
+			      return true;
+		      }
+		      return false;
+	      },
 	      checkSettings = (data: any) => {
 		if (!(data instanceof Object) || !(data[""] instanceof Object) || data[""].user !== false || !isFolderItems(data[""].data)) {
 			return defaultSettings
