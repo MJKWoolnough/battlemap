@@ -332,27 +332,30 @@ definitions = (() => {
 			}
 		},
 		addLighting(l: LightSource, scale: number) {
-			let pos = 0,
-			    times = 0;
-			const id = `LG_${nextLightID++}`,
-			      [cx, cy] = l.getLightPos(),
-			      {lightTimings, lightStages, lightColours} = l,
-			      dur = lightTimings.reduce((a, b) => a + b, 0),
-			      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
-			      multiTimes = enableLightingAnimation.value && lightTimings.length !== 1,
-			      r = lightStages.reduce((a, b) => a + b, 0),
-			      begin = timeShift - loadTime + "s",
-			      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
-				lightStages.map((stage, n) => {
-				      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", begin, keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
-				      pos += stage;
-				      return s;
-				})
-			      ]);
-			amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0}));
-			lighting.push(rg);
-			amendNode(base, rg);
-			return id;
+			const {lightTimings, lightStages, lightColours} = l;
+			if (lightTimings.length && lightStages.length) {
+				let pos = 0,
+				    times = 0;
+				const id = `LG_${nextLightID++}`,
+				      [cx, cy] = l.getLightPos(),
+				      dur = lightTimings.reduce((a, b) => a + b, 0),
+				      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
+				      multiTimes = enableLightingAnimation.value && lightTimings.length !== 1,
+				      r = lightStages.reduce((a, b) => a + b, 0),
+				      begin = timeShift - loadTime + "s",
+				      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
+					lightStages.map((stage, n) => {
+					      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", begin, keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
+					      pos += stage;
+					      return s;
+					})
+				      ]);
+				amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0}));
+				lighting.push(rg);
+				amendNode(base, rg);
+				return id;
+			}
+			return "";
 		},
 		clearLighting() {
 			for (const l of lighting) {
