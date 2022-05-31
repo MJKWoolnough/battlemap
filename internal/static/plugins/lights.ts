@@ -93,13 +93,16 @@ if (isAdmin) {
 						if (name) {
 							if (name.includes("/")) {
 								shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
-							} else if (root.getItem(`/${name}`)) {
+							} else if (this.children.has(name)) {
 								shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
 							} else {
-								const data = {"user": false, "data": {lightColours, lightStages, lightTimings}};
-								root.addItem(++lastID, name);
-								lightData.set(folders.data.items[name] = lastID, data);
-								rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
+								const data = {"user": false, "data": {lightColours, lightStages, lightTimings}},
+								      [f] = getFolder(this.getPath() + "/");
+								if (f) {
+									this.addItem(++lastID, name);
+									lightData.set(f.items[name] = lastID, data);
+									rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
+								}
 							}
 						}
 					});
