@@ -77,6 +77,13 @@ if (isAdmin) {
 			super.ondragover(e);
 			dragLightingOver(e);
 		}
+		ondragenter(e: DragEvent) {
+			super.ondragenter(e);
+			if (dragLighting.is(e)) {
+				amendNode(this[node], {"class": ["dragover"]});
+				amendNode(this.root[node], {"class": ["folderDragging"]});
+			}
+		}
 		ondrop(e: DragEvent) {
 			super.ondrop(e);
 			if (dragLighting.is(e)) {
