@@ -96,7 +96,6 @@ if (isAdmin) {
 							}
 						}
 					});
-					console.log(lightColours, lightStages, lightTimings);
 				}
 			}
 		}
