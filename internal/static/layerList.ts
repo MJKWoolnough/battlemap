@@ -6,7 +6,7 @@ import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {colourPicker, hex2Colour} from './colours.js';
-import {Item, Folder, Root} from './folders.js';
+import {Folder, Item, Root} from './folders.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
