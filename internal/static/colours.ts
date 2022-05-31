@@ -71,7 +71,7 @@ makeColourPicker = (() => {
 	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
 		let active = false;
 		const dragKey = dragColour.register({"transfer": getColour}),
-		      d = div ({"draggable": "true", "ondragstart": (e: DragEvent) => dragColour.set(e, dragKey, iconImg)}),
+		      d = div({"draggable": "true", "ondragstart": (e: DragEvent) => dragColour.set(e, dragKey, iconImg)}),
 		      b = button({"class": "checkboard colourButton", "onclick": () => {
 			if (!active) {
 				active = true;
