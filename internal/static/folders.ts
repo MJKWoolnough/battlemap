@@ -408,6 +408,9 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 			amendNode(this.nameElem, {"draggable": "true", "ondragstart": this, "ondragend": this});
 		}
 		amendNode(this[node], {"ondragover": this, "ondrop": this, "ondragenter": this, "ondragleave": this});
+		if (parent === null) {
+			amendNode(this[node], {"onmouseover": () => clearDragOver(this)});
+		}
 	}
 	handleEvent(e: DragEvent) {
 		switch (e.type) {
