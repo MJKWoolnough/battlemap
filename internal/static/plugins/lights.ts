@@ -78,6 +78,7 @@ if (isAdmin) {
 			dragLightingOver(e);
 		}
 		ondrop(e: DragEvent) {
+			super.ondrop(e);
 			if (dragLighting.is(e)) {
 				const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
 				if (id >= 0) {
