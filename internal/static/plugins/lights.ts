@@ -5,11 +5,12 @@ import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
-import {svgData} from '../lib/svg.js';
+import {circle, rect, svg, svgData} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
+import {definitions} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, isUint} from '../shared.js';
@@ -28,6 +29,8 @@ if (isAdmin) {
 			this.lightStages = lightStages;
 			this.lightTimings = lightTimings;
 		}
+		getCentre(): [Uint, Uint] { return [0, 0]; }
+		getLightPos(): [Uint, Uint] { return [5, 5]; }
 		transfer() {
 			return this;
 		}
@@ -35,19 +38,28 @@ if (isAdmin) {
 	class LightItem extends DraggableItem {
 		#window: WindowElement | null = null;
 		#dragLightID: string;
+		#draggedLight: DraggedLight;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragLightItem);
 			amendNode(this.image, {"src": icon, "width": "20px", "height": "20px"});
 			lights.set(id, this);
-			this.#dragLightID = dragLighting.register(new DraggedLight(id));
+			this.#dragLightID = dragLighting.register(this.#draggedLight = new DraggedLight(id));
 		}
 		show() {
 			if (this.#window) {
 				this.#window.focus();
 			} else {
+				const lid = definitions.addLighting(this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0)),
+				      lrg = document.getElementById(lid);
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
 					this.#window = null;
-				}}));
+				}}, svg({"viewBox": "0 0 10 10"}, [
+					rect({"width": "5", "height": "10", "fill": "#fff"}),
+					rect({"x": "5", "width": "5", "height": "10", "fill": "#000"}),
+					lrg?.cloneNode(true) ?? [],
+					circle({"cx": "5", "cy": "5", "r": "5", "fill": `url(#${lid}`})
+				])));
+				lrg?.remove();
 			}
 		}
 		ondragstart(e: DragEvent) {
