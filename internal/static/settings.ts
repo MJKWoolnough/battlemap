@@ -1,4 +1,4 @@
-import {button, br, div, form, h1, input, select, option} from './lib/html.js';
+import {br, button, div, form, h1, input, option, select} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
