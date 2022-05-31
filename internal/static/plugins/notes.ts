@@ -53,8 +53,8 @@ register("plugin-notes", [icon, lang["NOTE"]]);
 
 if (isAdmin) {
 	class NoteItem extends DraggableItem {
-		window: WindowElement | null = null;
-		popWindow: Window | null = null;
+		#window: WindowElement | null = null;
+		#popWindow: Window | null = null;
 		#share: (() => void) | null = null;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragNote);
@@ -62,26 +62,26 @@ if (isAdmin) {
 			notes.set(id, this);
 		}
 		show() {
-			if (this.window) {
-				this.window.focus();
-			} else if (this.popWindow) {
-				this.popWindow.focus();
+			if (this.#window) {
+				this.#window.focus();
+			} else if (this.#popWindow) {
+				this.#popWindow.focus();
 			} else {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
-				amendNode(shell, this.window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
-					this.window = null;
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+					this.#window = null;
 					this.#share = null;
 				}}, data));
-				this.window.addControlButton(popOutIcon, () => {
+				this.#window.addControlButton(popOutIcon, () => {
 					const wp = window.open("", "", "");
 					if (wp) {
-						(this.popWindow = wp).addEventListener("unload", () => this.popWindow = null);
+						(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
 						wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 						wp.document.body.append(data);
-						this.window?.remove();
+						this.#window?.remove();
 					}
 				}, lang["NOTE_POPOUT"]);
-				this.window.addControlButton(editIcon, () => {
+				this.#window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [dragImage, dragAudio, dragMusicPack, dragNote]}), "ondrop": (e: DragEvent) => {
 						if (dragImage.is(e)) {
@@ -121,17 +121,21 @@ if (isAdmin) {
 							this.#setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);
-					this.window!.addWindow(w);
+					this.#window!.addWindow(w);
 				}, lang["NOTE_EDIT"]);
 				this.#setShareButton();
 			}
+		}
+		delete() {
+			this.#window?.remove();
+			this.#popWindow?.close();
 		}
 		#setShareButton() {
 			if (!pages.has(this.id) || !pages.get(this.id)!.data.share) {
 				this.#share?.();
 				this.#share = null;
 			} else {
-				this.#share ??= this.window!.addControlButton(shareIcon, () => {
+				this.#share ??= this.#window!.addControlButton(shareIcon, () => {
 					const page = pages.get(this.id);
 					if (page) {
 						rpc.broadcastWindow("plugin-notes", this.id, page.data.contents);
@@ -152,8 +156,7 @@ if (isAdmin) {
 		removeItem(name: string) {
 			const note = this.getItem(name) as NoteItem | undefined,
 			      id = super.removeItem(name);
-			note?.window?.remove();
-			note?.popWindow?.close();
+			note?.delete();
 			notes.delete(id);
 			return id;
 		}
