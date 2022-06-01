@@ -1,4 +1,4 @@
-import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
+import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Wall, Uint} from './types.js';
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
@@ -38,6 +38,7 @@ export type PluginType = {
 	drawingClass?: owp<(c: SVGDrawingConstructor) => SVGDrawingConstructor>;
 	menuItem?: owp<[string, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
+	addWalls?: owp<(layer: string) => Omit<Wall, "id">[]>;
 }
 
 const plugins = new Map<string, PluginType>(),
@@ -104,7 +105,8 @@ tokenDataFilter = () => {
 	}
 	return tdf;
 },
-menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn);
+menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn),
+addWalls = (layer: string) => filterSortPlugins("addWalls").reduce((walls, [, {addWalls: {fn}}]) => walls.concat(fn(layer)), [] as Omit<Wall, "id">[]);
 
 export let tokenClass: SVGTokenConstructor = SVGToken,
 shapeClass: SVGShapeConstructor = SVGShape,
