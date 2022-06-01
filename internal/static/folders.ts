@@ -520,7 +520,7 @@ export class Root {
 		if (this.rpcFuncs) {
 			const f = this.folder = new this.newFolder(this, null, "", rootFolder);
 			clearNode(this[node] ??= this.folder[node], [
-				span(this.#fileType),
+				span({"style": "margin-right: 0.5em"}, this.#fileType),
 				f.newer,
 				this.filter ? [
 					input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
