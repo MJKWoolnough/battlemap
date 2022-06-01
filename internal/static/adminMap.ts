@@ -552,7 +552,7 @@ export default (base: HTMLElement) => {
 							}
 						}}, [
 							h1([
-								div({"draggable": "true", "style": "display: inline-block", "ondragstart": (e: DragEvent) => dragLighting.set(e, dragKey)}, lightGrid({"title": lang["LIGHTING_DRAG"], "width": "1em", "height": "1em"})),
+								div({"draggable": "true", "style": "display: inline-block; cursor: grab", "ondragstart": (e: DragEvent) => dragLighting.set(e, dragKey)}, lightGrid({"title": lang["LIGHTING_DRAG"], "width": "1em", "height": "1em"})),
 								lang["CONTEXT_SET_LIGHTING"]
 							]),
 							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage()) + 1})}, lang["LIGHTING_ADD_STAGE"]),
