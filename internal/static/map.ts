@@ -13,7 +13,7 @@ import Fraction from './fraction.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
-import {drawingClass, shapeClass, tokenClass} from './plugins.js';
+import {addWalls, drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
@@ -184,9 +184,10 @@ updateLight = () => {
 	      ],
 	      lights: LightSource[] = [],
 	      masks: Children[] = [ll.firstChild!];
+	let oid = -5;
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
-			for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of l.walls) {
+			for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of (addWalls(l.name) as Wall[]).map(w => (w.id = oid--, w)).concat(...l.walls)) {
 				const l = walls.length,
 				      x1 = new Fraction(BigInt(nx1)),
 				      y1 = new Fraction(BigInt(ny1)),
