@@ -183,34 +183,37 @@ updateLight = () => {
 		}
 	      ],
 	      lights: LightSource[] = [],
-	      masks: Children[] = [ll.firstChild!];
+	      masks: Children[] = [ll.firstChild!],
+	      processWalls = (ws: Wall[]) => {
+		for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of ws) {
+			const l = walls.length,
+			      x1 = new Fraction(BigInt(nx1)),
+			      y1 = new Fraction(BigInt(ny1)),
+			      x2 = new Fraction(BigInt(nx2)),
+			      y2 = new Fraction(BigInt(ny2)),
+			      points: [Fraction, Fraction][] = [[x1, y1], [x2, y2]];
+			for (let i = 0; i < l; i++) {
+				const {id: wid, x1: x3, y1: y3, x2: x4, y2: y4, colour: wc, scattering: ws} = walls[i],
+				      [ix, iy] = intersection(x1, y1, x2, y2, x3, y3, x4, y4);
+				if (ix.cmp(Fraction.min(x1, x2)) === 1 && ix.cmp(Fraction.min(x3, x4)) === 1 && ix.cmp(Fraction.max(x1, x2)) === -1 && ix.cmp(Fraction.max(x3, x4)) === -1 && iy.cmp(Fraction.min(y1, y2)) === 1 && iy.cmp(Fraction.min(y3, y4)) === 1 && iy.cmp(Fraction.max(y1, y2)) === -1 && iy.cmp(Fraction.max(y3, y4)) === -1) {
+					walls[i].x2 = ix;
+					walls[i].y2 = iy;
+					walls.push({"id": wid, "x1": ix, "y1": iy, "x2": x4, "y2": y4, "colour": wc, "scattering": ws});
+					points.push([ix, iy]);
+				}
+			}
+			points.sort(([x1, y1], [x2, y2]) => x1.cmp(x2) || y1.cmp(y2));
+			for (let i = 1; i < points.length; i++) {
+				const [x1, y1] = points[i-1],
+				      [x2, y2] = points[i];
+				walls.push({id, x1, y1, x2, y2, colour, scattering});
+			}
+		}
+	      };
 	let oid = -5;
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
-			for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of (addWalls(l.name) as Wall[]).map(w => (w.id = oid--, w)).concat(...l.walls)) {
-				const l = walls.length,
-				      x1 = new Fraction(BigInt(nx1)),
-				      y1 = new Fraction(BigInt(ny1)),
-				      x2 = new Fraction(BigInt(nx2)),
-				      y2 = new Fraction(BigInt(ny2)),
-				      points: [Fraction, Fraction][] = [[x1, y1], [x2, y2]];
-				for (let i = 0; i < l; i++) {
-					const {id: wid, x1: x3, y1: y3, x2: x4, y2: y4, colour: wc, scattering: ws} = walls[i],
-					      [ix, iy] = intersection(x1, y1, x2, y2, x3, y3, x4, y4);
-					if (ix.cmp(Fraction.min(x1, x2)) === 1 && ix.cmp(Fraction.min(x3, x4)) === 1 && ix.cmp(Fraction.max(x1, x2)) === -1 && ix.cmp(Fraction.max(x3, x4)) === -1 && iy.cmp(Fraction.min(y1, y2)) === 1 && iy.cmp(Fraction.min(y3, y4)) === 1 && iy.cmp(Fraction.max(y1, y2)) === -1 && iy.cmp(Fraction.max(y3, y4)) === -1) {
-						walls[i].x2 = ix;
-						walls[i].y2 = iy;
-						walls.push({"id": wid, "x1": ix, "y1": iy, "x2": x4, "y2": y4, "colour": wc, "scattering": ws});
-						points.push([ix, iy]);
-					}
-				}
-				points.sort(([x1, y1], [x2, y2]) => x1.cmp(x2) || y1.cmp(y2));
-				for (let i = 1; i < points.length; i++) {
-					const [x1, y1] = points[i-1],
-					      [x2, y2] = points[i];
-					walls.push({id, x1, y1, x2, y2, colour, scattering});
-				}
-			}
+			processWalls((addWalls(l.name) as Wall[]).map(w => (w.id = oid--, w)).concat(...l.walls));
 			for (const tk of l.tokens) {
 				if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
 					lights.push(tk);
@@ -218,6 +221,7 @@ updateLight = () => {
 			}
 		}
 	});
+	processWalls((addWalls("") as Wall[]).map(w => (w.id = oid--, w)));
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
