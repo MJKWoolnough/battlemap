@@ -146,32 +146,14 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 		return [newColours, newStages];
 	}
 	return null;
-      };
-
-export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fraction, x3: Fraction, y3: Fraction, x4: Fraction, y4: Fraction) => {
-	const dx1 = x1.sub(x2),
-	      dy1 = y1.sub(y2),
-	      dx2 = x3.sub(x4),
-	      dy2 = y3.sub(y4),
-	      d = dx2.mul(dy1).sub(dy2.mul(dx1));
-	if (d.cmp(Fraction.zero)) {
-		const a = x3.mul(y4).sub(y3.mul(x4)),
-		      b = x1.mul(y2).sub(y1.mul(x2));
-		return [dx1.mul(a).sub(dx2.mul(b)).div(d), dy1.mul(a).sub(dy2.mul(b)).div(d)];
-	}
-	return [Fraction.NaN, Fraction.NaN];
-},
-makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall) => {
-	const [lightX, lightY] = l.getLightPos(),
-	      flx = new Fraction(BigInt(lightX)),
+      },
+      genPoly = (lightX: Int, lightY: Int, walls: LightWall[], lens?: LightWall) => {
+	const flx = new Fraction(BigInt(lightX)),
 	      fly = new Fraction(BigInt(lightY)),
-	      [lx, ly] = l.getCentre(),
-	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
-	      gWalls: XWall[] = [],
-	      ret: Children = [];
+	      gWalls: XWall[] = [];
 	if (lens) {
 		const {x1, y1, x2, y2} = lens;
 		walls.push({
@@ -243,8 +225,7 @@ makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall
 		walls.splice(walls.length - 2, 2);
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
-	let lastAngle = NaN,
-	    p = "";
+	let lastAngle = NaN;
 	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
 		if (lastAngle === v.a) {
 			continue;
@@ -305,6 +286,42 @@ makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall
 	while(isSameWall(collisions[collisions.length - 2].w, collisions[collisions.length - 1].w, collisions[0].w)) {
 		collisions.splice(collisions.length - 1, 1);
 	}
+	return collisions;
+      };
+
+export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fraction, x3: Fraction, y3: Fraction, x4: Fraction, y4: Fraction) => {
+	const dx1 = x1.sub(x2),
+	      dy1 = y1.sub(y2),
+	      dx2 = x3.sub(x4),
+	      dy2 = y3.sub(y4),
+	      d = dx2.mul(dy1).sub(dy2.mul(dx1));
+	if (d.cmp(Fraction.zero)) {
+		const a = x3.mul(y4).sub(y3.mul(x4)),
+		      b = x1.mul(y2).sub(y1.mul(x2));
+		return [dx1.mul(a).sub(dx2.mul(b)).div(d), dy1.mul(a).sub(dy2.mul(b)).div(d)];
+	}
+	return [Fraction.NaN, Fraction.NaN];
+},
+makeSight = (x: Int, y: Int, walls: LightWall[]) => {
+	const collisions = genPoly(x, y, walls);
+	let points = "";
+	for (let j = 0; j < collisions.length; j++) {
+		const {w, x, y} = collisions[j],
+		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1],
+		      next = collisions[j === collisions.length - 1 ? 0 : j + 1];
+		if (!isSameWall(prev.w, w, next.w) && (prev.y.sub(y).mul(x.sub(next.x)).cmp(y.sub(next.y).mul(prev.x.sub(x))))) {
+			points += `${x.toFloat()},${y.toFloat()} `;
+		}
+	}
+	return polygon({points});
+},
+makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall) => {
+	const [lightX, lightY] = l.getLightPos(),
+	      collisions = genPoly(lightX, lightY, walls, lens),
+	      [lx, ly] = l.getCentre(),
+	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
+	      ret: Children = [];
+	let p = "";
 	for (let j = 0; j < collisions.length; j++) {
 		const {w, x, y} = collisions[j],
 		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1],
