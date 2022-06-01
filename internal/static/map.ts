@@ -13,7 +13,7 @@ import Fraction from './fraction.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
-import {addWalls, drawingClass, shapeClass, tokenClass} from './plugins.js';
+import {addLights, addWalls, drawingClass, shapeClass, tokenClass} from './plugins.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
@@ -209,19 +209,23 @@ updateLight = () => {
 				walls.push({id, x1, y1, x2, y2, colour, scattering});
 			}
 		}
+	      },
+	      processLights = (ls: LightSource[]) => {
+		for (const tk of ls) {
+			if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
+				lights.push(tk);
+			}
+		}
 	      };
 	let oid = -5;
 	walkLayers((l: SVGLayer, hidden: boolean) => {
 		if (!hidden) {
 			processWalls((addWalls(l.name) as Wall[]).map(w => (w.id = oid--, w)).concat(...l.walls));
-			for (const tk of l.tokens) {
-				if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
-					lights.push(tk);
-				}
-			}
+			processLights(addLights(l.name).concat(...l.tokens));
 		}
 	});
 	processWalls((addWalls("") as Wall[]).map(w => (w.id = oid--, w)));
+	processLights(addLights(""));
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
