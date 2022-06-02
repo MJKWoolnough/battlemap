@@ -34,7 +34,8 @@ export type SVGFolder = LayerFolder & {
 
 export let root = svg(),
 layerList: SVGFolder,
-mapData: MapData;
+mapData: MapData,
+wallList: LightWall[] = [];
 
 const idNames: Record<string, Int> = {
 	"": 0,
@@ -232,7 +233,7 @@ updateLight = () => {
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
-	Object.freeze(walls);
+	Object.freeze(wallList = walls);
 	handleWalls(walls);
 	clearNode(ll, masks);
 },
