@@ -3,7 +3,7 @@ import type {Children} from './lib/dom.js';
 import {polygon} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
-import {definitions} from './map_tokens.js';
+import {Lighting, definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
@@ -45,27 +45,6 @@ export interface LightSource {
 	getCentre(): [Int, Int];
 	getLightPos(): [Int, Int];
 };
-
-export class Lighting {
-	x: Int;
-	y: Int;
-	lightX: Int;
-	lightY: Int;
-	lightColours: Colour[][];
-	lightStages: Uint[];
-	lightTimings: Uint[];
-	constructor(x: Int, y: Int, lightX: Int, lightY: Int, lightColours: Colour[][], lightStages: Uint[], lightTimings: Uint[]) {
-		this.x = x;
-		this.y = y;
-		this.lightX = lightX;
-		this.lightY = lightY;
-		this.lightColours = lightColours;
-		this.lightStages = lightStages;
-		this.lightTimings = lightTimings;
-	}
-	getCentre(): [Int, Int] { return [this.x, this.y]; }
-	getLightPos(): [Int, Int] { return [this.lightX, this.lightY]; }
-}
 
 const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = false) => {
 	for (const {x1, y1, a1, a2} of point) {

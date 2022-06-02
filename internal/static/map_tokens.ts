@@ -15,32 +15,45 @@ type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;
 }
 
-abstract class SVGTransform {
+export class Lighting {
+	x: Int;
+	y: Int;
+	lightX: Int;
+	lightY: Int;
+	lightColours: Colour[][];
+	lightStages: Uint[];
+	lightTimings: Uint[];
+	constructor(x: Int, y: Int, lightX: Int, lightY: Int, lightColours: Colour[][], lightStages: Uint[], lightTimings: Uint[]) {
+		this.x = x;
+		this.y = y;
+		this.lightX = lightX;
+		this.lightY = lightY;
+		this.lightColours = lightColours;
+		this.lightStages = lightStages;
+		this.lightTimings = lightTimings;
+	}
+	getCentre(): [Int, Int] { return [this.x, this.y]; }
+	getLightPos(): [Int, Int] { return [this.lightX, this.lightY]; }
+}
+
+
+abstract class SVGTransform extends Lighting {
 	[node]: SVGGraphicsElement;
 	id: Uint;
-	x: Int = 0;
-	y: Int = 0;
 	rotation: Byte = 0;
 	flip: boolean = false;
 	flop: boolean = false;
 	width: Uint;
 	height: Uint;
-	lightColours: Colour[][];
-	lightStages: Uint[];
-	lightTimings: Uint[];
 	snap: boolean;
 	tokenData: Record<string, KeystoreData>;
 	tokenType: Uint;
 	constructor(token: Token) {
+		super(token.x, token.y, 0, 0, token.lightColours, token.lightStages, token.lightTimings);
 		this.id = token.id;
 		this.width = token.width;
 		this.height = token.height;
-		this.x = token.x;
-		this.y = token.y;
 		this.rotation = token.rotation;
-		this.lightColours = token.lightColours;
-		this.lightStages = token.lightStages;
-		this.lightTimings = token.lightTimings;
 		this.snap = token.snap;
 		this.tokenData = token.tokenData;
 		this.tokenType = token.tokenType ?? 0;
