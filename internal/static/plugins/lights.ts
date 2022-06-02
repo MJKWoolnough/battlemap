@@ -10,7 +10,7 @@ import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
-import {definitions} from '../map_tokens.js';
+import {Lighting, definitions} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {enableLightingAnimation} from '../settings.js';
@@ -18,20 +18,13 @@ import {addCSS, isUint} from '../shared.js';
 import {shell, windows} from '../windows.js';
 
 if (isAdmin) {
-	class DraggedLight {
+	class DraggedLight extends Lighting {
 		id: Int;
-		lightColours: Colour[][];
-		lightStages: Uint[];
-		lightTimings: Uint[];
 		constructor(id: Int) {
-			this.id = -id;
 			const {lightColours = [], lightStages = [], lightTimings = []} = lightData.get(id)?.data ?? {};
-			this.lightColours = lightColours;
-			this.lightStages = lightStages;
-			this.lightTimings = lightTimings;
+			super(0, 0, 5, 5, lightColours, lightStages, lightTimings);
+			this.id = -id;
 		}
-		getCentre(): [Uint, Uint] { return [0, 0]; }
-		getLightPos(): [Uint, Uint] { return [5, 5]; }
 		transfer() {
 			return this;
 		}

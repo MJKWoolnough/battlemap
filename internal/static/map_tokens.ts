@@ -2,7 +2,6 @@ import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDra
 import type {WaitGroup} from './lib/inter.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
-import type {LightSource} from './map_lighting.js';
 import {amendNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
@@ -343,7 +342,7 @@ definitions = (() => {
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
-		addLighting(l: LightSource, scale: number) {
+		addLighting(l: Lighting, scale: number) {
 			const {lightTimings, lightStages, lightColours} = l;
 			if (lightTimings.length && lightStages.length) {
 				let pos = 0,

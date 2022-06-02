@@ -1,6 +1,6 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {Children} from './lib/dom.js';
-import type {LightSource, LightWall} from './map_lighting.js';
+import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -183,7 +183,7 @@ updateLight = () => {
 			"scattering": 0
 		}
 	      ],
-	      lights: LightSource[] = [],
+	      lights: Lighting[] = [],
 	      masks: Children[] = [ll.firstChild!],
 	      processWalls = (ws: Wall[]) => {
 		for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of ws) {
@@ -201,6 +201,29 @@ updateLight = () => {
 					walls[i].y2 = iy;
 					walls.push({"id": wid, "x1": ix, "y1": iy, "x2": x4, "y2": y4, "colour": wc, "scattering": ws});
 					points.push([ix, iy]);
+					/*
+				} else if (ix.isNaN()) {
+					const dx = x2.sub(x1),
+					      dy = y2.sub(y1),
+					      minXW1 = Fraction.min(x1, x2),
+					      minXW2 = Fraction.min(x3, x4),
+					      maxXW1 = Fraction.max(x1, x2),
+					      maxXW2 = Fraction.max(x3, x4),
+					      minYW1 = Fraction.min(y1, y2),
+					      minYW2 = Fraction.min(y3, y4),
+					      maxYW1 = Fraction.max(y1, y2),
+					      maxYW2 = Fraction.max(y3, y4);
+					if ((!dx && !x2.cmp(x3) || !dx.mul(y1).sub(dy.mul(x1)).cmp(dx.mul(y3).sub(dy.mul(x4)))) && maxXW1 > minXW2 && minXW1 < maxXW2 && maxYW1 > minYW2 && minYW1 < maxYW2) {
+						const m = dy.sign() === dx.sign(),
+						      ox1 = Fraction.max(minXW1, minXW2),
+						      oy1 = Fraction[m ? "max" : "min"](minYW1, minYW2),
+						      ox2 = Fraction.min(maxXW1, maxXW2),
+						      oy2 = Fraction[m ? "min" : "max"](maxYW1, maxYW2);
+						walls.push({"id": oid--, "x1": ox1, "y1": oy1, "x2": ox2, "y2": oy2, "colour": new Colour(Math.max(colour.r, wc.r), Math.max(colour.g, wc.g), Math.max(colour.b, wc.b), Math.max(colour.a, wc.a)), "scattering": Math.max(ws, scattering)});
+						// split original wall
+						// record splits for current wall
+					}
+					*/
 				}
 			}
 			points.sort(([x1, y1], [x2, y2]) => x1.cmp(x2) || y1.cmp(y2));
@@ -211,7 +234,7 @@ updateLight = () => {
 			}
 		}
 	      },
-	      processLights = (ls: LightSource[]) => {
+	      processLights = (ls: Lighting[]) => {
 		for (const tk of ls) {
 			if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
 				if (tk.lightTimings.length > 1 && !enableLightingAnimation.value) {

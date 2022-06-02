@@ -38,14 +38,6 @@ type XWall = LightWall & {
 	cl: Uint;
 }
 
-export interface LightSource {
-	lightColours: Colour[][];
-	lightStages: Uint[];
-	lightTimings: Uint[];
-	getCentre(): [Int, Int];
-	getLightPos(): [Int, Int];
-};
-
 const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = false) => {
 	for (const {x1, y1, a1, a2} of point) {
 		const [a, b] = (!x1.cmp(x) && !y1.cmp(y)) === anti ? [a2, a1] : [a1, a2];
@@ -90,7 +82,7 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 	}
 	return [x, y, Math.hypot(x.toFloat() - lightX, y.toFloat() - lightY)];
       },
-      lightWallInteraction = (l: LightSource, wallColour: Colour, cp: number, refraction = false): [Colour[][], Uint[]] | null => {
+      lightWallInteraction = (l: Lighting, wallColour: Colour, cp: number, refraction = false): [Colour[][], Uint[]] | null => {
 	const newColours: Colour[][] = [],
 	      newStages: Uint[] = [],
 	      {r, g, b, a} = wallColour,
@@ -294,7 +286,7 @@ makeSight = (x: Int, y: Int, walls: LightWall[]) => {
 	}
 	return polygon({points});
 },
-makeLight = (l: LightSource, walls: LightWall[], scale: number, lens?: LightWall) => {
+makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) => {
 	const [lightX, lightY] = l.getLightPos(),
 	      collisions = genPoly(lightX, lightY, walls, lens),
 	      [lx, ly] = l.getCentre(),
