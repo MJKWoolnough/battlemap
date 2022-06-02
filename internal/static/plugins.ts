@@ -2,7 +2,7 @@ import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Wall, U
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
-import type {LightSource} from './map_lighting.js';
+import type {LightSource, LightWall} from './map_lighting.js';
 import type {WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
 import {br, button, h1, input, option, select} from './lib/html.js';
@@ -41,6 +41,7 @@ export type PluginType = {
 	tokenDataFilter?: owp<string[]>;
 	addWalls?: owp<(layer: string) => Omit<Wall, "id">[]>;
 	addLights?: owp<(layer: string) => LightSource[]>;
+	handleWalls?: owp<(walls: LightWall[]) => void>;
 }
 
 const plugins = new Map<string, PluginType>(),
@@ -109,7 +110,8 @@ tokenDataFilter = () => {
 },
 menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn),
 addWalls = (layer: string) => filterSortPlugins("addWalls").reduce((walls, [, {addWalls: {fn}}]) => walls.concat(fn(layer)), [] as Omit<Wall, "id">[]),
-addLights = (layer: string) => filterSortPlugins("addLights").reduce((lights, [, {addLights: {fn}}]) => lights.concat(fn(layer)), [] as LightSource[]);
+addLights = (layer: string) => filterSortPlugins("addLights").reduce((lights, [, {addLights: {fn}}]) => lights.concat(fn(layer)), [] as LightSource[]),
+handleWalls = (walls: LightWall[]) => filterSortPlugins("handleWalls").forEach(([, {handleWalls: {fn}}]) => fn(walls));
 
 export let tokenClass: SVGTokenConstructor = SVGToken,
 shapeClass: SVGShapeConstructor = SVGShape,
