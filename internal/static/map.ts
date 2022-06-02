@@ -11,7 +11,7 @@ import {animate, circle, g, rect, svg} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
 import lang from './language.js';
-import {intersection, makeLight} from './map_lighting.js';
+import {Lighting, intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {inited, isAdmin, rpc} from './rpc.js';
@@ -214,7 +214,13 @@ updateLight = () => {
 	      processLights = (ls: LightSource[]) => {
 		for (const tk of ls) {
 			if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
-				lights.push(tk);
+				if (tk.lightTimings.length > 1 && !enableLightingAnimation.value) {
+					const [x, y] = tk.getCentre(),
+					      [lx, ly] = tk.getLightPos();
+					lights.push(new Lighting(x, y, lx, ly, tk.lightColours.map(cs => [cs[0] ?? noColour]), tk.lightStages, [0]));
+				} else {
+					lights.push(tk);
+				}
 			}
 		}
 	      };
