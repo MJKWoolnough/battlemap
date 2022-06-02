@@ -13,7 +13,7 @@ import Fraction from './fraction.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
-import {addLights, addWalls, drawingClass, shapeClass, tokenClass} from './plugins.js';
+import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
@@ -229,6 +229,7 @@ updateLight = () => {
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
+	handleWalls(walls);
 	clearNode(ll, masks);
 },
 showSignal = (() => {
