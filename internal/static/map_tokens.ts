@@ -18,22 +18,22 @@ type MaskNode = Mask & {
 export class Lighting {
 	x: Int;
 	y: Int;
-	lightX: Int;
-	lightY: Int;
+	#lightX: Int;
+	#lightY: Int;
 	lightColours: Colour[][];
 	lightStages: Uint[];
 	lightTimings: Uint[];
 	constructor(x: Int, y: Int, lightX: Int, lightY: Int, lightColours: Colour[][], lightStages: Uint[], lightTimings: Uint[]) {
 		this.x = x;
 		this.y = y;
-		this.lightX = lightX;
-		this.lightY = lightY;
+		this.#lightX = lightX;
+		this.#lightY = lightY;
 		this.lightColours = lightColours;
 		this.lightStages = lightStages;
 		this.lightTimings = lightTimings;
 	}
 	getCentre(): [Int, Int] { return [this.x, this.y]; }
-	getLightPos(): [Int, Int] { return [this.lightX, this.lightY]; }
+	getLightPos(): [Int, Int] { return [this.#lightX, this.#lightY]; }
 }
 
 
