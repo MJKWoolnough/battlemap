@@ -47,7 +47,6 @@ if (isAdmin) {
 				const fn = () => {
 					const lid = definitions.addLighting(this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0)),
 					      lrg = document.getElementById(lid);
-					console.log(1);
 					if (lrg) {
 						const lr = amendNode(lrg.cloneNode(true) as SVGRadialGradientElement, {"id": "plugin-lighting-" + lid});
 						r.replaceWith(lr);
