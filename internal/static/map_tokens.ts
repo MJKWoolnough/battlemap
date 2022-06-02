@@ -9,7 +9,6 @@ import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {noColour} from './colours.js';
 import {timeShift} from './rpc.js';
-import {enableLightingAnimation} from './settings.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
 
 type MaskNode = Mask & {
@@ -340,12 +339,11 @@ definitions = (() => {
 				      [cx, cy] = l.getLightPos(),
 				      dur = lightTimings.reduce((a, b) => a + b, 0),
 				      keyTimes = "0;" + lightTimings.map(t => (times += t) / dur).join(";"),
-				      multiTimes = enableLightingAnimation.value && lightTimings.length !== 1,
 				      r = lightStages.reduce((a, b) => a + b, 0),
 				      begin = timeShift - loadTime + "s",
 				      rg = radialGradient({id, "r": r * scale, cx, cy, "gradientUnits": "userSpaceOnUse"}, [
 					lightStages.map((stage, n) => {
-					      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": multiTimes ? undefined : lightColours[n]?.[0] ?? noColour}, multiTimes ? animate({"attributeName": "stop-color", begin, keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
+					      const s = stop({"offset": (100 * pos / r) + "%", "stop-color": lightTimings.length !== 1 ? undefined : lightColours[n]?.[0] ?? noColour}, lightTimings.length !== 1 ? animate({"attributeName": "stop-color", begin, keyTimes, "dur": dur + "ms", "repeatCount": "indefinite", "values": lightTimings.map((_, m) => lightColours[n]?.[m] ?? noColour).join(";") + ";" + lightColours[n]?.[0] ?? noColour}) : []);
 					      pos += stage;
 					      return s;
 					})
