@@ -226,9 +226,13 @@ updateLight = () => {
 	});
 	processWalls((addWalls("") as Wall[]).map(w => (w.id = oid--, w)));
 	processLights(addLights(""));
+	for (const w of walls) {
+		Object.freeze(w);
+	}
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
+	Object.freeze(walls);
 	handleWalls(walls);
 	clearNode(ll, masks);
 },
