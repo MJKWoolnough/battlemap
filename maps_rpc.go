@@ -624,6 +624,39 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			return nil, errr
 		}
 		return nil, err
+	case "setTokenMulti":
+		var setTokens []setToken
+		if err := json.Unmarshal(data, &setTokens); err != nil {
+			return nil, err
+		}
+		var err error
+		if errr := m.updateMapData(cd.CurrentMap, func(l *levelMap) bool {
+			for _, st := range setTokens {
+				if tk, ok := l.tokens[st.ID]; ok {
+					if !checkTokenLighting(st, tk.token) {
+						err = ErrInvalidLighting
+						return false
+					}
+				} else {
+					err = ErrInvalidToken
+					return false
+				}
+			}
+			m.socket.broadcastMapChange(cd, broadcastTokenMultiSet, data, userAdmin)
+			data = append(data[:0], '[')
+			for n, st := range setTokens {
+				if n > 0 {
+					data = append(data, ',')
+				}
+				data = updateToken(st, l.tokens[st.ID].token, data)
+			}
+			data = append(data, ']')
+			m.socket.broadcastMapChange(cd, broadcastTokenMultiSet, data, userNotAdmin)
+			return true
+		}); errr != nil {
+			return nil, errr
+		}
+		return nil, err
 	case "setTokenLayerPos":
 		var tokenLayerPos struct {
 			ID     uint64 `jons:"id"`
