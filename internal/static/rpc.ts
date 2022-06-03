@@ -74,6 +74,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitTokenRemove",          broadcastTokenRemove,          checkUint],
 			["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
 			["waitTokenSet",             broadcastTokenSet,             checkTokenSet],
+			["waitTokenMultiSet",        broadcastTokenMultiSet,        checkTokenMultiSet],
 			["waitLayerShift",           broadcastLayerShift,           checkLayerShift],
 			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
 			["waitWallRemoved",          broadcastWallRemove,           checkUint],
@@ -171,6 +172,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["addToken",         "maps.addToken",         ["path", "token"],          checkUint,        "waitTokenAdd", "token/id"],
 			["removeToken",      "maps.removeToken",       "!",                       returnVoid,       "waitTokenRemove", ""],
 			["setToken",         "maps.setToken",          "!",                       returnVoid,       "waitTokenSet", ""],
+			["setTokenMulti",    "maps.setTokenMulti",     "!",                       returnVoid,       "waitTokenMultiSet", ""],
 			["setTokenLayerPos", "maps.setTokenLayerPos", ["id", "to", "newPos"],     returnVoid,       "waitTokenMoveLayerPos", ""],
 			["shiftLayer",       "maps.shiftLayer",       ["path", "dx", "dy"],       returnVoid,       "waitLayerShift", ""],
 			["addWall",          "maps.addWall",          ["path", "wall"],           checkUint,        "waitWallAdded", "wall/id"],
@@ -452,37 +454,43 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksTokenMoveLayerPos: checkers = [[checkID, ""], [checkString, "to"], [checkUint, "newPos"]],
       checkTokenMoveLayerPos = (data: any) => checker(data, "TokenMoveLayer", checksTokenMoveLayerPos),
       checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"], [checkArray, "?lightColours"], [checkArray, "?lightStages"], [checkArray, "?lightTimings"]],
-      checkTokenSet = (data: any) => {
-	checker(data, "TokenSet", checksTokenSet);
+      checkTokenSet = (data: any, name = "TokenSet") => {
+	checker(data, name, checksTokenSet);
 	if (data["lightColours"]) {
 		for (const cs of data["lightColours"]) {
-			checkArray(cs, "TokenSet", "lightColours");
+			checkArray(cs, name, "lightColours");
 			for (const c of cs) {
-				checkColour(c, "TokenSet->lightColours");
+				checkColour(c, `${name}->lightColours`);
 			}
 		}
 	}
 	if (data["lightStages"]) {
 		for (const s of data["lightStages"]) {
-			checkUint(s, "TokenSet", "lightStages")
+			checkUint(s, name, "lightStages")
 		}
 	}
 	if (data["lightTimings"]) {
 		for (const s of data["lightTimings"]) {
-			checkUint(s, "TokenSet", "lightTimings")
+			checkUint(s, name, "lightTimings")
 		}
 	}
 	if (data["removeTokenData"]) {
 		for (const k of data["removeTokenData"]) {
-			checkString(k, "TokenSet", "removeTokenData");
+			checkString(k, name, "removeTokenData");
 		}
 	}
 	if (data["points"]) {
 		for (const p of data["points"]) {
-			checker(p, "TokenSet->Points", checksCoords);
+			checker(p, `${name}->Points`, checksCoords);
 		}
 	}
 	return data;
+      },
+      checkTokenMultiSet = (data: any) => {
+	checkArray(data, "TokenSetMulti");
+	for (const tk of data) {
+		checkTokenSet(tk, "TokenSetMulti");
+	}
       },
       checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkArray, "lightColours"], [checkArray, "lightStages"], [checkArray, "lightTimings"], [checkKeystoreData, "tokenData"]],
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"]],
