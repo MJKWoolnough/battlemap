@@ -74,6 +74,7 @@ const (
 	broadcastTokenRemove
 	broadcastTokenMoveLayerPos
 	broadcastTokenSet
+	broadcastTokenMultiSet
 	broadcastLayerShift
 
 	broadcastWallAdd
