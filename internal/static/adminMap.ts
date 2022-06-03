@@ -16,7 +16,7 @@ import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
-import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitRemoved} from './map_fns.js';
+import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doTokenSetMulti, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitRemoved} from './map_fns.js';
 import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
@@ -667,6 +667,7 @@ export default (base: HTMLElement) => {
 	rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token, false)(token.id));
 	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false));
 	rpc.waitTokenSet().then(t => doTokenSet(t, false));
+	rpc.waitTokenMultiSet().then(t => doTokenSetMulti(t, false));
 	rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false));
 	rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false));
 	rpc.waitWallAdded().then(w => doWallAdd(w, false));
