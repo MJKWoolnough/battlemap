@@ -241,6 +241,7 @@ const defaultLanguage = {
 	"UNDO_TOKEN_MOVE": "Token Move Layer/Position",
 	"UNDO_TOKEN_REMOVE": "Token Remove",
 	"UNDO_TOKEN_SET": "Token Update",
+	"UNDO_TOKEN_SET_MULTI": "Multi-Token Update",
 	"UNDO_UNDO": "Undo",
 	"UNDO_WALL_ADD": "Wall Add",
 	"UNDO_WALL_MODIFY": "Wall Modified",
