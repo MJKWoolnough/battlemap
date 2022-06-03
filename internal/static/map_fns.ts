@@ -338,6 +338,34 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 	      };
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_SET"]);
 },
+doTokenSetMulti = (ts: TokenSet[], sendRPC = true) => {
+	const tks: (SVGToken | SVGShape)[] = [];
+	let originals: TokenSet[] = [];
+	for (const t of ts) {
+		const {token} = tokens.get(t.id)!;
+		if (!token) {
+			handleError("Invalid token for token set (multi)");
+			return;
+		}
+		tks.push(token);
+		originals.push(generateTokenChanges(t, token));
+	}
+	const lightUpdate = ts.some(t => t["lightStages"]?.length || t?.["lightTimings"]?.length || t["x"] !== undefined || t["y"] !== undefined || t["width"] || t["height"]),
+	      doIt = (sendRPC = true) => {
+		for (let i = 0; i < originals.length; i++) {
+			processTokenChanges(ts[i], tks[i]);
+		}
+		if (sendRPC) {
+			queue(rpc.setTokenMulti.bind(rpc, ts));
+		}
+		if (lightUpdate) {
+			updateLight();
+		}
+		[originals, ts] = [ts, originals];
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_SET_MULTI"]);
+},
 doTokenRemove = (tk: Uint, sendRPC = true) => {
 	const {layer, token} = tokens.get(tk)!;
 	if (!token) {
