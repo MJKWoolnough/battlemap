@@ -1,6 +1,7 @@
 import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
+import type {SVGShape} from './map_tokens.js';
 import {amendNode} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
 import lang from './language.js';
@@ -18,6 +19,70 @@ const unusedWait = new Subscription<any>(() => {}),
 	checkSelectedLayer(path);
 	removeLayer(path);
 	return rpc.removeLayer(path);
+      },
+      generateTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape) => {
+	const original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
+	for (const k in ts) {
+		switch (k) {
+		case "id":
+			break;
+		case "tokenData":
+			const tokenData = ts[k];
+			for (const k in tokenData) {
+				if (token["tokenData"][k]) {
+					original["tokenData"]![k] = token["tokenData"][k];
+				} else {
+					original["removeTokenData"]!.push(k);
+				}
+			}
+			break;
+		case "removeTokenData":
+			const removeTokenData = ts[k]!;
+			for (const k of removeTokenData) {
+				original["tokenData"]![k] = token["tokenData"][k];
+			}
+			break;
+		default:
+			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
+		}
+	}
+	return original;
+      },
+      processTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape) => {
+	for (const k in ts) {
+		switch (k) {
+		case "id":
+			break;
+		case "src":
+			if (token instanceof SVGToken && ts["src"]) {
+				token.updateSource(ts["src"]);
+			}
+			break;
+		case "tokenData":
+			const tokenData = ts[k];
+			for (const k in tokenData) {
+				token["tokenData"][k] = tokenData[k];
+			}
+			break;
+		case "removeTokenData":
+			const removeTokenData = ts[k]!;
+			for (const k of removeTokenData) {
+				delete token["tokenData"][k];
+			}
+			break;
+		default:
+			(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+		}
+	}
+	token.updateNode();
+	if (selected.token === token) {
+		amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": outlineRotationClass(token.rotation), "transform": token.transformString(false)});
+		tokenMousePos.x = token.x;
+		tokenMousePos.y = token.y;
+		tokenMousePos.width = token.width;
+		tokenMousePos.height = token.height;
+		tokenMousePos.rotation = token.rotation;
+	}
       };
 
 export const getToken = () => {
@@ -258,69 +323,12 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		handleError("Invalid token for token set");
 		return;
 	}
-	let original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
-	for (const k in ts) {
-		switch (k) {
-		case "id":
-			break;
-		case "tokenData":
-			const tokenData = ts[k];
-			for (const k in tokenData) {
-				if (token["tokenData"][k]) {
-					original["tokenData"]![k] = token["tokenData"][k];
-				} else {
-					original["removeTokenData"]!.push(k);
-				}
-			}
-			break;
-		case "removeTokenData":
-			const removeTokenData = ts[k]!;
-			for (const k of removeTokenData) {
-				original["tokenData"]![k] = token["tokenData"][k];
-			}
-			break;
-		default:
-			(original as Record<string, any>)[k] = (token as Record<string, any>)[k]
-		}
-	}
+	let original = generateTokenChanges(ts, token);
 	const lightUpdate = ts["lightStages"]?.length || ts?.["lightTimings"]?.length || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
 	      doIt = (sendRPC = true) => {
-		for (const k in ts) {
-			switch (k) {
-			case "id":
-				break;
-			case "src":
-				if (token instanceof SVGToken && ts["src"]) {
-					token.updateSource(ts["src"]);
-				}
-				break;
-			case "tokenData":
-				const tokenData = ts[k];
-				for (const k in tokenData) {
-					token["tokenData"][k] = tokenData[k];
-				}
-				break;
-			case "removeTokenData":
-				const removeTokenData = ts[k]!;
-				for (const k of removeTokenData) {
-					delete token["tokenData"][k];
-				}
-				break;
-			default:
-				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
-			}
-		}
-		token.updateNode();
+		processTokenChanges(ts, token);
 		if (sendRPC) {
 			queue(rpc.setToken.bind(rpc, ts));
-		}
-		if (selected.token === token) {
-			amendNode(outline, {"style": {"--outline-width": token.width + "px", "--outline-height": token.height + "px"}, "class": outlineRotationClass(token.rotation), "transform": token.transformString(false)});
-			tokenMousePos.x = token.x;
-			tokenMousePos.y = token.y;
-			tokenMousePos.width = token.width;
-			tokenMousePos.height = token.height;
-			tokenMousePos.rotation = token.rotation;
 		}
 		if (lightUpdate) {
 			updateLight();
