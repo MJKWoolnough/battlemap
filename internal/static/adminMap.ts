@@ -22,7 +22,7 @@ import {tokenContext} from './plugins.js';
 import {combined, handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
-import {lightGrid, remove} from './symbols.js';
+import {lightGrid, lightOnOffStr, remove} from './symbols.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';
 import undo from './undo.js';
@@ -493,7 +493,7 @@ export default (base: HTMLElement) => {
 						      lColours = cloneObject(lightColours),
 						      lStages = lightStages.length ? cloneObject(lightStages) : [0],
 						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
-						      w = windows({"window-title": lang["CONTEXT_SET_LIGHTING"], "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}),
+						      w = windows({"window-icon": lightOnOffStr, "window-title": lang["CONTEXT_SET_LIGHTING"], "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}}),
 						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
 						      stagesHeader = th({"rowspan": lStages.length + 1, "style": "min-width:1em; writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
 						      addTiming = (t = 0) => {
