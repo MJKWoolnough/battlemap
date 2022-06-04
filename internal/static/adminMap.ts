@@ -533,7 +533,7 @@ export default (base: HTMLElement) => {
 							      o = {
 								[node]: p,
 								value: s,
-								colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m))),
+								colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m)))
 							      };
 							return o;
 						      },
