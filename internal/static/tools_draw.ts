@@ -3,7 +3,7 @@ import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, input, legend} from './lib/html.js';
 import {node} from './lib/nodes.js';
-import {svgData, ellipse, path, polygon, polyline, rect, svg, title} from './lib/svg.js';
+import {ellipse, path, polygon, polyline, rect, svg, svgData, title} from './lib/svg.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {root, screen2Grid} from './map.js';
