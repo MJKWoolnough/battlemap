@@ -1,4 +1,4 @@
-import type {WindowElement, WindowData} from './windows.js';
+import type {WindowData, WindowElement} from './windows.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
