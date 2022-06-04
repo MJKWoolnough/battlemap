@@ -1,9 +1,9 @@
-import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Wall, Uint} from './types.js';
+import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint, Wall} from './types.js';
 import type {List} from './lib/context.js';
 import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
-import type {Lighting} from './map_tokens.js';
 import type {LightWall} from './map_lighting.js';
+import type {Lighting} from './map_tokens.js';
 import type {WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
 import {br, button, h1, input, option, select} from './lib/html.js';
