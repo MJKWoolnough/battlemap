@@ -493,6 +493,36 @@ export default (base: HTMLElement) => {
 		amendNode(document.body, {"class": ["dragging"]});
 		initFn();
 		return false;
+	      },
+	      updateToken = (token: SVGToken | SVGShape, ts: TokenSet) => {
+		const hasLight = token.hasLight();
+		for (const k in ts) {
+			switch (k) {
+			case "id":
+				break;
+			case "src":
+				if (token instanceof SVGToken && ts["src"]) {
+					token.updateSource(ts["src"]);
+				}
+				break;
+			case "tokenData":
+				const tokenData = ts[k];
+				for (const k in tokenData) {
+					token["tokenData"][k] = tokenData[k];
+				}
+				break;
+			case "removeTokenData":
+				const removeTokenData = ts[k]!;
+				for (const k of removeTokenData) {
+					delete token["tokenData"][k];
+				}
+				break;
+			default:
+				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
+			}
+		}
+		token.updateNode()
+		return hasLight || token.hasLight();
 	      };
 	defaultTool.mapMouse0 = e => initMapMove(e, startMapMove0);
 	defaultTool.mapMouse1 = e => initMapMove(e, startMapMove1);
@@ -565,37 +595,14 @@ export default (base: HTMLElement) => {
 	});
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
+		let ul = false;
 		if (token) {
-			const hasLight = token.hasLight();
-			for (const k in ts) {
-				switch (k) {
-				case "id":
-					break;
-				case "src":
-					if (token instanceof SVGToken && ts["src"]) {
-						token.updateSource(ts["src"]);
-					}
-					break;
-				case "tokenData":
-					const tokenData = ts[k];
-					for (const k in tokenData) {
-						token["tokenData"][k] = tokenData[k];
-					}
-					break;
-				case "removeTokenData":
-					const removeTokenData = ts[k]!;
-					for (const k of removeTokenData) {
-						delete token["tokenData"][k];
-					}
-					break;
-				default:
-					(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
-				}
+			if (updateToken(token, ts)) {
+				ul = true;
 			}
-			if (hasLight || token.hasLight()) {
-				updateLight();
-			}
-			token.updateNode()
+		}
+		if (ul) {
+			updateLight();
 		}
 	});
 	rpc.waitTokenRemove().then(tk => {
