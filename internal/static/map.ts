@@ -605,6 +605,20 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
+	rpc.waitTokenMultiSet().then(ts => {
+		let ul = false;
+		for (const t of ts) {
+			const {token} = tokens.get(t.id) ?? {"token": null};
+			if (token) {
+				if (updateToken(token, t)) {
+					ul = true;
+				}
+			}
+		}
+		if (ul) {
+			updateLight();
+		}
+	});
 	rpc.waitTokenRemove().then(tk => {
 		const {layer, token} = tokens.get(tk)!;
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
