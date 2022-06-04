@@ -624,9 +624,9 @@ export default (base: HTMLElement) => {
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 		if (token instanceof SVGToken) {
 			token.cleanup();
-			if (token.hasLight()) {
-				updateLight();
-			}
+		}
+		if (token.hasLight()) {
+			updateLight();
 		}
 	});
 	rpc.waitLayerShift().then(({path, dx, dy}) => {
