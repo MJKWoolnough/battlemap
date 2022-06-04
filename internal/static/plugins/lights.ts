@@ -5,7 +5,7 @@ import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
-import {circle, rect, svg, svgData} from '../lib/svg.js';
+import {circle, rect, svg} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
@@ -14,6 +14,7 @@ import {Lighting, definitions} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, isUint} from '../shared.js';
+import {lightGridStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
 if (isAdmin) {
@@ -34,7 +35,7 @@ if (isAdmin) {
 		#draggedLight: DraggedLight;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragLightItem);
-			amendNode(this.image, {"src": icon, "width": "20px", "height": "20px"});
+			amendNode(this.image, {"src": lightGridStr, "width": "20px", "height": "20px"});
 			lights.set(id, this);
 			this.#dragLightID = dragLighting.register(this.#draggedLight = new DraggedLight(id));
 		}
@@ -44,7 +45,7 @@ if (isAdmin) {
 			} else {
 				const lid = definitions.addLighting(this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0)),
 				      lrg = document.getElementById(lid);
-				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
 					this.#window = null;
 				}}, svg({"viewBox": "0 0 10 10"}, [
 					rect({"width": "5", "height": "10", "fill": "#fff"}),
@@ -94,7 +95,7 @@ if (isAdmin) {
 			if (dragLighting.is(e)) {
 				const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
 				if (id >= 0) {
-					shell.prompt(lang["NEW_NAME_TITLE"], lang["NEW_NAME"], "", icon).then(name => {
+					shell.prompt(lang["NEW_NAME_TITLE"], lang["NEW_NAME"], "", lightGridStr).then(name => {
 						if (name) {
 							if (name.includes("/")) {
 								shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
@@ -134,7 +135,6 @@ if (isAdmin) {
 		"en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      icon = svgData(document.getElementById("lightGrid") as any as SVGSymbolElement),
 	      dragLightItem = new DragTransfer<LightItem>("pluginlightitem"),
 	      dragLightFolder = new DragTransfer<LightFolder>("pluginlightfolder"),
 	      importName = pluginName(import.meta),
@@ -379,11 +379,11 @@ if (isAdmin) {
 	      },
 	      dragLightingOver = setDragEffect({"copy": [dragLighting]});
 	addCSS("#pluginLights ul{padding-left: 1em;list-style: none}#pluginLights>div>ul{padding:0}"),
-	root.windowIcon = icon;
+	root.windowIcon = lightGridStr;
 	addPlugin("lights", {
 		"menuItem": {
 			"priority": 0,
-			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, root[node]), true, icon]
+			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, root[node]), true, lightGridStr]
 		}
 	});
 	rpc.waitPluginSetting().then(({id, setting, removing}) => {
