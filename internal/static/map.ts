@@ -521,7 +521,7 @@ export default (base: HTMLElement) => {
 				(token as Record<string, any>)[k] = ts[k as keyof TokenSet]
 			}
 		}
-		token.updateNode()
+		token.updateNode();
 		return hasLight || token.hasLight();
 	      };
 	defaultTool.mapMouse0 = e => initMapMove(e, startMapMove0);
