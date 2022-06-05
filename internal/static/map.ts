@@ -605,7 +605,7 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
-	rpc.waitTokenMultiSet().then(ts => {
+	rpc.waitTokenSetMulti().then(ts => {
 		let ul = false;
 		for (const t of ts) {
 			const {token} = tokens.get(t.id) ?? {"token": null};
