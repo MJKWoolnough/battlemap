@@ -24,13 +24,13 @@ export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
 	path: string;
 	tokens: NodeArray<SVGToken | SVGShape>;
-};
+}
 
 export type SVGFolder = LayerFolder & {
 	[node]: SVGElement;
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
-};
+}
 
 export let root = svg(),
 layerList: SVGFolder,
