@@ -56,4 +56,10 @@ addSymbol = (id: string, s: SVGSymbolElement): [(props?: Exclude<Props, NamedNod
 [lightGrid, lightGridStr] = addSymbol("lightGrid", symbol({"viewBox": "0 0 33 33"}, [
 	path({"d": "M11,0 V33 M22,0 V33 M0,11 H33 M0,22 H33", "stroke": "#000"}),
 	["#800", "#880", "#808", "#880", "#080", "#088", "#088", "#808", "#008"].map((fill, n) => rect({"x": (n / 3 | 0) * 11 + 2, "y": (n % 3) * 11 + 2, "width": 7, "height": 7, fill}))
+])),
+[share, shareStr] = addSymbol("share", symbol({"viewBox": "0 0 20 20"}, [
+	circle({"cx": 3, "cy": 10, "r": 3}),
+	circle({"cx": 17, "cy": 3, "r": 3}),
+	circle({"cx": 17, "cy": 17, "r": 3}),
+	path({"d": "M17,3 L3,10 17,17", "stroke": "#000", "fill": "none"})
 ]));
