@@ -74,7 +74,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitTokenRemove",          broadcastTokenRemove,          checkUint],
 			["waitTokenMoveLayerPos",    broadcastTokenMoveLayerPos,    checkTokenMoveLayerPos],
 			["waitTokenSet",             broadcastTokenSet,             checkTokenSet],
-			["waitTokenMultiSet",        broadcastTokenMultiSet,        checkTokenMultiSet],
+			["waitTokenSetMulti",        broadcastTokenSetMulti,        checkTokenMultiSet],
 			["waitLayerShift",           broadcastLayerShift,           checkLayerShift],
 			["waitWallAdded",            broadcastWallAdd,              checkWallPath],
 			["waitWallRemoved",          broadcastWallRemove,           checkUint],
