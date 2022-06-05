@@ -5,7 +5,7 @@ export default class Fraction {
 	static readonly one = new Fraction(1n);
 	static readonly NaN = new Fraction(0n, 0n);
 	constructor(numerator: bigint, denominator: bigint = 1n) {
-		if (numerator < 0n && denominator < 0n) {
+		if (denominator < 0n) {
 			this.#numerator = -numerator;
 			this.#denominator = -denominator;
 		} else {
