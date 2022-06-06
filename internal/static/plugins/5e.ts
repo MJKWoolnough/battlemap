@@ -3,15 +3,13 @@ import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
-import type {WindowElement} from '../windows.js';
 import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
-import {br, button, div, h1, img, input, label, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
+import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
-import {characterSelector, iconSelector, tokenSelector} from '../characters.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, mapData, walkLayers} from '../map.js';
@@ -20,7 +18,7 @@ import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js'
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
-import {remove, rename, symbols, userVisible} from '../symbols.js';
+import {remove, rename, symbols} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
 addCSS("#initiative-window-5e svg{width:1.5em}#initiative-window-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em;cursor:pointer}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}.isUser #display-settings-5e thead,.isUser #display-settings-5e td:last-child{display:none}.tokenSelector5E,.tokenSelector5E>button,.tokenSelector5E>img{width:100px;height:100px}#shapechange-settings-5e td{text-align: center}#shapechange-settings-5e{border-collapse:collapse}#shapechange-settings-5e td label{font-size:2em}#shapechange-settings-5e th,#shapechange-settings-5e td:not(:first-child){border:1px solid currentColor}.token-initiative-5e:hover{background-color:#800;cursor:pointer}");
@@ -199,7 +197,6 @@ const select = Symbol("select"),
 	"INITIATIVE_NEXT": "Next",
 	"INITIATIVE_PREV": "Previous",
 	"INITIATIVE_REMOVE": "Remove Initiative",
-	"NAME": "Character Name",
 	"NOTES": "Notes",
 	"SHAPECHANGE": "Shapechange",
 	"SHAPECHANGE_5E": "Shapechange (5E)",
@@ -857,30 +854,12 @@ if (isAdmin) {
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
-		"fn": (w: WindowElement, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>, save: () => Promise<void>) => {
+		"fn": ["5e", (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
 				return (key: string) => data[key] ?? cd[key] ?? {};
-			})() : (key: string) => data[key] ?? {},
-			      name = getData("name"),
-			      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-			      nameInput = input({"type": "text", "value": name["data"], "onchange": nameUpdate}),
-			      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": name["user"] !== false, "onchange": nameUpdate});
-			return [
-				labels(`${lang["NAME"]}: `, nameInput),
-				labels(nameVisibility, userVisible()),
-				br(),
-				isCharacter ? [
-					label(`${mainLang["CHARACTER_IMAGE"]}: `),
-					iconSelector(data, changes),
-					br(),
-					label(`${mainLang["TOKEN"]}: `),
-					tokenSelector(w, data, changes)
-				] : [
-					label(`${mainLang["CHARACTER"]}: `),
-					characterSelector(data, changes)
-				],
-				br(),
+			})() : (key: string) => data[key] ?? {};
+			amendNode(n, [
 				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
 					if (this.value === "") {
 						removes.add("5e-initiative-mod");
@@ -905,28 +884,22 @@ if (isAdmin) {
 				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
 				}}, getData("5e-notes")["data"] ?? "")),
-				br(),
-				button({"onclick": function(this: HTMLButtonElement) {
-					amendNode(this, {"disabled": true});
-					const updateName = changes["name"];
-					save().finally(() => {
-						amendNode(this, {"disabled": false});
-						if (updateName && initTokens.has(id)) {
-							updateInitiative();
+			]);
+			return () => {
+				if (changes["name"] && initTokens.has(id)) {
+					updateInitiative();
+				}
+				if (!isCharacter) {
+					(tokens.get(id)!.token as SVGToken5EType)[updateData]();
+				} else {
+					for (const [_, {token}] of tokens) {
+						if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
+							token[updateData]();
 						}
-						if (!isCharacter) {
-							(tokens.get(id)!.token as SVGToken5EType)[updateData]();
-						} else {
-							for (const [_, {token}] of tokens) {
-								if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
-									token[updateData]();
-								}
-							}
-						}
-					});
-				}}, mainLang["SAVE"])
-			];
-		}
+					}
+				}
+			};
+		}]
 	};
 	plugin["tokenContext"] = {
 		"priority": 0,
