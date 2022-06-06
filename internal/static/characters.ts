@@ -3,7 +3,7 @@ import type {Character} from './characterList.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
-import {br, button, div, h1, img, input, label, li, ul} from './lib/html.js';
+import {br, button, div, img, input, label, li, ul} from './lib/html.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {dragImage} from './assets.js';
@@ -20,19 +20,7 @@ let lastMapChanged = 0, n = 0;
 
 export const dragCharacter = new DragTransfer<Character>("character");
 
-const allowedKey = (key: string, character: boolean) => {
-	switch (key) {
-	case "store-character-id":
-		return character;
-	case "store-image-icon":
-	case "store-token-id":
-	case "store-image-data":
-	case "tokens_order":
-		return !character;
-	}
-	return true;
-      },
-      doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
+const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
 	let oldChanges: Record<string, KeystoreData> = {},
 	    oldRemoves: string[] = [];
 	const char = characterData.get(id)!,
@@ -129,54 +117,11 @@ iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, Keystor
 	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
 	clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
 }}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
-edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: boolean) => {
+edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
-	      adder = (k: string) => {
-		const data = input({"value": d[k]?.data ?? "", "onchange": function(this: HTMLInputElement) {
-			changes[k] = Object.assign(changes[k] || {"user": d[k]?.user ?? false}, {"data": this.value});
-		      }}),
-		      visibility = input({"type": "checkbox", "class": "userVisibility", "checked": d[k]?.user, "onchange": function(this: HTMLInputElement) {
-			changes[k] = Object.assign(changes[k] || {"data": d[k]?.data ?? ""}, {"user": this.checked});
-		      }});
-		return [
-			labels(k, data),
-			labels(visibility, userVisible()),
-			labels(input({"type": "checkbox", "class": "characterDataRemove", "onchange": function(this: HTMLInputElement) {
-				amendNode(data, {"disabled": this.checked});
-				removes[this.checked ? "add" : "delete"](k);
-			}}), removeSymbol(), {"class": "itemRemove"}),
-			br()
-		];
-	      },
-	      inputs = div(Object.keys(d).filter(k => allowedKey(k, character)).sort().map(adder)),
-	      save = (): Promise<void> => {
-		if (lastMapChanged !== mapChanged && !character) {
-			w.remove();
-			shell.alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
-			throw new Error("map changed");
-		}
-		const rms = Array.from(removes.values()).filter(k => {
-			delete changes[k];
-			return d[k] !== undefined;
-		      }),
-		      keys = Object.keys(changes).filter(k => {
-			const old = d[k];
-			if (old && old.user === changes[k].user && old.data === changes[k].data) {
-				delete changes[k];
-				return false;
-			}
-			return true;
-		      });
-		return loadingWindow((character ? (doCharacterModify(id, changes, rms), rpc.characterModify(id, changes, rms)) : doTokenModify(id, changes, rms)).then(() => {
-			for (const k of keys) {
-				delete changes[k];
-			}
-			removes.clear();
-		}), w);
-	      },
-	      w = windows( {"window-icon": characterIcon, "window-title": name, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	      w = windows( {"window-icon": characterIcon, "window-title": title, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
@@ -185,9 +130,14 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 				}
 			});
 		}
-	      }});
-	amendNode(shell, autoFocus(amendNode(w, div(characterEdit(w, id, d, character, changes, removes, save) || [
-		h1(name),
+	      }}),
+	     nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
+	     nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
+	     nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
+	     base = div([
+		labels(`${lang["NAME"]}: `, nameInput),
+		labels(nameVisibility, userVisible()),
+		br(),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
 			iconSelector(d, changes),
@@ -198,25 +148,38 @@ edit = (id: Uint, name: string, d: Record<string, KeystoreData>, character: bool
 			label(lang["CHARACTER"]),
 			characterSelector(d, changes)
 		],
-		br(),
-		inputs,
-		button({"onclick": () => w.prompt(lang["ROW_NEW"], lang["ROW_NAME_ENTER"]).then(key => {
-			if (key) {
-				if (!allowedKey(key, character)) {
-					w.alert(lang["ROW_NAME_RESERVED"], lang["ROW_NAME_RESERVED_LONG"]);
-				} else if (d[key] !== undefined || changes[key] !== undefined) {
-					w.alert(lang["ROW_NAME_EXISTS"], lang["ROW_NAME_EXISTS_LONG"]);
-				} else {
-					changes[key] = {"user": false, "data": ""};
-					amendNode(inputs, adder(key));
-				}
+	     ]),
+	     onEnd = characterEdit(base, id, d, character, changes, removes, w);
+	amendNode(shell, autoFocus(amendNode(w, amendNode(base, button({"onclick": function(this: HTMLButtonElement) {
+		amendNode(this, {"disabled": true});
+		if (lastMapChanged !== mapChanged && !character) {
+			w.remove();
+			shell.alert(lang["MAP_CHANGED"], lang["MAP_CHANGED_LONG"]);
+			throw new Error("map changed");
+		}
+		const rms = Array.from(removes.values()).filter(k => {
+			delete changes[k];
+			return d[k] !== undefined;
+		      }),
+		      cs: Record<string, KeystoreData> = {},
+		      keys = Object.keys(changes).filter(k => {
+			const old = d[k];
+			if (old && old.user === changes[k].user && old.data === changes[k].data) {
+				delete changes[k];
+				return false;
 			}
-		})}, lang["ROW_ADD"]),
-		button({"onclick": function(this: HTMLButtonElement) {
-			amendNode(this, {"disabled": true});
-			save().finally(() => amendNode(this, {"disabled": false}));
-		}}, lang["SAVE"])
-	]))));
+			cs[k] = changes[k];
+			return true;
+		      });
+		loadingWindow((character ? (doCharacterModify(id, cs, rms), rpc.characterModify(id, cs, rms)) : doTokenModify(id, cs, rms)).then(() => {
+			onEnd();
+			for (const k of keys) {
+				delete changes[k];
+			}
+			removes.clear();
+			amendNode(this, {"disabled": false});
+		}), w);
+	}}, lang["SAVE"])))));
 };
 
 inited.then(() => {
