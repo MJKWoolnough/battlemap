@@ -886,11 +886,11 @@ if (isAdmin) {
 				}}, getData("5e-notes")["data"] ?? "")),
 			]);
 			return () => {
-				if (changes["name"] && initTokens.has(id)) {
-					updateInitiative();
-				}
 				if (!isCharacter) {
 					(tokens.get(id)!.token as SVGToken5EType)[updateData]();
+					if (changes["name"] && initTokens.has(id)) {
+						updateInitiative();
+					}
 				} else {
 					for (const [_, {token}] of tokens) {
 						if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
