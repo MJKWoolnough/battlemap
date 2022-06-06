@@ -12,11 +12,12 @@ import {ns as svgNS} from '../lib/svg.js';
 import {dragAudio, dragImage} from '../assets.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import mainLang, {language} from '../language.js';
-import {register, registerTag, shareIcon} from '../messaging.js';
+import {register, registerTag} from '../messaging.js';
 import {dragMusicPack, open as musicpackOpen} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, cloneObject, isUint, labels} from '../shared.js';
+import {shareStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
 type Page = {
@@ -135,7 +136,7 @@ if (isAdmin) {
 				this.#share?.();
 				this.#share = null;
 			} else {
-				this.#share ??= this.#window!.addControlButton(shareIcon, () => {
+				this.#share ??= this.#window!.addControlButton(shareStr, () => {
 					const page = pages.get(this.id);
 					if (page) {
 						rpc.broadcastWindow("plugin-notes", this.id, page.data.contents);
