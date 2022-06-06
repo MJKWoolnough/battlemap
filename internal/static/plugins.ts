@@ -1,12 +1,11 @@
 import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint, Wall} from './types.js';
 import type {List} from './lib/context.js';
-import type {Children} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {LightWall} from './map_lighting.js';
 import type {Lighting} from './map_tokens.js';
 import type {WindowElement} from './windows.js';
-import {amendNode} from './lib/dom.js';
-import {br, button, h1, input, option, select} from './lib/html.js';
+import {amendNode, createDocumentFragment} from './lib/dom.js';
+import {br, button, fieldset, h1, input, legend, option, select} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
@@ -33,7 +32,10 @@ export interface SVGDrawingConstructor {
 
 export type PluginType = {
 	settings?: owp<HTMLElement>;
-	characterEdit?: owp<(w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => Children | null>;
+	characterEdit?: owp<[
+		string,
+		(node: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => (() => void) | null
+	]>;
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
@@ -80,14 +82,24 @@ settings = () => {
 		filterSortPlugins("settings").map(([name, {"settings": {fn}}]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), fn])
 	];
 },
-characterEdit = (w: WindowElement, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, save: () => Promise<void>) => {
-	for (const [, {"characterEdit": {fn}}] of filterSortPlugins("characterEdit")) {
-		const h = fn(w, id, data, isCharacter, changes, removes, save);
-		if (h) {
-			return h;
+characterEdit = (n: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => {
+	const fns: (() => void)[] = [];
+	for (const [, {"characterEdit": {fn: [name, fn]}}] of filterSortPlugins("characterEdit")) {
+		const df = createDocumentFragment(),
+		      cfn = fn(df, id, data, isCharacter, changes, removes, w);
+		if (cfn) {
+			fns.push(cfn);
 		}
+		amendNode(n, fieldset([
+			legend(name),
+			df
+		]));
 	}
-	return null;
+	return () => {
+		for (const fn of fns) {
+			fn();
+		}
+	};
 },
 addPlugin = (name: string, p: PluginType) => {plugins.set(name, p)},
 getSettings = (name: string) => pluginList.get(name)?.data,
