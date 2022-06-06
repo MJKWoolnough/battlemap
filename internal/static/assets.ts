@@ -9,9 +9,10 @@ import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
-import {register, shareIcon} from './messaging.js';
+import {register} from './messaging.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {labels, loading, menuItems, setAndReturn} from './shared.js';
+import {shareStr} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
@@ -21,7 +22,7 @@ class ImageAsset extends DraggableItem {
 	}
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": this}));
-		w.addControlButton(shareIcon, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
+		w.addControlButton(shareStr, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
 	}
@@ -34,7 +35,7 @@ class AudioAsset extends DraggableItem {
 	}
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
-		w.addControlButton(shareIcon, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
+		w.addControlButton(shareStr, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
 	}
