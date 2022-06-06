@@ -642,7 +642,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 					return false
 				}
 			}
-			m.socket.broadcastMapChange(cd, broadcastTokenMultiSet, data, userAdmin)
+			m.socket.broadcastMapChange(cd, broadcastTokenSetMulti, data, userAdmin)
 			data = append(data[:0], '[')
 			for n, st := range setTokens {
 				if n > 0 {
