@@ -886,17 +886,22 @@ if (isAdmin) {
 				}}, getData("5e-notes")["data"] ?? "")),
 			]);
 			return () => {
+				let ui = false;
 				if (!isCharacter) {
 					(tokens.get(id)!.token as SVGToken5EType)[updateData]();
-					if (changes["name"] && initTokens.has(id)) {
-						updateInitiative();
-					}
+					ui = !!changes["name"] && initTokens.has(id);
 				} else {
 					for (const [_, {token}] of tokens) {
 						if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 							token[updateData]();
+							if (initTokens.has(token.id)) {
+								ui = true;
+							}
 						}
 					}
+				}
+				if (ui) {
+					updateInitiative();
 				}
 			};
 		}]
