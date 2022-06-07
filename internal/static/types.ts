@@ -268,7 +268,6 @@ export type CharacterToken = TokenLight & WidthHeight & {
 
 export type LayerTokens = IDName & {
 	hidden: boolean;
-	mask: Uint;
 	tokens: Token[];
 	walls: Wall[];
 }

@@ -101,7 +101,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	layer?.[node].classList.toggle("hiddenLayer", layer.hidden = !visibility);
 	updateLight();
 },
-addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "mask": 0, "children": [], "folders": {}, "items": {}})), path),
+addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
 	const l = getLayer(path)!;
 	l.path = `${splitAfterLastSlash(path)[0]}/${name}`;
@@ -112,7 +112,7 @@ removeLayer = (path: string) => {
 	(fromParent!.children as NodeArray<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
 },
-addLayer = (name: string) => (layerList.children.push(processLayers(undefined, {name, "id": 0, "mask": 0, "hidden": false, "tokens": [], "walls": []})), name),
+addLayer = (name: string) => (layerList.children.push(processLayers(undefined, {name, "id": 0, "hidden": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(parentStr)!,
