@@ -32,10 +32,7 @@ export interface SVGDrawingConstructor {
 
 export type PluginType = {
 	settings?: owp<HTMLElement>;
-	characterEdit?: owp<[
-		string,
-		(node: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => (() => void) | null
-	]>;
+	characterEdit?: owp<(node: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => (() => void) | null>;
 	tokenContext?: owp<() => List>;
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
@@ -84,14 +81,14 @@ settings = () => {
 },
 characterEdit = (n: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => {
 	const fns: (() => void)[] = [];
-	for (const [, {"characterEdit": {fn: [name, fn]}}] of filterSortPlugins("characterEdit")) {
+	for (const [name, {"characterEdit": {fn}}] of filterSortPlugins("characterEdit")) {
 		const df = createDocumentFragment(),
 		      cfn = fn(df, id, data, isCharacter, changes, removes, w);
 		if (cfn) {
 			fns.push(cfn);
 		}
 		amendNode(n, fieldset([
-			legend(name),
+			legend(name.charAt(0).toUpperCase() + name.slice(1)),
 			df
 		]));
 	}

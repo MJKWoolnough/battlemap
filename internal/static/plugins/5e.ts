@@ -856,7 +856,7 @@ if (isAdmin) {
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"priority": 0,
-		"fn": ["5e", (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
+		"fn": (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
 				return (key: string) => data[key] ?? cd[key] ?? {};
@@ -910,7 +910,7 @@ if (isAdmin) {
 					updateInitiative();
 				}
 			};
-		}]
+		}
 	};
 	plugin["tokenContext"] = {
 		"priority": 0,
