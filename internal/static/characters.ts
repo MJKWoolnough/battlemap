@@ -107,7 +107,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 		labels(nameVisibility, userVisible()),
 		br(),
 		character ? [
-			label(lang["CHARACTER_IMAGE"]),
+			label(`${lang["CHARACTER_IMAGE"]}: `),
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const {id} = dragImage.get(e)!;
 				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
@@ -131,7 +131,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
 			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
 		] : [
-			label(lang["CHARACTER"]),
+			label(`${lang["CHARACTER"]}: `),
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const {id} = dragCharacter.get(e)!,
 				      charData = characterData.get(id)!;
