@@ -351,6 +351,7 @@ const select = Symbol("select"),
 	} else if (!initiativeWindow.parentNode) {
 		amendNode(shell, initiativeWindow);
 	}
+	updatePerspectives();
       },
       displaySettings = {
 	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => amendNode(document.body, {"class": {"hide-token-hp-5e": !b}})), new BoolSetting("5e-show-selected-hp").wait(b => amendNode(document.body, {"class": {"hide-selected-hp-5e": !b}}))],
@@ -376,15 +377,19 @@ const select = Symbol("select"),
 	return () => {
 		clearNode(perspectives);
 		const tokens: (SVGToken | SVGShape)[] = [];
-		walkLayers((l: SVGLayer, hidden: boolean) => {
-			if (!hidden) {
-				for (const t of l.tokens) {
-					if (t.getData("5e-player")) {
-						tokens.push(t);
+		if (initiativeList[0]?.token.getData("5e-player")) {
+			tokens.push(initiativeList[0].token);
+		} else {
+			walkLayers((l: SVGLayer, hidden: boolean) => {
+				if (!hidden) {
+					for (const t of l.tokens) {
+						if (t.getData("5e-player")) {
+							tokens.push(t);
+						}
 					}
 				}
-			}
-		});
+			});
+		}
 		if (tokens.length) {
 			amendNode(perspectives, [
 				rect({"width": "100%", "height": "100%", "fill": "#fff"}),
