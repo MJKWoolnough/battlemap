@@ -479,6 +479,9 @@ const select = Symbol("select"),
 			uncleanup() {
 				this.#swapNodes(() => super.uncleanup());
 			}
+			hasLight() {
+				return super.hasLight() || this.getData("5e-player");
+			}
 			at(x: Int, y: Int) {
 				return this.#swapNodes(() => super.at(x, y));
 			}
