@@ -1,7 +1,8 @@
 import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
 import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
-import type {SVGToken} from '../map_tokens.js';
+import type {SVGLayer} from '../map.js';
+import type {SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
@@ -12,9 +13,10 @@ import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
-import {centreOnGrid, mapData, walkLayers} from '../map.js';
+import {centreOnGrid, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
-import {outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
+import {makeSight} from '../map_lighting.js';
+import {masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
@@ -368,6 +370,32 @@ const select = Symbol("select"),
 	const h = c.toHexString();
 	amendNode(highlight, {"fill": h, "stroke": h, "opacity": c.a / 255});
       }),
+      updatePerspectives = (() => {
+	const perspectives = g({"fill": "#000"});
+	masks[node].firstChild?.after(perspectives);
+	return () => {
+		clearNode(perspectives);
+		const tokens: (SVGToken | SVGShape)[] = [];
+		walkLayers((l: SVGLayer, hidden: boolean) => {
+			if (!hidden) {
+				for (const t of l.tokens) {
+					if (t.getData("5e-player")) {
+						tokens.push(t);
+					}
+				}
+			}
+		});
+		if (tokens.length) {
+			amendNode(perspectives, [
+				rect({"width": "100%", "height": "100%", "fill": "#fff"}),
+				tokens.map(t => {
+					const [x, y] = t.getCentre();
+					return makeSight(x, y, wallList);
+				})
+			]);
+		}
+	};
+      })(),
       plugin: PluginType = {
 	"settings": {
 		"priority": 0,
@@ -532,6 +560,10 @@ const select = Symbol("select"),
 				amendNode(this.#conditions, {"transform": `translate(0, ${this.height})`});
 			}
 		}
+	},
+	"handleWalls": {
+		"priority": 0,
+		"fn": updatePerspectives
 	}
       };
 
@@ -892,10 +924,12 @@ if (isAdmin) {
 				}}, getData("5e-notes")["data"] ?? ""))
 			]);
 			return () => {
-				let ui = false;
+				let ui = false,
+				    up = false;
 				if (!isCharacter) {
 					(tokens.get(id)!.token as SVGToken5EType)[updateData]();
 					ui = !!changes["name"] && initTokens.has(id);
+					up = !!changes["5e-player"];
 				} else {
 					for (const [_, {token}] of tokens) {
 						if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
@@ -903,11 +937,17 @@ if (isAdmin) {
 							if (initTokens.has(token.id)) {
 								ui = true;
 							}
+							if (changes["5e-player"]) {
+								up = true;
+							}
 						}
 					}
 				}
 				if (ui) {
 					updateInitiative();
+				}
+				if (up) {
+					updatePerspectives();
 				}
 			};
 		}
