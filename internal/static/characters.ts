@@ -1,6 +1,5 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {Character} from './characterList.js';
-import type {WindowElement} from './windows.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, img, input, label, li, ul} from './lib/html.js';
@@ -62,8 +61,24 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
       imageDragEffect = setDragEffect({"link": [dragImage]});
 
 export const characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
-tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => {
-	const makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
+edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boolean) => {
+	const mapChanged = lastMapChanged,
+	      changes: Record<string, KeystoreData> = {},
+	      removes = new Set<string>(),
+	      w = windows( {"window-icon": characterIcon, "window-title": title, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
+		if (removes.size > 0 || Object.keys(changes).length > 0) {
+			e.preventDefault();
+			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
+				if (t) {
+					w.remove();
+				}
+			});
+		}
+	      }}),
+	     nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
+	     nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
+	     nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
+	     makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
 		const i = img({"src": `/images/${tk["src"]}`});
 		return [
 			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
@@ -86,70 +101,47 @@ tokenSelector = (w: WindowElement, d: Record<string, KeystoreData>, changes: Rec
 			})})
 		];
 	      })())}, tk),
-	      tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)]));
-	let nextID = tokens.size;
-	return [
-		tokens[node],
-		button({"onclick": () => {
-			const data = getToken();
-			if (!data) {
-				w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
-				return;
-			}
-			tokens.set(nextID, makeToken(nextID, data));
-			nextID++;
-			changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
-		}}, lang["TOKEN_ADD"]),
-		br(),
-		label(`${lang["TOKEN_ORDER"]}: `),
-		labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
-		labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
-	];
-},
-characterSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const {id} = dragCharacter.get(e)!,
-	      charData = characterData.get(id)!;
-	changes["store-character-id"] = {"user": true, "data": id};
-	clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
-}}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : []),
-iconSelector = (d: Record<string, KeystoreData>, changes: Record<string, KeystoreData>) => div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
-	const {id} = dragImage.get(e)!;
-	changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
-	clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
-}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
-edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boolean) => {
-	const mapChanged = lastMapChanged,
-	      changes: Record<string, KeystoreData> = {},
-	      removes = new Set<string>(),
-	      w = windows( {"window-icon": characterIcon, "window-title": title, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
-		if (removes.size > 0 || Object.keys(changes).length > 0) {
-			e.preventDefault();
-			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
-				if (t) {
-					w.remove();
-				}
-			});
-		}
-	      }}),
-	     nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-	     nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
-	     nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
+	      tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
 	     base = div([
 		labels(`${lang["NAME"]}: `, nameInput),
 		labels(nameVisibility, userVisible()),
 		br(),
 		character ? [
 			label(lang["CHARACTER_IMAGE"]),
-			iconSelector(d, changes),
+			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+				const {id} = dragImage.get(e)!;
+				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
+				clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
+			}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 			br(),
 			label(`${lang["TOKEN"]}: `),
-			tokenSelector(w, d, changes)
+			tokens[node],
+			button({"onclick": () => {
+				const data = getToken();
+				if (!data) {
+					w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
+					return;
+				}
+				tokens.set(nextID, makeToken(nextID, data));
+				nextID++;
+				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+			}}, lang["TOKEN_ADD"]),
+			br(),
+			label(`${lang["TOKEN_ORDER"]}: `),
+			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
+			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
 		] : [
 			label(lang["CHARACTER"]),
-			characterSelector(d, changes)
-		],
+			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
+				const {id} = dragCharacter.get(e)!,
+				      charData = characterData.get(id)!;
+				changes["store-character-id"] = {"user": true, "data": id};
+				clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
+			}}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : [])
+		]
 	     ]),
 	     onEnd = characterEdit(base, id, d, character, changes, removes, w);
+	let nextID = tokens.size;
 	amendNode(shell, autoFocus(amendNode(w, amendNode(base, button({"onclick": function(this: HTMLButtonElement) {
 		amendNode(this, {"disabled": true});
 		if (lastMapChanged !== mapChanged && !character) {
