@@ -883,7 +883,7 @@ if (isAdmin) {
 				br(),
 				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
-				}}, getData("5e-notes")["data"] ?? "")),
+				}}, getData("5e-notes")["data"] ?? ""))
 			]);
 			return () => {
 				let ui = false;
