@@ -256,7 +256,7 @@ doTokenAdd = (path: string, tk: Token, sendRPC = true) => {
 		return () => {};
 	}
 	const token = isTokenImage(tk) ? new tokenClass(tk) : isTokenDrawing(tk) ? new drawingClass(tk) : new shapeClass(tk),
-	      hasLight = tk.lightStages.length && tk.lightTimings.length,
+	      hasLight = token.hasLight(),
 	      addToken = (id: Uint) => {
 		token.id = id;
 		layer.tokens.push(token);
@@ -298,7 +298,7 @@ doTokenMoveLayerPos = (id: Uint, to: string, newPos: Uint, sendRPC = true) => {
 		newPos = newParent.tokens.length;
 	}
 	let currentPos = layer.tokens.findIndex(t => t === token);
-	const hasLight = token.lightStages.length && token.lightTimings.length,
+	const hasLight = token.hasLight(),
 	      doIt = (sendRPC = true) => {
 		newParent.tokens.splice(newPos, 0, layer.tokens.splice(currentPos, 1)[0]);
 		tokens.get(id)!.layer = newParent;
@@ -373,7 +373,7 @@ doTokenRemove = (tk: Uint, sendRPC = true) => {
 		return;
 	}
 	const pos = layer.tokens.findIndex(t => t === token),
-	      hasLight = token.lightStages.length && token.lightTimings.length,
+	      hasLight = token.hasLight(),
 	      doIt = (sendRPC = true) => {
 		if (token === selected.token) {
 			deselectToken();
