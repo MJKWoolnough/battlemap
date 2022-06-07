@@ -46,6 +46,7 @@ type TokenFields = {
 	"5e-hp-current"?: KeystoreData<Uint>;
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
+	"5e-player"?: KeystoreData<boolean>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
 	"5e-notes"?: KeystoreData<string> | null;
 }
@@ -197,6 +198,7 @@ const select = Symbol("select"),
 	"INITIATIVE_NEXT": "Next",
 	"INITIATIVE_PREV": "Previous",
 	"INITIATIVE_REMOVE": "Remove Initiative",
+	"IS_PLAYER": "Is Player",
 	"NOTES": "Notes",
 	"SHAPECHANGE": "Shapechange",
 	"SHAPECHANGE_5E": "Shapechange (5E)",
@@ -881,6 +883,10 @@ if (isAdmin) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
+				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": getData("5e-player")["data"], "onchange": function (this: HTMLInputElement) {
+					changes["5e-player"] = {"user": true, "data": this.checked};
+				}}), `${lang["IS_PLAYER"]}: `),
+				br(),
 				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
 				}}, getData("5e-notes")["data"] ?? ""))
@@ -1168,6 +1174,11 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		case "5e-conditions":
 			if (!(val instanceof Array) || val.length !== conditions.length || !val.every(b => typeof b === "boolean")) {
 				err = "Token Data '5e-conditions' must be a boolean array of correct length";
+			}
+			break;
+		case "5e-player":
+			if (typeof val !== "boolean") {
+				err = "Token Data '5e-player' must be a boolean";
 			}
 			break;
 		case "store-image-5e-initial-token":
