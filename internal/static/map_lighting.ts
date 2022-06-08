@@ -82,42 +82,6 @@ const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = 
 	}
 	return [x, y, Math.hypot(x.toFloat() - lightX, y.toFloat() - lightY)];
       },
-      lightWallInteraction = (l: Lighting, wallColour: Colour, cp: number, refraction = false): [Colour[][], Uint[]] | null => {
-	const newColours: Colour[][] = [],
-	      newStages: Uint[] = [],
-	      {r, g, b, a} = wallColour,
-	      ma = refraction ? 1 - (a / 255) : a / 255;
-	let hasColour = false,
-	    total = 0;
-	for (let n = 0; n < l.lightStages.length; n++) {
-		const s = l.lightStages[n],
-		      cs = l.lightColours[n] ?? [];
-		if (total + s <= cp) {
-			newStages.push(s);
-			newColours.push(cs);
-		} else {
-			if (total > cp) {
-				newStages.push(Math.round(s * ma));
-			} else {
-				newStages.push(Math.round(cp - total + (total + s - cp) * ma));
-			}
-			const nc = [];
-			for (const {r: lr, g: lg, b: lb, a: la} of cs) {
-				const c = new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma))));
-				if (c.a && (c.r || c.g || c.b)) {
-					hasColour = true;
-				}
-				nc.push(c);
-			}
-			newColours.push(nc);
-		}
-		total += s;
-	}
-	if (hasColour) {
-		return [newColours, newStages];
-	}
-	return null;
-      },
       genPoly = (lightX: Int, lightY: Int, walls: LightWall[], lens?: LightWall) => {
 	const flx = new Fraction(BigInt(lightX)),
 	      fly = new Fraction(BigInt(lightY)),
@@ -319,18 +283,18 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 						      sx = Math.round(lx + scattering * (cx.toFloat() - lx) / 256),
 						      sy = Math.round(ly + scattering * (cy.toFloat() - ly) / 256);
 						if (a < 255) {
-							const lw = lightWallInteraction(l, sw.colour, cd / scale, true);
+							const lw = l.wallInteraction(sx, sy, lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
-								ret.push(makeLight(new Lighting(sx, sy, lightX, lightY, lw[0], lw[1], l.lightTimings), walls, scale, fw));
+								ret.push(makeLight(lw, walls, scale, fw));
 							}
 						}
 						if (a > 0) {
-							const lw = lightWallInteraction(l, sw.colour, cd / scale);
+							const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
+							      dcx = cx.add(cx).toFloat(),
+							      dcy = cy.add(cy).toFloat(),
+							      lw = l.wallInteraction(dcx - sx, dcy - sy, dcx - lx, dcy - ly, sw.colour, cd / scale);
 							if (lw) {
-								const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
-								      dcx = cx.add(cx).toFloat(),
-								      dcy = cy.add(cy).toFloat();
-								ret.push(makeLight(new Lighting(dcx - sx, dcy - sy, dcx - lx, dcy - ly, lw[0], lw[1], l.lightTimings), walls, scale, fw));
+								ret.push(makeLight(lw, walls, scale, fw));
 							}
 						}
 					}

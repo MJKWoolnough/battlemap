@@ -1,12 +1,11 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {WaitGroup} from './lib/inter.js';
-import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
 import {amendNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
-import {noColour} from './colours.js';
+import {Colour, noColour} from './colours.js';
 import {timeShift} from './rpc.js';
 import {characterData, cloneObject, setAndReturn} from './shared.js';
 
@@ -33,6 +32,42 @@ export class Lighting {
 	}
 	getCentre(): [Int, Int] { return [this.x, this.y]; }
 	getLightPos(): [Int, Int] { return [this.#lightX, this.#lightY]; }
+	wallInteraction(x: Int, y: Int, lightX: Int, lightY: Int, wallColour: Colour, cp: number, refraction = false): Lighting | null {
+		const newColours: Colour[][] = [],
+		      newStages: Uint[] = [],
+		      {r, g, b, a} = wallColour,
+		      ma = refraction ? 1 - (a / 255) : a / 255;
+		let hasColour = false,
+		    total = 0;
+		for (let n = 0; n < this.lightStages.length; n++) {
+			const s = this.lightStages[n],
+			      cs = this.lightColours[n] ?? [];
+			if (total + s <= cp) {
+				newStages.push(s);
+				newColours.push(cs);
+			} else {
+				if (total > cp) {
+					newStages.push(Math.round(s * ma));
+				} else {
+					newStages.push(Math.round(cp - total + (total + s - cp) * ma));
+				}
+				const nc = [];
+				for (const {r: lr, g: lg, b: lb, a: la} of cs) {
+					const c = new Colour(Math.round(Math.sqrt(r * lr) * ma), Math.round(Math.sqrt(g * lg) * ma), Math.round(Math.sqrt(b * lb) * ma), Math.round(255 * (1 - ((1 - la / 255) * ma))));
+					if (c.a && (c.r || c.g || c.b)) {
+						hasColour = true;
+					}
+					nc.push(c);
+				}
+				newColours.push(nc);
+			}
+			total += s;
+		}
+		if (hasColour) {
+			return new Lighting(x, y, lightX, lightY, newColours, newStages, this.lightTimings);
+		}
+		return null;
+	}
 }
 
 
