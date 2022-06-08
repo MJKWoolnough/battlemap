@@ -15,8 +15,8 @@ import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
-import {makeSight} from '../map_lighting.js';
-import {masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
+import {makeLight} from '../map_lighting.js';
+import {Lighting, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
@@ -93,6 +93,19 @@ type SVGToken5EType = SVGToken & {
 
 interface SVGToken5EConstructor {
 	new (token: TokenImage, wg?: WaitGroup): SVGToken5EType;
+}
+
+class PerspectiveLighting extends Lighting {
+	wallInteraction(x: Int, y: Int, lightX: Int, lightY: Int, wallColour: Colour, cp: number, refraction = false): Lighting | null {
+		if (refraction && cp <= this.lightStages[0]) {
+			const {r, g, b, a} = wallColour,
+			      l = ((255 - a) / 255) * (r  + g + b) / (3 * 255),
+			      c = 255 - Math.round((255 - this.lightColours[0][0].r) * l),
+			      colour = new Colour(c, c, c);
+			return new PerspectiveLighting(x, y, lightX, lightY, [[colour], [colour]], this.lightStages, this.lightTimings);
+		}
+		return null;
+	}
 }
 
 amendNode(symbols, [
@@ -372,7 +385,10 @@ const select = Symbol("select"),
 	amendNode(highlight, {"fill": h, "stroke": h, "opacity": c.a / 255});
       }),
       updatePerspectives = (() => {
-	const perspectives = g({"id": "perspectives-5e", "fill": "#000"});
+	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
+	      b = new Colour(0, 0, 0),
+	      black = [[b], [b]],
+	      timings = [0];
 	masks[node].firstChild?.after(perspectives);
 	return () => {
 		clearNode(perspectives);
@@ -391,11 +407,14 @@ const select = Symbol("select"),
 			});
 		}
 		if (tokens.length) {
+			const {gridSize, gridDistance, width, height} = mapData,
+			      scale = gridSize / (gridDistance || 1),
+			      stages = [Math.max(width, height) / scale, 0];
 			amendNode(perspectives, [
 				rect({"width": "100%", "height": "100%", "fill": "#fff"}),
 				tokens.map(t => {
 					const [x, y] = t.getCentre();
-					return makeSight(x, y, wallList);
+					return makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale);
 				})
 			]);
 		}
