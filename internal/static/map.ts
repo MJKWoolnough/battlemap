@@ -262,7 +262,7 @@ updateLight = () => {
 	for (const light of lights) {
 		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
 	}
-	Object.freeze(wallList = walls);
+	wallList = walls;
 	handleWalls(walls);
 	clearNode(ll, masks);
 },
