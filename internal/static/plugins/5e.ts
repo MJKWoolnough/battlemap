@@ -8,7 +8,7 @@ import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
-import {NodeArray, node, noSort} from '../lib/nodes.js';
+import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
@@ -105,6 +105,9 @@ class PerspectiveLighting extends Lighting {
 			return new PerspectiveLighting(x, y, lightX, lightY, [[colour], [colour]], this.lightStages, this.lightTimings);
 		}
 		return null;
+	}
+	createLightPolygon(points: string) {
+		return polygon({points, "fill": this.lightColours[0][0].toHexString()});
 	}
 }
 
