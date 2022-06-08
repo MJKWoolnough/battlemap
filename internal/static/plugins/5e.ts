@@ -418,7 +418,7 @@ const select = Symbol("select"),
 				tokens.map(t => {
 					const [x, y] = t.getCentre();
 					return makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale);
-				})
+				}).flat(Infinity).sort((a, b) => stringSort(b.getAttribute("fill"), a.getAttribute("fill")))
 			]);
 		}
 	};
