@@ -1,9 +1,9 @@
 import type {Byte, Int, Uint} from './types.js';
 import type {Children} from './lib/dom.js';
+import type {Lighting} from './map_tokens.js';
 import {polygon} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
-import {Lighting, definitions} from './map_tokens.js';
 import {setAndReturn} from './shared.js';
 
 type Vertex = {
@@ -304,6 +304,6 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(polygon({"points": p, "fill": `url(#${definitions.addLighting(l, scale)})`}));
+	ret.push(l.createLightPolygon(p, scale));
 	return ret;
 };
