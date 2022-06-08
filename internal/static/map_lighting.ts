@@ -280,10 +280,10 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							"colour": noColour,
 							"scattering": 0
 						      },
-						      sx = Math.round(lx + scattering * (cx.toFloat() - lx) / 256),
-						      sy = Math.round(ly + scattering * (cy.toFloat() - ly) / 256);
+						      sx = lx + scattering * (cx.toFloat() - lx) / 256,
+						      sy = ly + scattering * (cy.toFloat() - ly) / 256;
 						if (a < 255) {
-							const lw = l.wallInteraction(sx, sy, lightX, lightY, sw.colour, cd / scale, true);
+							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
 								ret.push(makeLight(lw, walls, scale, fw));
 							}
@@ -292,7 +292,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
 							      dcx = cx.add(cx).toFloat(),
 							      dcy = cy.add(cy).toFloat(),
-							      lw = l.wallInteraction(dcx - sx, dcy - sy, dcx - lx, dcy - ly, sw.colour, cd / scale);
+							      lw = l.wallInteraction(Math.round(dcx - sx), Math.round(dcy - sy), Math.round(dcx - lx), Math.round(dcy - ly), sw.colour, cd / scale);
 							if (lw) {
 								ret.push(makeLight(lw, walls, scale, fw));
 							}
