@@ -389,8 +389,7 @@ const select = Symbol("select"),
       }),
       updatePerspectives = (() => {
 	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
-	      b = new Colour(0, 0, 0),
-	      black = [[b], [b]],
+	      black = [[new Colour(0, 0, 0)]],
 	      timings = [0];
 	masks[node].firstChild?.after(perspectives);
 	return () => {
