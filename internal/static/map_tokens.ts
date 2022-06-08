@@ -68,6 +68,9 @@ export class Lighting {
 		}
 		return null;
 	}
+	createLightPolygon(points: string, scale: number) {
+		return polygon({points, "fill": `url(#${definitions.addLighting(this, scale)})`});
+	}
 }
 
 
