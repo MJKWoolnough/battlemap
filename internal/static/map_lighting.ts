@@ -1,7 +1,6 @@
 import type {Byte, Int, Uint} from './types.js';
 import type {Children} from './lib/dom.js';
 import type {Lighting} from './map_tokens.js';
-import {polygon} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
 import {setAndReturn} from './shared.js';
@@ -236,19 +235,6 @@ export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fract
 		return [dx1.mul(a).sub(dx2.mul(b)).div(d), dy1.mul(a).sub(dy2.mul(b)).div(d)];
 	}
 	return [Fraction.NaN, Fraction.NaN];
-},
-makeSight = (x: Int, y: Int, walls: LightWall[]) => {
-	const collisions = genPoly(x, y, walls);
-	let points = "";
-	for (let j = 0; j < collisions.length; j++) {
-		const {w, x, y} = collisions[j],
-		      prev = collisions[j === 0 ? collisions.length - 1 : j - 1],
-		      next = collisions[j === collisions.length - 1 ? 0 : j + 1];
-		if (!isSameWall(prev.w, w, next.w) && (prev.y.sub(y).mul(x.sub(next.x)).cmp(y.sub(next.y).mul(prev.x.sub(x))))) {
-			points += `${x.toFloat()},${y.toFloat()} `;
-		}
-	}
-	return polygon({points});
 },
 makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) => {
 	const [lightX, lightY] = l.getLightPos(),
