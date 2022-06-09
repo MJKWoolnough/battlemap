@@ -143,7 +143,7 @@ if (isAdmin) {
 			}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 			fieldset([
 				legend(lang["SPELL_TYPE"]),
-				([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": n === 0, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)])
+				([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": !n, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)])
 			]),
 			labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 			br(),
