@@ -603,10 +603,8 @@ export default (base: HTMLElement) => {
 		let ul = false;
 		for (const t of ts) {
 			const {token} = tokens.get(t.id) ?? {"token": null};
-			if (token) {
-				if (updateToken(token, t)) {
-					ul = true;
-				}
+			if (token && updateToken(token, t)) {
+				ul = true;
 			}
 		}
 		if (ul) {
