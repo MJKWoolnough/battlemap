@@ -15,10 +15,7 @@ import {addTool, marker} from './tools.js';
 import {shell} from './windows.js';
 
 const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
-      rectangle = input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": true}),
-      circle = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
-      poly = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
-      remove = input({"type": "radio", "name": "maskShape", "class": "settings_ticker"}),
+      [rectangle, circle, poly, remove] = Array.from({"length": 4}, (_, n) => input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": !n})),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
