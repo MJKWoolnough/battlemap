@@ -18,9 +18,7 @@ let fill = noColour,
     stroke = new Colour(0, 0, 0, 255),
     drawElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-const rectangle = input({"name": "drawShape", "type": "radio", "checked": true, "class": "settings_ticker"}),
-      circle = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
-      poly = input({"type": "radio", "name": "drawShape", "class": "settings_ticker"}),
+const [rectangle, circle, poly] = Array.from({"length": 3}, (_, n) => input({"name": "drawShape", "type": "radio", "checked": !n, "class": "settings_ticker"})),
       snap = input({"type": "checkbox", "class": "settings_ticker"}),
       shiftSnap = () => snap.click(),
       [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
