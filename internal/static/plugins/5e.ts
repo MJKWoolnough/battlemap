@@ -972,7 +972,7 @@ if (isAdmin) {
 							if (initTokens.has(token.id)) {
 								ui = true;
 							}
-							if (changes["5e-player"]) {
+							if (changes["5e-player"] || changes["5e-darkvision"]) {
 								up = true;
 							}
 						}
