@@ -9,12 +9,7 @@ import {shell, windows} from './windows.js';
 
 const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),
-      mapDrag = input({"type": "radio", "name": "helpInstruction", "checked": true}),
-      mapZoom = input({"type": "radio", "name": "helpInstruction"}),
-      mapScroll = input({"type": "radio", "name": "helpInstruction"}),
-      mapSignal = input({"type": "radio", "name": "helpInstruction"}),
-      panelOpen = input({"type": "radio", "name": "helpInstruction"}),
-      panelResize = input({"type": "radio", "name": "helpInstruction"}),
+      [mapDrag, mapZoom, mapScroll, mapSignal, panelOpen, panelResize] = Array.from({"length": 6}, (_, n) => input({"type": "radio", "name": "helpInstruction", "checked": !n})),
       createDemo = () => {
 	const startNextDemo = () => {
 		for (const [c, be] of demos) {
