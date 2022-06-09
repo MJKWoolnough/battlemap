@@ -595,13 +595,7 @@ export default (base: HTMLElement) => {
 	});
 	rpc.waitTokenSet().then(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
-		let ul = false;
-		if (token) {
-			if (updateToken(token, ts)) {
-				ul = true;
-			}
-		}
-		if (ul) {
+		if (token && updateToken(token, ts)) {
 			updateLight();
 		}
 	});
