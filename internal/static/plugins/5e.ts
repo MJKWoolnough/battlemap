@@ -49,6 +49,7 @@ type TokenFields = {
 	"5e-initiative-mod"?: KeystoreData<Int>;
 	"5e-conditions"?: KeystoreData<boolean[]>;
 	"5e-player"?: KeystoreData<boolean>;
+	"5e-darkvision"?: KeystoreData<Uint>;
 	"store-image-5e-initial-token"?: KeystoreData<InitialToken>;
 	"5e-notes"?: KeystoreData<string> | null;
 }
@@ -200,6 +201,7 @@ const select = Symbol("select"),
 	"CONDITION_STUNNED": "Stunned",
 	"CONDITION_UNCONSCIOUS": "Unconscious",
 	"CONDITIONS": "Conditions",
+	"DARKVISION": "Darkvision",
 	"DESATURATE_CONDITIONS": "Greyscale Conditions",
 	"HIGHLIGHT_COLOUR": "Token Highlight Colour",
 	"HP_CURRENT": "Current Hit Points",
@@ -948,6 +950,10 @@ if (isAdmin) {
 					changes["5e-player"] = {"user": true, "data": this.checked};
 				}}), `${lang["IS_PLAYER"]}: `),
 				br(),
+				labels(`${lang["DARKVISION"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-darkvision")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
+					changes["5e-darkvision"] = {"user": true, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
+				}})),
+				br(),
 				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
 				}}, getData("5e-notes")["data"] ?? ""))
@@ -1248,6 +1254,11 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		case "5e-player":
 			if (typeof val !== "boolean") {
 				err = "Token Data '5e-player' must be a boolean";
+			}
+			break;
+		case "5e-darkvision":
+			if (!isUint(val)) {
+				err = "Token Data '5e-darkvision' must be a Uint";
 			}
 			break;
 		case "store-image-5e-initial-token":
