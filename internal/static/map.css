@@ -127,7 +127,7 @@
 	mix-blend-mode: multiply;
 }
 
-#layerLight > * {
+#lighting > * {
 	mix-blend-mode: screen;
 }
 
