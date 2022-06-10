@@ -103,7 +103,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 	      vertices: Vertex[] = [],
 	      points = new Map<string, XWall[]>(),
 	      collisions: Collision[] = [],
-	      gWalls: XWall[] = [];
+	      gWalls: XWall[] = [],
+	      ret: SVGPolygonElement[] = [];
 	if (lens) {
 		const {x1, y1, x2, y2} = lens;
 		walls.push({
@@ -265,7 +266,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 						if (a < 255) {
 							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
-								makeLight(lw, walls, scale, fw);
+								ret.push(...makeLight(lw, walls, scale, fw));
 							}
 						}
 						if (a > 0) {
@@ -274,7 +275,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							      dcy = cy.add(cy).toFloat(),
 							      lw = l.wallInteraction(Math.round(dcx - sx), Math.round(dcy - sy), Math.round(dcx - lx), Math.round(dcy - ly), sw.colour, cd / scale);
 							if (lw) {
-								makeLight(lw, walls, scale, fw);
+								ret.push(...makeLight(lw, walls, scale, fw));
 							}
 						}
 					}
@@ -284,5 +285,6 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			collisions.splice(j--, 1);
 		}
 	}
-	l.createLightPolygon(p, scale);
+	ret.push(l.createLightPolygon(p, scale));
+	return ret;
 };
