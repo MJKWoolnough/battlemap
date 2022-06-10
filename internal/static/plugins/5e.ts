@@ -10,13 +10,13 @@ import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
-import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, feFlood, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
-import {centreOnGrid, mapData, walkLayers, wallList} from '../map.js';
+import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
 import {makeLight} from '../map_lighting.js';
-import {Lighting, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
+import {Lighting, definitions, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
@@ -392,10 +392,24 @@ const select = Symbol("select"),
       updatePerspectives = (() => {
 	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
 	      black = [[new Colour(0, 0, 0)]],
-	      timings = [0];
+	      timings = [0],
+	      darksat = filter({"id": "darksat-5e"}, [
+		feColorMatrix({"type": "luminanceToAlpha"}),
+		feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,0 0 0 -1 1"})
+	      ]),
+	      darkvis = filter({"id": "darkvis-5e"}, [
+		feFlood({"flood-color": "#f00", "mask": "#darkvision-5e"})
+	      ]),
+	      dvcs = g(),
+	      dv = mask({"id": "darkvision-5e"});
 	masks[node].firstChild?.after(perspectives);
+	amendNode(definitions[node], [dvcs, dv, darksat, darkvis]);
+	let nextID = 0;
 	return () => {
+		nextID = 0;
 		clearNode(perspectives);
+		clearNode(dvcs);
+		clearNode(dv, rect({"width": "100%", "height": "100%", "fill": "#000"}));
 		const tokens: (SVGToken | SVGShape)[] = [];
 		if (initiativeList[0]?.token.getData("5e-player")) {
 			tokens.push(initiativeList[0].token);
@@ -417,8 +431,16 @@ const select = Symbol("select"),
 			amendNode(perspectives, [
 				rect({"width": "100%", "height": "100%", "fill": "#fff"}),
 				tokens.map(t => {
-					const [x, y] = t.getCentre();
-					return makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale);
+					const [x, y] = t.getCentre(),
+					      p = makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale),
+					      r = (t.getData("5e-darkvision") ?? 0) * scale;
+					if (r) {
+						const id = "DVC-5E_"+nextID++,
+						      [cx, cy] = t.getCentre();
+						amendNode(dvcs, mask({id}, circle({r, cx, cy, "fill": "#fff"})));
+						amendNode(dv, p.map(p => amendNode(p.cloneNode(), {"mask": `url(#${id})`, "fill": "#fff"})));
+					}
+					return p;
 				}).flat().sort((a, b) => stringSort(b.getAttribute("fill") ?? "", a.getAttribute("fill") ?? ""))
 			]);
 		}
@@ -1075,6 +1097,12 @@ mapLoadedReceive(() => {
 				tk[updateData]();
 			}
 		}
+		/*
+		clearNode(getLayer("/Light")![node], {"style": {"mix-blend-mode": "normal"}}, [
+			use({"href": "#lighting", "style": {"mix-blend-mode": "saturation"}, "filter": "url(#darksat-5e)", "mask": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": {"mix-blend-mod": "multiply"}, "filter": "url(#darkvis-5e)"})
+		]);
+		*/
 		updateInitiative();
 	});
 });
