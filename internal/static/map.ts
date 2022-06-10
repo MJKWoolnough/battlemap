@@ -129,7 +129,7 @@ setMapDetails = (details: MapDetails) => {
 	definitions.setGrid(details);
 	updateLight();
 },
-setLightColour = (c: Colour) => definitions.setLight(c),
+setLightColour = (c: Colour) => definitions.setLight(mapData.lightColour = c),
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
 normaliseWall = (w: Wall) => {
