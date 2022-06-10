@@ -1,7 +1,7 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {SVGLayer} from './map.js';
-import {amendNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
@@ -69,7 +69,9 @@ export class Lighting {
 		return null;
 	}
 	createLightPolygon(points: string, scale: number) {
-		return polygon({points, "fill": `url(#${definitions.addLighting(this, scale)})`});
+		const p = polygon({points});
+		definitions.addLighting(p, this, scale);
+		return p;
 	}
 }
 
@@ -345,7 +347,9 @@ SQRT3 = Math.sqrt(3),
 definitions = (() => {
 	const base = defs(masks[node]),
 	      list = new Map<string, SVGPatternElement>(),
-	      lighting: SVGRadialGradientElement[] = [];
+	      lighting: SVGRadialGradientElement[] = [],
+	      lightRect = rect({"width": "100%", "height": "100%"}),
+	      lightingGroup = g({"id": "lighting"}, lightRect);
 	let nextLightID = 0;
 	return {
 		get [node]() {return base;},
@@ -380,7 +384,10 @@ definitions = (() => {
 				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
-		addLighting(l: Lighting, scale: number) {
+		setLight(c: Colour) {
+			amendNode(lightRect, {"fill": c});
+		},
+		addLighting(p: SVGPolygonElement, l: Lighting, scale: number) {
 			const {lightTimings, lightStages, lightColours} = l;
 			if (lightTimings.length && lightStages.length) {
 				let pos = 0,
@@ -401,11 +408,11 @@ definitions = (() => {
 				amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0}));
 				lighting.push(rg);
 				amendNode(base, rg);
-				return id;
+				amendNode(lightingGroup, amendNode(p, {"fill": `url(#${id})`}));
 			}
-			return "";
 		},
 		clearLighting() {
+			clearNode(lightingGroup, lightRect);
 			for (const l of lighting) {
 				l.remove();
 			}
