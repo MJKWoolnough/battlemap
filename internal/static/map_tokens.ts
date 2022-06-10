@@ -345,11 +345,11 @@ masks = (() => {
 })(),
 SQRT3 = Math.sqrt(3),
 definitions = (() => {
-	const base = defs(masks[node]),
-	      list = new Map<string, SVGPatternElement>(),
+	const list = new Map<string, SVGPatternElement>(),
 	      lighting: SVGRadialGradientElement[] = [],
 	      lightRect = rect({"width": "100%", "height": "100%"}),
-	      lightingGroup = g({"id": "lighting"}, lightRect);
+	      lightingGroup = g({"id": "lighting"}, lightRect),
+	      base = defs([masks[node], lightingGroup]);
 	let nextLightID = 0;
 	return {
 		get [node]() {return base;},
