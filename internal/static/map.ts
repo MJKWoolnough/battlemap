@@ -1,5 +1,4 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
-import type {Children} from './lib/dom.js';
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
@@ -141,8 +140,7 @@ normaliseWall = (w: Wall) => {
 },
 updateLight = () => {
 	definitions.clearLighting();
-	const ll = (getLayer("/Light") as SVGLayer)[node],
-	      {gridSize, gridDistance, width, height} = mapData,
+	const {gridSize, gridDistance, width, height} = mapData,
 	      fWidth = new Fraction(BigInt(width)),
 	      fHeight = new Fraction(BigInt(height)),
 	      walls: LightWall[] = [
@@ -184,7 +182,6 @@ updateLight = () => {
 		}
 	      ],
 	      lights: Lighting[] = [],
-	      masks: Children[] = [ll.firstChild!],
 	      processWalls = (ws: Wall[]) => {
 		for (const {id, x1: nx1, y1: ny1, x2: nx2, y2: ny2, colour, scattering} of ws) {
 			const l = walls.length,
@@ -260,11 +257,10 @@ updateLight = () => {
 		Object.freeze(w);
 	}
 	for (const light of lights) {
-		masks.push(makeLight(light, walls, gridSize / (gridDistance || 1)));
+		makeLight(light, walls, gridSize / (gridDistance || 1));
 	}
 	wallList = walls;
 	handleWalls(walls);
-	clearNode(ll, masks);
 },
 showSignal = (() => {
 	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
