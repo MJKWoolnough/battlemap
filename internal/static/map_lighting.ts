@@ -1,5 +1,4 @@
 import type {Byte, Uint} from './types.js';
-import type {Children} from './lib/dom.js';
 import type {Lighting} from './map_tokens.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
@@ -99,7 +98,6 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 	const [lightX, lightY] = l.getLightPos(),
 	      [lx, ly] = l.getCentre(),
 	      i = l.lightStages.reduce((p, c) => p + c, 0) * scale,
-	      ret: Children = [],
 	      flx = new Fraction(BigInt(lightX)),
 	      fly = new Fraction(BigInt(lightY)),
 	      vertices: Vertex[] = [],
@@ -267,7 +265,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 						if (a < 255) {
 							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
-								ret.push(makeLight(lw, walls, scale, fw));
+								makeLight(lw, walls, scale, fw);
 							}
 						}
 						if (a > 0) {
@@ -276,7 +274,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							      dcy = cy.add(cy).toFloat(),
 							      lw = l.wallInteraction(Math.round(dcx - sx), Math.round(dcy - sy), Math.round(dcx - lx), Math.round(dcy - ly), sw.colour, cd / scale);
 							if (lw) {
-								ret.push(makeLight(lw, walls, scale, fw));
+								makeLight(lw, walls, scale, fw);
 							}
 						}
 					}
@@ -286,6 +284,5 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			collisions.splice(j--, 1);
 		}
 	}
-	ret.push(l.createLightPolygon(p, scale));
-	return ret;
+	l.createLightPolygon(p, scale);
 };
