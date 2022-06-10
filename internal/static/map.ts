@@ -6,7 +6,7 @@ import {mouseDragEvent} from './lib/events.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
-import {animate, circle, g, rect, svg} from './lib/svg.js';
+import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import Fraction from './fraction.js';
 import lang from './language.js';
@@ -129,7 +129,7 @@ setMapDetails = (details: MapDetails) => {
 	definitions.setGrid(details);
 	updateLight();
 },
-setLightColour = (c: Colour) => amendNode((getLayer("/Light") as SVGLayer)[node].firstChild!, {"fill": mapData.lightColour = c}),
+setLightColour = (c: Colour) => definitions.setLight(c),
 isTokenImage = (t: Token): t is TokenImage => (t as TokenImage).src !== undefined,
 isTokenDrawing = (t: Token): t is TokenDrawing => (t as TokenDrawing).points !== undefined,
 normaliseWall = (w: Wall) => {
@@ -414,7 +414,8 @@ mapView = (mD: MapData, loadChars = false) => {
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	amendNode((getLayer("/Light") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": lightColour}));
+	amendNode((getLayer("/Light") as SVGLayer)[node], use({"href": "#lighting"}));
+	definitions.setLight(lightColour);
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
 			for (const t of l.tokens) {
