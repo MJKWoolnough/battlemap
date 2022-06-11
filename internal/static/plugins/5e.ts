@@ -1,4 +1,4 @@
-import type {Int, KeystoreData, MapData, TokenImage, TokenSet, Uint} from '../types.js';
+import type {Int, KeystoreData, MapData, RPCWaits, TokenImage, TokenSet, Uint} from '../types.js';
 import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {SVGLayer} from '../map.js';
@@ -1163,6 +1163,8 @@ combinedRPC.waitTokenSet().then(({id}) => {
 		setTimeout(updateInitiative);
 	}
 });
+
+(["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[]).forEach(k => combinedRPC[k]().then(() => setTimeout(updatePerspectives)));
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	let ui = false;
