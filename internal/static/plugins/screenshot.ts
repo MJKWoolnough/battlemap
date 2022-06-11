@@ -133,14 +133,9 @@ addPlugin("screenshot", {
 	"settings": {
 		"priority": 0,
 		"fn": div([
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": !hideGrid.value, "onchange": function(this: HTMLInputElement) {
-				hideGrid.set(!this.checked);
-			}}), `${lang["ENABLE_GRID"]}: `),
-			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": !disablePNG.value, "onchange": function(this: HTMLInputElement) {
-				disablePNG.set(!this.checked);
-			}}), `${lang["ENABLE_PNG"]}: `),
-			br(),
+			([[hideGrid, "ENABLE_GRID"], [disablePNG, "ENABLE_PNG"]] as [BoolSetting, keyof typeof lang][]).map(([s, l]) => [labels(input({"type": "checkbox", "class": "settings_ticker", "checked": !s.value, "onchange": function(this: HTMLInputElement) {
+				s.set(!this.checked);
+			}}), `${lang[l]}: `), br()]),
 			button({"onclick": makeScreenshot}, lang["SCREENSHOT_TAKE"])
 		])
 	}
