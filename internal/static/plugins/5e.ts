@@ -1011,8 +1011,7 @@ if (isAdmin) {
 				}
 				if (ui) {
 					updateInitiative();
-				}
-				if (up) {
+				} else if (up) {
 					updatePerspectives();
 				}
 			};
