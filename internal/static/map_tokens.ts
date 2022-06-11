@@ -409,7 +409,9 @@ definitions = (() => {
 				lighting.push(rg);
 				amendNode(base, rg);
 				amendNode(lightingGroup, amendNode(p, {"fill": `url(#${id})`}));
+				return rg;
 			}
+			return null;
 		},
 		clearLighting() {
 			clearNode(lightingGroup, lightRect);
