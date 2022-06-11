@@ -1236,6 +1236,16 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 				err = "Character Data '5e-notes' must be a string";
 			}
 			break;
+		case "5e-player":
+			if (typeof val !== "boolean") {
+				err = "Token Data '5e-player' must be a boolean";
+			}
+			break;
+		case "5e-darkvision":
+			if (!isUint(val)) {
+				err = "Token Data '5e-darkvision' must be a Uint";
+			}
+			break;
 		}
 		if (err) {
 			delete data[key];
