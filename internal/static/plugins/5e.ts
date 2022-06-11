@@ -10,7 +10,7 @@ import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
-import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, feFlood, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
@@ -398,12 +398,21 @@ const select = Symbol("select"),
 		feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,0 0 0 -1 1"})
 	      ]),
 	      darkvis = filter({"id": "darkvis-5e"}, [
-		feFlood({"flood-color": "#f00", "mask": "#darkvision-5e"})
+		feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})
 	      ]),
 	      dvcs = g(),
 	      dv = mask({"id": "darkvision-5e"});
 	masks[node].firstChild?.after(perspectives);
-	amendNode(definitions[node], [dvcs, dv, darksat, darkvis]);
+	amendNode(definitions[node], [
+		dvcs,
+		dv,
+		darksat,
+		darkvis,
+		mask({"id": "inv-darkvision-5e"}, [
+			rect({"width": "100%", "height": "100%", "fill": "#fff"}),
+			rect({"width": "100%", "height": "100%", "fill": "#000", "mask": "url(#darkvision-5e)"})
+		])
+	]);
 	let nextID = 0;
 	return () => {
 		nextID = 0;
@@ -1097,12 +1106,11 @@ mapLoadedReceive(() => {
 				tk[updateData]();
 			}
 		}
-		/*
 		clearNode(getLayer("/Light")![node], {"style": {"mix-blend-mode": "normal"}}, [
 			use({"href": "#lighting", "style": {"mix-blend-mode": "saturation"}, "filter": "url(#darksat-5e)", "mask": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": {"mix-blend-mod": "multiply"}, "filter": "url(#darkvis-5e)"})
+			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "filter": "url(#darkvis-5e)", "mask": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "mask": "url(#inv-darkvision-5e)"})
 		]);
-		*/
 		updateInitiative();
 	});
 });
