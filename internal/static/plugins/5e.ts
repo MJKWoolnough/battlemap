@@ -1156,14 +1156,13 @@ combinedRPC.waitTokenRemove().then(id => {
 		setTimeout(updateInitiative);
 	}
 });
-combinedRPC.waitLayerShow().then(() => setTimeout(updateInitiative));
-combinedRPC.waitLayerHide().then(() => setTimeout(updateInitiative));
 combinedRPC.waitTokenSet().then(({id}) => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
+(["waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]).forEach(k => combinedRPC[k]().then(() => setTimeout(updateInitiative)));
 (["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[]).forEach(k => combinedRPC[k]().then(() => setTimeout(updatePerspectives)));
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
