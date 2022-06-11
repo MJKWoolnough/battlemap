@@ -112,12 +112,10 @@ menuItems.push([6, () => isAdmin ? [
 				} else {
 					amendNode(toolOptions, {"style": {"display": undefined}});
 				}
+			} else if (windowed && miniTools.value) {
+				optionsWindow.remove();
 			} else {
-				if (windowed && miniTools.value) {
-					optionsWindow.remove();
-				} else {
-					amendNode(toolOptions, {"style": {"display": "none"}});
-				}
+				amendNode(toolOptions, {"style": {"display": "none"}});
 			}
 			amendNode(selected, {"class": ["!selected"]});
 			amendNode(selected = this, {"class": ["selected"]});
