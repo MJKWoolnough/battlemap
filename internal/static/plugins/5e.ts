@@ -397,9 +397,7 @@ const select = Symbol("select"),
 		feColorMatrix({"type": "luminanceToAlpha"}),
 		feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,0 0 0 -1 1"})
 	      ]),
-	      darkvis = filter({"id": "darkvis-5e"}, [
-		feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})
-	      ]),
+	      darkvis = filter({"id": "darkvis-5e"}, feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})),
 	      dvcs = g(),
 	      dv = mask({"id": "darkvision-5e"});
 	masks[node].firstChild?.after(perspectives);
