@@ -5,7 +5,7 @@ import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
-import {circle, rect, svg} from '../lib/svg.js';
+import {polygon, rect, svg} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
@@ -18,6 +18,7 @@ import {lightGridStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
 if (isAdmin) {
+	let lid = 0;
 	class DraggedLight extends Lighting {
 		id: Int;
 		constructor(id: Int) {
@@ -43,17 +44,17 @@ if (isAdmin) {
 			if (this.#window) {
 				this.#window.focus();
 			} else {
-				const lid = definitions.addLighting(this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0)),
-				      lrg = document.getElementById(lid);
+				const p = polygon({"points": "0,0 10,0 10,10 0,10"}),
+				      l = definitions.addLighting(p, this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0))!,
+				      id = "plugin-light_"+lid++;
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
 					this.#window = null;
 				}}, svg({"viewBox": "0 0 10 10"}, [
 					rect({"width": "5", "height": "10", "fill": "#fff"}),
 					rect({"x": "5", "width": "5", "height": "10", "fill": "#000"}),
-					lrg?.cloneNode(true) ?? [],
-					circle({"cx": "5", "cy": "5", "r": "5", "fill": `url(#${lid}`})
+					amendNode(l, {id}),
+					amendNode(p, {"fill": `url(#${id})`})
 				])));
-				lrg?.remove();
 			}
 		}
 		ondragstart(e: DragEvent) {
