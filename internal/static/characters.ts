@@ -15,7 +15,8 @@ import {remove as removeSymbol, userVisible} from './symbols.js';
 import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
-let lastMapChanged = 0, n = 0;
+let lastMapChanged = 0,
+    n = 0;
 
 export const dragCharacter = new DragTransfer<Character>("character");
 
