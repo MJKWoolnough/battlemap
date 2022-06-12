@@ -606,7 +606,8 @@ const select = Symbol("select"),
 				const myConditions: boolean[] = this.getData("5e-conditions") ?? [],
 				      size = Math.min(this.width, this.height) / 4,
 				      perRow = Math.floor(this.width / size);
-				let row = -1, col = 0;
+				let row = -1,
+				    col = 0;
 				for (let i = 0; i < myConditions.length; i++) {
 					if (myConditions[i]) {
 						amendNode(this.#conditions, use({"href": `#5e-${conditions[i]}`, "x": col * size, "y": row * size, "width": size, "height": size}));
