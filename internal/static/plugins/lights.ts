@@ -106,8 +106,8 @@ if (isAdmin) {
 								const data = {"user": false, "data": {lightColours, lightStages, lightTimings}},
 								      [f] = getFolder(this.getPath() + "/");
 								if (f) {
-									this.addItem(++lastID, name);
-									lightData.set(f.items[name] = lastID, data);
+									lightData.set(f.items[name] = ++lastID, data);
+									this.addItem(lastID, name);
 									rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
 								}
 							}
