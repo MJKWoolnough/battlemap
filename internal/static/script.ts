@@ -37,7 +37,8 @@ const lastTab = new StringSetting("lastTab"),
 		data: WindowData
 	}
 
-	let n = 0, moved = false;
+	let n = 0,
+	    moved = false;
 	const panelShow = new BoolSetting("panelShow"),
 	      panelWidth = new IntSetting("panelWidth", 300, 0),
 	      windowSettings = new JSONSetting<Record<string, savedWindow>>("windowData", {}, (v: any): v is Record<string, savedWindow> => {
@@ -141,7 +142,8 @@ const lastTab = new StringSetting("lastTab"),
 				span(title),
 				popper ? popper : []
 			      ], tc.insertBefore(input({"name": "tabSelector", "type": "radio"}), t), {title, "tabindex": -1, "onkeyup": (e: KeyboardEvent) => {
-				let a = pos, n = 1;
+				let a = pos,
+				    n = 1;
 				switch (e.key) {
 				case "ArrowLeft":
 					n = -1;
