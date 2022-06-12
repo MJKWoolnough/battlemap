@@ -121,7 +121,11 @@ tokenDataFilter = () => {
 menuItems = () => filterSortPlugins("menuItem").map(p => p[1]["menuItem"].fn),
 addWalls = (layer: string) => filterSortPlugins("addWalls").reduce((walls, [, {addWalls: {fn}}]) => walls.concat(fn(layer)), [] as Omit<Wall, "id">[]),
 addLights = (layer: string) => filterSortPlugins("addLights").reduce((lights, [, {addLights: {fn}}]) => lights.concat(fn(layer)), [] as Lighting[]),
-handleWalls = (walls: LightWall[]) => filterSortPlugins("handleWalls").forEach(([, {handleWalls: {fn}}]) => fn(walls));
+handleWalls = (walls: LightWall[]) => {
+	for (const [, {handleWalls: {fn}}] of filterSortPlugins("handleWalls")) {
+		fn(walls);
+	}
+};
 
 export let tokenClass: SVGTokenConstructor = SVGToken,
 shapeClass: SVGShapeConstructor = SVGShape,
