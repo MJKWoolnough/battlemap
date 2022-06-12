@@ -1161,8 +1161,12 @@ combinedRPC.waitTokenSet().then(({id}) => {
 	}
 });
 
-(["waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[]).forEach(k => combinedRPC[k]().then(() => setTimeout(updateInitiative)));
-(["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[]).forEach(k => combinedRPC[k]().then(() => setTimeout(updatePerspectives)));
+for (const k of (["waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[])) {
+	combinedRPC[k]().then(() => setTimeout(updateInitiative));
+}
+for (const k of (["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[])) {
+	combinedRPC[k]().then(() => setTimeout(updatePerspectives));
+}
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	let ui = false;
