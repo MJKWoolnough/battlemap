@@ -10,7 +10,7 @@ import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
-import {animate, animateMotion, circle, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
@@ -399,7 +399,7 @@ const select = Symbol("select"),
 	      ]),
 	      darkvis = filter({"id": "darkvis-5e"}, feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})),
 	      dvcs = g(),
-	      dv = mask({"id": "darkvision-5e"});
+	      dv = clipPath({"id": "darkvision-5e"});
 	masks[node].firstChild?.after(perspectives);
 	amendNode(definitions[node], [
 		dvcs,
@@ -408,7 +408,7 @@ const select = Symbol("select"),
 		darkvis,
 		mask({"id": "inv-darkvision-5e"}, [
 			rect({"width": "100%", "height": "100%", "fill": "#fff"}),
-			rect({"width": "100%", "height": "100%", "fill": "#000", "mask": "url(#darkvision-5e)"})
+			rect({"width": "100%", "height": "100%", "fill": "#000", "clip-path": "url(#darkvision-5e)"})
 		])
 	]);
 	let nextID = 0;
@@ -416,7 +416,7 @@ const select = Symbol("select"),
 		nextID = 0;
 		clearNode(perspectives);
 		clearNode(dvcs);
-		clearNode(dv, rect({"width": "100%", "height": "100%", "fill": "#000"}));
+		clearNode(dv);
 		const tokens: (SVGToken | SVGShape)[] = [];
 		if (initiativeList[0]?.token.getData("5e-player")) {
 			tokens.push(initiativeList[0].token);
@@ -444,8 +444,8 @@ const select = Symbol("select"),
 					if (r) {
 						const id = "DVC-5E_"+nextID++,
 						      [cx, cy] = t.getCentre();
-						amendNode(dvcs, mask({id}, circle({r, cx, cy, "fill": "#fff"})));
-						amendNode(dv, p.map(p => amendNode(p.cloneNode(), {"mask": `url(#${id})`, "fill": "#fff"})));
+						amendNode(dvcs, clipPath({id}, circle({r, cx, cy})));
+						amendNode(dv, p.map(p => amendNode(p.cloneNode(), {"clip-path": `url(#${id})`, "fill": undefined})));
 					}
 					return p;
 				}).flat().sort((a, b) => stringSort(b.getAttribute("fill") ?? "", a.getAttribute("fill") ?? ""))
@@ -1104,8 +1104,8 @@ mapLoadedReceive(() => {
 			}
 		}
 		clearNode(getLayer("/Light")![node], {"style": {"mix-blend-mode": "normal"}}, [
-			use({"href": "#lighting", "style": {"mix-blend-mode": "saturation"}, "filter": "url(#darksat-5e)", "mask": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "filter": "url(#darkvis-5e)", "mask": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": {"mix-blend-mode": "saturation"}, "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
 			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "mask": "url(#inv-darkvision-5e)"})
 		]);
 		updateInitiative();
