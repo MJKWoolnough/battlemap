@@ -35,7 +35,8 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 
 export const dragMap = new DragTransfer<MapItem>("map");
 
-let selectedUser: MapItem | null = null, selectedCurrent: MapItem | null = null;
+let selectedUser: MapItem | null = null,
+    selectedCurrent: MapItem | null = null;
 
 class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
