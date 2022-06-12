@@ -18,9 +18,7 @@ if (isAdmin) {
 		      "en-GB": defaultLanguage
 	      },
 	      lang = langs[language.value] ?? defaultLanguage,
-	      move = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
-		      amendNode(home, {"disabled": !this.checked});
-	      }}),
+	      move = input({"type": "checkbox", "class": "settings_ticker", "onchange": () => amendNode(home, {"disabled": !move.checked})}),
 	      home = input({"type": "checkbox", "class": "settings_ticker", "disabled": true});
 	addTool({
 		"name": lang["TITLE"],
