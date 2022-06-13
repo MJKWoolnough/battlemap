@@ -5,6 +5,7 @@ import {div, img, input, label, span} from './lib/html.js';
 import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './lib/settings.js';
 import loadMap from './adminMap.js';
 import help from './help.js';
+import {registerKey} from './keys.js';
 import lang from './language.js';
 import loadUserMap from './map.js';
 import pluginInit, {menuItems} from './plugins.js';
@@ -100,11 +101,11 @@ const lastTab = new StringSetting("lastTab"),
 		}
 	      };
 	hideMenu.wait(v => amendNode(m, {"class": {"menuHide": v}}));
-	keyEvent("F1", (e: KeyboardEvent) => {
+	keyEvent(registerKey("helpKey", lang["KEY_HELP"], "F1"), (e: KeyboardEvent) => {
 		help();
 		e.preventDefault();
 	})[0]();
-	keyEvent("F9", (e: KeyboardEvent) => {
+	keyEvent(registerKey("togglePanel", lang["KEY_PANEL_TOGGLE"], "F9"), (e: KeyboardEvent) => {
 		panelShow.set(c.checked = !c.checked);
 		e.preventDefault();
 	})[0]();
