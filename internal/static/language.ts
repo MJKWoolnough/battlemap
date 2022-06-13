@@ -155,6 +155,7 @@ const defaultLanguage = {
 	"SCROLL_AMOUNT": "Scroll (zero is square width)",
 	"SELECT_LANGUAGE": "Select Language",
 	"SETTINGS_CLEAR": "Clear Settings",
+	"SETTINGS_KEYS": "Key Bindings",
 	"SETTINGS_RESET": "Reset",
 	"SETTINGS_RESET_CONFIRM": "Are you sure that you wish to clear all settings? This cannot be undone",
 	"SHARE": "Share",
