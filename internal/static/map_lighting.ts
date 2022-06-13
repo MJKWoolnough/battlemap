@@ -8,7 +8,7 @@ type Vertex = {
 	w: XWall[];
 	x: Fraction;
 	y: Fraction;
-	a: number;
+	a: Fraction;
 	d: number;
 }
 
@@ -29,17 +29,76 @@ export type LightWall = {
 }
 
 type XWall = LightWall & {
-	a1: number;
-	a2: number;
+	a1: Fraction;
+	a2: Fraction;
 	cx: Fraction;
 	cy: Fraction;
 	cl: Uint;
 }
 
-const hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = false) => {
+const mone = new Fraction(-1n),
+      two = new Fraction(2n),
+      three = new Fraction(3n),
+      four = new Fraction(4n),
+      five = new Fraction(5n),
+      six = new Fraction(6n),
+      seven = new Fraction(7n),
+      angle = (x: Fraction, y: Fraction) => {
+	const m = y.div(x),
+	      ycmp = y.cmp(Fraction.zero);
+	switch (m.cmp(Fraction.one)) {
+	case -1:
+		switch (m.cmp(mone)) {
+		case -1:
+			switch (ycmp) {
+			case -1:
+				return three.add(mone.div(m));
+			case 1:
+				return seven.add(mone.div(m));
+			}
+		case 0:
+			switch (ycmp) {
+			case -1:
+				return four;
+			case 1:
+				return Fraction.zero;
+			}
+		case 1:
+			switch (x.cmp(Fraction.zero)) {
+			case -1:
+				return Fraction.one.add(m);
+			case 1:
+				return five.add(m);
+			}
+		}
+	case 0:
+		switch (ycmp) {
+		case -1:
+			return two;
+		case 1:
+			return six;
+		}
+	case 1:
+		switch (ycmp) {
+		case -1:
+			return three.sub(Fraction.one.div(m));
+		case 1:
+			return seven.sub(Fraction.one.div(m));
+		}
+	default:
+		switch (ycmp) {
+		case -1:
+			return three;
+		case 1:
+			return seven;
+		}
+	}
+	return Fraction.NaN;
+      },
+      hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = false) => {
 	for (const {x1, y1, a1, a2} of point) {
 		const [a, b] = (!x1.cmp(x) && !y1.cmp(y)) === anti ? [a2, a1] : [a1, a2];
-		if (a > b && a < b + Math.PI || a < b - Math.PI) {
+		if (a.cmp(b) === 1 && a.cmp(b.add(four)) === -1 || a.cmp(b.add(four)) === -1) {
 			return true;
 		}
 	}
@@ -139,8 +198,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			      rdy1 = dy1.toFloat(),
 			      rdx2 = dx2.toFloat(),
 			      rdy2 = dy2.toFloat(),
-			      a1 = Math.atan2(rdy1, rdx1),
-			      a2 = Math.atan2(rdy2, rdx2),
+			      a1 = angle(dy1, dx1),
+			      a2 = angle(dy2, dx2),
 			      p1 = `${x1.toFloat()},${y1.toFloat()}`,
 			      p2 = `${x2.toFloat()},${y2.toFloat()}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
@@ -176,9 +235,9 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 		walls.splice(walls.length - 2, 2);
 	}
 	gWalls.sort(({cl: acl}, {cl: bcl}) => acl - bcl);
-	let lastAngle = NaN;
-	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab - aa || da - db)) {
-		if (lastAngle === v.a) {
+	let lastAngle = Fraction.NaN;
+	for (const v of Array.from(vertices.values()).sort(({a: aa, d: da}, {a: ab, d: db}) => ab.cmp(aa) || da - db)) {
+		if (!lastAngle.isNaN() && !lastAngle.cmp(v.a)) {
 			continue;
 		}
 		lastAngle = v.a;
