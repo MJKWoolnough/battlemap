@@ -69,6 +69,8 @@ const defaultLanguage = {
 	"ITEM_MOVE": "Move Item",
 	"ITEM_REMOVE": "Remove Item",
 	"ITEM_REMOVE_CONFIRM": "Remove the following item?",
+	"KEY_HELP": "Help Key",
+	"KEY_PANEL_TOGGLE": "Toggle Panel Key",
 	"LANGUAGE": "Language",
 	"LAYER_ADD": "Add Layer",
 	"LAYER_GRID": "Grid",
