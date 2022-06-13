@@ -5,7 +5,7 @@ import type {LightWall} from './map_lighting.js';
 import type {Lighting} from './map_tokens.js';
 import type {WindowElement} from './windows.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
-import {br, button, fieldset, h1, input, legend, option, select} from './lib/html.js';
+import {br, button, details, fieldset, h1, input, legend, option, select, summary} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
@@ -69,14 +69,17 @@ settings = () => {
 		}
 	      }}, lang["SAVE"]);
 	return [
-		isAdmin ? [
-			h1(lang["PLUGINS"]),
+		isAdmin ? details([
+			summary(h1(lang["PLUGINS"])),
 			labels(`${lang["PLUGINS"]}: `, selected),
 			labels(check, ""),
 			br(),
 			save
-		] : [],
-		filterSortPlugins("settings").map(([name, {"settings": {fn}}]) => [h1(name.charAt(0).toUpperCase() + name.slice(1)), fn])
+		]) : [],
+		filterSortPlugins("settings").map(([name, {"settings": {fn}}]) => details([
+			summary(h1(name.charAt(0).toUpperCase() + name.slice(1))),
+			fn
+		]))
 	];
 },
 characterEdit = (n: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => {
