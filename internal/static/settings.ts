@@ -1,7 +1,8 @@
-import {br, button, details, div, form, h1, input, option, select, summary} from './lib/html.js';
+import {br, button, details, div, form, h1, input, li, option, select, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
+import {getKey, getKeyName, getKeyIDs} from './keys.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
@@ -93,6 +94,10 @@ menuItems.push([7, () => [
 			] : []
 		]),
 		pluginSettings(),
+		details({"id": "settings_keys"}, [
+			summary(h1(lang["SETTINGS_KEYS"])),
+			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({}, getKey(id))))))
+		]),
 		details([
 			summary(h1(lang["SETTINGS_RESET"])),
 			button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["SETTINGS_RESET_CONFIRM"]).then(v => {
