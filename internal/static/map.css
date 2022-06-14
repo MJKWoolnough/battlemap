@@ -123,10 +123,6 @@
 	display: none;
 }
 
-#layerLight {
-	mix-blend-mode: multiply;
-}
-
 #lighting > * {
 	mix-blend-mode: screen;
 }
