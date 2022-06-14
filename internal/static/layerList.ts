@@ -7,6 +7,7 @@ import {node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Folder, Item, Root} from './folders.js';
+import {registerKey} from './keys.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
@@ -114,7 +115,9 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	}
 	return false;
       },
-      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
+      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})}),
+      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"],'['),
+      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"],']');
 
 class ItemLayer extends Item {
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
@@ -249,7 +252,7 @@ menuItems.push([5, () => isAdmin ? [
 				sl.show();
 				root.parentNode?.dispatchEvent(new MouseEvent("mouseover", mo));
 			      };
-			keyEvent('[', () => {
+			keyEvent(layerPrev, () => {
 				let sl: ItemLayer | undefined;
 				walkLayers(list.folder as FolderLayer, l => {
 					if (l.id > 0) {
@@ -264,7 +267,7 @@ menuItems.push([5, () => isAdmin ? [
 					setLayer(sl);
 				}
 			})[0]();
-			keyEvent(']', () => {
+			keyEvent(layerNext, () => {
 				let next = false;
 				walkLayers(list.folder as FolderLayer, l => {
 					if (l.id > 0) {
