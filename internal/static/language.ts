@@ -72,6 +72,7 @@ const defaultLanguage = {
 	"KEY_HELP": "Help Key",
 	"KEY_LAYER_NEXT": "Next Layer Key",
 	"KEY_LAYER_PREV": "Previous Layer Key",
+	"KEY_NEW": "Enter New Key",
 	"KEY_PANEL_TOGGLE": "Toggle Panel Key",
 	"KEY_TOOL_NEXT": "Next Tool Key",
 	"KEY_TOOL_PREV": "Previous Tool Key",
