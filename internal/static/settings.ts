@@ -1,13 +1,14 @@
+import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, form, h1, input, li, option, select, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
-import {getKey, getKeyName, getKeyIDs} from './keys.js';
+import {getKey, getKeyName, getKeyIDs, setKey} from './keys.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
 import {labels, menuItems} from './shared.js';
-import {shell} from './windows.js';
+import {shell, windows} from './windows.js';
 
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
@@ -96,7 +97,21 @@ menuItems.push([7, () => [
 		pluginSettings(),
 		details({"id": "settings_keys"}, [
 			summary(h1(lang["SETTINGS_KEYS"])),
-			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({}, getKey(id))))))
+			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({"onclick": function(this: HTMLButtonElement) {
+				const w = windows({"window-title": lang["KEY_NEW"], "onkeydown": (e: KeyboardEvent) => {
+					switch (e.key) {
+					default:
+						e.stopPropagation();
+						setKey(id, e.key);
+						clearNode(this, e.key);
+						w.close();
+					case "Shift":
+					case "Control":
+					case "Alt":
+					}
+				}}, lang["KEY_NEW"]);
+				amendNode(shell, w);
+			}}, getKey(id))))))
 		]),
 		details([
 			summary(h1(lang["SETTINGS_RESET"])),
