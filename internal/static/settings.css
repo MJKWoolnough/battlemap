@@ -32,3 +32,8 @@
 #settings h1 {
 	display: inline-block;
 }
+
+#settings ul {
+	list-style: none;
+	padding: 0;
+}
