@@ -73,6 +73,8 @@ const defaultLanguage = {
 	"KEY_LAYER_NEXT": "Next Layer Key",
 	"KEY_LAYER_PREV": "Previous Layer Key",
 	"KEY_PANEL_TOGGLE": "Toggle Panel Key",
+	"KEY_TOOL_NEXT": "Next Tool Key",
+	"KEY_TOOL_PREV": "Previous Tool Key",
 	"LANGUAGE": "Language",
 	"LAYER_ADD": "Add Layer",
 	"LAYER_GRID": "Grid",
