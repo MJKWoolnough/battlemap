@@ -12,6 +12,7 @@ import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {Colour, makeColourPicker} from '../colours.js';
+import {registerKey} from '../keys.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
@@ -219,6 +220,8 @@ const select = Symbol("select"),
 	"INITIATIVE_PREV": "Previous",
 	"INITIATIVE_REMOVE": "Remove Initiative",
 	"IS_PLAYER": "Is Player",
+	"KEY_HEALTH": "Health Modification Key (5E)",
+	"KEY_INITIATIVE": "Initiative Key (5E)",
 	"NOTES": "Notes",
 	"SHAPECHANGE": "Shapechange",
 	"SHAPECHANGE_5E": "Shapechange (5E)",
@@ -922,7 +925,7 @@ if (isAdmin) {
 			rpc.pluginSetting(importName, settings, []);
 		}}, mainLang["SAVE"])
 	      ])),
-	      [setupHealthButton, cancelHealthButton] = keyEvent("h", undefined, () => {
+	      [setupHealthButton, cancelHealthButton] = keyEvent(registerKey("5e-health-key", lang["KEY_HEALTH"], 'h'), undefined, () => {
 		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			const currHP = token.getData("5e-hp-current");
@@ -936,7 +939,7 @@ if (isAdmin) {
 			}
 		}
 	      }),
-	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent("i", undefined, () => {
+	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent(registerKey("5e-initiative-key", lang["KEY_INITIATIVE"], 'i'), undefined, () => {
 		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
