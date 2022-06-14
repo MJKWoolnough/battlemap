@@ -4,6 +4,7 @@ import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
 import {stringSort} from './lib/nodes.js';
 import {g, ns as svgNS, path, polygon, svg, title} from './lib/svg.js';
+import {registerKey} from './keys.js';
 import lang from './language.js';
 import {isAdmin} from './rpc.js';
 import {miniTools} from './settings.js';
@@ -33,7 +34,9 @@ type Tool = {
 };
 
 const tools: Tool[] = [],
-      toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="3"%3E%3Cpath d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="%23dde" stroke="%23000" transform="rotate(45, 50, 50)" /%3E%3Cg transform="rotate(315, 50, 50)"%3E%3Cpath d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="%23eee" stroke="%23000" /%3E%3Cpath d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="%23dd0" stroke="%23000" stroke-linejoin="round" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`;
+      toolsIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="3"%3E%3Cpath d="M45,1 a2,3 0,0,0 0,30 v38 a2,3 0,0,0 0,30 v-15 a1,1 0,0,1 10,0 v15 a2,3 0,0,0 0,-30 v-38 a2,3 0,0,0 0,-30 v15 a1,1 0,0,1 -10,0 z" fill="%23dde" stroke="%23000" transform="rotate(45, 50, 50)" /%3E%3Cg transform="rotate(315, 50, 50)"%3E%3Cpath d="M47.5,50 v-35 q-2,-3 -2,-5 l2,-8 h5 l2,8 q0,2 -2,5 v35 z" fill="%23eee" stroke="%23000" /%3E%3Cpath d="M40,90 a1,1 0,0,0 20,0 v-25 a1,2 0,0,1 0,-10 a1,1 0,0,0 0,-5 h-20 a1,1 0,0,0 0,5 a1,2 0,0,1 0,10 z" fill="%23dd0" stroke="%23000" stroke-linejoin="round" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
+      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], '('),
+      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], ')');
 
 export const defaultTool: Tool = {
 	"name": lang["TOOL_DEFAULT"],
@@ -163,7 +166,7 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 		});
-		keyEvent(["(", ")"], (e: KeyboardEvent) => list[mod(toolNum + (e.key === "(" ? -1 : 1), tools.length)].click())[0]();
+		keyEvent([toolPrev, toolNext], (e: KeyboardEvent) => list[mod(toolNum + (e.key === "(" ? -1 : 1), tools.length)].click())[0]();
 		return base;
 	})(),
 	true,
