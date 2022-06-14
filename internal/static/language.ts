@@ -70,6 +70,8 @@ const defaultLanguage = {
 	"ITEM_REMOVE": "Remove Item",
 	"ITEM_REMOVE_CONFIRM": "Remove the following item?",
 	"KEY_HELP": "Help Key",
+	"KEY_LAYER_NEXT": "Next Layer Key",
+	"KEY_LAYER_PREV": "Previous Layer Key",
 	"KEY_PANEL_TOGGLE": "Toggle Panel Key",
 	"LANGUAGE": "Language",
 	"LAYER_ADD": "Add Layer",
