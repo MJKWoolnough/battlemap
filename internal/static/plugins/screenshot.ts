@@ -4,6 +4,7 @@ import {a, br, button, canvas, div, img, input} from '../lib/html.js';
 import {node} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
+import {registerKey} from '../keys.js';
 import mainLang, {language} from '../language.js';
 import {mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
@@ -92,6 +93,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 	"ENABLE_GRID": "Show Grid on Screenshot",
 	"ENABLE_PNG": "Automatic PNG creation",
 	"ERROR_GENERATING": "Unknown error while generating PNG",
+	"KEY_SCREENSHOT": "Screenshot Key",
 	"SCREENSHOT_TAKE": "Take Screenshot"
       },
       langs: Record<string, typeof defaultLanguage> = {
@@ -141,7 +143,7 @@ addPlugin("screenshot", {
 	}
 });
 
-keyEvent("PrintScreen", (e: KeyboardEvent) => {
+keyEvent(registerKey("screenshot-key", lang["KEY_SCREENSHOT"], "PrintScreen"), (e: KeyboardEvent) => {
 	makeScreenshot();
 	e.preventDefault();
 })[0]();
