@@ -3,7 +3,7 @@ import {br, button, details, div, form, h1, input, li, option, select, summary, 
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
-import {getKey, getKeyName, getKeyIDs, setKey} from './keys.js';
+import {getKey, getKeyIDs, getKeyName, setKey} from './keys.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
