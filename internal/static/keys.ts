@@ -10,7 +10,7 @@ const keys = new JSONSetting<Record<string, string>>("keys", {}, (v: any): v is 
       }),
       names: Record<string, string> = {};
 
-export const registerKey = (id: string, name: string, defaultKey = "") => {
+export const registerKey = (id: string, name: string, defaultKey: string) => {
 	names[id] = name;
 	return keys.value[id] ??= defaultKey;
 },
