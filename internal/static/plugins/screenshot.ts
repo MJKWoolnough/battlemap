@@ -12,7 +12,10 @@ import {addPlugin} from '../plugins.js';
 import {labels} from '../shared.js';
 import {shell, windows} from '../windows.js';
 
+let defs = "";
+
 const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke="%23000"%3E%3Crect x="2" y="2" width="96" height="96" stroke-width="4" stroke-dasharray="20 8" fill="%2388f" /%3E%3Cpath d="M10,40 v-15 q0,-2 2,-2 h75 q2,0 2,2 v17 z" fill="%23aaa" /%3E%3Cpath d="M10,40 v30 q0,2 2,2 h75 q2,0 2,-2 v-30 z m5,-17 v-3 q0,-2 2,-2 h12 q2,0 2,2 v3 z" fill="%23333" /%3E%3Ccircle cx="50" cy="50" r="18" fill="%23888" /%3E%3Ccircle cx="50" cy="50" r="12" fill="%23111" /%3E%3Crect x="70" y="36" width="15" height="8" rx="1" fill="%23cc0" /%3E%3C/g%3E%3Crect x="86" width="3" y="23.5" height="48" fill="rgba(0, 0, 0, 0.25)" /%3E%3Crect x="82" width="3" y="36" height="8" fill="rgba(0, 0, 0, 0.25)" /%3E%3C/svg%3E`,
+      style = `<script type="text/css">#lighting>*{mix-blend-mode:screen;}</script>`,
       walkElements = (n: Element, ctx: CanvasRenderingContext2D, ctm: DOMMatrix, p: Promise<void>) => {
 	const styles = window.getComputedStyle(n);
 	for (const s of styles) {
@@ -58,6 +61,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 			}});
 		}));
 	case "defs":
+		defs = style + n.outerHTML;
 		return p;
 	case "g":
 		const id = n.getAttribute("id");
@@ -73,6 +77,18 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				}});
 			}));
 		} else if (id === "layerLight") {
+			for (const c of n.childNodes as any as SVGElement[]) {
+				p = p.then(() => new Promise<void>(sfn => {
+					const {width, height} = mapData;
+					img({"src": `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="${svgNS}" width="${width}" height="${height}">${defs}${c.outerHTML.replace("mix-blend-mode", "mix-blend-mod")}</svg>`)}`, "onload": function(this: HTMLImageElement) {
+						ctx.globalCompositeOperation = ((c as SVGElement).style.getPropertyValue("mix-blend-mode") || "none") as GlobalCompositeOperation;
+						ctx.drawImage(this, 0, 0);
+						ctx.globalCompositeOperation = "source-over";
+						sfn();
+					}});
+				}));
+			}
+			return p;
 			return p.then(() => {
 				const {lightColour, width, height} = mapData,
 				      fs = ctx.fillStyle;
