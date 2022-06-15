@@ -115,9 +115,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	}
 	return false;
       },
-      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})}),
-      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"],'['),
-      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"],']');
+      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
 
 class ItemLayer extends Item {
 	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
@@ -242,7 +240,9 @@ class LayerRoot extends Root {
 menuItems.push([5, () => isAdmin ? [
 	lang["TAB_LAYERS"],
 	(() => {
-		const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"]));
+		const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
+		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"],'['),
+		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"],']');
 		let loadFn = () => {
 			const list = new LayerRoot(layerList),
 			      setLayer = (sl: ItemLayer) => {
