@@ -124,7 +124,9 @@ menuItems.push([6, () => isAdmin ? [
 			t.icon,
 			span(t.name)
 		      ])),
-		      fc = list[0];
+		      fc = list[0],
+		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], '('),
+		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], ')');
 		amendNode(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
@@ -164,7 +166,7 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 		});
-		keyEvent([registerKey("toolPrev", lang["KEY_TOOL_PREV"], '('), registerKey("toolNext", lang["KEY_TOOL_NEXT"], ')')], (e: KeyboardEvent) => list[mod(toolNum + (e.key === "(" ? -1 : 1), tools.length)].click())[0]();
+		keyEvent([toolPrev, toolNext], (e: KeyboardEvent) => list[mod(toolNum + (e.key === toolPrev ? -1 : 1), tools.length)].click())[0]();
 		return base;
 	})(),
 	true,
