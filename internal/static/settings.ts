@@ -28,7 +28,7 @@ menuItems.push([7, () => [
 			summary(h1(lang["LANGUAGE"])),
 			labels(`${lang["SELECT_LANGUAGE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				language.set(this.value);
-			}}, languages.map(l => option({"selected": l === language.value}, l)))),
+			}}, languages.map(l => option({"selected": l === language.value}, l))))
 		]),
 		details([
 			summary(h1(lang["THEME"])),
