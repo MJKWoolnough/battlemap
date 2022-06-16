@@ -25,7 +25,7 @@ export type LightWall = {
 	x2: Fraction;
 	y2: Fraction;
 	colour: Colour;
-	scattering: Byte
+	scattering: Byte;
 }
 
 type XWall = LightWall & {
