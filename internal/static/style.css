@@ -131,7 +131,7 @@ html, body {
 	cursor: pointer;
 }
 
-windows-shell {
+windows-shell-taskmanager {
 	position: absolute;
 	top: 0;
 	left: 0;
