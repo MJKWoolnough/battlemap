@@ -1,11 +1,13 @@
 import type {Int, Uint} from './types.js';
 import type {Children, DOMBind, Props} from './lib/dom.js';
-import type {ShellElement, WindowElement} from './lib/windows.js';
+import type {WindowElement} from './lib/windows.js';
+import type {ShellElement} from './lib/windows_taskmanager.js';
 import {amendNode} from './lib/dom.js';
 import {hasKeyEvent} from './lib/events.js';
 import {div} from './lib/html.js';
 import {JSONSetting} from './lib/settings.js';
-import {defaultIcon, desktop as adesktop, setDefaultIcon, setLanguage, shell as ashell, windows as awindows} from './lib/windows.js';
+import {defaultIcon, desktop as adesktop, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
+import {shell as ashell} from './lib/windows_taskmanager.js';
 import lang from './language.js';
 import {isInt, isUint} from './shared.js';
 
