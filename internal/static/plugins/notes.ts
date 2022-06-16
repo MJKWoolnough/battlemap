@@ -69,7 +69,7 @@ if (isAdmin) {
 				this.#popWindow.focus();
 			} else {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
-				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
 					this.#window = null;
 					this.#share = null;
 				}}, data));
