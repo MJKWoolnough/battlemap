@@ -97,6 +97,7 @@ menuItems.push([7, () => [
 		pluginSettings(),
 		details({"id": "settings_keys"}, [
 			summary(h1(lang["SETTINGS_KEYS"])),
+			div(lang["KEY_EXPLAIN"]),
 			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({"onclick": function(this: HTMLButtonElement) {
 				const w = windows({"window-title": lang["KEY_NEW"], "onkeydown": (e: KeyboardEvent) => {
 					switch (e.key) {
