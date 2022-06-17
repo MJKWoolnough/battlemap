@@ -288,7 +288,7 @@ menuItems.push([3, () => isAdmin ? [
 					}
 					this.#dragKey = dragMusicPack.register(this);
 					this.#playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
-					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "ondragover": (e: DragEvent) => {
+					this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "hide-minimise": false, "ondragover": (e: DragEvent) => {
 						if (this.currentTime === 0) {
 							dragCheck(e);
 						}
