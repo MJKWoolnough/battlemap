@@ -10,7 +10,7 @@ import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';
 import {inited, rpc} from './rpc.js';
-import {characterData, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
+import {characterData, cloneObject, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
 import {remove as removeSymbol, userVisible} from './symbols.js';
 import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -89,7 +89,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 						w.alert(lang["TOKEN_SELECT"], lang["TOKEN_NONE_SELECTED"]);
 						return;
 					}
-					changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+					changes["store-image-data"] = {"user": false, "data": cloneObject(Array.from(tokens.values()))};
 					amendNode(i, {"src": `/images/${data["src"]}`});
 				}
 			})}, lang["TOKEN_USE_SELECTED"]),
@@ -97,7 +97,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 			removeSymbol({"onclick": () => w.confirm(lang["TOKEN_REMOVE"], lang["TOKEN_REMOVE_CONFIRM"]).then(proceed => {
 				if (proceed) {
 					tokens.delete(n);
-					changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
+					changes["store-image-data"] = {"user": false, "data": cloneObject(Array.from(tokens.values()))};
 				}
 			})})
 		];
