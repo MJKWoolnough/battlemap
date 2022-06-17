@@ -89,13 +89,6 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				}));
 			}
 			return p;
-			return p.then(() => {
-				const {lightColour, width, height} = mapData,
-				      fs = ctx.fillStyle;
-				ctx.fillStyle = lightColour + "";
-				ctx.fillRect(0, 0, width, height);
-				ctx.fillStyle = fs;
-			});
 		} else if (n.classList.contains("hiddenLayer")) {
 			return p;
 		}
