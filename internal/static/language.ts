@@ -69,6 +69,7 @@ const defaultLanguage = {
 	"ITEM_MOVE": "Move Item",
 	"ITEM_REMOVE": "Remove Item",
 	"ITEM_REMOVE_CONFIRM": "Remove the following item?",
+	"KEY_EXPLAIN": "NB: Bound keys will be changed on the next page load.",
 	"KEY_HELP": "Help Key",
 	"KEY_LAYER_NEXT": "Next Layer Key",
 	"KEY_LAYER_PREV": "Previous Layer Key",
