@@ -18,7 +18,7 @@ export type WindowData = [Int, Int, Uint, Uint];
 setLanguage(Object.fromEntries((["CANCEL", "CLOSE", "MAXIMISE", "MINIMISE", "OK", "RESTORE"] as (keyof typeof lang)[]).map(k => [k, lang[k]])));
 setDefaultIcon(document.getElementsByTagName("link")[0]?.getAttribute("href") ?? defaultIcon);
 
-const defaultParams = {"hide-maximise": true, "tabindex": -1, "hide-minimise": true, "onkeydown": function (this: WindowElement, e: KeyboardEvent) {
+const defaultParams = {"hide-maximise": true, "hide-minimise": true, "tabindex": -1, "onkeydown": function (this: WindowElement, e: KeyboardEvent) {
 	if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 		this.close();
 	}
