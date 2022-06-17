@@ -98,7 +98,7 @@ const mone = new Fraction(-1n),
       hasDirection = (x: Fraction, y: Fraction, point: XWall[], anti: boolean = false) => {
 	for (const {x1, y1, a1, a2} of point) {
 		const [a, b] = (!x1.cmp(x) && !y1.cmp(y)) === anti ? [a2, a1] : [a1, a2];
-		if (a.cmp(b) === 1 && a.cmp(b.add(four)) === -1 || a.cmp(b.add(four)) === -1) {
+		if (a.cmp(b) === 1 && a.cmp(b.add(four)) === -1 || a.cmp(b.sub(four)) === -1) {
 			return true;
 		}
 	}
