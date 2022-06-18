@@ -273,7 +273,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 				      distance = Math.hypot(lpx.toFloat(), lpy.toFloat()),
 				      point = points.get(`${px.toFloat()},${py.toFloat()}`),
 				      hasPoint = point?.some(({id: wid}) => id === wid);
-				if ((hasPoint ? cw && hasDirection(px, py, point!) : px.cmp(Fraction.min(x1, x2)) > -1 && px.cmp(Fraction.max(x1, x2)) < 1 && py.cmp(Fraction.min(y1, y2)) > -1 && py.cmp(Fraction.max(y1, y2)) < 1) && distance < ed && distance > min && -dlx.sign() === lpx.sign() && -dly.sign() === lpy.sign()) {
+				if ((hasPoint ? hasDirection(px, py, point!, !cw) : px.cmp(Fraction.min(x1, x2)) > -1 && px.cmp(Fraction.max(x1, x2)) < 1 && py.cmp(Fraction.min(y1, y2)) > -1 && py.cmp(Fraction.max(y1, y2)) < 1) && distance < ed && distance > min && -dlx.sign() === lpx.sign() && -dly.sign() === lpy.sign()) {
 					ex = px;
 					ey = py;
 					ed = distance;
