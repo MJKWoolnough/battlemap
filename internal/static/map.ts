@@ -414,7 +414,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	amendNode((getLayer("/Light") as SVGLayer)[node], use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}}));
+	amendNode((getLayer("/Light") as SVGLayer)[node], use({"href": "#lighting", "style": "mix-blend-mode: multiply"}));
 	definitions.setLight(lightColour);
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
