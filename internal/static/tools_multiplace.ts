@@ -67,7 +67,7 @@ addTool({
 		path({"d": "M28,77 l26,-26 a3,2 0,0,1 4,0 l40,40 M74,67 l10,-10 a3,2 0,0,1 5,0 l9,9 M14,63 l15,-15 M1,50 l15,-15"}),
 		path({"d": "M98,39 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h49 s10,0 10,-10 z M84,28 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3 M71,15 v-3 s0,-10 -10,-10 h-49 s-10,0 -10,10 v49 s0,10 10,10 h3", "stroke-width": 4})
 	]),
-	"options": div({"style": {"overflow": "hidden"}}, [
+	"options": div({"style": "overflow: hidden"}, [
 		labels(mode, `${lang["TOOL_MULTIPLACE_MODE"]}: `),
 		br(),
 		label(`${lang["TOKEN"]}: `),
