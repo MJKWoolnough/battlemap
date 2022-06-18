@@ -78,7 +78,7 @@ const lastTab = new StringSetting("lastTab"),
 		}
 	      }}),
 	      tc = div({"id": "tabs"}, [t, p]),
-	      h = div({"id": "panels", "style": {"--panel-width": `${panelWidth.value}px`}}, [
+	      h = div({"id": "panels", "style": `--panel-width: ${panelWidth.value}px`}, [
 		m,
 		tc
 	      ]),
