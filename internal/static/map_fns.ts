@@ -324,7 +324,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 		return;
 	}
 	let original = generateTokenChanges(ts, token);
-	const lightUpdate = ts["lightStages"]?.length || ts?.["lightTimings"]?.length || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
+	const lightUpdate = ts["lightColours"] || ts["lightStages"] || ts["lightTimings"] || ts["x"] !== undefined || ts["y"] !== undefined || ts["width"] || ts["height"],
 	      doIt = (sendRPC = true) => {
 		processTokenChanges(ts, token);
 		if (sendRPC) {
