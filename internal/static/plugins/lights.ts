@@ -47,7 +47,7 @@ if (isAdmin) {
 				const p = polygon({"points": "0,0 10,0 10,10 0,10"}),
 				      l = definitions.addLighting(p, this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0))!,
 				      id = "plugin-light_"+lid++;
-				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 				}}, svg({"viewBox": "0 0 10 10"}, [
 					rect({"width": "5", "height": "10", "fill": "#fff"}),
