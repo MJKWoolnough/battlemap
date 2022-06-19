@@ -69,7 +69,7 @@ if (isAdmin) {
 				this.#popWindow.focus();
 			} else {
 				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
-				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onremove": () => {
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 					this.#share = null;
 				}}, data));
@@ -100,7 +100,7 @@ if (isAdmin) {
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
-					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": {"--window-width": "50%", "--window-height": "50%"}, "onclose": (e: Event) => {
+					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
 						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
 							e.preventDefault();
 							w.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
