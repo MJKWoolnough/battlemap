@@ -2,7 +2,7 @@ import type {FolderItems, FromTo, IDName, Int, KeystoreData, TokenLight, Uint} f
 import type {WindowElement} from '../windows.js';
 import {amendNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
-import {div} from '../lib/html.js';
+import {button, div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {polygon, rect, svg} from '../lib/svg.js';
@@ -10,10 +10,10 @@ import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
-import {Lighting, definitions} from '../map_tokens.js';
+import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
-import {handleError, isAdmin, rpc} from '../rpc.js';
-import {addCSS, isUint} from '../shared.js';
+import {combined, handleError, isAdmin, rpc} from '../rpc.js';
+import {addCSS, cloneObject, isUint} from '../shared.js';
 import {lightGridStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -96,23 +96,7 @@ if (isAdmin) {
 			if (dragLighting.is(e)) {
 				const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
 				if (id >= 0) {
-					shell.prompt(lang["NEW_NAME_TITLE"], lang["NEW_NAME"], "", lightGridStr).then(name => {
-						if (name) {
-							if (name.includes("/")) {
-								shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
-							} else if (this.children.has(name)) {
-								shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
-							} else {
-								const data = {"user": false, "data": {lightColours, lightStages, lightTimings}},
-								      [f] = getFolder(this.getPath() + "/");
-								if (f) {
-									lightData.set(f.items[name] = ++lastID, data);
-									this.addItem(lastID, name);
-									rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
-								}
-							}
-						}
-					});
+					newLight(lightColours, lightStages, lightTimings, this);
 				}
 			}
 		}
@@ -120,6 +104,7 @@ if (isAdmin) {
 
 	let lastID = 0;
 	const defaultLanguage = {
+		"COPY_LIGHT": "Copy Light from Selected Token",
 		"ERROR_FOLDER_NOT_EMPTY": "Cannot remove a non-empty folder",
 		"ERROR_INVALID_FOLDER": "Invalid Folder",
 		"ERROR_INVALID_ITEM": "Invalid Item",
@@ -378,13 +363,57 @@ if (isAdmin) {
 			}
 		}
 	      },
-	      dragLightingOver = setDragEffect({"copy": [dragLighting]});
+	      dragLightingOver = setDragEffect({"copy": [dragLighting]}),
+	      newLight = (lightColours: Colour[][], lightStages: Uint[], lightTimings: Uint[], folder: LightFolder) => {
+		shell.prompt(lang["NEW_NAME_TITLE"], lang["NEW_NAME"], "", lightGridStr).then(name => {
+			if (name) {
+				if (name.includes("/")) {
+					shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
+				} else if (folder.children.has(name)) {
+					shell.alert(lang["NAME_EXISTS"], lang["NAME_EXISTS_LONG"]);
+				} else {
+					const data = {"user": false, "data": {lightColours, lightStages, lightTimings}},
+					      [f] = getFolder(folder.getPath() + "/");
+					if (f) {
+						lightData.set(f.items[name] = ++lastID, data);
+						folder.addItem(lastID, name);
+						rpc.pluginSetting(importName, {"": folders, [lastID]: data}, []);
+					}
+				}
+			}
+		});
+	      },
+	      copyLight = button({"onclick": () => {
+		const tk = selected.token;
+		if (tk) {
+			const {lightColours, lightStages, lightTimings} = tk;
+			if (lightStages.length && lightTimings.length) {
+				newLight(cloneObject(lightColours), cloneObject(lightStages), cloneObject(lightTimings), root.folder as LightFolder);
+			}
+		}
+	      }}, lang["COPY_LIGHT"]),
+	      checkSelectedToken = () => {
+		const tk = selected.token;
+		let disabled = true;
+		if (tk) {
+			const {lightStages, lightTimings} = tk;
+			if (lightStages.length && lightTimings.length) {
+				disabled = false;
+			}
+		}
+		amendNode(copyLight, {disabled});
+	      };
+	tokenSelectedReceive(checkSelectedToken);
+	combined.waitTokenSet().then(checkSelectedToken);
 	addCSS("#pluginLights ul{padding-left: 1em;list-style: none}#pluginLights>div>ul{padding:0}"),
 	root.windowIcon = lightGridStr;
 	addPlugin("lights", {
 		"menuItem": {
 			"priority": 0,
-			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, root[node]), true, lightGridStr]
+			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, [
+				copyLight,
+				root[node]
+			]), true, lightGridStr]
 		}
 	});
 	rpc.waitPluginSetting().then(({id, setting, removing}) => {
