@@ -10,6 +10,7 @@ import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
+import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {combined, handleError, isAdmin, rpc} from '../rpc.js';
@@ -49,12 +50,21 @@ if (isAdmin) {
 				      id = "plugin-light_"+lid++;
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
-				}}, svg({"viewBox": "0 0 10 10"}, [
-					rect({"width": "5", "height": "10", "fill": "#fff"}),
-					rect({"x": "5", "width": "5", "height": "10", "fill": "#000"}),
-					amendNode(l, {id}),
-					amendNode(p, {"fill": `url(#${id})`})
-				])));
+				}}, [
+					button({"style": "position: absolute", "onclick": () => {
+						const tk = selected.token;
+						if (tk) {
+							const {lightColours, lightStages, lightTimings} = this.#draggedLight;
+							doTokenSet({"id": tk.id, "lightColours": cloneObject(lightColours), "lightStages": cloneObject(lightStages), "lightTimings": cloneObject(lightTimings)});
+						}
+					}}, lang["APPLY_LIGHT"]),
+					svg({"viewBox": "0 0 10 10"}, [
+						rect({"width": "5", "height": "10", "fill": "#fff"}),
+						rect({"x": "5", "width": "5", "height": "10", "fill": "#000"}),
+						amendNode(l, {id}),
+						amendNode(p, {"fill": `url(#${id})`})
+					])
+				]));
 			}
 		}
 		ondragstart(e: DragEvent) {
@@ -104,6 +114,7 @@ if (isAdmin) {
 
 	let lastID = 0;
 	const defaultLanguage = {
+		"APPLY_LIGHT": "Apply Light to Selected Token",
 		"COPY_LIGHT": "Copy Light from Selected Token",
 		"ERROR_FOLDER_NOT_EMPTY": "Cannot remove a non-empty folder",
 		"ERROR_INVALID_FOLDER": "Invalid Folder",
