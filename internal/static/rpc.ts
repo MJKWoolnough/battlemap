@@ -101,7 +101,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitBroadcast",            broadcastAny,                  checkBroadcast]
 		],
 		"images": [
-			["waitAdded",         broadcastImageItemAdd,      checkIDName],
+			["waitAdded",         broadcastImageItemAdd,      checkAssetAdded],
 			["waitMoved",         broadcastImageItemMove,     checkFromTo],
 			["waitRemoved",       broadcastImageItemRemove,   checkString],
 			["waitCopied",        broadcastImageItemCopy,     checkCopied],
@@ -110,7 +110,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitFolderRemoved", broadcastImageFolderRemove, checkString]
 		],
 		"audio": [
-			["waitAdded",         broadcastAudioItemAdd,      checkIDName],
+			["waitAdded",         broadcastAudioItemAdd,      checkAssetAdded],
 			["waitMoved",         broadcastAudioItemMove,     checkFromTo],
 			["waitRemoved",       broadcastAudioItemRemove,   checkString],
 			["waitCopied",        broadcastAudioItemCopy,     checkCopied],
@@ -374,6 +374,13 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkID = (data: any, name: string) => checker(data, name, checksID),
       checksIDName: checkers = [[checkID, ""], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
+      checkAssetAdded = (data: any) => {
+	      checkArray(data, "assetAdded");
+	      for (const i of data) {
+		      checkIDName(i);
+	      }
+	      return data;
+      },
       checksIDPath: checkers = [[checkID, ""], [checkString, "path"]],
       checkIDPath = (data: any) => checker(data, "IDPath", checksIDPath),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
