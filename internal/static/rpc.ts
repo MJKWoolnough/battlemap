@@ -101,7 +101,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitBroadcast",            broadcastAny,                  checkBroadcast]
 		],
 		"images": [
-			["waitAdded",         broadcastImageItemAdd,      checkAssetAdded],
+			["waitAdded",         broadcastImageItemAdd,      checkAdded],
 			["waitMoved",         broadcastImageItemMove,     checkFromTo],
 			["waitRemoved",       broadcastImageItemRemove,   checkString],
 			["waitCopied",        broadcastImageItemCopy,     checkCopied],
@@ -110,7 +110,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitFolderRemoved", broadcastImageFolderRemove, checkString]
 		],
 		"audio": [
-			["waitAdded",         broadcastAudioItemAdd,      checkAssetAdded],
+			["waitAdded",         broadcastAudioItemAdd,      checkAdded],
 			["waitMoved",         broadcastAudioItemMove,     checkFromTo],
 			["waitRemoved",       broadcastAudioItemRemove,   checkString],
 			["waitCopied",        broadcastAudioItemCopy,     checkCopied],
@@ -119,7 +119,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitFolderRemoved", broadcastAudioFolderRemove, checkString]
 		],
 		"characters": [
-			["waitAdded",         broadcastCharacterItemAdd,      checkIDName],
+			["waitAdded",         broadcastCharacterItemAdd,      checkAdded],
 			["waitMoved",         broadcastCharacterItemMove,     checkFromTo],
 			["waitRemoved",       broadcastCharacterItemRemove,   checkString],
 			["waitCopied",        broadcastCharacterItemCopy,     checkCopied],
@@ -128,7 +128,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitFolderRemoved", broadcastCharacterFolderRemove, checkString]
 		],
 		"maps": [
-			["waitAdded",         broadcastMapItemAdd,      checkIDName],
+			["waitAdded",         broadcastMapItemAdd,      checkAdded],
 			["waitMoved",         broadcastMapItemMove,     checkFromTo],
 			["waitRemoved",       broadcastMapItemRemove,   checkString],
 			["waitCopied",        broadcastMapItemCopy,     checkCopied],
@@ -374,8 +374,8 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkID = (data: any, name: string) => checker(data, name, checksID),
       checksIDName: checkers = [[checkID, ""], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
-      checkAssetAdded = (data: any) => {
-	      checkArray(data, "assetAdded");
+      checkAdded = (data: any) => {
+	      checkArray(data, "added");
 	      for (const i of data) {
 		      checkIDName(i);
 	      }
