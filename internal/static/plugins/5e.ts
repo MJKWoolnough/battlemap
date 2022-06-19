@@ -278,7 +278,7 @@ const select = Symbol("select"),
 		})));
 	}
       },
-      initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": {"--window-left": "0px", "--window-top": "0px", "--window-width": "200px", "--window-height": "400px"}, "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
+      initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 400px", "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
 	isAdmin ? div([
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
@@ -505,7 +505,7 @@ const select = Symbol("select"),
 							this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 							this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 						]),
-						this.#name = text({"class": "token-name-5e", "style": {"user-select": "none"}, "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
+						this.#name = text({"class": "token-name-5e", "style": "user-select: none", "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
 						this.#ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
 							this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
 							this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
@@ -1108,9 +1108,9 @@ mapLoadedReceive(() => {
 			}
 		}
 		clearNode(getLayer("/Light")![node], [
-			use({"href": "#lighting", "style": {"mix-blend-mode": "saturation"}, "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": {"mix-blend-mode": "multiply"}, "mask": "url(#inv-darkvision-5e)"})
+			use({"href": "#lighting", "style": "mix-blend-mode: saturation", "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": "mix-blend-mode: multiply", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
+			use({"href": "#lighting", "style": "mix-blend-mode: multiply", "mask": "url(#inv-darkvision-5e)"})
 		]);
 		updateInitiative();
 	});
