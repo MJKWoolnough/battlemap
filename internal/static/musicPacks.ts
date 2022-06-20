@@ -21,7 +21,7 @@ class Track {
 	volume: Uint;
 	repeat: Int;
 	audioElement: HTMLAudioElement | null = null;
-	repeatWait: Int = -1;
+	#repeatWait: Int = -1;
 	#parent: Pack;
 	constructor(parent: Pack, track: MusicTrack) {
 		this.id = track.id;
@@ -54,9 +54,9 @@ class Track {
 	}
 	waitPlay() {
 		if (this.audioElement) {
-			if (this.repeatWait !== -1) {
-				clearTimeout(this.repeatWait);
-				this.repeatWait = -1;
+			if (this.#repeatWait !== -1) {
+				clearTimeout(this.#repeatWait);
+				this.#repeatWait = -1;
 			}
 			const tnow = now(),
 			      length = this.audioElement.duration;
@@ -76,9 +76,9 @@ class Track {
 					this.audioElement.play();
 				} else {
 					this.audioElement.pause();
-					this.repeatWait = setTimeout(() => {
+					this.#repeatWait = setTimeout(() => {
 						this.audioElement?.play();
-						this.repeatWait = -1;
+						this.#repeatWait = -1;
 					}, (cycle - p) * 1000);
 				}
 			}
@@ -88,9 +88,9 @@ class Track {
 		if (this.audioElement) {
 			this.audioElement.pause();
 			this.audioElement = null;
-			if (this.repeatWait !== -1) {
-				clearTimeout(this.repeatWait);
-				this.repeatWait = -1;
+			if (this.#repeatWait !== -1) {
+				clearTimeout(this.#repeatWait);
+				this.#repeatWait = -1;
 			}
 		}
 	}
