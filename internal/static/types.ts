@@ -280,7 +280,7 @@ type BroadcastWindow = ID & {
 	contents: string;
 }
 
-export type Broadcast = {
+type Broadcast = {
 	type: any;
 	data: any;
 }
