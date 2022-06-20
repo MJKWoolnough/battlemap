@@ -59,8 +59,8 @@ if (isAdmin) {
 						}
 					}}, lang["APPLY_LIGHT"]),
 					svg({"viewBox": "0 0 10 10"}, [
-						rect({"width": "5", "height": "10", "fill": "#fff"}),
-						rect({"x": "5", "width": "5", "height": "10", "fill": "#000"}),
+						rect({"width": 5, "height": 10, "fill": "#fff"}),
+						rect({"x": 5, "width": 5, "height": 10, "fill": "#000"}),
 						amendNode(l, {id}),
 						amendNode(p, {"fill": `url(#${id})`})
 					])
