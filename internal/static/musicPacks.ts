@@ -230,7 +230,6 @@ menuItems.push([3, () => isAdmin ? [
 				#volumeNode: HTMLInputElement;
 				#repeatNode: HTMLInputElement;
 				cleanup: () => void;
-				repeatWait: Int = -1;
 				constructor(parent: AdminPack, track: MusicTrackName) {
 					super(parent, track);
 					this[node] = li([
