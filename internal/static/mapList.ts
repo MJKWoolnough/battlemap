@@ -179,12 +179,12 @@ menuItems.push([4, () => isAdmin ? [
 			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
 					const name = input({"type": "text", "onkeypress": enterKey}),
-					      width = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
-					      height = input({"type": "number", "min": "10", "max": "1000", "value": "30"}),
+					      width = input({"type": "number", "min": 10, "max": 1000, "value": 30}),
+					      height = input({"type": "number", "min": 10, "max": 1000, "value": 30}),
 					      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
-					      sqWidth = input({"type": "number", "min": "1", "max": "1000", "value": "100"}),
+					      sqWidth = input({"type": "number", "min": 1, "max": 1000, "value": 100}),
 					      sqColour = input({"type": "color"}),
-					      sqLineWidth = input({"type": "number", "min": "0", "max": "10", "value": "1"}),
+					      sqLineWidth = input({"type": "number", "min": 0, "max": 10, "value": 1}),
 					      w = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"], "class": "mapAdd"}, [
 						h1(lang["MAP_NEW"]),
 						labels(`${lang["MAP_NAME"]}: `, name),
