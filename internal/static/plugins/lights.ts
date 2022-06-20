@@ -126,7 +126,8 @@ if (isAdmin) {
 		"NAME_INVALID": "Invalid Name",
 		"NAME_INVALID_LONG": "Light Profile names cannot contains the '/' (slash) character",
 		"NEW_NAME": "Please enter a name for this Light Profile",
-		"NEW_NAME_TITLE": "Light Profile Name"
+		"NEW_NAME_TITLE": "Light Profile Name",
+		"REMOVE_LIGHT": "Remove Light from Selected Token"
 	      },
 	      langs: Record<string, typeof defaultLanguage> = {
 		"en-GB": defaultLanguage
@@ -394,6 +395,12 @@ if (isAdmin) {
 			}
 		});
 	      },
+	      removeLight = button({"onclick": () => {
+		const tk = selected.token;
+		if (tk) {
+			doTokenSet({"id": tk.id, "lightColours": [], "lightStages": [], "lightTimings": []});
+		}
+	      }}, lang["REMOVE_LIGHT"]),
 	      copyLight = button({"onclick": () => {
 		const tk = selected.token;
 		if (tk) {
@@ -413,6 +420,7 @@ if (isAdmin) {
 			}
 		}
 		amendNode(copyLight, {disabled});
+		amendNode(removeLight, {disabled});
 	      };
 	tokenSelectedReceive(checkSelectedToken);
 	combined.waitTokenSet().then(checkSelectedToken);
@@ -423,6 +431,7 @@ if (isAdmin) {
 			"priority": 0,
 			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, [
 				copyLight,
+				removeLight,
 				root[node]
 			]), true, lightGridStr]
 		}
