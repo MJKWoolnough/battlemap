@@ -264,7 +264,6 @@ menuItems.push([3, () => isAdmin ? [
 				tracks: NodeArray<AdminTrack>;
 				id: Uint;
 				name: string;
-				currentTime: Uint = 0;
 				[node]: HTMLLIElement;
 				#nameNode: HTMLSpanElement;
 				#titleNode: HTMLElement;
