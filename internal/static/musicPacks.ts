@@ -22,12 +22,12 @@ class Track {
 	repeat: Int;
 	audioElement: HTMLAudioElement | null = null;
 	repeatWait: Int = -1;
-	parent: Pack;
+	#parent: Pack;
 	constructor(parent: Pack, track: MusicTrack) {
 		this.id = track.id;
 		this.volume = track.volume;
 		this.repeat = track.repeat;
-		this.parent = parent;
+		this.#parent = parent;
 	}
 	setVolume(volume: Uint) {
 		this.volume = volume;
@@ -49,7 +49,7 @@ class Track {
 	}
 	updateVolume() {
 		if (this.audioElement) {
-			this.audioElement.volume = this.volume * this.parent.volume / 65025
+			this.audioElement.volume = this.volume * this.#parent.volume / 65025
 		}
 	}
 	waitPlay() {
@@ -61,16 +61,16 @@ class Track {
 			const tnow = now(),
 			      length = this.audioElement.duration;
 			if (this.repeat === -1) {
-				if (tnow < this.parent.playTime + length) {
-					this.audioElement.currentTime = tnow - this.parent.playTime;
+				if (tnow < this.#parent.playTime + length) {
+					this.audioElement.currentTime = tnow - this.#parent.playTime;
 					this.audioElement.play();
 				} else {
 					this.stop();
-					this.parent.checkPlayState();
+					this.#parent.checkPlayState();
 				}
 			} else {
 				const cycle = length + this.repeat,
-				      p = (tnow - this.parent.playTime) % cycle;
+				      p = (tnow - this.#parent.playTime) % cycle;
 				if (p < length) {
 					this.audioElement.currentTime = p;
 					this.audioElement.play();
@@ -95,8 +95,8 @@ class Track {
 		}
 	}
 	remove() {
-		const pos = this.parent.tracks.findIndex(t => t === this);
-		this.parent.tracks.splice(pos, 1);
+		const pos = this.#parent.tracks.findIndex(t => t === this);
+		this.#parent.tracks.splice(pos, 1);
 		this.stop();
 		return pos;
 	}
