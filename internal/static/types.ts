@@ -245,13 +245,7 @@ export type Coords = {
 	y: Int;
 }
 
-export type TokenSet = Partial<TokenShared> & Partial<TokenDrawing> & ID & {
-	src?:             Uint;
-	patternWidth?:    Uint;
-	patternHeight?:   Uint;
-	flip?:            boolean;
-	flop?:            boolean;
-	tokenData?:       Record<string, KeystoreData>;
+export type TokenSet = Partial<TokenImage> & Partial<TokenDrawing> & ID & {
 	removeTokenData?: string[];
 }
 
