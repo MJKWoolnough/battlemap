@@ -1109,8 +1109,10 @@ mapLoadedReceive(() => {
 		}
 		clearNode(getLayer("/Light")![node], [
 			use({"href": "#lighting", "style": "mix-blend-mode: saturation", "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": "mix-blend-mode: multiply", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
-			use({"href": "#lighting", "style": "mix-blend-mode: multiply", "mask": "url(#inv-darkvision-5e)"})
+			g({"style": "mix-blend-mode: multiply"}, [
+				use({"href": "#lighting", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
+				use({"href": "#lighting", "mask": "url(#inv-darkvision-5e)"})
+			])
 		]);
 		updateInitiative();
 	});
