@@ -41,7 +41,6 @@ const lastTab = new StringSetting("lastTab"),
 	let n = 0,
 	    moved = false;
 	const panelShow = new BoolSetting("panelShow"),
-	      panelWidth = new IntSetting("panelWidth", 300, 0),
 	      windowSettings = new JSONSetting<Record<string, savedWindow>>("windowData", {}, (v: any): v is Record<string, savedWindow> => {
 		if (!(v instanceof Object)) {
 			return false;
@@ -56,9 +55,7 @@ const lastTab = new StringSetting("lastTab"),
 	      }),
 	      [setupPanelDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		if (e.clientX > 0) {
-			const x = document.body.clientWidth - e.clientX;
-			panelWidth.set(x);
-			amendNode(h, {"style": {"--panel-width": `${x}px`}});
+			panelWidth.set(document.body.clientWidth - e.clientX);
 			moved = true;
 		}
 	      }),
@@ -78,10 +75,11 @@ const lastTab = new StringSetting("lastTab"),
 		}
 	      }}),
 	      tc = div({"id": "tabs"}, [t, p]),
-	      h = div({"id": "panels", "style": `--panel-width: ${panelWidth.value}px`}, [
+	      h = div({"id": "panels"}, [
 		m,
 		tc
 	      ]),
+	      panelWidth = new IntSetting("panelWidth", 300, 0).wait(w => amendNode(h, {"style": `--panel-width: ${w}px`})),
 	      windowData: Record<string, savedWindow> = windowSettings.value,
 	      updateWindowData = () => windowSettings.set(windowData),
 	      updateWindowDims = function (this: WindowElement) {
