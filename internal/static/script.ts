@@ -199,6 +199,7 @@ inited.then(() => {
 	const mIs = [...mI].sort(([a], [b]) => a - b),
 	      settings = isAdmin ? mIs.pop()![1] : null;
 	mI.splice(0, mI.length);
+	Object.freeze(mI);
 	return pluginInit().then(() => {
 		amendNode(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => {
 			if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
