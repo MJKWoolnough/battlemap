@@ -1,6 +1,6 @@
 #!/bin/bash
 
-bm="$(dirname "$0")";
+bm="$(realpath "$(dirname "$0")")";
 data="$bm/internal/static/";
 jslibJS="$(realpath "$bm/../jslib/lib.js/")";
 tmpFile="$(mktemp)";
@@ -34,3 +34,10 @@ echo -e "package battlemap\n\nconst (\n	uncompressedSize = $(stat --format "%s" 
 
 zopfli --gzip --i1000 -c "$tmpFile" > index.gz;
 rm -f "$tmpFile";
+
+(
+	cd "$data";
+	for i in plugins/*.js; do
+		jspacker -i "/$i" -p | terser -m  --module --compress pure_getters,passes=3 --ecma 6 | tr -d '\n' > "$bm/plugins/$(basename "$i")";
+	done;
+);
