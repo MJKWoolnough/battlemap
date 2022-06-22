@@ -176,7 +176,7 @@ ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-chi
 ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n}):after`).join(",")}{box-shadow: -2px 2px 0 var(--c)}
 `;
 		},
-	        setTab(title: string) {
+		setTab(title: string) {
 			for (const [t, tab] of tabs) {
 				if (t === title && tab.style.getPropertyValue("display") !== "none") {
 					(tab.control ?? tab).click();
