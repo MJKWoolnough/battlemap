@@ -210,6 +210,7 @@ const select = Symbol("select"),
 	"HP_MAX": "Maximum Hit Points",
 	"INITIATIVE": "Initiative",
 	"INITIATIVE_ADD": "Add Initiative",
+	"INITIATIVE_ADV": "Advantage",
 	"INITIATIVE_ASC": "Sort Initiative Ascending",
 	"INITIATIVE_CHANGE": "Change Initiative",
 	"INITIATIVE_DESC": "Sort Initiative Descending",
@@ -716,7 +717,7 @@ if (isAdmin) {
 			saveInitiative();
 		}
 	      },
-	      initAdd = (token: SVGToken, initMod: null | number) => (initMod !== null ? Promise.resolve(Math.floor(Math.random() * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
+	      initAdd = (token: SVGToken, initMod: null | number, initAdv: boolean) => (initMod !== null ? Promise.resolve(Math.floor((initAdv ? Math.max(Math.random(), Math.random()) : Math.random()) * 20) + 1 + initMod) : shell.prompt(lang["INITIATIVE_ENTER"], lang["INITIATIVE_ENTER_LONG"], "0").then(initiative => {
 		if (!initiative) {
 			throw new Error("invalid initiative");
 		}
@@ -945,7 +946,7 @@ if (isAdmin) {
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				initChange(token);
 			} else {
-				initAdd(token, token.getData("5e-initiative-mod"));
+				initAdd(token, token.getData("5e-initiative-mod"), token.getData("5e-initiative-adv") ?? false);
 			}
 		}
 	      });
@@ -965,6 +966,9 @@ if (isAdmin) {
 						removes.delete("5e-initiative-mod");
 						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(parseInt(this.value), -20, 20, 0)};
 					}
+				}})),
+				labels(`${lang["INITIATIVE_ADV"]}: `, input({"type": "checkbox", "checked": getData("5e-initiative-adv")["data"] ?? false, "onchange": function(this: HTMLInputElement) {
+					changes["5e-initiative-adv"] = {"user": false, "data": this.checked};
 				}})),
 				br(),
 				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
@@ -1038,7 +1042,7 @@ if (isAdmin) {
 				);
 				showConditions = true;
 			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => isValidToken(token) && initAdd(token, initMod)));
+				ctxList.push(item(lang["INITIATIVE_ADD"], () => isValidToken(token) && initAdd(token, initMod, token.getData("5e-initiative-adv") ?? false)));
 			}
 			if (showConditions) {
 				ctxList.push(menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
@@ -1242,6 +1246,11 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 				err = "Character Data '5e-hp-current' must be a Uint";
 			}
 			break;
+		case "5e-initiative-adv":
+			if (typeof val !== "boolean") {
+				err = "Token Data '5e-initiative-adv' must be a boolean";
+			}
+			break;
 		case "5e-initiative-mod":
 			if (!isInt(val, -20, 20)) {
 				err = "Character Data '5e-initiative-mod' must be an Int between -20 and 20";
@@ -1293,6 +1302,11 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 		case "5e-hp-current":
 			if (!isUint(val)) {
 				err = "Token Data '5e-hp-current' must be a Uint";
+			}
+			break;
+		case "5e-initiative-adv":
+			if (typeof val !== "boolean") {
+				err = "Token Data '5e-initiative-adv' must be a boolean";
 			}
 			break;
 		case "5e-initiative-mod":
