@@ -459,7 +459,6 @@ const select = Symbol("select"),
       })(),
       plugin: PluginType = {
 	"settings": {
-		"priority": 0,
 		"fn": div([
 			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => highlightColour.set(c))),
 			table({"id": "display-settings-5e"}, [
@@ -478,7 +477,6 @@ const select = Symbol("select"),
 		])
 	},
 	"tokenClass": {
-		"priority": 0,
 		"fn": (c: SVGTokenConstructor) => SVGToken5E = class extends c {
 			#tokenNode: SVGGraphicsElement;
 			#extra: SVGGElement;
@@ -627,7 +625,6 @@ const select = Symbol("select"),
 		}
 	},
 	"handleWalls": {
-		"priority": 0,
 		"fn": updatePerspectives
 	}
       };
@@ -952,7 +949,6 @@ if (isAdmin) {
 	      });
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
-		"priority": 0,
 		"fn": (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
 			const getData = !isCharacter && data["store-character-id"] && characterData.has(data["store-character-id"]["data"]) ? (() => {
 				const cd = characterData.get(data["store-character-id"]["data"])!;
@@ -1024,7 +1020,6 @@ if (isAdmin) {
 		}
 	};
 	plugin["tokenContext"] = {
-		"priority": 0,
 		"fn": () => {
 			const {token} = selected;
 			if (!(token instanceof SVGToken5E)) {

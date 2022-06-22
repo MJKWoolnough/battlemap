@@ -48,7 +48,6 @@ if (isAdmin) {
 	mapLoadReceive(id => mapID = id);
 	addPlugin("stats", {
 		"menuItem": {
-			"priority": 0,
 			"fn": [lang["MENU_TITLE"], div([
 				button({"onclick": () => {
 					tb.splice(0, tb.length);

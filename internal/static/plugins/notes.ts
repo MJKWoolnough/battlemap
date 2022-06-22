@@ -410,7 +410,6 @@ if (isAdmin) {
 	root.windowIcon = icon;
 	addPlugin("notes", {
 		"menuItem": {
-			"priority": 0,
 			"fn": [lang["MENU_TITLE"], div({"id": "pluginNotes"}, [
 				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
 					if (name) {

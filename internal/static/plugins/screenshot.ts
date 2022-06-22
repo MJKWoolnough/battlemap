@@ -142,7 +142,6 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 
 addPlugin("screenshot", {
 	"settings": {
-		"priority": 0,
 		"fn": div([
 			([[hideGrid, "ENABLE_GRID"], [disablePNG, "ENABLE_PNG"]] as [BoolSetting, keyof typeof lang][]).map(([s, l]) => [labels(input({"type": "checkbox", "class": "settings_ticker", "checked": !s.value, "onchange": function(this: HTMLInputElement) {
 				s.set(!this.checked);
