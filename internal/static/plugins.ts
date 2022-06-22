@@ -14,7 +14,7 @@ import {labels, setAndReturn} from './shared.js';
 import {shell} from './windows.js';
 
 type owp<T> = {
-	priority: Uint;
+	priority?: Uint;
 	fn: T;
 }
 
@@ -46,7 +46,7 @@ export type PluginType = {
 
 const plugins = new Map<string, PluginType>(),
       pluginList = new Map<string, Plugin>(),
-      filterSortPlugins = <K extends keyof PluginType>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, PluginType], b: [string, PluginType]) => a[1][key]!.priority === b[1][key]!.priority ? stringSort(a[0], b[0]) : a[1][key]!.priority - b[1][key]!.priority) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
+      filterSortPlugins = <K extends keyof PluginType>(key: K) => Array.from(plugins.entries()).filter(p => p[1][key]).sort((a: [string, PluginType], b: [string, PluginType]) => a[1][key]!.priority === b[1][key]!.priority ? stringSort(a[0], b[0]) : (a[1][key]!.priority ?? 0) - (b[1][key]!.priority ?? 0)) as [string, Required<Pick<PluginType, K>> & Omit<PluginType, K>][];
 
 export const pluginName = ({url}: {url: string}) => url.split("/").pop() ?? "",
 settings = () => {
