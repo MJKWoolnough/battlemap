@@ -182,7 +182,7 @@ export let open = (_id: Uint) => {};
 
 inited.then(() => {
 	if (!isAdmin) {
-		 audioEnabled().then(rpc.musicPackList).then(list => {
+		audioEnabled().then(rpc.musicPackList).then(list => {
 			const packs = new Map<Uint, Pack>();
 			for (const pack of list) {
 				packs.set(pack.id, new Pack(pack));
@@ -214,7 +214,7 @@ inited.then(() => {
 				}
 			});
 			commonWaits(packs);
-		 });
+		});
 	}
 });
 
