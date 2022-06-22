@@ -76,10 +76,10 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 			});
 		}
 	      }}),
-	     nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
-	     nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
-	     nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
-	     makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
+	      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
+	      nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
+	      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
+	      makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
 		const i = img({"src": `/images/${tk["src"]}`});
 		return [
 			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
@@ -103,7 +103,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 		];
 	      })())}, tk),
 	      tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
-	     base = div([
+	      base = div([
 		labels(`${lang["NAME"]}: `, nameInput),
 		labels(nameVisibility, userVisible()),
 		br(),
@@ -140,8 +140,8 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 				clearNode(this, img({"src": `/images/${charData["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(id, lang["CHARACTER_EDIT"], charData, true)}));
 			}}, d["store-character-id"] ? img({"src": `/images/${characterData.get(d["store-character-id"].data)!["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%; cursor: pointer", "onclick": () => edit(d["store-character-id"].data, lang["CHARACTER_EDIT"], characterData.get(d["store-character-id"].data)!, true)}) : [])
 		]
-	     ]),
-	     onEnd = characterEdit(base, id, d, character, changes, removes, w);
+	      ]),
+	      onEnd = characterEdit(base, id, d, character, changes, removes, w);
 	let nextID = tokens.size;
 	amendNode(shell, autoFocus(amendNode(w, amendNode(base, button({"onclick": function(this: HTMLButtonElement) {
 		amendNode(this, {"disabled": true});
