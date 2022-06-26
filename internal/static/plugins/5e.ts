@@ -409,11 +409,7 @@ const select = Symbol("select"),
 		dvcs,
 		dv,
 		darksat,
-		darkvis,
-		mask({"id": "inv-darkvision-5e"}, [
-			rect({"width": "100%", "height": "100%", "fill": "#fff"}),
-			rect({"width": "100%", "height": "100%", "fill": "#000", "clip-path": "url(#darkvision-5e)"})
-		])
+		darkvis
 	]);
 	let nextID = 0;
 	return () => {
@@ -1109,8 +1105,8 @@ mapLoadedReceive(() => {
 		clearNode(getLayer("/Light")![node], [
 			use({"href": "#lighting", "style": "mix-blend-mode: saturation", "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
 			g({"style": "mix-blend-mode: multiply"}, [
-				use({"href": "#lighting", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"}),
-				use({"href": "#lighting", "mask": "url(#inv-darkvision-5e)"})
+				use({"href": "#lighting"}),
+				use({"href": "#lighting", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"})
 			])
 		]);
 		updateInitiative();
