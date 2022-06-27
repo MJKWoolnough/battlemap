@@ -3,10 +3,10 @@ module vimagination.zapto.org/battlemap
 go 1.18
 
 require (
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
+	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e
 	vimagination.zapto.org/byteio v1.0.1
-	vimagination.zapto.org/httpdir v1.0.0
-	vimagination.zapto.org/httpencoding v1.0.0
+	vimagination.zapto.org/httpdir v1.1.0
+	vimagination.zapto.org/httpembed v1.0.2
 	vimagination.zapto.org/httpgzip v1.0.0
 	vimagination.zapto.org/jsonrpc v1.1.0
 	vimagination.zapto.org/keystore v1.0.0
@@ -15,4 +15,7 @@ require (
 	vimagination.zapto.org/sessions v1.0.0
 )
 
-require vimagination.zapto.org/authenticate v1.0.0 // indirect
+require (
+	vimagination.zapto.org/authenticate v1.0.0 // indirect
+	vimagination.zapto.org/httpencoding v1.0.0 // indirect
+)
