@@ -30,7 +30,22 @@ if [ "$1" = "-size" ]; then
 	exit 0;
 fi;
 
-echo -e "package battlemap\n\nconst (\n	uncompressedSize = $(stat --format "%s" "$tmpFile")\n	indexUpdated     = $(date "+%s")\n)" > "index_size.go";
+cat > index.go <<HEREDOC
+package battlemap
+
+import (
+	_ "embed" // required for index embed
+	"time"
+
+	"vimagination.zapto.org/httpembed"
+)
+
+var (
+	//go:embed index.gz
+	indexData []byte
+	index     = httpembed.HandleBuffer(indexData, $(stat --format "%s" "$tmpFile"), time.Unix($(date "+%s"), 0))
+)
+HEREDOC
 
 zopfli --gzip --i1000 -c "$tmpFile" > index.gz;
 rm -f "$tmpFile";
