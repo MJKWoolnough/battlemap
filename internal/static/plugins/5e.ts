@@ -397,10 +397,7 @@ const select = Symbol("select"),
 	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
 	      black = [[new Colour(0, 0, 0)]],
 	      timings = [0],
-	      darksat = filter({"id": "darksat-5e"}, [
-		feColorMatrix({"type": "luminanceToAlpha"}),
-		feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,0 0 0 -1 1"})
-	      ]),
+	      darksat = filter({"id": "darksat-5e"}, feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,-0.2125 -0.7154 -0.0721 0 1"})),
 	      darkvis = filter({"id": "darkvis-5e"}, feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})),
 	      dvcs = g(),
 	      dv = clipPath({"id": "darkvision-5e"});
