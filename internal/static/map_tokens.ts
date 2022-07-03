@@ -127,7 +127,7 @@ abstract class SVGTransform extends Lighting {
 		return null;
 	}
 	hasLight() { return !!(this.lightStages.length && this.lightTimings.length); }
-	getCentre(): [Int, Int] { return [this.x + this.width / 2, this.y + this.height / 2]; }
+	getCentre(): [Int, Int] { return [this.x + (this.width >> 1), this.y + (this.height >> 1)]; }
 	getLightPos() { return this.getCentre(); }
 	cleanup() {}
 	uncleanup() {}
