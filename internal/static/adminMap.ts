@@ -509,6 +509,7 @@ export default (base: HTMLElement) => {
 										for (const s of stages) {
 											s.colours.splice(pos, 1);
 										}
+										amendNode(timingHeader, {"colspan": timings.length});
 									}})
 								]),
 								value: t
@@ -528,7 +529,10 @@ export default (base: HTMLElement) => {
 								input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
 									o.value = checkInt(parseInt(this.value), 0);
 								}}),
-								remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": "itemRemove", "onclick": () => stages.filterRemove(t => t === o)})
+								remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": "itemRemove", "onclick": () => {
+									stages.filterRemove(t => t === o);
+									amendNode(stagesHeader, {"rowspan": stages.length + 1});
+								}})
 							      ])),
 							      o = {
 								[node]: p,
