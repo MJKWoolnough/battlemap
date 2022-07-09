@@ -17,7 +17,7 @@ import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './
 import {lightOnOff, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
-let selectedLayer: ItemLayer | undefined, 
+let selectedLayer: ItemLayer | undefined,
     dragging: ItemLayer | FolderLayer | undefined,
     draggedName: HTMLSpanElement | undefined,
     dragOffset = 0,
