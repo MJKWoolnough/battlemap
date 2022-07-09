@@ -548,6 +548,8 @@ export default (base: HTMLElement) => {
 									lTimings.splice(0, lTimings.length, ...lightTimings);
 									timings.splice(0, timings.length, ...lightTimings.map(addTiming));
 									stages.splice(0, stages.length, ...lightStages.map(addStage));
+									amendNode(timingHeader, {"colspan": timings.length});
+									amendNode(stagesHeader, {"rowspan": stages.length + 1});
 								}
 							}
 						}}, [
