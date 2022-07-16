@@ -172,7 +172,7 @@ func (f *folders) getParentFolder(p string) (parent *folder, name string, fd *fo
 	} else {
 		parent = f.root
 	}
-	fd, _ = parent.Folders[name]
+	fd = parent.Folders[name]
 	return parent, name, fd
 }
 
@@ -182,7 +182,7 @@ func (f *folders) getFolderItem(p string) (parent *folder, name string, iid uint
 	if parent == nil {
 		return nil, "", 0
 	}
-	iid, _ = parent.Items[file]
+	iid = parent.Items[file]
 	return parent, file, iid
 }
 
