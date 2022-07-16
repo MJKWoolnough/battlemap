@@ -150,9 +150,7 @@ const (
 func (m *mapsDir) updateMapLayer(mid uint64, path string, lt layerType, fn func(*levelMap, *layer) bool) error {
 	var err error
 	if errr := m.updateMapData(mid, func(mp *levelMap) bool {
-		var l *layer
-		l = getLayer(&mp.layer, path, lt == anyLayerAll)
-		if l != nil {
+		if l := getLayer(&mp.layer, path, lt == anyLayerAll); l != nil {
 			if lt == tokenLayer && l.Layers != nil || lt == folderLayer && l.Layers == nil {
 				err = ErrInvalidLayerPath
 				return false
