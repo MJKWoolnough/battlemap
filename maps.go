@@ -13,8 +13,8 @@ import (
 
 type mapsDir struct {
 	folders
-	maps             map[uint64]*levelMap
-	handler, indexes http.Handler
+	maps    map[uint64]*levelMap
+	handler http.Handler
 }
 
 func (m *mapsDir) Init(b *Battlemap, links links) error {
