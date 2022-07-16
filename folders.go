@@ -186,20 +186,6 @@ func (f *folders) getFolderItem(p string) (parent *folder, name string, iid uint
 	return parent, file, iid
 }
 
-func (f *folders) exists(p string) bool {
-	f.mu.RLock()
-	dir, file := path.Split(p)
-	folder := f.getFolder(path.Clean(dir))
-	if folder == nil {
-		return false
-	} else if file == "" {
-		return true
-	}
-	_, ok := folder.Items[file]
-	f.mu.RUnlock()
-	return ok
-}
-
 func (f *folders) saveFolders() {
 	f.Set(folderMetadata, f)
 	f.encodeJSON()
