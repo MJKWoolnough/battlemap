@@ -282,9 +282,7 @@ func (m *musicPacksDir) RPCData(cd ConnData, method string, data json.RawMessage
 			Volume:   mp.Volume,
 			PlayTime: 0,
 		}
-		for n, t := range mp.Tracks {
-			np.Tracks[n] = t
-		}
+		copy(np.Tracks, mp.Tracks)
 		m.lastID++
 		id := m.lastID
 		m.packs[id] = np
