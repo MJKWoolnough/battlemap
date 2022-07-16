@@ -26,13 +26,13 @@ type plugin struct {
 }
 
 func (p *plugin) ReadFrom(r io.Reader) (int64, error) {
-	var rc = rwcount.Reader{Reader: r}
+	rc := rwcount.Reader{Reader: r}
 	err := json.NewDecoder(&rc).Decode(&p)
 	return rc.Count, err
 }
 
 func (p *plugin) WriteTo(w io.Writer) (int64, error) {
-	var wc = rwcount.Writer{Writer: w}
+	wc := rwcount.Writer{Writer: w}
 	p.WriteToUser(&wc, true)
 	return wc.Count, wc.Err
 }
@@ -168,8 +168,6 @@ func (p *pluginsDir) updateJSON() {
 func (p *pluginsDir) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.Handler.ServeHTTP(w, r)
 }
-
-var null = json.RawMessage{'n', 'u', 'l', 'l'}
 
 func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (interface{}, error) {
 	switch method {
