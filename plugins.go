@@ -232,7 +232,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			}
 			delete(plugin.Data, key)
 		}
-		p.FileStore.Set(toSet.ID+pluginConfigExt, plugin)
+		if err := p.FileStore.Set(toSet.ID+pluginConfigExt, plugin); err != nil {
+			return nil, err
+		}
 		for _, key := range userRemoves {
 			if !first {
 				buf = append(buf, ',')
@@ -260,7 +262,9 @@ func (p *pluginsDir) RPCData(cd ConnData, method string, data json.RawMessage) (
 			return nil, ErrUnknownPlugin
 		}
 		plugin.Enabled = method == "enable"
-		p.FileStore.Set(filename+pluginConfigExt, plugin)
+		if err := p.FileStore.Set(filename+pluginConfigExt, plugin); err != nil {
+			return nil, err
+		}
 		cd.CurrentMap = 0
 		p.socket.broadcastMapChange(cd, broadcastPluginChange, json.RawMessage{'0'}, userAny)
 		p.updateJSON()
