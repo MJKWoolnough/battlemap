@@ -126,7 +126,9 @@ func (p *pluginsDir) Init(b *Battlemap, links links) error {
 		s := file + pluginConfigExt
 		if p.FileStore.Exists(s) {
 			var plugin plugin
-			p.FileStore.Get(s, &plugin)
+			if err := p.FileStore.Get(s, &plugin); err != nil {
+				return fmt.Errorf("error reading plugin: %w", err)
+			}
 			p.plugins[file] = &plugin
 		} else {
 			p.plugins[file] = &plugin{Data: make(map[string]keystoreData)}
