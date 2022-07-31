@@ -3,8 +3,8 @@ golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e/go.mod h1:XRhObCWvk6IyKnWLug
 vimagination.zapto.org/authenticate v1.0.0 h1:eLzBv0txcEVt3l3N6n9QOMPC1rGtEzLvswH5P+8g1BM=
 vimagination.zapto.org/authenticate v1.0.0/go.mod h1:YfddapgT/AVNsjGL5wZ5gsVPjLur7oLw1ZEXOYL19pw=
 vimagination.zapto.org/byteio v1.0.0/go.mod h1:l8m3xQOVMUWs7Sjbd3s+yWt7JIoSBc/35Hxm1F/QiAw=
-vimagination.zapto.org/byteio v1.0.1 h1:p22ga+TiTKQcHELUzSZIdWtfckv8C4GlKVIYo46AFqk=
-vimagination.zapto.org/byteio v1.0.1/go.mod h1:/cW+WW89mJiuXV8qy34hxPInzIiq6TW4DEE9GFrp/gI=
+vimagination.zapto.org/byteio v1.0.3 h1:OikabfK9LHBH1+jFUaMOdZ5KSueJ4LNJMTDUnnR21cg=
+vimagination.zapto.org/byteio v1.0.3/go.mod h1:wd40f4fNg/FXkhOlTeB5B2G8bSLrMH6YX6PDtq3cApo=
 vimagination.zapto.org/httpdir v1.1.0 h1:5VT2vx+HwmetwG2XtydfjezV/LVsF/UXcCkq8L04OPo=
 vimagination.zapto.org/httpdir v1.1.0/go.mod h1:XusgMA/G5q27g34kBWYXJkD+S74/wWKPiUcpTZbLBz8=
 vimagination.zapto.org/httpembed v1.0.3 h1:B+h7l4dUZqaGMJugJBXdQ7ySPEmQwg9IqUV7SwypQvY=
