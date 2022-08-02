@@ -3,7 +3,6 @@ package battlemap
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -41,7 +40,7 @@ func TestMain(m *testing.M) {
 			srv.Start()
 		}
 	}
-	dataDir, err := ioutil.TempDir("", "battlemap-test")
+	dataDir, err := os.MkdirTemp("", "battlemap-test")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error creating temp dir: %s", err)
 		os.Exit(1)
