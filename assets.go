@@ -15,7 +15,6 @@ import (
 	"sync"
 
 	"vimagination.zapto.org/keystore"
-	"vimagination.zapto.org/memio"
 )
 
 type hasher struct {
@@ -208,12 +207,11 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 	a.mu.Lock()
 	a.saveFolders()
 	a.mu.Unlock()
-	var buf memio.Buffer
-	fmt.Fprintf(&buf, "[{\"id\":%d,\"name\":%q}", added[0].ID, folderPath+added[0].Name)
+	buf := fmt.Appendf([]byte{}, "[{\"id\":%d,\"name\":%q}", added[0].ID, folderPath+added[0].Name)
 	for _, id := range added[1:] {
-		fmt.Fprintf(&buf, ",{\"id\":%d,\"name\":%q}", id.ID, folderPath+id.Name)
+		buf = fmt.Appendf(buf, ",{\"id\":%d,\"name\":%q}", id.ID, folderPath+id.Name)
 	}
-	fmt.Fprint(&buf, "]")
+	buf = append(buf, ']')
 	bid := broadcastImageItemAdd
 	if a.fileType == fileTypeAudio {
 		bid--
