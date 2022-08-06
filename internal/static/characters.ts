@@ -66,7 +66,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
-	      w = windows({"window-icon": characterIcon, "window-title": title, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	      w = windows({"window-icon": characterIcon, "window-title": title, "hide-minimise": false, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
