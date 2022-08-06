@@ -14,6 +14,7 @@ import {rect} from './lib/svg.js';
 import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
+import {registerKey} from './keys.js';
 import lang from './language.js';
 import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doTokenSetMulti, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitRemoved} from './map_fns.js';
@@ -320,6 +321,12 @@ export default (base: HTMLElement) => {
 			cancelTokenDrag();
 		}),
 		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
+		keyEvent(registerKey("tokenEdit", lang["CONTEXT_EDIT_TOKEN"], ''), () => {
+			const {token} = selected;
+			if (token instanceof SVGToken && tokens.has(token.id)) {
+				tokenEdit(token.id, lang["CONTEXT_EDIT_TOKEN"], token.tokenData, false);
+			}
+		}),
 		...([
 			["Up", (tk: Token, dy: Uint) => tk.y -= dy],
 			["Down", (tk: Token, dy: Uint) => tk.y += dy],
