@@ -112,7 +112,7 @@ menuItems.push([7, () => [
 					}
 				}}, lang["KEY_NEW"]);
 				amendNode(shell, w);
-			}}, getKey(id))))))
+			}}, getKey(id) || "\u202f")))))
 		]),
 		details([
 			summary(h1(lang["SETTINGS_RESET"])),
