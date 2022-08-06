@@ -246,6 +246,7 @@ const select = Symbol("select"),
 	"SHOW_HP": "Show Token Hit Points",
 	"SHOW_NAMES": "Show Token Names",
 	"HIDE_CONDITIONS": "Hide Token Conditions",
+	"TOGGLE_CONDITION": "Toggle Condition",
 	"TOKEN_SELECTED": "Selected",
 	"TOKENS_UNSELECTED": "Unselected"
       },
@@ -939,7 +940,19 @@ if (isAdmin) {
 				initAdd(token, token.getData("5e-initiative-mod"), token.getData("5e-initiative-adv") ?? false);
 			}
 		}
-	      });
+	      }),
+	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => {
+		const {token} = selected;
+		if (isValidToken(token)) {
+			const tokenConditions: boolean[] = token.getData("5e-conditions") ?? Array.from({"length": conditions.length}, _ => false);
+			if (tokenConditions.some(a => a) || mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
+				const data = tokenConditions.slice();
+				data[n] = !data[n];
+				doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+				token[updateData]();
+			}
+		}
+	      }));
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"fn": (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
@@ -1079,11 +1092,17 @@ if (isAdmin) {
 			if (token instanceof SVGToken5E && !token.isPattern) {
 				setupHealthButton();
 				setupInitiativeButton();
+				for (const [fn] of conditionKeys) {
+					fn();
+				}
 				lastSelectedToken = token;
 				token[select]();
 			} else {
 				cancelHealthButton();
 				cancelInitiativeButton();
+				for (const [, fn] of conditionKeys) {
+					fn();
+				}
 			}
 		}
 	})());
