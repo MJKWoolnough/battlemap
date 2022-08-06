@@ -8,6 +8,7 @@ import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
 import {isAdmin} from './rpc.js';
 import {labels, menuItems} from './shared.js';
+import {removeStr} from './symbols.js';
 import {shell, windows} from './windows.js';
 
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation"].map(n => new BoolSetting(n)),
@@ -111,6 +112,11 @@ menuItems.push([7, () => [
 					case "Alt":
 					}
 				}}, lang["KEY_NEW"]);
+				w.addControlButton(removeStr, () => {
+					setKey(id);
+					clearNode(this, "\u202f");
+					w.close();
+				}, lang["KEY_DELETE"])
 				amendNode(shell, w);
 			}}, getKey(id) || "\u202f")))))
 		]),
