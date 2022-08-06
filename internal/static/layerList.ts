@@ -242,8 +242,8 @@ menuItems.push([5, () => isAdmin ? [
 	lang["TAB_LAYERS"],
 	(() => {
 		const base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
-		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"],'['),
-		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"],']');
+		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"], '['),
+		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"], ']');
 		let loadFn = () => {
 			const list = new LayerRoot(layerList),
 			      setLayer = (sl: ItemLayer) => {
