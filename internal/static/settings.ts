@@ -116,7 +116,7 @@ menuItems.push([7, () => [
 					setKey(id);
 					clearNode(this, "\u202f");
 					w.close();
-				}, lang["KEY_DELETE"])
+				}, lang["KEY_DELETE"]);
 				amendNode(shell, w);
 			}}, getKey(id) || "\u202f")))))
 		]),
