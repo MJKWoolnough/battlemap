@@ -2,6 +2,7 @@ import type {FolderItems, FromTo, IDName, Int, KeystoreData, TokenLight, Uint} f
 import type {WindowElement} from '../windows.js';
 import {amendNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
+import {keyEvent} from '../lib/events.js';
 import {button, div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
@@ -10,6 +11,7 @@ import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {language} from '../language.js';
+import {registerKey} from '../keys.js';
 import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
@@ -395,13 +397,15 @@ if (isAdmin) {
 			}
 		});
 	      },
-	      removeLight = button({"onclick": () => {
+	      removeLightFn = () => {
 		const tk = selected.token;
 		if (tk) {
 			doTokenSet({"id": tk.id, "lightColours": [], "lightStages": [], "lightTimings": []});
 		}
-	      }}, lang["REMOVE_LIGHT"]),
-	      copyLight = button({"onclick": () => {
+	      },
+	      removeLight = button({"onclick": removeLightFn}, lang["REMOVE_LIGHT"]),
+	      [startRemoveLight, cancelRemoveLight] = keyEvent(registerKey("lights-remove", lang["REMOVE_LIGHT"], ''), removeLightFn),
+	      copyLightFn = () => {
 		const tk = selected.token;
 		if (tk) {
 			const {lightColours, lightStages, lightTimings} = tk;
@@ -409,7 +413,9 @@ if (isAdmin) {
 				newLight(cloneObject(lightColours), cloneObject(lightStages), cloneObject(lightTimings), root.folder as LightFolder);
 			}
 		}
-	      }}, lang["COPY_LIGHT"]),
+	      },
+	      copyLight = button({"onclick": copyLightFn}, lang["COPY_LIGHT"]),
+	      [startCopyLight, cancelCopyLight] = keyEvent(registerKey("lights-copy", lang["COPY_LIGHT"], ''), undefined, copyLightFn),
 	      checkSelectedToken = () => {
 		const tk = selected.token;
 		let disabled = true;
@@ -418,6 +424,11 @@ if (isAdmin) {
 			if (lightStages.length && lightTimings.length) {
 				disabled = false;
 			}
+			startCopyLight();
+			startRemoveLight();
+		} else {
+			cancelCopyLight();
+			cancelRemoveLight();
 		}
 		amendNode(copyLight, {disabled});
 		amendNode(removeLight, {disabled});
