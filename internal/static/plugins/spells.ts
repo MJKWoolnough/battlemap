@@ -5,6 +5,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
 import {hex2Colour} from '../colours.js';
+import {registerKey} from '../keys.js';
 import mainLang, {language} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
@@ -53,6 +54,7 @@ if (isAdmin) {
 	    send = false,
 	    rotate = false;
 	const defaultLanguage = {
+		"ADD_SPELL": "Add Spell to Map",
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
 		"SPELL_TYPE": "Spell Shape",
@@ -133,7 +135,7 @@ if (isAdmin) {
 			}
 		}
 	      },
-	      [setupEnter, cancelEnter] = keyEvent("Enter", addSpell),
+	      [setupEnter, cancelEnter] = keyEvent(registerKey("spells-create", lang["ADD_SPELL"], "Enter"), addSpell),
 	      options = div([
 		labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 			damageType = checkInt(parseInt(this.value), 0, types.length - 1);
