@@ -268,7 +268,7 @@ const select = Symbol("select"),
       conditions = (Object.keys(lang) as (keyof typeof lang)[]).filter(k => k.startsWith("CONDITION_")),
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
-      isValidToken = (t: SVGToken): t is SVGToken => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
+      isValidToken = (t: SVGToken | SVGShape | null): t is SVGToken5EType => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
       initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
