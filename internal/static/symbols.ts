@@ -1,12 +1,12 @@
-import type {Props} from './lib/dom.js';
+import type {PropsObject} from './lib/dom.js';
 import {amendNode} from './lib/dom.js';
 import {animateTransform, circle, ellipse, g, path, rect, svg, svgData, symbol, title, use} from './lib/svg.js';
 
 export const symbols = svg({"style": "width: 0"}),
-addSymbol = (id: string, s: SVGSymbolElement): [(props?: Exclude<Props, NamedNodeMap>) => SVGSVGElement, string] => {
+addSymbol = (id: string, s: SVGSymbolElement): [(props?: PropsObject) => SVGSVGElement, string] => {
 	amendNode(symbols, amendNode(s, {id}));
 	return [
-		(props: Exclude<Props, NamedNodeMap> = {}) => svg(props, [
+		(props: PropsObject = {}) => svg(props, [
 			typeof props["title"] === "string" ? title(props["title"]) : [],
 			use({"href": `#${id}`})
 		]),

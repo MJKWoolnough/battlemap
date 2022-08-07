@@ -1,5 +1,5 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
-import type {Children, Props} from './lib/dom.js';
+import type {Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label, style} from './lib/html.js';
@@ -29,15 +29,13 @@ queue = (() => {
 labels = (() => {
 	type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
 
-	type LProps = Exclude<Props, NamedNodeMap>;
-
 	interface Labeller {
-		<T extends Input>(name: Children, input: T, props?: LProps): [HTMLLabelElement, T];
-		<T extends Input>(input: T, name: Children, props?: LProps): [T, HTMLLabelElement];
+		<T extends Input>(name: Children, input: T, props?: PropsObject): [HTMLLabelElement, T];
+		<T extends Input>(input: T, name: Children, props?: PropsObject): [T, HTMLLabelElement];
 	}
 
 	let next = 0;
-	return ((name: Children | Input, input: Input | Children, props: LProps = {}) => {
+	return ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
 		const iProps = {"id": props["for"] = `ID_${next++}`};
 		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
 	}) as Labeller;
