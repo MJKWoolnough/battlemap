@@ -14,12 +14,8 @@ export const registerKey = (id: string, name: string, defaultKey: string) => {
 	names[id] = name;
 	return keys.value[id] ??= defaultKey;
 },
-setKey = (id: string, key?: string) => {
-	if (key) {
-		keys.value[id] = key;
-	} else {
-		delete keys.value[id];
-	}
+setKey = (id: string, key: string = "") => {
+	keys.value[id] = key;
 	keys.set(keys.value);
 },
 getKey = (id: string) => keys.value[id],
