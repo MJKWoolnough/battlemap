@@ -18,50 +18,8 @@ import {loadingWindow, shell, windows} from './windows.js';
 let lastMapChanged = 0,
     n = 0;
 
-export const dragCharacter = new DragTransfer<Character>("character");
-
-const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
-	let oldChanges: Record<string, KeystoreData> = {},
-	    oldRemoves: string[] = [];
-	const char = characterData.get(id)!,
-	      doIt = (sendRPC = true) => {
-		Object.assign(char, changes);
-		if (changes["store-image-data"] || changes["tokens_order"]) {
-			resetCharacterTokens(char);
-		}
-		for (const r of removes) {
-			delete char[r];
-		}
-		if (sendRPC) {
-			queue(() => rpc.characterModify(id, changes, removes));
-		}
-		[changes, oldChanges] = [oldChanges, changes];
-		[removes, oldRemoves] = [oldRemoves, removes];
-		return doIt;
-	      };
-	for (const k in changes) {
-		if (char[k]) {
-			oldChanges[k] = char[k];
-		} else {
-			oldRemoves.push(k);
-		}
-	}
-	for (const r of removes) {
-		if (char[r]) {
-			oldChanges[r] = char[r];
-		}
-	}
-	undo.add(doIt(false), lang["UNDO_CHARACTER"]);
-      },
-      doTokenModify = (id: Uint, tokenData: Record<string, KeystoreData>, removeTokenData: string[]) => {
-	const t = {id, tokenData, removeTokenData};
-	doTokenSet(t, false);
-	return rpc.setToken(t);
-      },
-      characterDragEffect = setDragEffect({"link": [dragCharacter]}),
-      imageDragEffect = setDragEffect({"link": [dragImage]});
-
-export const characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
+export const dragCharacter = new DragTransfer<Character>("character"),
+characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
 edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
@@ -174,6 +132,48 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 		}), w);
 	}}, lang["SAVE"])))));
 };
+
+const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
+	let oldChanges: Record<string, KeystoreData> = {},
+	    oldRemoves: string[] = [];
+	const char = characterData.get(id)!,
+	      doIt = (sendRPC = true) => {
+		Object.assign(char, changes);
+		if (changes["store-image-data"] || changes["tokens_order"]) {
+			resetCharacterTokens(char);
+		}
+		for (const r of removes) {
+			delete char[r];
+		}
+		if (sendRPC) {
+			queue(() => rpc.characterModify(id, changes, removes));
+		}
+		[changes, oldChanges] = [oldChanges, changes];
+		[removes, oldRemoves] = [oldRemoves, removes];
+		return doIt;
+	      };
+	for (const k in changes) {
+		if (char[k]) {
+			oldChanges[k] = char[k];
+		} else {
+			oldRemoves.push(k);
+		}
+	}
+	for (const r of removes) {
+		if (char[r]) {
+			oldChanges[r] = char[r];
+		}
+	}
+	undo.add(doIt(false), lang["UNDO_CHARACTER"]);
+      },
+      doTokenModify = (id: Uint, tokenData: Record<string, KeystoreData>, removeTokenData: string[]) => {
+	const t = {id, tokenData, removeTokenData};
+	doTokenSet(t, false);
+	return rpc.setToken(t);
+      },
+      characterDragEffect = setDragEffect({"link": [dragCharacter]}),
+      imageDragEffect = setDragEffect({"link": [dragImage]});
+
 
 inited.then(() => {
 	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
