@@ -8,7 +8,7 @@ import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
-import Fraction from './fraction.js';
+import Fraction from './lib/fraction.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
