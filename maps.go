@@ -29,7 +29,9 @@ func (m *mapsDir) Init(b *Battlemap, links links) error {
 		return fmt.Errorf("error creating map store: %w", err)
 	}
 	m.folders.fileType = fileTypeMap
-	m.folders.Init(b, store, links.maps)
+	if err := m.folders.Init(b, store, links.maps); err != nil {
+		return fmt.Errorf("error parsing maps keystore folders: %w", err)
+	}
 	m.maps = make(map[uint64]*levelMap, len(links.maps))
 	for id := range links.maps {
 		key := strconv.FormatUint(id, 10)
