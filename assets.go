@@ -114,7 +114,9 @@ func (a *assetsDir) Post(w http.ResponseWriter, r *http.Request) error {
 		folder map[string]uint64
 	)
 	h := sha256.New()
-	r.ParseForm()
+	if err := r.ParseForm(); err != nil {
+		return fmt.Errorf("error processing form data: %w", err)
+	}
 	folderPath := path.Clean("/" + r.Form.Get("path"))
 	if f := a.getFolder(folderPath); f != nil {
 		folder = f.Items
