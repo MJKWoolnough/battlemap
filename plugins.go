@@ -115,7 +115,9 @@ func (p *pluginsDir) Init(b *Battlemap, links links) error {
 			return fmt.Errorf("error stat'ing plugin (%s): %w", file, err)
 		}
 		buf := make(memio.Buffer, 0, st.Size())
-		p.FileStore.Get(file, &buf)
+		if err := p.FileStore.Get(file, &buf); err != nil {
+			return fmt.Errorf("error reading plugin: %w", err)
+		}
 		var gBuf memio.Buffer
 		g.Reset(&gBuf)
 		g.Write(buf)
