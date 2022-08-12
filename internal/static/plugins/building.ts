@@ -1,6 +1,18 @@
-import type {PluginType} from '../plugins.js';
+import type {PluginType, SVGDrawingConstructor, SVGShapeConstructor} from '../plugins.js';
 import {addPlugin} from '../plugins.js'; 
 
-const plugin: PluginType = {};
+let shapeClass: SVGShapeConstructor,
+    drawingClass: SVGDrawingConstructor;
+
+const upgradeClass = <T extends SVGShapeConstructor | SVGDrawingConstructor>(s: T) => class extends s {
+      },
+      plugin: PluginType = {
+	"shapeClass": {
+		"fn": (s: SVGShapeConstructor) => shapeClass = upgradeClass(s)
+	},
+	"drawingClass": {
+		"fn": (s: SVGDrawingConstructor) => drawingClass = upgradeClass(s)
+	}
+      };
 
 addPlugin("building", plugin);
