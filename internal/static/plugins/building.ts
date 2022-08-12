@@ -44,7 +44,7 @@ if (isAdmin) {
 
 	class BuildingRoot extends Root {
 		constructor() {
-			super ({"folders": {}, "items": {}}, "", {
+			super ({"folders": {}, "items": {}}, lang["MENU_TITLE"], {
 				"waitAdded": unusedWaitFn,
 				"waitMoved": unusedWaitFn,
 				"waitRemoved": unusedWaitFn,
