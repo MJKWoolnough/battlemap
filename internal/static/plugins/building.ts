@@ -1,8 +1,8 @@
 import type {FolderItems, FolderRPC, Uint} from '../types.js';
 import type {PluginType, SVGDrawingConstructor, SVGShapeConstructor} from '../plugins.js';
 import {clearNode} from '../lib/dom.js';
-import {Subscription} from '../lib/inter.js';
 import {div} from '../lib/html.js';
+import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {Folder, Item, Root} from '../folders.js';
 import {language} from '../language.js';
