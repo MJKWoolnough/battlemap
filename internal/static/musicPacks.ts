@@ -330,7 +330,15 @@ menuItems.push([3, () => isAdmin ? [
 					]);
 					this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => dragMusicPack.set(e, this.#dragKey, dragIcon)}, [
 						this.#playStatus = playStatus({"style": "width: 1em; height: 1em; visibility: hidden"}),
-						this.#nameNode = span({"onclick": () => shell.addWindow(this.window)}, this.name),
+						this.#nameNode = span({"onclick": () => shell.addWindow(this.window), "onauxclick": (e: MouseEvent) => {
+							if (e.button === 1) {
+								if (this.playTime) {
+									this.stop(true);
+								} else {
+									this.play(now() - this.#pauseTime, true);
+								}
+							}
+						}}, this.name),
 						rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
 							if (name && name !== this.name) {
 								rpc.musicPackRename(this.id, name).then(name => {
