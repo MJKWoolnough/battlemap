@@ -42,6 +42,18 @@ if (isAdmin) {
 			amendNode(this.image, {"src": lightGridStr, "width": "20px", "height": "20px"});
 			lights.set(id, this);
 			this.#dragLightID = dragLighting.register(this.#draggedLight = new DraggedLight(id));
+			amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
+				if (e.button === 1) {
+					this.apply();
+				}
+			}});
+		}
+		apply() {
+			const tk = selected.token;
+			if (tk) {
+				const {lightColours, lightStages, lightTimings} = this.#draggedLight;
+				doTokenSet({"id": tk.id, "lightColours": cloneObject(lightColours), "lightStages": cloneObject(lightStages), "lightTimings": cloneObject(lightTimings)});
+			}
 		}
 		show() {
 			if (this.#window) {
@@ -53,13 +65,7 @@ if (isAdmin) {
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 				}}, [
-					button({"style": "position: absolute", "onclick": () => {
-						const tk = selected.token;
-						if (tk) {
-							const {lightColours, lightStages, lightTimings} = this.#draggedLight;
-							doTokenSet({"id": tk.id, "lightColours": cloneObject(lightColours), "lightStages": cloneObject(lightStages), "lightTimings": cloneObject(lightTimings)});
-						}
-					}}, lang["APPLY_LIGHT"]),
+					button({"style": "position: absolute", "onclick": () => this.apply()}, lang["APPLY_LIGHT"]),
 					svg({"viewBox": "0 0 10 10"}, [
 						rect({"width": 5, "height": 10, "fill": "#fff"}),
 						rect({"x": 5, "width": 5, "height": 10, "fill": "#000"}),
