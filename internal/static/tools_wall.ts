@@ -106,9 +106,10 @@ const updateCursorState = () => {
 		dragColour.set(e, colourDragKey, iconImg);
 		dragScattering.set(e, scatteringDragKey);
 	}
-      }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "onmousedown": (e: MouseEvent) => {
+      }, "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, selectedWall), "oncontextmenu": (e: MouseEvent) => {
 	e.stopPropagation();
-	if (e.button === 2 && selectedLayer) {
+	e.preventDefault();
+	if (selectedLayer) {
 		const wallID = selectedWall;
 		place(document.body, [e.clientX, e.clientY], [
 			item(lang["TOOL_WALL_COLOUR_SET"], () => {
