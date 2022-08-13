@@ -1,12 +1,13 @@
 import type {FolderItems, FolderRPC, TokenDrawing, TokenShape, Uint} from '../types.js';
 import type {SVGShape} from '../map_tokens.js';
 import type {PluginType, SVGDrawingConstructor, SVGShapeConstructor} from '../plugins.js';
-import {clearNode} from '../lib/dom.js';
+import {amendNode, clearNode} from '../lib/dom.js';
 import {div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {Folder, Item, Root} from '../folders.js';
 import {language} from '../language.js';
+import {selected} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
 import {addCSS} from '../shared.js';
@@ -39,7 +40,17 @@ if (isAdmin) {
 	class BuildingItem extends Item {
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name);
-			clearNode(this[node], this.nameElem);
+			clearNode(this[node], amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
+				if (e.button === 1) {
+					this.apply();
+				}
+			}}));
+		}
+		apply() {
+			const {token} = selected;
+			if (token instanceof shapeClass || token instanceof drawingClass) {
+				// apply texture
+			}
 		}
 		show(){}
 	}
@@ -90,6 +101,7 @@ if (isAdmin) {
 	      lang = langs[language.value] ?? defaultLanguage,
 	      unusedWait = new Subscription<any>(() => {}),
 	      unusedWaitFn = () => unusedWait;
+
 	plugin["menuItem"] = {
 		"fn": [lang["MENU_TITLE"], div({"id": "pluginBuilding"}, new BuildingRoot()[node]), true, icon]
 	};
