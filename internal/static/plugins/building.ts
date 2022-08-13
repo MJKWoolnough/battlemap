@@ -1,4 +1,5 @@
-import type {FolderItems, FolderRPC, Uint} from '../types.js';
+import type {FolderItems, FolderRPC, TokenDrawing, TokenShape, Uint} from '../types.js';
+import type {SVGShape} from '../map_tokens.js';
 import type {PluginType, SVGDrawingConstructor, SVGShapeConstructor} from '../plugins.js';
 import {clearNode} from '../lib/dom.js';
 import {div} from '../lib/html.js';
@@ -10,8 +11,18 @@ import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
 import {addCSS} from '../shared.js';
 
-let shapeClass: SVGShapeConstructor,
-    drawingClass: SVGDrawingConstructor;
+type BuildingType = SVGShape & {};
+
+interface BuildingShapeConstructor {
+	new (token: TokenShape): BuildingType;
+}
+
+interface BuildingDrawingConstructor {
+	new (token: TokenDrawing): BuildingType;
+}
+
+let shapeClass: BuildingShapeConstructor,
+    drawingClass: BuildingDrawingConstructor;
 
 const upgradeClass = <T extends SVGShapeConstructor | SVGDrawingConstructor>(s: T) => class extends s {
       },
