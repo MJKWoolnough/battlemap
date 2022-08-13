@@ -42,7 +42,7 @@ if (isAdmin) {
 			amendNode(this.image, {"src": lightGridStr, "width": "20px", "height": "20px"});
 			lights.set(id, this);
 			this.#dragLightID = dragLighting.register(this.#draggedLight = new DraggedLight(id));
-			amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
+			amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
 				if (e.button === 1) {
 					this.apply();
 				}
