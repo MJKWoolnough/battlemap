@@ -146,7 +146,7 @@ const updateCursorState = () => {
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
       setOverlay = (x1: Uint, y1: Uint, x2: Uint, y2: Uint) => {
 	const width = Math.round(Math.hypot(x1 - x2, y1 - y2));
-	amendNode(wallOverlay, {"style": `width: ${width}px`});
+	amendNode(wallOverlay, {"style": {"width": width + "px"}});
 	amendNode(root, [
 		amendNode(fWallOverlay, {width, "x": x1, "y": y1 - 5, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`}),
 		amendNode(draggableMarker1, {"transform": `translate(${x1 - 10}, ${y1 - 10})`}),
