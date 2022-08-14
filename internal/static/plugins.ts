@@ -137,13 +137,13 @@ drawingClass: SVGDrawingConstructor = SVGDrawing;
 export default () => {
 	rpc.waitPluginChange().then(askReload);
 	return rpc.listPlugins().then(plugins => {
-		const ls: Promise<void>[] = [];
-		for (const p in plugins) {
+		let ls: Promise<void> = Promise.resolve();
+		for (const p of Object.keys(plugins).sort(stringSort)) {
 			if (setAndReturn(pluginList, p, plugins[p]).enabled) {
-				ls.push(import(`/plugins/${p}`));
+				ls = ls.finally(() => import(`/plugins/${p}`));
 			}
 		}
-		return Promise.all(ls);
+		return ls;
 	}).then(() => {
 		for (const [, {"tokenClass": {fn}}] of filterSortPlugins("tokenClass")) {
 			const ntc = fn(tokenClass);
