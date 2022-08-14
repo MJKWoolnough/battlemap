@@ -11,7 +11,7 @@ import {labels, menuItems} from './shared.js';
 import {removeStr} from './symbols.js';
 import {shell, windows} from './windows.js';
 
-export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation"].map(n => new BoolSetting(n)),
+export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation", "musicSort"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128, 0, 255),
@@ -48,7 +48,11 @@ menuItems.push([7, () => [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 					miniTools.set(this.checked);
-				}}), `${lang["MINI_TOOLS"]}: `)
+				}}), `${lang["MINI_TOOLS"]}: `),
+				br(),
+				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": musicSort.value, "onchange": function(this: HTMLInputElement) {
+					musicSort.set(this.checked);
+				}}), `${lang["MUSIC_SORT"]}: `)
 			] : []
 		]),
 		details([
