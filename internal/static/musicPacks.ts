@@ -8,6 +8,7 @@ import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import lang from './language.js';
 import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
+import {musicSort} from './settings.js';
 import {checkInt, loading, menuItems} from './shared.js';
 import {copy, playStatus, remove, rename, stop} from './symbols.js';
 import {shell, windows} from './windows.js';
@@ -418,7 +419,9 @@ menuItems.push([3, () => isAdmin ? [
 					dragMusicPack.deregister(this.#dragKey);
 				}
 			}
-			const musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"}), (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || stringSort(a.name, b.name)),
+			const musicStringSortFn = (a: AdminPack, b: AdminPack) => stringSort(a.name, b.name),
+			      musicActiveSortFn = (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || musicStringSortFn(a, b),
+			      musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"})),
 			      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
 			      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 			      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
@@ -427,6 +430,7 @@ menuItems.push([3, () => isAdmin ? [
 				"link": [dragAudio],
 				"copy": [dragAudioFiles]
 			      });
+			musicSort.wait(v => musicList.sort(v ? musicActiveSortFn : musicStringSortFn));
 			for (const pack of list) {
 				musicList.set(pack.id, new AdminPack(pack.id, pack));
 			}
