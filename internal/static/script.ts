@@ -63,7 +63,7 @@ const lastTab = new StringSetting("lastTab"),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      m = label({"title": lang["PANEL_GRABBER"], "for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
-		if (e.button === 0) {
+		if (e.button === 0 || e.button === 1) {
 			if (!c.checked) {
 				setupPanelDrag();
 			}
