@@ -136,6 +136,7 @@ const defaultLanguage = {
 	"MUSIC_DROP": "To add a track, drag an Audio Asset here",
 	"MUSIC_PAUSE": "Pause",
 	"MUSIC_PLAY": "Play",
+	"MUSIC_SORT": "Move Active Music Packs to Top",
 	"MUSIC_STOP": "Stop",
 	"MUSIC_TRACK": "Track",
 	"MUSIC_TRACK_REMOVE": "Remove Music Track",
