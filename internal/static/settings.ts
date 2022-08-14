@@ -44,10 +44,6 @@ menuItems.push([7, () => [
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 				panelOnTop.set(this.checked);
 			}}), `${lang["PANEL_ON_TOP"]}: `),
-			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
-				enableLightingAnimation.set(this.checked);
-			}}), `${lang["LIGHTING_ENABLE_ANIMATION"]}: `),
 			isAdmin ? [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
@@ -84,6 +80,10 @@ menuItems.push([7, () => [
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 				hideMenu.set(this.checked);
 			}}), `${lang["HIDE_MENU"]}: `),
+			br(),
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
+				enableLightingAnimation.set(this.checked);
+			}}), `${lang["LIGHTING_ENABLE_ANIMATION"]}: `),
 			isAdmin ? [
 				br(),
 				labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
