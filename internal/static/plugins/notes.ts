@@ -155,9 +155,7 @@ if (isAdmin) {
 			super(root, parent, name, children, dragNote, dragNoteFolder);
 		}
 		removeItem(name: string) {
-			const note = this.getItem(name) as NoteItem | undefined,
-			      id = super.removeItem(name);
-			note?.delete();
+			const id = super.removeItem(name);
 			notes.delete(id);
 			return id;
 		}

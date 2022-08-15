@@ -92,7 +92,6 @@ if (isAdmin) {
 			super(root, parent, name, children, dragLightItem, dragLightFolder);
 		}
 		removeItem(name: string) {
-			this.getItem(name)?.delete();
 			const id = super.removeItem(name);
 			lights.delete(id);
 			return id;
