@@ -44,11 +44,11 @@ if (isAdmin) {
 			this.#dragLightID = dragLighting.register(this.#draggedLight = new DraggedLight(id));
 			amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
 				if (e.button === 1) {
-					this.apply();
+					this.#apply();
 				}
 			}});
 		}
-		apply() {
+		#apply() {
 			const tk = selected.token;
 			if (tk) {
 				const {lightColours, lightStages, lightTimings} = this.#draggedLight;
@@ -65,7 +65,7 @@ if (isAdmin) {
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 				}}, [
-					button({"style": "position: absolute", "onclick": () => this.apply()}, lang["APPLY_LIGHT"]),
+					button({"style": "position: absolute", "onclick": () => this.#apply()}, lang["APPLY_LIGHT"]),
 					svg({"viewBox": "0 0 10 10"}, [
 						rect({"width": 5, "height": 10, "fill": "#fff"}),
 						rect({"x": 5, "width": 5, "height": 10, "fill": "#000"}),
