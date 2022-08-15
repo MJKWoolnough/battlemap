@@ -42,11 +42,11 @@ if (isAdmin) {
 			super(parent, id, name);
 			clearNode(this[node], amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
 				if (e.button === 1) {
-					this.apply();
+					this.#apply();
 				}
 			}}));
 		}
-		apply() {
+		#apply() {
 			const {token} = selected;
 			if (token instanceof shapeClass || token instanceof drawingClass) {
 				// apply texture
