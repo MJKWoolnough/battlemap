@@ -348,6 +348,7 @@ export class Folder {
 		const old = this.children.get(name) as Item;
 		if (old) {
 			this.children.delete(name);
+			old.delete();
 			return old.id;
 		}
 		return -1;
