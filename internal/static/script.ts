@@ -32,7 +32,7 @@ const lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	type savedWindow = {
 		out: boolean;
-		data: WindowData
+		data: WindowData;
 	}
 
 	let n = 0,
