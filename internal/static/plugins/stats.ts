@@ -65,7 +65,7 @@ if (isAdmin) {
 						}
 					}
 					let totalSize = 0;
-					for (const [_, {token: tk}] of tokens) {
+					for (const [, {token: tk}] of tokens) {
 						if (tk instanceof SVGToken) {
 							const id = tk.src;
 							if (done.has(id)) {
