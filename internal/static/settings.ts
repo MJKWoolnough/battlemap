@@ -115,7 +115,7 @@ menuItems.push([7, () => [
 					case "Control":
 					case "Alt":
 					}
-				}}, lang["KEY_NEW"]);
+				      }}, lang["KEY_NEW"]);
 				w.addControlButton(removeStr, () => {
 					setKey(id);
 					clearNode(this, "\u202f");
