@@ -42,7 +42,7 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 			if (w.parentNode === shell) {
 				const {offsetWidth: width, offsetHeight: height} = w,
 				      {offsetWidth: swidth, offsetHeight: sheight} = shell;
-				amendNode(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": ((swidth - width) / 2) + "px", "--window-top": ((sheight - height) / 2) + "px"}});
+				amendNode(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": `${(swidth - width) / 2}px`, "--window-top": `${(sheight - height) / 2}px`}});
 			}
 			amendNode(w, {"style": {"visibility": undefined}});
 			w.focus();
