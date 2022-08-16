@@ -1008,7 +1008,7 @@ if (isAdmin) {
 					ui = !!changes["name"] && initTokens.has(id);
 					up = !!changes["5e-player"];
 				} else {
-					for (const [_, {token}] of tokens) {
+					for (const [, {token}] of tokens) {
 						if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 							token[updateData]();
 							if (initTokens.has(token.id)) {
@@ -1116,7 +1116,7 @@ addPlugin("5e", plugin);
 mapLoadedReceive(() => {
 	initiativeWindow.remove();
 	queue(async () => {
-		for (const [_, tk] of tokens) {
+		for (const [, tk] of tokens) {
 			if (tk instanceof SVGToken5E) {
 				tk[updateData]();
 			}
@@ -1189,7 +1189,7 @@ for (const k of (["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitW
 
 rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
 	let ui = false;
-	for (const [_, {token}] of tokens) {
+	for (const [, {token}] of tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
 			token[updateData]();
 			if (!ui && initTokens.has(token.id)) {
