@@ -141,8 +141,8 @@ class ItemLayer extends Item {
 	}
 	show() {
 		if (this.id === -1) { // Grid
-			const width = input({"type": "number", "min": 1, "max": 1000, "value": Math.round(mapData.width / mapData.gridSize)}),
-			      height = input({"type": "number", "min": 1, "max": 1000, "value": Math.round(mapData.height / mapData.gridSize)}),
+			const width = input({"type": "number", "min": 1, "max": 1000, "value": Math.round(mapData.width / mapData.gridSize), "onkeypress": enterKey}),
+			      height = input({"type": "number", "min": 1, "max": 1000, "value": Math.round(mapData.height / mapData.gridSize), "onkeypress": enterKey}),
 			      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n, "selected": mapData.gridType === n}, l))),
 			      sqWidth = input({"type": "number", "min": 10, "max": 1000, "value": mapData.gridSize}),
 			      sqColour = input({"type": "color", "value": mapData.gridColour.toHexString()}),
