@@ -78,7 +78,7 @@ export const startMeasurement = (x1: Uint, y1: Uint) => {
 			amendNode(root, drawnLine);
 		}
 	}
-	amendNode(info, {"style": {"left": (sx + 5) + "px", "top": (sy + 5) + "px"}});
+	amendNode(info, {"style": {"left": `${sx + 5}px`, "top": `${sy + 5}px`}});
 	if (!info.parentNode) {
 		amendNode(document.body, info);
 	}
