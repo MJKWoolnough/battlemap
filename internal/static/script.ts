@@ -88,7 +88,7 @@ const lastTab = new StringSetting("lastTab"),
 	      },
 	      tabs: [string, HTMLLabelElement][] = [],
 	      selectFirst = () => {
-		for (const [_, t] of tabs) {
+		for (const [, t] of tabs) {
 			if (t.style.getPropertyValue("display") !== "none") {
 				(t.control ?? t).click();
 				return;
