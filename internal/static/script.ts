@@ -138,6 +138,7 @@ const lastTab = new StringSetting("lastTab"),
 				span(title),
 				popper ? popper : []
 			      ], tc.insertBefore(input({"name": "tabSelector", "type": "radio"}), t), {title, "tabindex": -1, "onkeyup": (e: KeyboardEvent) => {
+				e.stopPropagation();
 				let a = pos,
 				    n = 1;
 				switch (e.key) {
