@@ -179,8 +179,8 @@ menuItems.push([4, () => isAdmin ? [
 			clearNode(base, {"id": "mapList"}, [
 				button({"onclick": () => {
 					const name = input({"type": "text", "onkeypress": enterKey}),
-					      width = input({"type": "number", "min": 10, "max": 1000, "value": 30}),
-					      height = input({"type": "number", "min": 10, "max": 1000, "value": 30}),
+					      width = input({"type": "number", "min": 10, "max": 1000, "value": 30, "onkeypress": enterKey}),
+					      height = input({"type": "number", "min": 10, "max": 1000, "value": 30, "onkeypress": enterKey}),
 					      sqType = select([lang["MAP_SQUARE_TYPE_SQUARE"], lang["MAP_SQUARE_TYPE_HEX_H"], lang["MAP_SQUARE_TYPE_HEX_V"]].map((l, n) => option({"value": n}, l))),
 					      sqWidth = input({"type": "number", "min": 1, "max": 1000, "value": 100}),
 					      sqColour = input({"type": "color"}),
