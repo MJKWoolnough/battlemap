@@ -468,6 +468,7 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 enableLightingAnimation.wait(() => mapData && updateLight());
 
 inited.then(() => {
+	rpc.waitMapStartChange().then(pos => ([mapData.startX, mapData.startY] = pos));
 	rpc.waitSignalPosition().then(showSignal);
 	combined.waitGridDistanceChange().then(v => {
 		mapData.gridDistance = v;
