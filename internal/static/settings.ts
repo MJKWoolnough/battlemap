@@ -51,7 +51,7 @@ menuItems.push([7, () => [
 			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 				zoomSlider.set(this.checked);
-			}}), `${lang["ZOOM_SLIDER_HIDE"]}: `),
+			}}), `${lang["SETTINGS_ZOOM_SLIDER_HIDE"]}: `),
 			isAdmin ? [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
