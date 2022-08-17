@@ -169,7 +169,7 @@ const defaultLanguage = {
 	"TAB_MUSIC_PACKS": "Music",
 	"TAB_SETTINGS": "Settings",
 	"TAB_TOOLS": "Tools",
-	"THEME": "Theme",
+	"THEME": "Theme & Layout",
 	"TITLE": "Battlemap",
 	"TOKEN": "Token",
 	"TOKEN_ADD": "Add Token",
