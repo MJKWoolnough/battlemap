@@ -639,6 +639,7 @@ export default (base: HTMLElement) => {
 		if (e.ctrlKey) {
 			if (e.altKey) {
 				rpc.setMapStart(pos);
+				[mapData.startX, mapData.startY] = pos;
 			}
 			rpc.signalMovePosition(pos);
 		} else {
