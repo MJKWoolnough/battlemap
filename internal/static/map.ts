@@ -13,7 +13,7 @@ import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
-import {inited, isAdmin, rpc} from './rpc.js';
+import {combined, inited, isAdmin, rpc} from './rpc.js';
 import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
@@ -467,6 +467,15 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 
 enableLightingAnimation.wait(() => mapData && updateLight());
 
+inited.then(() => {
+	rpc.waitSignalPosition().then(showSignal);
+	combined.waitGridDistanceChange().then(v => {
+		mapData.gridDistance = v;
+		updateLight();
+	});
+	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
+});
+
 export default (base: HTMLElement) => {
 	rpc.waitCurrentUserMapData().then(mapData => {
 		const oldBase = base;
@@ -542,7 +551,6 @@ export default (base: HTMLElement) => {
 		centreOnGrid(pos[0], pos[1]);
 		showSignal(pos);
 	});
-	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(setMapDetails);
 	rpc.waitMapLightChange().then(setLightColour);
 	rpc.waitLayerShow().then(path => setLayerVisibility(path, true));
@@ -672,9 +680,4 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(masks.add);
 	rpc.waitMaskRemove().then(masks.remove);
 	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
-	rpc.waitGridDistanceChange().then(v => {
-		mapData.gridDistance = v;
-		updateLight();
-	});
-	rpc.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 };

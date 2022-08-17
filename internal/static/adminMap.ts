@@ -16,11 +16,11 @@ import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
-import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
+import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doTokenSetMulti, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitRemoved} from './map_fns.js';
 import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
-import {combined, handleError, rpc} from './rpc.js';
+import {handleError, rpc} from './rpc.js';
 import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
 import {lightGrid, lightOnOffStr, remove} from './symbols.js';
@@ -652,7 +652,6 @@ export default (base: HTMLElement) => {
 		cancelControlOverride();
 		amendNode(document.body, {"style": {"--outline-cursor": undefined}});
 	};
-	rpc.waitSignalPosition().then(showSignal);
 	rpc.waitMapChange().then(d => doMapChange(d, false));
 	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
 	rpc.waitLayerShow().then(path => waitLayerShow[1](doShowHideLayer(path, true, false)));
@@ -697,11 +696,6 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
 	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
 	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
-	combined.waitGridDistanceChange().then(v => {
-		mapData.gridDistance = v;
-		updateLight();
-	});
-	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 };
