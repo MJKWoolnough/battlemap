@@ -162,6 +162,7 @@ const defaultLanguage = {
 	"SETTINGS_TAB_ICONS": "Show Tab Icons",
 	"SETTINGS_THEME": "Theme & Layout",
 	"SETTINGS_UNDO_LIMIT": "Undo Limit (-1 for infinite, 0 to disable)",
+	"SETTINGS_ZOOM_SLIDER_HIDE": "Hide Zoom Slider",
 	"SHARE": "Share",
 	"TAB_AUDIO": "Audio",
 	"TAB_CHARACTERS": "Characters",
@@ -258,8 +259,7 @@ const defaultLanguage = {
 	"UNSAVED_CHANGES": "There are unsaved changes, are you sure you wish to close?",
 	"UPLOAD_AUDIO": "Upload Sound",
 	"UPLOAD_IMAGES": "Upload Image",
-	"UPLOADING": "Uploading Files...",
-	"ZOOM_SLIDER_HIDE": "Hide Zoom Slider"
+	"UPLOADING": "Uploading Files..."
       },
       overlayLang = <Pack extends Record<string, string>>(pack: Partial<Pack>, base: Pack) => {
 	for (const s in base) {

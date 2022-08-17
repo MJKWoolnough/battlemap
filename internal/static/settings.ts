@@ -48,6 +48,10 @@ menuItems.push([7, () => [
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 				hideMenu.set(this.checked);
 			}}), `${lang["SETTINGS_HIDE_MENU"]}: `),
+			br(),
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
+				zoomSlider.set(this.checked);
+			}}), `${lang["ZOOM_SLIDER_HIDE"]}: `),
 			isAdmin ? [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
