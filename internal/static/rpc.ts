@@ -579,9 +579,16 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	}
 	return data;
       },
-      checksMapStart: checkers = [[checkObject, ""], [checkUint, "startX"], [checkUint, "startY"]],
-      checkMapStart = (data: any, name = "MapStart") => checker(data, name, checksMapStart),
-      checksMapData: checkers = [[checkMapDetails, ""], [checkMapStart, ""], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkMaskSet, ""], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
+      checkMapStart = (data: any) => {
+	checkArray(data, "MapStart");
+	if (data.length !== 2) {
+		throwError("invalid number of coords for MapStart");
+	}
+	checkUint(data[0], "MapStart->startX");
+	checkUint(data[1], "MapStart->startY");
+	return data;
+      },
+      checksMapData: checkers = [[checkMapDetails, ""], [checkUint, "startX"], [checkUint, "startY"], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkMaskSet, ""], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
       checkMapData = (data: any) => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {
