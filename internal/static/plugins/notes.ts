@@ -61,6 +61,20 @@ if (isAdmin) {
 			super(parent, id, name, dragNote);
 			amendNode(this.image, {"src": icon});
 			notes.set(id, this);
+			amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
+				if (e.button === 1) {
+					if (this.#popWindow) {
+						this.#popWindow.focus();
+					} else if (this.#window?.close() !== false) {
+						const wp = window.open("", "", "");
+						if (wp) {
+							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
+							wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+							wp.document.body.append(bbcode(allTags, pages.get(this.id)?.data.contents || ""));
+						}
+					}
+				}
+			}});
 		}
 		show() {
 			if (this.#window) {
