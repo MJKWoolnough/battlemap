@@ -22,75 +22,75 @@ menuItems.push([7, () => [
 	div({"id": "settings"}, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		br(),
-		h1(lang["AUTH"]),
+		h1(lang["SETTINGS_AUTH"]),
 		form({"action": isAdmin ? "login/logout" : "login/login"}, input({"type": "submit", "value": lang[isAdmin ? "LOGOUT" : "LOGIN"]})),
 		br(),
 		details([
-			summary(h1(lang["LANGUAGE"])),
-			labels(`${lang["SELECT_LANGUAGE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
+			summary(h1(lang["SETTINGS_LANGUAGE"])),
+			labels(`${lang["SETTINGS_LANGUAGE_SELECT"]}: `, select({"onchange": function(this: HTMLSelectElement) {
 				language.set(this.value);
 			}}, languages.map(l => option({"selected": l === language.value}, l))))
 		]),
 		details([
-			summary(h1(lang["THEME"])),
+			summary(h1(lang["SETTINGS_THEME"])),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
 				invert.set(this.checked);
-			}}), `${lang["DARK_MODE"]}: `),
+			}}), `${lang["SETTINGS_DARK_MODE"]}: `),
 			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 				tabIcons.set(this.checked);
-			}}), `${lang["TAB_ICONS"]}: `),
+			}}), `${lang["SETTINGS_TAB_ICONS"]}: `),
 			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 				panelOnTop.set(this.checked);
-			}}), `${lang["PANEL_ON_TOP"]}: `),
+			}}), `${lang["SETTINGS_PANEL_ON_TOP"]}: `),
 			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 				hideMenu.set(this.checked);
-			}}), `${lang["HIDE_MENU"]}: `),
+			}}), `${lang["SETTINGS_HIDE_MENU"]}: `),
 			isAdmin ? [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 					miniTools.set(this.checked);
-				}}), `${lang["MINI_TOOLS"]}: `),
+				}}), `${lang["SETTINGS_MINI_TOOLS"]}: `),
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": musicSort.value, "onchange": function(this: HTMLInputElement) {
 					musicSort.set(this.checked);
-				}}), `${lang["MUSIC_SORT"]}: `)
+				}}), `${lang["SETTINGS_MUSIC_SORT"]}: `)
 			] : []
 		]),
 		details([
-			summary(h1(lang["MAP_SETTINGS"])),
+			summary(h1(lang["SETTINGS_MAP"])),
 			isAdmin ? [
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 					autosnap.set(this.checked);
-				}}), `${lang["AUTOSNAP"]}: `),
+				}}), `${lang["SETTINGS_AUTOSNAP"]}: `),
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
 					measureTokenMove.set(this.checked);
-				}}), `${lang["MEASURE_TOKEN_MOVE"]}: `),
+				}}), `${lang["SETTINGS_MEASURE_TOKEN_MOVE"]}: `),
 				br()
 			] : [],
-			labels(`${lang["SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
+			labels(`${lang["SETTINGS_SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 				scrollAmount.set(parseInt(this.value));
 			}})),
 			br(),
 			isAdmin ? [
-				labels(`${lang["UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": -1, "onchange": function(this: HTMLInputElement) {
+				labels(`${lang["SETTINGS_UNDO_LIMIT"]}: `, input({"type": "number", "value": undoLimit.value, "step": 1, "min": -1, "onchange": function(this: HTMLInputElement) {
 					undoLimit.set(parseInt(this.value));
 				}})),
 				br()
 			] : [],
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
 				enableLightingAnimation.set(this.checked);
-			}}), `${lang["LIGHTING_ENABLE_ANIMATION"]}: `),
+			}}), `${lang["SETTINGS_LIGHTING_ENABLE_ANIMATION"]}: `),
 			isAdmin ? [
 				br(),
-				labels(`${lang["LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
+				labels(`${lang["SETTINGS_LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
 					hiddenLayerOpacity.set(parseInt(this.value));
 				}})),
 				br(),
-				labels(`${lang["LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerSelectedOpacity.value, "oninput": function(this: HTMLInputElement) {
+				labels(`${lang["SETTINGS_LAYER_HIDDEN_SELECTED_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerSelectedOpacity.value, "oninput": function(this: HTMLInputElement) {
 					hiddenLayerSelectedOpacity.set(parseInt(this.value));
 				}}))
 			] : []
@@ -98,9 +98,9 @@ menuItems.push([7, () => [
 		pluginSettings(),
 		details({"id": "settings_keys"}, [
 			summary(h1(lang["SETTINGS_KEYS"])),
-			div(lang["KEY_EXPLAIN"]),
+			div(lang["SETTINGS_KEYS_EXPLAIN"]),
 			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({"onclick": function(this: HTMLButtonElement) {
-				const w = windows({"window-title": lang["KEY_NEW"], "onkeydown": (e: KeyboardEvent) => {
+				const w = windows({"window-title": lang["SETTINGS_KEYS_NEW"], "onkeydown": (e: KeyboardEvent) => {
 					switch (e.key) {
 					default:
 						e.stopPropagation();
@@ -111,12 +111,12 @@ menuItems.push([7, () => [
 					case "Control":
 					case "Alt":
 					}
-				      }}, lang["KEY_NEW"]);
+				      }}, lang["SETTINGS_KEYS_NEW"]);
 				w.addControlButton(removeStr, () => {
 					setKey(id);
 					clearNode(this, "\u202f");
 					w.close();
-				}, lang["KEY_DELETE"]);
+				}, lang["SETTINGS_KEYS_DELETE"]);
 				amendNode(shell, w);
 			}}, getKey(id) || "\u202f")))))
 		]),
