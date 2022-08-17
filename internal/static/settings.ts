@@ -44,6 +44,10 @@ menuItems.push([7, () => [
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 				panelOnTop.set(this.checked);
 			}}), `${lang["PANEL_ON_TOP"]}: `),
+			br(),
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+				hideMenu.set(this.checked);
+			}}), `${lang["HIDE_MENU"]}: `),
 			isAdmin ? [
 				br(),
 				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
@@ -67,10 +71,6 @@ menuItems.push([7, () => [
 				}}), `${lang["MEASURE_TOKEN_MOVE"]}: `),
 				br()
 			] : [],
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
-				zoomSlider.set(this.checked);
-			}}), `${lang["ZOOM_SLIDER_HIDE"]}: `),
-			br(),
 			labels(`${lang["SCROLL_AMOUNT"]}: `, input({"type": "number", "value": scrollAmount.value, "step": 1, "onchange": function(this: HTMLInputElement) {
 				scrollAmount.set(parseInt(this.value));
 			}})),
@@ -81,10 +81,6 @@ menuItems.push([7, () => [
 				}})),
 				br()
 			] : [],
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
-				hideMenu.set(this.checked);
-			}}), `${lang["HIDE_MENU"]}: `),
-			br(),
 			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
 				enableLightingAnimation.set(this.checked);
 			}}), `${lang["LIGHTING_ENABLE_ANIMATION"]}: `),
