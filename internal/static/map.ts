@@ -2,13 +2,14 @@ import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDra
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode, clearNode} from './lib/dom.js';
-import {mouseDragEvent} from './lib/events.js';
+import {keyEvent, mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
+import {registerKey} from './keys.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
@@ -476,6 +477,8 @@ inited.then(() => {
 	});
 	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
 });
+
+keyEvent(registerKey("centreMap", lang["KEY_CENTRE_MAP"], 'c'), () => centreOnGrid(mapData.startX, mapData.startY))[0]();
 
 export default (base: HTMLElement) => {
 	rpc.waitCurrentUserMapData().then(mapData => {
