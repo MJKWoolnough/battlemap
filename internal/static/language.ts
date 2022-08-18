@@ -273,6 +273,7 @@ const defaultLanguage = {
 	"en-US": overlayLang({
 		"COLOUR": "Color",
 		"COLOUR_UPDATE": "Update Color",
+		"KEY_CENTRE_MAP": "Center Map",
 		"LAYER_LIGHT_COLOUR": "Change Light Color",
 		"LIGHTING_SET_COLOUR": "Set Lighting Color",
 		"MAP_SQUARE_COLOUR": "Tile Line Color",
