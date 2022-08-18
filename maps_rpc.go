@@ -93,7 +93,7 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			}
 			mp.StartX = ms[0]
 			mp.StartY = ms[1]
-			m.socket.broadcastMapChange(cd, broadcastMapStartChange, data, userAdmin)
+			m.socket.broadcastMapChange(cd, broadcastMapStartChange, data, userAny)
 			return true
 		}); errr != nil {
 			return nil, errr
