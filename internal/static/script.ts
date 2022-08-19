@@ -50,19 +50,23 @@ const lastTab = new StringSetting("lastTab"),
 		}
 		return true;
 	      }),
-	      [setupPanelDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+	      panelDrag = (e: MouseEvent) => {
 		if (e.clientX > 0) {
 			panelWidth.set(document.body.clientWidth - e.clientX);
 			moved = true;
 		}
-	      }),
+	      },
+	      [setupPanelDrag0] = mouseDragEvent(0, panelDrag),
+	      [setupPanelDrag1] = mouseDragEvent(1, panelDrag),
 	      c = input({"id": "panelHider", "type": "checkbox", "checked": panelShow.value, "onchange": () => panelShow.set(c.checked)}),
 	      t = div({"id": "tabLabels"}),
 	      p = div({"id": "panelContainer"}),
 	      m = label({"title": lang["PANEL_GRABBER"], "for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
-		if (e.button === 0 || e.button === 1) {
-			if (!c.checked) {
-				setupPanelDrag();
+		if (!c.checked) {
+			if (e.button === 0) {
+				setupPanelDrag0();
+			} else if (e.button === 1) {
+				setupPanelDrag1();
 			}
 			moved = false;
 		}
