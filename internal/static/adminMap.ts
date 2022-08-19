@@ -288,16 +288,8 @@ export default (base: HTMLElement) => {
 	      ctrlOverride = (e: KeyboardEvent) => psuedoUpdateCursor(overOutline ? outline.firstChild : null, e.ctrlKey),
 	      [startControlOverride, cancelControlOverride] = keyEvent("Control", ctrlOverride, ctrlOverride),
 	      keys = [
-		keyEvent("c", (e: KeyboardEvent) => {
-			if (e.ctrlKey) {
-				copiedToken = cloneObject(selected.token);
-			}
-		}),
-		keyEvent("x", (e: KeyboardEvent) => {
-			if (e.ctrlKey) {
-				doTokenRemove((copiedToken = cloneObject(selected.token!)).id);
-			}
-		}),
+		keyEvent("Ctrl+c", () => copiedToken = cloneObject(selected.token)),
+		keyEvent("Ctrl+x", () => doTokenRemove((copiedToken = cloneObject(selected.token!)).id)),
 		keyEvent("Escape", (e: KeyboardEvent) => {
 			if (tokenDragMode == -1) {
 				deselectToken();
@@ -349,17 +341,9 @@ export default (base: HTMLElement) => {
 		}
 		lastToken = selected.token;
 	});
-	keyEvent("z", (e: KeyboardEvent) => {
-		if (e.ctrlKey) {
-			undo[e.shiftKey ? "redo" : "undo"]();
-		}
-	})[0]();
-	keyEvent(["r", "y"], (e: KeyboardEvent) => {
-		if (e.ctrlKey) {
-			undo.redo();
-		}
-	})[0]();
-	keyEvent("v", () => {
+	keyEvent("Ctrl+z", undo.undo)[0]();
+	keyEvent(["Ctrl+r", "Ctrl+y", "Ctrl+Shift+Z"], undo.redo)[0]();
+	keyEvent("Ctrl+v", () => {
 		if (copiedToken && selected.layer) {
 			const {snap, width, height} = copiedToken,
 			      [x, y] = snap ? snapTokenToGrid(pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1), width, height) : [pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1)],
