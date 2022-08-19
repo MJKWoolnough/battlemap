@@ -125,8 +125,8 @@ menuItems.push([6, () => isAdmin ? [
 			span(t.name)
 		      ])),
 		      fc = list[0],
-		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], '('),
-		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], ')');
+		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+('),
+		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)');
 		amendNode(base, {"id": "toolList", "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
