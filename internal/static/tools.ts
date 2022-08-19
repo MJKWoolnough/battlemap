@@ -166,7 +166,8 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 		});
-		keyEvent([toolPrev, toolNext], (e: KeyboardEvent) => list[mod(toolNum + (e.key === toolPrev ? -1 : 1), tools.length)].click())[0]();
+		keyEvent(toolPrev, () => list[mod(toolNum - 1, tools.length)].click())[0]();
+		keyEvent(toolNext, () => list[mod(toolNum + 1, tools.length)].click())[0]();
 		return base;
 	})(),
 	true,
