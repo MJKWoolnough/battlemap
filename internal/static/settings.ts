@@ -1,5 +1,5 @@
 import {amendNode, clearNode} from './lib/dom.js';
-import {br, button, details, div, form, h1, input, li, option, select, summary, ul} from './lib/html.js';
+import {br, button, details, div, form, h1, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
@@ -104,18 +104,26 @@ menuItems.push([7, () => [
 			summary(h1(lang["SETTINGS_KEYS"])),
 			div(lang["SETTINGS_KEYS_EXPLAIN"]),
 			ul(getKeyIDs().map(id => li(labels(`${getKeyName(id)}: `, button({"onclick": function(this: HTMLButtonElement) {
-				const w = windows({"window-title": lang["SETTINGS_KEYS_NEW"], "onkeydown": (e: KeyboardEvent) => {
+				let mod = "";
+				const mods = span(),
+				      updateMods = (e: KeyboardEvent) => {
+					clearNode(mods, mod = (e.ctrlKey ? "Ctrl+" : "") + (e.altKey ? "Alt+" : "") + (e.shiftKey ? "Shift+" : "") + (e.metaKey ? "Meta+" : ""));
+				      },
+				      w = windows({"window-title": lang["SETTINGS_KEYS_NEW"], "onkeydown": (e: KeyboardEvent) => {
 					switch (e.key) {
 					default:
 						e.stopPropagation();
-						setKey(id, e.key);
-						clearNode(this, e.key);
+						setKey(id, mod + e.key);
+						clearNode(this, mod + e.key);
 						w.close();
+					case "OS":
+					case "Meta":
 					case "Shift":
 					case "Control":
 					case "Alt":
+						updateMods(e);
 					}
-				      }}, lang["SETTINGS_KEYS_NEW"]);
+				      }, "onkeyup": updateMods}, [lang["SETTINGS_KEYS_NEW"], br(), mods]);
 				w.addControlButton(removeStr, () => {
 					setKey(id);
 					clearNode(this, "\u202f");
