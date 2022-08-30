@@ -23,7 +23,7 @@ import {desktop} from './windows.js';
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
 	path: string;
-	tokens: NodeArray<SVGToken | SVGShape>;
+	tokens: NodeArray<SVGToken | SVGShape | SVGDrawing>;
 }
 
 export type SVGFolder = LayerFolder & {
@@ -52,7 +52,7 @@ const idNames: Record<string, Int> = {
 		}
 		return Object.assign(layer, {[node]: n, children, path});
 	}
-	const tokens = new NodeArray<SVGToken | SVGShape>(n);
+	const tokens = new NodeArray<SVGToken | SVGShape | SVGDrawing>(n);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
 			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new drawingClass(t) : new shapeClass(t));
@@ -504,7 +504,7 @@ export default (base: HTMLElement) => {
 		initFn();
 		return false;
 	      },
-	      updateToken = (token: SVGToken | SVGShape, ts: TokenSet) => {
+	      updateToken = (token: SVGToken | SVGShape | SVGDrawing, ts: TokenSet) => {
 		const hasLight = token.hasLight();
 		for (const k in ts) {
 			switch (k) {
