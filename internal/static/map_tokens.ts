@@ -242,10 +242,10 @@ export class SVGDrawing extends SVGShape {
 const loadTime = Date.now() / 1000;
 
 export const [tokenSelected, tokenSelectedReceive] = new Pipe<void>().bind(3),
-tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape}>(),
+tokens = new Map<Uint, {layer: SVGLayer, token: SVGToken | SVGShape | SVGDrawing}>(),
 selected = {
 	"layer": null as SVGLayer | null,
-	"token": null as SVGToken | SVGShape | null
+	"token": null as SVGToken | SVGShape | SVGDrawing | null
 },
 outline = g(),
 outlineRotationClass = (rotation: Uint) => `cursor_${((rotation + 143) >> 5) % 4}`,
