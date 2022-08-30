@@ -499,19 +499,16 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 
 export class Root {
 	#fileType: string;
-	folder: Folder = undefined!;
-	rpcFuncs: FolderRPC;
+	folder!: Folder;
+	rpcFuncs!: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	windowIcon?: string;
-	[node]: HTMLElement;
+	[node]!: HTMLElement;
 	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.#fileType = fileType;
-		this.folder = undefined!;   // INIT HACK
-		this[node] = undefined!;    // INIT HACK
-		this.rpcFuncs = undefined!; // INIT HACK
 		if (rpcFuncs) {
 			this.setRPCFuncs(rpcFuncs);
 			Root.prototype.setRoot.call(this, rootFolder);
