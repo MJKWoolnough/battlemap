@@ -2,7 +2,7 @@ import type {Int, KeystoreData, MapData, RPCWaits, TokenImage, TokenSet, Uint} f
 import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {SVGLayer} from '../map.js';
-import type {SVGShape, SVGToken} from '../map_tokens.js';
+import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
@@ -268,7 +268,7 @@ const select = Symbol("select"),
       conditions = (Object.keys(lang) as (keyof typeof lang)[]).filter(k => k.startsWith("CONDITION_")),
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
-      isValidToken = (t: SVGToken | SVGShape | null): t is SVGToken5EType => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
+      isValidToken = (t: SVGToken | SVGShape | SVGDrawing | null): t is SVGToken5EType => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
       initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
@@ -415,7 +415,7 @@ const select = Symbol("select"),
 		clearNode(perspectives);
 		clearNode(dvcs);
 		clearNode(dv);
-		const tokens: (SVGToken | SVGShape)[] = [];
+		const tokens: (SVGToken | SVGShape | SVGDrawing)[] = [];
 		if (initiativeList[0]?.token.getData("5e-player")) {
 			tokens.push(initiativeList[0].token);
 		} else {
