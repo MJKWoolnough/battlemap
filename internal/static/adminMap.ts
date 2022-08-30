@@ -204,7 +204,7 @@ export default (base: HTMLElement) => {
 		}
 		doTokenAdd(selected.layer.path, token);
 	      },
-	      allTokens = function* (folder: SVGFolder = layerList): Iterable<SVGToken | SVGShape> {
+	      allTokens = function* (folder: SVGFolder = layerList): Iterable<SVGToken | SVGShape | SVGDrawing> {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 			yield* isSVGLayer(e) ? e.tokens : allTokens(e);
 		}
@@ -366,7 +366,7 @@ export default (base: HTMLElement) => {
 		const {layer} = selected;
 		if (layer && (!e.ctrlKey || e.shiftKey)) {
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+			for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape | SVGDrawing>) {
 				if (t.at(e.clientX, e.clientY)) {
 					newToken = t;
 				}
@@ -395,7 +395,7 @@ export default (base: HTMLElement) => {
 				const {layer, token} = selected;
 				if (layer) {
 					let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-					for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape>) {
+					for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape | SVGDrawing>) {
 						if (tk === token) {
 							if (newToken)  {
 								break;
