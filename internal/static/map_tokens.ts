@@ -77,7 +77,7 @@ export class Lighting {
 
 
 abstract class SVGTransform extends Lighting {
-	[node]: SVGGraphicsElement;
+	abstract [node]: SVGGraphicsElement;
 	id: Uint;
 	rotation: Byte = 0;
 	flip: boolean = false;
@@ -134,6 +134,7 @@ abstract class SVGTransform extends Lighting {
 }
 
 export class SVGToken extends SVGTransform {
+	[node]: SVGGraphicsElement;
 	src: Uint;
 	patternWidth: Uint;
 	patternHeight: Uint;
@@ -176,6 +177,7 @@ export class SVGToken extends SVGTransform {
 }
 
 export class SVGShape extends SVGTransform {
+	[node]: SVGGraphicsElement;
 	fill: Colour;
 	stroke: Colour;
 	strokeWidth: Uint;
@@ -190,6 +192,8 @@ export class SVGShape extends SVGTransform {
 			const rx = token.width / 2,
 			      ry = token.height / 2;
 			this[node] = amendNode(token.isEllipse ? ellipse({"cx": rx, "cy": ry, rx, ry}) : rect({"width": token.width, "height": token.height}), {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
+		} else {
+			this[node] = undefined as any as SVGGraphicsElement;
 		}
 	}
 	get isPattern() { return false; }
