@@ -182,19 +182,15 @@ export class SVGShape extends SVGTransform {
 	stroke: Colour;
 	strokeWidth: Uint;
 	isEllipse: boolean;
-	constructor(token: TokenShape, draw = true) {
+	constructor(token: TokenShape) {
 		super(token);
 		this.fill = token.fill;
 		this.stroke = token.stroke;
 		this.strokeWidth = token.strokeWidth;
 		this.isEllipse = token.isEllipse ?? false;
-		if (draw) {
-			const rx = token.width / 2,
-			      ry = token.height / 2;
-			this[node] = amendNode(token.isEllipse ? ellipse({"cx": rx, "cy": ry, rx, ry}) : rect({"width": token.width, "height": token.height}), {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
-		} else {
-			this[node] = undefined as any as SVGGraphicsElement;
-		}
+		const rx = token.width / 2,
+		      ry = token.height / 2;
+		this[node] = amendNode(token.isEllipse ? ellipse({"cx": rx, "cy": ry, rx, ry}) : rect({"width": token.width, "height": token.height}), {"class": "mapShape", "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
 	}
 	get isPattern() { return false; }
 	updateNode() {
@@ -208,14 +204,21 @@ export class SVGShape extends SVGTransform {
 	}
 }
 
-export class SVGDrawing extends SVGShape {
+export class SVGDrawing extends SVGTransform {
+	[node]: SVGGraphicsElement;
+	fill: Colour;
+	stroke: Colour;
+	strokeWidth: Uint;
 	points: Coords[];
 	#oWidth: Uint;
 	#oHeight: Uint;
+	isEllipse = false;
 	constructor(token: TokenDrawing) {
-		super(token, false);
+		super(token);
+		this.fill = token.fill;
+		this.stroke = token.stroke;
+		this.strokeWidth = token.strokeWidth;
 		this.points = token.points;
-		this.isEllipse = false;
 		let oWidth: Uint = 0,
 		    oHeight: Uint = 0;
 		for (const c of token.points) {
@@ -232,6 +235,7 @@ export class SVGDrawing extends SVGShape {
 		      yr = token.height / oHeight;
 		this[node] = amendNode(path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth}), {"transform": this.transformString()});
 	}
+	get isPattern() { return false; }
 	updateNode() {
 		const xr = this.width / this.#oWidth,
 		      yr = this.height / this.#oHeight;
