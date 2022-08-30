@@ -1,7 +1,7 @@
 import type {IDName, Int, LayerMove, LayerRename, LayerRPC, MapDetails, Mask, MaskSet, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Colour} from './colours.js';
 import type {SVGLayer} from './map.js';
-import type {SVGShape} from './map_tokens.js';
+import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {amendNode} from './lib/dom.js';
 import {Subscription} from './lib/inter.js';
 import lang from './language.js';
@@ -20,7 +20,7 @@ const unusedWait = new Subscription<any>(() => {}),
 	removeLayer(path);
 	return rpc.removeLayer(path);
       },
-      generateTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape) => {
+      generateTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape | SVGDrawing) => {
 	const original: TokenSet = {"id": ts.id, "tokenData": {}, "removeTokenData": []};
 	for (const k in ts) {
 		switch (k) {
@@ -48,7 +48,7 @@ const unusedWait = new Subscription<any>(() => {}),
 	}
 	return original;
       },
-      processTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape) => {
+      processTokenChanges = (ts: TokenSet, token: SVGToken | SVGShape | SVGDrawing) => {
 	for (const k in ts) {
 		switch (k) {
 		case "id":
@@ -339,7 +339,7 @@ doTokenSet = (ts: TokenSet, sendRPC = true) => {
 	undo.add(doIt(sendRPC), lang["UNDO_TOKEN_SET"]);
 },
 doTokenSetMulti = (ts: TokenSet[], sendRPC = true) => {
-	const tks: (SVGToken | SVGShape)[] = [];
+	const tks: (SVGToken | SVGShape | SVGDrawing)[] = [];
 	let originals: TokenSet[] = [];
 	for (const t of ts) {
 		const {token} = tokens.get(t.id)!;
