@@ -1,13 +1,13 @@
 import type {Int, KeystoreData, MapData, RPCWaits, TokenImage, TokenSet, Uint} from '../types.js';
-import type {List} from '../lib/context.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {SVGLayer} from '../map.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
+import type {MenuItems} from '../lib/menu.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
-import {item, menu} from '../lib/context.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
+import {item, menu, submenu} from '../lib/menu.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
@@ -24,7 +24,7 @@ import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, map
 import {remove, rename, symbols} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
-addCSS("#initiative-window-5e svg{width:1.5em}#initiative-window-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em;cursor:pointer}.contextMenu.conditionList{padding-left:1em;box-styling:padding-box}.hasCondition{list-style:square}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}.isUser #display-settings-5e thead,.isUser #display-settings-5e td:last-child{display:none}.tokenSelector5E,.tokenSelector5E>button,.tokenSelector5E>img{width:100px;height:100px}#shapechange-settings-5e td{text-align: center}#shapechange-settings-5e{border-collapse:collapse}#shapechange-settings-5e td label{font-size:2em}#shapechange-settings-5e th,#shapechange-settings-5e td:not(:first-child){border:1px solid currentColor}.token-initiative-5e:hover{background-color:#800;cursor:pointer}.adminHideLight #perspectives-5e{display:none}");
+addCSS("#initiative-window-5e svg{width:1.5em}#initiative-window-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em;cursor:pointer}.conditionList{padding-left:1em;box-styling:padding-box}.conditionList>menu-item{display:list-item;list-style:none}.hasCondition{list-style:square !important}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}.isUser #display-settings-5e thead,.isUser #display-settings-5e td:last-child{display:none}.tokenSelector5E,.tokenSelector5E>button,.tokenSelector5E>img{width:100px;height:100px}#shapechange-settings-5e td{text-align: center}#shapechange-settings-5e{border-collapse:collapse}#shapechange-settings-5e td label{font-size:2em}#shapechange-settings-5e th,#shapechange-settings-5e td:not(:first-child){border:1px solid currentColor}.token-initiative-5e:hover{background-color:#800;cursor:pointer}.adminHideLight #perspectives-5e{display:none}");
 
 type IDInitiative = {
 	id: Uint;
@@ -1037,45 +1037,54 @@ if (isAdmin) {
 			const initMod: number | null = token.getData("5e-initiative-mod"),
 			      tokenConditions: boolean[] = token.getData("5e-conditions") ?? [],
 			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
-			      ctxList: List = [];
+			      ctxList: MenuItems = [];
 			let showConditions = tokenConditions.some(a => a);
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
-					item(lang["INITIATIVE_CHANGE"], () => isValidToken(token) && initChange(token)),
-					item(lang["INITIATIVE_REMOVE"], () => isValidToken(token) && initRemove(token))
+					item({"onselect": () => isValidToken(token) && initChange(token)}, lang["INITIATIVE_CHANGE"]),
+					item({"onselect": () => isValidToken(token) && initRemove(token)}, lang["INITIATIVE_REMOVE"])
 				);
 				showConditions = true;
 			} else {
-				ctxList.push(item(lang["INITIATIVE_ADD"], () => isValidToken(token) && initAdd(token, initMod, token.getData("5e-initiative-adv") ?? false)));
+				ctxList.push(item({"onselect": () => isValidToken(token) && initAdd(token, initMod, token.getData("5e-initiative-adv") ?? false)}, lang["INITIATIVE_ADD"]));
 			}
 			if (showConditions) {
-				ctxList.push(menu(lang["CONDITIONS"], conditions.map((c, n) => item(lang[c], () => {
-					if (isValidToken(token)) {
-						const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
-						data[n] = !data[n];
-						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-						token[updateData]();
-					}
-				}, {"classes": tokenConditions[n] ? "hasCondition" : undefined})), {"classes": "conditionList"}));
+				ctxList.push(submenu([
+					item(lang["CONDITIONS"]),
+					menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => {
+						if (isValidToken(token)) {
+							const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
+							data[n] = !data[n];
+							doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+							token[updateData]();
+						}
+					}, "class": tokenConditions[n] ? "hasCondition" : undefined}, lang[c])))
+				]));
 			}
 			if (shapechangeCats && shapechangeCats.length) {
-				ctxList.push(menu(lang["SHAPECHANGE"], [
-					token.tokenData["store-image-5e-initial-token"] ? item(lang["SHAPECHANGE_INITIAL_RESTORE"], () => {
-						if (isValidToken(token)) {
-							setShapechange(token);
-						}
-					}) : [],
-					shapechangeCats.map(c => menu(c.name, c.images.map((b, n) => {
-						if (b) {
-							const newToken = shapechangeTokens[n];
-							return item(newToken["5e-shapechange-name"], () => {
-								if (isValidToken(token)) {
-									setShapechange(token, newToken);
+				ctxList.push(submenu([
+					item(lang["SHAPECHANGE"]),
+					menu([
+						token.tokenData["store-image-5e-initial-token"] ? item({"onselect": () => {
+							if (isValidToken(token)) {
+								setShapechange(token);
+							}
+						}}, lang["SHAPECHANGE_INITIAL_RESTORE"]) : [],
+						shapechangeCats.map(c => submenu([
+							item(c.name),
+							menu(c.images.map((b, n) => {
+								if (b) {
+									const newToken = shapechangeTokens[n];
+									return item({"onselect": () => {
+										if (isValidToken(token)) {
+											setShapechange(token, newToken);
+										}
+									}}, newToken["5e-shapechange-name"]);
 								}
-							});
-						}
-						return [];
-					})))
+								return [];
+							}))
+						]))
+					])
 				]));
 			}
 			return ctxList;
