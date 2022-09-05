@@ -1,14 +1,14 @@
 import type {Byte, RPCWaits, Uint, Wall} from './types.js';
-import type {List} from './lib/context.js';
+import type {MenuItems} from './lib/menu.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {WindowElement} from './windows.js';
-import place, {item, menu} from './lib/context.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
+import {item, menu, submenu} from './lib/menu.js';
 import {defs, foreignObject, g, path, pattern, rect, svg, svgData, title} from './lib/svg.js';
 import {Colour, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
@@ -100,7 +100,7 @@ const updateCursorState = () => {
 		doWallModify(Object.assign(cloneObject(wall.wall), override));
 	}
       },
-      makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(fn, disabled, e)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+      makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): MenuItems => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? submenu([item(e.name), menu(makeLayerContext(fn, disabled, e))]) : item(e.name === disabled ? {"disabled": true} : {"onselect": () => fn(e)}, e.name)),
       wallOverlay = div({"style": "position: absolute; height: 10px", "draggable": "true", "ondragstart": (e: DragEvent) => {
 	if (walls.has(selectedWall)) {
 		dragColour.set(e, colourDragKey, iconImg);
@@ -111,8 +111,8 @@ const updateCursorState = () => {
 	e.preventDefault();
 	if (selectedLayer) {
 		const wallID = selectedWall;
-		place(document.body, [e.clientX, e.clientY], [
-			item(lang["TOOL_WALL_COLOUR_SET"], () => {
+		amendNode(document.body, menu({"x": e.clientX, "y": e.clientY}, [
+			item({"onselect": () => {
 				if (selectedWall === wallID) {
 					const wall = walls.get(wallID);
 					if (wall) {
@@ -120,8 +120,8 @@ const updateCursorState = () => {
 						doWallModify(cloneObject(wall.wall));
 					}
 				}
-			}),
-			item(lang["TOOL_WALL_SCATTER_SET"], () => {
+			}}, lang["TOOL_WALL_COLOUR_SET"]),
+			item({"onselect": () => {
 				if (selectedWall === wallID) {
 					const wall = walls.get(wallID);
 					if (wall) {
@@ -129,19 +129,22 @@ const updateCursorState = () => {
 						doWallModify(cloneObject(wall.wall));
 					}
 				}
-			}),
-			menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => {
-				if (selectedWall === wallID) {
-					doWallMove(wallID, sl.path);
-				}
-			}, selectedLayer.name)),
-			item(lang["CONTEXT_DELETE"], () => {
+			}}, lang["TOOL_WALL_SCATTER_SET"]),
+			submenu([
+				item(lang["CONTEXT_MOVE_LAYER"]),
+				menu(makeLayerContext((sl: SVGLayer) => {
+					if (selectedWall === wallID) {
+						doWallMove(wallID, sl.path);
+					}
+				}, selectedLayer.name))
+			]),
+			item({"onselect": () => {
 				if (selectedWall === wallID) {
 					doWallRemove(wallID);
 					deselectWall();
 				}
-			})
-		]);
+			}}, lang["CONTEXT_DELETE"])
+		]));
 	}
       }}),
       fWallOverlay = foreignObject({"height": 10}, wallOverlay),
