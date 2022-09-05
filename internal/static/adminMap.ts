@@ -41,7 +41,7 @@ export default (base: HTMLElement) => {
 	    moved = false,
 	    overOutline = false;
 
-	const makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): MenuItems => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] as MenuItems : isSVGFolder(e) ? submenu([item(e.name), menu(makeLayerContext(fn, disabled, e))]) : item({"onselect": e.name === disabled ? undefined : () => fn(e), "disabled": e.name === disabled}, e.name)),
+	const makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): MenuItems => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] as MenuItems : isSVGFolder(e) ? submenu([item(e.name), menu(makeLayerContext(fn, disabled, e))]) : item(e.name === disabled ? {"disabled": true} : {"onselect": () => fn(e)}, e.name)),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
