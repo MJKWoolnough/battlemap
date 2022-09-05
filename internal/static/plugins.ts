@@ -1,6 +1,6 @@
 import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint, Wall} from './types.js';
-import type {List} from './lib/context.js';
 import type {WaitGroup} from './lib/inter.js';
+import type {MenuItems} from './lib/menu.js';
 import type {LightWall} from './map_lighting.js';
 import type {Lighting} from './map_tokens.js';
 import type {WindowElement} from './windows.js';
@@ -33,7 +33,7 @@ export interface SVGDrawingConstructor {
 export type PluginType = {
 	settings?: owp<HTMLElement>;
 	characterEdit?: owp<(node: Node, id: Uint, data: Record<string, KeystoreData>, isCharacter: boolean, changes: Record<string, KeystoreData>, removes: Set<string>, w: WindowElement) => (() => void) | null>;
-	tokenContext?: owp<() => List>;
+	tokenContext?: owp<() => MenuItems>;
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
 	drawingClass?: owp<(c: SVGDrawingConstructor) => SVGDrawingConstructor>;
@@ -105,7 +105,7 @@ addPlugin = (name: string, p: PluginType) => {plugins.set(name, p)},
 getSettings = (name: string) => pluginList.get(name)?.data,
 askReload = () => isAdmin ? shell.confirm(lang["PLUGIN_REFRESH"], lang["PLUGIN_REFRESH_REQUEST"]).then(r => r && window.location.reload()) : window.location.reload(),
 tokenContext = () => {
-	const ret: List[] = [];
+	const ret: MenuItems[] = [];
 	for (const [, {"tokenContext": {fn}}] of filterSortPlugins("tokenContext")) {
 		const r = fn();
 		if (r) {
