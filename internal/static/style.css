@@ -224,3 +224,8 @@ menu-item {
 	outline: none;
 	padding: 0 0.25em;
 }
+
+menu-item[disabled], menu-submenu[disabled] {
+	color: #444;
+	font-style: italic;
+}
