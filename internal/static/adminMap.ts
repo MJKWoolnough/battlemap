@@ -1,14 +1,14 @@
 import type {ID, Token, TokenLight, TokenSet, Uint} from './types.js';
-import type {List} from './lib/context.js';
+import type {MenuItems} from './lib/menu.js';
 import type {Colour} from './colours.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import place, {item, menu} from './lib/context.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/events.js';
 import {button, div, h1, img, input, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
+import {item, menu, submenu} from './lib/menu.js';
 import {NodeArray, node, noSort} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
 import {dragImage, dragImageFiles, uploadImages} from './assets.js';
@@ -41,7 +41,7 @@ export default (base: HTMLElement) => {
 	    moved = false,
 	    overOutline = false;
 
-	const makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): List => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] : isSVGFolder(e) ? menu(e.name, makeLayerContext(fn, disabled, e)) : item(e.name, () => fn(e), {"disabled": e.name === disabled})),
+	const makeLayerContext = (fn: (sl: SVGLayer) => void, disabled = "", folder: SVGFolder = layerList): MenuItems => (folder.children as NodeArray<SVGFolder | SVGLayer>).map(e => e.id < 0 ? [] as MenuItems : isSVGFolder(e) ? submenu([item(e.name), menu(makeLayerContext(fn, disabled, e))]) : item({"onselect": e.name === disabled ? undefined : () => fn(e), "disabled": e.name === disabled}, e.name)),
 	      [setupTokenDrag, cancelTokenDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 		let {x, y, width, height, rotation} = tokenMousePos;
 		const [bdx, bdy] = screen2Grid(e.clientX, e.clientY),
@@ -426,21 +426,21 @@ export default (base: HTMLElement) => {
 		const {layer: currLayer, token: currToken} = selected;
 		if (currLayer && currToken) {
 			const tokenPos = currLayer.tokens.findIndex(t => t === currToken);
-			place(document.body, [e.clientX, e.clientY], [
+			amendNode(document.body, menu({"x": e.clientX, "y": e.clientY}, [
 				tokenContext(),
 				isTokenImage(currToken) ? [
-					item(lang["CONTEXT_EDIT_TOKEN"], () => currToken instanceof SVGToken && tokens.has(currToken.id) && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)),
-					item(lang["CONTEXT_FLIP"], () => {
+					item({"onselect": () => currToken instanceof SVGToken && tokens.has(currToken.id) && tokenEdit(currToken.id, lang["CONTEXT_EDIT_TOKEN"], currToken.tokenData, false)}, lang["CONTEXT_EDIT_TOKEN"]),
+					item({"onselect": () => {
 						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							doTokenSet({"id": currToken.id, "flip": !currToken.flip});
 						}
-					}),
-					item(lang["CONTEXT_FLOP"], () => {
+					}}, lang["CONTEXT_FLIP"]),
+					item({"onselect": () => {
 						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							doTokenSet({"id": currToken.id, "flop": !currToken.flop});
 						}
-					}),
-					item(currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"], () => {
+					}}, lang["CONTEXT_FLOP"]),
+					item({"onselect": () => {
 						if (currToken instanceof SVGToken && tokens.has(currToken.id)) {
 							if (!currToken.isPattern) {
 								doTokenSet({"id": currToken.id, "patternWidth": currToken.width, "patternHeight": currToken.height});
@@ -448,9 +448,9 @@ export default (base: HTMLElement) => {
 								doTokenSet({"id": currToken.id, "patternWidth": 0, "patternHeight": 0});
 							}
 						}
-					})
+					}}, currToken.isPattern ? lang["CONTEXT_SET_IMAGE"] : lang["CONTEXT_SET_PATTERN"])
 				] : [],
-				item(currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"], () => {
+				item({"onselect": () => {
 					const snap = currToken.snap,
 					      {x, y, width, height, rotation} = currToken;
 					if (tokens.has(currToken.id)) {
@@ -462,8 +462,8 @@ export default (base: HTMLElement) => {
 							doTokenSet({"id": currToken.id, "snap": !snap});
 						}
 					}
-				}),
-				item(lang["CONTEXT_SET_LIGHTING"], () => {
+				}}, currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"]),
+				item({"onselect": () => {
 					if (tokens.has(currToken.id)) {
 						type Timing = {
 							[node]: HTMLTableCellElement;
@@ -578,42 +578,45 @@ export default (base: HTMLElement) => {
 							}}, lang["SAVE"])
 						]));
 					}
-				}),
+				}}, lang["CONTEXT_SET_LIGHTING"]),
 				tokenPos < currLayer.tokens.length - 1 ? [
-					item(lang["CONTEXT_MOVE_TOP"], () => {
+					item({"onselect": () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
 						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.length - 1);
 						}
-					}),
-					item(lang["CONTEXT_MOVE_UP"], () => {
+					}}, lang["CONTEXT_MOVE_TOP"]),
+					item({"onselect": () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
 						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) + 1);
 						}
-					})
+					}}, lang["CONTEXT_MOVE_UP"])
 				] : [],
 				tokenPos > 0 ? [
-					item(lang["CONTEXT_MOVE_DOWN"], () => {
+					item({"onselect": () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
 						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, currLayer.tokens.findIndex(t => t === currToken) - 1);
 						}
-					}),
-					item(lang["CONTEXT_MOVE_BOTTOM"], () => {
+					}}, lang["CONTEXT_MOVE_DOWN"]),
+					item({"onselect": () => {
 						const currLayer = tokens.get(currToken.id)?.layer;
 						if (currLayer && tokens.has(currToken.id)) {
 							doTokenMoveLayerPos(currToken.id, currLayer.path, 0);
 						}
-					})
+					}}, lang["CONTEXT_MOVE_BOTTOM"])
 				] : [],
-				menu(lang["CONTEXT_MOVE_LAYER"], makeLayerContext((sl: SVGLayer) => {
-					if (tokens.has(currToken.id)) {
-						doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
-					}
-				}, currLayer.name)),
-				item(lang["CONTEXT_DELETE"], () => doTokenRemove(currToken.id))
-			]);
+				submenu([
+					item(lang["CONTEXT_MOVE_LAYER"]),
+					menu(makeLayerContext((sl: SVGLayer) => {
+						if (tokens.has(currToken.id)) {
+							doTokenMoveLayerPos(currToken.id, sl.path, sl.tokens.length);
+						}
+					}, currLayer.name))
+				]),
+				item({"onselect": () => doTokenRemove(currToken.id)}, lang["CONTEXT_DELETE"])
+			]));
 		}
 		return false;
 	};
