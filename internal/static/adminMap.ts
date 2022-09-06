@@ -351,6 +351,17 @@ export default (base: HTMLElement) => {
 			doTokenAdd(selected.layer.path, tk);
 		}
 	})[0]();
+	keyEvent([registerKey("nextToken", lang["TOKEN_NEXT"], "Tab"), registerKey("prevToken", lang["TOKEN_PREV"], "Shift+Tab")], (e: KeyboardEvent) => {
+		const {layer, token} = selected;
+		if (layer) {
+			const pos = layer.tokens.findIndex(t => t === token),
+			      next = layer.tokens.at(e.shiftKey ? (pos + 1) % layer.tokens.length : pos < 0 ? -1 : pos - 1) as SVGToken | SVGDrawing | SVGShape | undefined;
+			if (next && next !== token) {
+				selectToken(next);
+			}
+			e.preventDefault();
+		}
+	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
 		deselectToken();
 		selected.layer = null;
