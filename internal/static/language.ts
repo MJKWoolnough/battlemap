@@ -180,6 +180,7 @@ const defaultLanguage = {
 	"TOKEN_ORDER": "Token Order",
 	"TOKEN_ORDER_NORMAL": "Normal",
 	"TOKEN_ORDER_SHUFFLE": "Shuffle",
+	"TOKEN_PREV": "Previous Token",
 	"TOKEN_REMOVE": "Remove Token?",
 	"TOKEN_REMOVE_CONFIRM": "Are you sure that you wish to remove this token?",
 	"TOKEN_REPLACE": "Replace Token?",
