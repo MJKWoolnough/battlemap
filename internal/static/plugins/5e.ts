@@ -11,6 +11,7 @@ import {item, menu, submenu} from '../lib/menu.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting, JSONSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
+import {selectToken} from '../adminMap.js';
 import {Colour, makeColourPicker} from '../colours.js';
 import {registerKey} from '../keys.js';
 import mainLang, {language, overlayLang} from '../language.js';
@@ -321,7 +322,12 @@ const select = Symbol("select"),
 			token[node].parentNode!.insertBefore(highlight, token[node]);
 		}
 	}, "onmouseleave": () => highlight.remove()}, [
-		img({"src": `/images/${token.src}`, "onclick": () => centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1))}),
+		img({"src": `/images/${token.src}`, "onclick": (e: MouseEvent) => {
+			centreOnGrid(token.x + (token.width >> 1), token.y + (token.height >> 1));
+			if (isAdmin && e.ctrlKey) {
+				selectToken(token);
+			}
+		}}),
 		span(token.getData("name") ?? ""),
 		span(isAdmin ? {"class": "token-initiative-5e", "onclick": () => {
 			updateInitiative([token.id, null]);
