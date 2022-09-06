@@ -1183,16 +1183,38 @@ combinedRPC.waitTokenRemove().then(id => {
 		setTimeout(updateInitiative);
 	}
 });
+
+combinedRPC.waitTokenAdd().then(({token: {id}}) => {
+	if (initTokens.has(id)) {
+		setTimeout(updateInitiative);
+	}
+});
+
+combinedRPC.waitTokenMoveLayerPos().then(({id}) => {
+	if (initTokens.has(id)) {
+		setTimeout(updateInitiative);
+	}
+});
+
 combinedRPC.waitTokenSet().then(({id}) => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
-for (const k of (["waitLayerShow", "waitLayerHide"] as (keyof RPCWaits)[])) {
+combinedRPC.waitTokenSetMulti().then(tks => {
+	for (const {id} of tks) {
+		if (initTokens.has(id)) {
+			setTimeout(updateInitiative);
+			return;
+		}
+	}
+});
+
+for (const k of (["waitLayerShow", "waitLayerHide", "waitLayerRemove"] as (keyof RPCWaits)[])) {
 	combinedRPC[k]().then(() => setTimeout(updateInitiative));
 }
-for (const k of (["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[])) {
+for (const k of (["waitLayerShift", "waitLayerMove", "waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[])) {
 	combinedRPC[k]().then(() => setTimeout(updatePerspectives));
 }
 
