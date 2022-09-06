@@ -30,7 +30,16 @@ import undo from './undo.js';
 import {shell, windows} from './windows.js';
 
 export const [mapLoadSend, mapLoadReceive] = new Pipe<Uint>().bind(3),
-dragLighting = new DragTransfer<ID & TokenLight>("light");
+dragLighting = new DragTransfer<ID & TokenLight>("light"),
+selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
+	setLayer(tokens.get(newToken.id)!.layer);
+	selected.token = newToken;
+	amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "class": outlineRotationClass(newToken.rotation)});
+	for (const k of ["x", "y", "rotation", "width", "height"] as const) {
+		tokenMousePos[k] = newToken[k];
+	}
+	tokenSelected();
+};
 
 export default (base: HTMLElement) => {
 	let copiedToken: Token | null = null,
@@ -208,15 +217,6 @@ export default (base: HTMLElement) => {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
 			yield* isSVGLayer(e) ? e.tokens : allTokens(e);
 		}
-	      },
-	      selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
-		setLayer(tokens.get(newToken.id)!.layer);
-		selected.token = newToken;
-		amendNode(outline, {"transform": newToken.transformString(false), "style": `--outline-width: ${newToken.width}px; --outline-height: ${newToken.height}px`, "class": outlineRotationClass(newToken.rotation)});
-		for (const k of ["x", "y", "rotation", "width", "height"] as const) {
-			tokenMousePos[k] = newToken[k];
-		}
-		tokenSelected();
 	      },
 	      pasteCoords = [0, 0],
 	      mapMove = (e: MouseEvent) => {
