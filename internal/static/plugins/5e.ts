@@ -1,8 +1,8 @@
 import type {Int, KeystoreData, MapData, RPCWaits, TokenImage, TokenSet, Uint} from '../types.js';
 import type {WaitGroup} from '../lib/inter.js';
+import type {MenuItems} from '../lib/menu.js';
 import type {SVGLayer} from '../map.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
-import type {MenuItems} from '../lib/menu.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
