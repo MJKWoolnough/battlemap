@@ -11,7 +11,7 @@ import {labels, menuItems} from './shared.js';
 import {removeStr} from './symbols.js';
 import {shell, windows} from './windows.js';
 
-export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableLightingAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableLightingAnimation", "musicSort"].map(n => new BoolSetting(n)),
+export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableAnimation", "musicSort"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
 hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128, 0, 255),
@@ -85,9 +85,9 @@ menuItems.push([7, () => [
 				}})),
 				br()
 			] : [],
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableLightingAnimation.value, "onchange": function(this: HTMLInputElement) {
-				enableLightingAnimation.set(this.checked);
-			}}), `${lang["SETTINGS_LIGHTING_ENABLE_ANIMATION"]}: `),
+			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableAnimation.value, "onchange": function(this: HTMLInputElement) {
+				enableAnimation.set(this.checked);
+			}}), `${lang["SETTINGS_ENABLE_ANIMATION"]}: `),
 			isAdmin ? [
 				br(),
 				labels(`${lang["SETTINGS_LAYER_HIDDEN_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 255, "value": hiddenLayerOpacity.value, "oninput": function(this: HTMLInputElement) {
