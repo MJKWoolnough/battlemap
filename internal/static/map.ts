@@ -15,7 +15,7 @@ import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, rpc} from './rpc.js';
-import {enableLightingAnimation, scrollAmount, zoomSlider} from './settings.js';
+import {enableAnimation, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
@@ -235,7 +235,7 @@ updateLight = () => {
 	      processLights = (ls: Lighting[]) => {
 		for (const tk of ls) {
 			if (tk.lightTimings.length && tk.lightStages.reduce((a, b) => a + b, 0)) {
-				if (tk.lightTimings.length > 1 && !enableLightingAnimation.value) {
+				if (tk.lightTimings.length > 1 && !enableAnimation.value) {
 					const [x, y] = tk.getCentre(),
 					      [lx, ly] = tk.getLightPos();
 					lights.push(new Lighting(x, y, lx, ly, tk.lightColours.map(cs => [cs[0] ?? noColour]), tk.lightStages, [0]));
@@ -466,7 +466,7 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 	return false;
 };
 
-enableLightingAnimation.wait(() => mapData && updateLight());
+enableAnimation.wait(() => mapData && updateLight());
 
 inited.then(() => {
 	rpc.waitMapStartChange().then(pos => ([mapData.startX, mapData.startY] = pos));
