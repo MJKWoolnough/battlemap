@@ -23,7 +23,7 @@
 	clip-path: view-box;
 }
 
-.isUser.sliding #map {
+.animations .isUser.sliding #map {
 	transition-property: left, top;
 	transition-duration: 1s;
 	transition-timing-function: ease;
@@ -127,7 +127,7 @@
 	mix-blend-mode: screen;
 }
 
-.isUser :is(.mapToken, .mapShape, .mapDrawing) {
+.animations .isUser :is(.mapToken, .mapShape, .mapDrawing) {
 	transition-property: transform, width, height;
 	transition-duration: 1s;
 	transition-timing-function: ease;
