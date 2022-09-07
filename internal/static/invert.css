@@ -81,3 +81,16 @@
 .invert .dragover {
 	background-color: #555;
 }
+
+.invert menu-menu {
+	background-color: #222;
+	color: #fff;
+}
+
+.invert menu-submenu[open] > menu-item, .invert menu-item:focus {
+	background-color: #000;
+}
+
+.invert menu-item[disabled], .invert menu-submenu[disabled] {
+	color: #888;
+}
