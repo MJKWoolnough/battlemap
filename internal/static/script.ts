@@ -10,7 +10,7 @@ import lang from './language.js';
 import loadUserMap from './map.js';
 import pluginInit, {menuItems} from './plugins.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
-import {hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
+import {enableAnimation, hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
 import {addCSS, labels, menuItems as mI, mod} from './shared.js';
 import {popout, symbols} from './symbols.js';
 import {checkWindowData, desktop, getWindowData, shell, windows} from './windows.js';
@@ -196,6 +196,7 @@ clearNode(document.body, amendNode(shell, {"snap": 50}));
 invert.wait(v => amendNode(document.documentElement, {"class": {"invert": v}}));
 tabIcons.wait(b => amendNode(document.documentElement, {"class": {"tabIcons": b}}));
 panelOnTop.wait(p => amendNode(document.documentElement, {"class": {"panelOnTop": p}}));
+enableAnimation.wait(e => amendNode(document.documentElement, {"class": {"animations": e}}));
 
 inited.then(() => {
 	const mIs = [...mI].sort(([a], [b]) => a - b),
