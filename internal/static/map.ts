@@ -16,7 +16,7 @@ import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_token
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, rpc} from './rpc.js';
 import {enableAnimation, scrollAmount, zoomSlider} from './settings.js';
-import {characterData, checkInt, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
+import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
 
@@ -64,7 +64,9 @@ const idNames: Record<string, Int> = {
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
-      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn)));
+      walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
+      lightList: Lighting[] = [];
+
 
 export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/");
@@ -140,7 +142,6 @@ normaliseWall = (w: Wall) => {
 	return w;
 },
 updateLight = () => {
-	definitions.clearLighting();
 	const {gridSize, gridDistance, width, height} = mapData,
 	      fWidth = new Fraction(BigInt(width)),
 	      fHeight = new Fraction(BigInt(height)),
@@ -254,11 +255,58 @@ updateLight = () => {
 	});
 	processWalls((addWalls("") as Wall[]).map(w => (w.id = oid--, w)));
 	processLights(addLights(""));
-	for (const w of walls) {
+	let wallsChanged = walls.length !== wallList.length,
+	    lid = 0;
+	for (let i = 0; i < walls.length; i++) {
+		const w = walls[i];
+		if (!wallsChanged) {
+			const x = wallList[i];
+			wallsChanged = !!w.x1.cmp(x.x1) || !!w.x2.cmp(x.x2) || !!w.y1.cmp(x.y1) || !!w.y2.cmp(x.y2) || w.scattering !== x.scattering || w.colour.toString() !== x.colour.toString();
+		}
 		Object.freeze(w);
 	}
-	for (const light of lights) {
+	if (wallsChanged) {
+		definitions.clearLighting();
+	}
+	for (let i = 0; i < lights.length; i++) {
+		const light = lights[i];
+		if (!wallsChanged && lightList.length > i) {
+			const oldLight = lightList[i],
+			      cL = light.getCentre(),
+			      cO = oldLight.getCentre(),
+			      lpL = light.getLightPos(),
+			      lpO = oldLight.getLightPos();
+			let lightChanged = cL[0] !== cO[0] || cL[1] !== cO[1] || lpL[0] !== lpO[0] || lpL[1] !== lpO[1] || light.lightStages.length !== oldLight.lightStages.length || light.lightTimings.length !== oldLight.lightTimings.length;
+			if (!lightChanged) {
+				for (let j = 0; !lightChanged && j < light.lightStages.length; j++) {
+					lightChanged = light.lightStages[0] !== oldLight.lightStages[0];
+				}
+			}
+			if (!lightChanged) {
+				for (let j = 0; !lightChanged && j < light.lightTimings.length; j++) {
+					lightChanged = light.lightTimings[0] !== oldLight.lightTimings[0];
+				}
+			}
+			if (!lightChanged) {
+				for (let j = 0; !lightChanged && j < light.lightColours.length; j++) {
+					for (let k = 0; !lightChanged && k < light.lightColours[0].length; k++) {
+						lightChanged = light.lightColours[j][k].toString() !== oldLight.lightColours[j][k].toString();
+					}
+				}
+			}
+			if (!lightChanged) {
+				continue;
+			}
+			definitions.clearLightGroup("L" + lid);
+		}
+		definitions.setLightGroup("L" + lid++);
 		makeLight(light, walls, gridSize / (gridDistance || 1));
+		const [cx, cy] = light.getCentre(),
+		      [lx, ly] = light.getLightPos();
+		lightList.splice(i, 1, new Lighting(cx, cy, lx, ly, cloneObject(light.lightColours), cloneObject(light.lightStages), cloneObject(light.lightTimings)));
+	}
+	if (lightList.length > lights.length) {
+		lightList.splice(lights.length, lightList.length - lights.length);
 	}
 	wallList = walls;
 	handleWalls(walls);
