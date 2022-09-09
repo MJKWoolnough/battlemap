@@ -1,7 +1,9 @@
 import type {Int, KeystoreData, MapData, RPCWaits, TokenImage, TokenSet, Uint} from '../types.js';
+import type {Children} from '../lib/dom.js';
 import type {WaitGroup} from '../lib/inter.js';
 import type {MenuItems} from '../lib/menu.js';
 import type {SVGLayer} from '../map.js';
+import type {LightWall} from '../map_lighting.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {amendNode, clearNode} from '../lib/dom.js';
@@ -358,13 +360,15 @@ const select = Symbol("select"),
 	amendNode(highlight, {"fill": h, "stroke": h, "opacity": c.a / 255});
       }),
       updatePerspectives = (() => {
+	type PerspectiveData = [Int, Int, SVGPolygonElement[], Children, Children];
 	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
 	      black = [[new Colour(0, 0, 0)]],
 	      timings = [0],
 	      darksat = filter({"id": "darksat-5e"}, feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,-0.2125 -0.7154 -0.0721 1 0"})),
 	      darkvis = filter({"id": "darkvis-5e"}, feColorMatrix({"type": "matrix", "values": "0.5 0 0 0 0.5,0 0.5 0 0 0.5,0 0 0.5 0 0.5,0 0 0 1 0"})),
 	      dvcs = g(),
-	      dv = clipPath({"id": "darkvision-5e"});
+	      dv = clipPath({"id": "darkvision-5e"}),
+	      lastPerspectives: PerspectiveData[]= [];
 	masks[node].firstChild?.after(perspectives);
 	amendNode(definitions[node], [
 		dvcs,
@@ -372,7 +376,9 @@ const select = Symbol("select"),
 		darksat,
 		darkvis
 	]);
-	let nextID = 0;
+	let nextID = 0,
+	    lastScale = 0,
+	    lastWalls: LightWall[] = [];
 	return () => {
 		nextID = 0;
 		clearNode(perspectives);
@@ -392,21 +398,35 @@ const select = Symbol("select"),
 				}
 			});
 		}
+		let update = wallList !== lastWalls || tokens.length !== lastPerspectives.length;
+		lastWalls = wallList;
 		if (tokens.length) {
 			const {gridSize, gridDistance, width, height} = mapData,
 			      scale = gridSize / (gridDistance || 1),
 			      stages = [Math.max(width, height) / scale, 0];
+			update ||= scale !== lastScale;
+			lastScale = scale;
 			amendNode(perspectives, [
 				rect({"width": "100%", "height": "100%", "fill": "#fff"}),
-				tokens.map(t => {
-					const [x, y] = t.getCentre(),
-					      p = makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale),
-					      r = (t.getData("5e-darkvision") ?? 0) * scale;
+				tokens.map((t, n) => {
+					const [x, y] = t.getCentre();
+					if (!update) {
+						const [oldX, oldY, oldNode, a, b] = lastPerspectives[n];
+						if (x === oldX && y === oldY) {
+							amendNode(dvcs, a);
+							amendNode(dv, b);
+							return oldNode;
+						}
+					}
+					const p = makeLight(new PerspectiveLighting(x, y, x, y, black, stages, timings), wallList, scale),
+					      r = (t.getData("5e-darkvision") ?? 0) * scale,
+					      data: PerspectiveData = [x, y, p, [], []];
+					lastPerspectives.splice(n, 1, data);
 					if (r) {
 						const id = "DVC-5E_"+nextID++,
 						      [cx, cy] = t.getCentre();
-						amendNode(dvcs, clipPath({id}, circle({r, cx, cy})));
-						amendNode(dv, p.map(p => amendNode(p.cloneNode(), {"clip-path": `url(#${id})`, "fill": undefined})));
+						amendNode(dvcs, data[3] = clipPath({id}, circle({r, cx, cy})));
+						amendNode(dv, data[4] = p.map(p => amendNode(p.cloneNode(), {"clip-path": `url(#${id})`, "fill": undefined})));
 					}
 					return p;
 				}).flat().sort((a, b) => stringSort(b.getAttribute("fill") ?? "", a.getAttribute("fill") ?? ""))
