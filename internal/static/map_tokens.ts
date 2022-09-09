@@ -353,12 +353,14 @@ masks = (() => {
 })(),
 SQRT3 = Math.sqrt(3),
 definitions = (() => {
+	let nextLightID = 0,
+	    lightPolyGroup = g(),
+	    lightGradGroup = g();
 	const list = new Map<string, SVGPatternElement>(),
-	      lighting: SVGRadialGradientElement[] = [],
 	      lightRect = rect({"width": "100%", "height": "100%"}),
-	      lightingGroup = g({"id": "lighting"}, lightRect),
-	      base = defs([masks[node], lightingGroup]);
-	let nextLightID = 0;
+	      lightingGroup = g({"id": "lighting"}, [lightRect, lightPolyGroup]),
+	      base = defs([masks[node], lightingGroup, lightGradGroup]),
+	      lightGroups = new Map<string, [SVGGElement, SVGGElement]>([["", [lightPolyGroup, lightGradGroup]]]);
 	return {
 		get [node]() {return base;},
 		get list() {return list;},
@@ -413,21 +415,30 @@ definitions = (() => {
 					      return s;
 					})
 				      ]);
-				amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0}));
-				lighting.push(rg);
-				amendNode(base, rg);
-				amendNode(lightingGroup, amendNode(p, {"fill": `url(#${id})`}));
+				amendNode(lightGradGroup, amendNode(rg, amendNode(rg.lastChild?.cloneNode(true), {"offset": "100%", "stop-opacity": 0})));
+				amendNode(lightPolyGroup, amendNode(p, {"fill": `url(#${id})`}));
 				return rg;
 			}
 			return null;
 		},
 		clearLighting() {
-			clearNode(lightingGroup, lightRect);
-			for (const l of lighting) {
-				l.remove();
+			clearNode(lightingGroup, [lightRect, lightPolyGroup = g()]);
+			for (const [, [, gg]] of lightGroups) {
+				gg.remove();
 			}
-			lighting.splice(0, lighting.length);
+			lightGroups.clear();
+			lightGroups.set("", [lightPolyGroup, lightGradGroup = base.appendChild(g())]);
 			nextLightID = 0;
+		},
+		setLightGroup(name: string) {
+			[lightPolyGroup, lightGradGroup] = lightGroups.get(name) ?? setAndReturn(lightGroups, name, [lightingGroup.appendChild(g()), base.appendChild(g())]);
+		},
+		clearLightGroup(name: string) {
+			const lgs = lightGroups.get(name);
+			if (lgs) {
+				clearNode(lgs[0]);
+				clearNode(lgs[1]);
+			}
 		},
 		clear() {
 			this.clearLighting();
