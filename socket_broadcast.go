@@ -52,7 +52,6 @@ const (
 	broadcastMapItemChange
 
 	broadcastCharacterDataChange
-	broadcastTokenDataChange
 
 	broadcastLayerAdd
 	broadcastLayerFolderAdd
