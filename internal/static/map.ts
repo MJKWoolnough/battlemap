@@ -308,7 +308,9 @@ updateLight = () => {
 	if (lightList.length > lights.length) {
 		lightList.splice(lights.length, lightList.length - lights.length);
 	}
-	wallList = walls;
+	if (wallsChanged) {
+		wallList = walls;
+	}
 	handleWalls(walls);
 },
 showSignal = (() => {
