@@ -157,8 +157,6 @@ export type RPC = RPCWaits & {
 	characterModify:     (id: Uint, setting: Record<string, KeystoreData>, removing: string[]) => Promise<void>;
 	characterGet:        (id: Uint)                                                            => Promise<Record<string, KeystoreData>>;
 
-	tokenModify: (id: Uint, added: Record<string, KeystoreData>, removed: string[]) => Promise<void>;
-
 	listPlugins:   ()                                                                      => Promise<Record<string, Plugin>>;
 	enablePlugin:  (plugin: string)                                                        => Promise<void>;
 	disablePlugin: (plugin: string)                                                        => Promise<void>;
