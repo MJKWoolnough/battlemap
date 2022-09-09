@@ -54,7 +54,6 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitMapDataSet",           broadcastMapDataSet,           checkMapKeyData],
 			["waitMapDataRemove",        broadcastMapDataRemove,        checkString],
 			["waitCharacterDataChange",  broadcastCharacterDataChange,  checkCharacterDataChange],
-			["waitTokenDataChange",      broadcastTokenDataChange,      checkTokenDataChange],
 			["waitMapChange",            broadcastMapItemChange,        checkMapDetails],
 			["waitMapStartChange",       broadcastMapStartChange,       checkMapStart],
 			["waitLayerAdd",             broadcastLayerAdd,             checkString],
@@ -197,8 +196,6 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["characterCreate", "characters.create", ["path", "data"],              checkIDPath,    "", ""],
 			["characterModify", "characters.modify", ["id", "setting", "removing"], returnVoid,     "waitCharacterDataChange", ""],
 			["characterGet",    "characters.get",     "!",                          checkCharacter, "", ""],
-
-			["tokenModify", "maps.modifyTokenData", ["id", "setting", "removing"], returnVoid, "waitTokenDataChange", ""],
 
 			["listPlugins",   "plugins.list",    "",                           checkPlugins, "", ""],
 			["enablePlugin",  "plugins.enable",  "!",                          returnVoid,   "", ""],
@@ -444,14 +441,6 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checkCharacterDataChange = (data: any) => {
 	checker(data, "CharacterDataChange", checksCharacterDataChange);
 	for (const c of characterDataCheckers) {
-		c(data.setting);
-	}
-	return data;
-      },
-      checksTokenDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
-      checkTokenDataChange = (data: any) => {
-	checker(data, "TokenDataChange", checksTokenDataChange);
-	for (const c of tokenDataCheckers) {
 		c(data.setting);
 	}
 	return data;
