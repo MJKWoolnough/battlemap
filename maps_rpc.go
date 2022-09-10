@@ -487,6 +487,38 @@ func (m *mapsDir) RPCData(cd ConnData, method string, data json.RawMessage) (int
 			m.socket.broadcastMapChange(cd, broadcastLayerHide, data, userAny)
 			return true
 		})
+	case "lockLayer":
+		var path string
+		if err := json.Unmarshal(data, &path); err != nil {
+			return nil, err
+		}
+		if len(path) == 0 {
+			return nil, ErrInvalidLayerPath
+		}
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayerAll, func(_ *levelMap, l *layer) bool {
+			if l.Locked {
+				return false
+			}
+			l.Locked = true
+			m.socket.broadcastMapChange(cd, broadcastLayerLock, data, userAny)
+			return true
+		})
+	case "unlockLayer":
+		var path string
+		if err := json.Unmarshal(data, &path); err != nil {
+			return nil, err
+		}
+		if len(path) == 0 {
+			return nil, ErrInvalidLayerPath
+		}
+		return nil, m.updateMapLayer(cd.CurrentMap, path, anyLayerAll, func(_ *levelMap, l *layer) bool {
+			if !l.Locked {
+				return false
+			}
+			l.Locked = false
+			m.socket.broadcastMapChange(cd, broadcastLayerUnlock, data, userAny)
+			return true
+		})
 	case "removeLayer":
 		var path string
 		err := json.Unmarshal(data, &path)
