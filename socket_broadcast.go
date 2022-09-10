@@ -65,6 +65,8 @@ const (
 
 	broadcastLayerShow
 	broadcastLayerHide
+	broadcastLayerLock
+	broadcastLayerUnlock
 	broadcastMaskAdd
 	broadcastMaskRemove
 	broadcastMaskSet
