@@ -51,6 +51,8 @@ export type RPCWaits = {
 	waitMapLightChange:       () => Subscription<Colour>;
 	waitLayerShow:            () => Subscription<string>;
 	waitLayerHide:            () => Subscription<string>;
+	waitLayerLock:            () => Subscription<string>;
+	waitLayerUnlock:          () => Subscription<string>;
 	waitMaskAdd:              () => Subscription<Mask>;
 	waitMaskRemove:           () => Subscription<Uint>;
 	waitMaskSet:              () => Subscription<MaskSet>;
@@ -260,6 +262,7 @@ export type CharacterToken = TokenLight & WidthHeight & {
 
 export type LayerTokens = IDName & {
 	hidden: boolean;
+	locked: boolean;
 	tokens: Token[];
 	walls: Wall[];
 }
