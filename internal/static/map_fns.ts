@@ -114,6 +114,8 @@ waitFolderAdded = Subscription.bind<string>(1),
 waitFolderRemoved = Subscription.bind<string>(1),
 waitLayerShow = Subscription.bind<string>(1),
 waitLayerHide = Subscription.bind<string>(1),
+waitLayerLock = Subscription.bind<string>(1),
+waitLayerUnlock = Subscription.bind<string>(1),
 waitLayerPositionChange = Subscription.bind<LayerMove>(1),
 waitLayerRename = Subscription.bind<LayerRename>(1),
 waitLayerSelect = Subscription.bind<string>(1),
@@ -157,6 +159,23 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 		return doIt;
 	      };
 	undo.add(doIt(sendRPC), lang[visibility ? "UNDO_LAYER_SHOW" : "UNDO_LAYER_HIDE"]);
+	return path;
+},
+doLockUnlockLayer = (path: string, locked: boolean, sendRPC = true) => {
+	const doIt = (sendRPC = true) => {
+		if (sendRPC) {
+			queue(locked ? () => {
+				waitLayerLock[1](path);
+				return rpc.showLayer(path);
+			} : () => {
+				waitLayerUnlock[1](path);
+				return rpc.hideLayer(path);
+			});
+		}
+		locked = !locked;
+		return doIt;
+	      };
+	undo.add(doIt(sendRPC), lang[locked ? "UNDO_LAYER_LOCK" : "UNDO_LAYER_UNLOCK"]);
 	return path;
 },
 doLayerAdd = (name: string, sendRPC = true) => {
