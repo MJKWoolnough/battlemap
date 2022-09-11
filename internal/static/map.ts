@@ -114,7 +114,7 @@ removeLayer = (path: string) => {
 	(fromParent!.children as NodeArray<any>).filterRemove(e => Object.is(e, layer));
 	updateLight();
 },
-addLayer = (name: string) => (layerList.children.push(processLayers(undefined, {name, "id": 0, "hidden": false, "tokens": [], "walls": []})), name),
+addLayer = (name: string) => (layerList.children.push(processLayers(undefined, {name, "id": 0, "hidden": false, "locked": false, "tokens": [], "walls": []})), name),
 moveLayer = (from: string, to: string, pos: Uint) => {
 	const [parentStr, nameStr] = splitAfterLastSlash(from),
 	      fromParent = getLayer(parentStr)!,
