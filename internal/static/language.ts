@@ -79,6 +79,7 @@ const defaultLanguage = {
 	"LAYER_LIGHT_COLOUR": "Change Light Colour",
 	"LAYER_NAME": "Name",
 	"LAYER_RENAME": "Rename Layer",
+	"LAYER_TOGGLE_LOCK": "Toggle Layer Lock",
 	"LAYER_TOGGLE_VISIBILITY": "Toggle Visibility",
 	"LIGHTING_ADD_STAGE": "Add Light Stage",
 	"LIGHTING_ADD_TIMING": "Add Timing",
