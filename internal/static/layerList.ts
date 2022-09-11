@@ -126,6 +126,9 @@ class ItemLayer extends Item {
 	#locked: boolean;
 	constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
+		if (this.#locked = locked) {
+			amendNode(this[node], {"class": ["layerLocked"]});
+		}
 		if (id < 0) {
 			clearNode(this[node], [this.nameElem, id === -2 ? adminLightToggle : []]);
 		} else {
@@ -137,11 +140,11 @@ class ItemLayer extends Item {
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
-		if (this.#locked = locked) {
-			amendNode(this[node], {"class": ["layerLocked"]});
-		}
 		this[node].insertBefore(createDocumentFragment([
-			id < 0 ? [] : lock({"title": lang["LAYER_TOGGLE_LOCK"], "class": "layerLock", "onclick": () => lockUnlockLayer(this)}),
+			id < 0 ? [] : lock({"title": lang["LAYER_TOGGLE_LOCK"], "class": "layerLock", "onclick": () => {
+				this.#locked = !this.#locked;
+				lockUnlockLayer(this);
+			}}),
 			visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)})
 		]), this.nameElem);
 		amendNode(this[node], [
@@ -186,7 +189,7 @@ class ItemLayer extends Item {
 			amendNode(shell, w);
 		} else if (this.id === -2) { // Light
 			colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
-		} else {
+		} else if (!this.isLocked()) {
 			amendNode(selectedLayer?.[node], {"class": ["!selectedLayer"]});
 			amendNode(this[node], {"class": ["selectedLayer"]});
 			selectedLayer = this;
@@ -230,6 +233,7 @@ class FolderLayer extends Folder {
 				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
 			]).insertBefore(createDocumentFragment([
 				lock({"title": lang["LAYER_TOGGLE_LOCK"], "class" : "layerLock", "onclick": (e: Event) => {
+					this.#locked = !this.#locked;
 					lockUnlockLayer(this);
 					e.preventDefault()
 				}}),
@@ -283,7 +287,7 @@ menuItems.push([5, () => isAdmin ? [
 			keyEvent(layerPrev, () => {
 				let sl: ItemLayer | undefined;
 				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
+					if (l.id > 0 && !l.isLocked()) {
 						if (l === selectedLayer) {
 							return true;
 						}
@@ -298,7 +302,7 @@ menuItems.push([5, () => isAdmin ? [
 			keyEvent(layerNext, () => {
 				let next = false;
 				walkLayers(list.folder as FolderLayer, l => {
-					if (l.id > 0) {
+					if (l.id > 0 && !l.isLocked()) {
 						if (next) {
 							setLayer(l);
 							return true;
