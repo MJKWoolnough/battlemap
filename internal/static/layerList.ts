@@ -224,11 +224,11 @@ class FolderLayer extends Folder {
 				div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
 			]).insertBefore(createDocumentFragment([
-				visibility({"class" : "layerLock", "onclick": (e: Event) => {
+				lock({"title": lang["LAYER_TOGGLE_LOCK"], "class" : "layerLock", "onclick": (e: Event) => {
 					lockUnlockLayer(this);
 					e.preventDefault()
 				}}),
-				visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
+				visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": (e: Event) => {
 					showHideLayer(this);
 					e.preventDefault()
 				}})
