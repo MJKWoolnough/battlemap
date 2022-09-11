@@ -62,4 +62,10 @@ addSymbol = (id: string, s: SVGSymbolElement): [(props?: PropsObject) => SVGSVGE
 	circle({"cx": 17, "cy": 3, "r": 3}),
 	circle({"cx": 17, "cy": 17, "r": 3}),
 	path({"d": "M17,3 L3,10 17,17", "stroke": "#000", "fill": "none"})
+])),
+[lock, lockStr] = addSymbol("lock", symbol({"viewBox": "0 0 70 100", "style": "stroke: currentColor", "stroke-width": 2, "stroke-linejoin": "round"}, [
+	path({"d": "M15,45 v-20 a1,1 0,0,1 40,0 a1,1 0,0,1 -10,0 a1,1 0,0,0 -20,0 v20 z", "fill": "#ccc", "style": "display: var(--unlocked, block)"}),
+	path({"d": "M15,45 v-20 a1,1 0,0,1 40,0 v20 h-10 v-20 a1,1 0,0,0 -20,0 v20 z", "fill": "#ccc", "style": "display: var(--locked, none)"}),
+	rect({"x": 5, "y": 45, "width": 60, "height": 50, "fill": "#aaa", "stroke-width": 4, "rx": 10}),
+	path({"d": "M30,78 l2,-8 c-7,-12 13,-12 6,0 l2,8 z", "fill": "#666", "stroke": "#000", "stroke-linejoin": "round"})
 ]));
