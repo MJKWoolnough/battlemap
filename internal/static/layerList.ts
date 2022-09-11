@@ -1,6 +1,6 @@
 import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
-import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
@@ -10,11 +10,11 @@ import {Folder, Item, Root} from './folders.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
-import {doLayerAdd, doLayerMove, doLayerRename, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
+import {doLayerAdd, doLayerMove, doLayerRename, doLockUnlockLayer, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
 import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
-import {lightOnOff, visibility} from './symbols.js';
+import {lightOnOff, lock, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 let selectedLayer: ItemLayer | undefined,
@@ -102,6 +102,10 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	const visible = !l[node].classList.toggle("layerHidden");
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
       }),
+      lockUnlockLayer = (l: FolderLayer | ItemLayer) => queue(() => {
+	const locked = l[node].classList.toggle("layerLocked");
+	return (locked ? rpc.lockLayer : rpc.unlockLayer)(doLockUnlockLayer(l.getPath(), locked, false));
+      }),
       walkLayers = (f: FolderLayer, fn: (l: ItemLayer) => boolean) => {
 	for (const [, c] of f.children) {
 		if (c instanceof FolderLayer) {
@@ -119,7 +123,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
 
 class ItemLayer extends Item {
-	constructor(parent: Folder, id: Uint, name: string, hidden = false) {
+	constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		if (id < 0) {
 			clearNode(this[node], [this.nameElem, id === -2 ? adminLightToggle : []]);
@@ -132,7 +136,13 @@ class ItemLayer extends Item {
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
-		this[node].insertBefore(visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)}), this.nameElem);
+		if (locked) {
+			amendNode(this[node], {"class": ["layerLocked"]});
+		}
+		this[node].insertBefore(createDocumentFragment([
+			id < 0 ? [] : lock({"title": lang["LAYER_TOGGLE_LOCK"], "class": "layerLock", "onclick": () => lockUnlockLayer(this)}),
+			visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)})
+		]), this.nameElem);
 		amendNode(this[node], [
 			div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 			div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
@@ -193,27 +203,36 @@ class ItemLayer extends Item {
 class FolderLayer extends Folder {
 	id: Uint;
 	open: HTMLDetailsElement;
-	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false) {
+	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false, locked = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		const lf = children as LayerFolder;
 		this.open = this[node].firstChild as HTMLDetailsElement;
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
+		if (locked) {
+			amendNode(this[node], {"class": ["layerLocked"]});
+		}
 		this.id = lf.id ??= 1;
 		if (lf.children) {
 			for (const c of lf.children) {
-				this.children.set(c.name, isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
+				this.children.set(c.name, isLayer(c) ? new ItemLayer(this, c.id, c.name, c.hidden, c.locked) : new FolderLayer(root, this, c.name, c as LayerFolder, c.hidden));
 			}
 		}
 		if (lf.id > 0) {
 			amendNode(this.open.firstChild as HTMLElement, [
 				div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
 				div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
-			]).insertBefore(visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
-				showHideLayer(this);
-				e.preventDefault()
-			}}), amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
+			]).insertBefore(createDocumentFragment([
+				visibility({"class" : "layerLock", "onclick": (e: Event) => {
+					lockUnlockLayer(this);
+					e.preventDefault()
+				}}),
+				visibility({"class" : "layerVisibility", "onclick": (e: Event) => {
+					showHideLayer(this);
+					e.preventDefault()
+				}})
+			]), amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => {
 				if (!this.open.open) {
 					dragStart(this, e);
 				}
