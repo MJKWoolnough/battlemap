@@ -1,6 +1,6 @@
 #layerList ul {
 	list-style: none;
-	padding-left: calc(1em + 4px);
+	padding-left: calc(2em + 4px);
 }
 
 #layerList li, #layerList .layerFolder > div {
@@ -44,7 +44,11 @@
 	border-top-color: #000;
 }
 
-.layerVisibility {
+.layerLock {
+	left: calc(-2em - 4px) !important;
+}
+
+.layerLock, .layerVisibility {
 	display: inline-block;
 	width: 1em;
 	height: 1em;
@@ -55,6 +59,11 @@
 
 .layerHidden .layerVisibility {
 	--invisible: none;
+}
+
+.layerLocked .layerLock {
+	--locked: block;
+	--unlocked: none;
 }
 
 .selectedLayer {
