@@ -215,7 +215,7 @@ export default (base: HTMLElement) => {
 	      },
 	      allTokens = function* (folder: SVGFolder = layerList): Iterable<SVGToken | SVGShape | SVGDrawing> {
 		for (const e of (folder.children as (SVGFolder | SVGLayer)[])) {
-			yield* isSVGLayer(e) ? e.tokens : allTokens(e);
+			yield* e.locked ? [] : isSVGLayer(e) ? e.tokens : allTokens(e);
 		}
 	      },
 	      pasteCoords = [0, 0],
