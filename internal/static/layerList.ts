@@ -123,6 +123,7 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
       adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
 
 class ItemLayer extends Item {
+	#locked: boolean;
 	constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
 		super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 		if (id < 0) {
@@ -136,7 +137,7 @@ class ItemLayer extends Item {
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
-		if (locked) {
+		if (this.#locked = locked) {
 			amendNode(this[node], {"class": ["layerLocked"]});
 		}
 		this[node].insertBefore(createDocumentFragment([
@@ -195,6 +196,9 @@ class ItemLayer extends Item {
 			amendNode(selected.layer[node], {"class": ["selectedLayer"]});
 		}
 	}
+	isLocked() {
+		return this.#locked || (this.parent as FolderLayer).isLocked();
+	}
 	rename() {
 		return renameLayer(this);
 	}
@@ -203,6 +207,7 @@ class ItemLayer extends Item {
 class FolderLayer extends Folder {
 	id: Uint;
 	open: HTMLDetailsElement;
+	#locked: boolean;
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems, hidden = false, locked = false) {
 		super(root, parent, name, {folders: {}, items: {}});
 		const lf = children as LayerFolder;
@@ -210,7 +215,7 @@ class FolderLayer extends Folder {
 		if (hidden) {
 			amendNode(this[node], {"class": ["layerHidden"]});
 		}
-		if (locked) {
+		if (this.#locked = locked) {
 			amendNode(this[node], {"class": ["layerLocked"]});
 		}
 		this.id = lf.id ??= 1;
@@ -239,6 +244,9 @@ class FolderLayer extends Folder {
 			}}));
 			amendNode(this[node], {"class": ["layerFolder"]}, div(this[node].childNodes));
 		}
+	}
+	isLocked(): boolean {
+		return this.#locked || ((this.parent as FolderLayer)?.isLocked() ?? false);
 	}
 	get sorter() { return noSort; }
 	rename() {
