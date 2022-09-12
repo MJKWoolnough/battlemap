@@ -162,7 +162,8 @@ doShowHideLayer = (path: string, visibility: boolean, sendRPC = true) => {
 	return path;
 },
 doLockUnlockLayer = (path: string, locked: boolean, sendRPC = true) => {
-	const doIt = (sendRPC = true) => {
+	const layer = getLayer(path),
+	      doIt = (sendRPC = true) => {
 		if (sendRPC) {
 			queue(locked ? () => {
 				waitLayerLock[1](path);
@@ -171,6 +172,9 @@ doLockUnlockLayer = (path: string, locked: boolean, sendRPC = true) => {
 				waitLayerUnlock[1](path);
 				return rpc.hideLayer(path);
 			});
+		}
+		if (layer) {
+			layer.locked = locked;
 		}
 		locked = !locked;
 		return doIt;
