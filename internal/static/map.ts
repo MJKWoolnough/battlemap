@@ -103,7 +103,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 	layer?.[node].classList.toggle("hiddenLayer", layer.hidden = !visibility);
 	updateLight();
 },
-addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "children": [], "folders": {}, "items": {}})), path),
+addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "locked": false, "children": [], "folders": {}, "items": {}})), path),
 renameLayer = (path: string, name: string) => {
 	const l = getLayer(path)!;
 	l.path = `${splitAfterLastSlash(path)[0]}/${name}`;
@@ -452,14 +452,15 @@ mapView = (mD: MapData, loadChars = false) => {
 		children.push(processLayers(wg, c));
 	}
 	layerList = {
-		id: 0,
-		name: "",
-		hidden: false,
+		"id": 0,
+		"name": "",
+		"hidden": false,
+		"locked": false,
 		[node]: n,
 		children,
-		folders: {},
-		items: {},
-		path: "/"
+		"folders": {},
+		"items": {},
+		"path": "/"
 	};
 	root = svg({"id": "map", width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
