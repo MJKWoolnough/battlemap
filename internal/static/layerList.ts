@@ -314,6 +314,8 @@ menuItems.push([5, () => isAdmin ? [
 			})[0]();
 			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerHidden"]}));
 			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerHidden"]}));
+			layersRPC.waitLayerSetLock().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerLocked"]}));
+			layersRPC.waitLayerSetUnlock().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerLocked"]}));
 			layersRPC.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
