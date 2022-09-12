@@ -162,7 +162,7 @@ const updateCursorState = () => {
 	wallMap.clear();
 	let hasSelected = false;
 	for (const {layer, wall} of walls.values()) {
-		if (!layer.hidden) {
+		if (!layer.hidden && !layer.locked) {
 			const {id, x1, y1, x2, y2, colour, scattering} = wall;
 			if (id === selectedWall) {
 				setOverlay(x1, y1, x2, y2);
