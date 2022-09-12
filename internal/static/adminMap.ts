@@ -331,7 +331,7 @@ export default (base: HTMLElement) => {
 		const {layer, token} = selected;
 		if (layer) {
 			const pos = layer.tokens.findIndex(t => t === token),
-			      next = layer.tokens.at(e.shiftKey ? (pos + 1) % layer.tokens.length : pos < 0 ? layer.tokens.length - 1 : pos - 1) as SVGToken | SVGDrawing | SVGShape | undefined;
+			      next = layer.tokens.at(e.shiftKey ? (pos + 1) % layer.tokens.length : pos < 0 ? -1 : pos - 1) as SVGToken | SVGDrawing | SVGShape | undefined;
 			if (next && next !== token) {
 				selectToken(next);
 			}
