@@ -271,6 +271,7 @@ export type LayerTokens = IDName & {
 
 export type LayerFolder = FolderItems & IDName & {
 	hidden: boolean;
+	locked: boolean;
 	children: (LayerTokens | LayerFolder)[];
 }
 
