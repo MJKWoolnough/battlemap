@@ -326,8 +326,18 @@ export default (base: HTMLElement) => {
 			["Right", (tk: Token, _: Uint, dx: Uint, shift = false) => shift ? doTokenRotation(tk) : tk.x += dx]
 		] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn))
 	      ],
-	      dragLightingOver = setDragEffect({"copy": [dragLighting]});
-
+	      dragLightingOver = setDragEffect({"copy": [dragLighting]}),
+	      [startCycleTokens, stopCycleTokens] = keyEvent([registerKey("nextToken", lang["TOKEN_NEXT"], "Tab"), registerKey("prevToken", lang["TOKEN_PREV"], "Shift+Tab")], (e: KeyboardEvent) => {
+		const {layer, token} = selected;
+		if (layer) {
+			const pos = layer.tokens.findIndex(t => t === token),
+			      next = layer.tokens.at(e.shiftKey ? (pos + 1) % layer.tokens.length : pos < 0 ? layer.tokens.length - 1 : pos - 1) as SVGToken | SVGDrawing | SVGShape | undefined;
+			if (next && next !== token) {
+				selectToken(next);
+			}
+			e.preventDefault();
+		}
+	      });
 	amendNode(outline, {"id": "outline", "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
 		if (selected.token) {
@@ -349,17 +359,6 @@ export default (base: HTMLElement) => {
 			      [x, y] = snap ? snapTokenToGrid(pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1), width, height) : [pasteCoords[0] - (width >> 1), pasteCoords[1] - (height >> 1)],
 			      tk: Token = Object.assign(cloneObject(copiedToken), {"id": 0, "x": Math.min(Math.max(0, x), mapData.width - width), "y": Math.min(Math.max(0, y), mapData.height - height)});
 			doTokenAdd(selected.layer.path, tk);
-		}
-	})[0]();
-	keyEvent([registerKey("nextToken", lang["TOKEN_NEXT"], "Tab"), registerKey("prevToken", lang["TOKEN_PREV"], "Shift+Tab")], (e: KeyboardEvent) => {
-		const {layer, token} = selected;
-		if (layer) {
-			const pos = layer.tokens.findIndex(t => t === token),
-			      next = layer.tokens.at(e.shiftKey ? (pos + 1) % layer.tokens.length : pos < 0 ? layer.tokens.length - 1 : pos - 1) as SVGToken | SVGDrawing | SVGShape | undefined;
-			if (next && next !== token) {
-				selectToken(next);
-			}
-			e.preventDefault();
 		}
 	})[0]();
 	mapLoadReceive(mapID => rpc.getMapData(mapID).then(mapData => {
@@ -645,7 +644,11 @@ export default (base: HTMLElement) => {
 		}
 		return false;
 	};
+	defaultTool.set = () => {
+		startCycleTokens();
+	}
 	defaultTool.unset = () => {
+		stopCycleTokens();
 		cancelMapMouseMove();
 		cancelControlOverride();
 		amendNode(document.body, {"style": {"--outline-cursor": undefined}});
