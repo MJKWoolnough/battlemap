@@ -11,10 +11,10 @@ import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {item, menu, submenu} from '../lib/menu.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
-import {BoolSetting, JSONSetting} from '../lib/settings.js';
+import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {selectToken} from '../adminMap.js';
-import {Colour, makeColourPicker} from '../colours.js';
+import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
 import {registerKey} from '../keys.js';
 import mainLang, {language, overlayLang} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
@@ -349,13 +349,7 @@ const select = Symbol("select"),
 	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-token-conditions-5e": b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-selected-conditions-5e": b}}))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
       highlight = rect({"stroke-width": 20}),
-      highlightColour = new JSONSetting<Colour>("5e-hightlight-colour", new Colour(255, 255, 0, 127), (v: any): v is Colour => {
-	if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
-		Colour.from(v);
-		return true;
-	}
-	return false;
-      }).wait(c => {
+      highlightColour = new ColourSetting("5e-hightlight-colour", new Colour(255, 255, 0, 127)).wait(c => {
 	const h = c.toHexString();
 	amendNode(highlight, {"fill": h, "stroke": h, "opacity": c.a / 255});
       }),
