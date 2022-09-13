@@ -229,6 +229,7 @@ const defaultLanguage = {
 	"TOOL_WALL_SCATTER_SET": "Set Wall Light Scattering",
 	"TOOL_WALL_SELECT": "Select Wall",
 	"TOOL_WALL_SNAP": "Snap to Grid",
+	"TOOL_WALL_UNDERLAY": "Underlay Colour",
 	"UNDO_CHARACTER": "Character change",
 	"UNDO_LAYER_ADD": "Add Layer",
 	"UNDO_LAYER_FOLDER_ADD": "Add Layer Folder",
@@ -287,6 +288,7 @@ const defaultLanguage = {
 		"TOOL_DRAW_STROKE_COLOUR": "Stroke Color",
 		"TOOL_WALL_COLOUR": "Wall Color",
 		"TOOL_WALL_COLOUR_SET": "Set Wall Color",
+		"TOOL_WALL_UNDERLAY": "Underlay Color",
 		"UNDO_LIGHT_COLOUR": "Map Light Color"
 	}, defaultLanguage)
       };
