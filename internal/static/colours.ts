@@ -3,8 +3,9 @@ import type {ShellElement, WindowElement} from './windows.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
+import {JSONSetting} from './lib/settings.js';
 import lang from './language.js';
-import {checkInt, labels} from './shared.js';
+import {checkInt, isUint, labels} from './shared.js';
 import {shell, windows} from './windows.js';
 
 export class Colour {
@@ -27,6 +28,18 @@ export class Colour {
 	}
 	toHexString() {
 		return `#${Math.round(this.r).toString(16).padStart(2, "0")}${Math.round(this.g).toString(16).padStart(2, "0")}${Math.round(this.b).toString(16).padStart(2, "0")}`;
+	}
+}
+
+export class ColourSetting extends JSONSetting<Colour> {
+	constructor(name: string, starting: Colour) {
+		super(name, starting, (v: any): v is Colour => {
+			if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
+				Colour.from(v);
+				return true;
+			}
+			return false;
+		});
 	}
 }
 
