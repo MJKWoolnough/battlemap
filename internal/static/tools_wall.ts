@@ -10,7 +10,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {item, menu, submenu} from './lib/menu.js';
 import {defs, foreignObject, g, path, pattern, rect, svg, svgData, title} from './lib/svg.js';
-import {Colour, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
+import {Colour, ColourSetting, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
 import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
@@ -21,7 +21,6 @@ import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
-    underlayColour = new Colour(255, 255, 255, 63),
     active = false,
     selectedWall = 0,
     selectedLayer: SVGLayer | null = null,
@@ -83,7 +82,8 @@ const updateCursorState = () => {
       },
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, wallMouseMove, wallMouseStop),
       [startWallMove, cancelWallMove] = mouseMoveEvent(wallMouseMove, () => wall.remove()),
-      wallUnderlay = rect({"width": "100%", "height": "100%", "fill": underlayColour}),
+      wallUnderlay = rect({"width": "100%", "height": "100%"}),
+      underlayColour = new ColourSetting("underlayColour", new Colour(255, 255, 255, 63)).wait(fill => amendNode(wallUnderlay, {fill})),
       wallLayer = g(wallUnderlay),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = setDragEffect({"copy": [dragColour, dragScattering]}),
@@ -266,7 +266,7 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)}),
 		br(),
-		labels(`${lang["TOOL_WALL_UNDERLAY"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_UNDERLAY"], () => underlayColour, (c: Colour) => amendNode(wallUnderlay, {"fill": underlayColour = c}), iconStr))
+		labels(`${lang["TOOL_WALL_UNDERLAY"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_UNDERLAY"], () => underlayColour.value, (c: Colour) => underlayColour.set(c), iconStr))
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey && !e.shiftKey) {
