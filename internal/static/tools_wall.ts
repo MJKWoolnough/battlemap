@@ -21,7 +21,7 @@ import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
-    underlayColour = new Colour(255, 255, 255, 0.5),
+    underlayColour = new Colour(255, 255, 255, 63),
     active = false,
     selectedWall = 0,
     selectedLayer: SVGLayer | null = null,
@@ -83,7 +83,7 @@ const updateCursorState = () => {
       },
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, wallMouseMove, wallMouseStop),
       [startWallMove, cancelWallMove] = mouseMoveEvent(wallMouseMove, () => wall.remove()),
-      wallUnderlay = rect({"width": "100%", "height": "100%"}),
+      wallUnderlay = rect({"width": "100%", "height": "100%", "fill": underlayColour}),
       wallLayer = g(wallUnderlay),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = setDragEffect({"copy": [dragColour, dragScattering]}),
