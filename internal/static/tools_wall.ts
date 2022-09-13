@@ -21,6 +21,7 @@ import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 let wallColour = hex2Colour("#000"),
+    underlayColour = new Colour(255, 255, 255, 0.5),
     active = false,
     selectedWall = 0,
     selectedLayer: SVGLayer | null = null,
@@ -82,7 +83,8 @@ const updateCursorState = () => {
       },
       [startWallDraw, cancelWallDraw] = mouseDragEvent(0, wallMouseMove, wallMouseStop),
       [startWallMove, cancelWallMove] = mouseMoveEvent(wallMouseMove, () => wall.remove()),
-      wallLayer = g(),
+      wallUnderlay = rect({"width": "100%", "height": "100%"}),
+      wallLayer = g(wallUnderlay),
       wallMap = new Map<Uint, SVGRectElement>(),
       validWallDrag = setDragEffect({"copy": [dragColour, dragScattering]}),
       wallDrop = (e: DragEvent, id: Uint) => {
@@ -158,7 +160,7 @@ const updateCursorState = () => {
 	]);
       },
       genWalls = () => {
-	clearNode(wallLayer);
+	clearNode(wallLayer, wallUnderlay);
 	wallMap.clear();
 	let hasSelected = false;
 	for (const {layer, wall} of walls.values()) {
@@ -262,7 +264,9 @@ addTool({
 		br(),
 		labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 		br(),
-		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)})
+		labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)}),
+		br(),
+		labels(`${lang["TOOL_WALL_UNDERLAY"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_UNDERLAY"], () => underlayColour, (c: Colour) => amendNode(wallUnderlay, {"fill": underlayColour = c}), iconStr))
 	]),
 	"mapMouse0": (e: MouseEvent) => {
 		if (e.ctrlKey && !e.shiftKey) {
