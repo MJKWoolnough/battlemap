@@ -4,6 +4,7 @@ import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
+import {BoolSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Folder, Item, Root} from './folders.js';
@@ -130,7 +131,8 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	}
 	return false;
       },
-      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => amendNode(document.body, {"class": ["~adminHideLight"]})});
+      lightToggle = new BoolSetting("lightToggle").wait(v => document.body.classList.toggle("adminHideLight", v)),
+      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)});
 
 class ItemLayer extends Item {
 	constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
