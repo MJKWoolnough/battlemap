@@ -102,8 +102,18 @@ const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 	const visible = !l[node].classList.toggle("layerHidden");
 	return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
       }),
+      deselectLayer = () => {
+	deselectToken();
+	amendNode(selectedLayer?.[node], {"class": ["!selectedLayer"]});
+	amendNode(selected.layer?.[node], {"class": ["!selectedLayer"]});
+	selectedLayer = undefined;
+	selected.layer = null;
+      },
       lockUnlockLayer = (l: FolderLayer | ItemLayer) => queue(() => {
 	const locked = l[node].classList.toggle("layerLocked");
+	if (locked && selectedLayer && l[node].contains(selectedLayer[node])) {
+		deselectLayer();
+	}
 	return (locked ? rpc.lockLayer : rpc.unlockLayer)(doLockUnlockLayer(l.getPath(), locked, false));
       }),
       walkLayers = (f: FolderLayer, fn: (l: ItemLayer) => boolean) => {
@@ -312,7 +322,15 @@ menuItems.push([5, () => isAdmin ? [
 			})[0]();
 			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerHidden"]}));
 			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerHidden"]}));
-			layersRPC.waitLayerSetLock().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerLocked"]}));
+			layersRPC.waitLayerSetLock().then(path => {
+				const l = list.getLayer(path);
+				if (l) {
+					if (selectedLayer === l) {
+						deselectLayer();
+					}
+					amendNode(l[node], {"class": ["layerLocked"]})
+				}
+			});
 			layersRPC.waitLayerSetUnlock().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerLocked"]}));
 			layersRPC.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
