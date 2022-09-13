@@ -374,9 +374,9 @@ export default (base: HTMLElement) => {
 	defaultTool.mapMouse0 = function (this: SVGElement, e: MouseEvent) {
 		[pasteCoords[0], pasteCoords[1]] = screen2Grid(e.clientX, e.clientY);
 		const {layer} = selected;
-		if (layer && (!e.ctrlKey || e.shiftKey)) {
+		if ((!e.ctrlKey || e.shiftKey)) {
 			let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
-			for (const t of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape | SVGDrawing>) {
+			for (const t of (e.ctrlKey ? allTokens() : layer?.tokens ?? []) as Iterable<SVGToken | SVGShape | SVGDrawing>) {
 				if (t.at(e.clientX, e.clientY)) {
 					newToken = t;
 				}
