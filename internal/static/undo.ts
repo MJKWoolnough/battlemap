@@ -3,6 +3,7 @@ import {button, h1, li, ul} from './lib/html.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {BoolSetting} from './lib/settings.js';
 import lang from './language.js';
+import {inited, isAdmin} from './rpc.js';
 import {undoLimit} from './settings.js';
 import {queue} from './shared.js';
 import {shell, windows} from './windows.js';
@@ -58,22 +59,28 @@ const undos = new NodeArray<FnDesc>(ul()),
 			}
 		});
 	}
-      },
-      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
-	button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
-	button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
-	h1(lang["UNDO_WINDOW_UNDOS"]),
-	undos[node],
-	h1(lang["UNDO_WINDOW_REDOS"]),
-	redos[node]
-      ]);
+      };
 
-showWindow.wait(v => {
-	if (v) {
-		amendNode(shell, w);
+inited.then(() => {
+	if (!isAdmin) {
+		return;
 	}
-});
+	const w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
+		button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
+		button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
+		h1(lang["UNDO_WINDOW_UNDOS"]),
+		undos[node],
+		h1(lang["UNDO_WINDOW_REDOS"]),
+		redos[node]
+	      ]);
 
-Object.defineProperty(window, "showUndoWindow", {"value": () => showWindow.set(true)});
+	showWindow.wait(v => {
+		if (v) {
+			amendNode(shell, w);
+		}
+	});
+
+	Object.defineProperty(window, "showUndoWindow", {"value": () => showWindow.set(true)});
+});
 
 export default undoObj;
