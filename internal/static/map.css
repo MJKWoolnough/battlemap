@@ -119,7 +119,7 @@
 	opacity: var(--hiddenLayerSelectedOpacity, 0.5);
 }
 
-.hiddenLayer, #layerLight.hiddenLayer, #layerGrid.hiddenLayer, .adminHideLight #layerLight {
+.hiddenLayer, #layerLight.hiddenLayer, #layerGrid.hiddenLayer, .isAdmin.adminHideLight #layerLight {
 	display: none;
 }
 
