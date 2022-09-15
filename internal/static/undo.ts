@@ -17,7 +17,6 @@ type FnDesc = {
 
 const undos = new NodeArray<FnDesc>(ul()),
       redos = new NodeArray<FnDesc>(ul()),
-      showWindow = new BoolSetting("undo-window-show"),
       undoObj = {
 	"add": (fn: Fn, description: string) => {
 		queue(async () => {
@@ -65,7 +64,12 @@ inited.then(() => {
 	if (!isAdmin) {
 		return;
 	}
-	const w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
+	const showWindow = new BoolSetting("undo-window-show").wait(v => {
+			if (v) {
+				amendNode(shell, w);
+			}
+	      }),
+	      w = windows({"window-title": lang["UNDO_WINDOW_TITLE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 600px", "window-data": "undo-window-settings", "resizable": true, "onremove": () => showWindow.set(false)}, [
 		button({"onclick": undoObj.undo}, lang["UNDO_UNDO"]),
 		button({"onclick": undoObj.redo}, lang["UNDO_REDO"]),
 		h1(lang["UNDO_WINDOW_UNDOS"]),
@@ -74,11 +78,6 @@ inited.then(() => {
 		redos[node]
 	      ]);
 
-	showWindow.wait(v => {
-		if (v) {
-			amendNode(shell, w);
-		}
-	});
 
 	Object.defineProperty(window, "showUndoWindow", {"value": () => showWindow.set(true)});
 });
