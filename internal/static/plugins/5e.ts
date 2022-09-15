@@ -978,13 +978,10 @@ if (isAdmin) {
 	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => {
 		const {token} = selected;
 		if (isValidToken(token)) {
-			const tokenConditions: boolean[] = token.getData("5e-conditions") ?? Array.from({"length": conditions.length}, _ => false);
-			if (tokenConditions.some(a => a) || mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
-				const data = tokenConditions.slice();
-				data[n] = !data[n];
-				doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-				token[updateData]();
-			}
+			const data: boolean[] = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
+			data[n] = !data[n];
+			doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+			token[updateData]();
 		}
 	      }));
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
@@ -1069,29 +1066,25 @@ if (isAdmin) {
 			      tokenConditions: boolean[] = token.getData("5e-conditions") ?? [],
 			      {"shapechange-categories": {"data": shapechangeCats}, "store-image-shapechanges": {"data": shapechangeTokens}} = settings,
 			      ctxList: MenuItems = [];
-			let showConditions = tokenConditions.some(a => a);
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
 				ctxList.push(
 					item({"onselect": () => isValidToken(token) && initChange(token)}, lang["INITIATIVE_CHANGE"]),
 					item({"onselect": () => isValidToken(token) && initRemove(token)}, lang["INITIATIVE_REMOVE"])
 				);
-				showConditions = true;
 			} else {
 				ctxList.push(item({"onselect": () => isValidToken(token) && initAdd(token, initMod, token.getData("5e-initiative-adv") ?? false)}, lang["INITIATIVE_ADD"]));
 			}
-			if (showConditions) {
-				ctxList.push(submenu([
-					item(lang["CONDITIONS"]),
-					menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => {
-						if (isValidToken(token)) {
-							const data = token.getData("5e-conditions")?.slice() || Array.from({"length": conditions.length}, _ => false);
-							data[n] = !data[n];
-							doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-							token[updateData]();
-						}
-					}, "class": tokenConditions[n] ? "hasCondition" : undefined}, lang[c])))
-				]));
-			}
+			ctxList.push(submenu([
+				item(lang["CONDITIONS"]),
+				menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => {
+					if (isValidToken(token)) {
+						const data = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
+						data[n] = !data[n];
+						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
+						token[updateData]();
+					}
+				}, "class": tokenConditions[n] ? "hasCondition" : undefined}, lang[c])))
+			]));
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(submenu([
 					item(lang["SHAPECHANGE"]),
