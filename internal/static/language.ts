@@ -1,6 +1,18 @@
 import {StringSetting} from './lib/settings.js';
 
-const defaultLanguage = {
+export const language = new StringSetting("language", navigator.language),
+makeLangPack = <T extends Record<string, string>>(base: T, alternates: Record<string, Partial<T>> = {}) => {
+	const pack = alternates[language.value];
+	if (pack) {
+		for (const s in base) {
+			pack[s] ??= base[s];
+		}
+	}
+	return Object.freeze(pack as T ?? base);
+},
+languages = ["en-GB", "en-US"];
+
+export default makeLangPack({
 	"ARE_YOU_SURE": "Are you sure?",
 	"CANCEL": "Cancel",
 	"CHARACTER": "Character",
@@ -266,16 +278,8 @@ const defaultLanguage = {
 	"UPLOAD_AUDIO": "Upload Sound",
 	"UPLOAD_IMAGES": "Upload Image",
 	"UPLOADING": "Uploading Files..."
-      },
-      overlayLang = <Pack extends Record<string, string>>(pack: Partial<Pack>, base: Pack) => {
-	for (const s in base) {
-		pack[s] ??= base[s];
-	}
-	return pack as Pack;
-      },
-      languagePacks: Record<string, typeof defaultLanguage> = {
-	"en-GB": defaultLanguage,
-	"en-US": overlayLang({
+}, {
+	"en-US": {
 		"COLOUR": "Color",
 		"COLOUR_UPDATE": "Update Color",
 		"KEY_CENTRE_MAP": "Center Map",
@@ -290,11 +294,5 @@ const defaultLanguage = {
 		"TOOL_WALL_COLOUR_SET": "Set Wall Color",
 		"TOOL_WALL_UNDERLAY": "Underlay Color",
 		"UNDO_LIGHT_COLOUR": "Map Light Color"
-	}, defaultLanguage)
-      };
-
-export const languages: string[] = Object.keys(languagePacks),
-language = new StringSetting("language", navigator.language);
-
-export {overlayLang};
-export default Object.freeze(languagePacks[language.value] ?? defaultLanguage);
+	}
+});
