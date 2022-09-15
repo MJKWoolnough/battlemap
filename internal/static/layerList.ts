@@ -381,7 +381,7 @@ menuItems.push([5, () => isAdmin ? [
 			}
 			return false;
 		      },
-		      lightToggle = new BoolSetting("lightToggle").wait(v => document.body.classList.toggle("adminHideLight", v)),
+		      lightToggle = new BoolSetting("lightToggle").wait(v => amendNode(document.body, {"class": {"adminHideLight": v}})),
 		      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)}),
 		      base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
 		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"], '['),
