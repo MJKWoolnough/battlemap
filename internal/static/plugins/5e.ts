@@ -16,7 +16,7 @@ import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, 
 import {selectToken} from '../adminMap.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
 import {registerKey} from '../keys.js';
-import mainLang, {language, overlayLang} from '../language.js';
+import mainLang, {makeLangPack} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
 import {makeLight} from '../map_lighting.js';
@@ -122,7 +122,7 @@ let SVGToken5E: SVGToken5EConstructor;
 const select = Symbol("select"),
       unselect = Symbol("unselect"),
       updateData = Symbol("updateData"),
-      defaultLanguage = {
+      lang = makeLangPack({
 	"ARMOUR_CLASS": "Armour Class",
 	"CONDITION_BANE": "Bane",
 	"CONDITION_BLESSED": "Blessed",
@@ -209,17 +209,14 @@ const select = Symbol("select"),
 	"TOGGLE_CONDITION": "Toggle Condition",
 	"TOKEN_SELECTED": "Selected",
 	"TOKENS_UNSELECTED": "Unselected"
-      },
-      langs: Record<string, typeof defaultLanguage> = {
-	"en-GB": defaultLanguage,
-	"en-US": overlayLang({
+      }, {
+	"en-US": {
 		"ARMOUR_CLASS": "Armor Class",
 		"DESATURATE_CONDITIONS": "Grayscale Conditions",
 		"HIGHLIGHT_COLOUR": "Token Highlight Color",
 		"SHOW_AC": "Show Token Armor Class"
-	}, defaultLanguage)
-      },
-      lang = langs[language.value] ?? defaultLanguage,
+	}
+      }),
       importName = pluginName(import.meta),
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "fill": "currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "fill": "currentColor"})),
@@ -439,7 +436,7 @@ const select = Symbol("select"),
 					th(lang["TOKEN_SELECTED"])
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
-					td(`${lang[name as keyof typeof defaultLanguage]}: `),
+					td(`${lang[name as keyof typeof lang]}: `),
 					settings.map(setting => td(labels(input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
 					}}), "")))
