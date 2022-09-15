@@ -975,15 +975,15 @@ if (isAdmin) {
 			}
 		}
 	      }),
-	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => {
-		const {token} = selected;
+	      setCondition = (token: SVGToken | SVGShape | SVGDrawing | null, n: Uint) => {
 		if (isValidToken(token)) {
-			const data: boolean[] = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
+			const data = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
 			data[n] = !data[n];
 			doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
 			token[updateData]();
 		}
-	      }));
+	      },
+	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => setCondition(selected.token, n)));
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"fn": (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
@@ -1076,14 +1076,7 @@ if (isAdmin) {
 			}
 			ctxList.push(submenu([
 				item(lang["CONDITIONS"]),
-				menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => {
-					if (isValidToken(token)) {
-						const data = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
-						data[n] = !data[n];
-						doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-						token[updateData]();
-					}
-				}, "class": tokenConditions[n] ? "hasCondition" : undefined}, lang[c])))
+				menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => setCondition(token, n), "class": tokenConditions[n] ? "hasCondition" : undefined}, lang[c])))
 			]));
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(submenu([
