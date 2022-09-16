@@ -11,7 +11,7 @@ import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {dragAudio, dragImage} from '../assets.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
-import mainLang, {language} from '../language.js';
+import mainLang, {makeLangPack} from '../language.js';
 import {register, registerTag} from '../messaging.js';
 import {dragMusicPack, open as musicpackOpen} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
@@ -25,7 +25,7 @@ type Page = {
 	contents: string;
 }
 
-const defaultLanguage = {
+const lang = makeLangPack({
 	"ERROR_FOLDER_NOT_EMPTY": "Cannot remove a non-empty folder",
 	"ERROR_INVALID_FOLDER": "Invalid Folder",
 	"ERROR_INVALID_ITEM": "Invalid Item",
@@ -43,11 +43,7 @@ const defaultLanguage = {
 	"NOTES_NEW": "New Note",
 	"NOTES_NEW_LONG": "Enter new note name",
 	"SHARE": "Share"
-      },
-      langs: Record<string, typeof defaultLanguage> = {
-	"en-GB": defaultLanguage
-      },
-      lang = langs[language.value] ?? defaultLanguage,
+      }),
       icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 84 96" width="84" height="96" %3E%3Crect x="60" y="6" width="24" height="90" fill="%23888" rx="10" /%3E%3Crect x="1" y="6" width="80" height="90" stroke="%23000" fill="%23fff" rx="10" /%3E%3Cg id="h"%3E%3Ccircle cx="16" cy="11" r="2" fill="%23333" /%3E%3Cellipse cx="15" cy="6" rx="3" ry="5" stroke="%23aaa" stroke-width="2" fill="none" stroke-dasharray="0 5 15" /%3E%3C/g%3E%3Cuse href="%23h" x="10" /%3E%3Cuse href="%23h" x="20" /%3E%3Cuse href="%23h" x="30" /%3E%3Cuse href="%23h" x="40" /%3E%3Cuse href="%23h" x="50" /%3E%3Cpath d="M11,25 h60 M11,40 h60 M11,55 h60 M11,70 h30" stroke="%23000" stroke-width="4" stroke-linecap="round" /%3E%3C/svg%3E`;
 
 register("plugin-notes", [icon, lang["NOTE"]]);
