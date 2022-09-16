@@ -5,7 +5,7 @@ import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html
 import {NodeArray, node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {mapLoadReceive} from '../adminMap.js';
-import {language} from '../language.js';
+import {language, makeLangPack} from '../language.js';
 import {SVGToken, tokens} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
@@ -20,7 +20,7 @@ type assetSize = {
 if (isAdmin) {
 	addCSS("#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}");
 
-	const defaultLanguage = {
+	const lang = makeLangPack({
 		"GENERATE_STATISTICS": "Generate Statistics",
 		"ID": "ID",
 		"IMAGE": "Image",
@@ -29,11 +29,7 @@ if (isAdmin) {
 		"NO_MAP": "No map loaded",
 		"SIZE": "Size",
 		"TOTAL_SIZE": "Total Size"
-	      },
-	      langs: Record<string, typeof defaultLanguage> = {
-		"en-GB": defaultLanguage
-	      },
-	      lang = langs[language.value] ?? defaultLanguage,
+	      }),
 	      sortID = (a: assetSize, b: assetSize) => a.id - b.id,
 	      sortSize = (a: assetSize, b: assetSize) => b.size - a.size,
 	      output = div(),
