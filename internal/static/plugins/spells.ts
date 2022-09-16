@@ -6,7 +6,7 @@ import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
 import {hex2Colour} from '../colours.js';
 import {registerKey} from '../keys.js';
-import mainLang, {language} from '../language.js';
+import mainLang, {makeLangPack} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
@@ -53,7 +53,7 @@ if (isAdmin) {
 	    damageType = 0,
 	    send = false,
 	    rotate = false;
-	const defaultLanguage = {
+	const lang = makeLangPack({
 		"ADD_SPELL": "Add Spell to Map",
 		"DAMAGE_TYPE": "Damage Type",
 		"SPELL_SIZE": "Spell Size",
@@ -74,11 +74,7 @@ if (isAdmin) {
 		"TYPE_6": "Lightning",
 		"TYPE_7": "Earth",
 		"TYPE_8": "Darkness"
-	      },
-	      langs: Record<string, typeof defaultLanguage> = {
-		"en-GB": defaultLanguage
-	      },
-	      lang = langs[language.value] ?? defaultLanguage,
+	      }),
 	      sparkID = "plugin-spell-spark",
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
