@@ -11,7 +11,7 @@ import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import {registerKey} from '../keys.js';
-import {language} from '../language.js';
+import {makeLangPack} from '../language.js';
 import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
@@ -119,7 +119,7 @@ if (isAdmin) {
 	}
 
 	let lastID = 0;
-	const defaultLanguage = {
+	const lang = makeLangPack({
 		"APPLY_LIGHT": "Apply Light to Selected Token",
 		"COPY_LIGHT": "Copy Light from Selected Token",
 		"ERROR_FOLDER_NOT_EMPTY": "Cannot remove a non-empty folder",
@@ -134,11 +134,7 @@ if (isAdmin) {
 		"NEW_NAME": "Please enter a name for this Light Profile",
 		"NEW_NAME_TITLE": "Light Profile Name",
 		"REMOVE_LIGHT": "Remove Light from Selected Token"
-	      },
-	      langs: Record<string, typeof defaultLanguage> = {
-		"en-GB": defaultLanguage
-	      },
-	      lang = langs[language.value] ?? defaultLanguage,
+	      }),
 	      dragLightItem = new DragTransfer<LightItem>("pluginlightitem"),
 	      dragLightFolder = new DragTransfer<LightFolder>("pluginlightfolder"),
 	      importName = pluginName(import.meta),
