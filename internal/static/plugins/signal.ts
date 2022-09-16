@@ -1,7 +1,7 @@
 import {amendNode} from '../lib/dom.js';
 import {br, div, input} from '../lib/html.js';
 import {circle, svg} from '../lib/svg.js';
-import {language} from '../language.js';
+import {makeLangPack} from '../language.js';
 import {screen2Grid, showSignal} from '../map.js';
 import {deselectToken} from '../map_tokens.js';
 import {isAdmin, rpc} from '../rpc.js';
@@ -9,15 +9,11 @@ import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
 
 if (isAdmin) {
-	const defaultLanguage = {
+	const lang = makeLangPack({
 		"HOME": "Set Map Start Location",
 		"MOVE": "Move User Map",
 		"TITLE": "Signal"
-	      },
-	      langs: Record<string, typeof defaultLanguage> = {
-		      "en-GB": defaultLanguage
-	      },
-	      lang = langs[language.value] ?? defaultLanguage,
+	      }),
 	      move = input({"type": "checkbox", "class": "settings_ticker", "onchange": () => amendNode(home, {"disabled": !move.checked})}),
 	      home = input({"type": "checkbox", "class": "settings_ticker", "disabled": true});
 	addTool({
