@@ -490,7 +490,7 @@ export default (base: HTMLElement) => {
 						}
 						const {lightColours, lightStages, lightTimings} = currToken,
 						      makeChange = () => ({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages": stages.map(s => s.value), "lightTimings": timings.map(t => t.value)}),
-						      dragKey = dragLighting.register({"transfer": makeChange}),
+						      dragKey = dragLighting.register(makeChange),
 						      lColours = cloneObject(lightColours),
 						      lStages = lightStages.length ? cloneObject(lightStages) : [0],
 						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
