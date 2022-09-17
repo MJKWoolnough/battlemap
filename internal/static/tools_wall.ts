@@ -333,7 +333,7 @@ inited.then(() => {
 		}
 	});
 
-	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide", "waitLayerSetLock", "waitLayerSetUnlock"] as (keyof RPCWaits)[]) {
+	for (const wait of ["waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved", "waitLayerMove", "waitLayerRemove", "waitLayerShift", "waitLayerShow", "waitLayerHide", "waitLayerLock", "waitLayerUnlock"] as (keyof RPCWaits)[]) {
 		(combined as Omit<typeof combined, "images" | "audio" | "characters" | "map">)[wait]().then(gw);
 	}
 });
