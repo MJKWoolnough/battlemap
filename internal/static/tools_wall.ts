@@ -52,9 +52,9 @@ inited.then(() => {
 		}
 	      }}),
 	      continuous = input({"type": "checkbox", "class": "settings_ticker"}),
-	      dragKey = dragScattering.register({"transfer": () => checkInt(parseInt(scatteringI.value), 0, 255, 0)}),
-	      scatteringDragKey = dragScattering.register({"transfer": () => walls.get(selectedWall)?.wall.scattering ?? 0}),
-	      colourDragKey = dragColour.register({"transfer": () => walls.get(selectedWall)?.wall.colour ?? noColour}),
+	      dragKey = dragScattering.register(() => checkInt(parseInt(scatteringI.value), 0, 255, 0)),
+	      scatteringDragKey = dragScattering.register(() => walls.get(selectedWall)?.wall.scattering ?? 0),
+	      colourDragKey = dragColour.register(() => walls.get(selectedWall)?.wall.colour ?? noColour),
 	      snap = input({"type": "checkbox", "class": "settings_ticker"}),
 	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
