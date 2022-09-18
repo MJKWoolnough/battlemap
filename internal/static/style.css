@@ -20,12 +20,16 @@ html, body {
 	width: 100%;
 }
 
-a, .psudeoLink {
+.psuedoLink {
+	cursor: pointer;
+}
+
+a, .psuedoLink {
 	color: #00f;
 	text-decoration: none;
 }
 
-a:hover, .psudeoLink:hover {
+a:hover, .psuedoLink:hover {
 	text-decoration: underline;
 }
 
