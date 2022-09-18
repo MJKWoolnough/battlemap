@@ -1,5 +1,8 @@
 import type {IDName, Int, MusicPack, MusicTrack, Uint} from './types.js';
+import type {Parsers, Tokeniser} from './lib/bbcode.js';
 import type {WindowElement} from './windows.js';
+import {isOpenTag, process} from './lib/bbcode.js';
+import {none} from './lib/bbcode_tags.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.js';
@@ -7,6 +10,7 @@ import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import lang from './language.js';
+import {registerTag} from './messaging.js';
 import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
 import {musicSort} from './settings.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -216,7 +220,21 @@ inited.then(() => {
 			});
 			commonWaits(packs);
 		});
+		registerTag("musicpack", none);
 	} else {
+		registerTag("musicpack", (n: Node, t: Tokeniser, p: Parsers) => {
+			const tk = t.next(true).value;
+			if (tk && isOpenTag(tk) && tk.attr) {
+				const id = parseInt(tk.attr);
+				if (!isNaN(id)) {
+					amendNode(n, process(span({"class": "psudeoLink", "onclick": (e: MouseEvent) => {
+						if (e.button) {
+							open(id);
+						}
+					}}), t, p, tk.tagName));
+				}
+			}
+		});
 		menuItems.push([3, () => [
 			lang["TAB_MUSIC_PACKS"],
 			(() => {
