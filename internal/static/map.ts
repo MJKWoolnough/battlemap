@@ -310,8 +310,8 @@ updateLight = () => {
 	}
 	if (wallsChanged) {
 		wallList = walls;
+		handleWalls(walls);
 	}
-	handleWalls(walls);
 },
 showSignal = (() => {
 	const signalAnim1 = animate({"attributeName": "r", "values": "4;46", "dur": "1s"}),
