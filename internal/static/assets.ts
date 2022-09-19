@@ -9,16 +9,18 @@ import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
-import {register} from './messaging.js';
+import {bbcodeDrag, register} from './messaging.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
 import {labels, loading, menuItems, setAndReturn} from './shared.js';
 import {shareStr} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 class ImageAsset extends DraggableItem {
+	#bbcodeID: string;
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragImage, true);
 		amendNode(this.image, {"src": `/images/${id}`});
+		this.#bbcodeID = bbcodeDrag.register(() => () => `[img]/images/${id}[/img]`);
 	}
 	show() {
 		const w = windows({"window-icon": imageIcon, "window-title": this.name, "hide-minimise": false, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": this}));
@@ -26,18 +28,38 @@ class ImageAsset extends DraggableItem {
 		amendNode(shell, w);
 		return w;
 	}
+	ondragstart(e: DragEvent) {
+		super.ondragstart(e);
+		if (!e.defaultPrevented) {
+			bbcodeDrag.set(e, this.#bbcodeID);
+		}
+	}
+	delete() {
+		bbcodeDrag.deregister(this.#bbcodeID);
+	}
 }
 
 class AudioAsset extends DraggableItem {
+	#bbcodeID: string;
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragAudio);
 		amendNode(this.image, {"src": audioIcon});
+		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]/images/${id}[/audio]`);
 	}
 	show() {
 		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
 		w.addControlButton(shareStr, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
+	}
+	ondragstart(e: DragEvent) {
+		super.ondragstart(e);
+		if (!e.defaultPrevented) {
+			bbcodeDrag.set(e, this.#bbcodeID);
+		}
+	}
+	delete() {
+		bbcodeDrag.deregister(this.#bbcodeID);
 	}
 }
 
