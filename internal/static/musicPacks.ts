@@ -10,7 +10,7 @@ import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
 import lang from './language.js';
-import {registerTag} from './messaging.js';
+import {bbcodeDrag, registerTag} from './messaging.js';
 import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
 import {musicSort} from './settings.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -293,6 +293,7 @@ inited.then(() => {
 						#pauseTime: Uint = 0;
 						window: WindowElement;
 						#dragKey: string;
+						#bbcodeKey: string;
 						constructor(id: Uint, pack: MusicPack) {
 							super(pack);
 							this.id = id;
@@ -301,8 +302,13 @@ inited.then(() => {
 							for (const track of pack.tracks) {
 								this.tracks.push(new AdminTrack(this, track));
 							}
-							this.#dragKey = dragMusicPack.register(this);
 							this.#playPauseTitle = title(this.playTime === 0 ? lang["MUSIC_PLAY"] : lang["MUSIC_PAUSE"]);
+							this.#dragKey = dragMusicPack.register(this);
+							this.#bbcodeKey = bbcodeDrag.register(() => (t: string) => `[musicpack=${this.id}]${t || this.name}[/musicpack]`);
+							const ondragstart = (e: DragEvent) => {
+								dragMusicPack.set(e, this.#dragKey, dragIcon);
+								bbcodeDrag.set(e, this.#bbcodeKey);
+							      };
 							this.window = windows({"window-icon": musicIcon, "window-title": lang["MUSIC_WINDOW_TITLE"], "hide-minimise": false, "ondragover": (e: DragEvent) => {
 								if (this.currentTime === 0) {
 									dragCheck(e);
@@ -323,7 +329,7 @@ inited.then(() => {
 									}).catch(handleError);
 								}
 							}}, [
-								this.#titleNode = h1({"draggable": "true", "ondragstart": (e: DragEvent) => dragMusicPack.set(e, this.#dragKey, dragIcon)}, this.name),
+								this.#titleNode = h1({"draggable": "true", ondragstart}, this.name),
 								svg({"style": "width: 2em", "viewBox": "0 0 90 90"}, [
 									this.#playPauseTitle,
 									this.#playPauseNode = path({"d": this.playTime === 0 ? playIcon : pauseIcon, "fill": "currentColor", "stroke": "none", "fill-rule": "evenodd"}, [this.#toPlay, this.#toPause]),
@@ -345,7 +351,7 @@ inited.then(() => {
 								this.tracks[node],
 								div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 							]);
-							this[node] = li({"class": "foldersItem", "draggable": "true", "ondragstart": (e: DragEvent) => dragMusicPack.set(e, this.#dragKey, dragIcon)}, [
+							this[node] = li({"class": "foldersItem", "draggable": "true", ondragstart}, [
 								this.#playStatus = playStatus({"style": "width: 1em; height: 1em; visibility: hidden"}),
 								this.#nameNode = span({"onclick": () => shell.addWindow(this.window), "onauxclick": (e: MouseEvent) => {
 									if (e.button === 1) {
@@ -433,6 +439,7 @@ inited.then(() => {
 							}
 							musicList.delete(this.id);
 							dragMusicPack.deregister(this.#dragKey);
+							bbcodeDrag.deregister(this.#bbcodeKey);
 						}
 					}
 					const musicStringSortFn = (a: AdminPack, b: AdminPack) => stringSort(a.name, b.name),
