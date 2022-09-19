@@ -3,6 +3,7 @@ import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
 import {amendNode} from './lib/dom.js';
+import {DragTransfer} from './lib/drag.js';
 import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
 
@@ -17,7 +18,8 @@ registerTag = (tagName: string, fn: TagFn) => {
 	tags[tagName] = fn;
 	return true;
 },
-parseBBCode = (text: string) => bbcode(tags, text);
+parseBBCode = (text: string) => bbcode(tags, text),
+bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode");
 
 inited.then(() => {
 	rpc.waitBroadcastWindow().then(d => {
