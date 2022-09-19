@@ -228,7 +228,7 @@ inited.then(() => {
 				const id = parseInt(tk.attr);
 				if (!isNaN(id)) {
 					amendNode(n, process(span({"class": "psuedoLink", "onclick": (e: MouseEvent) => {
-						if (e.button) {
+						if (e.button === 0) {
 							open(id);
 						}
 					}}), t, p, tk.tagName));
