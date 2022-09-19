@@ -3,6 +3,10 @@
 	color: #fff;
 }
 
+.invert a, .invert .psuedoLink {
+	color: #f00;
+}
+
 .invert windows-window {
 	color: #fff;
 	background-color: #000;
