@@ -51,10 +51,12 @@ if (isAdmin) {
 		#window: WindowElement | null = null;
 		#popWindow: Window | null = null;
 		#share: (() => void) | null = null;
+		#bbcodeID: string;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragNote);
 			amendNode(this.image, {"src": icon});
 			notes.set(id, this);
+			this.#bbcodeID = bbcodeDrag.register(() => (text: string) => `[note=${id}]${text || this.name}[/note]`);
 			amendNode(this.nameElem, {"onauxclick": (e: MouseEvent) => {
 				if (e.button === 1) {
 					if (this.#popWindow) {
@@ -129,9 +131,16 @@ if (isAdmin) {
 				this.#setShareButton();
 			}
 		}
+		ondragstart(e: DragEvent) {
+			super.ondragstart(e);
+			if (!e.defaultPrevented) {
+				bbcodeDrag.set(e, this.#bbcodeID);
+			}
+		}
 		delete() {
 			this.#window?.remove();
 			this.#popWindow?.close();
+			bbcodeDrag.deregister(this.#bbcodeID);
 		}
 		#setShareButton() {
 			if (!pages.has(this.id) || !pages.get(this.id)!.data.share) {
