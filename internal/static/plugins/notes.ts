@@ -1,8 +1,8 @@
 import type {FolderItems, FromTo, IDName, KeystoreData, Uint} from '../types.js';
 import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import type {WindowElement} from '../windows.js';
-import bbcode, {isOpenTag, process} from '../lib/bbcode.js';
-import {all} from '../lib/bbcode_tags.js';
+import {isOpenTag, process} from '../lib/bbcode.js';
+import {none} from '../lib/bbcode_tags.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {br, button, div, input, link, span, style, textarea, title} from '../lib/html.js';
@@ -12,8 +12,8 @@ import {ns as svgNS} from '../lib/svg.js';
 import {dragAudio, dragImage} from '../assets.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import mainLang, {makeLangPack} from '../language.js';
-import {register, registerTag} from '../messaging.js';
-import {dragMusicPack, open as musicpackOpen} from '../musicPacks.js';
+import {parseBBCode, register, registerTag} from '../messaging.js';
+import {dragMusicPack} from '../musicPacks.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, cloneObject, isUint, labels} from '../shared.js';
@@ -66,7 +66,7 @@ if (isAdmin) {
 						if (wp) {
 							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
 							wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
-							wp.document.body.append(bbcode(allTags, pages.get(this.id)?.data.contents || ""));
+							wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
 						}
 					}
 				}
@@ -78,7 +78,7 @@ if (isAdmin) {
 			} else if (this.#popWindow) {
 				this.#popWindow.focus();
 			} else {
-				const data = div({"class": "plugin-notes"}, bbcode(allTags, pages.get(this.id)?.data.contents || ""));
+				const data = div({"class": "plugin-notes"}, parseBBCode(pages.get(this.id)?.data.contents || ""));
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 					this.#share = null;
@@ -128,7 +128,7 @@ if (isAdmin) {
 							page.data = {"contents": contents.value, "share": share.checked};
 							pages.set(this.id, page);
 							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							clearNode(data, bbcode(allTags, contents.value));
+							clearNode(data, parseBBCode(contents.value));
 							this.#setShareButton();
 						}}, lang["NOTE_SAVE"])
 					      ]);
@@ -172,7 +172,7 @@ if (isAdmin) {
 	}
 
 	let lastID = 0;
-	const css = "#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.musicpackLink,.noteLink{color:#00f;text-decoration:underline;cursor:pointer}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}",
+	const css = "#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}",
 	      dragNote = new DragTransfer<NoteItem>("pluginnote"),
 	      dragNoteFolder = new DragTransfer<NoteFolder>("pluginnotefolder"),
 	      importName = pluginName(import.meta),
@@ -393,27 +393,7 @@ if (isAdmin) {
 				changes[""] = 1;
 			}
 		}
-	      },
-	      allTags = Object.assign({
-		"musicpack": (n: Node, t: Tokeniser, p: Parsers) => {
-			const tk = t.next(true).value;
-			if (tk && isOpenTag(tk) && tk.attr) {
-				const id = parseInt(tk.attr);
-				if (!isNaN(id)) {
-					amendNode(n, process(span({"class": "musicpackLink", "onclick": () => musicpackOpen(id)}), t, p, tk.tagName));
-				}
-			}
-		},
-		"note": (n: Node, t: Tokeniser, p: Parsers) => {
-			const tk = t.next(true).value;
-			if (tk && isOpenTag(tk) && tk.attr) {
-				const id = parseInt(tk.attr);
-				if (!isNaN(id)) {
-					amendNode(n, process(span({"class": "noteLink", "onclick": () => notes.get(id)?.show()}), t, p, tk.tagName));
-				}
-			}
-		}
-	      }, all);
+	      };
 	addCSS(css);
 	root.windowIcon = icon;
 	addPlugin("notes", {
@@ -518,15 +498,15 @@ if (isAdmin) {
 			}
 		}
 	});
-	registerTag("note", allTags.note);
-	registerTag("musicpack", allTags.musicpack);
-} else {
-	const noTag = (n: Node, t: Tokeniser, p: Parsers) => {
+	registerTag("note", (n: Node, t: Tokeniser, p: Parsers) => {
 		const tk = t.next(true).value;
-		if (tk && isOpenTag(tk)) {
-			process(n, t, p, tk.tagName);
+		if (tk && isOpenTag(tk) && tk.attr) {
+			const id = parseInt(tk.attr);
+			if (!isNaN(id)) {
+				amendNode(n, process(span({"class": "psuedoLink", "onclick": () => notes.get(id)?.show()}), t, p, tk.tagName));
+			}
 		}
-	};
-	registerTag("note", noTag);
-	registerTag("musicpack", noTag);
+	});
+} else {
+	registerTag("note", none);
 }
