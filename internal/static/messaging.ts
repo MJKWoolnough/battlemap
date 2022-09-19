@@ -16,14 +16,15 @@ registerTag = (tagName: string, fn: TagFn) => {
 	}
 	tags[tagName] = fn;
 	return true;
-};
+},
+parseBBCode = (text: string) => bbcode(tags, text);
 
 inited.then(() => {
 	rpc.waitBroadcastWindow().then(d => {
 		const fn = modules.get(d.module);
 		if (fn) {
 			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
-			amendNode(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}, bbcode(tags, d.contents)));
+			amendNode(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}, parseBBCode(d.contents)));
 		}
 	});
 });
