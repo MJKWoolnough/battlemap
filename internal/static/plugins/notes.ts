@@ -9,11 +9,9 @@ import {br, button, div, input, link, span, style, textarea, title} from '../lib
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
-import {dragAudio, dragImage} from '../assets.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import mainLang, {makeLangPack} from '../language.js';
-import {parseBBCode, register, registerTag} from '../messaging.js';
-import {dragMusicPack} from '../musicPacks.js';
+import {bbcodeDrag, parseBBCode, register, registerTag} from '../messaging.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {addCSS, cloneObject, isUint, labels} from '../shared.js';
@@ -94,19 +92,13 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [dragImage, dragAudio, dragMusicPack, dragNote]}), "ondrop": (e: DragEvent) => {
-						if (dragImage.is(e)) {
-							contents.setRangeText(`[img]/images/${dragImage.get(e).id}[/img]`);
-						} else if (dragAudio.is(e)) {
-							contents.setRangeText(`[audio]/audio/${dragAudio.get(e).id}[/audio]`);
-						} else if (dragNote.is(e)) {
+					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [bbcodeDrag]}), "ondrop": (e: DragEvent) => {
+						if (bbcodeDrag.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = dragNote.get(e);
-							contents.setRangeText(`[note=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) || name}[/note]`);
-						} else if (dragMusicPack.is(e)) {
-							const {selectionStart, selectionEnd} = contents,
-							      {id, name} = dragMusicPack.get(e);
-							contents.setRangeText(`[musicpack=${id}]${contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd)) || name}[/musicpack]`);
+							      fn = bbcodeDrag.get(e);
+							if (fn) {
+								contents.setRangeText(fn(contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd))));
+							}
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
