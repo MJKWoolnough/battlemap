@@ -65,7 +65,7 @@ if (isAdmin) {
 						const wp = window.open("", "", "");
 						if (wp) {
 							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-							wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+							wp.document.head.append(title(this.name), style({"type": "text/css"}, windowCSS), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 							wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
 						}
 					}
@@ -87,7 +87,7 @@ if (isAdmin) {
 					const wp = window.open("", "", "");
 					if (wp) {
 						(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-						wp.document.head.append(title(this.name), style({"type": "text/css"}, css), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+						wp.document.head.append(title(this.name), style({"type": "text/css"}, windowCSS), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 						wp.document.body.append(data);
 						this.#window?.remove();
 					}
@@ -174,6 +174,7 @@ if (isAdmin) {
 
 	let lastID = 0;
 	const css = "#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}",
+	      windowCSS = css + ".psuedoLink{cursor:pointer}a,.psuedoLink{color:#00f;text-decoration:none}a:hover,.psuedoLink:hover{text-decoration:underline}.invert a,.invert .psuedoLink{color:red}",
 	      dragNote = new DragTransfer<NoteItem>("pluginnote"),
 	      dragNoteFolder = new DragTransfer<NoteFolder>("pluginnotefolder"),
 	      importName = pluginName(import.meta),
