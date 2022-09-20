@@ -279,12 +279,12 @@ updateLight = () => {
 			let lightChanged = cL[0] !== cO[0] || cL[1] !== cO[1] || lpL[0] !== lpO[0] || lpL[1] !== lpO[1] || light.lightStages.length !== oldLight.lightStages.length || light.lightTimings.length !== oldLight.lightTimings.length;
 			if (!lightChanged) {
 				for (let j = 0; !lightChanged && j < light.lightStages.length; j++) {
-					lightChanged = light.lightStages[0] !== oldLight.lightStages[0];
+					lightChanged = light.lightStages[j] !== oldLight.lightStages[j];
 				}
 			}
 			if (!lightChanged) {
 				for (let j = 0; !lightChanged && j < light.lightTimings.length; j++) {
-					lightChanged = light.lightTimings[0] !== oldLight.lightTimings[0];
+					lightChanged = light.lightTimings[j] !== oldLight.lightTimings[j];
 				}
 			}
 			if (!lightChanged) {
