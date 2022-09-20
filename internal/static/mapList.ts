@@ -53,7 +53,7 @@ class MapItem extends DraggableItem {
 		    oldMap = selectedCurrent!;
 		const doIt = () => {
 			if (oldMap) {
-				setMap(this, oldMap, "mapCurrent", "hasMapCurrent");
+				setMap(thisMap, oldMap, "mapCurrent", "hasMapCurrent");
 			} else {
 				amendNode(this[node], {"class": ["mapCurrent"]});
 			}
