@@ -305,6 +305,9 @@ updateLight = () => {
 		      [lx, ly] = light.getLightPos();
 		lightList.splice(i, 1, new Lighting(cx, cy, lx, ly, cloneObject(light.lightColours), cloneObject(light.lightStages), cloneObject(light.lightTimings)));
 	}
+	for (; lid < lightList.length; lid++) {
+		definitions.clearLightGroup("L" + lid);
+	}
 	if (lightList.length > lights.length) {
 		lightList.splice(lights.length, lightList.length - lights.length);
 	}
