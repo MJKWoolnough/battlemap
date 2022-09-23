@@ -14,8 +14,7 @@ import {shell, windows} from './windows.js';
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableAnimation", "musicSort"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
-hiddenLayerOpacity = new IntSetting("hiddenLayerOpacity", 128, 0, 255),
-hiddenLayerSelectedOpacity = new IntSetting("hiddenLayerSelectedOpacity", 128, 0, 255);
+[hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255));
 
 menuItems.push([7, () => [
 	lang["TAB_SETTINGS"],
