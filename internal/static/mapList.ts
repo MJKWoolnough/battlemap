@@ -1,4 +1,5 @@
 import type {FolderItems, Uint} from './types.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
@@ -7,7 +8,7 @@ import {IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import {mapLoadSend} from './adminMap.js';
 import {hex2Colour} from './colours.js';
-import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
+import {DragFolder, DraggableItem, Folder, foldersItem, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
 import {checkInt, enterKey, labels, loading, menuItems, queue} from './shared.js';
@@ -31,7 +32,13 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
 	}
       },
       selectedMap = new IntSetting("selectedMap"),
-      dragMapFolder = new DragTransfer<MapFolder>("mapfolder");
+      dragMapFolder = new DragTransfer<MapFolder>("mapfolder"),
+      mapItem = id(),
+      mapUser = id(),
+      hasMapUser = id(),
+      hasMapCurrent = id(),
+      mapCurrent = id(),
+      setUserMap = id();
 
 export const dragMap = new DragTransfer<MapItem>("map");
 
@@ -42,8 +49,8 @@ class MapItem extends DraggableItem {
 	constructor(parent: Folder, id: Uint, name: string) {
 		super(parent, id, name, dragMap);
 		amendNode(this.image, {"src": mapIcon});
-		amendNode(this[node], {"class": ["mapItem"]});
-		this[node].insertBefore(userSelected({"class": "setUserMap", "title": lang["MAP_SET_USER"], "onclick": () => {
+		amendNode(this[node], {"class": [mapItem]});
+		this[node].insertBefore(userSelected({"class": setUserMap, "title": lang["MAP_SET_USER"], "onclick": () => {
 			this.setUserMap();
 			rpc.setUserMap(id);
 		}}), this[node].firstChild);
@@ -53,9 +60,9 @@ class MapItem extends DraggableItem {
 		    oldMap = selectedCurrent!;
 		const doIt = () => {
 			if (oldMap) {
-				setMap(thisMap, oldMap, "mapCurrent", "hasMapCurrent");
+				setMap(thisMap, oldMap, mapCurrent, hasMapCurrent);
 			} else {
-				amendNode(this[node], {"class": ["mapCurrent"]});
+				amendNode(this[node], {"class": [mapCurrent]});
 			}
 			selectedCurrent = thisMap;
 			const id = thisMap.id;
@@ -71,13 +78,13 @@ class MapItem extends DraggableItem {
 		}
 	}
 	rename() {
-		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))) : super.rename();
+		return this[node].classList.contains(mapCurrent) || this[node].classList.contains(mapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME"]))) : super.rename();
 	}
 	remove() {
-		return this[node].classList.contains("mapCurrent") || this[node].classList.contains("mapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))) : super.remove();
+		return this[node].classList.contains(mapCurrent) || this[node].classList.contains(mapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_REMOVE"]))) : super.remove();
 	}
 	setUserMap() {
-		setMap(this, selectedUser, "mapUser", "hasMapUser");
+		setMap(this, selectedUser, mapUser, hasMapUser);
 		selectedUser = this;
 	}
 }
@@ -87,44 +94,44 @@ class MapFolder extends DragFolder<MapItem> {
 		super(root, parent, name, children, dragMap, dragMapFolder);
 	}
 	rename(e: Event) {
-		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
+		return this[node].classList.contains(hasMapCurrent) || this[node].classList.contains(hasMapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
 	}
 	remove(e: Event) {
-		return this[node].classList.contains("hasMapCurrent") || this[node].classList.contains("hasMapUser") ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"]))) : super.remove(e);
+		return this[node].classList.contains(hasMapCurrent) || this[node].classList.contains(hasMapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"]))) : super.remove(e);
 	}
 }
 
 class MapRoot extends Root {
 	moveItem(from: string, to: string) {
 		if (selectedCurrent && selectedCurrent.getPath() === from) {
-			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			setMap(null, selectedCurrent, mapCurrent, hasMapCurrent);
 			super.moveItem(from, to);
-			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
+			setMap(selectedCurrent, null, mapCurrent, hasMapCurrent);
 		} else {
 			super.moveItem(from, to);
 		}
 	}
 	removeItem(from: string) {
 		if (selectedCurrent && selectedCurrent.getPath() === from) {
-			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+			setMap(null, selectedCurrent, mapCurrent, hasMapCurrent);
 			mapLoadSend(0);
 		}
 		return super.removeItem(from);
 	}
 	moveFolder(from: string, to: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f[node].classList.contains("hasMapCurrent")) {
-			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		if (f && f[node].classList.contains(hasMapCurrent)) {
+			setMap(null, selectedCurrent, mapCurrent, hasMapCurrent);
 			const t = super.moveFolder(from, to);
-			setMap(selectedCurrent, null, "mapCurrent", "hasMapCurrent");
+			setMap(selectedCurrent, null, mapCurrent, hasMapCurrent);
 			return t;
 		}
 		return super.moveFolder(from, to);
 	}
 	removeFolder(from: string) {
 		const [f] = this.resolvePath(from);
-		if (f && f[node].classList.contains("hasMapCurrent")) {
-			setMap(null, selectedCurrent, "mapCurrent", "hasMapCurrent");
+		if (f && f[node].classList.contains(hasMapCurrent)) {
+			setMap(null, selectedCurrent, mapCurrent, hasMapCurrent);
 			mapLoadSend(0);
 		}
 		return super.removeFolder(from);
@@ -162,7 +169,43 @@ menuItems.push([4, () => isAdmin ? [
 						m.show();
 					}
 				}
-			      };
+			      },
+			      mapList = id();
+			add(`#${mapList}`, {
+				" ul": {
+					"list-style": "none",
+					"margin": 0,
+					"padding-left": "calc(1em + 4px)"
+				},
+				" li>svg:first-child": {
+					"display": "inline-block",
+					"width": "1em",
+					"height": "1em",
+					"margin": "0 2px"
+				},
+				" li.mapItem>svg:first-child": {
+					"cursor": "pointer"
+				},
+				" li.mapUser>svg:first-child": {
+					"--map-selected": "block"
+				},
+				[` .${foldersItem}`]: {
+					"grid-template-columns": "auto 1em 1em 1em"
+				}
+			});
+			add(`.${hasMapUser}>details>summary`, {
+				"background-color": "#ccffcc !important"
+			});
+			add(`.${hasMapCurrent}>details>summary`, {
+				"background-color": "#f8f8f8 !important"
+			});
+			add(`.${mapCurrent}`, {
+				"background-color": "#eee"
+			});
+			add(`.${setUserMap}`, {
+				"position": "absolute",
+				"left": 0
+			});
 			root.windowIcon = mapIcon;
 			rpc.waitCurrentUserMap().then(setUserMap);
 			let s = true;
@@ -176,7 +219,7 @@ menuItems.push([4, () => isAdmin ? [
 			if (userMap > 0) {
 				setUserMap(userMap, s);
 			}
-			clearNode(base, {"id": "mapList"}, [
+			clearNode(base, {"id": mapList}, [
 				button({"onclick": () => {
 					const name = input({"type": "text", "onkeypress": enterKey}),
 					      width = input({"type": "number", "min": 10, "max": 1000, "value": 30, "onkeypress": enterKey}),
@@ -185,7 +228,7 @@ menuItems.push([4, () => isAdmin ? [
 					      sqWidth = input({"type": "number", "min": 1, "max": 1000, "value": 100}),
 					      sqColour = input({"type": "color"}),
 					      sqLineWidth = input({"type": "number", "min": 0, "max": 10, "value": 1}),
-					      w = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"], "class": "mapAdd"}, [
+					      w = windows({"window-icon": mapIcon, "window-title": lang["MAP_NEW"]}, [
 						h1(lang["MAP_NEW"]),
 						labels(`${lang["MAP_NAME"]}: `, name),
 						br(),
