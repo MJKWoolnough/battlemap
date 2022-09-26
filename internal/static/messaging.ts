@@ -2,6 +2,7 @@ import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
+import {id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {inited, rpc} from './rpc.js';
@@ -19,7 +20,8 @@ registerTag = (tagName: string, fn: TagFn) => {
 	return true;
 },
 parseBBCode = (text: string) => bbcode(tags, text),
-bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode");
+bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode"),
+psuedoLink = id();
 
 inited.then(() => {
 	rpc.waitBroadcastWindow().then(d => {
