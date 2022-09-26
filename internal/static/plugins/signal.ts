@@ -5,6 +5,7 @@ import {makeLangPack} from '../language.js';
 import {screen2Grid, showSignal} from '../map.js';
 import {deselectToken} from '../map_tokens.js';
 import {isAdmin, rpc} from '../rpc.js';
+import {settingsTicker} from '../settings.js';
 import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
 
@@ -14,8 +15,8 @@ if (isAdmin) {
 		"MOVE": "Move User Map",
 		"TITLE": "Signal"
 	      }),
-	      move = input({"type": "checkbox", "class": "settings_ticker", "onchange": () => amendNode(home, {"disabled": !move.checked})}),
-	      home = input({"type": "checkbox", "class": "settings_ticker", "disabled": true});
+	      move = input({"type": "checkbox", "class": settingsTicker, "onchange": () => amendNode(home, {"disabled": !move.checked})}),
+	      home = input({"type": "checkbox", "class": settingsTicker, "disabled": true});
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 100 100", "fill": "none", "stroke": "currentColor", "stroke-width": 3}, [
