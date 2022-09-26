@@ -1,5 +1,6 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {Character} from './characterList.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, img, input, label, li, ul} from './lib/html.js';
@@ -10,6 +11,7 @@ import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';
 import {inited, rpc} from './rpc.js';
+import {settingsTicker} from './settings.js';
 import {characterData, cloneObject, labels, mapLoadedReceive, queue, resetCharacterTokens} from './shared.js';
 import {remove as removeSymbol, userVisible} from './symbols.js';
 import undo from './undo.js';
@@ -24,7 +26,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
-	      w = windows({"window-icon": characterIcon, "window-title": title, "hide-minimise": false, "class": "showCharacter", "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
+	      w = windows({"window-icon": characterIcon, "window-title": title, "hide-minimise": false, "class": showCharacter, "style": {"--window-width": "auto"}, "ondragover": () => w.focus(), "onclose": (e: Event) => {
 		if (removes.size > 0 || Object.keys(changes).length > 0) {
 			e.preventDefault();
 			w.confirm(lang["ARE_YOU_SURE"], lang["UNSAVED_CHANGES"]).then(t => {
@@ -36,8 +38,8 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 	      }}),
 	      nameUpdate = () => changes["name"] = {"user": nameVisibility.checked, "data": nameInput.value},
 	      nameInput = input({"type": "text", "value": d["name"]?.["data"] ?? "", "onchange": nameUpdate}),
-	      nameVisibility = input({"type": "checkbox", "class": "userVisibility", "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
-	      makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": "tokenSelector"}, (() => {
+	      nameVisibility = input({"type": "checkbox", "class": userVisibility, "checked": d["name"]?.["user"] !== false, "onchange": nameUpdate}),
+	      makeToken = (n: Uint, tk: {src: Uint}) => Object.assign({[node]: li({"class": tokenSelector}, (() => {
 		const i = img({"src": `/images/${tk["src"]}`});
 		return [
 			button({"onclick": () => w.confirm(lang["TOKEN_REPLACE"], lang["TOKEN_REPLACE_CONFIRM"]).then(proceed => {
@@ -60,7 +62,7 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 			})})
 		];
 	      })())}, tk),
-	      tokens = new NodeMap(ul({"class": "tokenSelectors"}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
+	      tokens = new NodeMap(ul({"class": tokenSelectors}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
 	      base = div([
 		labels(`${lang["NAME"]}: `, nameInput),
 		labels(nameVisibility, userVisible()),
@@ -87,8 +89,8 @@ edit = (id: Uint, title: string, d: Record<string, KeystoreData>, character: boo
 			}}, lang["TOKEN_ADD"]),
 			br(),
 			label(`${lang["TOKEN_ORDER"]}: `),
-			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": "settings_ticker", "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
-			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": "settings_ticker", "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
+			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": settingsTicker, "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
+			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": settingsTicker, "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
 		] : [
 			label(`${lang["CHARACTER"]}: `),
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
@@ -172,10 +174,55 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
 	return rpc.setToken(t);
       },
       characterDragEffect = setDragEffect({"link": [dragCharacter]}),
-      imageDragEffect = setDragEffect({"link": [dragImage]});
+      imageDragEffect = setDragEffect({"link": [dragImage]}),
+      userVisibility = id(),
+      tokenSelector = id(),
+      tokenSelectors = id(),
+      showCharacter = id();
 
 
 inited.then(() => {
 	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
+	add(`.${userVisibility}`, {
+		"+label>svg": {
+			"display": "inline-block",
+			"width": "1em",
+			"height": "1em"
+		},
+		":not(:checked)+label>svg": {
+			"--check-on": "none",
+			"--check-off": "block"
+		}
+	});
+	add(`.${tokenSelectors}`, {
+		"margin": 0,
+		"list-style": "none"
+	});
+	add(`.${tokenSelector}`, {
+		"overflow": "hidden",
+		"position": "relative",
+		">button": {
+			"position": "absolute",
+			"left": 0,
+			"background-color": "transparent",
+			"width": "200px",
+			"height": "200px",
+			"color": "#000",
+			"text-shadow": "#fff 0 0 5px"
+		},
+		">img": {
+			"max-width": "200px",
+			"max-height": "200px"
+		},
+		">svg": {
+			"width": "2em",
+			"height": "2em",
+			"cursor": "pointer"
+		}
+	});
+	add(`.${showCharacter}>div`, {
+		"max-height": "90vh",
+		"overflow-y": "scroll"
+	});
 });
