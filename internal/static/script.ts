@@ -1,4 +1,5 @@
 import type {WindowData, WindowElement} from './windows.js';
+import {render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
@@ -222,6 +223,7 @@ inited.then(() => {
 		if (settings) {
 			tabs.add(settings()!);
 		}
+		amendNode(document.head, render());
 		addCSS(tabs.css());
 		amendNode(desktop, tabs.html());
 		setTimeout(() => tabs.setTab(lastTab.value));
