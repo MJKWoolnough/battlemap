@@ -142,7 +142,43 @@ menuItems.push([4, () => isAdmin ? [
 	lang["TAB_MAPS"],
 	(() => {
 		const rpcFuncs = rpc["maps"],
-		      base = div(loading());
+		      base = div(loading()),
+		      mapList = id();
+		add(`#${mapList}`, {
+			" ul": {
+				"list-style": "none",
+				"margin": 0,
+				"padding-left": "calc(1em + 4px)"
+			},
+			" li>svg:first-child": {
+				"display": "inline-block",
+				"width": "1em",
+				"height": "1em",
+				"margin": "0 2px"
+			},
+			[` li.${mapItem}>svg:first-child`]: {
+				"cursor": "pointer"
+			},
+			[` li.${mapUser}>svg:first-child`]: {
+				"--map-selected": "block"
+			},
+			[` .${foldersItem}`]: {
+				"grid-template-columns": "auto 1em 1em 1em"
+			}
+		});
+		add(`.${hasMapUser}>details>summary`, {
+			"background-color": "#ccffcc !important"
+		});
+		add(`.${hasMapCurrent}>details>summary`, {
+			"background-color": "#f8f8f8 !important"
+		});
+		add(`.${mapCurrent}`, {
+			"background-color": "#eee"
+		});
+		add(`.${setUserMap}`, {
+			"position": "absolute",
+			"left": 0
+		});
 		Promise.all([
 			rpcFuncs.list(),
 			rpc.getUserMap()
@@ -169,43 +205,7 @@ menuItems.push([4, () => isAdmin ? [
 						m.show();
 					}
 				}
-			      },
-			      mapList = id();
-			add(`#${mapList}`, {
-				" ul": {
-					"list-style": "none",
-					"margin": 0,
-					"padding-left": "calc(1em + 4px)"
-				},
-				" li>svg:first-child": {
-					"display": "inline-block",
-					"width": "1em",
-					"height": "1em",
-					"margin": "0 2px"
-				},
-				" li.mapItem>svg:first-child": {
-					"cursor": "pointer"
-				},
-				" li.mapUser>svg:first-child": {
-					"--map-selected": "block"
-				},
-				[` .${foldersItem}`]: {
-					"grid-template-columns": "auto 1em 1em 1em"
-				}
-			});
-			add(`.${hasMapUser}>details>summary`, {
-				"background-color": "#ccffcc !important"
-			});
-			add(`.${hasMapCurrent}>details>summary`, {
-				"background-color": "#f8f8f8 !important"
-			});
-			add(`.${mapCurrent}`, {
-				"background-color": "#eee"
-			});
-			add(`.${setUserMap}`, {
-				"position": "absolute",
-				"left": 0
-			});
+			      };
 			root.windowIcon = mapIcon;
 			rpc.waitCurrentUserMap().then(setUserMap);
 			let s = true;
