@@ -1,11 +1,19 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
 import type {Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
+import {id} from './lib/css.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label, style} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
+
+type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
+
+interface Labeller {
+	<T extends Input>(name: Children, input: T, props?: PropsObject): [HTMLLabelElement, T];
+	<T extends Input>(input: T, name: Children, props?: PropsObject): [T, HTMLLabelElement];
+}
 
 export const enterKey = function(this: Node, e: KeyboardEvent) {
 	if (e.key === "Enter") {
@@ -26,20 +34,10 @@ queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
 })(),
-labels = (() => {
-	type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
-
-	interface Labeller {
-		<T extends Input>(name: Children, input: T, props?: PropsObject): [HTMLLabelElement, T];
-		<T extends Input>(input: T, name: Children, props?: PropsObject): [T, HTMLLabelElement];
-	}
-
-	let next = 0;
-	return ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
-		const iProps = {"id": props["for"] = `ID_${next++}`};
-		return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
-	}) as Labeller;
-})(),
+labels = ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
+	const iProps = {"id": props["for"] = id()};
+	return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
+}) as Labeller,
 addCSS = (css: string) => amendNode(document.head, style({"type": "text/css"}, css)),
 cloneObject = (() => {
 	const refs = new Map(),
