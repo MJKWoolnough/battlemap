@@ -10,7 +10,7 @@ import {root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
 import {deselectToken, masks} from './map_tokens.js';
 import {inited, isAdmin} from './rpc.js';
-import {autosnap} from './settings.js';
+import {autosnap, settingsTicker} from './settings.js';
 import {labels} from './shared.js';
 import {addTool, marker} from './tools.js';
 import {shell} from './windows.js';
@@ -19,9 +19,9 @@ inited.then(() => {
 	if (!isAdmin) {
 		return;
 	}
-	const opaque = input({"name": "maskColour", "type": "radio", "class": "settings_ticker", "checked": true}),
-	      [rectangle, circle, poly, remove] = Array.from({"length": 4}, (_, n) => input({"name": "maskShape", "type": "radio", "class": "settings_ticker", "checked": !n})),
-	      snap = input({"type": "checkbox", "class": "settings_ticker"}),
+	const opaque = input({"name": "maskColour", "type": "radio", "class": settingsTicker, "checked": true}),
+	      [rectangle, circle, poly, remove] = Array.from({"length": 4}, (_, n) => input({"name": "maskShape", "type": "radio", "class": settingsTicker, "checked": !n})),
+	      snap = input({"type": "checkbox", "class": settingsTicker}),
 	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      [rectDrag, cancelRectDrag] = mouseDragEvent(0, (e: MouseEvent) => {
@@ -137,7 +137,7 @@ inited.then(() => {
 				legend(lang["TOOL_MASK_DRAW_TYPE"]),
 				labels(opaque, `${lang["TOOL_MASK_OPAQUE"]}: `),
 				br(),
-				labels(input({"name": "maskColour", "type": "radio", "class": "settings_ticker"}), `${lang["TOOL_MASK_TRANSPARENT"]}: `)
+				labels(input({"name": "maskColour", "type": "radio", "class": settingsTicker}), `${lang["TOOL_MASK_TRANSPARENT"]}: `)
 			]),
 			fieldset([
 				legend(lang["TOOL_MASK_DRAW_SHAPE"]),
