@@ -1,4 +1,5 @@
 import type {Uint} from './types.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
@@ -118,16 +119,47 @@ menuItems.push([6, () => isAdmin ? [
 			} else {
 				amendNode(toolOptions, {"style": {"display": "none"}});
 			}
-			amendNode(selected, {"class": ["!selected"]});
-			amendNode(selected = this, {"class": ["selected"]});
+			amendNode(selected, {"class": {[selectedID]: false}});
+			amendNode(selected = this, {"class": [selectedID]});
 		      }}, [
 			t.icon,
 			span(t.name)
 		      ])),
 		      fc = list[0],
 		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+('),
-		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)');
-		amendNode(base, {"id": "toolList", "onpopout": () => {
+		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)'),
+		      toolList = id(),
+		      selectedID = id(),
+		      miniToolsID = id();
+		add(`#${toolList}`, {
+			">ul": {
+				"list-style": "none",
+				"padding": 0,
+				"margin-top": 0,
+				">li": {
+					"cursor": "pointer",
+					"padding": "0.4em",
+					" :is(img, svg)": {
+						"width": "2em",
+						"height": "2em",
+						"padding-right": "3px",
+						"background-color": "transparent"
+					}
+				}
+			},
+			[` li.${selectedID}`]: {
+				"background-color": "#888"
+			}
+		});
+		add(`.${miniToolsID} #${toolList}>ul`, {
+			"margin-bottom": 0,
+			"padding-bottom": 0,
+			" svg + span": {
+				"display": "none"
+			}
+		});
+
+		amendNode(base, {"id": toolList, "onpopout": () => {
 			windowed = true;
 			if (miniTools.value) {
 				amendNode(optionsWindow, options);
@@ -149,7 +181,7 @@ menuItems.push([6, () => isAdmin ? [
 		fc.click();
 		mapLoadedReceive(() => fc.click());
 		miniTools.wait(on => {
-			amendNode(document.body, {"class": {"miniTools": on}});
+			amendNode(document.body, {"class": {[miniToolsID]: on}});
 			if (windowed) {
 				if (on) {
 					amendNode(optionsWindow, options);
