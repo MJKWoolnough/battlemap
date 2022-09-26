@@ -6,7 +6,7 @@ import {circle, g, path, polyline, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {mapData, panZoom, root, screen2Grid} from './map.js';
 import {inited, isAdmin, rpc} from './rpc.js';
-import {autosnap} from './settings.js';
+import {autosnap, settingsTicker} from './settings.js';
 import {checkInt, isUint, labels, mapLoadedReceive} from './shared.js';
 import {addTool, ignore, marker} from './tools.js';
 
@@ -26,7 +26,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 		rpc.setGridDistance(v);
 	}
       }}),
-      diagonals = input({"type": "checkbox", "checked": true, "class": "settings_ticker", "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
+      diagonals = input({"type": "checkbox", "checked": true, "class": settingsTicker, "onchange": () => rpc.setGridDiagonal(diagonals.checked)}),
       coords: [number, number, ...number[]] = [NaN, NaN];
 
 export const startMeasurement = (x1: Uint, y1: Uint) => {
@@ -102,8 +102,8 @@ inited.then(() => {
 		return;
 	}
 	let send = false;
-	const snap = input({"type": "checkbox", "class": "settings_ticker"}),
-	      multiPoint = input({"type": "checkbox", "checked": false, "class": "settings_ticker"}),
+	const snap = input({"type": "checkbox", "class": settingsTicker}),
+	      multiPoint = input({"type": "checkbox", "checked": false, "class": settingsTicker}),
 	      shiftSnap = () => snap.click(),
 	      [setupMouse0, cancelMouse0] = mouseDragEvent(0, undefined, (e: MouseEvent) => {
 		if (!e.ctrlKey) {
