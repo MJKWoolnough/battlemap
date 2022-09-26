@@ -3,14 +3,16 @@ import type {Parsers, Tokeniser} from './lib/bbcode.js';
 import type {WindowElement} from './windows.js';
 import {isOpenTag, process} from './lib/bbcode.js';
 import {none} from './lib/bbcode_tags.js';
+import {add, id} from './lib/css.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
+import {foldersItem, itemControl} from './folders.js';
 import lang from './language.js';
-import {bbcodeDrag, registerTag} from './messaging.js';
+import {bbcodeDrag, psuedoLink, registerTag} from './messaging.js';
 import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
 import {musicSort} from './settings.js';
 import {checkInt, loading, menuItems} from './shared.js';
@@ -227,7 +229,7 @@ inited.then(() => {
 			if (tk && isOpenTag(tk) && tk.attr) {
 				const id = parseInt(tk.attr);
 				if (!isNaN(id)) {
-					amendNode(n, process(span({"class": "psuedoLink", "onclick": (e: MouseEvent) => {
+					amendNode(n, process(span({"class": psuedoLink, "onclick": (e: MouseEvent) => {
 						if (e.button === 0) {
 							open(id);
 						}
@@ -239,7 +241,29 @@ inited.then(() => {
 			lang["TAB_MUSIC_PACKS"],
 			(() => {
 				const base = div(loading()),
-				      dragIcon = img({"class": "imageIcon", "src": musicIcon});
+				      dragIcon = img({"class": "imageIcon", "src": musicIcon}),
+				      musicPackList = id(),
+				      musicTrackList = id();
+				add(`#${musicPackList},.${musicTrackList}`, {
+					"margin": 0,
+					"padding-left": 0,
+					"list-style": "none"
+				});
+				add(`#${musicPackList}>li`, {
+					">span": {
+						"cursor": "pointer"
+					},
+					"display": "grid",
+					"grid-template-columns": "1em auto 1em 1em 1em"
+				});
+				add(`.${musicTrackList} li`, {
+					">svg": {
+						"margin-right": 0,
+						"margin-left": "0.5em"
+					},
+					"display": "grid",
+					"grid-template-columns": "auto 10em 5em 2em"
+				});
 				audioEnabled().then(rpc.musicPackList).then(list => {
 					class AdminTrack extends Track {
 						[node]: HTMLLIElement;
@@ -256,7 +280,7 @@ inited.then(() => {
 									this.updateVolume();
 								}}),
 								this.#repeatNode = input({"type": "number", "min": -1, "value": this.repeat = track.repeat, "onchange": () => rpc.musicPackTrackRepeat(parent.id, parent.tracks.findIndex(t => t === this), this.repeat = checkInt(parseInt(this.#repeatNode.value), -1))}),
-								remove({"class": "itemRemove", "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
+								remove({"class": itemControl, "title": lang["MUSIC_TRACK_REMOVE"], "onclick": () => parent.window.confirm(lang["MUSIC_TRACK_REMOVE"], lang["MUSIC_TRACK_REMOVE_LONG"]).then(d => {
 									if (d) {
 										rpc.musicPackTrackRemove(parent.id, this.remove());
 									}
@@ -298,7 +322,7 @@ inited.then(() => {
 							super(pack);
 							this.id = id;
 							this.name = pack.name;
-							this.tracks = new NodeArray<AdminTrack>(ul({"class": "musicTrackList"}), noSort);
+							this.tracks = new NodeArray<AdminTrack>(ul({"class": musicTrackList}), noSort);
 							for (const track of pack.tracks) {
 								this.tracks.push(new AdminTrack(this, track));
 							}
@@ -351,7 +375,7 @@ inited.then(() => {
 								this.tracks[node],
 								div({"style": "text-align: center"}, lang["MUSIC_DROP"])
 							]);
-							this[node] = li({"class": "foldersItem", "draggable": "true", ondragstart}, [
+							this[node] = li({"class": foldersItem, "draggable": "true", ondragstart}, [
 								this.#playStatus = playStatus({"style": "width: 1em; height: 1em; visibility: hidden"}),
 								this.#nameNode = span({"onclick": () => shell.addWindow(this.window), "onauxclick": (e: MouseEvent) => {
 									if (e.button === 1) {
@@ -362,7 +386,7 @@ inited.then(() => {
 										}
 									}
 								}}, this.name),
-								rename({"title": lang["MUSIC_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
+								rename({"title": lang["MUSIC_RENAME"], "class": itemControl, "onclick": () => shell.prompt(lang["MUSIC_RENAME"], lang["MUSIC_RENAME_LONG"], this.name).then(name => {
 									if (name && name !== this.name) {
 										rpc.musicPackRename(this.id, name).then(name => {
 											if (name !== this.name) {
@@ -372,12 +396,12 @@ inited.then(() => {
 										});
 									}
 								})}),
-								copy({"title": lang["MUSIC_COPY"], "class": "itemCopy", "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
+								copy({"title": lang["MUSIC_COPY"], "class": itemControl, "onclick": () => shell.prompt(lang["MUSIC_COPY"], lang["MUSIC_COPY_LONG"], this.name).then(name => {
 									if (name) {
 										rpc.musicPackCopy(this.id, name).then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name, this.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), this.volume))));
 									}
 								})}),
-								remove({"title": lang["MUSIC_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
+								remove({"title": lang["MUSIC_REMOVE"], "class": itemControl, "onclick": () => shell.confirm(lang["MUSIC_REMOVE"], lang["MUSIC_REMOVE_LONG"]).then(remove => {
 									if (remove) {
 										this.remove();
 										rpc.musicPackRemove(this.id);
@@ -444,7 +468,7 @@ inited.then(() => {
 					}
 					const musicStringSortFn = (a: AdminPack, b: AdminPack) => stringSort(a.name, b.name),
 					      musicActiveSortFn = (a: AdminPack, b: AdminPack) => (b.playTime - a.playTime) || musicStringSortFn(a, b),
-					      musicList = new NodeMap<Uint, AdminPack>(ul({"id": "musicPackList"})),
+					      musicList = new NodeMap<Uint, AdminPack>(ul({"id": musicPackList})),
 					      playIcon = "M75,15 c-15,-15 -45,-15 -60,0 c-15,15 -15,45 0,60 c15,15 45,15 60,0 c15,-15 15,-45 0,-60 z M35,25 v40 l30,-20 l0,0 z",
 					      pauseIcon = "M35,15 c0,0 -20,0 -20,0 c0,0 0,60 0,60 c0,0 20,0 20,0 c0,0 0,-60 0,-60 z M55,15 v60 l20,0 l0,-60 z",
 					      toPlayOptions = {"attributeName": "d", "to": playIcon, "dur": "0.2s", "begin": "click", "fill": "freeze"},
