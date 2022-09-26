@@ -1,5 +1,6 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
+import {add, id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
@@ -58,12 +59,12 @@ colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Col
 	      updatePreview = () => amendNode(preview, {"style": {"background-color": hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))}}),
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
-	      w = windows({"window-icon": icon, "window-title": title, "class": "lightChange", "onremove": () => {
+	      w = windows({"window-icon": icon, "window-title": title, "onremove": () => {
 		      dragColour.deregister(dragKey);
 		      reject();
 	      }}, [
 		h1(title),
-		div({"class": "checkboard"}, preview),
+		div({"class": checkboard}, preview),
 		labels(`${lang["COLOUR"]}: `, colourInput),
 		br(),
 		labels(`${lang["COLOUR_ALPHA"]}: `, alphaInput),
@@ -85,7 +86,7 @@ makeColourPicker = (() => {
 		let active = false;
 		const dragKey = dragColour.register(getColour),
 		      d = div({"draggable": "true", "ondragstart": (e: DragEvent) => dragColour.set(e, dragKey, iconImg)}),
-		      b = button({"class": "checkboard colourButton", "onclick": () => {
+		      b = button({"class": [checkboard, colourButton], "onclick": () => {
 			if (!active) {
 				active = true;
 				colourPicker(w ?? shell, title, getColour(), icon).then(c => setColour(sc(d, c))).finally(() => active = false);
@@ -102,4 +103,27 @@ makeColourPicker = (() => {
 dragColour = new DragTransfer<Colour>("colour");
 
 const iconImg = img({"src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'}),
-      dragCheck = setDragEffect({"copy": [dragColour]});
+      dragCheck = setDragEffect({"copy": [dragColour]}),
+      checkboard = id(),
+      colourButton = id();
+
+add(`.${checkboard}`, {
+	"background-color": "#ccc",
+	"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20"%3E%3Cpath d="M0,0H10V20H20V10H0Z" fill="gray" /%3E%3C/svg%3E')`,
+	"width": "200px",
+	"height": "200px",
+	" div": {
+		"width": "200px",
+		"height": "200px"
+	}
+});
+add(`.${colourButton}`, {
+	"display": "inline-block",
+	"width": "50px",
+	"height": "50px",
+	"padding": 0,
+	" div": {
+		"width": "100%",
+		"height": "100%"
+	}
+});
