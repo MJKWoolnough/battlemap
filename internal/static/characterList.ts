@@ -93,20 +93,22 @@ menuItems.push([2, () => isAdmin ? [
 	(() => {
 		const rpcFuncs = rpc["characters"],
 		      base = div(loading()),
-		      dragEffect = setDragEffect({"link": [dragImage]});
-		rpcFuncs.list().then(folderList => {
-			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder),
-			      charactersID = id();
-			add(`#${charactersID}`, {
+		      dragEffect = setDragEffect({"link": [dragImage]}),
+		      charactersID = id();
+		add(`#${charactersID}`, {
+			" ul": {
 				"margin": 0,
 				"padding-left": "calc(1em + 4px)",
-				"list-style": "none",
-				">div>ul": {
-					"padding-left": 0
-				}
-			});
+				"list-style": "none"
+			},
+			">div>ul": {
+				"padding-left": 0
+			}
+		});
+		rpcFuncs.list().then(folderList => {
+			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
 			root.windowIcon = characterIcon;
-			clearNode(base, {"id": charactersID, "class": "folders"}, [
+			clearNode(base, {"id": charactersID}, [
 				button({"onclick": () => {
 					let icon = 0;
 					const name = input({"onkeypress": enterKey}),
