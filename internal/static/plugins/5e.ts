@@ -15,15 +15,16 @@ import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {selectToken} from '../adminMap.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
+import {itemControl} from '../folders.js';
 import {registerKey} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
 import {makeLight} from '../map_lighting.js';
-import {Lighting, definitions, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
+import {Lighting, definitions, lighting, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
-import {enableAnimation} from '../settings.js';
+import {enableAnimation, settingsTicker} from '../settings.js';
 import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import {remove, rename, symbols} from '../symbols.js';
 import {shell, windows} from '../windows.js';
@@ -437,7 +438,7 @@ const select = Symbol("select"),
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
 					td(`${lang[name as keyof typeof lang]}: `),
-					settings.map(setting => td(labels(input({"type": "checkbox", "class": "settings_ticker", "checked": setting.value, "onchange": function(this: HTMLInputElement) {
+					settings.map(setting => td(labels(input({"type": "checkbox", "class": settingsTicker, "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
 					}}), "")))
 				])))
@@ -805,12 +806,12 @@ if (isAdmin) {
 		const name = span(c.name),
 		      t = th([
 			name,
-			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
+			rename({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], "class": itemControl, "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME"], lang["SHAPECHANGE_TOKEN_CATEGORY_RENAME_LONG"], c.name).then(newName => {
 				if (newName && c.name !== newName) {
 					clearNode(name, c.name = newName);
 				}
 			})}),
-			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
+			remove({"title": lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], "class": itemControl, "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE"], lang["SHAPECHANGE_TOKEN_CATEGORY_REMOVE_LONG"], "").then(rm => {
 				if (rm) {
 					shapechangeCats[pos].name = "";
 					for (const row of tickers) {
@@ -824,7 +825,7 @@ if (isAdmin) {
 	      },
 	      addTicker = (row: Uint, col: Uint, state = false) => {
 		const t = td([
-			labels(input({"class": "settings_ticker", "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
+			labels(input({"class": settingsTicker, "type": "checkbox", "checked": state, "onchange": function(this: HTMLInputElement) {
 				shapechangeCats[col]["images"][row] = this.checked;
 			}}), "")
 		      ]);
@@ -856,12 +857,12 @@ if (isAdmin) {
 				]),
 				br(),
 				name,
-				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": "itemRename", "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
+				rename({"title": lang["SHAPECHANGE_TOKEN_RENAME"], "class": itemControl, "onclick": () => shell.prompt(lang["SHAPECHANGE_TOKEN_RENAME"], lang["SHAPECHANGE_TOKEN_RENAME_LONG"], t["5e-shapechange-name"]).then(newName => {
 					if (newName && t["5e-shapechange-name"] !== newName) {
 						clearNode(name, t["5e-shapechange-name"] = newName);
 					}
 				})}),
-				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": "itemRemove", "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
+				remove({"title": lang["SHAPECHANGE_TOKEN_REMOVE"], "class": itemControl, "onclick": () => shell.confirm(lang["SHAPECHANGE_TOKEN_REMOVE"], lang["SHAPECHANGE_TOKEN_REMOVE_LONG"]).then(rm => {
 					if (rm) {
 						rows[row].remove();
 						shapechangeTokens[row]["5e-shapechange-name"] = "";
@@ -1013,7 +1014,7 @@ if (isAdmin) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": getData("5e-player")["data"], "onchange": function (this: HTMLInputElement) {
+				labels(input({"type": "checkbox", "class": settingsTicker, "checked": getData("5e-player")["data"], "onchange": function (this: HTMLInputElement) {
 					changes["5e-player"] = {"user": true, "data": this.checked};
 				}}), `${lang["IS_PLAYER"]}: `),
 				br(),
@@ -1145,10 +1146,10 @@ mapLoadedReceive(() => {
 			}
 		}
 		clearNode(getLayer("/Light")![node], [
-			use({"href": "#lighting", "style": "mix-blend-mode: saturation", "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
+			use({"href": `#${lighting}`, "style": "mix-blend-mode: saturation", "filter": "url(#darksat-5e)", "clip-path": "url(#darkvision-5e)"}),
 			g({"style": "mix-blend-mode: multiply"}, [
-				use({"href": "#lighting"}),
-				use({"href": "#lighting", "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"})
+				use({"href": `#${lighting}`}),
+				use({"href": `#${lighting}`, "filter": "url(#darkvis-5e)", "clip-path": "url(#darkvision-5e)"})
 			])
 		]);
 		updateInitiative();
