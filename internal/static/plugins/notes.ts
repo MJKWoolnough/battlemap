@@ -3,18 +3,20 @@ import type {Parsers, Tokeniser} from '../lib/bbcode.js';
 import type {WindowElement} from '../windows.js';
 import {isOpenTag, process} from '../lib/bbcode.js';
 import {none} from '../lib/bbcode_tags.js';
+import {add, id, render} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
-import {br, button, div, input, link, span, style, textarea, title} from '../lib/html.js';
+import {br, button, div, input, link, span, textarea, title} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
 import mainLang, {makeLangPack} from '../language.js';
-import {bbcodeDrag, parseBBCode, register, registerTag} from '../messaging.js';
+import {bbcodeDrag, parseBBCode, psuedoLink, register, registerTag} from '../messaging.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
-import {addCSS, cloneObject, isUint, labels} from '../shared.js';
+import {settingsTicker} from '../settings.js';
+import {cloneObject, isUint, labels} from '../shared.js';
 import {shareStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -65,7 +67,7 @@ if (isAdmin) {
 						const wp = window.open("", "", "");
 						if (wp) {
 							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-							wp.document.head.append(title(this.name), style({"type": "text/css"}, windowCSS), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+							wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 							wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
 						}
 					}
@@ -78,7 +80,7 @@ if (isAdmin) {
 			} else if (this.#popWindow) {
 				this.#popWindow.focus();
 			} else {
-				const data = div({"class": "plugin-notes"}, parseBBCode(pages.get(this.id)?.data.contents || ""));
+				const data = div({"class": pluginNotesClass}, parseBBCode(pages.get(this.id)?.data.contents || ""));
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 					this.#share = null;
@@ -87,7 +89,7 @@ if (isAdmin) {
 					const wp = window.open("", "", "");
 					if (wp) {
 						(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-						wp.document.head.append(title(this.name), style({"type": "text/css"}, windowCSS), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+						wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
 						wp.document.body.append(data);
 						this.#window?.remove();
 					}
@@ -103,8 +105,8 @@ if (isAdmin) {
 							}
 						}
 					      }}, page.data.contents),
-					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": "settings_ticker", "checked": page.data.share}),
-					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": "plugin-notes-edit", "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
+					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": settingsTicker, "checked": page.data.share}),
+					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": pluginNotesEdit, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
 						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
 							e.preventDefault();
 							w.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
@@ -173,9 +175,7 @@ if (isAdmin) {
 	}
 
 	let lastID = 0;
-	const css = "#pluginNotes ul{padding-left: 1em;list-style: none}#pluginNotes>div>ul{padding:0}.plugin-notes-edit textarea{width: calc(100% - 10em);height: calc(100% - 5em)}.plugin-notes{user-select:text;white-space:pre-wrap;font-family:'Andale Mono',monospace}",
-	      windowCSS = css + ".psuedoLink{cursor:pointer}a,.psuedoLink{color:#00f;text-decoration:none}a:hover,.psuedoLink:hover{text-decoration:underline}.invert a,.invert .psuedoLink{color:red}",
-	      dragNote = new DragTransfer<NoteItem>("pluginnote"),
+	const dragNote = new DragTransfer<NoteItem>("pluginnote"),
 	      dragNoteFolder = new DragTransfer<NoteFolder>("pluginnotefolder"),
 	      importName = pluginName(import.meta),
 	      editIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 70 70" fill="none" stroke="%23000"%3E%3Cpolyline points="51,7 58,0 69,11 62,18 51,7 7,52 18,63 62,18" stroke-width="2" /%3E%3Cpath d="M7,52 L1,68 L18,63 M53,12 L14,51 M57,16 L18,55" /%3E%3C/svg%3E`,
@@ -395,12 +395,32 @@ if (isAdmin) {
 				changes[""] = 1;
 			}
 		}
-	      };
-	addCSS(css);
+	      },
+	      pluginNotesID = id(),
+	      pluginNotesClass = id(),
+	      pluginNotesEdit = id();
+	add(`#${pluginNotesID}`, {
+		" ul": {
+			"padding-left": "1em",
+			"list-style": "none"
+		},
+		">div>ul": {
+			"padding": 0
+		}
+	});
+	add(`.${pluginNotesEdit} textarea`, {
+		"width": "calc(100% - 10em)",
+		"height": "calc(100% - 5em)"
+	});
+	add(`.${pluginNotesClass}`, {
+		"user-select": "text",
+		"white-space": "pre-wrap",
+		"font-family": "'Andale Mono',monospace"
+	});
 	root.windowIcon = icon;
 	addPlugin("notes", {
 		"menuItem": {
-			"fn": [lang["MENU_TITLE"], div({"id": "pluginNotes"}, [
+			"fn": [lang["MENU_TITLE"], div({"id": pluginNotesID}, [
 				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
 					if (name) {
 						if (name.includes("/")) {
@@ -505,7 +525,7 @@ if (isAdmin) {
 		if (tk && isOpenTag(tk) && tk.attr) {
 			const id = parseInt(tk.attr);
 			if (!isNaN(id)) {
-				amendNode(n, process(span({"class": "psuedoLink", "onclick": () => notes.get(id)?.show()}), t, p, tk.tagName));
+				amendNode(n, process(span({"class": psuedoLink, "onclick": () => notes.get(id)?.show()}), t, p, tk.tagName));
 			}
 		}
 	});
