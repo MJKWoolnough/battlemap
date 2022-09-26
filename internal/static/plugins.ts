@@ -10,6 +10,7 @@ import {stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
+import {settingsTicker} from './settings.js';
 import {labels, setAndReturn} from './shared.js';
 import {shell} from './windows.js';
 
@@ -53,7 +54,7 @@ settings = () => {
 	if (pluginList.size === 0) {
 		return [];
 	}
-	const check = input({"type": "checkbox", "class": "settings_ticker", "disabled": true}),
+	const check = input({"type": "checkbox", "class": settingsTicker, "disabled": true}),
 	      selected = select({"onchange": function(this: HTMLSelectElement) {
 		const plugin = pluginList.get(this.value),
 		      disabled = {"disabled": !plugin};
