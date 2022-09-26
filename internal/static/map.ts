@@ -1,6 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
+import {add, id} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
@@ -12,7 +13,7 @@ import {Colour, noColour} from './colours.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
-import {Lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
+import {Lighting, lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, rpc} from './rpc.js';
 import {enableAnimation, scrollAmount, zoomSlider} from './settings.js';
@@ -44,7 +45,7 @@ const idNames: Record<string, Int> = {
       },
       processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
 	path += "/" + layer.name;
-	const n = g(layer.hidden ? {"class": "hiddenLayer"} : undefined);
+	const n = g(layer.hidden ? {"class": hiddenLayer} : undefined);
 	if (isLayerFolder(layer)) {
 		const children = new NodeArray<SVGFolder | SVGLayer>(n);
 		for (const c of layer.children) {
@@ -58,17 +59,20 @@ const idNames: Record<string, Int> = {
 			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new drawingClass(t) : new shapeClass(t));
 		}
 	} else {
-		amendNode(n, {"id": `layer${layer.name}`});
+		amendNode(n, {"id": layer.name === "Grid" ? layerGrid : layerLight});
 		layer.walls = [];
 	}
 	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
-      lightList: Lighting[] = [];
+      lightList: Lighting[] = [],
+      mapBase = id(),
+      layerGrid = id(),
+      mapLoading = id();
 
-
-export const splitAfterLastSlash = (path: string) => {
+export const layerLight = id(),
+splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/");
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
@@ -100,7 +104,7 @@ getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null]
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(path);
-	layer?.[node].classList.toggle("hiddenLayer", layer.hidden = !visibility);
+	layer?.[node].classList.toggle(hiddenLayer, layer.hidden = !visibility);
 	updateLight();
 },
 addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "locked": false, "children": [], "folders": {}, "items": {}})), path),
@@ -387,22 +391,27 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
+hiddenLayer = id(),
+mapID = id(),
+hideZoomSlider = id(),
+zoomSliderID = id(),
+zooming = id(),
 zoom = (() => {
 	const zoomMove = (e: MouseEvent) => {
 		const v = Math.max(10, Math.min(110, e.clientY));
 		amendNode(zoomerControl, {"cy": v});
 		zoom(Math.pow(1.4, (60 - v) / 10) / panZoom.zoom, window.innerWidth >> 1, window.innerHeight >> 1, false);
 	      },
-	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => amendNode(document.body, {"class": ["!zooming"]})),
+	      [setupZoomDrag] = mouseDragEvent(0, zoomMove, () => amendNode(document.body, {"class": {[zooming]: false}})),
 	      zoomWheel = (e: WheelEvent) => zoom(Math.sign(e.deltaY) * 0.95, window.innerWidth >> 1, window.innerHeight >> 1),
 	      zoomerControl = circle({"cx": 10, "cy": 60, "r": 10, "stroke": "#000", "onmousedown": (e: MouseEvent) => {
 		if (e.button === 0) {
 			setupZoomDrag();
-			amendNode(document.body, {"class": ["zooming"]});
+			amendNode(document.body, {"class": [zooming]});
 		}
 	      }, "onwheel": zoomWheel}),
 	      l4 = Math.log(1.4);
-	inited.then(() => amendNode(desktop, svg({"id": "zoomSlider", "viewBox": "0 0 20 120"}, [
+	inited.then(() => amendNode(desktop, svg({"id": zoomSliderID, "viewBox": "0 0 20 120"}, [
 		rect({"width": 20, "height": 120, "rx": 10, "stroke": "#000", "onclick": (e: MouseEvent) => {
 			if (e.button === 0) {
 				zoomMove(e);
@@ -410,7 +419,7 @@ zoom = (() => {
 		}, "onwheel": zoomWheel}),
 		zoomerControl
 	])));
-	zoomSlider.wait(enabled => amendNode(desktop, {"class": {"hideZoomSlider": enabled}}));
+	zoomSlider.wait(enabled => amendNode(desktop, {"class": {[hideZoomSlider]: enabled}}));
 	mapLoadedReceive(() => amendNode(zoomerControl, {"cy": "60"}));
 	return (delta: number, x: number, y: number, moveControl = true) => {
 		const width = checkInt(parseInt(root.getAttribute("width") || "0"), 0) / 2,
@@ -465,11 +474,11 @@ mapView = (mD: MapData, loadChars = false) => {
 		"items": {},
 		"path": "/"
 	};
-	root = svg({"id": "map", width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
+	root = svg({"id": mapID, width, height}, [definitions[node], n, rect({"width": "100%", "height": "100%", "fill": "#000", "style": isAdmin ? {"fill-opacity": "var(--maskOpacity, 1)"} : undefined, "mask": "url(#mapMask)"})]);
 	wg.onComplete(() => setTimeout(() => loader.remove(), isAdmin ? 0 : 1000));
 	definitions.setGrid(mapData);
 	amendNode((getLayer("/Grid") as SVGLayer)[node], rect({"width": "100%", "height": "100%", "fill": "url(#gridPattern)"}));
-	amendNode((getLayer("/Light") as SVGLayer)[node], use({"href": "#lighting", "style": "mix-blend-mode: multiply"}));
+	amendNode((getLayer("/Light") as SVGLayer)[node], use({"href": `#${lighting}`, "style": "mix-blend-mode: multiply"}));
 	definitions.setLight(lightColour);
 	walkFolders(layerList, l => {
 		if (!isLayerFolder(l)) {
@@ -507,8 +516,73 @@ mapView = (mD: MapData, loadChars = false) => {
 	updateLight();
 	panZoom.zoom = 1;
 	centreOnGrid(startX, startY);
-	return div({"id": "mapBase", "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
+	return div({"id": mapBase, "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 };
+
+add(`#${mapBase}`, {
+	"height": "100%"
+});
+add(`#${mapID}`, {
+	"background-color": "#fff",
+	"outline": "none",
+	"position": "absolute",
+	">g": {
+		"clip-path": "view-box"
+	}
+});
+add(`#${layerLight}.hiddenLayer,#${layerGrid}.hiddenLayer`, {
+	"display": "none"
+});
+add(`#${lighting}>*`, {
+	"mix-blend-mode": "screen"
+});
+add(`#${mapLoading}`, {
+	"background-color": "#fff",
+	"position": "fixed",
+	"top": 0,
+	"left": 0,
+	"bottom": 0,
+	"right": 0,
+	">div": {
+		"display": "flex",
+		"align-items": "center",
+		"justify-content": "center",
+		"flex-wrap": "wrap",
+		"height": "100%"
+	},
+	" progress": {
+		"margin": "0 1em"
+	}
+});
+add(`.${hideZoomSlider} #${zoomSliderID}`, {
+	"display": "none"
+});
+add(`#${zoomSliderID}`, {
+	"z-index": "10",
+	"position": "absolute",
+	"top": "3px",
+	"left": "3px",
+	"width": "20px",
+	"height": "120px",
+	"fill": "rgba(255, 255, 255, 0.2)",
+	" :is(rect, circle)": {
+		"transition": "fill 0.5s"
+	},
+	" rect": {
+		"cursor": "pointer"
+	},
+	" circle": {
+		"cursor": "ns-resize"
+	}
+});
+add(`#${zoomSliderID}:hover, .${zooming} #${zoomSliderID}`, {
+	" rect": {
+		"fill": "#fff"
+	},
+	" circle": {
+		"fill": "#f00"
+	}
+});
 
 defaultTool.mapMouseWheel = (e: WheelEvent) => {
 	if (e.ctrlKey) {
@@ -548,13 +622,13 @@ export default (base: HTMLElement) => {
 		mX = e.clientX;
 		mY = e.clientY;
 	      },
-	      stopMapMove = () => amendNode(document.body, {"class": ["!dragging"]}),
+	      stopMapMove = () => amendNode(document.body, {"class": {[dragging]: false}}),
 	      [startMapMove0] = mouseDragEvent(0, startMapMove, stopMapMove),
 	      [startMapMove1] = mouseDragEvent(1, startMapMove, stopMapMove),
 	      initMapMove = (e: MouseEvent, initFn: () => void) => {
 		mX = e.clientX;
 		mY = e.clientY;
-		amendNode(document.body, {"class": ["dragging"]});
+		amendNode(document.body, {"class": [dragging]});
 		initFn();
 		return false;
 	      },
@@ -587,7 +661,26 @@ export default (base: HTMLElement) => {
 		}
 		token.updateNode();
 		return hasLight || token.hasLight();
-	      };
+	      },
+	      dragging = id(),
+	      slidingID = id(),
+	      animations = id();
+	enableAnimation.wait(e => amendNode(document.documentElement, {"class": {[animations]: e}}));
+	add(`#${mapID}`, {
+		"overflow": "hidden",
+		"cursor": "grab"
+	});
+	add(`.${hiddenLayer}`, {
+		"display": "none"
+	});
+	add(`.${dragging} #${mapID}`, {
+		"cursor": "grabbing"
+	});
+	add(`.${animations} .${slidingID} #${mapID}`, {
+		"transition-property": "left, top",
+		"transition-duration": "1s",
+		"transition-timing-function": "ease"
+	});
 	defaultTool.mapMouse0 = e => initMapMove(e, startMapMove0);
 	defaultTool.mapMouse1 = e => initMapMove(e, startMapMove1);
 	defaultTool.mapMouse2 = e => {
@@ -598,12 +691,12 @@ export default (base: HTMLElement) => {
 	};
 	rpc.waitSignalMovePosition().then(pos => {
 		if (sliding === -1) {
-			amendNode(document.body, {"class": ["sliding"]});
+			amendNode(document.body, {"class": [slidingID]});
 		} else {
 			clearTimeout(sliding);
 		}
 		sliding = setTimeout(() => {
-			amendNode(document.body, {"class": ["!sliding"]});
+			amendNode(document.body, {"class": {[sliding]: false}});
 			sliding = -1;
 		}, 1000);
 		centreOnGrid(pos[0], pos[1]);
