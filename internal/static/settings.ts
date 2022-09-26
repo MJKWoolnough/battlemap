@@ -1,3 +1,4 @@
+import {add, id} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, form, h1, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
@@ -14,11 +15,49 @@ import {shell, windows} from './windows.js';
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableAnimation", "musicSort"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
-[hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255));
+[hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255)),
+settingsTicker = id();
+
+const settings = id();
+
+add(`.${settingsTicker}`, {
+	"display": "none",
+	"[disabled]+label": {
+		"color": "#888",
+		":after": {
+			"background-image": "none !important"
+		}
+	},
+	"+label:after": {
+		"width": "1.2em",
+		"height": "1em",
+		"display": "inline-block",
+		"content": `""`,
+		"background-repeat": "no-repeat",
+		"background-size": "1em",
+		"background-position": "bottom center",
+		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M2,1 q5,6 8,8 M2,9 q5,-3 8,-8" stroke="%23f00" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+	},
+	":checked+label:after": {
+		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%230f0" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+	},
+	"[type=radio]:checked+label:after": {
+		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%2300f" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+	}
+});
+add(`#${settings}`, {
+	" h1": {
+		"display": "inline-block"
+	},
+	" ul": {
+		"list-style": "none",
+		"padding": 0
+	}
+});
 
 menuItems.push([7, () => [
 	lang["TAB_SETTINGS"],
-	div({"id": "settings"}, [
+	div({"id": settings}, [
 		button({"onclick": help}, lang["HELP_OPEN"]),
 		br(),
 		h1(lang["SETTINGS_AUTH"]),
@@ -32,32 +71,32 @@ menuItems.push([7, () => [
 		]),
 		details([
 			summary(h1(lang["SETTINGS_THEME"])),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": invert.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": invert.value, "onchange": function(this: HTMLInputElement) {
 				invert.set(this.checked);
 			}}), `${lang["SETTINGS_DARK_MODE"]}: `),
 			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": tabIcons.value, "onchange": function(this: HTMLInputElement) {
 				tabIcons.set(this.checked);
 			}}), `${lang["SETTINGS_TAB_ICONS"]}: `),
 			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": panelOnTop.value, "onchange": function(this: HTMLInputElement) {
 				panelOnTop.set(this.checked);
 			}}), `${lang["SETTINGS_PANEL_ON_TOP"]}: `),
 			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": hideMenu.value, "onchange": function(this: HTMLInputElement) {
 				hideMenu.set(this.checked);
 			}}), `${lang["SETTINGS_HIDE_MENU"]}: `),
 			br(),
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": zoomSlider.value, "onchange": function(this: HTMLInputElement) {
 				zoomSlider.set(this.checked);
 			}}), `${lang["SETTINGS_ZOOM_SLIDER_HIDE"]}: `),
 			isAdmin ? [
 				br(),
-				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
+				labels(input({"type": "checkbox", "class": settingsTicker, "checked": miniTools.value, "onchange": function(this: HTMLInputElement) {
 					miniTools.set(this.checked);
 				}}), `${lang["SETTINGS_MINI_TOOLS"]}: `),
 				br(),
-				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": musicSort.value, "onchange": function(this: HTMLInputElement) {
+				labels(input({"type": "checkbox", "class": settingsTicker, "checked": musicSort.value, "onchange": function(this: HTMLInputElement) {
 					musicSort.set(this.checked);
 				}}), `${lang["SETTINGS_MUSIC_SORT"]}: `)
 			] : []
@@ -65,11 +104,11 @@ menuItems.push([7, () => [
 		details([
 			summary(h1(lang["SETTINGS_MAP"])),
 			isAdmin ? [
-				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
+				labels(input({"type": "checkbox", "class": settingsTicker, "checked": autosnap.value, "onchange": function(this: HTMLInputElement) {
 					autosnap.set(this.checked);
 				}}), `${lang["SETTINGS_AUTOSNAP"]}: `),
 				br(),
-				labels(input({"type": "checkbox", "class": "settings_ticker", "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
+				labels(input({"type": "checkbox", "class": settingsTicker, "checked": measureTokenMove.value, "onchange": function(this: HTMLInputElement) {
 					measureTokenMove.set(this.checked);
 				}}), `${lang["SETTINGS_MEASURE_TOKEN_MOVE"]}: `),
 				br()
@@ -84,7 +123,7 @@ menuItems.push([7, () => [
 				}})),
 				br()
 			] : [],
-			labels(input({"type": "checkbox", "class": "settings_ticker", "checked": enableAnimation.value, "onchange": function(this: HTMLInputElement) {
+			labels(input({"type": "checkbox", "class": settingsTicker, "checked": enableAnimation.value, "onchange": function(this: HTMLInputElement) {
 				enableAnimation.set(this.checked);
 			}}), `${lang["SETTINGS_ENABLE_ANIMATION"]}: `),
 			isAdmin ? [
