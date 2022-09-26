@@ -1,9 +1,11 @@
 import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
+import {add, id} from './lib/css.js';
 import type {DragTransfer} from './lib/drag.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
+import {inited, isAdmin} from './rpc.js';
 import {invert} from './settings.js';
 import {enterKey, labels, queue, setAndReturn} from './shared.js';
 import {copy, folder, newFolder, remove, rename} from './symbols.js';
@@ -31,11 +33,22 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
       getPaths = (folder: Folder, breadcrumb: string): string[] => [breadcrumb, ...(Array.from(folder.children.values()).filter(c => c instanceof Folder) as Folder[]).flatMap(p => getPaths(p, breadcrumb + p.name + "/")).sort(stringSort)],
       folderIcon = div({"style": "transform: translateX(-9999px); display: inline-block"}, folder({"style": "width: 2em; height: 2em"})),
       clearDragOver = ({root: {[node]: n}}: Folder) => {
-	amendNode(n, {"class": ["!folderDragging"]});
-	for (const f of [...n.getElementsByClassName("dragover"), n]) {
-		amendNode(f, {"class": ["!dragover"]});
+	amendNode(n, {"class": {[folderDragging]: false}});
+	for (const f of [...n.getElementsByClassName(dragOver), n]) {
+		amendNode(f, {"class": {[dragOver]: false}});
 	}
-      };
+      },
+      item = id(),
+      folderIconID = id(),
+      foldersFolder = id(),
+      filter = id();
+
+export const folderDragging = id(),
+dragOver = id(),
+folders = id(),
+foldersItem = id(),
+itemControl = id(),
+imageIcon = id();
 
 invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
@@ -52,11 +65,11 @@ export abstract class Item {
 		this.id = id;
 		this.name = name;
 		this.parent = parent;
-		this[node] = li({"class": "foldersItem"}, [
-			this.nameElem = span({"class": "item", "onclick": () => this.show()}, name),
-			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": "itemRename", "onclick": () => this.rename()}),
-			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": "itemCopy", "onclick": () => this.copy()}),
-			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": "itemRemove", "onclick": () => this.remove()})
+		this[node] = li({"class": foldersItem}, [
+			this.nameElem = span({"class": item, "onclick": () => this.show()}, name),
+			this.renamer = rename({"title": lang["ITEM_MOVE"], "class": itemControl, "onclick": () => this.rename()}),
+			this.copier = copy({"title": lang["ITEM_COPY_ADD"], "class": itemControl, "onclick": () => this.copy()}),
+			this.remover = remove({"title": lang["ITEM_REMOVE"], "class": itemControl, "onclick": () => this.remove()})
 		]);
 	}
 	abstract show(): void;
@@ -66,7 +79,7 @@ export abstract class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
-		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"], "class": "renameItem"}, [
+		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]}, [
 			h1(lang["ITEM_MOVE"]),
 			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["NEW_LOCATION"]}: `, parents),
@@ -90,7 +103,7 @@ export abstract class Item {
 		      parentPath = this.parent.getPath() + "/",
 		      parents = select(getPaths(root.folder, "/").map(p => option(p === parentPath ? {"value": p, "selected": true} : {"value": p}, p))),
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
-		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"], "class": "copyItem"}, [
+		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]}, [
 			h1(lang["ITEM_COPY_ADD"]),
 			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
 			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
@@ -120,7 +133,7 @@ export abstract class Item {
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), w);
 		      }}, lang["ITEM_REMOVE"]),
-		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"], "class": "removeItem"}, [
+		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_REMOVE"]}, [
 			h1(lang["ITEM_REMOVE"]),
 			div(lang["ITEM_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -149,7 +162,7 @@ export abstract class Item {
 }
 
 export abstract class DraggableItem extends Item {
-	readonly image = img({"class": "imageIcon", "loading": "lazy", "onload": () => {
+	readonly image = img({"class": imageIcon, "loading": "lazy", "onload": () => {
 		this.#width = this.image.naturalWidth;
 		this.#height = this.image.naturalHeight;
 	}});
@@ -187,7 +200,7 @@ export abstract class DraggableItem extends Item {
 		}
 		this.#dragTransfer.set(e, this.#dragKey, this.#icon);
 		amendNode(this.#icon.parentNode ? null : document.body, amendNode(this.#icon, {"style": {"transform": "translateX(-9999px)"}}));
-		setTimeout(amendNode, 0, this.parent.root[node], {"class": ["folderDragging"]});
+		setTimeout(amendNode, 0, this.parent.root[node], {"class": [folderDragging]});
 	}
 	ondragend(_e: DragEvent) {
 		if (this.parent instanceof DragFolder) {
@@ -219,16 +232,16 @@ export class Folder {
 	constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
 		this.root = root;
 		this.parent = parent;
-		this.children = new NodeMap<string, Folder | Item>(ul({"class": "folders"}), this.sorter);
+		this.children = new NodeMap<string, Folder | Item>(ul({"class": folders}), this.sorter);
 		this.nameElem = span(name);
-		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": "renameFolder", "onclick": (e: Event) => this.rename(e)});
-		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": "addFolder", "onclick": (e: Event) => this.newFolder(e)});
-		this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": "removeFolder", "onclick": (e: Event) => this.remove(e)});
+		this.renamer = rename({"title": lang["FOLDER_MOVE"], "class": itemControl, "onclick": (e: Event) => this.rename(e)});
+		this.newer = newFolder({"title": lang["FOLDER_ADD"], "class": itemControl, "onclick": (e: Event) => this.newFolder(e)});
+		this.remover = remove({"title": lang["FOLDER_REMOVE"], "class": itemControl, "onclick": (e: Event) => this.remove(e)});
 		if (this.name = name) {
-			this[node] = li({"class": "foldersFolder"}, [
+			this[node] = li({"class": foldersFolder}, [
 				details([
 					summary([
-						folder({"class": "folderIcon"}),
+						folder({"class": folderIconID}),
 						this.nameElem,
 						this.renamer,
 						this.newer,
@@ -306,7 +319,7 @@ export class Folder {
 			})
 			.finally(() => amendNode(this, {"disabled": true}))), w);
 		      }}, lang["FOLDER_REMOVE"]),
-		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"], "class": "folderRemove"}, [
+		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_REMOVE"]}, [
 			h1(lang["FOLDER_REMOVE"]),
 			div(lang["FOLDER_REMOVE_CONFIRM"]),
 			pathDiv,
@@ -321,7 +334,7 @@ export class Folder {
 		const root = this.root,
 		      path = this.getPath(),
 		      folderName = input({"onkeypress": enterKey}),
-		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"], "class": "folderAdd"}, [
+		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"]}, [
 			h1(lang["FOLDER_ADD"]),
 			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
 			br(),
@@ -462,11 +475,11 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 		} else if (!this.#dragTransfer.is(e)) {
 			return;
 		}
-		amendNode(this[node], {"class": ["dragover"]});
-		amendNode(this.root[node], {"class": ["folderDragging"]});
+		amendNode(this[node], {"class": [dragOver]});
+		amendNode(this.root[node], {"class": [folderDragging]});
 	}
 	ondragleave(e: DragEvent) {
-		amendNode(this[node], {"class": ["!dragover"]});
+		amendNode(this[node], {"class": {[dragOver]: false}});
 		e.stopPropagation();
 	}
 	ondrop(e: DragEvent) {
@@ -521,7 +534,7 @@ export class Root {
 				span({"style": "margin-right: 0.5em"}, this.#fileType),
 				f.newer,
 				this.filter ? [
-					input({"class": "filter", "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+					input({"class": filter, "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
 						const terms = this.value.toLowerCase().split(" ");
 						for (let i = 0; i < terms.length; i++) {
 							if (terms[i].charAt(0) === '"') {
@@ -618,3 +631,82 @@ export class Root {
 		return folder?.removeFolder(name);
 	}
 }
+
+inited.then(() => {
+	if (isAdmin) {
+		add(`.${folders}`, {
+			"margin": 0,
+			" details summary": {
+				"list-style": "none",
+				"outline": "none",
+				"cursor": "pointer",
+				"grid-template-columns": "1em auto 1em 1em 1em"
+			},
+			[` summary>.${folderIconID}`]: {
+				"width": "1em",
+				"height": "1em"
+			},
+			[` details[open]>summary>.${folderIconID}`]: {
+				"--folder-closed": "none",
+				"--folder-open": "block"
+			}
+		});
+		add("summary::-webkit-details-marker", {
+			"display": "none"
+		});
+		add(`.${item}`, {
+			"cursor": "pointer"
+		});
+		add(`.${foldersItem}:hover,.${foldersFolder}>details summary:hover`, {
+			"background-color": "#888"
+		});
+		add(`.${folders} summary,.${foldersItem}`, {
+			"display": "grid",
+			"grid-template-columns": "auto 1em 1em 1em"
+		});
+		add(`.${itemControl}`, {
+			"background-size": "1em",
+			"background-position": "bottom center",
+			"background-repeat": "no-repeat",
+			"width": "1em",
+			"height": "1em",
+			"display": "inline-block",
+			"margin-right": "0.2em",
+			"cursor": "pointer"
+		});
+		add(`.${imageIcon}`, {
+			"position": "absolute",
+			"top": "var(--icon-top, 0)",
+			"left": "var(--icon-left, 0)",
+			"max-width": "100px",
+			"max-height": "100px",
+			"z-index": 2
+		});
+		add(`.${filter}`, {
+			"float": "right",
+			"text-align": "right",
+			"+br": {
+				"clear": "right"
+			}
+		});
+		add(`.${dragOver}`, {
+			"background-color": "#aaa",
+			">details>summary,>span": {
+				"background-color": "#888"
+			}
+		});
+		add(`.${folderDragging}`, {
+			" *": {
+				"pointer-events": "none"
+			},
+			[` .${foldersFolder}`]: {
+				"pointer-events": "auto"
+			},
+			">ul:after": {
+				"content": "\" \"",
+				"height": "1em",
+				"display": "block"
+			}
+		});
+	}
+});
