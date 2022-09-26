@@ -1,4 +1,5 @@
 import type {FolderItems, Uint} from './types.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
@@ -94,9 +95,18 @@ menuItems.push([2, () => isAdmin ? [
 		      base = div(loading()),
 		      dragEffect = setDragEffect({"link": [dragImage]});
 		rpcFuncs.list().then(folderList => {
-			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder);
+			const root = new CharacterRoot(folderList, lang["CHARACTERS"], rpcFuncs, Character, CharacterFolder),
+			      charactersID = id();
+			add(`#${charactersID}`, {
+				"margin": 0,
+				"padding-left": "calc(1em + 4px)",
+				"list-style": "none",
+				">div>ul": {
+					"padding-left": 0
+				}
+			});
 			root.windowIcon = characterIcon;
-			clearNode(base, {"id": "characters", "class": "folders"}, [
+			clearNode(base, {"id": charactersID, "class": "folders"}, [
 				button({"onclick": () => {
 					let icon = 0;
 					const name = input({"onkeypress": enterKey}),
