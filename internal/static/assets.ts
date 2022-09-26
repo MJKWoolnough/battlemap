@@ -1,16 +1,17 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
+import {DragFolder, DraggableItem, dragOver, Folder, folderDragging, folders, Root} from './folders.js';
 import lang from './language.js';
 import {bbcodeDrag, register} from './messaging.js';
-import {handleError, isAdmin, rpc} from './rpc.js';
+import {handleError, inited, isAdmin, rpc} from './rpc.js';
 import {labels, loading, menuItems, setAndReturn} from './shared.js';
 import {shareStr} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -23,7 +24,7 @@ class ImageAsset extends DraggableItem {
 		this.#bbcodeID = bbcodeDrag.register(() => () => `[img]/images/${id}[/img]`);
 	}
 	show() {
-		const w = windows({"window-icon": imageIcon, "window-title": this.name, "hide-minimise": false, "class": "showAsset"}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": this}));
+		const w = windows({"window-icon": imageIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, img({"src": `/images/${this.id}`, "draggable": "true", "ondragstart": this}));
 		w.addControlButton(shareStr, () => rpc.broadcastWindow("imageAsset", 0, `[img=100%]/images/${this.id}[/img]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
@@ -47,7 +48,7 @@ class AudioAsset extends DraggableItem {
 		this.#bbcodeID = bbcodeDrag.register(() => () => `[audio]/images/${id}[/audio]`);
 	}
 	show() {
-		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": "showAsset"}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
+		const w = windows({"window-icon": audioIcon, "window-title": this.name, "hide-minimise": false, "class": showAsset}, audio({"src": `/audio/${this.id}`, "controls": "controls", "draggable": "true", "ondragstart": this}));
 		w.addControlButton(shareStr, () => rpc.broadcastWindow("audioAsset", 0, `[audio]/audio/${this.id}[/audio]`), lang["SHARE"]);
 		amendNode(shell, w);
 		return w;
@@ -93,8 +94,8 @@ abstract class AssetFolder<T extends ImageAsset | AudioAsset> extends DragFolder
 	ondragenter(e: DragEvent) {
 		super.ondragenter(e);
 		if (this.#dragUpload.is(e)) {
-			amendNode(this[node], {"class": ["dragover"]});
-			amendNode(this.root[node], {"class": ["folderDragging"]});
+			amendNode(this[node], {"class": [dragOver]});
+			amendNode(this.root[node], {"class": [folderDragging]});
 		}
 	}
 	ondragover(e: DragEvent) {
@@ -158,7 +159,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		}),
 		window,
 		lang["UPLOADING"],
-		div({"class": "loadBar"}, [
+		div([
 			div(lang["UPLOADING"]),
 			bar
 		])
@@ -171,7 +172,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		root.setRPCFuncs(rpcFuncs);
 		root.setRoot(folderList);
 		root.windowIcon = icon;
-		clearNode(base, {"class": "assets folders"}, [
+		clearNode(base, {"class": `${assets} ${folders}`}, [
 			button({"onclick": () => {
 				const file = input({accept, "multiple": "multiple", "name": "asset", "type": "file", "onchange": () => {
 					uploadAsset(root, id, new FormData(f), w)
@@ -181,7 +182,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 					amendNode(file, {"disabled": true});
 				      }}),
 				      f = form({"enctype": "multipart/form-data", "method": "post"}, labels(upload, file)),
-				      w = windows({"window-icon": icon, "window-title": upload, "class": "assetAdd"}, [h1(upload), f]);
+				      w = windows({"window-icon": icon, "window-title": upload}, [h1(upload), f]);
 				amendNode(shell, w);
 				autoFocus(file);
 			}}, upload),
@@ -191,7 +192,9 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 	return base;
       },
       dragImageFolder = new DragTransfer<ImageFolder>("imagefolder"),
-      dragAudioFolder = new DragTransfer<ImageFolder>("audiofolder");
+      dragAudioFolder = new DragTransfer<ImageFolder>("audiofolder"),
+      assets = id(),
+      showAsset = id();
 
 export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, audioAssets),
 imageAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, imageAssets),
@@ -209,3 +212,28 @@ menuItems.push(
 	[0, () => isAdmin ? [lang["TAB_IMAGES"], createFolders(rpc["images"], imageRoot, imageIcon, "images", lang["UPLOAD_IMAGES"], dragImageFiles), true, imageIcon] : null],
 	[1, () => isAdmin ? [lang["TAB_AUDIO"], createFolders(rpc["audio"], audioRoot, audioIcon, "audio", lang["UPLOAD_AUDIO"], dragAudioFiles), true, audioIcon] : null]
 );
+
+inited.then(() => {
+	if (isAdmin) {
+		add(`.${assets}`, {
+			" ul": {
+				"margin": 0,
+				"padding-left": "calc(1em + 4px)",
+				"list-style": "none"
+			},
+			">div>ul": {
+				"padding-left": 0
+			}
+		});
+		add(`.${showAsset}`, {
+			"max-height": "100%",
+			"max-width": "100%",
+			"min-height": "10px",
+			"overflow": "clip",
+			" img": {
+				"max-height": "calc(100vh - 20px)",
+				"max-width": "calc(100vw - 1em - 6px)"
+			}
+		});
+	}
+});
