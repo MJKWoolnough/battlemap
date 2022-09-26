@@ -10,7 +10,7 @@ import {root, screen2Grid} from './map.js';
 import {doTokenAdd} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {inited, isAdmin} from './rpc.js';
-import {autosnap} from './settings.js';
+import {autosnap, settingsTicker} from './settings.js';
 import {checkInt, labels} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 import {shell} from './windows.js';
@@ -23,8 +23,8 @@ inited.then(() => {
 	    stroke = new Colour(0, 0, 0, 255),
 	    drawElement: SVGRectElement | SVGEllipseElement | SVGPolygonElement | null = null;
 
-	const [rectangle, circle, poly] = Array.from({"length": 3}, (_, n) => input({"name": "drawShape", "type": "radio", "checked": !n, "class": "settings_ticker"})),
-	      snap = input({"type": "checkbox", "class": "settings_ticker"}),
+	const [rectangle, circle, poly] = Array.from({"length": 3}, (_, n) => input({"name": "drawShape", "type": "radio", "checked": !n, "class": settingsTicker})),
+	      snap = input({"type": "checkbox", "class": settingsTicker}),
 	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      strokeWidth = input({"style": "width: 5em", "type": "number", "min": 0, "max": 100, "value": 1}),
