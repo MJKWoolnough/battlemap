@@ -16,7 +16,9 @@ export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panel
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
 [hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255)),
-settingsTicker = id();
+settingsTicker = id(),
+invertID = id(),
+adminHideLight = id();
 
 const settings = id();
 
