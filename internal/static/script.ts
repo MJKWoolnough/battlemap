@@ -1,5 +1,5 @@
 import type {WindowData, WindowElement} from './windows.js';
-import {render} from './lib/css.js';
+import {add, id, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
@@ -9,10 +9,11 @@ import help from './help.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import loadUserMap from './map.js';
+import {psuedoLink} from './messaging.js';
 import pluginInit, {menuItems} from './plugins.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
-import {enableAnimation, hideMenu, invert, panelOnTop, tabIcons} from './settings.js';
-import {addCSS, labels, menuItems as mI, mod} from './shared.js';
+import {hideMenu, invert, invertID, panelOnTop, tabIcons} from './settings.js';
+import {labels, menuItems as mI, mod} from './shared.js';
 import {popout, symbols} from './symbols.js';
 import {checkWindowData, desktop, getWindowData, shell, windows} from './windows.js';
 import './assets.js';
@@ -29,7 +30,17 @@ import './tools_wall.js';
 
 document.title = lang["TITLE"];
 
-const lastTab = new StringSetting("lastTab"),
+const panelsID = id(),
+      tabsID = id(),
+      panelContainerID = id(),
+      panelOnTopID = id(),
+      tabLabelsID = id(),
+      panelHiderID = id(),
+      panelGrabberID = id(),
+      popoutID = id(),
+      menuHideID = id(),
+      tabIconsID = id(),
+      lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	type savedWindow = {
 		out: boolean;
@@ -59,10 +70,10 @@ const lastTab = new StringSetting("lastTab"),
 	      },
 	      [setupPanelDrag0] = mouseDragEvent(0, panelDrag),
 	      [setupPanelDrag1] = mouseDragEvent(1, panelDrag),
-	      c = input({"id": "panelHider", "type": "checkbox", "checked": panelShow.value, "onchange": () => panelShow.set(c.checked)}),
-	      t = div({"id": "tabLabels"}),
-	      p = div({"id": "panelContainer"}),
-	      m = label({"title": lang["PANEL_GRABBER"], "for": "panelHider", "class": hideMenu.value ? "menuHide" : undefined, "id": "panelGrabber", "onmousedown": (e: MouseEvent) => {
+	      c = input({"id": panelHiderID, "type": "checkbox", "checked": panelShow.value, "onchange": () => panelShow.set(c.checked)}),
+	      t = div({"id": tabLabelsID}),
+	      p = div({"id": panelContainerID}),
+	      m = label({"title": lang["PANEL_GRABBER"], "for": panelHiderID, "class": hideMenu.value ? menuHideID : undefined, "id": panelGrabberID, "onmousedown": (e: MouseEvent) => {
 		if (!c.checked) {
 			if (e.button === 0) {
 				setupPanelDrag0();
@@ -76,8 +87,8 @@ const lastTab = new StringSetting("lastTab"),
 			e.preventDefault();
 		}
 	      }}),
-	      tc = div({"id": "tabs"}, [t, p]),
-	      h = div({"id": "panels"}, [
+	      tc = div({"id": tabsID}, [t, p]),
+	      h = div({"id": panelsID}, [
 		m,
 		tc
 	      ]),
@@ -100,7 +111,7 @@ const lastTab = new StringSetting("lastTab"),
 			}
 		}
 	      };
-	hideMenu.wait(v => amendNode(m, {"class": {"menuHide": v}}));
+	hideMenu.wait(v => amendNode(m, {"class": {[menuHideID]: v}}));
 	keyEvent(registerKey("helpKey", lang["KEY_HELP"], "F1"), (e: KeyboardEvent) => {
 		help();
 		e.preventDefault();
@@ -113,7 +124,7 @@ const lastTab = new StringSetting("lastTab"),
 		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
-			      popper = pop ? popout({"class": "popout", "title": `Popout ${title}`, "onclick": (e: Event) => {
+			      popper = pop ? popout({"class": popoutID, "title": `Popout ${title}`, "onclick": (e: Event) => {
 				e.preventDefault();
 				const replaced = div();
 				base.replaceWith(replaced);
@@ -170,12 +181,19 @@ const lastTab = new StringSetting("lastTab"),
 		},
 		css() {
 			const a = Array.from({"length": n}, (_, n) => n+1);
-			return `
-${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #panelContainer > div:nth-child(${n})`).join(",")}{display: block}
-${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n})`).join(",")}{border-bottom-color:var(--c);z-index:2;background:var(--c) !important;cursor:default !important}
-${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n}):before`).join(",")}{box-shadow: 2px 2px 0 var(--c)}
-${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-child(${n}):after`).join(",")}{box-shadow: -2px 2px 0 var(--c)}
-`;
+			add(a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${panelContainerID}>div:nth-child(${n})`).join(","), {"display": "block"});
+			add(a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n})`).join(","), {
+				"border-bottom-color": "var(--c)",
+				"z-index": 2,
+				"background": "var(--c) !important",
+				"cursor": "default !important"
+			});
+			add(a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):before`).join(","), {
+				"box-shadow": "22px 2px 0 var(--c)"
+			});
+			add(a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):after`).join(","), {
+				"box-shadow": "-2px 2px 0 var(--c)"
+			});
 		},
 		setTab(title: string) {
 			for (const [t, tab] of tabs) {
@@ -189,15 +207,216 @@ ${a.map(n => `#tabs > input:nth-child(${n}):checked ~ #tabLabels > label:nth-chi
 		html() {return [c, h];}
 	});
       })();
+add("html, body", {
+	"color": "#000",
+	"background-color": "#fff",
+	"margin": 0,
+	"padding": 0,
+	"user-select": "none",
+	"height": "100%",
+	"width": "100%"
+});
+add(`.${psuedoLink}`, {
+	"cursor": "pointer"
+});
+add(`a, .${psuedoLink}`, {
+	"color": "#00f",
+	"text-decoration": "none",
+	":hover": {
+		"text-decoration": "underline"
+	}
+});
+add(`#${panelsID}`, {
+	"position": "fixed",
+	"top": 0,
+	"right": 0,
+	"bottom": 0,
+	"width": "var(--panel-width, 300px)",
+	"border-left": "1px solid #000",
+	"transition": "right 1s, border-color 1s",
+	"background-color": "#fff"
+});
+add(`.${panelOnTopID} #${panelsID}`, {
+	"z-index": 1
+});
+add(`#${tabsID}>input,#${panelContainerID}>div`, {
+	"display": "none"
+});
+add(`#${tabLabelsID}`, {
+	"padding-left": 0,
+	"margin-top": "-24px",
+	"line-height": "24px",
+	"position": "relative",
+	"width": "100%",
+	"overflow": "hidden",
+	"padding": "0 0 0 20px",
+	"white-space": "nowrap",
+	"--c": "#fff",
+	":after": {
+		"position": "absolute",
+		"content": `""`,
+		"width": "100%",
+		"bottom": 0,
+		"left": 0,
+		"border-bottom": "1px solid #000",
+		"z-index": 1,
+		"overflow": "hidden",
+		"text-align": "center",
+		"transform": "translateX(-20px)"
+	},
+	">label": {
+		"border": "1px solid #000",
+		"display": "inline-block",
+		"position": "relative",
+		"z-index": 1,
+		"margin": "0 -5px",
+		"padding": "0 20px",
+		"border-top-right-radius": "6px",
+		"border-top-left-radius": "6px",
+		"background": "linear-gradient(to bottom, #ececec 50%, #d1d1d1 100%)",
+		"box-shadow": "0 3px 3px rgba(0, 0, 0, 0.4), inset 0 1px 0 #fff",
+		"text-shadow": "0 1px #fff",
+		":hover,:focus": {
+			"background": "linear-gradient(to bottom, #faa 1%, #ffecec 50%, #d1d1d1 100%)",
+			"cursor": "pointer",
+			"outline": "none"
+		},
+		":before,:after": {
+			"position": "absolute",
+			"bottom": "-1px",
+			"width": "6px",
+			"height": "6px",
+			"content": `" "`,
+			"border": "1px solid #000"
+		},
+		":before": {
+			"left": "-7px",
+			"border-bottom-right-radius": "6px",
+			"border-width": "0 1px 1px 0",
+			"box-shadow": "2px 2px 0 #d1d1d1"
+		},
+		":after": {
+			"right": "-7px",
+			"border-bottom-left-radius": "6px",
+			"border-width": "0 0 1px 1px",
+			"box-shadow": "-2px 2px 0 #d1d1d1"
+		}
+	}
+});
+add(`#${panelHiderID}`, {
+	"display": "none",
+	[`:checked~#${panelsID}`]: {
+		"right": "calc(-1 * var(--panel-width) - 1px)",
+		[`>#${panelGrabberID}`]: {
+			"background-color": "#000",
+			[`.${menuHideID}:not(:hover)`]: {
+				"opacity": 0,
+				"transition": "background 1s, opacity 2s 10s"
+			}
+		}
+	}
+});
+add(`#${panelGrabberID}`, {
+	"background": "#fff",
+	"border": "2px solid #f00",
+	"border-radius": "20px",
+	"position": "relative",
+	"left": "-12px",
+	"display": "block",
+	"width": "20px",
+	"height": "20px",
+	"transition": "background 1s",
+	"z-index": 9,
+	"cursor": "pointer"
+});
+add("windows-shell-taskmanager", {
+	"position": "absolute",
+	"top": 0,
+	"left": 0,
+	"right": 0,
+	"bottom": 0,
+	"overflow": "clip"
+});
+add("windows-window", {
+	"--window-left": "20px",
+	"--window-top": "20px",
+	"max-width": "100%",
+	"max-height": "100%",
+	"outline": "none",
+	">*": {
+		"padding": "0 1px"
+	}
+});
+add(`.${popoutID}`, {
+	"display": "inline-block",
+	"margin-left": "5px",
+	"margin-right": "-10px",
+	"cursor": "pointer",
+	"width": "1em",
+	"height": "1em"
+});
+add(`#${panelContainerID}>div`, {
+	"height": "calc(100vh - 30px)",
+	"overflow": "auto"
+});
+add(`input[type="number"]`, {
+	"width": "5em"
+});
+add("windows-desktop", {
+	"background-color": "#000"
+});
+add(`#${tabLabelsID} img`, {
+	"padding-top": "5px",
+	"width": "1.5em",
+	"height": "1.5em",
+	"display": "none",
+	"pointer-events": "none"
+});
+add(`.${tabIconsID}`, {
+	[` #${tabLabelsID}`]: {
+		" img": {
+			"display": "inline"
+		},
+		" span": {
+			"display": "none"
+		}
+	},
+	[` #${panelContainerID}}>div`]: {
+		"height": "calc(100vh - 40px)"
+	}
+});
+add("menu-menu", {
+	"border": "2px outset #000",
+	"padding": "0.25em 0",
+	"box-sizing": "border-box",
+	"column-gap": "1em",
+	"background-color": "#aaa",
+	"color": "#000"
+});
+add("menu-submenu[open]>menu-item,menu-item:focus", {
+	"background-color": "#eee"
+});
+add("menu-submenu>menu-item:after", {
+	"display": "block",
+	"float": "right",
+	"content": `"»"`
+});
+add("menu-item", {
+	"outline": "none",
+	"padding": "0 0.25em",
+});
+add("menu-item[disabled],menu-submenu[disabled]", {
+	"color": "#444",
+	"font-style": "italic"
+});
 
 amendNode(desktop, symbols);
 
 clearNode(document.body, amendNode(shell, {"snap": 50}));
 
-invert.wait(v => amendNode(document.documentElement, {"class": {"invert": v}}));
-tabIcons.wait(b => amendNode(document.documentElement, {"class": {"tabIcons": b}}));
-panelOnTop.wait(p => amendNode(document.documentElement, {"class": {"panelOnTop": p}}));
-enableAnimation.wait(e => amendNode(document.documentElement, {"class": {"animations": e}}));
+invert.wait(v => amendNode(document.documentElement, {"class": {[invertID]: v}}));
+tabIcons.wait(b => amendNode(document.documentElement, {"class": {[tabIconsID]: b}}));
+panelOnTop.wait(p => amendNode(document.documentElement, {"class": {[panelOnTopID]: p}}));
 
 inited.then(() => {
 	const mIs = [...mI].sort(([a], [b]) => a - b),
@@ -205,7 +424,7 @@ inited.then(() => {
 	mI.splice(0, mI.length);
 	Object.freeze(mI);
 	return pluginInit().then(() => {
-		amendNode(document.body, {"class": [isAdmin ? "isAdmin" : "isUser"], "oncontextmenu": (e: MouseEvent) => {
+		amendNode(document.body, {"oncontextmenu": (e: MouseEvent) => {
 			if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
 				e.preventDefault();
 			}
@@ -223,8 +442,8 @@ inited.then(() => {
 		if (settings) {
 			tabs.add(settings()!);
 		}
+		tabs.css();
 		amendNode(document.head, render());
-		addCSS(tabs.css());
 		amendNode(desktop, tabs.html());
 		setTimeout(() => tabs.setTab(lastTab.value));
 		shell.realignWindows();
