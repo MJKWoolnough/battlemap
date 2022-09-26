@@ -9,6 +9,7 @@ import mainLang, {makeLangPack} from '../language.js';
 import {mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
+import {settingsTicker} from '../settings.js';
 import {labels} from '../shared.js';
 import {shell, windows} from '../windows.js';
 
@@ -139,7 +140,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 addPlugin("screenshot", {
 	"settings": {
 		"fn": div([
-			([[hideGrid, "ENABLE_GRID"], [disablePNG, "ENABLE_PNG"]] as [BoolSetting, keyof typeof lang][]).map(([s, l]) => [labels(input({"type": "checkbox", "class": "settings_ticker", "checked": !s.value, "onchange": function(this: HTMLInputElement) {
+			([[hideGrid, "ENABLE_GRID"], [disablePNG, "ENABLE_PNG"]] as [BoolSetting, keyof typeof lang][]).map(([s, l]) => [labels(input({"type": "checkbox", "class": settingsTicker, "checked": !s.value, "onchange": function(this: HTMLInputElement) {
 				s.set(!this.checked);
 			}}), `${lang[l]}: `), br()]),
 			button({"onclick": makeScreenshot}, lang["SCREENSHOT_TAKE"])
