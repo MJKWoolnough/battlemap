@@ -11,7 +11,7 @@ import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
 import {combined, isAdmin, rpc} from '../rpc.js';
-import {autosnap} from '../settings.js';
+import {autosnap, settingsTicker} from '../settings.js';
 import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
@@ -100,7 +100,7 @@ if (isAdmin) {
 			lineEffect.remove();
 		}
 	      },
-	      snap = input({"type": "checkbox", "checked": autosnap.value, "class": "settings_ticker"}),
+	      snap = input({"type": "checkbox", "checked": autosnap.value, "class": settingsTicker}),
 	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      [setupRotate, cancelRotate] = mouseDragEvent(0, undefined, () => rotate = false),
@@ -141,7 +141,7 @@ if (isAdmin) {
 		}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 		fieldset([
 			legend(lang["SPELL_TYPE"]),
-			([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": !n, "class": "settings_ticker", "onclick": () => setEffect(e)}), `${lang[k]}: `)])
+			([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": !n, "class": settingsTicker, "onclick": () => setEffect(e)}), `${lang[k]}: `)])
 		]),
 		labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 		br(),
