@@ -15,7 +15,7 @@ import {doTokenAdd, getToken, layersRPC} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {tokenClass} from './plugins.js';
 import {inited, isAdmin} from './rpc.js';
-import {autosnap} from './settings.js';
+import {autosnap, settingsTicker} from './settings.js';
 import {characterData, cloneObject, getCharacterToken, labels} from './shared.js';
 import {addTool, defaultTool, disable, ignore} from './tools.js';
 
@@ -23,7 +23,7 @@ inited.then(() => {
 	if (!isAdmin) {
 		return;
 	}
-	const mode = input({"type": "checkbox", "class": "settings_ticker", "onchange": function(this: HTMLInputElement) {
+	const mode = input({"type": "checkbox", "class": settingsTicker, "onchange": function(this: HTMLInputElement) {
 		if (this.checked) {
 			hideCursor();
 		} else {
