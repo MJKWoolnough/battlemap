@@ -3,6 +3,7 @@ import type {MenuItems} from './lib/menu.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {WindowElement} from './windows.js';
+import {add, id} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {setDragEffect} from './lib/drag.js';
@@ -16,7 +17,7 @@ import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {combined, inited, isAdmin} from './rpc.js';
-import {autosnap} from './settings.js';
+import {autosnap, settingsTicker} from './settings.js';
 import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
@@ -31,18 +32,21 @@ inited.then(() => {
 	    selectedMarker = 0,
 	    w: WindowElement | null = null;
 
-	const updateCursorState = () => {
+	const wallID = id(),
+	      selectWallID = id(),
+	      wallMarkerID = id(),
+	      updateCursorState = () => {
 		if (placeWall.checked) {
-			amendNode(root, {"style": {"cursor": "none"}, "class": ["!selectWall"]}, marker);
+			amendNode(root, {"style": {"cursor": "none"}, "class": {[selectWallID]: false}}, marker);
 			startCursorMove();
 		} else {
-			amendNode(root, {"class": ["selectWall"]});
+			amendNode(root, {"class": [selectWallID]});
 			cancelCursorMove();
 		}
 	      },
 	      dragScattering = new DragTransfer<Byte>("scattering"),
-	      selectWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "checked": true, "onchange": updateCursorState}),
-	      placeWall = input({"type": "radio", "name": "wallTool", "class": "settings_ticker", "onchange": () => {
+	      selectWall = input({"type": "radio", "name": "wallTool", "class": settingsTicker, "checked": true, "onchange": updateCursorState}),
+	      placeWall = input({"type": "radio", "name": "wallTool", "class": settingsTicker, "onchange": () => {
 		updateCursorState();
 		deselectWall();
 	      }}),
@@ -51,11 +55,11 @@ inited.then(() => {
 			scatteringI.value = dragScattering.get(e) + "";
 		}
 	      }}),
-	      continuous = input({"type": "checkbox", "class": "settings_ticker"}),
+	      continuous = input({"type": "checkbox", "class": settingsTicker}),
 	      dragKey = dragScattering.register(() => checkInt(parseInt(scatteringI.value), 0, 255, 0)),
 	      scatteringDragKey = dragScattering.register(() => walls.get(selectedWall)?.wall.scattering ?? 0),
 	      colourDragKey = dragColour.register(() => walls.get(selectedWall)?.wall.colour ?? noColour),
-	      snap = input({"type": "checkbox", "class": "settings_ticker"}),
+	      snap = input({"type": "checkbox", "class": settingsTicker}),
 	      shiftSnap = () => snap.click(),
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
@@ -174,7 +178,7 @@ inited.then(() => {
 					setOverlay(x1, y1, x2, y2);
 					hasSelected = true;
 				}
-				amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": "wall", "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
+				amendNode(wallLayer, setAndReturn(wallMap, id, rect({"x": x1, "y": y1 - 5, "width": Math.hypot(x1 - x2, y1 - y2), "class": wallID, "transform": `rotate(${Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI}, ${x1}, ${y1})`, "fill": colour, "stroke": colour.toHexString(), "ondragover": validWallDrag, "ondrop": (e: DragEvent) => wallDrop(e, id), "onmousedown": (e: MouseEvent) => {
 					if (selectWall.checked && wall && e.button === 0) {
 						setOverlay(x1, y1, x2, y2);
 						selectedWall = id;
@@ -201,7 +205,7 @@ inited.then(() => {
 	      ]),
 	      iconStr = svgData(icon),
 	      iconImg = img({"src": iconStr}),
-	      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, (_, n: Uint) => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "class": "wallMarker", "onmousedown": (e: MouseEvent) => {
+	      [draggableMarker1, draggableMarker2] = Array.from({length: 2}, (_, n: Uint) => path({"d": "M8,0 h4 v8 h8 v4 h-8 v8 h-4 v-8 h-8 v-4 h8 z", "class": wallMarkerID, "onmousedown": (e: MouseEvent) => {
 		if (e.button === 0) {
 			selectedMarker = n;
 			startMarkerDrag();
@@ -256,7 +260,18 @@ inited.then(() => {
 			setTimeout(genWalls);
 		}
 	      };
-
+	add(`.${wallID}`, {
+		"height": "10px",
+		"stroke-width": 2
+	});
+	add(`.${selectWallID} .${wallID}`, {
+		"cursor": "pointer"
+	});
+	add(`.${wallMarkerID}`, {
+		"fill": "#000",
+		"stroke": "#fff",
+		"cursor": "move"
+	});
 	addTool({
 		"name": lang["TOOL_WALL"],
 		icon,
