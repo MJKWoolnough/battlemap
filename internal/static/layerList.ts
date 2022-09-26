@@ -1,19 +1,22 @@
 import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
+import {add, id} from './lib/css.js';
 import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
 import {node, noSort} from './lib/nodes.js';
 import {BoolSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
+import {selectedLayerID} from './adminMap.js';
 import {colourPicker, hex2Colour} from './colours.js';
-import {Folder, Item, Root} from './folders.js';
+import {Folder, folders, foldersItem, Item, itemControl, Root} from './folders.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doLockUnlockLayer, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
+import {adminHideLight} from './settings.js';
 import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
 import {lightOnOff, lock, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -27,7 +30,7 @@ menuItems.push([5, () => isAdmin ? [
 			constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
 				super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
 				if (locked) {
-					amendNode(this[node], {"class": ["layerLocked"]});
+					amendNode(this[node], {"class": [layerLocked]});
 				}
 				if (id < 0) {
 					clearNode(this[node], [this.nameElem, id === -2 ? adminLightToggle : []]);
@@ -38,17 +41,17 @@ menuItems.push([5, () => isAdmin ? [
 					}
 				}
 				if (hidden) {
-					amendNode(this[node], {"class": ["layerHidden"]});
+					amendNode(this[node], {"class": [layerHidden]});
 				}
 				this[node].insertBefore(createDocumentFragment([
-					id < 0 ? [] : lock({"title": lang["LAYER_TOGGLE_LOCK"], "class": "layerLock", "onclick": () => {
+					id < 0 ? [] : lock({"title": lang["LAYER_TOGGLE_LOCK"], "class": layerLock, "onclick": () => {
 						lockUnlockLayer(this);
 					}}),
-					visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": () => showHideLayer(this)})
+					visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : layerVisibility, "onclick": () => showHideLayer(this)})
 				]), this.nameElem);
 				amendNode(this[node], [
-					div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
-					div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
+					div({"class": dragBefore, "onmouseup": () => dragPlace(this, false)}),
+					div({"class": dragAfter, "onmouseup": () => dragPlace(this, true)})
 				]);
 				amendNode(this.nameElem, {"onmousedown": (e: MouseEvent) => dragStart(this, e)});
 			}
@@ -60,7 +63,7 @@ menuItems.push([5, () => isAdmin ? [
 					      sqWidth = input({"type": "number", "min": 10, "max": 1000, "value": mapData.gridSize}),
 					      sqColour = input({"type": "color", "value": mapData.gridColour.toHexString()}),
 					      sqLineWidth = input({"type": "number", "min": 0, "max": 10, "value": mapData.gridStroke}),
-					      w = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"], "class": "mapAdd"}, [
+					      w = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"]}, [
 						h1(lang["MAP_EDIT"]),
 						([["MAP_SQUARE_WIDTH", width], ["MAP_SQUARE_HEIGHT", height], ["MAP_SQUARE_TYPE", sqType], ["MAP_SQUARE_SIZE", sqWidth], ["MAP_SQUARE_COLOUR", sqColour], ["MAP_SQUARE_LINE", sqLineWidth]] as [keyof typeof lang, HTMLInputElement | HTMLSelectElement][]).map(([k, i]) => [labels(`${lang[k]}: `, i), br()]),
 						button({"onclick": function(this: HTMLButtonElement) {
@@ -89,13 +92,13 @@ menuItems.push([5, () => isAdmin ? [
 				} else if (this.id === -2) { // Light
 					colourPicker(shell, lang["LAYER_LIGHT_COLOUR"], mapData.lightColour, layerIcon).then(c => loadingWindow(queue(() => (doSetLightColour(c, false), rpc.setLightColour(c))), shell));
 				} else if (!this.isLocked()) {
-					amendNode(selectedLayer?.[node], {"class": ["!selectedLayer"]});
-					amendNode(this[node], {"class": ["selectedLayer"]});
+					amendNode(selectedLayer?.[node], {"class": {[selectedLayerID]: false}});
+					amendNode(this[node], {"class": [selectedLayerID]});
 					selectedLayer = this;
 					deselectToken();
-					amendNode(selected.layer?.[node], {"class": ["!selectedLayer"]});
+					amendNode(selected.layer?.[node], {"class": {[selectedLayerID]: false}});
 					setLayer(selected.layer = getLayer(this.getPath()) as SVGLayer);
-					amendNode(selected.layer[node], {"class": ["selectedLayer"]});
+					amendNode(selected.layer[node], {"class": [selectedLayerID]});
 				}
 			}
 			isLocked() {
@@ -115,10 +118,10 @@ menuItems.push([5, () => isAdmin ? [
 				const lf = children as LayerFolder;
 				this.open = this[node].firstChild as HTMLDetailsElement;
 				if (hidden) {
-					amendNode(this[node], {"class": ["layerHidden"]});
+					amendNode(this[node], {"class": [layerHidden]});
 				}
 				if (locked) {
-					amendNode(this[node], {"class": ["layerLocked"]});
+					amendNode(this[node], {"class": [layerLocked]});
 				}
 				this.id = lf.id ??= 1;
 				if (lf.children) {
@@ -128,14 +131,14 @@ menuItems.push([5, () => isAdmin ? [
 				}
 				if (lf.id > 0) {
 					amendNode(this.open.firstChild as HTMLElement, [
-						div({"class": "dragBefore", "onmouseup": () => dragPlace(this, false)}),
-						div({"class": "dragAfter", "onmouseup": () => dragPlace(this, true)})
+						div({"class": dragBefore, "onmouseup": () => dragPlace(this, false)}),
+						div({"class": dragAfter, "onmouseup": () => dragPlace(this, true)})
 					]).insertBefore(createDocumentFragment([
-						lock({"title": lang["LAYER_TOGGLE_LOCK"], "class" : "layerLock", "onclick": (e: Event) => {
+						lock({"title": lang["LAYER_TOGGLE_LOCK"], "class" : layerLock, "onclick": (e: Event) => {
 							lockUnlockLayer(this);
 							e.preventDefault()
 						}}),
-						visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : "layerVisibility", "onclick": (e: Event) => {
+						visibility({"title": lang["LAYER_TOGGLE_VISIBILITY"], "class" : layerVisibility, "onclick": (e: Event) => {
 							showHideLayer(this);
 							e.preventDefault()
 						}})
@@ -144,7 +147,7 @@ menuItems.push([5, () => isAdmin ? [
 							dragStart(this, e);
 						}
 					}}));
-					amendNode(this[node], {"class": ["layerFolder"]}, div(this[node].childNodes));
+					amendNode(this[node], {"class": [layerFolder]}, div(this[node].childNodes));
 				}
 			}
 			isLocked(): boolean {
@@ -210,18 +213,18 @@ menuItems.push([5, () => isAdmin ? [
 					return false;
 				});
 			})[0]();
-			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerHidden"]}));
-			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["layerHidden"]}));
+			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerHidden]: false}}));
+			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": [layerHidden]}));
 			layersRPC.waitLayerSetLock().then(path => {
 				const l = list.getLayer(path);
 				if (l) {
 					if (selectedLayer === l) {
 						deselectLayer();
 					}
-					amendNode(l[node], {"class": ["layerLocked"]})
+					amendNode(l[node], {"class": [layerLocked]})
 				}
 			});
-			layersRPC.waitLayerSetUnlock().then(path => amendNode(list.getLayer(path)?.[node], {"class": ["!layerLocked"]}));
+			layersRPC.waitLayerSetUnlock().then(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerLocked]: false}}));
 			layersRPC.waitLayerPositionChange().then(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
@@ -248,7 +251,7 @@ menuItems.push([5, () => isAdmin ? [
 					l.show();
 				}
 			});
-			clearNode(base, {"id": "layerList"}, [
+			clearNode(base, {"id": layerListID}, [
 				button({"onclick": () => {
 					const name = input({"onkeypress": enterKey}),
 					      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}, [
@@ -277,23 +280,23 @@ menuItems.push([5, () => isAdmin ? [
 		    };
 		const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 			if (!draggedName) {
-				amendNode(dragging![node], {"class": ["dragged"]});
-				amendNode(document.body, draggedName = span({"class": "beingDragged"}, dragging!.name));
-				amendNode(dragBase, {"class": ["dragging"]});
+				amendNode(dragging![node], {"class": [dragged]});
+				amendNode(document.body, draggedName = span({"class": beingDragged}, dragging!.name));
+				amendNode(dragBase, {"class": [draggingID]});
 			}
 			amendNode(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
 		      }, () => {
-			amendNode(dragging![node], {"class": ["!dragged"]});
+			amendNode(dragging![node], {"class": {[dragged]: false}});
 			dragging = undefined;
 			draggedName?.remove();
 			draggedName = undefined;
-			amendNode(dragBase, {"class": ["!dragging", "!draggingSpecial"]});
+			amendNode(dragBase, {"class": {[draggingID]: false, [draggingSpecial]: false}});
 		      }),
 		      isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
 		      isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
 		      renameLayer = (self: ItemLayer | FolderLayer) => {
 			const newName = input({"type": "text", "value": self.name, "onkeypress": enterKey}),
-			      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"], "class": "renameItem"}, [
+			      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]}, [
 				h1(lang["LAYER_RENAME"]),
 				labels(`${lang["LAYER_NAME"]}: `, newName),
 				br(),
@@ -339,7 +342,7 @@ menuItems.push([5, () => isAdmin ? [
 		      dragStart = (l: ItemLayer | FolderLayer, e: MouseEvent) => {
 			if (!dragging && e.button === 0) {
 				if (l.id < 0) {
-					amendNode(dragBase, {"class": ["draggingSpecial"]});
+					amendNode(dragBase, {"class": [draggingSpecial]});
 				}
 				dragOffset = l.nameElem.offsetLeft - e.clientX;
 				for (let e = l.nameElem.offsetParent; e instanceof HTMLElement; e = e.offsetParent) {
@@ -355,13 +358,13 @@ menuItems.push([5, () => isAdmin ? [
 		      }),
 		      deselectLayer = () => {
 			deselectToken();
-			amendNode(selectedLayer?.[node], {"class": ["!selectedLayer"]});
-			amendNode(selected.layer?.[node], {"class": ["!selectedLayer"]});
+			amendNode(selectedLayer?.[node], {"class": {[selectedLayerID]: false}});
+			amendNode(selected.layer?.[node], {"class": {[selectedLayerID]: false}});
 			selectedLayer = undefined;
 			selected.layer = null;
 		      },
 		      lockUnlockLayer = (l: FolderLayer | ItemLayer) => queue(() => {
-			const locked = l[node].classList.toggle("layerLocked");
+			const locked = l[node].classList.toggle(layerLocked);
 			if (locked && selectedLayer && l[node].contains(selectedLayer[node])) {
 				deselectLayer();
 			}
@@ -381,11 +384,91 @@ menuItems.push([5, () => isAdmin ? [
 			}
 			return false;
 		      },
-		      lightToggle = new BoolSetting("lightToggle").wait(v => amendNode(document.body, {"class": {"adminHideLight": v}})),
-		      adminLightToggle = lightOnOff({"id": "toggleAdminLight", "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)}),
+		      lightToggle = new BoolSetting("lightToggle").wait(v => amendNode(document.body, {"class": {[adminHideLight]: v}})),
 		      base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
 		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"], '['),
-		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"], ']');
+		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"], ']'),
+		      layerListID = id(),
+		      layerFolder = id(),
+		      dragged = id(),
+		      draggingID = id(),
+		      beingDragged = id(),
+		      draggingSpecial = id(),
+		      dragAfter = id(),
+		      dragBefore = id(),
+		      layerLock = id(),
+		      layerVisibility = id(),
+		      layerHidden = id(),
+		      layerLocked = id(),
+		      toggleAdminLight = id(),
+		      adminLightToggle = lightOnOff({"id": toggleAdminLight, "class": itemControl, "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)});
+		add(`#${layerListID}`, {
+			" ul" : {
+				"list-style": "none",
+				"padding-left": "calc(2em + 4px)"
+			},
+			[` li, .${layerFolder}>div`]: {
+				"position": "relative"
+			}
+		});
+		add(`.${dragged}`, {
+			"visibility": "hidden"
+		});
+		add(`.${beingDragged}`, {
+			"position": "absolute"
+		});
+		add(`.${draggingSpecial} .${folders} .${folders} :is(.${dragAfter}, .${dragBefore})`, {
+			"display": "none"
+		});
+		add(`.${draggingID}`, {
+			[` :is(.${dragAfter}, .${dragBefore})`]: {
+				"display": "block",
+				"height": "calc(50% - 1px)",
+				"position": "absolute",
+				"width": "100%"
+			},
+			[` .${dragAfter}`]: {
+				"top": "50%",
+				"border-bottom": "1px solid transparent",
+				":hover": {
+					"border-bottom-color": "#000"
+				}
+			},
+			[` .${dragBefore}`]: {
+				"top": 0,
+				"border-top": "1px solid transparent",
+				":hover": {
+					"border-top-color": "#000"
+				}
+			},
+		});
+		add(`.${layerLock}`, {
+			"left": "calc(-2em - 4px) !important"
+		});
+		add(`.${layerLock},.${layerVisibility}`, {
+			"display": "inline-block",
+			"width": "1em",
+			"height": "1em",
+			"position": "absolute",
+			"left": "calc(-1em - 4px)",
+			"cursor": "pointer"
+		});
+		add(`.${layerHidden} .${layerVisibility}`, {
+			"--invisible": "none"
+		});
+		add(`.${layerLocked} .${layerLock}`, {
+			"--locked": "block",
+			"--unlocked": "none"
+		});
+		add(`.${selectedLayerID}`, {
+			"background-color": "#eee"
+		});
+		add(`#${layerList} .${foldersItem}`, {
+			"grid-template-columns": "auto 1em 1em"
+		});
+		add(`.${adminHideLight} #${toggleAdminLight}`, {
+			"--off": "#000"
+		});
 		mapLoadedReceive(() => loadFn());
 		return base;
 	})(),
