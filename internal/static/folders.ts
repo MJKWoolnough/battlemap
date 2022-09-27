@@ -6,7 +6,7 @@ import {br, button, details, div, h1, img, input, li, option, select, span, summ
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {inited, isAdmin} from './rpc.js';
-import {invert} from './settings.js';
+import {invert, invertID} from './settings.js';
 import {enterKey, labels, queue, setAndReturn} from './shared.js';
 import {copy, folder, newFolder, remove, rename} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -694,6 +694,9 @@ inited.then(() => {
 			">details>summary,>span": {
 				"background-color": "#888"
 			}
+		});
+		add(`.${invertID} .${dragOver}`, {
+			"background-color": "#555"
 		});
 		add(`.${folderDragging}`, {
 			" *": {
