@@ -353,7 +353,7 @@ menuItems.push([5, () => isAdmin ? [
 			}
 		      },
 		      showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
-			const visible = !l[node].classList.toggle("layerHidden");
+			const visible = !l[node].classList.toggle(layerHidden);
 			return (visible ? rpc.showLayer : rpc.hideLayer)(doShowHideLayer(l.getPath(), visible, false));
 		      }),
 		      deselectLayer = () => {
