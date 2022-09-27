@@ -409,6 +409,55 @@ add("menu-item[disabled],menu-submenu[disabled]", {
 	"color": "#444",
 	"font-style": "italic"
 });
+add(`.${invertID}`, {
+	"background-color": "#000",
+	"color": "#fff",
+	[` body, windows-window, #${panelsID}`]: {
+		"background-color": "#000",
+		"color": "#fff",
+		"border-color": "#fff"
+	},
+	[` a, .${psuedoLink}`]: {
+		"color": "#f00"
+	},
+	" windows-window::part(title)": {
+		"color": "#000"
+	},
+	[` #${tabLabelsID}`]: {
+		":after": {
+			"border-color": "#fff"
+		},
+		">label": {
+			"--c": "#000",
+			"background": "linear-gradient(to bottom, #777 30%, #111 100%)",
+			"box-shadow": "0 3px 3px rgba(255, 255, 255, 0.4), inset 0 1px 0 #000",
+			"text-shadow": "0 1px #000",
+			"border-color": "#fff",
+			":hover,:focus": {
+				"background": "linear-gradient(to bottom, #f22 5%, #a77 40%, #111 100%)"
+			},
+			":before,:after": {
+				"border-color": "#fff"
+			},
+			":before": {
+				"box-shadow": "2px 2px 0 #2e2e2e"
+			},
+			":after": {
+				"box-shadow": "-2px 2px 0 #2e2e2e"
+			}
+		}
+	},
+	"menu-menu": {
+		"background-color": "#222",
+		"color": "#fff"
+	},
+	"menu-submenu[open]>menu-item, menu-item:focus": {
+		"background-color": "#000",
+	},
+	"menu-item[disabled],menu-submenu[disabled]": {
+		"color": "#888"
+	}
+});
 
 amendNode(desktop, symbols);
 
