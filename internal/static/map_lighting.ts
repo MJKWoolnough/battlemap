@@ -133,11 +133,11 @@ const mone = new Fraction(-1n),
       closestPoint = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fraction, lightX: Uint, lightY: Uint): [Fraction, Fraction, number] => {
 	const [x, y] = iPoint(x1, y1, x2, y2, lightX, lightY);
 	if (x.cmp(Fraction.min(x1, x2)) === -1 || x.cmp(Fraction.max(x1, x2)) === 1 || y.cmp(Fraction.min(y1, y2)) === -1 || y.cmp(Fraction.max(y1, y2)) === 1) {
-		const a = Math.hypot(x1.toFloat() - lightX, y1.toFloat() - lightY),
-		      b = Math.hypot(x2.toFloat() - lightX, y2.toFloat() - lightY);
+		const a = Math.hypot(+x1 - lightX, +y1 - lightY),
+		      b = Math.hypot(+x2 - lightX, +y2 - lightY);
 		return a < b ? [x1, y1, a] : [x2, y2, b];
 	}
-	return [x, y, Math.hypot(x.toFloat() - lightX, y.toFloat() - lightY)];
+	return [x, y, Math.hypot(+x - lightX, +y - lightY)];
       };
 
 export const intersection = (x1: Fraction, y1: Fraction, x2: Fraction, y2: Fraction, x3: Fraction, y3: Fraction, x4: Fraction, y4: Fraction) => {
@@ -194,14 +194,14 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 		      dy1 = y1.sub(fly),
 		      dy2 = y2.sub(fly);
 		if (dy1.mul(dx2.sub(dx1)).cmp(dx1.mul(dy2.sub(dy1)))) {
-			const rdx1 = dx1.toFloat(),
-			      rdy1 = dy1.toFloat(),
-			      rdx2 = dx2.toFloat(),
-			      rdy2 = dy2.toFloat(),
+			const rdx1 = +dx1,
+			      rdy1 = +dy1,
+			      rdx2 = +dx2,
+			      rdy2 = +dy2,
 			      a1 = angle(dx1, dy1),
 			      a2 = angle(dx2, dy2),
-			      p1 = `${x1.toFloat()},${y1.toFloat()}`,
-			      p2 = `${x2.toFloat()},${y2.toFloat()}`,
+			      p1 = `${x1},${y1}`,
+			      p2 = `${x2},${y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []),
 			      [cx, cy, cl] = closestPoint(x1, y1, x2, y2, lightX, lightY),
@@ -255,7 +255,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			      [px, py] = intersection(x1, y1, x2, y2, flx, fly, x, y),
 			      lpx = flx.sub(px),
 			      lpy = fly.sub(py),
-			      d = Math.hypot(lpx.toFloat(), lpy.toFloat()) - 10e-9;
+			      d = Math.hypot(+lpx, +lpy) - 10e-9;
 			if (px.cmp(Fraction.min(x1, x2)) === -1 || px.cmp(Fraction.max(x1, x2)) === 1 || py.cmp(Fraction.min(y1, y2)) === -1 || py.cmp(Fraction.max(y1, y2)) === 1 || -dlx.sign() !== lpx.sign() || -dly.sign() !== lpy.sign() || d > v.d) {
 				continue;
 			}
@@ -270,8 +270,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			if (!px.isNaN()) {
 				const lpx = flx.sub(px),
 				      lpy = fly.sub(py),
-				      distance = Math.hypot(lpx.toFloat(), lpy.toFloat()),
-				      point = points.get(`${px.toFloat()},${py.toFloat()}`),
+				      distance = Math.hypot(+lpx, +lpy),
+				      point = points.get(`${px},${py}`),
 				      hasPoint = point?.some(({id: wid}) => id === wid);
 				if ((hasPoint ? hasDirection(px, py, point!, !cw) : px.cmp(Fraction.min(x1, x2)) > -1 && px.cmp(Fraction.max(x1, x2)) < 1 && py.cmp(Fraction.min(y1, y2)) > -1 && py.cmp(Fraction.max(y1, y2)) < 1) && distance < ed && distance > min && -dlx.sign() === lpx.sign() && -dly.sign() === lpy.sign()) {
 					ex = px;
@@ -303,7 +303,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 		      next = collisions[j === collisions.length - 1 ? 0 : j + 1];
 		if (!isSameWall(prev.w, w, next.w)) {
 			if (prev.y.sub(y).mul(x.sub(next.x)).cmp(y.sub(next.y).mul(prev.x.sub(x)))) {
-				p += `${x.toFloat()},${y.toFloat()} `;
+				p += `${x},${y} `;
 			}
 			const sw = isSameWall(prev.w, w);
 			if (sw) {
@@ -320,8 +320,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 							"colour": noColour,
 							"scattering": 0
 						      },
-						      sx = lx + scattering * (cx.toFloat() - lx) / 256,
-						      sy = ly + scattering * (cy.toFloat() - ly) / 256;
+						      sx = lx + scattering * (+cx - lx) / 256,
+						      sy = ly + scattering * (+cy - ly) / 256;
 						if (a < 255) {
 							const lw = l.wallInteraction(Math.round(sx), Math.round(sy), lightX, lightY, sw.colour, cd / scale, true);
 							if (lw) {
@@ -330,8 +330,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 						}
 						if (a > 0) {
 							const [cx, cy] = iPoint(x, y, prev.x, prev.y, sx, sy),
-							      dcx = cx.add(cx).toFloat(),
-							      dcy = cy.add(cy).toFloat(),
+							      dcx = +cx.add(cx),
+							      dcy = +cy.add(cy),
 							      lw = l.wallInteraction(Math.round(dcx - sx), Math.round(dcy - sy), Math.round(dcx - lx), Math.round(dcy - ly), sw.colour, cd / scale);
 							if (lw) {
 								ret.push(...makeLight(lw, walls, scale, fw));
