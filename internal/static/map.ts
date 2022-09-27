@@ -16,7 +16,7 @@ import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, rpc} from './rpc.js';
-import {enableAnimation, scrollAmount, zoomSlider} from './settings.js';
+import {enableAnimation, invertID, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
@@ -554,6 +554,9 @@ add(`#${mapLoading}`, {
 	" progress": {
 		"margin": "0 1em"
 	}
+});
+add(`.${invertID} #${mapLoading}`, {
+	"background-color": "#000"
 });
 add(`.${hideZoomSlider} #${zoomSliderID}`, {
 	"display": "none"
