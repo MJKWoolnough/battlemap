@@ -7,18 +7,10 @@ tmpFile="$(mktemp)";
 
 (
 	cd "$data";
-	for lib in lib/*.js; do
-		source="$jslibJS/$(basename "$lib")";
-		if [ "$lib" -nt "$source" -o "$lib" -ot "$source" ]; then
-			cp -f --preserve=timestamps "$source" "$lib";
-		fi;
-	done;
 	head -n5 index.html | tr -d '\n	';
 	echo -n "<script type=\"module\">";
 	jspacker -i "/$(grep "<script" index.html | grep -v "lib/load.js" | sed -e 's/.*src="\([^"]*\)".*/\1/')" | terser -m  --module --compress pure_getters,passes=3 --ecma 6 | tr -d '\n';
-	echo -n "</script><style type=\"text/css\">";
-	grep -hv "^@import" *.css | uglifycss | tr -d '\n';
-	echo -n "</style>";
+	echo -n "</script>";
 	tail -n5 index.html | tr -d '\n	';
 ) > "$tmpFile";
 
