@@ -440,7 +440,7 @@ menuItems.push([5, () => isAdmin ? [
 				":hover": {
 					"border-top-color": "#000"
 				}
-			},
+			}
 		});
 		add(`.${layerLock}`, {
 			"left": "calc(-2em - 4px) !important"
