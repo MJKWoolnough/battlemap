@@ -167,7 +167,7 @@ add(`#${helpDemo}`, {
 	"height": "80vh",
 	" input": {
 		"display": "none"
-	},
+	}
 });
 add(`#${helpDemos}`, {
 	" label": {
