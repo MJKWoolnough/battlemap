@@ -68,6 +68,7 @@ if (isAdmin) {
 						if (wp) {
 							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
 							wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+							wp.document.body.classList.add(pluginNotesClass);
 							wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
 						}
 					}
