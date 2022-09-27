@@ -403,7 +403,7 @@ add("menu-submenu>menu-item:after", {
 });
 add("menu-item", {
 	"outline": "none",
-	"padding": "0 0.25em",
+	"padding": "0 0.25em"
 });
 add("menu-item[disabled],menu-submenu[disabled]", {
 	"color": "#444",
@@ -452,7 +452,7 @@ add(`.${invertID}`, {
 		"color": "#fff"
 	},
 	"menu-submenu[open]>menu-item, menu-item:focus": {
-		"background-color": "#000",
+		"background-color": "#000"
 	},
 	"menu-item[disabled],menu-submenu[disabled]": {
 		"color": "#888"
