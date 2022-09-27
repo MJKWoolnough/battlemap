@@ -13,7 +13,7 @@ import {Colour, noColour} from './colours.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
-import {Lighting, lighting, SQRT3, SVGToken, definitions, masks, tokens} from './map_tokens.js';
+import {Lighting, SQRT3, SVGToken, definitions, lighting, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, rpc} from './rpc.js';
 import {enableAnimation, invertID, scrollAmount, zoomSlider} from './settings.js';
