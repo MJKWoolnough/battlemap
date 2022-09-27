@@ -11,6 +11,7 @@ import {hex2Colour} from './colours.js';
 import {DragFolder, DraggableItem, Folder, foldersItem, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
+import {invertID} from './settings.js';
 import {checkInt, enterKey, labels, loading, menuItems, queue} from './shared.js';
 import {userSelected} from './symbols.js';
 import undo from './undo.js';
@@ -167,10 +168,10 @@ menuItems.push([4, () => isAdmin ? [
 			}
 		});
 		add(`.${hasMapUser}>details>summary`, {
-			"background-color": "#ccffcc !important"
+			"background-color": "#ccffcc"
 		});
 		add(`.${hasMapCurrent}>details>summary`, {
-			"background-color": "#f8f8f8 !important"
+			"background-color": "#f8f8f8"
 		});
 		add(`.${mapCurrent}`, {
 			"background-color": "#eee"
@@ -178,6 +179,17 @@ menuItems.push([4, () => isAdmin ? [
 		add(`.${setUserMap}`, {
 			"position": "absolute",
 			"left": 0
+		});
+		add(`.${invertID}`, {
+			[` .${mapCurrent}`]: {
+				"background-color": "#555"
+			},
+			[` .${hasMapCurrent}>details>summary`]: {
+				"background-color": "#600"
+			},
+			[` .${hasMapUser}>details>summary`]: {
+				"background-color": "#400"
+			}
 		});
 		Promise.all([
 			rpcFuncs.list(),
