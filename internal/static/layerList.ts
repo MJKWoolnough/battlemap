@@ -9,7 +9,7 @@ import {BoolSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import {selectedLayerID} from './adminMap.js';
 import {colourPicker, hex2Colour} from './colours.js';
-import {Folder, folders, foldersItem, Item, itemControl, Root} from './folders.js';
+import {Folder, Item, Root, folders, foldersItem, itemControl} from './folders.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
