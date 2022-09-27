@@ -16,7 +16,7 @@ import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doLockUnlockLayer, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
-import {adminHideLight} from './settings.js';
+import {adminHideLight, invertID} from './settings.js';
 import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
 import {lightOnOff, lock, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
@@ -468,6 +468,19 @@ menuItems.push([5, () => isAdmin ? [
 		});
 		add(`.${adminHideLight} #${toggleAdminLight}`, {
 			"--off": "#000"
+		});
+		add(`.${invertID}`, {
+			[` .${selectedLayerID}`]: {
+				"background-color": "#555"
+			},
+			[` .${draggingID}`]: {
+				[` .${dragBefore}:hover`]: {
+					"border-top-color": "#fff"
+				},
+				[` .${dragAfter}:hover`]: {
+					"border-bottom-color": "#fff"
+				}
+			}
 		});
 		mapLoadedReceive(() => loadFn());
 		return base;
