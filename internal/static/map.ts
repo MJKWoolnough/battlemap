@@ -273,6 +273,7 @@ updateLight = () => {
 		definitions.clearLighting();
 	}
 	for (let i = 0; i < lights.length; i++) {
+		lid++;
 		const light = lights[i];
 		if (!wallsChanged && lightList.length > i) {
 			const oldLight = lightList[i],
@@ -303,7 +304,7 @@ updateLight = () => {
 			}
 			definitions.clearLightGroup("L" + lid);
 		}
-		definitions.setLightGroup("L" + lid++);
+		definitions.setLightGroup("L" + lid);
 		makeLight(light, walls, gridSize / (gridDistance || 1));
 		const [cx, cy] = light.getCentre(),
 		      [lx, ly] = light.getLightPos();
