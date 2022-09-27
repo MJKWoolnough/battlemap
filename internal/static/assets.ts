@@ -8,7 +8,7 @@ import {audio, button, div, form, h1, img, input, progress} from './lib/html.js'
 import {Pipe} from './lib/inter.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
-import {DragFolder, DraggableItem, dragOver, Folder, folderDragging, folders, Root} from './folders.js';
+import {DragFolder, DraggableItem, Folder, Root, dragOver, folderDragging, folders} from './folders.js';
 import lang from './language.js';
 import {bbcodeDrag, register} from './messaging.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
