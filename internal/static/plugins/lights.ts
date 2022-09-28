@@ -1,5 +1,6 @@
 import type {FolderItems, FromTo, IDName, Int, KeystoreData, TokenLight, Uint} from '../types.js';
 import type {WindowElement} from '../windows.js';
+import {add, id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {keyEvent} from '../lib/events.js';
@@ -16,7 +17,7 @@ import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {combined, handleError, isAdmin, rpc} from '../rpc.js';
-import {addCSS, cloneObject, isUint} from '../shared.js';
+import {cloneObject, isUint} from '../shared.js';
 import {lightGridStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -432,10 +433,19 @@ if (isAdmin) {
 		}
 		amendNode(copyLight, {disabled});
 		amendNode(removeLight, {disabled});
-	      };
+	      },
+	      pluginLights = id();
+	add(`#${pluginLights}`, {
+		" ul": {
+			"padding-left": "1em",
+			"list-style": "none"
+		},
+		">div>ul": {
+			"padding": 0
+		}
+	});
 	tokenSelectedReceive(checkSelectedToken);
 	combined.waitTokenSet().then(checkSelectedToken);
-	addCSS("#pluginLights ul{padding-left: 1em;list-style: none}#pluginLights>div>ul{padding:0}"),
 	root.windowIcon = lightGridStr;
 	addPlugin("lights", {
 		"menuItem": {
