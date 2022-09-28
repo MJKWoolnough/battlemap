@@ -1,6 +1,6 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {Character} from './characterList.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, img, input, label, li, ul} from './lib/html.js';
@@ -175,10 +175,7 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
       },
       characterDragEffect = setDragEffect({"link": [dragCharacter]}),
       imageDragEffect = setDragEffect({"link": [dragImage]}),
-      userVisibility = id(),
-      tokenSelector = id(),
-      tokenSelectors = id(),
-      showCharacter = id();
+      [userVisibility, tokenSelector, tokenSelectors, showCharacter] = ids(4);
 
 
 inited.then(() => {
