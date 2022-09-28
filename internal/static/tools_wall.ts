@@ -3,7 +3,7 @@ import type {MenuItems} from './lib/menu.js';
 import type {NodeArray} from './lib/nodes.js';
 import type {SVGFolder, SVGLayer} from './map.js';
 import type {WindowElement} from './windows.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {setDragEffect} from './lib/drag.js';
@@ -32,9 +32,7 @@ inited.then(() => {
 	    selectedMarker = 0,
 	    w: WindowElement | null = null;
 
-	const wallID = id(),
-	      selectWallID = id(),
-	      wallMarkerID = id(),
+	const [wallID, selectWallID, wallMarkerID] = ids(3),
 	      updateCursorState = () => {
 		if (placeWall.checked) {
 			amendNode(root, {"style": {"cursor": "none"}, "class": {[selectWallID]: false}}, marker);
