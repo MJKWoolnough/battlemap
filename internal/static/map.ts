@@ -1,7 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import {add, id} from './lib/css.js';
+import {add, id, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
@@ -67,11 +67,9 @@ const idNames: Record<string, Int> = {
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
       lightList: Lighting[] = [],
-      mapBase = id(),
-      layerGrid = id(),
-      mapLoading = id();
+      [mapBase, layerGrid, mapLoading] = ids(3);
 
-export const layerLight = id(),
+export const [layerLight, hiddenLayer, mapID, hideZoomSlider, zoomSliderID, zooming] = ids(6),
 splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/");
 	return [path.slice(0, pos), path.slice(pos+1)];
@@ -392,11 +390,6 @@ screen2Grid = (() => {
 		return [Math.round(sx), Math.round(sy)];
 	};
 })(),
-hiddenLayer = id(),
-mapID = id(),
-hideZoomSlider = id(),
-zoomSliderID = id(),
-zooming = id(),
 zoom = (() => {
 	const zoomMove = (e: MouseEvent) => {
 		const v = Math.max(10, Math.min(110, e.clientY));
