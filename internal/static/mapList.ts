@@ -1,5 +1,5 @@
 import type {FolderItems, Uint} from './types.js';
-import {add, id} from './lib/css.js';
+import {add, id, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
@@ -34,12 +34,7 @@ const mapIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="5
       },
       selectedMap = new IntSetting("selectedMap"),
       dragMapFolder = new DragTransfer<MapFolder>("mapfolder"),
-      mapItem = id(),
-      mapUser = id(),
-      hasMapUser = id(),
-      hasMapCurrent = id(),
-      mapCurrent = id(),
-      setUserMap = id();
+      [mapItem, mapUser, hasMapUser, hasMapCurrent, mapCurrent, setUserMap] = ids(6);
 
 export const dragMap = new DragTransfer<MapItem>("map");
 
