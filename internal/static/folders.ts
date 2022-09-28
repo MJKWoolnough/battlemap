@@ -1,6 +1,6 @@
 import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
 import type {DragTransfer} from './lib/drag.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
@@ -38,17 +38,9 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
 		amendNode(f, {"class": {[dragOver]: false}});
 	}
       },
-      item = id(),
-      folderIconID = id(),
-      foldersFolder = id(),
-      filter = id();
+      [item, folderIconID, foldersFolder, filter] = ids(4);
 
-export const folderDragging = id(),
-dragOver = id(),
-folders = id(),
-foldersItem = id(),
-itemControl = id(),
-imageIcon = id();
+export const [folderDragging, dragOver, folders, foldersItem, itemControl, imageIcon] = ids(6);
 
 invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
