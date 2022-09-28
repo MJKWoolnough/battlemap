@@ -6,6 +6,7 @@ import type {SVGLayer} from '../map.js';
 import type {LightWall} from '../map_lighting.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
+import {add, ids} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
@@ -15,6 +16,7 @@ import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
 import {selectToken} from '../adminMap.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
+import {tokenSelector} from '../characters.js';
 import {itemControl} from '../folders.js';
 import {registerKey} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
@@ -24,12 +26,10 @@ import {makeLight} from '../map_lighting.js';
 import {Lighting, definitions, lighting, masks, outline, selected, tokens, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
-import {enableAnimation, settingsTicker} from '../settings.js';
-import {addCSS, characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
+import {adminHideLight, enableAnimation, settingsTicker} from '../settings.js';
+import {characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
 import {remove, rename, symbols} from '../symbols.js';
 import {shell, windows} from '../windows.js';
-
-addCSS("#initiative-window-5e svg{width:1.5em}#initiative-window-5e button{height:2em}#initiative-list-5e{list-style:none;padding:0}#initiative-list-5e li{display:grid;grid-template-columns:4.5em auto 3em;align-items:center}#initiative-list-5e li span{text-align:center}#initiative-list-5e img{height:4em;width:4em;cursor:pointer}.conditionList{padding-left:1em;box-styling:padding-box}.conditionList>menu-item{display:list-item;list-style:none}.hasCondition{list-style:square !important}.hide-token-hp-5e g .token-5e .token-hp-5e,.hide-token-ac-5e g .token-5e .token-ac-5e,.hide-token-names-5e g .token-5e .token-name-5e,.hide-token-conditions-5e g .token-5e .token-conditions-5e,.hide-selected-hp-5e svg>.token-5e .token-hp-5e,.hide-selected-ac-5e svg>.token-5e .token-ac-5e,.hide-selected-names-5e svg>.token-5e .token-name-5e,.hide-selected-conditions-5e svg>.token-5e .token-conditions-5e{visibility:hidden}.desaturate-token-conditions-5e g .token-5e .token-conditions-5e,.desaturate-selected-conditions-5e svg>.token-5e .token-conditions-5e{filter:url(#saturate-5e)}.isUser #display-settings-5e thead,.isUser #display-settings-5e td:last-child{display:none}.tokenSelector5E,.tokenSelector5E>button,.tokenSelector5E>img{width:100px;height:100px}#shapechange-settings-5e td{text-align: center}#shapechange-settings-5e{border-collapse:collapse}#shapechange-settings-5e td label{font-size:2em}#shapechange-settings-5e th,#shapechange-settings-5e td:not(:first-child){border:1px solid currentColor}.token-initiative-5e:hover{background-color:#800;cursor:pointer}.adminHideLight #perspectives-5e{display:none}");
 
 type IDInitiative = {
 	id: Uint;
@@ -219,6 +219,7 @@ const select = Symbol("select"),
 	}
       }),
       importName = pluginName(import.meta),
+      [initiativeWindow5E, initiativeList5E, conditionList, hasCondition, hideTokenHP, token5e, tokenHP5e, hideTokenAC, tokenAC5e, hideTokenNames, tokenName5e, hideTokenConditions, tokenConditions5e, hideSelectedHP, hideSelectedAC, hideSelectedNames, hideSelectedConditions, desaturateTokenConditions, desaturateSelectedConditions, tokenSelector5E, shapechangeSettings5E, tokenInitiative, displaySettings5e, perspectives5e] = ids(24),
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "fill": "currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "fill": "currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "fill": "currentColor"})),
@@ -227,7 +228,7 @@ const select = Symbol("select"),
       sortAsc = (a: Initiative, b: Initiative) => a.initiative - b.initiative,
       sortDesc = (a: Initiative, b: Initiative) => b.initiative - a.initiative,
       isValidToken = (t: SVGToken | SVGShape | SVGDrawing | null): t is SVGToken5EType => t instanceof SVGToken5E && !t.isPattern && tokens.has(t.id),
-      initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": "initiative-list-5e"})),
+      initiativeList = new NodeArray<Initiative, HTMLUListElement>(ul({"id": initiativeList5E})),
       saveInitiative = () => {
 	if (initiativeList.length === 0) {
 		doMapDataRemove("5e-initiative");
@@ -238,7 +239,7 @@ const select = Symbol("select"),
 		})));
 	}
       },
-      initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 400px", "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": "initiative-window-5e"}, [
+      initiativeWindow = windows({"window-icon": `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cpath d="M92.5,7 l-30,30 h30 z" fill="%23000" stroke="%23fff" stroke-linejoin="round" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23fff" stroke-width="12" stroke-dasharray="191 1000" stroke-dashoffset="-29" /%3E%3Ccircle cx="50" cy="50" r="40" fill="none" stroke="%23000" stroke-width="10" stroke-dasharray="191 1000" stroke-dashoffset="-30" /%3E%3C/svg%3E`, "window-title": lang["INITIATIVE"], "style": "--window-left: 0px; --window-top: 0px; --window-width: 200px; --window-height: 400px", "window-data": "5e-window-data", "hide-close": true, "hide-maximise": true, "resizable": true}, div({"id": initiativeWindow5E}, [
 	isAdmin ? div([
 		button({"title": lang["INITIATIVE_ASC"], "onclick": () => {
 			initiativeList.sort(sortAsc);
@@ -286,7 +287,7 @@ const select = Symbol("select"),
 			}
 		}}),
 		span(token.getData("name") ?? ""),
-		span(isAdmin ? {"class": "token-initiative-5e", "onclick": () => {
+		span(isAdmin ? {"class": tokenInitiative, "onclick": () => {
 			updateInitiative([token.id, null]);
 			saveInitiative();
 			highlight.remove();
@@ -340,11 +341,11 @@ const select = Symbol("select"),
 	updatePerspectives();
       },
       displaySettings = {
-	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => amendNode(document.body, {"class": {"hide-token-hp-5e": !b}})), new BoolSetting("5e-show-selected-hp").wait(b => amendNode(document.body, {"class": {"hide-selected-hp-5e": !b}}))],
-	"SHOW_AC": [new BoolSetting("5e-show-token-ac").wait(b => amendNode(document.body, {"class": {"hide-token-ac-5e": !b}})), new BoolSetting("5e-show-selected-ac").wait(b => amendNode(document.body, {"class": {"hide-selected-ac-5e": !b}}))],
-	"SHOW_NAMES": [new BoolSetting("5e-show-token-names").wait(b => amendNode(document.body, {"class": {"hide-token-names-5e": !b}})), new BoolSetting("5e-show-selected-names").wait(b => amendNode(document.body, {"class": {"hide-selected-names-5e": !b}}))],
-	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => amendNode(document.body, {"class": {"hide-token-conditions-5e": b}})), new BoolSetting("5e-hide-selected-conditions").wait(b => amendNode(document.body, {"class": {"hide-selected-conditions-5e": b}}))],
-	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-token-conditions-5e": b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {"desaturate-selected-conditions-5e": b}}))]
+	"SHOW_HP": [new BoolSetting("5e-show-token-hp").wait(b => amendNode(document.body, {"class": {[hideTokenHP]: !b}})), new BoolSetting("5e-show-selected-hp").wait(b => amendNode(document.body, {"class": {[hideSelectedHP]: !b}}))],
+	"SHOW_AC": [new BoolSetting("5e-show-token-ac").wait(b => amendNode(document.body, {"class": {[hideTokenAC]: !b}})), new BoolSetting("5e-show-selected-ac").wait(b => amendNode(document.body, {"class": {[hideSelectedAC]: !b}}))],
+	"SHOW_NAMES": [new BoolSetting("5e-show-token-names").wait(b => amendNode(document.body, {"class": {[hideTokenNames]: !b}})), new BoolSetting("5e-show-selected-names").wait(b => amendNode(document.body, {"class": {[hideSelectedNames]: !b}}))],
+	"HIDE_CONDITIONS": [new BoolSetting("5e-hide-token-conditions").wait(b => amendNode(document.body, {"class": {[hideTokenConditions]: b}})), new BoolSetting("5e-hide-selected-conditions").wait(b => amendNode(document.body, {"class": {[hideSelectedConditions]: b}}))],
+	"DESATURATE_CONDITIONS": [new BoolSetting("5e-desaturate-token-conditions").wait(b => amendNode(document.body, {"class": {[desaturateTokenConditions]: b}})), new BoolSetting("5e-desaturate-selected-conditions").wait(b => amendNode(document.body, {"class": {[desaturateSelectedConditions]: b}}))]
       } as Record<keyof typeof lang, [BoolSetting, BoolSetting]>,
       highlight = rect({"stroke-width": 20}),
       highlightColour = new ColourSetting("5e-hightlight-colour", new Colour(255, 255, 0, 127)).wait(c => {
@@ -353,7 +354,7 @@ const select = Symbol("select"),
       }),
       updatePerspectives = (() => {
 	type PerspectiveData = [Int, Int, SVGPolygonElement[], Children, Children];
-	const perspectives = g({"id": "perspectives-5e", "fill": "#000"}),
+	const perspectives = g({"id": perspectives5e, "fill": "#000"}),
 	      black = [[new Colour(0, 0, 0)]],
 	      timings = [0],
 	      darksat = filter({"id": "darksat-5e"}, feColorMatrix({"type": "matrix", "values": "0 0 0 0 0,0 0 0 0 0,0 0 0 0 0,-0.2125 -0.7154 -0.0721 1 0"})),
@@ -430,7 +431,7 @@ const select = Symbol("select"),
 	"settings": {
 		"fn": div([
 			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => highlightColour.set(c))),
-			table({"id": "display-settings-5e"}, [
+			table({"id": displaySettings5e}, [
 				thead(tr([
 					td(),
 					th(lang["TOKENS_UNSELECTED"]),
@@ -467,18 +468,18 @@ const select = Symbol("select"),
 				      size = Math.min(this.width, this.height) / 4;
 				this[node] = g([
 					this.#tokenNode = this[node],
-					this.#extra = g({"class": "token-5e", "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
-						this.#hp = g({"class": "token-hp-5e", "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
+					this.#extra = g({"class": token5e, "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
+						this.#hp = g({"class": tokenHP5e, "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
 							this.#hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
 							this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 							this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 						]),
-						this.#name = text({"class": "token-name-5e", "style": "user-select: none", "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
-						this.#ac = g({"class": "token-ac-5e", "style": ac === null ? "display: none" : undefined}, [
+						this.#name = text({"class": tokenName5e, "style": "user-select: none", "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
+						this.#ac = g({"class": tokenAC5e, "style": ac === null ? "display: none" : undefined}, [
 							this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
 							this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 						]),
-						this.#conditions = g({"class": "token-conditions-5e"})
+						this.#conditions = g({"class": tokenConditions5e})
 					])
 				]);
 				setTimeout(() => this.#setTextWidth(), 0);
@@ -600,6 +601,71 @@ const select = Symbol("select"),
       dyingAnimate = animate({"attributeName": "stroke-dashoffset", "values": "251.26;0", "dur": "1s"}),
       dyingAnimateMotion = animateMotion({"dur": "1s", "begin": -0.6}, mpath({"href": "#5e-dying"})),
       dyingCircle = circle({"r": 3, "fill": "#fff", "stroke": "#000"}, dyingAnimateMotion);
+
+add(`#${initiativeWindow5E}`, {
+	" svg": {
+		"width": "1.5em"
+	},
+	" button": {
+		"height": "2em"
+	}
+});
+
+add(`#${initiativeList5E}`, {
+	"list-style": "none",
+	"padding": 0,
+	" li": {
+		"display": "grid",
+		"grid-template-columns": "4.5em auto 3em",
+		"align-items": "center",
+		" span": {
+			"text-align": "center"
+		}
+	},
+	" img": {
+		"height": "4em",
+		"width": "4em",
+		"cursor": "pointer"
+	}
+});
+add(`.${conditionList}`, {
+	"padding-left": "1em",
+	"box-styling": "padding-box",
+	">menu-item": {
+		"display": "list-item",
+		"list-style": "none"
+	}
+});
+add(`.${hasCondition}`, {
+	"list-style": "square !important"
+});
+add(`.${hideTokenHP} g .${token5e} .${tokenHP5e},.${hideTokenAC} g .${token5e} .${tokenAC5e},.${hideTokenNames} g .${token5e} .${tokenName5e},.${hideTokenConditions} g .${token5e} .${tokenConditions5e},.${hideSelectedHP} svg>.${token5e} .${tokenHP5e},.${hideSelectedAC} svg>.${token5e} .${tokenAC5e},.${hideSelectedNames} svg>.${token5e} .${tokenName5e},.${hideSelectedConditions} svg>.${token5e} .${tokenConditions5e}`, {
+	"visibility": "hidden"
+});
+add(`.${desaturateTokenConditions} g .${token5e} .${tokenConditions5e},.${desaturateSelectedConditions} svg>.${token5e} .${tokenConditions5e}`, {
+	"filter": "url(#saturate-5e)"
+});
+
+add(`.${tokenSelector5E},.${tokenSelector5E}>button,.${tokenSelector5E}>img`, {
+	"width": "100px",
+	"height": "100px"
+});
+add(`#${shapechangeSettings5E}`, {
+	"border-collapse": "collapse",
+	" td": {
+		"text-align": "center",
+		"label": {
+			"font-size": "2em"
+		}
+	},
+	" th, td:not(:first-child)": {
+		"border": "1px solid currentColor"
+	}
+});
+add(`.${tokenInitiative}:hover`, {
+	"background-color": "#800",
+	"cursor": "pointer"
+});
 
 enableAnimation.wait(v => {
 	const params = {"repeatCount": v ? "indefinite" : 1};
@@ -838,7 +904,7 @@ if (isAdmin) {
 		      i = img({"src": `/images/${t.src}`}),
 		      r = tr([
 			th([
-				div({"class": "tokenSelector tokenSelector5E", "style": "width: 100px; height: 100px"}, [
+				div({"class": [tokenSelector, tokenSelector5E], "style": "width: 100px; height: 100px"}, [
 					button({"title": lang["SHAPECHANGE_CHANGE"], "onclick": () => {
 						const gt = getToken();
 						if (gt) {
@@ -914,7 +980,7 @@ if (isAdmin) {
 				shell.alert(mainLang["TOKEN_SELECT"], mainLang["TOKEN_NONE_SELECTED"]);
 			}
 		}}, lang["SHAPECHANGE_TOKEN_ADD"]),
-		table({"id": "shapechange-settings-5e"}, [
+		table({"id": shapechangeSettings5E}, [
 			thead(cats),
 			ticks
 		]),
@@ -982,6 +1048,10 @@ if (isAdmin) {
 		}
 	      },
 	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => setCondition(selected.token, n)));
+
+	add(`.${adminHideLight} #${perspectives5e}`, {
+		"display": "none"
+	});
 	amendNode(plugin["settings"]!.fn, button({"onclick": () => amendNode(shell, shapechangeSettings)}, lang["SHAPECHANGE_5E"]));
 	plugin["characterEdit"] = {
 		"fn": (n: Node, id: Uint, data: Record<string, KeystoreData> & TokenFields, isCharacter: boolean, changes: Record<string, KeystoreData> & TokenFields, removes: Set<string>) => {
@@ -1074,7 +1144,7 @@ if (isAdmin) {
 			}
 			ctxList.push(submenu([
 				item(lang["CONDITIONS"]),
-				menu({"class": "conditionList"}, conditions.map((c, n) => item({"onselect": () => setCondition(token, n), "class": {"hasCondition": !!tokenConditions[n]}}, lang[c])))
+				menu({"class": conditionList}, conditions.map((c, n) => item({"onselect": () => setCondition(token, n), "class": {[hasCondition]: !!tokenConditions[n]}}, lang[c])))
 			]));
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(submenu([
@@ -1133,6 +1203,12 @@ if (isAdmin) {
 			}
 		}
 	})());
+} else {
+	add(`#${displaySettings5e}`, {
+		" thead, td:last-child": {
+			"display": "none"
+		}
+	});
 }
 
 addPlugin("5e", plugin);
