@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
@@ -128,9 +128,7 @@ menuItems.push([6, () => isAdmin ? [
 		      fc = list[0],
 		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+('),
 		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)'),
-		      toolList = id(),
-		      selectedID = id(),
-		      miniToolsID = id();
+		      [toolList, selectedID, miniToolsID] = ids(3);
 		add(`#${toolList}`, {
 			">ul": {
 				"list-style": "none",
