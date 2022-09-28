@@ -3,7 +3,7 @@ import type {Parsers, Tokeniser} from './lib/bbcode.js';
 import type {WindowElement} from './windows.js';
 import {isOpenTag, process} from './lib/bbcode.js';
 import {none} from './lib/bbcode_tags.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.js';
@@ -242,8 +242,7 @@ inited.then(() => {
 			(() => {
 				const base = div(loading()),
 				      dragIcon = img({"class": "imageIcon", "src": musicIcon}),
-				      musicPackList = id(),
-				      musicTrackList = id();
+				      [musicPackList, musicTrackList] = ids(2);
 				add(`#${musicPackList},.${musicTrackList}`, {
 					"margin": 0,
 					"padding-left": 0,
