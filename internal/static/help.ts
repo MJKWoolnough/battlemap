@@ -1,6 +1,6 @@
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {div, h1, input} from './lib/html.js';
 import {animate, animateMotion, animateTransform, circle, defs, g, path, pattern, rect, svg, text} from './lib/svg.js';
@@ -10,30 +10,7 @@ import {shell, windows} from './windows.js';
 
 const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),
-      helpInstruction = id(),
-      helpID = id(),
-      helpBack = id(),
-      helpDemo = id(),
-      helpDemos = id(),
-      helpMapDragClick1 = id(),
-      helpMapDragMouse = id(),
-      helpMapZoom1 = id(),
-      helpMapZoom2 = id(),
-      helpMapZoom3 = id(),
-      helpMapScroll1 = id(),
-      helpPanelOpenInit = id(),
-      helpPanelOpenRestart = id(),
-      helpPanelOpenClick1 = id(),
-      helpPanelOpenClick2 = id(),
-      helpPanelResize1 = id(),
-      helpPanelResize2 = id(),
-      helpPanelResize3 = id(),
-      helpPanelResizeMouseDown = id(),
-      helpSignalClick1 = id(),
-      helpSignalClick2 = id(),
-      helpSignalClick3 = id(),
-      helpSignalMove1 = id(),
-      helpSignalMove2 = id(),
+      [helpInstruction, helpID, helpBack, helpDemo, helpDemos, helpMapDragClick1, helpMapDragMouse, helpMapZoom1, helpMapZoom2, helpMapZoom3, helpMapScroll1, helpPanelOpenInit, helpPanelOpenRestart, helpPanelOpenClick1, helpPanelOpenClick2, helpPanelResize1, helpPanelResize2, helpPanelResize3, helpPanelResizeMouseDown, helpSignalClick1, helpSignalClick2, helpSignalClick3, helpSignalMove1, helpSignalMove2] = ids(24),
       [mapDrag, mapZoom, mapScroll, mapSignal, panelOpen, panelResize] = Array.from({"length": 6}, (_, n) => input({"type": "radio", "name": helpInstruction, "checked": !n})),
       createDemo = () => {
 	const startNextDemo = () => {
