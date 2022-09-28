@@ -1,4 +1,4 @@
-import {add, id} from './lib/css.js';
+import {add, id, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, form, h1, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
@@ -16,9 +16,7 @@ export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panel
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
 [hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255)),
-settingsTicker = id(),
-invertID = id(),
-adminHideLight = id();
+[settingsTicker, invertID, adminHideLight] = ids(3);
 
 const settings = id();
 
