@@ -1,7 +1,7 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
@@ -193,8 +193,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
       },
       dragImageFolder = new DragTransfer<ImageFolder>("imagefolder"),
       dragAudioFolder = new DragTransfer<ImageFolder>("audiofolder"),
-      assets = id(),
-      showAsset = id();
+      [assets, showAsset] = ids(2);
 
 export const audioAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, audioAssets),
 imageAssetName = (id: Uint, fn: (name: string) => void) => getAssetName(id, fn, imageAssets),
