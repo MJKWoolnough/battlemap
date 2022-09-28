@@ -7,7 +7,7 @@ import {br, button, div, img, input, label} from './lib/html.js';
 import {node} from './lib/nodes.js';
 import {circle, path, svg, title} from './lib/svg.js';
 import {dragImage} from './assets.js';
-import {dragCharacter} from './characters.js';
+import {dragCharacter, tokenSelector} from './characters.js';
 import {noColour} from './colours.js';
 import lang from './language.js';
 import {mapData, root, screen2Grid} from './map.js';
@@ -76,7 +76,7 @@ inited.then(() => {
 			labels(mode, `${lang["TOOL_MULTIPLACE_MODE"]}: `),
 			br(),
 			label(`${lang["TOKEN"]}: `),
-			div({"class": "tokenSelector"}, [
+			div({"class": tokenSelector}, [
 				button({"onclick": () => {
 					const data = getToken();
 					if (data) {
