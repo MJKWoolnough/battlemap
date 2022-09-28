@@ -1,5 +1,5 @@
 import type {WindowData, WindowElement} from './windows.js';
-import {add, id, render} from './lib/css.js';
+import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
@@ -30,16 +30,7 @@ import './tools_wall.js';
 
 document.title = lang["TITLE"];
 
-const panelsID = id(),
-      tabsID = id(),
-      panelContainerID = id(),
-      panelOnTopID = id(),
-      tabLabelsID = id(),
-      panelHiderID = id(),
-      panelGrabberID = id(),
-      popoutID = id(),
-      menuHideID = id(),
-      tabIconsID = id(),
+const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHiderID, panelGrabberID, popoutID, menuHideID, tabIconsID] = ids(10),
       lastTab = new StringSetting("lastTab"),
       tabs = (() => {
 	type savedWindow = {
