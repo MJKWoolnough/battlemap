@@ -1,6 +1,6 @@
 import type {Byte} from './types.js';
 import type {ShellElement, WindowElement} from './windows.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
@@ -104,8 +104,7 @@ dragColour = new DragTransfer<Colour>("colour");
 
 const iconImg = img({"src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 30 30"%3E%3Cstyle type="text/css"%3Esvg%7Bbackground-color:%23000%7Dcircle%7Bmix-blend-mode:screen%7D%3C/style%3E%3Ccircle r="10" cx="10" cy="10" fill="%23f00" /%3E%3Ccircle r="10" cx="20" cy="10" fill="%230f0" /%3E%3Ccircle r="10" cx="15" cy="20" fill="%2300f" /%3E%3C/svg%3E%0A'}),
       dragCheck = setDragEffect({"copy": [dragColour]}),
-      checkboard = id(),
-      colourButton = id();
+      [checkboard, colourButton] = ids(2);
 
 add(`.${checkboard}`, {
 	"background-color": "#ccc",
