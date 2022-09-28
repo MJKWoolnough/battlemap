@@ -1,6 +1,6 @@
 import type {FolderItems, LayerFolder, LayerTokens, Uint} from './types.js';
 import type {SVGLayer} from './map.js';
-import {add, id} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
@@ -388,19 +388,7 @@ menuItems.push([5, () => isAdmin ? [
 		      base = dragBase = div(h1(lang["MAP_NONE_SELECTED"])),
 		      layerPrev = registerKey("layerPrev", lang["KEY_LAYER_PREV"], '['),
 		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"], ']'),
-		      layerListID = id(),
-		      layerFolder = id(),
-		      dragged = id(),
-		      draggingID = id(),
-		      beingDragged = id(),
-		      draggingSpecial = id(),
-		      dragAfter = id(),
-		      dragBefore = id(),
-		      layerLock = id(),
-		      layerVisibility = id(),
-		      layerHidden = id(),
-		      layerLocked = id(),
-		      toggleAdminLight = id(),
+		      [layerListID, layerFolder, dragged, draggingID, beingDragged, draggingSpecial, dragAfter, dragBefore, layerLock, layerVisibility, layerHidden, layerLocked, toggleAdminLight] = ids(13),
 		      adminLightToggle = lightOnOff({"id": toggleAdminLight, "class": itemControl, "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)});
 		add(`#${layerListID}`, {
 			" ul" : {
