@@ -1,5 +1,6 @@
 import type {Uint} from '../types.js';
 import {HTTPRequest} from '../lib/conn.js';
+import {add, id} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {button, div, h2, img, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {NodeArray, node} from '../lib/nodes.js';
@@ -9,7 +10,6 @@ import {language, makeLangPack} from '../language.js';
 import {SVGToken, tokens} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {isAdmin} from '../rpc.js';
-import {addCSS} from '../shared.js';
 
 type assetSize = {
 	id: Uint;
@@ -18,8 +18,6 @@ type assetSize = {
 }
 
 if (isAdmin) {
-	addCSS("#statistics-table img{width: 100px;height: 100px}#statistics-table th:not(:nth-child(2)):hover{cursor: pointer}");
-
 	const lang = makeLangPack({
 		"GENERATE_STATISTICS": "Generate Statistics",
 		"ID": "ID",
@@ -39,7 +37,17 @@ if (isAdmin) {
 		th(lang["IMAGE"]),
 		th({"onclick": () => tb.sort(sortSize)}, lang["SIZE"])
 	      ])),
-	      formatNumber = new Intl.NumberFormat(language.value, {"style": "unit", "unit": "byte", "unitDisplay": "narrow"});
+	      formatNumber = new Intl.NumberFormat(language.value, {"style": "unit", "unit": "byte", "unitDisplay": "narrow"}),
+	      statisticsTable = id();
+	add(`#${statisticsTable}`, {
+		" img": {
+			"width": "100%",
+			"height": "100%"
+		},
+		" th:not(:nth-child(2)):hover": {
+			"cursor": "pointer"
+		}
+	});
 	let mapID = 0;
 	mapLoadReceive(id => mapID = id);
 	addPlugin("stats", {
@@ -104,7 +112,7 @@ if (isAdmin) {
 					clearNode(output, [
 						h2(`${lang["MAP"]}: ${mapID}`),
 						amendNode(total, `${lang["TOTAL_SIZE"]}: ${formatNumber.format(totalSize)}`),
-						table({"id": "statistics-table"}, [
+						table({"id": statisticsTable}, [
 							head,
 							tb[node]
 						])
