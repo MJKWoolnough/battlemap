@@ -1,6 +1,9 @@
 import type {PropsObject} from './lib/dom.js';
+import {id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {animateTransform, circle, ellipse, g, path, rect, svg, svgData, symbol, title, use} from './lib/svg.js';
+
+const lightCoil = id();
 
 export const symbols = svg({"style": "width: 0"}),
 addSymbol = (id: string, s: SVGSymbolElement): [(props?: PropsObject) => SVGSVGElement, string] => {
@@ -49,9 +52,9 @@ addSymbol = (id: string, s: SVGSymbolElement): [(props?: PropsObject) => SVGSVGE
 ])),
 [lightOnOff, lightOnOffStr] = addSymbol("lightOnOff", symbol({"viewBox": "0 0 44 75", "stroke": "currentColor", "fill": "none", "stroke-linejoin": "round", "stroke-linecap": "round"}, [
 	path({"d": "M12,61 c0,-20 -30,-58 10,-60 c40,2 10,40 10,60 q-10,3 -20,0 Z", "stroke-width": 2, "style": "fill: var(--off, #fff)"}),
-	path({"id": "lightCoil", "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4"}),
-	use({"href": "#lightCoil", "y": 4}),
-	use({"href": "#lightCoil", "y": 8})
+	path({"id": lightCoil, "d": "M12,61 q-2,2 0,4 q10,3 20,0 q2,-2 0,-4"}),
+	use({"href": `#${lightCoil}`, "y": 4}),
+	use({"href": `#${lightCoil}`, "y": 8})
 ])),
 [lightGrid, lightGridStr] = addSymbol("lightGrid", symbol({"viewBox": "0 0 33 33"}, [
 	path({"d": "M11,0 V33 M22,0 V33 M0,11 H33 M0,22 H33", "stroke": "#000"}),
