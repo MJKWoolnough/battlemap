@@ -471,8 +471,8 @@ const select = Symbol("select"),
 					this.#tokenNode = this[node],
 					this.#extra = g({"class": token5e, "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 						this.#hp = g({"class": tokenHP5e, "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
-							this.#hpBack = use({"href": hpBack5E, "width": size, "height": size}),
-							this.#hpBar = use({"href": hp5E, "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
+							this.#hpBack = use({"href": `#${hpBack5E}`, "width": size, "height": size}),
+							this.#hpBar = use({"href": `#${hp5E}`, "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 							this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 						]),
 						this.#name = text({"class": tokenName5e, "style": "user-select: none", "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
