@@ -219,7 +219,7 @@ const select = Symbol("select"),
 	}
       }),
       importName = pluginName(import.meta),
-      [initiativeWindow5E, initiativeList5E, conditionList, hasCondition, hideTokenHP, token5e, tokenHP5e, hideTokenAC, tokenAC5e, hideTokenNames, tokenName5e, hideTokenConditions, tokenConditions5e, hideSelectedHP, hideSelectedAC, hideSelectedNames, hideSelectedConditions, desaturateTokenConditions, desaturateSelectedConditions, tokenSelector5E, shapechangeSettings5E, tokenInitiative, displaySettings5e, perspectives5e] = ids(24),
+      [initiativeWindow5E, initiativeList5E, conditionList, hasCondition, hideTokenHP, token5e, tokenHP5e, hideTokenAC, tokenAC5e, hideTokenNames, tokenName5e, hideTokenConditions, tokenConditions5e, hideSelectedHP, hideSelectedAC, hideSelectedNames, hideSelectedConditions, desaturateTokenConditions, desaturateSelectedConditions, tokenSelector5E, shapechangeSettings5E, tokenInitiative, displaySettings5e, perspectives5e, saturate5E, shield5E, hp5E, hpBack5E] = ids(28),
       initAsc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "2,2 0,2 1,0", "fill": "currentColor"})),
       initDesc = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,0 1,2", "fill": "currentColor"})),
       initNext = svg({"viewBox": "0 0 2 2"}, polygon({"points": "0,0 2,1 0,2", "fill": "currentColor"})),
@@ -470,13 +470,13 @@ const select = Symbol("select"),
 					this.#tokenNode = this[node],
 					this.#extra = g({"class": token5e, "transform": `translate(${this.x}, ${this.y})`, "style": "color: #000"}, [
 						this.#hp = g({"class": tokenHP5e, "style": currentHP === null || maxHP === null ? "display: none" : undefined}, [
-							this.#hpBack = use({"href": "#5e-hp-back", "width": size, "height": size}),
-							this.#hpBar = use({"href": "#5e-hp", "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
+							this.#hpBack = use({"href": hpBack5E, "width": size, "height": size}),
+							this.#hpBar = use({"href": hp5E, "width": size, "height": size, "stroke-dasharray": `${Math.PI * 19 * 0.75 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1)} 60`, "style": `color: rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}),
 							this.#hpValue = text({"x": this.width / 8, "y": "1.2em", "text-anchor": "middle", "fill": `rgba(${Math.round(255 * Math.min(currentHP || 0, maxHP || 0) / (maxHP || 1))}, 0, 0, 1)`}, currentHP?.toString() ?? "")
 						]),
 						this.#name = text({"class": tokenName5e, "style": "user-select: none", "stroke": "#fff", "stroke-width": 1, "fill": "#000", "x": this.width / 2, "y": "1em", "text-anchor": "middle"}, this.getData("name") ?? ""),
 						this.#ac = g({"class": tokenAC5e, "style": ac === null ? "display: none" : undefined}, [
-							this.#shield = use({"href": "#5e-shield", "width": size, "height": size, "x": 3 * this.width / 4}),
+							this.#shield = use({"href": `#${shield5E}`, "width": size, "height": size, "x": 3 * this.width / 4}),
 							this.#acValue = text({"x": 7 * this.width / 8, "y": "1.2em", "text-anchor": "middle"}, ac?.toString() ?? "")
 						]),
 						this.#conditions = g({"class": tokenConditions5e})
@@ -643,7 +643,7 @@ add(`.${hideTokenHP} g .${token5e} .${tokenHP5e},.${hideTokenAC} g .${token5e} .
 	"visibility": "hidden"
 });
 add(`.${desaturateTokenConditions} g .${token5e} .${tokenConditions5e},.${desaturateSelectedConditions} svg>.${token5e} .${tokenConditions5e}`, {
-	"filter": "url(#saturate-5e)"
+	"filter": `url(#${saturate5E})`
 });
 
 add(`.${tokenSelector5E},.${tokenSelector5E}>button,.${tokenSelector5E}>img`, {
@@ -675,10 +675,10 @@ enableAnimation.wait(v => {
 });
 
 amendNode(symbols, [
-	filter({"id": "saturate-5e"}, feColorMatrix({"type": "saturate", "values": 0})),
-	symbol({"id": "5e-shield", "viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})),
-	symbol({"id": "5e-hp-back", "viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})),
-	symbol({"id": "5e-hp", "viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})),
+	filter({"id": saturate5E}, feColorMatrix({"type": "saturate", "values": 0})),
+	symbol({"id": shield5E, "viewBox": "0 0 8 9"}, path({"d": "M0,1 q2,0 4,-1 q2,1 4,1 q0,5 -4,8 q-4,-3 -4,-8 z", "fill": "#aaa"})),
+	symbol({"id": hpBack5E, "viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "#eee", "stroke": "#888", "stroke-width": 1, "stroke-linecap": "round", "stroke-dasharray": `${Math.PI * 19 * 0.75} ${Math.PI * 19 * 0.25}`, "transform": "translate(10, 10) rotate(135)"})),
+	symbol({"id": hp5E, "viewBox": "0 0 20 20"}, circle({"r": 9.5, "fill": "transparent", "stroke": "#f00", "stroke-width": 1, "stroke-linecap": "round", "transform": "translate(10, 10) rotate(135)"})),
 	symbol({"id": "5e-CONDITION_BANE", "viewBox": "0 0 80 85"}, g({"stroke": "#000", "stroke-width": 3, "stroke-linecap": "round", "stroke-linejoin": "round"}, [path({"d": "M5,37 a1,1 0,0,1 70,0 q4,-1 3,5 q-1,18 -6,10 q0,28 -15,30 q-17,3 -34,0 q-15,-2 -15,-30 q-5,8 -6,-10 q-1,-6 3,-5 z M40,2 v25 m-5,0 h10 m0,-6 h-10 m0,-6 h10 m0,-6 h-10", "fill": "#444"}), path({"d": "M57,82 q-17,3 -34,0 l10,-20 l-20,-18 l5,-20 l5,10 l17,5 l17,-5 l5,-10 l5,20 l-20,18 z", "fill": "#fff"}), path({"d": "M20,38 l15,5 a5,5 0,0,1 -15,-5 z M60,38 l-15,5 a5,5 0,0,0 15,-5 z", "fill": "#f00"})])),
 	symbol({"id": "5e-CONDITION_BLESSED", "viewBox": "0 0 11 10.5"}, [ellipse({"cx": 5.5, "cy": 2, "rx": 5, "ry": 1.5, "fill": "transparent", "stroke": "#ff0", "stroke-width": 1}), circle({"cx": 5.5, "cy": 5.5, "r": 5, "fill": "#fc8", "stroke": "#000", "stroke-width": 0.2}), ellipse({"cx": 5.5, "cy": 2, "rx": 5, "ry": 1.5, "fill": "transparent", "stroke": "#ff0", "stroke-width": 1, "stroke-dasharray": 10}), path({"d": "M2,5.5 q1,-1 2,0 m3,0 q1,-1 2,0 M3.5,8.5 q2,1 4,0", "fill": "transparent", "stroke": "#000", "stroke-width": 0.1, "stroke-linecap": "round"})]),
 	symbol({"id": "5e-CONDITION_BLINDED", "viewBox": "0 0 100 70"}, [defs(mask({"id": "5e-blind-mask"}, [rect({"width": 100, "height": 70, "fill": "#fff"}), line({"x1": 10, "y1": 67, "x2": 90, "y2": 3, "stroke": "#000", "stroke-width": 9}),])), g({"mask": "url(#5e-blind-mask)"}, use({"href": "#visibility"})), line({"x1": 10, "y1": 67, "x2": 90, "y2": 3, "stroke": "#000", "stroke-width": 5})]),
