@@ -1,5 +1,6 @@
 import type {Uint} from '../types.js';
 import type {Colour} from '../colours.js';
+import {id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
@@ -75,7 +76,7 @@ if (isAdmin) {
 		"TYPE_7": "Earth",
 		"TYPE_8": "Darkness"
 	      }),
-	      sparkID = "plugin-spell-spark",
+	      sparkID = id(),
 	      setEffect = (effect: SVGGElement) => {
 		if (selectedEffect !== effect && selectedEffect.parentNode) {
 			selectedEffect.replaceWith(effect);
