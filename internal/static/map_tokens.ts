@@ -1,7 +1,7 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {SVGLayer} from './map.js';
-import {id, ids} from './lib/css.js';
+import {ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {NodeArray, node} from './lib/nodes.js';
@@ -254,7 +254,7 @@ selected = {
 },
 outline = g(),
 cursors = ids(4),
-lighting = id(),
+[lighting, mapMask]  = ids(2),
 outlineRotationClass = (rotation: Uint) => cursors[((rotation + 143) >> 5) % 4],
 deselectToken = () => {
 	selected.token = null;
@@ -264,7 +264,7 @@ deselectToken = () => {
 masks = (() => {
 	const base = rect({"width": "100%", "height": "100%", "fill": "#000"}),
 	      masks = new NodeArray<MaskNode>(g()),
-	      baseNode = mask({"id": "mapMask"}, [base, masks[node]]);
+	      baseNode = mask({"id": mapMask}, [base, masks[node]]);
 	let baseOpaque = false;
 	return {
 		get [node]() {return baseNode;},
