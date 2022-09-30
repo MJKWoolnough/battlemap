@@ -67,9 +67,9 @@ const idNames: Record<string, Int> = {
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
       lightList: Lighting[] = [],
-      [mapBase, layerGrid, mapLoading] = ids(3);
+      [mapBase, mapLoading] = ids(3);
 
-export const [layerLight, hiddenLayer, mapID, hideZoomSlider, zoomSliderID, zooming] = ids(6),
+export const [layerLight, layerGrid, hiddenLayer, mapID, hideZoomSlider, zoomSliderID, zooming] = ids(7),
 splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/");
 	return [path.slice(0, pos), path.slice(pos+1)];
