@@ -6,7 +6,7 @@ import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {registerKey} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
-import {mapData, panZoom, root} from '../map.js';
+import {hiddenLayer, layerGrid, layerLight, mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
 import {settingsTicker} from '../settings.js';
@@ -66,7 +66,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 		return p;
 	case "g":
 		const id = n.getAttribute("id");
-		if (id === "layerGrid") {
+		if (id === layerGrid) {
 			if (hideGrid.value) {
 				return p;
 			}
@@ -77,7 +77,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 					sfn();
 				}});
 			}));
-		} else if (id === "layerLight") {
+		} else if (id === layerLight) {
 			for (const c of n.childNodes as any as SVGElement[]) {
 				p = p.then(() => new Promise<void>(sfn => {
 					const {width, height} = mapData;
@@ -90,7 +90,7 @@ const icon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3
 				}));
 			}
 			return p;
-		} else if (n.classList.contains("hiddenLayer")) {
+		} else if (n.classList.contains(hiddenLayer)) {
 			return p;
 		}
 	}
