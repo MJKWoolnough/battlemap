@@ -3,7 +3,7 @@ import type {Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
-import {h2, label, style} from './lib/html.js';
+import {h2, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
@@ -38,7 +38,6 @@ labels = ((name: Children | Input, input: Input | Children, props: PropsObject =
 	const iProps = {"id": props["for"] = id()};
 	return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
 }) as Labeller,
-addCSS = (css: string) => amendNode(document.head, style({"type": "text/css"}, css)),
 cloneObject = (() => {
 	const refs = new Map(),
 	      clone = <T extends any>(o: T): T => {
