@@ -4,12 +4,11 @@ import type {WindowElement} from './lib/windows.js';
 import type {ShellElement} from './lib/windows_taskmanager.js';
 import {amendNode} from './lib/dom.js';
 import {hasKeyEvent} from './lib/events.js';
-import {div} from './lib/html.js';
 import {JSONSetting} from './lib/settings.js';
 import {defaultIcon, desktop as adesktop, setDefaultIcon, setLanguage, windows as awindows} from './lib/windows.js';
 import {shell as ashell} from './lib/windows_taskmanager.js';
 import lang from './language.js';
-import {isInt, isUint} from './shared.js';
+import {isInt, isUint, loading} from './shared.js';
 
 export {ShellElement, WindowElement};
 
@@ -25,7 +24,7 @@ const defaultParams = {"hide-maximise": true, "hide-minimise": true, "tabindex":
       }};
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
-	const w = awindows({"window-title": title, "hide-minimise": true}, content || div({"class": "loadSpinner"}));
+	const w = awindows({"window-title": title, "hide-minimise": true}, content || loading());
 	parent.addWindow(w);
 	return p.finally(() => w.remove());
 },
