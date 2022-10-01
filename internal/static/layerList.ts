@@ -254,7 +254,7 @@ menuItems.push([5, () => isAdmin ? [
 			clearNode(base, {"id": layerListID}, [
 				button({"onclick": () => {
 					const name = input({"onkeypress": enterKey}),
-					      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"], "id": "layerAdd"}, [
+					      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_ADD"]}, [
 						h1(lang["LAYER_ADD"]),
 						labels(lang["LAYER_NAME"], name),
 						br(),
