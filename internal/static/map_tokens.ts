@@ -254,7 +254,7 @@ selected = {
 },
 outline = g(),
 cursors = ids(4),
-[lighting, mapMask]  = ids(2),
+[lighting, mapMask, gridPattern]  = ids(3),
 outlineRotationClass = (rotation: Uint) => cursors[((rotation + 143) >> 5) % 4],
 deselectToken = () => {
 	selected.token = null;
@@ -386,15 +386,15 @@ definitions = (() => {
 			case 1: {
 				const h = 2 * gridSize / SQRT3,
 				      maxH = 3 * gridSize / SQRT3;
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": maxH}, path({"d": `M${gridSize / 2},${maxH} V${h} l${gridSize / 2},-${h / 4} V${h / 4} L${gridSize / 2},0 L0,${h / 4} v${h / 2} L${gridSize / 2},${h}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": gridPattern, "patternUnits": "userSpaceOnUse", "width": gridSize, "height": maxH}, path({"d": `M${gridSize / 2},${maxH} V${h} l${gridSize / 2},-${h / 4} V${h / 4} L${gridSize / 2},0 L0,${h / 4} v${h / 2} L${gridSize / 2},${h}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}; break;
 			case 2: {
 				const w = 2 * gridSize / SQRT3,
 				      maxW = 3 * gridSize / SQRT3;
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": maxW, "height": gridSize}, path({"d": `M${maxW},${gridSize / 2} H${w} l-${w / 4},${gridSize / 2} H${w / 4} L0,${gridSize / 2} L${w / 4},0 h${w / 2} L${w},${gridSize/2}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": gridPattern, "patternUnits": "userSpaceOnUse", "width": maxW, "height": gridSize}, path({"d": `M${maxW},${gridSize / 2} H${w} l-${w / 4},${gridSize / 2} H${w / 4} L0,${gridSize / 2} L${w / 4},0 h${w / 2} L${w},${gridSize/2}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}; break;
 			default:
-				amendNode(base, setAndReturn(list, "grid", pattern({"id": "gridPattern", "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
+				amendNode(base, setAndReturn(list, "grid", pattern({"id": gridPattern, "patternUnits": "userSpaceOnUse", "width": gridSize, "height": gridSize}, path({"d": `M0,${gridSize} V0 H${gridSize}`, "stroke": gridColour, "stroke-width": gridStroke, "fill": "transparent"}))));
 			}
 		},
 		setLight(c: Colour) {
