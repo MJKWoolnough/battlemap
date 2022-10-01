@@ -97,7 +97,7 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
 					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"id": "plugin-notes-bbcode", "ondragover": setDragEffect({"link": [bbcodeDrag]}), "ondrop": (e: DragEvent) => {
+					      contents = textarea({"ondragover": setDragEffect({"link": [bbcodeDrag]}), "ondrop": (e: DragEvent) => {
 						if (bbcodeDrag.is(e)) {
 							const {selectionStart, selectionEnd} = contents,
 							      fn = bbcodeDrag.get(e);
@@ -106,7 +106,7 @@ if (isAdmin) {
 							}
 						}
 					      }}, page.data.contents),
-					      share = input({"type": "checkbox", "id": "plugin-notes-share", "class": settingsTicker, "checked": page.data.share}),
+					      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share}),
 					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": pluginNotesEdit, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
 						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
 							e.preventDefault();
