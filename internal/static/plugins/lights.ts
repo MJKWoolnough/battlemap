@@ -449,7 +449,7 @@ if (isAdmin) {
 	root.windowIcon = lightGridStr;
 	addPlugin("lights", {
 		"menuItem": {
-			"fn": [lang["MENU_TITLE"], div({"id": "pluginLights"}, [
+			"fn": [lang["MENU_TITLE"], div({"id": pluginLights}, [
 				copyLight,
 				removeLight,
 				root[node]
