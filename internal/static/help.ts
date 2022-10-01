@@ -10,7 +10,7 @@ import {shell, windows} from './windows.js';
 
 const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       settingsText = text({"x": 22, "y": 17, "fill": "currentColor"}, lang["TAB_SETTINGS"]),
-      [helpInstruction, helpID, helpBack, helpDemo, helpDemos, helpMapDragClick1, helpMapDragMouse, helpMapZoom1, helpMapZoom2, helpMapZoom3, helpMapScroll1, helpPanelOpenInit, helpPanelOpenRestart, helpPanelOpenClick1, helpPanelOpenClick2, helpPanelResize1, helpPanelResize2, helpPanelResize3, helpPanelResizeMouseDown, helpSignalClick1, helpSignalClick2, helpSignalClick3, helpSignalMove1, helpSignalMove2] = ids(24),
+      [helpInstruction, helpID, helpBack, helpDemo, helpDemos, helpMapDragClick1, helpMapDragMouse, helpMapZoom1, helpMapZoom2, helpMapZoom3, helpMapScroll1, helpPanelOpenInit, helpPanelOpenRestart, helpPanelOpenClick1, helpPanelOpenClick2, helpPanelResize1, helpPanelResize2, helpPanelResize3, helpPanelResizeMouseDown, helpSignalClick1, helpSignalClick2, helpSignalClick3, helpSignalMove1, helpSignalMove2, helpGrid] = ids(25),
       [mapDrag, mapZoom, mapScroll, mapSignal, panelOpen, panelResize] = Array.from({"length": 6}, (_, n) => input({"type": "radio", "name": helpInstruction, "checked": !n})),
       createDemo = () => {
 	const startNextDemo = () => {
@@ -34,11 +34,11 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 	      helpSignalStart = animate({"id": helpSignalClick1, "attributeName": "fill", "values": "#000", "dur": "0.2s", "begin": "indefinite"}),
 	      demos = [[mapDrag, startMapDragDemo], [mapZoom, startMapZoomDemo], [mapScroll, startMapScrollDemo], [mapSignal, helpSignalStart], [panelOpen, startPanelOpenDemo], [panelResize, startPanelOpenDemo]] as const;
 	return svg({"id": helpDemo, "viewBox": "0 0 500 300"}, [
-		defs(pattern({"id": "helpGrid", "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
+		defs(pattern({"id": helpGrid, "patternUnits": "userSpaceOnUse", "width": 100, "height": 100}, path({"d": "M0,100 V0 H100", "stroke": "#000", "fill": "none"}))),
 		g([
 			rect({"width": 1000, "height": 600, "fill": "#00f"}),
 			path({"d": "M50,150 C200,0 400,300 500,250 S600,300 700,200 S750,400 850,500 S400,600 300,550 S0,300 50,150 Z", "fill": "#0f0"}),
-			rect({"width": 1000, "height": 600, "fill": "url(#helpGrid)"}),
+			rect({"width": 1000, "height": 600, "fill": `url(#${helpGrid})`}),
 			animateMotion({"dur": "4s", "path": "M0,0 C-50,150 -150,-150 -250,-150 C-150,150 250,150 0,0", "begin": `${helpMapDragClick1}.end`}),
 			startMapZoomDemo,
 			animateTransform({"id": helpMapZoom2, "dur": "2s", "attributeName": "transform", "type": "scale", "from": "0.5 0.5", "to": "2 2", "begin": `${helpMapZoom1}.end`}),
@@ -122,8 +122,8 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
 			restartPanelOpenDemo,
 			endPanelDemo,
 			animateMotion({"dur": "4s", "path": "M253,13 h-150 h300 h-150", "fill": "freeze", "begin": `${helpPanelResizeMouseDown}.end`}),
-			animateMotion({"id": "helpSignalMove1", "dur": "1s", "path": "M250,150 L100,200", "fill": "freeze", "begin": `${helpSignalClick1}.end`}),
-			animateMotion({"id": "helpSignalMove2", "dur": "1s", "path": "M100,200 L350,250", "fill": "freeze", "begin": `${helpSignalClick2}.end`}),
+			animateMotion({"id": helpSignalMove1, "dur": "1s", "path": "M250,150 L100,200", "fill": "freeze", "begin": `${helpSignalClick1}.end`}),
+			animateMotion({"id": helpSignalMove2, "dur": "1s", "path": "M100,200 L350,250", "fill": "freeze", "begin": `${helpSignalClick2}.end`}),
 			animateMotion({"dur": "1s", "path": "M350,250 L250,150", "fill": "freeze", "begin": `${helpSignalClick3}.end`, "onendEvent": startNextDemo})
 		])
 	      ]);
