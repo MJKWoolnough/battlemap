@@ -526,7 +526,7 @@ export class Root {
 				span({"style": "margin-right: 0.5em"}, this.#fileType),
 				f.newer,
 				this.filter ? [
-					input({"class": filter, "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+					input({"type": "search", "class": filter, "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
 						const terms = this.value.toLowerCase().split(" ");
 						for (let i = 0; i < terms.length; i++) {
 							if (terms[i].charAt(0) === '"') {
