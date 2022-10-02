@@ -278,7 +278,7 @@ menuItems.push([5, () => isAdmin ? [
 				list.setRoot(layerList);
 			};
 		    };
-		const [setupDrag] = mouseDragEvent(0, (e: MouseEvent) => {
+		const [setupDrag, stopDrag] = mouseDragEvent(0, (e: MouseEvent) => {
 			if (!draggedName) {
 				amendNode(dragging![node], {"class": [dragged]});
 				amendNode(document.body, draggedName = span({"class": beingDragged}, dragging!.name));
@@ -286,12 +286,14 @@ menuItems.push([5, () => isAdmin ? [
 			}
 			amendNode(draggedName, {"style": {"top": e.clientY + 1 + "px", "left": e.clientX + dragOffset + "px"}});
 		      }, () => {
+			stopCancelDrag();
 			amendNode(dragging![node], {"class": {[dragged]: false}});
 			dragging = undefined;
 			draggedName?.remove();
 			draggedName = undefined;
 			amendNode(dragBase, {"class": {[draggingID]: false, [draggingSpecial]: false}});
 		      }),
+		      [setupCancelDrag, stopCancelDrag] = keyEvent("Escape", () => stopDrag()),
 		      isLayer = (c: LayerTokens | LayerFolder): c is LayerTokens => (c as LayerFolder).children === undefined,
 		      isFolder = (c: ItemLayer | FolderLayer): c is FolderLayer => (c as FolderLayer).open !== undefined,
 		      renameLayer = (self: ItemLayer | FolderLayer) => {
@@ -350,6 +352,7 @@ menuItems.push([5, () => isAdmin ? [
 				}
 				dragging = l;
 				setupDrag();
+				setupCancelDrag();
 			}
 		      },
 		      showHideLayer = (l: FolderLayer | ItemLayer) => queue(() => {
