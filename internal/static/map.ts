@@ -23,14 +23,14 @@ import {desktop} from './windows.js';
 
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
-	l?: SVGElement;
+	l: SVGElement;
 	path: string;
 	tokens: NodeArray<SVGToken | SVGShape | SVGDrawing>;
 }
 
 export type SVGFolder = LayerFolder & {
 	[node]: SVGElement;
-	l?: SVGElement;
+	l: SVGElement;
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 }
@@ -479,6 +479,7 @@ mapView = (mD: MapData, loadChars = false) => {
 		"hidden": false,
 		"locked": false,
 		[node]: n,
+		l: n,
 		children,
 		"folders": {},
 		"items": {},
