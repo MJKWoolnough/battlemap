@@ -15,7 +15,7 @@ import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, gridPattern, lighting, mapMask, masks, tokens} from './map_tokens.js';
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
-import {combined, inited, isAdmin, rpc} from './rpc.js';
+import {combined, inited, isAdmin, isUser, rpc} from './rpc.js';
 import {enableAnimation, invertID, scrollAmount, zoomSlider} from './settings.js';
 import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
@@ -23,12 +23,14 @@ import {desktop} from './windows.js';
 
 export type SVGLayer = LayerTokens & {
 	[node]: SVGElement;
+	l?: SVGElement;
 	path: string;
 	tokens: NodeArray<SVGToken | SVGShape | SVGDrawing>;
 }
 
 export type SVGFolder = LayerFolder & {
 	[node]: SVGElement;
+	l?: SVGElement;
 	path: string;
 	children: NodeArray<SVGFolder | SVGLayer>;
 }
@@ -45,24 +47,24 @@ const idNames: Record<string, Int> = {
       },
       processLayers = (wg: WaitGroup | undefined, layer: LayerTokens | LayerFolder, path = ""): SVGFolder | SVGLayer => {
 	path += "/" + layer.name;
-	const n = g(layer.hidden ? {"class": hiddenLayer} : undefined);
+	const l = g(isAdmin && layer.hidden ? {"class": hiddenLayer} : undefined);
 	if (isLayerFolder(layer)) {
-		const children = new NodeArray<SVGFolder | SVGLayer>(n);
+		const children = new NodeArray<SVGFolder | SVGLayer>(l);
 		for (const c of layer.children) {
 			children.push(processLayers(wg, c, path));
 		}
-		return Object.assign(layer, {[node]: n, children, path});
+		return Object.assign(layer, {[node]: isUser && layer.hidden ? g() : l, l, children, path});
 	}
-	const tokens = new NodeArray<SVGToken | SVGShape | SVGDrawing>(n);
+	const tokens = new NodeArray<SVGToken | SVGShape | SVGDrawing>(l);
 	if (layer.name !== "Grid" && layer.name !== "Light") {
 		for (const t of layer.tokens) {
 			tokens.push(isTokenImage(t) ? new tokenClass(t, wg) : isTokenDrawing(t) ? new drawingClass(t) : new shapeClass(t));
 		}
 	} else {
-		amendNode(n, {"id": layer.name === "Grid" ? layerGrid : layerLight});
+		amendNode(l, {"id": layer.name === "Grid" ? layerGrid : layerLight});
 		layer.walls = [];
 	}
-	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: n, path, tokens});
+	return Object.assign(layer, {id: idNames[layer.name] ?? 1, [node]: isUser && layer.hidden ? g() : l, l, path, tokens});
       },
       isLayerFolder = (ld: LayerTokens | LayerFolder): ld is LayerFolder => (ld as LayerFolder).children !== undefined,
       walkFolders = (folder: SVGFolder, fn: (e: SVGLayer | SVGFolder) => boolean): boolean => (folder.children as NodeArray<SVGFolder | SVGLayer>).some(e => fn(e) || (isSVGFolder(e) && walkFolders(e, fn))),
@@ -102,7 +104,21 @@ getParentLayer = (path: string): [SVGFolder | null, SVGFolder | SVGLayer | null]
 },
 setLayerVisibility = (path: string, visibility: boolean) => {
 	const layer = getLayer(path);
-	layer?.[node].classList.toggle(hiddenLayer, layer.hidden = !visibility);
+	if (isUser) {
+		if (layer) {
+			if (visibility) {
+				if (layer[node] !== layer.l) {
+					layer[node].replaceWith(layer[node] = layer.l!);
+				}
+			} else {
+				if (layer[node] === layer.l) {
+					layer.l.replaceWith(layer[node] = g())
+				}
+			}
+		}
+	} else {
+		layer?.[node].classList.toggle(hiddenLayer, layer.hidden = !visibility);
+	}
 	updateLight();
 },
 addLayerFolder = (path: string) => (layerList.children.push(processLayers(undefined, {"id": 0, "name": splitAfterLastSlash(path)[1], "hidden": false, "locked": false, "children": [], "folders": {}, "items": {}})), path),
@@ -666,9 +682,6 @@ export default (base: HTMLElement) => {
 	add(`#${mapID}`, {
 		"overflow": "hidden",
 		"cursor": "grab"
-	});
-	add(`.${hiddenLayer}`, {
-		"display": "none"
 	});
 	add(`.${dragging} #${mapID}`, {
 		"cursor": "grabbing"
