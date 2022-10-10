@@ -1,4 +1,5 @@
 import type {Uint} from './types.js';
+import type {Bind} from './lib/dom.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
@@ -17,7 +18,7 @@ type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
 type WheelFn = (this: SVGElement, e: WheelEvent) => boolean;
 
 type Tool = {
-	name: string;
+	name: string | Bind;
 	icon: SVGElement;
 	set?: () => void;
 	unset?: () => void;
@@ -94,7 +95,7 @@ let selectedTool = defaultTool;
 menuItems.push([6, () => isAdmin ? [
 	lang["TAB_TOOLS"],
 	(() => {
-		tools.sort((a, b) => stringSort(a.name, b.name));
+		tools.sort((a, b) => stringSort(a.name+"", b.name+""));
 		tools.unshift(defaultTool);
 		let windowed = false,
 		    selected: HTMLLIElement | null = null,
