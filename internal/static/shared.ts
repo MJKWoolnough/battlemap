@@ -1,5 +1,5 @@
 import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
-import type {Children, PropsObject} from './lib/dom.js';
+import type {Bind, Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
@@ -112,4 +112,4 @@ setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
 	return v;
 },
 loading = () => createDocumentFragment([h2(lang["LOADING"]), spinner({"style": "width: 64px"})]),
-menuItems: [Uint, () => ([string, HTMLDivElement, boolean, string] | null)][] = [];
+menuItems: [Uint, () => ([string | Bind, HTMLDivElement, boolean, string] | null)][] = [];
