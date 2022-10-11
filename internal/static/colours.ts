@@ -1,4 +1,5 @@
 import type {Byte} from './types.js';
+import type {Bind} from './lib/dom.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {add, ids} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
@@ -46,7 +47,7 @@ export class ColourSetting extends JSONSetting<Colour> {
 
 export const hex2Colour = (hex: string, a = 255) => new Colour(checkInt(parseInt(hex.slice(1, 3), 16), 0, 255), checkInt(parseInt(hex.slice(3, 5), 16), 0, 255), checkInt(parseInt(hex.slice(5, 7), 16), 0, 255), a),
 noColour = new Colour(0, 0, 0, 0),
-colourPicker = (parent: WindowElement | ShellElement, title: string, colour: Colour = noColour, icon?: string) => new Promise<Colour>((resolve, reject) => {
+colourPicker = (parent: WindowElement | ShellElement, title: string | Bind, colour: Colour = noColour, icon?: string | Bind) => new Promise<Colour>((resolve, reject) => {
 	const dragKey = dragColour.register(() => hex2Colour(colourInput.value, checkInt(parseInt(alphaInput.value), 0, 255, 255))),
 	      preview = div({"style": `background-color: ${colour}`, "draggable": "true", "ondragstart": (e: DragEvent) => dragColour.set(e, dragKey, iconImg), "ondragover": dragCheck, "ondrop": (e: DragEvent) => {
 		if (dragColour.is(e)) {
@@ -82,7 +83,7 @@ makeColourPicker = (() => {
 		amendNode(s, {"style": {"background-color": c}});
 		return c;
 	      };
-	return (w: WindowElement | null, title: string, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string) => {
+	return (w: WindowElement | null, title: string | Bind, getColour: () => Colour, setColour: (c: Colour) => void, icon?: string | Bind) => {
 		let active = false;
 		const dragKey = dragColour.register(getColour),
 		      d = div({"draggable": "true", "ondragstart": (e: DragEvent) => dragColour.set(e, dragKey, iconImg)}),
