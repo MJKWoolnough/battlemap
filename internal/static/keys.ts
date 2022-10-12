@@ -1,4 +1,4 @@
-import type {Bind} from './lib/dom.js';
+import type {Children} from './lib/dom.js';
 import {JSONSetting} from './lib/settings.js';
 
 const keys = new JSONSetting<Record<string, string>>("keys", {}, (v: any): v is Record<string, string> => {
@@ -9,9 +9,9 @@ const keys = new JSONSetting<Record<string, string>>("keys", {}, (v: any): v is 
 	}
 	return true;
       }),
-      names: Record<string, string | Bind> = {};
+      names: Record<string, Children> = {};
 
-export const registerKey = (id: string, name: string | Bind, defaultKey: string) => {
+export const registerKey = (id: string, name: Children, defaultKey: string) => {
 	names[id] = name;
 	return keys.value[id] ??= defaultKey;
 },
