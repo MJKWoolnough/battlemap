@@ -1,14 +1,20 @@
+import type {Bind} from './lib/dom.js';
+import {bind} from './lib/dom.js';
 import {StringSetting} from './lib/settings.js';
 
 export const language = new StringSetting("language", navigator.language),
 makeLangPack = <T extends Record<string, string>>(base: T, alternates: Record<string, Partial<T>> = {}) => {
-	const pack = alternates[language.value];
-	if (pack) {
-		for (const s in base) {
-			pack[s] ??= base[s];
-		}
+	const pack = {} as Record<keyof T, Bind<string>>;
+	for (const s in base) {
+		pack[s] = bind("");
 	}
-	return Object.freeze(pack as T ?? base);
+	language.wait(l => {
+		const p = alternates[l];
+		for (const s in base) {
+			pack[s].value = p?.[s] ?? base[s];
+		}
+	});
+	return Object.freeze(pack);
 },
 languages = ["en-GB", "en-US"];
 
