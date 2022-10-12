@@ -11,7 +11,7 @@ import {selectedLayerID} from './adminMap.js';
 import {colourPicker, hex2Colour} from './colours.js';
 import {Folder, Item, Root, folders, foldersItem, itemControl} from './folders.js';
 import {registerKey} from './keys.js';
-import lang from './language.js';
+import lang, {language} from './language.js';
 import {getLayer, layerList, mapData, root} from './map.js';
 import {doLayerAdd, doLayerMove, doLayerRename, doLockUnlockLayer, doMapChange, doSetLightColour, doShowHideLayer, layersRPC, setLayer} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
@@ -26,14 +26,31 @@ const layerIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 1
 menuItems.push([5, () => isAdmin ? [
 	lang["TAB_LAYERS"],
 	(() => {
+		let gridLayer: ItemLayer | null = null,
+		    lightLayer: ItemLayer | null = null;
+		language.wait(() => {
+			if (gridLayer) {
+				clearNode(gridLayer.nameElem, lang["LAYER_GRID"]);
+				gridLayer.name = lang["LAYER_GRID"]+"";
+			}
+			if (lightLayer) {
+				clearNode(lightLayer.nameElem, lang["LAYER_LIGHT"]);
+				lightLayer.name = lang["LAYER_LIGHT"]+"";
+			}
+		});
 		class ItemLayer extends Item {
 			constructor(parent: Folder, id: Uint, name: string, hidden = false, locked = false) {
-				super(parent, id, id === -1 ? lang["LAYER_GRID"] : id === -2 ? lang["LAYER_LIGHT"] : name);
+				super(parent, id, id === -1 ? lang["LAYER_GRID"]+"" : id === -2 ? lang["LAYER_LIGHT"]+"" : name);
 				if (locked) {
 					amendNode(this[node], {"class": [layerLocked]});
 				}
 				if (id < 0) {
 					clearNode(this[node], [this.nameElem, id === -2 ? adminLightToggle : []]);
+					if (id === -1) {
+						gridLayer = this;
+					} else if (id === -2) {
+						lightLayer = this;
+					}
 				} else {
 					this.copier.remove();
 					if (selectedLayer === undefined) {
@@ -229,19 +246,19 @@ menuItems.push([5, () => isAdmin ? [
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
 				if (l && np instanceof FolderLayer) {
-					l.parent!.children.delete(l.name);
+					l.parent!.children.delete(l.name+"");
 					l.parent = np;
 					if (ml.position >= np.children.size) {
-						np.children.set(l.name, l);
+						np.children.set(l.name+"", l);
 					} else {
-						np.children.insertBefore(l.name, l, np.children.keyAt(ml.position)!);
+						np.children.insertBefore(l.name+"", l, np.children.keyAt(ml.position)!);
 					}
 				}
 			});
 			layersRPC.waitLayerRename().then(lr => {
 				const l = list.getLayer(lr.path);
 				if (l) {
-					l.parent!.children.reSet(l.name, lr.name);
+					l.parent!.children.reSet(l.name+"", lr.name);
 					clearNode(l.nameElem, l.name = lr.name);
 				}
 			});
@@ -274,6 +291,8 @@ menuItems.push([5, () => isAdmin ? [
 				list[node]
 			]);
 			loadFn = () => {
+				gridLayer = null;
+				lightLayer = null;
 				selectedLayer = undefined;
 				list.setRoot(layerList);
 			};
@@ -305,7 +324,7 @@ menuItems.push([5, () => isAdmin ? [
 				button({"onclick": function(this: HTMLButtonElement) {
 					amendNode(this, {"disabled": true});
 					loadingWindow(queue(() => rpc.renameLayer(self.getPath(), newName.value).then(({path, name}) => {
-						self.parent!.children.reSet(self.name, name);
+						self.parent!.children.reSet(self.name+"", name);
 						clearNode(self.nameElem, self.name = name);
 						doLayerRename(path, name, false);
 						w.remove();
@@ -319,23 +338,23 @@ menuItems.push([5, () => isAdmin ? [
 		      },
 		      dragPlace = (l: ItemLayer | FolderLayer, beforeAfter: boolean) => {
 			if (dragging && (dragging.id >= 0 || l.parent === dragging.parent)) {
-				dragging!.parent!.children.delete(dragging!.name);
+				dragging!.parent!.children.delete(dragging!.name+"");
 				const oldPath = dragging!.getPath();
 				let pos = 0,
 				    newPath: string;
 				if (dragging!.id >= 0 && isFolder(l) && beforeAfter && l.open.open) {
 					if (l.children.size === 0) {
-						l.children.set(dragging!.name, dragging!);
+						l.children.set(dragging!.name+"", dragging!);
 					} else {
-						l.children.insertBefore(dragging!.name, dragging!, l.children.keyAt(0)!);
-						pos = l.children.position(dragging!.name);
+						l.children.insertBefore(dragging!.name+"", dragging!, l.children.keyAt(0)!);
+						pos = l.children.position(dragging!.name+"");
 					}
 					newPath = l.getPath() + "/";
 					dragging!.parent = l;
 				} else {
-					l.parent!.children[beforeAfter ? "insertAfter" : "insertBefore"](dragging!.name, dragging!, l.name);
+					l.parent!.children[beforeAfter ? "insertAfter" : "insertBefore"](dragging!.name+"", dragging!, l.name+"");
 					newPath = l.parent!.getPath() + "/";
-					pos = l.parent!.children.position(dragging!.name);
+					pos = l.parent!.children.position(dragging!.name+"");
 					dragging!.parent = l.parent!;
 				}
 				loadingWindow(queue(() => (doLayerMove(oldPath, newPath, pos, false), rpc.moveLayer(oldPath, newPath, pos))), shell);
