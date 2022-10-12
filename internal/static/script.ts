@@ -1,4 +1,5 @@
 import type {WindowData, WindowElement} from './windows.js';
+import type {Bind} from './lib/dom.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
@@ -28,7 +29,7 @@ import './tools_move.js';
 import './tools_multiplace.js';
 import './tools_wall.js';
 
-document.title = lang["TITLE"];
+clearNode(document.getElementsByTagName("title")[0], lang["TITLE"]);
 
 const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHiderID, panelGrabberID, popoutID, menuHideID, tabIconsID] = ids(10),
       lastTab = new StringSetting("lastTab"),
@@ -112,24 +113,24 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 		e.preventDefault();
 	})[0]();
 	return Object.freeze({
-		"add": ([title, base, pop, popIcon]: [string, HTMLDivElement, boolean, string]) => {
+		"add": ([title, base, pop, popIcon]: [string | Bind, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
 			      popper = pop ? popout({"class": popoutID, "title": `Popout ${title}`, "onclick": (e: Event) => {
 				e.preventDefault();
 				const replaced = div();
 				base.replaceWith(replaced);
-				if (windowData[title]) {
-					windowData[title]["out"] = true;
+				if (windowData[title+""]) {
+					windowData[title+""]["out"] = true;
 				} else {
-					windowData[title] = {"out": true, "data": [20, 20, 0, 0]};
+					windowData[title+""] = {"out": true, "data": [20, 20, 0, 0]};
 				}
 				updateWindowData();
-				const [x, y, width, height] = windowData[title].data,
+				const [x, y, width, height] = windowData[title+""].data,
 				      w = windows({"window-icon": popIcon, "window-title": title, "resizable": "true", "style": {"min-width": "45px", "--window-left": x + "px", "--window-top": y + "px", "--window-width": width === 0 ? undefined : width + "px", "--window-height": height === 0 ? undefined : height + "px"}, "onremove": () => {
 					replaced.replaceWith(base);
 					amendNode(l, {"style": {"display": undefined}});
-					windowData[title]["out"] = false;
+					windowData[title+""]["out"] = false;
 					updateWindowData();
 					base.dispatchEvent(new CustomEvent("popin", {"cancelable": false}));
 				      }, "onmoved": updateWindowDims, "onresized": updateWindowDims}, base);
@@ -162,10 +163,10 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 					return;
 				}
 				tabs[a]![1].focus();
-			      }, "onclick": () => lastTab.set(title)});
+			      }, "onclick": () => lastTab.set(title+"")});
 			amendNode(t, l);
-			tabs.push([title, l]);
-			if (popper && windowData[title] && windowData[title]["out"]) {
+			tabs.push([title+"", l]);
+			if (popper && windowData[title+""] && windowData[title+""]["out"]) {
 				setTimeout(() => popper.dispatchEvent(new MouseEvent("click")));
 			}
 			return base;
