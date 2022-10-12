@@ -1,5 +1,3 @@
-import bbcode from './lib/bbcode.js';
-import {all} from './lib/bbcode_tags.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {div, h1, input} from './lib/html.js';
@@ -179,12 +177,12 @@ export default () => {
 				labels(mapSignal, lang["HELP_MAP_SIGNAL"]),
 				labels(panelOpen, lang["HELP_PANEL_OPEN"]),
 				labels(panelResize, lang["HELP_PANEL_RESIZE"]),
-				div(bbcode(all, lang["HELP_DEMO_DRAG"])),
-				div(bbcode(all, lang["HELP_DEMO_ZOOM"])),
-				div(bbcode(all, lang["HELP_DEMO_SCROLL"])),
-				div(bbcode(all, lang["HELP_DEMO_SIGNAL"])),
-				div(bbcode(all, lang["HELP_DEMO_SIDEPANEL_OPEN"])),
-				div(bbcode(all, lang["HELP_DEMO_SIDEPANEL_RESIZE"]))
+				div(lang["HELP_DEMO_DRAG"]),
+				div(lang["HELP_DEMO_ZOOM"]),
+				div(lang["HELP_DEMO_SCROLL"]),
+				div(lang["HELP_DEMO_SIGNAL"]),
+				div(lang["HELP_DEMO_SIDEPANEL_OPEN"]),
+				div(lang["HELP_DEMO_SIDEPANEL_RESIZE"])
 			])
 		])));
 		setTimeout(() => {
