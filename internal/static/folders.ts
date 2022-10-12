@@ -1,4 +1,5 @@
 import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js';
+import type {Bind} from './lib/dom.js';
 import type {DragTransfer} from './lib/drag.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
@@ -503,14 +504,14 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 }
 
 export class Root {
-	#fileType: string;
+	#fileType: string | Bind;
 	folder!: Folder;
 	rpcFuncs!: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	windowIcon?: string;
 	[node]!: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: string | Bind, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.#fileType = fileType;
