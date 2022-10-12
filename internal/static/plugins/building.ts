@@ -67,11 +67,11 @@ if (isAdmin) {
 	class BuildingRoot extends Root {
 		constructor() {
 			super ({"folders": {
-				[lang["FLOOR"]]: {"folders": {}, "items": {
-					[lang["FLOOR_DIRT"]]: 1
+				[lang["FLOOR"]+""]: {"folders": {}, "items": {
+					[lang["FLOOR_DIRT"]+""]: 1
 				}},
-				[lang["OBSTACLES"]]: {"folders": {}, "items": {}},
-				[lang["WALLS"]]: {"folders": {}, "items": {}}
+				[lang["OBSTACLES"]+""]: {"folders": {}, "items": {}},
+				[lang["WALLS"]+""]: {"folders": {}, "items": {}}
 			}, "items": {}}, lang["MENU_TITLE"], {
 				"waitAdded": unusedWaitFn,
 				"waitMoved": unusedWaitFn,
