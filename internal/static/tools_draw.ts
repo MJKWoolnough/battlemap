@@ -115,19 +115,19 @@ inited.then(() => {
 		"options": div([
 			fieldset([
 				legend(lang["TOOL_DRAW_SHAPE"]),
-				labels(rectangle, `${lang["TOOL_DRAW_RECT"]}: `),
+				labels(rectangle, [lang["TOOL_DRAW_RECT"], ": "]),
 				br(),
-				labels(circle, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
+				labels(circle, [lang["TOOL_DRAW_ELLIPSE"], ": "]),
 				br(),
-				labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `)
+				labels(poly, [lang["TOOL_DRAW_POLYGON"], ": "])
 			]),
-			labels(snap, `${lang["TOOL_DRAW_SNAP"]}: `),
+			labels(snap, [lang["TOOL_DRAW_SNAP"], ": "]),
 			br(),
-			labels(`${lang["TOOL_DRAW_STROKE_WIDTH"]}: `, strokeWidth),
+			labels([lang["TOOL_DRAW_STROKE_WIDTH"], ": "], strokeWidth),
 			br(),
-			labels(`${lang["TOOL_DRAW_STROKE_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, iconStr)),
+			labels([lang["TOOL_DRAW_STROKE_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, iconStr)),
 			br(),
-			labels(`${lang["TOOL_DRAW_FILL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, iconStr))
+			labels([lang["TOOL_DRAW_FILL_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, iconStr))
 		]),
 		"mapMouseOver": () => {
 			startCursorMove();
