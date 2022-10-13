@@ -24,9 +24,9 @@ if (isAdmin) {
 			circle({"cx": 50, "cy": 50, "r": 38})
 		]),
 		"options": div([
-			labels(move, `${lang["MOVE"]}: `),
+			labels(move, [lang["MOVE"], ": "]),
 			br(),
-			labels(home, `${lang["HOME"]}: `)
+			labels(home, [lang["HOME"], ": "])
 		]),
 		"mapMouse0": (e: MouseEvent) => {
 			const pos = screen2Grid(e.clientX, e.clientY);
