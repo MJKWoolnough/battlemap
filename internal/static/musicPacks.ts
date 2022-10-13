@@ -273,7 +273,7 @@ inited.then(() => {
 						constructor(parent: AdminPack, track: MusicTrackName) {
 							super(parent, track);
 							this[node] = li([
-								this.#nameNode = span(track.name ?? `${lang["MUSIC_TRACK"]} ${track.id}`),
+								this.#nameNode = span(track.name ?? [lang["MUSIC_TRACK"], " ", track.id + ""]),
 								this.#volumeNode = input({"type": "range", "max": 255, "value": this.volume = track.volume, "onchange": () => {
 									rpc.musicPackTrackVolume(parent.id, parent.tracks.findIndex(t => t === this), this.volume = checkInt(parseInt(this.#volumeNode.value), 0, 255, 255));
 									this.updateVolume();
