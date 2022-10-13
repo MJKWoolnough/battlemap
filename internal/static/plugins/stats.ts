@@ -110,8 +110,8 @@ if (isAdmin) {
 						}
 					}
 					clearNode(output, [
-						h2(`${lang["MAP"]}: ${mapID}`),
-						amendNode(total, `${lang["TOTAL_SIZE"]}: ${formatNumber.format(totalSize)}`),
+						h2([lang["MAP"], `: ${mapID}`]),
+						amendNode(total, [lang["TOTAL_SIZE"], `: ${formatNumber.format(totalSize)}`]),
 						table({"id": statisticsTable}, [
 							head,
 							tb[node]
