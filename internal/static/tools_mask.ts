@@ -130,27 +130,27 @@ inited.then(() => {
 		"name": lang["TOOL_MASK"],
 		"icon": svg({"viewBox": "0 0 60 50"}, [title(lang["TOOL_MASK"]), path({"d": "M0,0 Q30,15 60,0 Q30,100 0,0 M32,20 q9,-10 18,0 q-9,-3 -18,0 M10,20 q9,-10 18,0 q-9,-3 -18,0 M20,35 q10,5 20,0 q-10,10 -20,0", "stroke": "none", "fill": "currentColor", "fill-rule": "evenodd"})]),
 		"options": div([
-			labels(`${lang["TOOL_MASK_OPACITY"]}: `, input({"type": "range", "min": 0, "max": 1, "step": 0.05, "value": maskOpacity.value, "oninput": function(this: HTMLInputElement) {
+			labels([lang["TOOL_MASK_OPACITY"], ": "], input({"type": "range", "min": 0, "max": 1, "step": 0.05, "value": maskOpacity.value, "oninput": function(this: HTMLInputElement) {
 				maskOpacity.set(parseFloat(this.value));
 			}})),
 			fieldset([
 				legend(lang["TOOL_MASK_DRAW_TYPE"]),
-				labels(opaque, `${lang["TOOL_MASK_OPAQUE"]}: `),
+				labels(opaque, [lang["TOOL_MASK_OPAQUE"], ": "]),
 				br(),
-				labels(input({"name": "maskColour", "type": "radio", "class": settingsTicker}), `${lang["TOOL_MASK_TRANSPARENT"]}: `)
+				labels(input({"name": "maskColour", "type": "radio", "class": settingsTicker}), [lang["TOOL_MASK_TRANSPARENT"], ": "])
 			]),
 			fieldset([
 				legend(lang["TOOL_MASK_DRAW_SHAPE"]),
-				labels(rectangle, `${lang["TOOL_DRAW_RECT"]}: `),
+				labels(rectangle, [lang["TOOL_DRAW_RECT"], ": "]),
 				br(),
-				labels(circle, `${lang["TOOL_DRAW_ELLIPSE"]}: `),
+				labels(circle, [lang["TOOL_DRAW_ELLIPSE"], ": "]),
 				br(),
-				labels(poly, `${lang["TOOL_DRAW_POLYGON"]}: `),
+				labels(poly, [lang["TOOL_DRAW_POLYGON"], ": "]),
 				br()
 			]),
-			labels(remove, `${lang["TOOL_MASK_REMOVE"]}: `),
+			labels(remove, [lang["TOOL_MASK_REMOVE"], ": "]),
 			br(),
-			labels(snap, `${lang["TOOL_DRAW_SNAP"]}: `),
+			labels(snap, [lang["TOOL_DRAW_SNAP"], ": "]),
 			br(),
 			button({"onclick": () => shell.confirm(lang["ARE_YOU_SURE"], lang["TOOL_MASK_CLEAR_CONFIRM"]).then(c => {
 				if (c) {
