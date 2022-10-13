@@ -185,7 +185,7 @@ inited.then(() => {
 						startWallEscape();
 						e.stopPropagation();
 					}
-				}}, title(`${lang["TOOL_WALL_LAYER"]}: ${layer.path}\n${lang["TOOL_WALL_COLOUR"]}: ${colour}\n${lang["TOOL_WALL_SCATTER"]}: ${scattering}`))));
+				}}, title([lang["TOOL_WALL_LAYER"], `: ${layer.path}\n`, lang["TOOL_WALL_COLOUR"], `: ${colour}\n`, lang["TOOL_WALL_SCATTER"], `: ${scattering}`]))));
 			}
 		}
 		if (!hasSelected) {
@@ -276,19 +276,19 @@ inited.then(() => {
 		"options": div([
 			fieldset([
 				legend(lang["TOOL_WALL_MODE"]),
-				labels(selectWall, `${lang["TOOL_WALL_SELECT"]}: `),
+				labels(selectWall, [lang["TOOL_WALL_SELECT"], ": "]),
 				br(),
-				labels(placeWall, `${lang["TOOL_WALL_PLACE"]}: `)
+				labels(placeWall, [lang["TOOL_WALL_PLACE"], ": "])
 			]),
-			labels(snap, `${lang["TOOL_WALL_SNAP"]}: `),
+			labels(snap, [lang["TOOL_WALL_SNAP"], ": "]),
 			br(),
-			labels(continuous, `${lang["TOOL_WALL_CONTINUOUS"]}: `),
+			labels(continuous, [lang["TOOL_WALL_CONTINUOUS"], ": "]),
 			br(),
-			labels(`${lang["TOOL_WALL_COLOUR"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
+			labels([lang["TOOL_WALL_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_WALL_COLOUR"], () => wallColour, (c: Colour) => amendNode(wall, {"fill": wallColour = c, "stroke": c.toHexString()}), iconStr)),
 			br(),
-			labels(`${lang["TOOL_WALL_SCATTER"]}: `, scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)}),
+			labels([lang["TOOL_WALL_SCATTER"], ": "], scatteringI, {"draggable": "true", "ondragstart": (e: DragEvent) => dragScattering.set(e, dragKey, iconImg)}),
 			br(),
-			labels(`${lang["TOOL_WALL_UNDERLAY"]}: `, makeColourPicker(optionsWindow, lang["TOOL_WALL_UNDERLAY"], () => underlayColour.value, (c: Colour) => underlayColour.set(c), iconStr))
+			labels([lang["TOOL_WALL_UNDERLAY"], ": "], makeColourPicker(optionsWindow, lang["TOOL_WALL_UNDERLAY"], () => underlayColour.value, (c: Colour) => underlayColour.set(c), iconStr))
 		]),
 		"mapMouse0": (e: MouseEvent) => {
 			if (e.ctrlKey && !e.shiftKey) {
