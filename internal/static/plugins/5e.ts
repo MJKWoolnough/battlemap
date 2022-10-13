@@ -431,7 +431,7 @@ const select = Symbol("select"),
       plugin: PluginType = {
 	"settings": {
 		"fn": div([
-			labels(`${lang["HIGHLIGHT_COLOUR"]}: `, makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => highlightColour.set(c))),
+			labels([lang["HIGHLIGHT_COLOUR"], ": "], makeColourPicker(null, lang["HIGHLIGHT_COLOUR"], () => highlightColour.value, (c: Colour) => highlightColour.set(c))),
 			table({"id": displaySettings5e}, [
 				thead(tr([
 					td(),
@@ -439,7 +439,7 @@ const select = Symbol("select"),
 					th(lang["TOKEN_SELECTED"])
 				])),
 				tbody(Object.entries(displaySettings).map(([name, settings]) => tr([
-					td(`${lang[name as keyof typeof lang]}: `),
+					td([lang[name as keyof typeof lang], ": "]),
 					settings.map(setting => td(labels(input({"type": "checkbox", "class": settingsTicker, "checked": setting.value, "onchange": function(this: HTMLInputElement) {
 						setting.set(this.checked);
 					}}), "")))
@@ -1050,7 +1050,7 @@ if (isAdmin) {
 			token[updateData]();
 		}
 	      },
-	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, `${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, ''), undefined, () => setCondition(selected.token, n)));
+	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, [lang["TOGGLE_CONDITION"], ": ", lang[condition]], ''), undefined, () => setCondition(selected.token, n)));
 
 	add(`.${adminHideLight} #${perspectives5e}`, {
 		"display": "none"
@@ -1063,7 +1063,7 @@ if (isAdmin) {
 				return (key: string) => data[key] ?? cd[key] ?? {};
 			})() : (key: string) => data[key] ?? {};
 			amendNode(n, [
-				labels(`${lang["INITIATIVE_MOD"]}: `, input({"type": "number", "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
+				labels([lang["INITIATIVE_MOD"], ": "], input({"type": "number", "min": -20, "max": 20, "step": 1, "value": getData("5e-initiative-mod")["data"] ?? "", "onchange": function(this: HTMLInputElement) {
 					if (this.value === "") {
 						removes.add("5e-initiative-mod");
 					} else {
@@ -1071,31 +1071,31 @@ if (isAdmin) {
 						changes["5e-initiative-mod"] = {"user": false, "data": checkInt(parseInt(this.value), -20, 20, 0)};
 					}
 				}})),
-				labels(`${lang["INITIATIVE_ADV"]}: `, input({"type": "checkbox", "checked": getData("5e-initiative-adv")["data"] ?? false, "onchange": function(this: HTMLInputElement) {
+				labels([lang["INITIATIVE_ADV"], ": "], input({"type": "checkbox", "checked": getData("5e-initiative-adv")["data"] ?? false, "onchange": function(this: HTMLInputElement) {
 					changes["5e-initiative-adv"] = {"user": false, "data": this.checked};
 				}})),
 				br(),
-				labels(`${lang["ARMOUR_CLASS"]}: `, input({"type": "number", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels([lang["ARMOUR_CLASS"], ": "], input({"type": "number", "min": 0, "max": 50, "step": 1, "value": getData("5e-ac")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-ac"] = {"user": false, "data": checkInt(parseInt(this.value), 0, 50, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_CURRENT"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels([lang["HP_CURRENT"], ": "], input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-current")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-current"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(`${lang["HP_MAX"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
+				labels([lang["HP_MAX"], ": "], input({"type": "number", "min": 0, "step": 1, "value": getData("5e-hp-max")["data"] ?? 10, "onchange": function(this: HTMLInputElement) {
 					changes["5e-hp-max"] = {"user": false, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
 				labels(input({"type": "checkbox", "class": settingsTicker, "checked": getData("5e-player")["data"], "onchange": function (this: HTMLInputElement) {
 					changes["5e-player"] = {"user": true, "data": this.checked};
-				}}), `${lang["IS_PLAYER"]}: `),
+				}}), [lang["IS_PLAYER"], ": "]),
 				br(),
-				labels(`${lang["DARKVISION"]}: `, input({"type": "number", "min": 0, "step": 1, "value": getData("5e-darkvision")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
+				labels([lang["DARKVISION"], ": "], input({"type": "number", "min": 0, "step": 1, "value": getData("5e-darkvision")["data"] ?? 0, "onchange": function(this: HTMLInputElement) {
 					changes["5e-darkvision"] = {"user": true, "data": checkInt(parseInt(this.value), 0, Infinity, 0)};
 				}})),
 				br(),
-				labels(`${lang["NOTES"]}: `, textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
+				labels([lang["NOTES"], ": "], textarea({"rows": 10, "cols": 30, "style": "resize: none", "onchange": function(this: HTMLTextAreaElement) {
 					changes["5e-notes"] = {"user": false, "data": this.value};
 				}}, getData("5e-notes")["data"] ?? ""))
 			]);
