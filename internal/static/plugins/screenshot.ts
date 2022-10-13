@@ -142,7 +142,7 @@ addPlugin("screenshot", {
 		"fn": div([
 			([[hideGrid, "ENABLE_GRID"], [disablePNG, "ENABLE_PNG"]] as [BoolSetting, keyof typeof lang][]).map(([s, l]) => [labels(input({"type": "checkbox", "class": settingsTicker, "checked": !s.value, "onchange": function(this: HTMLInputElement) {
 				s.set(!this.checked);
-			}}), `${lang[l]}: `), br()]),
+			}}), [lang[l], ": "]), br()]),
 			button({"onclick": makeScreenshot}, lang["SCREENSHOT_TAKE"])
 		])
 	}
