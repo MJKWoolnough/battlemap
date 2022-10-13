@@ -117,9 +117,9 @@ if (isAdmin) {
 							});
 						}
 					      }}, [
-						labels(`${lang["NOTE"]}: `, contents),
+						labels([lang["NOTE"], ": "], contents),
 						br(),
-						labels(share, `${lang["NOTE_SHARE"]}: `),
+						labels(share, [lang["NOTE_SHARE"], ": "]),
 						br(),
 						button({"onclick": () => {
 							page.data = {"contents": contents.value, "share": share.checked};
@@ -422,7 +422,7 @@ if (isAdmin) {
 	addPlugin("notes", {
 		"menuItem": {
 			"fn": [lang["MENU_TITLE"], div({"id": pluginNotesID}, [
-				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], `${lang["NOTES_NEW_LONG"]}:`, "").then(name => {
+				button({"onclick": () => shell.prompt(lang["NOTES_NEW"], [lang["NOTES_NEW_LONG"], ": "], "").then(name => {
 					if (name) {
 						if (name.includes("/")) {
 							shell.alert(lang["NAME_INVALID"], lang["NAME_INVALID_LONG"]);
