@@ -65,18 +65,18 @@ edit = (id: Uint, title: string | Bind, d: Record<string, KeystoreData>, charact
 	      })())}, tk),
 	      tokens = new NodeMap(ul({"class": tokenSelectors}), noSort, (d["store-image-data"] ? d["store-image-data"].data instanceof Array ? d["store-image-data"].data : [d["store-image-data"].data] : []).map((tk, n) => [n, makeToken(n, tk)])),
 	      base = div([
-		labels(`${lang["NAME"]}: `, nameInput),
+		labels([lang["NAME"], ": "], nameInput),
 		labels(nameVisibility, userVisible()),
 		br(),
 		character ? [
-			label(`${lang["CHARACTER_IMAGE"]}: `),
+			label([lang["CHARACTER_IMAGE"], ": "]),
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": imageDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const {id} = dragImage.get(e)!;
 				changes["store-image-icon"] = {"user": d["store-image-icon"].user, "data": id};
 				clearNode(this, img({"src": `/images/${id}`, "style": "max-width: 100%; max-height: 100%"}));
 			}}, img({"src": `/images/${d["store-image-icon"].data}`, "style": "max-width: 100%; max-height: 100%"})),
 			br(),
-			label(`${lang["TOKEN"]}: `),
+			label([lang["TOKEN"], ": "]),
 			tokens[node],
 			button({"onclick": () => {
 				const data = getToken();
@@ -89,11 +89,11 @@ edit = (id: Uint, title: string | Bind, d: Record<string, KeystoreData>, charact
 				changes["store-image-data"] = {"user": false, "data": Array.from(tokens.values())};
 			}}, lang["TOKEN_ADD"]),
 			br(),
-			label(`${lang["TOKEN_ORDER"]}: `),
-			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": settingsTicker, "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), `${lang["TOKEN_ORDER_NORMAL"]}: `),
-			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": settingsTicker, "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), `${lang["TOKEN_ORDER_SHUFFLE"]}: `)
+			label([lang["TOKEN_ORDER"], ": "]),
+			labels(input({"type": "radio", "name": `tokens_ordered_${n}`, "class": settingsTicker, "checked": !d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": false}}), [lang["TOKEN_ORDER_NORMAL"], ": "]),
+			labels(input({"type": "radio", "name": `tokens_ordered_${n++}`, "class": settingsTicker, "checked": d["tokens_order"]?.data, "onclick": () => changes["tokens_order"] = {"user": false, "data": true}}), [lang["TOKEN_ORDER_SHUFFLE"], ": "])
 		] : [
-			label(`${lang["CHARACTER"]}: `),
+			label([lang["CHARACTER"], ": "]),
 			div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": characterDragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 				const {id} = dragCharacter.get(e)!,
 				      charData = characterData.get(id)!;
