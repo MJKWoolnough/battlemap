@@ -467,7 +467,7 @@ mapView = (mD: MapData, loadChars = false) => {
 	      {width, height, lightColour, startX, startY} = mapData,
 	      items = div(),
 	      percent = progress(),
-	      loader = div({"id": mapLoading}, div([`${lang["LOADING_MAP"]}: `, percent, items])),
+	      loader = div({"id": mapLoading}, div([lang["LOADING_MAP"], ": ", percent, items])),
 	      n = g(),
 	      children = new NodeArray<SVGFolder | SVGLayer>(n);
 	for (const c of mapData.children) {
