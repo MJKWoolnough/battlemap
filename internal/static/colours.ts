@@ -66,9 +66,9 @@ colourPicker = (parent: WindowElement | ShellElement, title: string | Bind, colo
 	      }}, [
 		h1(title),
 		div({"class": checkboard}, preview),
-		labels(`${lang["COLOUR"]}: `, colourInput),
+		labels([lang["COLOUR"], ": "], colourInput),
 		br(),
-		labels(`${lang["COLOUR_ALPHA"]}: `, alphaInput),
+		labels([lang["COLOUR_ALPHA"], ": "], alphaInput),
 		br(),
 		button({"onclick": function(this: HTMLButtonElement) {
 			amendNode(this, {"disabled": true});
