@@ -74,8 +74,8 @@ export abstract class Item {
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
 		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_MOVE"]}, [
 			h1(lang["ITEM_MOVE"]),
-			div(`${lang["OLD_LOCATION"]}: ${parentPath}${this.name}`),
-			labels(`${lang["NEW_LOCATION"]}: `, parents),
+			div([lang["OLD_LOCATION"], `: ${parentPath}${this.name}`]),
+			labels([lang["NEW_LOCATION"], ": "], parents),
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
@@ -98,8 +98,8 @@ export abstract class Item {
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
 		      w = windows({"window-icon": root.windowIcon, "window-title": lang["ITEM_COPY_ADD"]}, [
 			h1(lang["ITEM_COPY_ADD"]),
-			div(`${lang["CURRENT_LOCATION"]}: ${parentPath}${this.name}`),
-			labels(`${lang["ITEM_COPY_NEW"]}: `, parents),
+			div([lang["CURRENT_LOCATION"], `: ${parentPath}${this.name}`]),
+			labels([lang["ITEM_COPY_NEW"], ": "], parents),
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
@@ -282,8 +282,8 @@ export class Folder {
 		      newName = input({"type": "text", "value": this.name, "onkeypress": enterKey}),
 		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_MOVE"]}, [
 			h1(lang["FOLDER_MOVE"]),
-			div(`${lang["OLD_LOCATION"]}: ${oldPath.slice(0, -1)}`),
-			labels(`${lang["NEW_LOCATION"]}: `, parents),
+			div([lang["OLD_LOCATION"], `: ${oldPath.slice(0, -1)}`]),
+			labels([lang["NEW_LOCATION"], ": "], parents),
 			newName,
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
@@ -329,7 +329,7 @@ export class Folder {
 		      folderName = input({"onkeypress": enterKey}),
 		      w = windows({"window-icon": root.windowIcon, "window-title": lang["FOLDER_ADD"]}, [
 			h1(lang["FOLDER_ADD"]),
-			labels(`${lang["FOLDER_NAME"]}: ${path + "/"}`, folderName),
+			labels([lang["FOLDER_NAME"], `: ${path + "/"}`], folderName),
 			br(),
 			button({"onclick": function(this: HTMLButtonElement) {
 				amendNode(this, {"disabled": true});
