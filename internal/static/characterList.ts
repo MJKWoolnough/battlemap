@@ -114,9 +114,9 @@ menuItems.push([2, () => isAdmin ? [
 					const name = input({"onkeypress": enterKey}),
 					      w = windows({"window-icon": characterIcon, "window-title": lang["CHARACTER_NEW"], "ondragover": () => w.focus()}, [
 						h1(lang["CHARACTER_NEW"]),
-						labels(`${lang["CHARACTER_NAME"]}: `, name),
+						labels([lang["CHARACTER_NAME"], ": "], name),
 						br(),
-						label(`${lang["CHARACTER_IMAGE"]}: `),
+						label([lang["CHARACTER_IMAGE"], ": "]),
 						div({"style": "overflow: hidden; display: inline-block; width: 200px; height: 200px; border: 1px solid #888; text-align: center", "ondragover": dragEffect, "ondrop": function(this: HTMLDivElement, e: DragEvent) {
 							clearNode(this, img({"src": `/images/${icon = dragImage.get(e)!.id}`, "style": "max-width: 100%; max-height: 100%"}));
 						}}, lang["CHARACTER_DRAG_ICON"]),
