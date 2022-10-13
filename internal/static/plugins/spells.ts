@@ -134,7 +134,7 @@ if (isAdmin) {
 	      },
 	      [setupEnter, cancelEnter] = keyEvent(registerKey("spells-create", lang["ADD_SPELL"], "Enter"), addSpell),
 	      options = div([
-		labels(`${lang["DAMAGE_TYPE"]}: `, select({"onchange": function(this: HTMLSelectElement) {
+		labels([lang["DAMAGE_TYPE"], ": "], select({"onchange": function(this: HTMLSelectElement) {
 			damageType = checkInt(parseInt(this.value), 0, types.length - 1);
 			for (const effect of effectList) {
 				amendNode(effect, {"stroke": types[damageType][0], "fill": types[damageType][1]});
@@ -142,14 +142,14 @@ if (isAdmin) {
 		}}, Array.from({length: types.length}, (_, n) => option({"value": n}, lang["TYPE_"+n as keyof typeof lang])))),
 		fieldset([
 			legend(lang["SPELL_TYPE"]),
-			([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": !n, "class": settingsTicker, "onclick": () => setEffect(e)}), `${lang[k]}: `)])
+			([[circleEffect, "SPELL_TYPE_CIRCLE"], [coneEffect, "SPELL_TYPE_CONE"], [cubeEffect, "SPELL_TYPE_CUBE"], [lineEffect, "SPELL_TYPE_LINE"], [wallEffect, "SPELL_TYPE_WALL"]] as const).map(([e, k], n) => [n > 0 ? br() : [], labels(input({"type": "radio", "name": "plugin-spell-type", "checked": !n, "class": settingsTicker, "onclick": () => setEffect(e)}), [lang[k], ": "])])
 		]),
 		labels(snap, `${mainLang["TOOL_MEASURE_SNAP"]}: `),
 		br(),
-		labels(`${lang["SPELL_SIZE"]}: `, input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
+		labels([lang["SPELL_SIZE"], ": "], input({"type": "number", "min": 1, "value": size, "onchange": function (this: HTMLInputElement) {
 			setSize(size = checkInt(parseInt(this.value), 1, 1000, 10), width);
 		}})),
-		div({"style": "display: var(--spell-display, none)"}, labels(`${lang["SPELL_WIDTH"]}: `, input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
+		div({"style": "display: var(--spell-display, none)"}, labels([lang["SPELL_WIDTH"], ": "], input({"type": "number", "min": 1, "value": width, "onchange": function (this: HTMLInputElement) {
 			setSize(size, width = checkInt(parseInt(this.value), 1, 1000, 10));
 		}})))
 	      ]);
