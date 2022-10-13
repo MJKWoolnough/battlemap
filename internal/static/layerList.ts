@@ -82,7 +82,7 @@ menuItems.push([5, () => isAdmin ? [
 					      sqLineWidth = input({"type": "number", "min": 0, "max": 10, "value": mapData.gridStroke}),
 					      w = windows({"window-icon": layerIcon, "window-title": lang["MAP_EDIT"]}, [
 						h1(lang["MAP_EDIT"]),
-						([["MAP_SQUARE_WIDTH", width], ["MAP_SQUARE_HEIGHT", height], ["MAP_SQUARE_TYPE", sqType], ["MAP_SQUARE_SIZE", sqWidth], ["MAP_SQUARE_COLOUR", sqColour], ["MAP_SQUARE_LINE", sqLineWidth]] as [keyof typeof lang, HTMLInputElement | HTMLSelectElement][]).map(([k, i]) => [labels(`${lang[k]}: `, i), br()]),
+						([["MAP_SQUARE_WIDTH", width], ["MAP_SQUARE_HEIGHT", height], ["MAP_SQUARE_TYPE", sqType], ["MAP_SQUARE_SIZE", sqWidth], ["MAP_SQUARE_COLOUR", sqColour], ["MAP_SQUARE_LINE", sqLineWidth]] as [keyof typeof lang, HTMLInputElement | HTMLSelectElement][]).map(([k, i]) => [labels([lang[k], ": "], i), br()]),
 						button({"onclick": function(this: HTMLButtonElement) {
 							amendNode(this, {"disabled": true});
 							const sq = checkInt(parseInt(sqWidth.value), 10, 1000, 10);
@@ -319,7 +319,7 @@ menuItems.push([5, () => isAdmin ? [
 			const newName = input({"type": "text", "value": self.name, "onkeypress": enterKey}),
 			      w = windows({"window-icon": layerIcon, "window-title": lang["LAYER_RENAME"]}, [
 				h1(lang["LAYER_RENAME"]),
-				labels(`${lang["LAYER_NAME"]}: `, newName),
+				labels([lang["LAYER_NAME"], ": "], newName),
 				br(),
 				button({"onclick": function(this: HTMLButtonElement) {
 					amendNode(this, {"disabled": true});
