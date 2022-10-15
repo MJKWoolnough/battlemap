@@ -62,11 +62,15 @@ if (isAdmin) {
 			} else {
 				const p = polygon({"points": "0,0 10,0 10,10 0,10"}),
 				      l = definitions.addLighting(p, this.#draggedLight, 5 / this.#draggedLight.lightStages.reduce((a, b) => a + b, 0))!,
-				      id = "plugin-light_"+lid++;
+				      id = "plugin-light_"+lid++,
+				      self = this;
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": lightGridStr, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
 					this.#window = null;
 				}}, [
-					button({"style": "position: absolute", "onclick": () => this.#apply()}, lang["APPLY_LIGHT"]),
+					button({"style": "position: absolute", "onclick": function (this: HTMLButtonElement) {
+						self.#apply();
+						this.blur();
+					}}, lang["APPLY_LIGHT"]),
 					svg({"viewBox": "0 0 10 10"}, [
 						rect({"width": 5, "height": 10, "fill": "#fff"}),
 						rect({"x": 5, "width": 5, "height": 10, "fill": "#000"}),
@@ -404,7 +408,10 @@ if (isAdmin) {
 			doTokenSet({"id": tk.id, "lightColours": [], "lightStages": [], "lightTimings": []});
 		}
 	      },
-	      removeLight = button({"onclick": removeLightFn}, lang["REMOVE_LIGHT"]),
+	      removeLight = button({"onclick": function(this: HTMLButtonElement) {
+		      this.blur();
+		      removeLightFn();
+	      }}, lang["REMOVE_LIGHT"]),
 	      [startRemoveLight, cancelRemoveLight] = keyEvent(registerKey("lights-remove", lang["REMOVE_LIGHT"], ''), removeLightFn),
 	      copyLightFn = () => {
 		const tk = selected.token;
@@ -415,7 +422,10 @@ if (isAdmin) {
 			}
 		}
 	      },
-	      copyLight = button({"onclick": copyLightFn}, lang["COPY_LIGHT"]),
+	      copyLight = button({"onclick": function(this: HTMLButtonElement) {
+		      this.blur();
+		      copyLightFn()
+	      }}, lang["COPY_LIGHT"]),
 	      [startCopyLight, cancelCopyLight] = keyEvent(registerKey("lights-copy", lang["COPY_LIGHT"], ''), undefined, copyLightFn),
 	      checkSelectedToken = () => {
 		const tk = selected.token;
