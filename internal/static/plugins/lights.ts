@@ -131,7 +131,7 @@ if (isAdmin) {
 		"NAME_EXISTS": "Light Profile Exists",
 		"NAME_EXISTS_LONG": "A Light Profile with that name already exists",
 		"NAME_INVALID": "Invalid Name",
-		"NAME_INVALID_LONG": "Light Profile names cannot contains the '/' (slash) character",
+		"NAME_INVALID_LONG": "Light Profile names cannot contain the '/' (slash) character",
 		"NEW_NAME": "Please enter a name for this Light Profile",
 		"NEW_NAME_TITLE": "Light Profile Name",
 		"REMOVE_LIGHT": "Remove Light from Selected Token"
