@@ -184,6 +184,7 @@ inited.then(() => {
 	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
 	add(`.${userVisibility}`, {
+		"display": "none",
 		"+label>svg": {
 			"display": "inline-block",
 			"width": "1em",
