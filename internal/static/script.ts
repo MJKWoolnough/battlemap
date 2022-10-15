@@ -439,14 +439,14 @@ add(`.${invertID}`, {
 			}
 		}
 	},
-	"menu-menu": {
+	" menu-menu": {
 		"background-color": "#222",
 		"color": "#fff"
 	},
-	"menu-submenu[open]>menu-item, menu-item:focus": {
+	" menu-submenu[open]>menu-item, menu-item:focus": {
 		"background-color": "#000"
 	},
-	"menu-item[disabled],menu-submenu[disabled]": {
+	" menu-item[disabled],menu-submenu[disabled]": {
 		"color": "#888"
 	}
 });
