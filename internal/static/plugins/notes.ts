@@ -4,7 +4,7 @@ import type {WindowElement} from '../windows.js';
 import {isOpenTag, process} from '../lib/bbcode.js';
 import {none} from '../lib/bbcode_tags.js';
 import {add, id, render} from '../lib/css.js';
-import {amendNode, clearNode} from '../lib/dom.js';
+import {amendNode, bind, clearNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {br, button, div, input, link, span, textarea, title} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
@@ -107,7 +107,7 @@ if (isAdmin) {
 						}
 					      }}, page.data.contents),
 					      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share}),
-					      w = windows({"window-title": `${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": pluginNotesEdit, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
+					      w = windows({"window-title": bind`${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": pluginNotesEdit, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
 						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
 							e.preventDefault();
 							w.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
