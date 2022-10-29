@@ -373,7 +373,7 @@ add(`.${tabIconsID}`, {
 			"display": "none"
 		}
 	},
-	[` #${panelContainerID}}>div`]: {
+	[` #${panelContainerID}>div`]: {
 		"height": "calc(100vh - 40px)"
 	}
 });
