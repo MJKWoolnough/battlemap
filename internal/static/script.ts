@@ -1,5 +1,5 @@
-import type {WindowData, WindowElement} from './windows.js';
 import type {Bind} from './lib/dom.js';
+import type {WindowData, WindowElement} from './windows.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {keyEvent, mouseDragEvent} from './lib/events.js';
