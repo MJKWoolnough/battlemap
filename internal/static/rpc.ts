@@ -2,10 +2,10 @@ import type {InternalWaits, KeystoreData, RPC as RPCType, Uint} from './types.js
 import type {Bind} from './lib/dom.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
+import pageLoad from './lib/load.js';
 import {RPC} from './lib/rpc.js';
 import {Colour} from './colours.js';
 import lang from './language.js';
-import pageLoad from './lib/load.js';
 import {isInt, isUint, queue} from './shared.js';
 import {shell} from './windows.js';
 
