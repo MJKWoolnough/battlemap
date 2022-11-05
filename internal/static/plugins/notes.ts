@@ -440,7 +440,7 @@ if (isAdmin) {
 			]), true, icon]
 		}
 	});
-	rpc.waitPluginSetting().then(({id, setting, removing}) => {
+	rpc.waitPluginSetting().when(({id, setting, removing}) => {
 		if (id !== importName) {
 			return;
 		}
