@@ -230,9 +230,9 @@ menuItems.push([5, () => isAdmin ? [
 					return false;
 				});
 			})[0]();
-			layersRPC.waitLayerSetVisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerHidden]: false}}));
-			layersRPC.waitLayerSetInvisible().then(path => amendNode(list.getLayer(path)?.[node], {"class": [layerHidden]}));
-			layersRPC.waitLayerSetLock().then(path => {
+			layersRPC.waitLayerSetVisible().when(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerHidden]: false}}));
+			layersRPC.waitLayerSetInvisible().when(path => amendNode(list.getLayer(path)?.[node], {"class": [layerHidden]}));
+			layersRPC.waitLayerSetLock().when(path => {
 				const l = list.getLayer(path);
 				if (l) {
 					if (selectedLayer === l) {
@@ -241,8 +241,8 @@ menuItems.push([5, () => isAdmin ? [
 					amendNode(l[node], {"class": [layerLocked]})
 				}
 			});
-			layersRPC.waitLayerSetUnlock().then(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerLocked]: false}}));
-			layersRPC.waitLayerPositionChange().then(ml => {
+			layersRPC.waitLayerSetUnlock().when(path => amendNode(list.getLayer(path)?.[node], {"class": {[layerLocked]: false}}));
+			layersRPC.waitLayerPositionChange().when(ml => {
 				const l = list.getLayer(ml.from),
 				      np = list.getLayer(ml.to);
 				if (l && np instanceof FolderLayer) {
@@ -255,14 +255,14 @@ menuItems.push([5, () => isAdmin ? [
 					}
 				}
 			});
-			layersRPC.waitLayerRename().then(lr => {
+			layersRPC.waitLayerRename().when(lr => {
 				const l = list.getLayer(lr.path);
 				if (l) {
 					l.parent!.children.reSet(l.name+"", lr.name);
 					clearNode(l.nameElem, l.name = lr.name);
 				}
 			});
-			layersRPC.waitLayerSelect().then(path => {
+			layersRPC.waitLayerSelect().when(path => {
 				const l = list.getLayer(path);
 				if (l !== selectedLayer && l instanceof ItemLayer) {
 					l.show();
