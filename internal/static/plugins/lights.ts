@@ -455,7 +455,7 @@ if (isAdmin) {
 		}
 	});
 	tokenSelectedReceive(checkSelectedToken);
-	combined.waitTokenSet().then(checkSelectedToken);
+	combined.waitTokenSet().when(checkSelectedToken);
 	root.windowIcon = lightGridStr;
 	addPlugin("lights", {
 		"menuItem": {
@@ -466,7 +466,7 @@ if (isAdmin) {
 			]), true, lightGridStr]
 		}
 	});
-	rpc.waitPluginSetting().then(({id, setting, removing}) => {
+	rpc.waitPluginSetting().when(({id, setting, removing}) => {
 		if (id !== importName) {
 			return;
 		}
