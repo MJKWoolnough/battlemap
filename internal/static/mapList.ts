@@ -210,7 +210,7 @@ menuItems.push([4, () => isAdmin ? [
 				}
 			      };
 			root.windowIcon = mapIcon;
-			rpc.waitCurrentUserMap().then(setUserMap);
+			rpc.waitCurrentUserMap().when(setUserMap);
 			let s = true;
 			if (selectedMap.value > 0) {
 				const m = findMap(root.folder, selectedMap.value);
