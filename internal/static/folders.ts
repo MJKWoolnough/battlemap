@@ -551,17 +551,17 @@ export class Root {
 	setRPCFuncs(rpcFuncs: FolderRPC) {
 		if (!this.rpcFuncs) {
 			this.rpcFuncs = rpcFuncs;
-			rpcFuncs.waitAdded().then(items => {
+			rpcFuncs.waitAdded().when(items => {
 				for (const {id, name} of items) {
 					this.addItem(id, name);
 				}
 			});
-			rpcFuncs.waitMoved().then(({from, to}) => this.moveItem(from, to));
-			rpcFuncs.waitRemoved().then(item => this.removeItem(item));
-			rpcFuncs.waitCopied().then(({oldID, newID, path}) => this.copyItem(oldID, newID, path));
-			rpcFuncs.waitFolderAdded().then(folder => this.addFolder(folder));
-			rpcFuncs.waitFolderMoved().then(({from, to}) => this.moveFolder(from, to));
-			rpcFuncs.waitFolderRemoved().then(folder => this.removeFolder(folder));
+			rpcFuncs.waitMoved().when(({from, to}) => this.moveItem(from, to));
+			rpcFuncs.waitRemoved().when(item => this.removeItem(item));
+			rpcFuncs.waitCopied().when(({oldID, newID, path}) => this.copyItem(oldID, newID, path));
+			rpcFuncs.waitFolderAdded().when(folder => this.addFolder(folder));
+			rpcFuncs.waitFolderMoved().when(({from, to}) => this.moveFolder(from, to));
+			rpcFuncs.waitFolderRemoved().when(folder => this.removeFolder(folder));
 		}
 	}
 	get filter() { return true; }
