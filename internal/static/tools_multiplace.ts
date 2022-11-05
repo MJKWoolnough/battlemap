@@ -140,7 +140,7 @@ inited.then(() => {
 		}
 	});
 
-	layersRPC.waitLayerSelect().then(() => {
+	layersRPC.waitLayerSelect().when(() => {
 		const {layer} = selected;
 		if (cursor && cursor[node].parentNode && layer) {
 			amendNode(layer[node], cursor[node]);
