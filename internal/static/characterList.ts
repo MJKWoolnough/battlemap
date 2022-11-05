@@ -139,7 +139,7 @@ menuItems.push([2, () => isAdmin ? [
 				}}, lang["CHARACTER_NEW"]),
 				root[node]
 			]);
-			rpc.waitCharacterDataChange().then(d => {
+			rpc.waitCharacterDataChange().when(d => {
 				const icon = d.setting["store-image-icon"];
 				if (icon) {
 					characters.get(d.id)?.setIcon(parseInt(icon.data));
