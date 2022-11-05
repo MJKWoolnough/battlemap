@@ -296,7 +296,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
 		for (const [name, broadcastID, checker] of waiters[k]) {
 			const [waiter, fn] = Subscription.bind(1);
-			arpc.subscribe(broadcastID).then(checker).then(data => queue(async () => fn(data)));
+			arpc.subscribe(broadcastID).when(checker).when(data => queue(async () => fn(data)));
 			rk[name] = () => waiter;
 			if (ik[name]) {
 				ck[name] = Subscription.merge(rk[name](), ik[name]()).splitCancel();
