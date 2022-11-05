@@ -737,23 +737,23 @@ export default (base: HTMLElement) => {
 		cancelControlOverride();
 		amendNode(document.body, {"style": {"--outline-cursor": undefined}});
 	};
-	rpc.waitMapChange().then(d => doMapChange(d, false));
-	rpc.waitMapLightChange().then(c => doSetLightColour(c, false));
-	rpc.waitLayerShow().then(path => waitLayerShow[1](doShowHideLayer(path, true, false)));
-	rpc.waitLayerHide().then(path => waitLayerHide[1](doShowHideLayer(path, false, false)));
-	rpc.waitLayerShow().then(path => waitLayerLock[1](doLockUnlockLayer(path, true, false)));
-	rpc.waitLayerHide().then(path => waitLayerUnlock[1](doLockUnlockLayer(path, false, false)));
-	rpc.waitLayerAdd().then(name => waitAdded[1]([{id: 1, "name": doLayerAdd(name, false)}]));
-	rpc.waitLayerFolderAdd().then(path => waitFolderAdded[1](doLayerFolderAdd(path, false)));
-	rpc.waitLayerMove().then(({from, to, position}) => {
+	rpc.waitMapChange().when(d => doMapChange(d, false));
+	rpc.waitMapLightChange().when(c => doSetLightColour(c, false));
+	rpc.waitLayerShow().when(path => waitLayerShow[1](doShowHideLayer(path, true, false)));
+	rpc.waitLayerHide().when(path => waitLayerHide[1](doShowHideLayer(path, false, false)));
+	rpc.waitLayerShow().when(path => waitLayerLock[1](doLockUnlockLayer(path, true, false)));
+	rpc.waitLayerHide().when(path => waitLayerUnlock[1](doLockUnlockLayer(path, false, false)));
+	rpc.waitLayerAdd().when(name => waitAdded[1]([{id: 1, "name": doLayerAdd(name, false)}]));
+	rpc.waitLayerFolderAdd().when(path => waitFolderAdded[1](doLayerFolderAdd(path, false)));
+	rpc.waitLayerMove().when(({from, to, position}) => {
 		doLayerMove(from, to, position, false);
 		waitLayerPositionChange[1]({from, to, position});
 	});
-	rpc.waitLayerRename().then(lr => {
+	rpc.waitLayerRename().when(lr => {
 		doLayerRename(lr["path"], lr["name"], false);
 		waitLayerRename[1](lr);
 	});
-	rpc.waitLayerRemove().then(path => {
+	rpc.waitLayerRemove().when(path => {
 		checkSelectedLayer(path);
 		const layer = getLayer(path);
 		if (!layer) {
@@ -764,25 +764,25 @@ export default (base: HTMLElement) => {
 		removeLayer(path);
 		undo.clear();
 	});
-	rpc.waitTokenAdd().then(({path, token}) => doTokenAdd(path, token, false)(token.id));
-	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false));
-	rpc.waitTokenSet().then(t => doTokenSet(t, false));
-	rpc.waitTokenSetMulti().then(t => doTokenSetMulti(t, false));
-	rpc.waitTokenRemove().then(tid => doTokenRemove(tid, false));
-	rpc.waitLayerShift().then(({path, dx, dy}) => doLayerShift(path, dx, dy, false));
-	rpc.waitWallAdded().then(w => doWallAdd(w, false));
-	rpc.waitWallRemoved().then(wid => doWallRemove(wid, false));
-	rpc.waitWallModified().then(w => doWallModify(w, false));
-	rpc.waitWallMoved().then(({id, path}) => doWallMove(id, path, false));
-	rpc.waitMapDataSet().then(({key, data}) => {
+	rpc.waitTokenAdd().when(({path, token}) => doTokenAdd(path, token, false)(token.id));
+	rpc.waitTokenMoveLayerPos().when(({id, to, newPos}) => doTokenMoveLayerPos(id, to, newPos, false));
+	rpc.waitTokenSet().when(t => doTokenSet(t, false));
+	rpc.waitTokenSetMulti().when(t => doTokenSetMulti(t, false));
+	rpc.waitTokenRemove().when(tid => doTokenRemove(tid, false));
+	rpc.waitLayerShift().when(({path, dx, dy}) => doLayerShift(path, dx, dy, false));
+	rpc.waitWallAdded().when(w => doWallAdd(w, false));
+	rpc.waitWallRemoved().when(wid => doWallRemove(wid, false));
+	rpc.waitWallModified().when(w => doWallModify(w, false));
+	rpc.waitWallMoved().when(({id, path}) => doWallMove(id, path, false));
+	rpc.waitMapDataSet().when(({key, data}) => {
 		if (key) {
 			doMapDataSet(key, data, false);
 		}
 	});
-	rpc.waitMapDataRemove().then(key => doMapDataRemove(key, false));
-	rpc.waitMaskAdd().then(m => doMaskAdd(m, false));
-	rpc.waitMaskRemove().then(i => doMaskRemove(i, false));
-	rpc.waitMaskSet().then(ms => doMaskSet(ms, false));
+	rpc.waitMapDataRemove().when(key => doMapDataRemove(key, false));
+	rpc.waitMaskAdd().when(m => doMaskAdd(m, false));
+	rpc.waitMaskRemove().when(i => doMaskRemove(i, false));
+	rpc.waitMaskSet().when(ms => doMaskSet(ms, false));
 	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 };
