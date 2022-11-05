@@ -1178,7 +1178,7 @@ if (isAdmin) {
 			return ctxList;
 		}
 	};
-	rpc.waitPluginSetting().then(setting => {
+	rpc.waitPluginSetting().when(setting => {
 		if (setting["id"] === importName && checkSettings(setting["setting"] as Settings5E)) {
 			settings["shapechange-categories"] = setting["setting"]["shapechange-categories"].data;
 			settings["store-image-shapechanges"] = setting["setting"]["store-image-shapechanges"].data;
@@ -1235,7 +1235,7 @@ mapLoadedReceive(() => {
 	});
 });
 
-rpc.waitTokenSet().then(ts => {
+rpc.waitTokenSet().when(ts => {
 	const {tokenData, removeTokenData} = ts;
 	if (tokenData && (tokenData["5e-initiative"] || tokenData["name"] !== undefined) || removeTokenData && (removeTokenData.includes("5e-initiative") || removeTokenData.includes("name"))) {
 		setTimeout(() => {
@@ -1260,43 +1260,43 @@ rpc.waitTokenSet().then(ts => {
 	}
 });
 
-combinedRPC.waitMapDataSet().then(changed => {
+combinedRPC.waitMapDataSet().when(changed => {
 	if (changed.key === "5e-initiative") {
 		setTimeout(updateInitiative, 0);
 	}
 });
 
-combinedRPC.waitMapDataRemove().then(removed => {
+combinedRPC.waitMapDataRemove().when(removed => {
 	if (removed === "5e-initiative") {
 		initiativeWindow.remove();
 	}
 });
 
-combinedRPC.waitTokenRemove().then(id => {
+combinedRPC.waitTokenRemove().when(id => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
-combinedRPC.waitTokenAdd().then(({token: {id}}) => {
+combinedRPC.waitTokenAdd().when(({token: {id}}) => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
-combinedRPC.waitTokenMoveLayerPos().then(({id}) => {
+combinedRPC.waitTokenMoveLayerPos().when(({id}) => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
-combinedRPC.waitTokenSet().then(({id}) => {
+combinedRPC.waitTokenSet().when(({id}) => {
 	if (initTokens.has(id)) {
 		setTimeout(updateInitiative);
 	}
 });
 
-combinedRPC.waitTokenSetMulti().then(tks => {
+combinedRPC.waitTokenSetMulti().when(tks => {
 	for (const {id} of tks) {
 		if (initTokens.has(id)) {
 			setTimeout(updateInitiative);
@@ -1306,13 +1306,13 @@ combinedRPC.waitTokenSetMulti().then(tks => {
 });
 
 for (const k of (["waitLayerShow", "waitLayerHide", "waitLayerRemove"] as (keyof RPCWaits)[])) {
-	combinedRPC[k]().then(() => setTimeout(updateInitiative));
+	combinedRPC[k]().when(() => setTimeout(updateInitiative));
 }
 for (const k of (["waitLayerShift", "waitLayerMove", "waitWallAdded", "waitWallRemoved", "waitWallModified", "waitWallMoved"] as (keyof RPCWaits)[])) {
-	combinedRPC[k]().then(() => setTimeout(updatePerspectives));
+	combinedRPC[k]().when(() => setTimeout(updatePerspectives));
 }
 
-rpc.waitCharacterDataChange().then(({id}) => setTimeout(() => {
+rpc.waitCharacterDataChange().when(({id}) => setTimeout(() => {
 	let ui = false;
 	for (const [, {token}] of tokens) {
 		if (token instanceof SVGToken5E && token.tokenData["store-character-id"]?.data === id) {
