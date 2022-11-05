@@ -610,19 +610,19 @@ defaultTool.mapMouseWheel = (e: WheelEvent) => {
 enableAnimation.wait(() => mapData && updateLight());
 
 inited.then(() => {
-	rpc.waitMapStartChange().then(pos => ([mapData.startX, mapData.startY] = pos));
-	rpc.waitSignalPosition().then(showSignal);
-	combined.waitGridDistanceChange().then(v => {
+	rpc.waitMapStartChange().when(pos => ([mapData.startX, mapData.startY] = pos));
+	rpc.waitSignalPosition().when(showSignal);
+	combined.waitGridDistanceChange().when(v => {
 		mapData.gridDistance = v;
 		updateLight();
 	});
-	combined.waitGridDiagonalChange().then(v => mapData.gridDiagonal = v);
+	combined.waitGridDiagonalChange().when(v => mapData.gridDiagonal = v);
 });
 
 keyEvent(registerKey("centreMap", lang["KEY_CENTRE_MAP"], 'c'), () => centreOnGrid(mapData.startX, mapData.startY))[0]();
 
 export default (base: HTMLElement) => {
-	rpc.waitCurrentUserMapData().then(mapData => {
+	rpc.waitCurrentUserMapData().when(mapData => {
 		const oldBase = base;
 		oldBase.replaceWith(base = mapView(mapData, true));
 		mapLoadedSend(false);
@@ -699,7 +699,7 @@ export default (base: HTMLElement) => {
 		rpc.signalPosition(pos);
 		return false;
 	};
-	rpc.waitSignalMovePosition().then(pos => {
+	rpc.waitSignalMovePosition().when(pos => {
 		if (sliding === -1) {
 			amendNode(document.body, {"class": [slidingID]});
 		} else {
@@ -712,16 +712,16 @@ export default (base: HTMLElement) => {
 		centreOnGrid(pos[0], pos[1]);
 		showSignal(pos);
 	});
-	rpc.waitMapChange().then(setMapDetails);
-	rpc.waitMapLightChange().then(setLightColour);
-	rpc.waitLayerShow().then(path => setLayerVisibility(path, true));
-	rpc.waitLayerHide().then(path => setLayerVisibility(path, false));
-	rpc.waitLayerAdd().then(addLayer);
-	rpc.waitLayerFolderAdd().then(addLayerFolder);
-	rpc.waitLayerMove().then(({from, to, position}) => moveLayer(from, to, position));
-	rpc.waitLayerRename().then(({path, name}) => renameLayer(path, name));
-	rpc.waitLayerRemove().then(removeLayer);
-	rpc.waitTokenAdd().then(tk => {
+	rpc.waitMapChange().when(setMapDetails);
+	rpc.waitMapLightChange().when(setLightColour);
+	rpc.waitLayerShow().when(path => setLayerVisibility(path, true));
+	rpc.waitLayerHide().when(path => setLayerVisibility(path, false));
+	rpc.waitLayerAdd().when(addLayer);
+	rpc.waitLayerFolderAdd().when(addLayerFolder);
+	rpc.waitLayerMove().when(({from, to, position}) => moveLayer(from, to, position));
+	rpc.waitLayerRename().when(({path, name}) => renameLayer(path, name));
+	rpc.waitLayerRemove().when(removeLayer);
+	rpc.waitTokenAdd().when(tk => {
 		const layer = getLayer(tk.path);
 		if (layer && isSVGLayer(layer)) {
 			delete (tk as Record<string, any>)["path"];
@@ -744,7 +744,7 @@ export default (base: HTMLElement) => {
 			}
 		}
 	});
-	rpc.waitTokenMoveLayerPos().then(({id, to, newPos}) => {
+	rpc.waitTokenMoveLayerPos().when(({id, to, newPos}) => {
 		const tk = tokens.get(id) ?? {"layer": null, "token": null},
 		      {layer, token} = tk,
 		      newParent = getLayer(to);
@@ -759,13 +759,13 @@ export default (base: HTMLElement) => {
 			}
 		}
 	});
-	rpc.waitTokenSet().then(ts => {
+	rpc.waitTokenSet().when(ts => {
 		const {token} = tokens.get(ts.id) ?? {"token": null};
 		if (token && updateToken(token, ts)) {
 			updateLight();
 		}
 	});
-	rpc.waitTokenSetMulti().then(ts => {
+	rpc.waitTokenSetMulti().when(ts => {
 		let ul = false;
 		for (const t of ts) {
 			const {token} = tokens.get(t.id) ?? {"token": null};
@@ -777,7 +777,7 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
-	rpc.waitTokenRemove().then(tk => {
+	rpc.waitTokenRemove().when(tk => {
 		const {layer, token} = tokens.get(tk)!;
 		layer.tokens.splice(layer.tokens.findIndex(t => t === token), 1)[0];
 		if (token instanceof SVGToken) {
@@ -787,7 +787,7 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
-	rpc.waitLayerShift().then(({path, dx, dy}) => {
+	rpc.waitLayerShift().when(({path, dx, dy}) => {
 		const layer = getLayer(path);
 		if (layer && isSVGLayer(layer)) {
 			for (const t of layer.tokens) {
@@ -804,26 +804,26 @@ export default (base: HTMLElement) => {
 			updateLight();
 		}
 	});
-	rpc.waitWallAdded().then(({path, wall}) => {
+	rpc.waitWallAdded().when(({path, wall}) => {
 		const layer = getLayer(path);
 		if (layer && isSVGLayer(layer)) {
 			layer.walls.push(normaliseWall(wall));
 			updateLight();
 		}
 	});
-	rpc.waitWallRemoved().then(wp => {
+	rpc.waitWallRemoved().when(wp => {
 		const {layer, wall} = walls.get(wp)!;
 		layer.walls.splice(layer.walls.findIndex(w => w === wall), 1);
 		updateLight();
 	});
-	rpc.waitWallModified().then(w => {
+	rpc.waitWallModified().when(w => {
 		const wall = walls.get(w.id);
 		if (wall) {
 			Object.assign(wall.wall, w);
 			updateLight();
 		}
 	});
-	rpc.waitWallMoved().then(({id, path}) => {
+	rpc.waitWallMoved().when(({id, path}) => {
 		const wall = walls.get(id),
 		      layer = getLayer(path);
 		if (wall && layer && isSVGLayer(layer)) {
@@ -832,13 +832,13 @@ export default (base: HTMLElement) => {
 			wall.layer = layer;
 		}
 	});
-	rpc.waitMapDataSet().then(kd => {
+	rpc.waitMapDataSet().when(kd => {
 		if (kd.key) {
 			mapData.data[kd.key] = kd.data;
 		}
 	});
-	rpc.waitMapDataRemove().then(key => delete mapData.data[key]);
-	rpc.waitMaskAdd().then(masks.add);
-	rpc.waitMaskRemove().then(masks.remove);
-	rpc.waitMaskSet().then(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
+	rpc.waitMapDataRemove().when(key => delete mapData.data[key]);
+	rpc.waitMaskAdd().when(masks.add);
+	rpc.waitMaskRemove().when(masks.remove);
+	rpc.waitMaskSet().when(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
 };
