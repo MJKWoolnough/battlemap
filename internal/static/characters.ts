@@ -181,7 +181,7 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
 
 
 inited.then(() => {
-	rpc.waitCharacterDataChange().then(({id, setting, removing}) => doCharacterModify(id, setting, removing));
+	rpc.waitCharacterDataChange().when(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
 	add(`.${userVisibility}`, {
 		"display": "none",
