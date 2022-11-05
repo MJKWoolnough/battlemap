@@ -87,7 +87,7 @@ stopMeasurement = () => {
 
 inited.then(() => {
 	if (!isAdmin) {
-		rpc.waitSignalMeasure().then(data => {
+		rpc.waitSignalMeasure().when(data => {
 			if (!data) {
 				stopMeasurement();
 				return;
@@ -202,6 +202,6 @@ inited.then(() => {
 		diagonals.checked = mapData.gridDiagonal;
 	});
 
-	rpc.waitGridDistanceChange().then(distance => cellValue.value = distance + "");
-	rpc.waitGridDiagonalChange().then(diagonal => diagonals.checked = diagonal);
+	rpc.waitGridDistanceChange().when(distance => cellValue.value = distance + "");
+	rpc.waitGridDiagonalChange().when(diagonal => diagonals.checked = diagonal);
 });
