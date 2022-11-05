@@ -174,12 +174,12 @@ const audioEnabled = () => new Promise<void>(enabled => audio({"src": "data:audi
       musicIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" width="50" height="50" viewBox="0 0 100 100"%3E%3Cdefs%3E%3Cmask id="recordMask"%3E%3Cpath d="M0,10 L50,50 0,90 M100,10 L50,50 100,90" fill="%23fff" /%3E%3C/mask%3E%3C/defs%3E%3Cg fill="none" stroke="%23fff"%3E%3Ccircle cx="50" cy="50" r="30" stroke="%23000" stroke-width="40" /%3E%3Ccircle cx="50" cy="50" r="20" stroke="%23111" stroke-width="5" /%3E%3Ccircle cx="50" cy="50" r="10" stroke="%23a00" stroke-width="15" /%3E%3Ccircle cx="50" cy="50" r="49.5" stroke-width="1" /%3E%3Cg stroke-width="0.25" mask="url(%23recordMask)"%3E%3Ccircle cx="50" cy="50" r="45" /%3E%3Ccircle cx="50" cy="50" r="42" /%3E%3Ccircle cx="50" cy="50" r="39" /%3E%3Ccircle cx="50" cy="50" r="36" /%3E%3Ccircle cx="50" cy="50" r="33" /%3E%3Ccircle cx="50" cy="50" r="30" /%3E%3Ccircle cx="50" cy="50" r="27" /%3E%3C/g%3E%3C/g%3E%3C/svg%3E`,
       newPack = (id: Uint, name = "", tracks: MusicTrack[] = [], volume = 255) => ({id, name, tracks, volume, "playTime": 0, "playing": false}),
       commonWaits = (packs: Map<Uint, Pack>) => {
-	rpc.waitMusicPackVolume().then(pv => packs.get(pv.id)?.setVolume(pv.volume));
-	rpc.waitMusicPackPlay().then(pp => packs.get(pp.id)?.play(pp.playTime));
-	rpc.waitMusicPackStop().then(id => packs.get(id)?.stop());
-	rpc.waitMusicPackTrackRemove().then(mr => packs.get(mr.id)?.tracks[mr.track]?.remove());
-	rpc.waitMusicPackTrackVolume().then(mv => packs.get(mv.id)?.tracks[mv.track]?.setVolume(mv.volume));
-	rpc.waitMusicPackTrackRepeat().then(mr => packs.get(mr.id)?.tracks[mr.track]?.setRepeat(mr.repeat));
+	rpc.waitMusicPackVolume().when(pv => packs.get(pv.id)?.setVolume(pv.volume));
+	rpc.waitMusicPackPlay().when(pp => packs.get(pp.id)?.play(pp.playTime));
+	rpc.waitMusicPackStop().when(id => packs.get(id)?.stop());
+	rpc.waitMusicPackTrackRemove().when(mr => packs.get(mr.id)?.tracks[mr.track]?.remove());
+	rpc.waitMusicPackTrackVolume().when(mv => packs.get(mv.id)?.tracks[mv.track]?.setVolume(mv.volume));
+	rpc.waitMusicPackTrackRepeat().when(mr => packs.get(mr.id)?.tracks[mr.track]?.setRepeat(mr.repeat));
       },
       now = () => timeShift + Date.now() / 1000;
 
@@ -194,15 +194,15 @@ inited.then(() => {
 			for (const pack of list) {
 				packs.set(pack.id, new Pack(pack));
 			}
-			rpc.waitMusicPackAdd().then(({id}) => packs.set(id, new Pack(newPack(id))));
-			rpc.waitMusicPackRemove().then(id => {
+			rpc.waitMusicPackAdd().when(({id}) => packs.set(id, new Pack(newPack(id))));
+			rpc.waitMusicPackRemove().when(id => {
 				const p = packs.get(id);
 				if (p) {
 					p.remove();
 					packs.delete(id)
 				}
 			});
-			rpc.waitMusicPackCopy().then(({id, newID}) => {
+			rpc.waitMusicPackCopy().when(({id, newID}) => {
 				const p = packs.get(id);
 				if (p) {
 					const tracks: MusicTrack[] = [];
@@ -212,7 +212,7 @@ inited.then(() => {
 					packs.set(newID, new Pack({"id": newID, "name": "", tracks, "volume": p.volume, "playTime": 0}));
 				}
 			});
-			rpc.waitMusicPackTrackAdd().then(mt => {
+			rpc.waitMusicPackTrackAdd().when(mt => {
 				const p = packs.get(mt.id);
 				if (p) {
 					for (const id of mt.tracks) {
@@ -488,22 +488,22 @@ inited.then(() => {
 						})}, lang["MUSIC_ADD"]),
 						musicList[node]
 					]);
-					rpc.waitMusicPackAdd().then(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
-					rpc.waitMusicPackRename().then(ft => musicList.get(ft.id)?.setName(ft.name));
-					rpc.waitMusicPackRemove().then(id => {
+					rpc.waitMusicPackAdd().when(({id, name}) => musicList.set(id, new AdminPack(id, newPack(id, name))));
+					rpc.waitMusicPackRename().when(ft => musicList.get(ft.id)?.setName(ft.name));
+					rpc.waitMusicPackRemove().when(id => {
 						const pack = musicList.get(id);
 						if (pack) {
 							pack.remove();
 							musicList.delete(id);
 						}
 					});
-					rpc.waitMusicPackCopy().then(({id, name}) => {
+					rpc.waitMusicPackCopy().when(({id, name}) => {
 						const pack = musicList.get(id);
 						if (pack) {
 							musicList.set(id, new AdminPack(id, newPack(id, name, pack.tracks.map(t => ({"id": t.id, "volume": t.volume, "repeat": t.repeat})), pack.volume)));
 						}
 					});
-					rpc.waitMusicPackTrackAdd().then(mt => {
+					rpc.waitMusicPackTrackAdd().when(mt => {
 						const pack = musicList.get(mt.id);
 						if (pack) {
 							for (const id of mt.tracks) {
