@@ -224,7 +224,7 @@ if (isAdmin) {
 	});
 } else {
 	let lastEffect: SVGGElement | null = null;
-	rpc.waitBroadcast().then(({type, data}) => {
+	rpc.waitBroadcast().when(({type, data}) => {
 		if (type !== "plugin-spells") {
 			return;
 		}
@@ -261,4 +261,4 @@ if (isAdmin) {
 	});
 }
 
-combined.waitGridDistanceChange().then(() => setTimeout(setSize, 0, size, width));
+combined.waitGridDistanceChange().when(() => setTimeout(setSize, 0, size, width));
