@@ -25,7 +25,7 @@ bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode"),
 psuedoLink = id();
 
 inited.then(() => {
-	rpc.waitBroadcastWindow().then(d => {
+	rpc.waitBroadcastWindow().when(d => {
 		const fn = modules.get(d.module);
 		if (fn) {
 			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
