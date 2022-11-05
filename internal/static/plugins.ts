@@ -137,7 +137,7 @@ shapeClass: SVGShapeConstructor = SVGShape,
 drawingClass: SVGDrawingConstructor = SVGDrawing;
 
 export default () => {
-	rpc.waitPluginChange().then(askReload);
+	rpc.waitPluginChange().when(askReload);
 	return rpc.listPlugins().then(plugins => {
 		let ls: Promise<void> = Promise.resolve();
 		for (const p of Object.keys(plugins).sort(stringSort)) {
