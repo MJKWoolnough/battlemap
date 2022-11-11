@@ -956,7 +956,7 @@ if (isAdmin) {
 			if (cat) {
 				const c = {
 					"name": cat,
-					"images": Array.from({"length": shapechangeTokens.length}, _ => false)
+					"images": Array.from({"length": shapechangeTokens.length}, () => false)
 				      },
 				      p = shapechangeCats.push(c) - 1;
 				amendNode(cats, addCat(c));
