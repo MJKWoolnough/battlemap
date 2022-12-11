@@ -1272,29 +1272,13 @@ combinedRPC.waitMapDataRemove().when(removed => {
 	}
 });
 
-combinedRPC.waitTokenRemove().when(id => {
-	if (initTokens.has(id)) {
-		setTimeout(updateInitiative);
-	}
-});
+combinedRPC.waitTokenRemove().when(id => setTimeout(initTokens.has(id) ? updateInitiative : updatePerspectives));
 
-combinedRPC.waitTokenAdd().when(({token: {id}}) => {
-	if (initTokens.has(id)) {
-		setTimeout(updateInitiative);
-	}
-});
+combinedRPC.waitTokenAdd().when(({token: {id}}) => setTimeout(initTokens.has(id) ? updateInitiative : updatePerspectives));
 
-combinedRPC.waitTokenMoveLayerPos().when(({id}) => {
-	if (initTokens.has(id)) {
-		setTimeout(updateInitiative);
-	}
-});
+combinedRPC.waitTokenMoveLayerPos().when(({id}) => setTimeout(initTokens.has(id) ? updateInitiative : updatePerspectives));
 
-combinedRPC.waitTokenSet().when(({id}) => {
-	if (initTokens.has(id)) {
-		setTimeout(updateInitiative);
-	}
-});
+combinedRPC.waitTokenSet().when(({id}) => setTimeout(initTokens.has(id) ? updateInitiative : updatePerspectives));
 
 combinedRPC.waitTokenSetMulti().when(tks => {
 	for (const {id} of tks) {
@@ -1303,6 +1287,7 @@ combinedRPC.waitTokenSetMulti().when(tks => {
 			return;
 		}
 	}
+	setTimeout(updatePerspectives);
 });
 
 for (const k of (["waitLayerShow", "waitLayerHide", "waitLayerRemove"] as (keyof RPCWaits)[])) {
