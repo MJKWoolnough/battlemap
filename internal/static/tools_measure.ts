@@ -86,6 +86,11 @@ stopMeasurement = () => {
 };
 
 inited.then(() => {
+	mapLoadedReceive(() => {
+		cellValue.value = mapData.gridDistance + "";
+		diagonals.checked = mapData.gridDiagonal;
+	});
+
 	if (!isAdmin) {
 		rpc.waitSignalMeasure().when(data => {
 			if (!data) {
@@ -195,11 +200,6 @@ inited.then(() => {
 			cancelEscape();
 			stopMeasurement();
 		}
-	});
-
-	mapLoadedReceive(() => {
-		cellValue.value = mapData.gridDistance + "";
-		diagonals.checked = mapData.gridDiagonal;
 	});
 
 	rpc.waitGridDistanceChange().when(distance => cellValue.value = distance + "");
