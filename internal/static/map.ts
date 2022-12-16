@@ -115,6 +115,7 @@ setLayerVisibility = (path: string, visibility: boolean) => {
 					layer.l.replaceWith(layer[node] = g())
 				}
 			}
+			layer.hidden = !visibility;
 		}
 	} else {
 		layer?.[node].classList.toggle(hiddenLayer, layer.hidden = !visibility);
