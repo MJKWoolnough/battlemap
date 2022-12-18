@@ -128,7 +128,6 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       },
       help = windows({"window-title": lang["HELP"], "maximised": true});
 
-
 add(`#${helpID}`, {
 	"height": "calc(100vh - 1em - 6px)",
 	"overflow-y": "scroll"
