@@ -179,7 +179,6 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
       imageDragEffect = setDragEffect({"link": [dragImage]}),
       [userVisibility, tokenSelectors, showCharacter] = ids(3);
 
-
 inited.then(() => {
 	rpc.waitCharacterDataChange().when(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
