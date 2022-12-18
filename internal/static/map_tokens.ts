@@ -76,7 +76,6 @@ export class Lighting {
 	}
 }
 
-
 abstract class SVGTransform extends Lighting {
 	abstract [node]: SVGGraphicsElement;
 	id: Uint;
