@@ -79,7 +79,6 @@ inited.then(() => {
 		redos[node]
 	      ]);
 
-
 	Object.defineProperty(window, "showUndoWindow", {"value": () => showWindow.set(true)});
 });
 
