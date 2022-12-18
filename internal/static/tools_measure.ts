@@ -10,7 +10,6 @@ import {autosnap, settingsTicker} from './settings.js';
 import {checkInt, isUint, labels, mapLoadedReceive} from './shared.js';
 import {addTool, ignore, marker} from './tools.js';
 
-
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {width, height} = mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
