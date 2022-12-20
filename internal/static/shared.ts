@@ -1,12 +1,15 @@
-import type {CharacterToken, Int, KeystoreData, Uint, Wall} from './types.js';
+import type {CharacterToken, KeystoreData, Uint, Wall} from './types.js';
 import type {Bind, Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
+import {isInt} from './lib/misc.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
+
+export {isInt, checkInt, mod, setAndReturn} from './lib/misc.js';
 
 type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -26,10 +29,7 @@ export const enterKey = function(this: Node, e: KeyboardEvent) {
 	}
 },
 [mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(3),
-isInt = (v: any, min = -Infinity, max = Infinity): v is Int => typeof v === "number" && (v|0) === v && v >= min && v <= max,
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
-checkInt = (n: number, min = -Infinity, max = Infinity, def = 0) => isInt(n, min, max) ? n : def,
-mod = (n: Uint, m: Uint) => ((n % m) + m) % m,
 queue = (() => {
 	let p = Promise.resolve();
 	return (fn: () => Promise<any>) => p = p.finally(fn);
@@ -107,9 +107,5 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 	] as const;
 })(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
-setAndReturn = <K, V>(m: {set: (k: K, v: V) => any}, k: K, v: V) => {
-	m.set(k, v);
-	return v;
-},
 loading = () => createDocumentFragment([h2(lang["LOADING"]), spinner({"style": "width: 64px"})]),
 menuItems: [Uint, () => ([string | Bind, HTMLDivElement, boolean, string] | null)][] = [];
