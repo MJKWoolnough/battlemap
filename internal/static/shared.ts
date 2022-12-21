@@ -9,7 +9,7 @@ import {isInt} from './lib/misc.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
-export {checkInt, isInt, mod, setAndReturn} from './lib/misc.js';
+export {checkInt, isInt, mod, queue, setAndReturn} from './lib/misc.js';
 
 type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
 
@@ -30,10 +30,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent) {
 },
 [mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(3),
 isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
-queue = (() => {
-	let p = Promise.resolve();
-	return (fn: () => Promise<any>) => p = p.finally(fn);
-})(),
 labels = ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
 	const iProps = {"id": props["for"] = id()};
 	return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
