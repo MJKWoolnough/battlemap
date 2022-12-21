@@ -5,7 +5,6 @@ import {id} from './lib/css.js';
 import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {h2, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {isInt} from './lib/misc.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
@@ -27,7 +26,6 @@ export const enterKey = function(this: Node, e: KeyboardEvent) {
 	}
 },
 [mapLoadedSend, mapLoadedReceive] = new Pipe<boolean>().bind(3),
-isUint = (v: any, max = Infinity): v is Uint => isInt(v, 0, max),
 labels = ((name: Children | Input, input: Input | Children, props: PropsObject = {}) => {
 	const iProps = {"id": props["for"] = id()};
 	return name instanceof HTMLInputElement || name instanceof HTMLButtonElement || name instanceof HTMLTextAreaElement || name instanceof HTMLSelectElement ? [amendNode(name, iProps), label(props, input)] : [label(props, name), amendNode(input as Input, iProps)];
