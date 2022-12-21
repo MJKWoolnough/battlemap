@@ -14,7 +14,7 @@ import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
 import {combined, isAdmin, rpc} from '../rpc.js';
 import {autosnap, settingsTicker} from '../settings.js';
-import {isUint, labels, mapLoadedReceive} from '../shared.js';
+import {labels, mapLoadedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
 const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},
@@ -241,12 +241,12 @@ if (isAdmin) {
 		const [effect, spellSize, spellWidth, x, y, rotation, damageType] = data,
 		      selectedEffect = effectList[effect];
 		for (const [a, log] of [
-			[isUint(effect, effectList.length - 1), "invalid type"],
+			[isInt(effect, 0, effectList.length - 1), "invalid type"],
 			[isInt(spellSize, 1, 1000), "invalid size"],
 			[isInt(spellWidth, 1, 1000), "invalid width"],
 			[isInt(x) && isInt(y), "invalid coords"],
-			[isUint(rotation, 360), "invalid rotation"],
-			[isUint(damageType, types.length - 1), "invalid damage type"]
+			[isInt(rotation, 0, 360), "invalid rotation"],
+			[isInt(damageType, 0, types.length - 1), "invalid damage type"]
 		]) {
 			if (!a) {
 				console.log("plugin spells: " + log);

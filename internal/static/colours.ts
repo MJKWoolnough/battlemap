@@ -5,10 +5,10 @@ import {add, ids} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
-import {checkInt} from './lib/misc.js';
+import {checkInt, isInt} from './lib/misc.js';
 import {JSONSetting} from './lib/settings.js';
 import lang from './language.js';
-import {isUint, labels} from './shared.js';
+import {labels} from './shared.js';
 import {shell, windows} from './windows.js';
 
 export class Colour {
@@ -37,7 +37,7 @@ export class Colour {
 export class ColourSetting extends JSONSetting<Colour> {
 	constructor(name: string, starting: Colour) {
 		super(name, starting, (v: any): v is Colour => {
-			if (v instanceof Object && isUint(v.r, 255) && isUint(v.g, 255) && isUint(v.b, 255) && isUint(v.a, 255)) {
+			if (v instanceof Object && isInt(v.r, 0, 255) && isInt(v.g, 0, 255) && isInt(v.b, 0, 255) && isInt(v.a, 0, 255)) {
 				Colour.from(v);
 				return true;
 			}

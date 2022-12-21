@@ -2,13 +2,13 @@ import type {Uint} from './types.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, input} from './lib/html.js';
-import {checkInt} from './lib/misc.js';
+import {checkInt, isInt} from './lib/misc.js';
 import {circle, g, path, polyline, svg, title} from './lib/svg.js';
 import lang from './language.js';
 import {mapData, panZoom, root, screen2Grid} from './map.js';
 import {inited, isAdmin, rpc} from './rpc.js';
 import {autosnap, settingsTicker} from './settings.js';
-import {isUint, labels, mapLoadedReceive} from './shared.js';
+import {labels, mapLoadedReceive} from './shared.js';
 import {addTool, ignore, marker} from './tools.js';
 
 const grid2Screen = (x: Uint, y: Uint): [number, number] => {
@@ -22,7 +22,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
       drawnLine = g([lone, ltwo, spot]),
       cellValue = input({"type": "number", "value": 1, "min": 0, "onchange": () => {
 	const v = parseInt(cellValue.value);
-	if (isUint(v)) {
+	if (isInt(v, 0)) {
 		rpc.setGridDistance(v);
 	}
       }}),

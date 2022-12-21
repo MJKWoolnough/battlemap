@@ -6,6 +6,7 @@ import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {keyEvent} from '../lib/events.js';
 import {button, div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
+import {isInt} from '../lib/misc.js';
 import {node} from '../lib/nodes.js';
 import {polygon, rect, svg} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
@@ -17,7 +18,7 @@ import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {combined, handleError, isAdmin, rpc} from '../rpc.js';
-import {cloneObject, isUint} from '../shared.js';
+import {cloneObject} from '../shared.js';
 import {lightGridStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -151,7 +152,7 @@ if (isAdmin) {
 			return false;
 		}
 		for (const i in data["items"]) {
-			if (!isUint(data["items"][i])) {
+			if (!isInt(data["items"][i], 0)) {
 				return false;
 			}
 		}
@@ -169,19 +170,19 @@ if (isAdmin) {
 					      return false;
 				      }
 				      for (const c of cs) {
-					      if (!(c instanceof Object) || !isUint(c["r"], 255) || !isUint(c["g"], 255) || !isUint(c["b"], 255) || !isUint(c["a"], 255)) {
+					      if (!(c instanceof Object) || !isInt(c["r"], 0, 255) || !isInt(c["g"], 0, 255) || !isInt(c["b"], 0, 255) || !isInt(c["a"], 0, 255)) {
 						      return false;
 					      }
 					      Colour.from(c);
 				      }
 			      }
 			      for (const s of data["lightStages"]) {
-				      if (!isUint(s)) {
+				      if (!isInt(s, 0)) {
 					      return false;
 				      }
 			      }
 			      for (const s of data["lightTimings"]) {
-				      if (!isUint(s)) {
+				      if (!isInt(s, 0)) {
 					      return false;
 				      }
 			      }

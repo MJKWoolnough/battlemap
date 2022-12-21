@@ -8,6 +8,7 @@ import {amendNode, bind, clearNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
 import {br, button, div, input, link, span, textarea, title} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
+import {isInt} from '../lib/misc.js';
 import {node} from '../lib/nodes.js';
 import {ns as svgNS} from '../lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
@@ -16,7 +17,7 @@ import {bbcodeDrag, parseBBCode, psuedoLink, register, registerTag} from '../mes
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {handleError, isAdmin, rpc} from '../rpc.js';
 import {settingsTicker} from '../settings.js';
-import {cloneObject, isUint, labels} from '../shared.js';
+import {cloneObject, labels} from '../shared.js';
 import {shareStr} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -189,7 +190,7 @@ if (isAdmin) {
 			return false;
 		}
 		for (const i in data["items"]) {
-			if (!isUint(data["items"][i])) {
+			if (!isInt(data["items"][i], 0)) {
 				return false;
 			}
 		}

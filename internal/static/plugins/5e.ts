@@ -28,7 +28,7 @@ import {Lighting, definitions, lighting, masks, outline, selected, tokens, token
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {adminHideLight, enableAnimation, settingsTicker} from '../settings.js';
-import {characterData, cloneObject, isUint, labels, mapLoadedReceive} from '../shared.js';
+import {characterData, cloneObject, labels, mapLoadedReceive} from '../shared.js';
 import {remove, rename, symbols, visibility} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 
@@ -767,7 +767,7 @@ if (isAdmin) {
 				console.log("entry of store-image-shapechanges must be an object");
 				return null;
 			}
-			if (!isUint(s["src"])) {
+			if (!isInt(s["src"], 0)) {
 				console.log("store-image-shapechanges.src must be a Uint");
 				return null;
 			}
@@ -775,7 +775,7 @@ if (isAdmin) {
 				console.log("store-image-shapechanges.5e-shapechange-name must be a string");
 				return null;
 			}
-			if (!isUint(s["width"]) || !isUint(s["height"])) {
+			if (!isInt(s["width"], 0) || !isInt(s["height"], 0)) {
 				console.log("store-image-shapechanges.width/height must be a Uint");
 				return null;
 			}
@@ -1324,7 +1324,7 @@ addMapDataChecker((data: Record<string, any>) => {
 						err = "Map Data value of 5e-initiative needs to be an array of Objects";
 						break;
 					}
-					if (!isUint(i.id)) {
+					if (!isInt(i.id, 0)) {
 						err = "Map Data value of IDInitiative.id needs to be a Uint";
 						break;
 					}
@@ -1353,17 +1353,17 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 			}
 			break;
 		case "5e-ac":
-			if (!isUint(val, 50)) {
+			if (!isInt(val, 0, 50)) {
 				err = "Character Data '5e-ac' must be a Uint <= 50";
 			}
 			break;
 		case "5e-hp-max":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Character Data '5e-hp-max' must be a Uint";
 			}
 			break;
 		case "5e-hp-current":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Character Data '5e-hp-current' must be a Uint";
 			}
 			break;
@@ -1388,7 +1388,7 @@ addCharacterDataChecker((data: Record<string, KeystoreData>) => {
 			}
 			break;
 		case "5e-darkvision":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Token Data '5e-darkvision' must be a Uint";
 			}
 			break;
@@ -1411,17 +1411,17 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 			}
 			break;
 		case "5e-ac":
-			if (!isUint(val, 50)) {
+			if (!isInt(val, 0, 50)) {
 				err = "Token Data '5e-ac' must be a Uint <= 50";
 			}
 			break;
 		case "5e-hp-max":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Token Data '5e-hp-max' must be a Uint";
 			}
 			break;
 		case "5e-hp-current":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Token Data '5e-hp-current' must be a Uint";
 			}
 			break;
@@ -1446,16 +1446,16 @@ addTokenDataChecker((data: Record<string, KeystoreData>) => {
 			}
 			break;
 		case "5e-darkvision":
-			if (!isUint(val)) {
+			if (!isInt(val, 0)) {
 				err = "Token Data '5e-darkvision' must be a Uint";
 			}
 			break;
 		case "store-image-5e-initial-token":
 			if (typeof val !== "object") {
 				err = "Token Data 'store-image-5e-initial-token' must be an object";
-			} else if (!isUint(val["src"])) {
+			} else if (!isInt(val["src"], 0)) {
 				err = "Token Data 'store-image-5e-initial-token' src must be a Uint";
-			} else if (!isUint(val["width"]) || !isUint(val["height"])) {
+			} else if (!isInt(val["width"], 0) || !isInt(val["height"], 0)) {
 				err = "Token Data 'store-image-5e-initial-token' width & height must be Uints";
 			} else if (typeof val["flip"] !== "boolean" || typeof val["flop"] !== "boolean") {
 				err = "Token Data 'store-image-5e-initial-token' flip & flop must be boolean";
