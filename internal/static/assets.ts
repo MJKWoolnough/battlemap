@@ -7,13 +7,14 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragFiles, DragTransfer} from './lib/drag.js';
 import {audio, button, div, form, h1, img, input, progress} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
+import {setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {DragFolder, DraggableItem, Folder, Root, dragOver, folderDragging, folders} from './folders.js';
 import lang from './language.js';
 import {bbcodeDrag, register} from './messaging.js';
 import {handleError, inited, isAdmin, rpc} from './rpc.js';
-import {labels, loading, menuItems, setAndReturn} from './shared.js';
+import {labels, loading, menuItems} from './shared.js';
 import {shareStr} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 

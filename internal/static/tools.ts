@@ -4,13 +4,14 @@ import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
+import {mod} from './lib/misc.js';
 import {stringSort} from './lib/nodes.js';
 import {g, ns as svgNS, path, polygon, svg, title} from './lib/svg.js';
 import {registerKey} from './keys.js';
 import lang from './language.js';
 import {isAdmin} from './rpc.js';
 import {miniTools} from './settings.js';
-import {mapLoadedReceive, menuItems, mod} from './shared.js';
+import {mapLoadedReceive, menuItems} from './shared.js';
 import {shell, windows} from './windows.js';
 
 type TokenMouseFn = (this: SVGElement, e: MouseEvent, n: Uint) => void;

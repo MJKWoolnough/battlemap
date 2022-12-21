@@ -4,6 +4,7 @@ import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode, createDocumentFragment} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseX, mouseY} from './lib/events.js';
 import {br, button, div, h1, input, option, select, span} from './lib/html.js';
+import {checkInt, queue} from './lib/misc.js';
 import {node, noSort} from './lib/nodes.js';
 import {BoolSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
@@ -17,7 +18,7 @@ import {doLayerAdd, doLayerMove, doLayerRename, doLockUnlockLayer, doMapChange, 
 import {deselectToken, selected} from './map_tokens.js';
 import {isAdmin, rpc} from './rpc.js';
 import {adminHideLight, invertID} from './settings.js';
-import {checkInt, enterKey, labels, mapLoadedReceive, menuItems, queue} from './shared.js';
+import {enterKey, labels, mapLoadedReceive, menuItems} from './shared.js';
 import {lightOnOff, lock, visibility} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 

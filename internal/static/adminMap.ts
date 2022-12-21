@@ -10,6 +10,7 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent, mouseX, mouseY} from './lib/ev
 import {button, div, h1, img, input, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import {item, menu, submenu} from './lib/menu.js';
+import {checkInt, mod} from './lib/misc.js';
 import {NodeArray, node, noSort} from './lib/nodes.js';
 import {rect} from './lib/svg.js';
 import {dragImage, dragImageFiles, uploadImages} from './assets.js';
@@ -24,7 +25,7 @@ import {SQRT3, SVGToken, cursors, deselectToken, outline, outlineRotationClass, 
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
 import {adminHideLight, autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
-import {characterData, checkInt, cloneObject, getCharacterToken, mapLoadedSend, mod} from './shared.js';
+import {characterData, cloneObject, getCharacterToken, mapLoadedSend} from './shared.js';
 import {lightGrid, lightOnOffStr, remove} from './symbols.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';
 import {measureDistance, startMeasurement, stopMeasurement} from './tools_measure.js';

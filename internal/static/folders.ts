@@ -4,11 +4,12 @@ import type {DragTransfer} from './lib/drag.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
+import {queue, setAndReturn} from './lib/misc.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import lang from './language.js';
 import {inited, isAdmin} from './rpc.js';
 import {invert, invertID} from './settings.js';
-import {enterKey, labels, queue, setAndReturn} from './shared.js';
+import {enterKey, labels} from './shared.js';
 import {copy, folder, newFolder, remove, rename} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 

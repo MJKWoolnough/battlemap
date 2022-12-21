@@ -4,6 +4,7 @@ import {id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from '../lib/events.js';
 import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
+import {checkInt, isInt, mod} from '../lib/misc.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
 import {hex2Colour} from '../colours.js';
 import {registerKey} from '../keys.js';
@@ -13,7 +14,7 @@ import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
 import {combined, isAdmin, rpc} from '../rpc.js';
 import {autosnap, settingsTicker} from '../settings.js';
-import {checkInt, isInt, isUint, labels, mapLoadedReceive, mod} from '../shared.js';
+import {isUint, labels, mapLoadedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 
 const effectParams = {"stroke": "#f00", "fill": "rgba(255, 0, 0, 0.5)", "style": "clip-path: none; pointer-events: none;"},

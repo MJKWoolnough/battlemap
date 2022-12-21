@@ -4,11 +4,12 @@ import type {SVGLayer} from './map.js';
 import {ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
+import {setAndReturn} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import {timeShift} from './rpc.js';
-import {characterData, cloneObject, setAndReturn} from './shared.js';
+import {characterData, cloneObject} from './shared.js';
 
 type MaskNode = Mask & {
 	[node]: SVGRectElement | SVGEllipseElement | SVGPolygonElement;

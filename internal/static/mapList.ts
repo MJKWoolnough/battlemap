@@ -3,6 +3,7 @@ import {add, id, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
+import {checkInt, queue} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
@@ -12,7 +13,7 @@ import {DragFolder, DraggableItem, Folder, Root, foldersItem} from './folders.js
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
 import {invertID} from './settings.js';
-import {checkInt, enterKey, labels, loading, menuItems, queue} from './shared.js';
+import {enterKey, labels, loading, menuItems} from './shared.js';
 import {userSelected} from './symbols.js';
 import undo from './undo.js';
 import {loadingWindow, shell, windows} from './windows.js';

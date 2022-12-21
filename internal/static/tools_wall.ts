@@ -10,6 +10,7 @@ import {setDragEffect} from './lib/drag.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, img, input, legend} from './lib/html.js';
 import {item, menu, submenu} from './lib/menu.js';
+import {checkInt, setAndReturn} from './lib/misc.js';
 import {defs, foreignObject, g, path, pattern, rect, svg, svgData, title} from './lib/svg.js';
 import {Colour, ColourSetting, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import lang from './language.js';
@@ -18,7 +19,7 @@ import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {combined, inited, isAdmin} from './rpc.js';
 import {autosnap, settingsTicker} from './settings.js';
-import {checkInt, cloneObject, labels, setAndReturn, walls} from './shared.js';
+import {cloneObject, labels, walls} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 
 inited.then(() => {

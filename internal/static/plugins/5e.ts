@@ -11,6 +11,7 @@ import {amendNode, clearNode} from '../lib/dom.js';
 import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {item, menu, submenu} from '../lib/menu.js';
+import {checkInt, isInt, queue} from '../lib/misc.js';
 import {NodeArray, node, noSort, stringSort} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {animate, animateMotion, circle, clipPath, defs, ellipse, feColorMatrix, filter, g, line, linearGradient, mask, mpath, ns as svgNS, path, pattern, polygon, radialGradient, rect, stop, svg, symbol, text, use} from '../lib/svg.js';
@@ -27,7 +28,7 @@ import {Lighting, definitions, lighting, masks, outline, selected, tokens, token
 import {addPlugin, getSettings, pluginName} from '../plugins.js';
 import {addCharacterDataChecker, addMapDataChecker, addTokenDataChecker, combined as combinedRPC, isAdmin, rpc} from '../rpc.js';
 import {adminHideLight, enableAnimation, settingsTicker} from '../settings.js';
-import {characterData, checkInt, cloneObject, isInt, isUint, labels, mapLoadedReceive, queue} from '../shared.js';
+import {characterData, cloneObject, isUint, labels, mapLoadedReceive} from '../shared.js';
 import {remove, rename, symbols, visibility} from '../symbols.js';
 import {shell, windows} from '../windows.js';
 

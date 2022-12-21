@@ -4,10 +4,11 @@ import type {WindowElement} from './lib/windows.js';
 import type {ShellElement} from './lib/windows_taskmanager.js';
 import {amendNode} from './lib/dom.js';
 import {hasKeyEvent} from './lib/events.js';
+import {isInt} from './lib/misc.js';
 import {JSONSetting} from './lib/settings.js';
 import {defaultIcon, desktop as adesktop, setDefaultIcon, setLanguage, shell as ashell, windows as awindows} from './lib/windows_taskmanager.js';
 import lang from './language.js';
-import {isInt, isUint, loading} from './shared.js';
+import {isUint, loading} from './shared.js';
 
 export {ShellElement, WindowElement};
 

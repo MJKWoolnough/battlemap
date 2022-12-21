@@ -7,6 +7,7 @@ import {keyEvent, mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
+import {checkInt, queue} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
@@ -17,7 +18,7 @@ import {Lighting, SQRT3, SVGToken, definitions, gridPattern, lighting, mapMask, 
 import {addLights, addWalls, drawingClass, handleWalls, shapeClass, tokenClass} from './plugins.js';
 import {combined, inited, isAdmin, isUser, rpc} from './rpc.js';
 import {enableAnimation, invertID, scrollAmount, zoomSlider} from './settings.js';
-import {characterData, checkInt, cloneObject, mapLoadedReceive, mapLoadedSend, queue, walls} from './shared.js';
+import {characterData, cloneObject, mapLoadedReceive, mapLoadedSend, walls} from './shared.js';
 import {defaultTool, toolMapMouseDown, toolMapMouseOver, toolMapWheel} from './tools.js';
 import {desktop} from './windows.js';
 

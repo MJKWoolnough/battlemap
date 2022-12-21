@@ -5,9 +5,10 @@ import {add, ids} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input} from './lib/html.js';
+import {checkInt} from './lib/misc.js';
 import {JSONSetting} from './lib/settings.js';
 import lang from './language.js';
-import {checkInt, isUint, labels} from './shared.js';
+import {isUint, labels} from './shared.js';
 import {shell, windows} from './windows.js';
 
 export class Colour {

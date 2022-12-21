@@ -2,6 +2,7 @@ import type {Uint} from './types.js';
 import {amendNode} from './lib/dom.js';
 import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, fieldset, input, legend} from './lib/html.js';
+import {checkInt} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {ellipse, path, polygon, polyline, rect, svg, svgData, title} from './lib/svg.js';
 import {Colour, makeColourPicker, noColour} from './colours.js';
@@ -11,7 +12,7 @@ import {doTokenAdd} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {inited, isAdmin} from './rpc.js';
 import {autosnap, settingsTicker} from './settings.js';
-import {checkInt, labels} from './shared.js';
+import {labels} from './shared.js';
 import {addTool, marker, optionsWindow} from './tools.js';
 import {shell} from './windows.js';
 

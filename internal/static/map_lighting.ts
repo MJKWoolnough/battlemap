@@ -1,8 +1,8 @@
 import type {Byte, Uint} from './types.js';
 import type {Lighting} from './map_tokens.js';
 import Fraction from './lib/fraction.js';
+import {setAndReturn} from './lib/misc.js';
 import {Colour, noColour} from './colours.js';
-import {setAndReturn} from './shared.js';
 
 type Vertex = {
 	w: XWall[];

@@ -4,13 +4,14 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
+import {setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {dragImage} from './assets.js';
 import {characterIcon, dragCharacter, edit as characterEdit} from './characters.js';
 import {DragFolder, DraggableItem, Folder, Root} from './folders.js';
 import lang from './language.js';
 import {isAdmin, rpc} from './rpc.js';
-import {characterData, cloneObject, enterKey, labels, loading, menuItems, setAndReturn} from './shared.js';
+import {characterData, cloneObject, enterKey, labels, loading, menuItems} from './shared.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 export class Character extends DraggableItem {

@@ -7,6 +7,7 @@ import {add, ids} from './lib/css.js';
 import {amendNode, clearNode, event, eventOnce} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {audio, br, button, div, h1, img, input, li, span, ul} from './lib/html.js';
+import {checkInt} from './lib/misc.js';
 import {NodeArray, NodeMap, node, noSort, stringSort} from './lib/nodes.js';
 import {animate, ns as svgNS, path, rect, svg, title} from './lib/svg.js';
 import {audioAssetName, dragAudio, dragAudioFiles, uploadAudio} from './assets.js';
@@ -15,7 +16,7 @@ import lang from './language.js';
 import {bbcodeDrag, psuedoLink, registerTag} from './messaging.js';
 import {handleError, inited, isAdmin, rpc, timeShift} from './rpc.js';
 import {musicSort} from './settings.js';
-import {checkInt, loading, menuItems} from './shared.js';
+import {loading, menuItems} from './shared.js';
 import {copy, playStatus, remove, rename, stop} from './symbols.js';
 import {shell, windows} from './windows.js';
 
