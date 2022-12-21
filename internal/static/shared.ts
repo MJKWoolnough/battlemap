@@ -9,7 +9,7 @@ import {isInt} from './lib/misc.js';
 import lang from './language.js';
 import {spinner} from './symbols.js';
 
-export {isInt, checkInt, mod, setAndReturn} from './lib/misc.js';
+export {checkInt, isInt, mod, setAndReturn} from './lib/misc.js';
 
 type Input = HTMLInputElement | HTMLButtonElement | HTMLTextAreaElement | HTMLSelectElement;
 
