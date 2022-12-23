@@ -13,13 +13,7 @@ const modules = new Map<string, [string, string | Bind] | ((id: Uint) => [string
       tags: Parsers = Object.assign({}, all);
 
 export const register = (module: string, fn: [string, string | Bind] | ((id: Uint) => [string, string | Bind])) => modules.set(module, fn),
-registerTag = (tagName: string, fn: TagFn) => {
-	if (tags[tagName]) {
-		return false;
-	}
-	tags[tagName] = fn;
-	return true;
-},
+registerTag = (tagName: string, fn: TagFn) => (tags[tagName] ??= fn) === fn,
 parseBBCode = (text: string) => bbcode(tags, text),
 bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode"),
 psuedoLink = id();
