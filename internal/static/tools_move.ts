@@ -57,8 +57,7 @@ inited.then(() => {
 		"mapMouse0": function(this: SVGElement, e: MouseEvent) {
 			const {layer} = selected;
 			if (layer) {
-				dx = 0;
-				dy = 0;
+				dx = dy = 0;
 				snap = layer.tokens.some(t => t.snap);
 				[ox, oy] = screen2Grid(e.clientX, e.clientY, autosnap.value);
 				setupEscape();
