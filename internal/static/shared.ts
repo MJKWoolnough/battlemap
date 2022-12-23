@@ -2,7 +2,7 @@ import type {CharacterToken, KeystoreData, Uint, Wall} from './types.js';
 import type {Bind, Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
-import {amendNode, createDocumentFragment} from './lib/dom.js';
+import {amendNode} from './lib/dom.js';
 import {h2, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
 import lang from './language.js';
@@ -99,5 +99,5 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 	] as const;
 })(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
-loading = () => createDocumentFragment([h2(lang["LOADING"]), spinner({"style": "width: 64px"})]),
+loading = () => [h2(lang["LOADING"]), spinner({"style": "width: 64px"})],
 menuItems: [Uint, () => ([string | Bind, HTMLDivElement, boolean, string] | null)][] = [];
