@@ -13,8 +13,6 @@ import {enterKey, labels} from './shared.js';
 import {copy, folder, newFolder, remove, rename} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
-declare function setTimeout<T extends (...args: any) => any>(handler: T, timeout?: number, ...arguments: Parameters<T>): number;
-
 interface ItemConstructor {
 	new (parent: Folder, id: Uint, name: string): Item;
 }
