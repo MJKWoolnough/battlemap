@@ -413,83 +413,85 @@ menuItems.push([5, () => isAdmin ? [
 		      layerNext = registerKey("layerNext", lang["KEY_LAYER_NEXT"], ']'),
 		      [layerListID, layerFolder, dragged, draggingID, beingDragged, draggingSpecial, dragAfter, dragBefore, layerLock, layerVisibility, layerHidden, layerLocked, toggleAdminLight] = ids(13),
 		      adminLightToggle = lightOnOff({"id": toggleAdminLight, "class": itemControl, "title": lang["LAYER_LIGHT_TOGGLE"], "onclick": () => lightToggle.set(!lightToggle.value)});
-		add(`#${layerListID}`, {
-			" ul" : {
-				"list-style": "none",
-				"padding-left": "calc(2em + 4px)"
-			},
-			[` li, .${layerFolder}>div`]: {
-				"position": "relative"
-			}
-		});
-		add(`.${dragged}`, {
-			"visibility": "hidden"
-		});
-		add(`.${beingDragged}`, {
-			"position": "absolute"
-		});
-		add(`.${draggingSpecial} .${folders} .${folders} :is(.${dragAfter}, .${dragBefore})`, {
-			"display": "none"
-		});
-		add(`.${draggingID}`, {
-			[` :is(.${dragAfter}, .${dragBefore})`]: {
-				"display": "block",
-				"height": "calc(50% - 1px)",
-				"position": "absolute",
-				"width": "100%"
-			},
-			[` .${dragAfter}`]: {
-				"top": "50%",
-				"border-bottom": "1px solid transparent",
-				":hover": {
-					"border-bottom-color": "#000"
-				}
-			},
-			[` .${dragBefore}`]: {
-				"top": 0,
-				"border-top": "1px solid transparent",
-				":hover": {
-					"border-top-color": "#000"
-				}
-			}
-		});
-		add(`.${layerLock}`, {
-			"left": "calc(-2em - 4px) !important"
-		});
-		add(`.${layerLock},.${layerVisibility}`, {
-			"display": "inline-block",
-			"width": "1em",
-			"height": "1em",
-			"position": "absolute",
-			"left": "calc(-1em - 4px)",
-			"cursor": "pointer"
-		});
-		add(`.${layerHidden} .${layerVisibility}`, {
-			"--invisible": "none"
-		});
-		add(`.${layerLocked} .${layerLock}`, {
-			"--locked": "block",
-			"--unlocked": "none"
-		});
-		add(`.${selectedLayerID}`, {
-			"background-color": "#eee"
-		});
-		add(`#${layerList} .${foldersItem}`, {
-			"grid-template-columns": "auto 1em 1em"
-		});
-		add(`.${adminHideLight} #${toggleAdminLight}`, {
-			"--off": "#000"
-		});
-		add(`.${invertID}`, {
-			[` .${selectedLayerID}`]: {
-				"background-color": "#555"
-			},
-			[` .${draggingID}`]: {
-				[` .${dragBefore}:hover`]: {
-					"border-top-color": "#fff"
+		add({
+			[`#${layerListID}`]: {
+				" ul" : {
+					"list-style": "none",
+					"padding-left": "calc(2em + 4px)"
 				},
-				[` .${dragAfter}:hover`]: {
-					"border-bottom-color": "#fff"
+				[` li, .${layerFolder}>div`]: {
+					"position": "relative"
+				}
+			},
+			[`.${dragged}`]: {
+				"visibility": "hidden"
+			},
+			[`.${beingDragged}`]: {
+				"position": "absolute"
+			},
+			[`.${draggingSpecial} .${folders} .${folders} :is(.${dragAfter}, .${dragBefore})`]: {
+				"display": "none"
+			},
+			[`.${draggingID}`]: {
+				[` :is(.${dragAfter}, .${dragBefore})`]: {
+					"display": "block",
+					"height": "calc(50% - 1px)",
+					"position": "absolute",
+					"width": "100%"
+				},
+				[` .${dragAfter}`]: {
+					"top": "50%",
+					"border-bottom": "1px solid transparent",
+					":hover": {
+						"border-bottom-color": "#000"
+					}
+				},
+				[` .${dragBefore}`]: {
+					"top": 0,
+					"border-top": "1px solid transparent",
+					":hover": {
+						"border-top-color": "#000"
+					}
+				}
+			},
+			[`.${layerLock}`]: {
+				"left": "calc(-2em - 4px) !important"
+			},
+			[`.${layerLock},.${layerVisibility}`]: {
+				"display": "inline-block",
+				"width": "1em",
+				"height": "1em",
+				"position": "absolute",
+				"left": "calc(-1em - 4px)",
+				"cursor": "pointer"
+			},
+			[`.${layerHidden} .${layerVisibility}`]: {
+				"--invisible": "none"
+			},
+			[`.${layerLocked} .${layerLock}`]: {
+				"--locked": "block",
+				"--unlocked": "none"
+			},
+			[`.${selectedLayerID}`]: {
+				"background-color": "#eee"
+			},
+			[`#${layerList} .${foldersItem}`]: {
+				"grid-template-columns": "auto 1em 1em"
+			},
+			[`.${adminHideLight} #${toggleAdminLight}`]: {
+				"--off": "#000"
+			},
+			[`.${invertID}`]: {
+				[` .${selectedLayerID}`]: {
+					"background-color": "#555"
+				},
+				[` .${draggingID}`]: {
+					[` .${dragBefore}:hover`]: {
+						"border-top-color": "#fff"
+					},
+					[` .${dragAfter}:hover`]: {
+						"border-bottom-color": "#fff"
+					}
 				}
 			}
 		});
