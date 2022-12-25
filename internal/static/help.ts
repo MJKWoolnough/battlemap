@@ -128,39 +128,41 @@ const settingsOutline = path({"stroke": "currentColor", "fill": "none"}),
       },
       help = windows({"window-title": lang["HELP"], "maximised": true});
 
-add(`#${helpID}`, {
-	"height": "calc(100vh - 1em - 6px)",
-	"overflow-y": "scroll"
-});
-add(`#${helpBack}`, {
-	"fill": "#fff"
-});
-add(`#${helpDemo}`, {
-	"cursor": "crosshair",
-	"max-width": "100%",
-	"height": "80vh",
-	" input": {
-		"display": "none"
-	}
-});
-add(`#${helpDemos}`, {
-	" label": {
-		"display": "inline-block",
-		"border": "5px solid transparent",
-		"border-radius": "0.5em",
-		"cursor": "pointer",
-		"padding": "5px",
-		"margin-right": "5px"
+add({
+	[`#${helpID}`]: {
+		"height": "calc(100vh - 1em - 6px)",
+		"overflow-y": "scroll"
 	},
-	" input:checked+label": {
-		"border-style": "inset",
-		"border-color": "#000"
+	[`#${helpBack}`]: {
+		"fill": "#fff"
 	},
-	" div": {
-		"display": "none"
+	[`#${helpDemo}`]: {
+		"cursor": "crosshair",
+		"max-width": "100%",
+		"height": "80vh",
+		" input": {
+			"display": "none"
+		}
 	},
-	[Array.from({length: 6}, (_, n) => ` input:nth-of-type(${n+1}):checked~div:nth-of-type(${n+1})`).join(",")]: {
-		"display": "block"
+	[`#${helpDemos}`]: {
+		" label": {
+			"display": "inline-block",
+			"border": "5px solid transparent",
+			"border-radius": "0.5em",
+			"cursor": "pointer",
+			"padding": "5px",
+			"margin-right": "5px"
+		},
+		" input:checked+label": {
+			"border-style": "inset",
+			"border-color": "#000"
+		},
+		" div": {
+			"display": "none"
+		},
+		[Array.from({length: 6}, (_, n) => ` input:nth-of-type(${n+1}):checked~div:nth-of-type(${n+1})`).join(",")]: {
+			"display": "block"
+		}
 	}
 });
 
