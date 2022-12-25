@@ -108,23 +108,25 @@ const iconImg = img({"src": 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/
       dragCheck = setDragEffect({"copy": [dragColour]}),
       [checkboard, colourButton] = ids(2);
 
-add(`.${checkboard}`, {
-	"background-color": "#ccc",
-	"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20"%3E%3Cpath d="M0,0H10V20H20V10H0Z" fill="gray" /%3E%3C/svg%3E')`,
-	"width": "200px",
-	"height": "200px",
-	" div": {
+add({
+	[`.${checkboard}`]: {
+		"background-color": "#ccc",
+		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="20" height="20"%3E%3Cpath d="M0,0H10V20H20V10H0Z" fill="gray" /%3E%3C/svg%3E')`,
 		"width": "200px",
-		"height": "200px"
-	}
-});
-add(`.${colourButton}`, {
-	"display": "inline-block",
-	"width": "50px",
-	"height": "50px",
-	"padding": 0,
-	" div": {
-		"width": "100%",
-		"height": "100%"
+		"height": "200px",
+		" div": {
+			"width": "200px",
+			"height": "200px"
+		}
+	},
+	[`.${colourButton}`]: {
+		"display": "inline-block",
+		"width": "50px",
+		"height": "50px",
+		"padding": 0,
+		" div": {
+			"width": "100%",
+			"height": "100%"
+		}
 	}
 });
