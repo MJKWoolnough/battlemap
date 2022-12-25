@@ -626,81 +626,83 @@ export class Root {
 
 inited.then(() => {
 	if (isAdmin) {
-		add(`.${folders}`, {
-			"margin": 0,
-			" details summary": {
-				"list-style": "none",
-				"outline": "none",
-				"cursor": "pointer",
-				"grid-template-columns": "1em auto 1em 1em 1em"
+		add({
+			[`.${folders}`]: {
+				"margin": 0,
+				" details summary": {
+					"list-style": "none",
+					"outline": "none",
+					"cursor": "pointer",
+					"grid-template-columns": "1em auto 1em 1em 1em"
+				},
+				[` summary>.${folderIconID}`]: {
+					"width": "1em",
+					"height": "1em"
+				},
+				[` details[open]>summary>.${folderIconID}`]: {
+					"--folder-closed": "none",
+					"--folder-open": "block"
+				}
 			},
-			[` summary>.${folderIconID}`]: {
-				"width": "1em",
-				"height": "1em"
+			"summary::-webkit-details-marker": {
+				"display": "none"
 			},
-			[` details[open]>summary>.${folderIconID}`]: {
-				"--folder-closed": "none",
-				"--folder-open": "block"
-			}
-		});
-		add("summary::-webkit-details-marker", {
-			"display": "none"
-		});
-		add(`.${item}`, {
-			"cursor": "pointer"
-		});
-		add(`.${foldersItem}:hover,.${foldersFolder}>details summary:hover`, {
-			"background-color": "#888"
-		});
-		add(`.${folders} summary,.${foldersItem}`, {
-			"display": "grid",
-			"grid-template-columns": "auto 1em 1em 1em"
-		});
-		add(`.${itemControl}`, {
-			"background-size": "1em",
-			"background-position": "bottom center",
-			"background-repeat": "no-repeat",
-			"width": "1em",
-			"height": "1em",
-			"display": "inline-block",
-			"margin-right": "0.2em",
-			"cursor": "pointer"
-		});
-		add(`.${imageIcon}`, {
-			"position": "absolute",
-			"top": "var(--icon-top, 0)",
-			"left": "var(--icon-left, 0)",
-			"max-width": "100px",
-			"max-height": "100px",
-			"z-index": 2
-		});
-		add(`.${filter}`, {
-			"float": "right",
-			"text-align": "right",
-			"+br": {
-				"clear": "right"
-			}
-		});
-		add(`.${dragOver}`, {
-			"background-color": "#aaa",
-			">details>summary,>span": {
+			[`.${item}`]: {
+				"cursor": "pointer"
+			},
+			[`.${foldersItem}:hover,.${foldersFolder}>details summary:hover`]: {
 				"background-color": "#888"
-			}
-		});
-		add(`.${invertID} .${dragOver}`, {
-			"background-color": "#555"
-		});
-		add(`.${folderDragging}`, {
-			" *": {
-				"pointer-events": "none"
 			},
-			[` .${foldersFolder}`]: {
-				"pointer-events": "auto"
+			[`.${folders} summary,.${foldersItem}`]: {
+				"display": "grid",
+				"grid-template-columns": "auto 1em 1em 1em"
 			},
-			">ul:after": {
-				"content": "\" \"",
+			[`.${itemControl}`]: {
+				"background-size": "1em",
+				"background-position": "bottom center",
+				"background-repeat": "no-repeat",
+				"width": "1em",
 				"height": "1em",
-				"display": "block"
+				"display": "inline-block",
+				"margin-right": "0.2em",
+				"cursor": "pointer"
+			},
+			[`.${imageIcon}`]: {
+				"position": "absolute",
+				"top": "var(--icon-top, 0)",
+				"left": "var(--icon-left, 0)",
+				"max-width": "100px",
+				"max-height": "100px",
+				"z-index": 2
+			},
+			[`.${filter}`]: {
+				"float": "right",
+				"text-align": "right",
+				"+br": {
+					"clear": "right"
+				}
+			},
+			[`.${dragOver}`]: {
+				"background-color": "#aaa",
+				">details>summary,>span": {
+					"background-color": "#888"
+				}
+			},
+			[`.${invertID} .${dragOver}`]: {
+				"background-color": "#555"
+			},
+			[`.${folderDragging}`]: {
+				" *": {
+					"pointer-events": "none"
+				},
+				[` .${foldersFolder}`]: {
+					"pointer-events": "auto"
+				},
+				">ul:after": {
+					"content": "\" \"",
+					"height": "1em",
+					"display": "block"
+				}
 			}
 		});
 	}
