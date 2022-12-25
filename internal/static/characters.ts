@@ -183,46 +183,48 @@ const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, remo
 inited.then(() => {
 	rpc.waitCharacterDataChange().when(({id, setting, removing}) => doCharacterModify(id, setting, removing));
 	mapLoadedReceive(() => lastMapChanged = Date.now());
-	add(`.${userVisibility}`, {
-		"display": "none",
-		"+label>svg": {
-			"display": "inline-block",
-			"width": "1em",
-			"height": "1em"
+	add({
+		[`.${userVisibility}`]: {
+			"display": "none",
+			"+label>svg": {
+				"display": "inline-block",
+				"width": "1em",
+				"height": "1em"
+			},
+			":not(:checked)+label>svg": {
+				"--check-on": "none",
+				"--check-off": "block"
+			}
 		},
-		":not(:checked)+label>svg": {
-			"--check-on": "none",
-			"--check-off": "block"
+		[`.${tokenSelectors}`]: {
+			"margin": 0,
+			"list-style": "none"
+		},
+		[`.${tokenSelector}`]: {
+			"overflow": "hidden",
+			"position": "relative",
+			">button": {
+				"position": "absolute",
+				"left": 0,
+				"background-color": "transparent",
+				"width": "200px",
+				"height": "200px",
+				"color": "#000",
+				"text-shadow": "#fff 0 0 5px"
+			},
+			">img": {
+				"max-width": "200px",
+				"max-height": "200px"
+			},
+			">svg": {
+				"width": "2em",
+				"height": "2em",
+				"cursor": "pointer"
+			}
+		},
+		[`.${showCharacter}>div`]: {
+			"max-height": "90vh",
+			"overflow-y": "scroll"
 		}
-	});
-	add(`.${tokenSelectors}`, {
-		"margin": 0,
-		"list-style": "none"
-	});
-	add(`.${tokenSelector}`, {
-		"overflow": "hidden",
-		"position": "relative",
-		">button": {
-			"position": "absolute",
-			"left": 0,
-			"background-color": "transparent",
-			"width": "200px",
-			"height": "200px",
-			"color": "#000",
-			"text-shadow": "#fff 0 0 5px"
-		},
-		">img": {
-			"max-width": "200px",
-			"max-height": "200px"
-		},
-		">svg": {
-			"width": "2em",
-			"height": "2em",
-			"cursor": "pointer"
-		}
-	});
-	add(`.${showCharacter}>div`, {
-		"max-height": "90vh",
-		"overflow-y": "scroll"
 	});
 });
