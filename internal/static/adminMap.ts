@@ -343,85 +343,86 @@ export default (base: HTMLElement) => {
 		}
 	      }),
 	      outlineID = id();
-	add(`#${mapID}`, {
-		"cursor": "var(--outline-cursor)",
-		"overflow": "visible"
-	});
-	add(`#${outlineID}`, {
-		"outline": "none",
-		"clip-path": "initial !important",
-		" rect": {
-			"stroke-width": "calc(1px / var(--zoom, 1))",
-			"stroke": "#000",
-			"width": "calc(10px / var(--zoom, 1))",
-			"height": "calc(10px / var(--zoom, 1))",
-			"fill": "#f00",
-			":nth-child(1)": {
-				"width": "var(--outline-width)",
-				"height": "var(--outline-height)",
-				"fill": "transparent",
-				"cursor": "var(--outline-cursor, move)"
-			},
-			":nth-child(2)": {
-				"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
-				"y": "calc(-20px / var(--zoom, 1))",
-				"cursor": "var(--outline-cursor, cell)"
-			},
-			":nth-child(3)": {
-				"x": "calc(-5px / var(--zoom, 1))",
-				"y": "calc(-5px / var(--zoom, 1))"
-			},
-			":nth-child(4)": {
-				"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
-				"y": "calc(-5px / var(--zoom, 1))"
-			},
-			":nth-child(5)": {
-				"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
-				"y": "calc(-5px / var(--zoom, 1))"
-			},
-			":nth-child(6)": {
-				"x": "calc(-5px / var(--zoom, 1))",
-				"y": "calc(var(--outline-height) / 2 - 5px / var(--zoom, 1))"
-			},
-			":nth-child(7)": {
-				"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
-				"y": "calc(var(--outline-height) / 2 - 5px / var(--zoom, 1))"
-			},
-			":nth-child(8)": {
-				"x": "calc(-5px / var(--zoom, 1))",
-				"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
-			},
-			":nth-child(9)": {
-				"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
-				"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
-			},
-			":nth-child(10)": {
-				"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
-				"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
+	add({
+		[`#${mapID}`]: {
+			"cursor": "var(--outline-cursor)",
+			"overflow": "visible"
+		},
+		[`#${outlineID}`]: {
+			"outline": "none",
+			"clip-path": "initial !important",
+			" rect": {
+				"stroke-width": "calc(1px / var(--zoom, 1))",
+				"stroke": "#000",
+				"width": "calc(10px / var(--zoom, 1))",
+				"height": "calc(10px / var(--zoom, 1))",
+				"fill": "#f00",
+				":nth-child(1)": {
+					"width": "var(--outline-width)",
+					"height": "var(--outline-height)",
+					"fill": "transparent",
+					"cursor": "var(--outline-cursor, move)"
+				},
+				":nth-child(2)": {
+					"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
+					"y": "calc(-20px / var(--zoom, 1))",
+					"cursor": "var(--outline-cursor, cell)"
+				},
+				":nth-child(3)": {
+					"x": "calc(-5px / var(--zoom, 1))",
+					"y": "calc(-5px / var(--zoom, 1))"
+				},
+				":nth-child(4)": {
+					"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
+					"y": "calc(-5px / var(--zoom, 1))"
+				},
+				":nth-child(5)": {
+					"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
+					"y": "calc(-5px / var(--zoom, 1))"
+				},
+				":nth-child(6)": {
+					"x": "calc(-5px / var(--zoom, 1))",
+					"y": "calc(var(--outline-height) / 2 - 5px / var(--zoom, 1))"
+				},
+				":nth-child(7)": {
+					"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
+					"y": "calc(var(--outline-height) / 2 - 5px / var(--zoom, 1))"
+				},
+				":nth-child(8)": {
+					"x": "calc(-5px / var(--zoom, 1))",
+					"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
+				},
+				":nth-child(9)": {
+					"x": "calc(var(--outline-width) / 2 - 5px / var(--zoom, 1))",
+					"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
+				},
+				":nth-child(10)": {
+					"x": "calc(var(--outline-width) - 5px / var(--zoom, 1))",
+					"y": "calc(var(--outline-height) - 5px / var(--zoom, 1))"
+				}
 			}
+		},
+		[`.${cursors[0]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[1]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[2]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[3]} :is(rect:nth-child(4), rect:nth-child(9))`]: {
+			"cursor": "var(--outline-cursor, nwse-resize)"
+		},
+		[`.${cursors[0]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[1]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[2]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[3]} :is(rect:nth-child(5), rect:nth-child(8))`]: {
+			"cursor": "var(--outline-cursor, ns-resize)"
+		},
+		[`.${cursors[0]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[1]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[2]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[3]} :is(rect:nth-child(6), rect:nth-child(7))`]: {
+			"cursor": "var(--outline-cursor, nesw-resize)"
+		},
+		[`.${cursors[0]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[1]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[2]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[3]} :is(rect:nth-child(3), rect:nth-child(10))`]: {
+			"cursor": "var(--outline-cursor, ew-resize)"
+		},
+		[`.${hiddenLayer}`]: {
+			"opacity": "var(--hiddenLayerOpacity, 0.5)",
+			[`.${selectedLayerID}`]: {
+				"opacity": "var(--hiddenLayerSelectedOpacity, 0.5)"
+			}
+		},
+		[`.${adminHideLight} #${layerLight}`]: {
+			"display": "none"
 		}
-	});
-	add(`.${cursors[0]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[1]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[2]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[3]} :is(rect:nth-child(4), rect:nth-child(9))`, {
-		"cursor": "var(--outline-cursor, nwse-resize)"
-	});
-
-	add(`.${cursors[0]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[1]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[2]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[3]} :is(rect:nth-child(5), rect:nth-child(8))`, {
-		"cursor": "var(--outline-cursor, ns-resize)"
-	});
-	add(`.${cursors[0]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[1]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[2]} :is(rect:nth-child(3), rect:nth-child(10)), .${cursors[3]} :is(rect:nth-child(6), rect:nth-child(7))`, {
-		"cursor": "var(--outline-cursor, nesw-resize)"
-	});
-	add(`.${cursors[0]} :is(rect:nth-child(6), rect:nth-child(7)), .${cursors[1]} :is(rect:nth-child(5), rect:nth-child(8)), .${cursors[2]} :is(rect:nth-child(4), rect:nth-child(9)), .${cursors[3]} :is(rect:nth-child(3), rect:nth-child(10))`, {
-		"cursor": "var(--outline-cursor, ew-resize)"
-	});
-	add(`.${hiddenLayer}`, {
-		"opacity": "var(--hiddenLayerOpacity, 0.5)",
-		[`.${selectedLayerID}`]: {
-			"opacity": "var(--hiddenLayerSelectedOpacity, 0.5)"
-		}
-	});
-	add(`.${adminHideLight} #${layerLight}`, {
-		"display": "none"
 	});
 	amendNode(outline, {"id": outlineID, "style": "display: none", "onwheel": toolTokenWheel}, Array.from({length: 10}, (_, n) => rect({"onmouseover": toolTokenMouseOver, "onmousedown": function(this: SVGRectElement, e: MouseEvent) { toolTokenMouseDown.call(this, e, n); }}))),
 	tokenSelectedReceive(() => {
