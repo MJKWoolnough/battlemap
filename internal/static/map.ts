@@ -531,71 +531,73 @@ mapView = (mD: MapData, loadChars = false) => {
 	return div({"id": mapBase, "onmousedown": (e: MouseEvent) => toolMapMouseDown.call(root, e), "onwheel": (e: WheelEvent) => toolMapWheel.call(root, e), "onmouseover": (e: MouseEvent) => toolMapMouseOver.call(root, e)}, [root, loader]);
 };
 
-add(`#${mapBase}`, {
-	"height": "100%"
-});
-add(`#${mapID}`, {
-	"background-color": "#fff",
-	"outline": "none",
-	"position": "absolute",
-	">g": {
-		"clip-path": "view-box"
-	}
-});
-add(`#${layerLight}.hiddenLayer,#${layerGrid}.hiddenLayer`, {
-	"display": "none"
-});
-add(`#${lighting}>*`, {
-	"mix-blend-mode": "screen"
-});
-add(`#${mapLoading}`, {
-	"background-color": "#fff",
-	"position": "fixed",
-	"top": 0,
-	"left": 0,
-	"bottom": 0,
-	"right": 0,
-	">div": {
-		"display": "flex",
-		"align-items": "center",
-		"justify-content": "center",
-		"flex-wrap": "wrap",
+add({
+	[`#${mapBase}`]: {
 		"height": "100%"
 	},
-	" progress": {
-		"margin": "0 1em"
-	}
-});
-add(`.${invertID} #${mapLoading}`, {
-	"background-color": "#000"
-});
-add(`.${hideZoomSlider} #${zoomSliderID}`, {
-	"display": "none"
-});
-add(`#${zoomSliderID}`, {
-	"z-index": "10",
-	"position": "absolute",
-	"top": "3px",
-	"left": "3px",
-	"width": "20px",
-	"height": "120px",
-	"fill": "rgba(255, 255, 255, 0.2)",
-	" :is(rect, circle)": {
-		"transition": "fill 0.5s"
+	[`#${mapID}`]: {
+		"background-color": "#fff",
+		"outline": "none",
+		"position": "absolute",
+		">g": {
+			"clip-path": "view-box"
+		}
 	},
-	" rect": {
-		"cursor": "pointer"
+	[`#${layerLight}.hiddenLayer,#${layerGrid}.hiddenLayer`]: {
+		"display": "none"
 	},
-	" circle": {
-		"cursor": "ns-resize"
-	}
-});
-add(`#${zoomSliderID}:hover, .${zooming} #${zoomSliderID}`, {
-	" rect": {
-		"fill": "#fff"
+	[`#${lighting}>*`]: {
+		"mix-blend-mode": "screen"
 	},
-	" circle": {
-		"fill": "#f00"
+	[`#${mapLoading}`]: {
+		"background-color": "#fff",
+		"position": "fixed",
+		"top": 0,
+		"left": 0,
+		"bottom": 0,
+		"right": 0,
+		">div": {
+			"display": "flex",
+			"align-items": "center",
+			"justify-content": "center",
+			"flex-wrap": "wrap",
+			"height": "100%"
+		},
+		" progress": {
+			"margin": "0 1em"
+		}
+	},
+	[`.${invertID} #${mapLoading}`]: {
+		"background-color": "#000"
+	},
+	[`.${hideZoomSlider} #${zoomSliderID}`]: {
+		"display": "none"
+	},
+	[`#${zoomSliderID}`]: {
+		"z-index": "10",
+		"position": "absolute",
+		"top": "3px",
+		"left": "3px",
+		"width": "20px",
+		"height": "120px",
+		"fill": "rgba(255, 255, 255, 0.2)",
+		" :is(rect, circle)": {
+			"transition": "fill 0.5s"
+		},
+		" rect": {
+			"cursor": "pointer"
+		},
+		" circle": {
+			"cursor": "ns-resize"
+		}
+	},
+	[`#${zoomSliderID}:hover, .${zooming} #${zoomSliderID}`]: {
+		" rect": {
+			"fill": "#fff"
+		},
+		" circle": {
+			"fill": "#f00"
+		}
 	}
 });
 
