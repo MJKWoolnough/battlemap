@@ -216,24 +216,26 @@ menuItems.push(
 
 inited.then(() => {
 	if (isAdmin) {
-		add(`.${assets}`, {
-			" ul": {
-				"margin": 0,
-				"padding-left": "calc(1em + 4px)",
-				"list-style": "none"
+		add({
+			[`.${assets}`]: {
+				" ul": {
+					"margin": 0,
+					"padding-left": "calc(1em + 4px)",
+					"list-style": "none"
+				},
+				">div>ul": {
+					"padding-left": 0
+				}
 			},
-			">div>ul": {
-				"padding-left": 0
-			}
-		});
-		add(`.${showAsset}`, {
-			"max-height": "100%",
-			"max-width": "100%",
-			"min-height": "10px",
-			"overflow": "clip",
-			" img": {
-				"max-height": "calc(100vh - 20px)",
-				"max-width": "calc(100vw - 1em - 6px)"
+			[`.${showAsset}`]: {
+				"max-height": "100%",
+				"max-width": "100%",
+				"min-height": "10px",
+				"overflow": "clip",
+				" img": {
+					"max-height": "calc(100vh - 20px)",
+					"max-width": "calc(100vw - 1em - 6px)"
+				}
 			}
 		});
 	}
