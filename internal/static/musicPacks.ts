@@ -244,25 +244,27 @@ inited.then(() => {
 				const base = div(loading()),
 				      dragIcon = img({"class": "imageIcon", "src": musicIcon}),
 				      [musicPackList, musicTrackList] = ids(2);
-				add(`#${musicPackList},.${musicTrackList}`, {
-					"margin": 0,
-					"padding-left": 0,
-					"list-style": "none"
-				});
-				add(`#${musicPackList}>li`, {
-					">span": {
-						"cursor": "pointer"
+				add({
+					[`#${musicPackList},.${musicTrackList}`]: {
+						"margin": 0,
+						"padding-left": 0,
+						"list-style": "none"
 					},
-					"display": "grid",
-					"grid-template-columns": "1em auto 1em 1em 1em"
-				});
-				add(`.${musicTrackList} li`, {
-					">svg": {
-						"margin-right": 0,
-						"margin-left": "0.5em"
+					[`#${musicPackList}>li`]: {
+						">span": {
+							"cursor": "pointer"
+						},
+						"display": "grid",
+						"grid-template-columns": "1em auto 1em 1em 1em"
 					},
-					"display": "grid",
-					"grid-template-columns": "auto 10em 5em 2em"
+					[`.${musicTrackList} li`]: {
+						">svg": {
+							"margin-right": 0,
+							"margin-left": "0.5em"
+						},
+						"display": "grid",
+						"grid-template-columns": "auto 10em 5em 2em"
+					}
 				});
 				audioEnabled().then(rpc.musicPackList).then(list => {
 					class AdminTrack extends Track {
