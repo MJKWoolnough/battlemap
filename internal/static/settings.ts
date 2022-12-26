@@ -20,38 +20,40 @@ undoLimit = new IntSetting("undoLimit", 100, -1),
 
 const settings = id();
 
-add(`.${settingsTicker}`, {
-	"display": "none",
-	"[disabled]+label": {
-		"color": "#888",
-		":after": {
-			"background-image": "none !important"
+add({
+	[`.${settingsTicker}`]: {
+		"display": "none",
+		"[disabled]+label": {
+			"color": "#888",
+			":after": {
+				"background-image": "none !important"
+			}
+		},
+		"+label:after": {
+			"width": "1.2em",
+			"height": "1em",
+			"display": "inline-block",
+			"content": `""`,
+			"background-repeat": "no-repeat",
+			"background-size": "1em",
+			"background-position": "bottom center",
+			"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M2,1 q5,6 8,8 M2,9 q5,-3 8,-8" stroke="%23f00" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+		},
+		":checked+label:after": {
+			"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%230f0" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
+		},
+		"[type=radio]:checked+label:after": {
+			"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%2300f" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
 		}
 	},
-	"+label:after": {
-		"width": "1.2em",
-		"height": "1em",
-		"display": "inline-block",
-		"content": `""`,
-		"background-repeat": "no-repeat",
-		"background-size": "1em",
-		"background-position": "bottom center",
-		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M2,1 q5,6 8,8 M2,9 q5,-3 8,-8" stroke="%23f00" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
-	},
-	":checked+label:after": {
-		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%230f0" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
-	},
-	"[type=radio]:checked+label:after": {
-		"background-image": `url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 10"%3E%3Cpath d="M1,6 l3,3 7,-8" stroke="%2300f" stroke-linecap="round" stroke-linejoin="round" fill="none" stroke-width="2" /%3E%3C/svg%3E')`
-	}
-});
-add(`#${settings}`, {
-	" h1": {
-		"display": "inline-block"
-	},
-	" ul": {
-		"list-style": "none",
-		"padding": 0
+	[`#${settings}`]: {
+		" h1": {
+			"display": "inline-block"
+		},
+		" ul": {
+			"list-style": "none",
+			"padding": 0
+		}
 	}
 });
 
