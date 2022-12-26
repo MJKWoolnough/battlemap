@@ -137,50 +137,52 @@ menuItems.push([4, () => isAdmin ? [
 		const rpcFuncs = rpc["maps"],
 		      base = div(loading()),
 		      mapList = id();
-		add(`#${mapList}`, {
-			" ul": {
-				"list-style": "none",
-				"margin": 0,
-				"padding-left": "calc(1em + 4px)"
+		add({
+			[`#${mapList}`]: {
+				" ul": {
+					"list-style": "none",
+					"margin": 0,
+					"padding-left": "calc(1em + 4px)"
+				},
+				" li>svg:first-child": {
+					"display": "inline-block",
+					"width": "1em",
+					"height": "1em",
+					"margin": "0 2px"
+				},
+				[` li.${mapItem}>svg:first-child`]: {
+					"cursor": "pointer"
+				},
+				[` li.${mapUser}>svg:first-child`]: {
+					"--map-selected": "block"
+				},
+				[` .${foldersItem}`]: {
+					"grid-template-columns": "auto 1em 1em 1em"
+				}
 			},
-			" li>svg:first-child": {
-				"display": "inline-block",
-				"width": "1em",
-				"height": "1em",
-				"margin": "0 2px"
+			[`.${hasMapUser}>details>summary`]: {
+				"background-color": "#ccffcc"
 			},
-			[` li.${mapItem}>svg:first-child`]: {
-				"cursor": "pointer"
+			[`.${hasMapCurrent}>details>summary`]: {
+				"background-color": "#f8f8f8"
 			},
-			[` li.${mapUser}>svg:first-child`]: {
-				"--map-selected": "block"
+			[`.${mapCurrent}`]: {
+				"background-color": "#eee"
 			},
-			[` .${foldersItem}`]: {
-				"grid-template-columns": "auto 1em 1em 1em"
-			}
-		});
-		add(`.${hasMapUser}>details>summary`, {
-			"background-color": "#ccffcc"
-		});
-		add(`.${hasMapCurrent}>details>summary`, {
-			"background-color": "#f8f8f8"
-		});
-		add(`.${mapCurrent}`, {
-			"background-color": "#eee"
-		});
-		add(`.${setUserMap}`, {
-			"position": "absolute",
-			"left": 0
-		});
-		add(`.${invertID}`, {
-			[` .${mapCurrent}`]: {
-				"background-color": "#555"
+			[`.${setUserMap}`]: {
+				"position": "absolute",
+				"left": 0
 			},
-			[` .${hasMapCurrent}>details>summary`]: {
-				"background-color": "#600"
-			},
-			[` .${hasMapUser}>details>summary`]: {
-				"background-color": "#400"
+			[`.${invertID}`]: {
+				[` .${mapCurrent}`]: {
+					"background-color": "#555"
+				},
+				[` .${hasMapCurrent}>details>summary`]: {
+					"background-color": "#600"
+				},
+				[` .${hasMapUser}>details>summary`]: {
+					"background-color": "#400"
+				}
 			}
 		});
 		Promise.all([
