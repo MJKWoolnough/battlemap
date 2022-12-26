@@ -604,69 +604,69 @@ const select = Symbol("select"),
       dyingAnimateMotion = animateMotion({"dur": "1s", "begin": -0.6}, mpath({"href": "#5e-dying"})),
       dyingCircle = circle({"r": 3, "fill": "#fff", "stroke": "#000"}, dyingAnimateMotion);
 
-add(`#${initiativeWindow5E}`, {
-	" svg": {
-		"width": "1.5em"
-	},
-	" button": {
-		"height": "2em"
-	}
-});
-
-add(`#${initiativeList5E}`, {
-	"list-style": "none",
-	"padding": 0,
-	" li": {
-		"display": "grid",
-		"grid-template-columns": "4.5em auto 3em",
-		"align-items": "center",
-		" span": {
-			"text-align": "center"
+add({
+	[`#${initiativeWindow5E}`]: {
+		" svg": {
+			"width": "1.5em"
+		},
+		" button": {
+			"height": "2em"
 		}
 	},
-	" img": {
-		"height": "4em",
-		"width": "4em",
+	[`#${initiativeList5E}`]: {
+		"list-style": "none",
+		"padding": 0,
+		" li": {
+			"display": "grid",
+			"grid-template-columns": "4.5em auto 3em",
+			"align-items": "center",
+			" span": {
+				"text-align": "center"
+			}
+		},
+		" img": {
+			"height": "4em",
+			"width": "4em",
+			"cursor": "pointer"
+		}
+	},
+	[`.${conditionList}`]: {
+		"padding-left": "1em",
+		"box-styling": "padding-box",
+		">menu-item": {
+			"display": "list-item",
+			"list-style": "none"
+		}
+	},
+	[`.${hasCondition}`]: {
+		"list-style": "square !important"
+	},
+	[`.${hideTokenHP} g .${token5e} .${tokenHP5e},.${hideTokenAC} g .${token5e} .${tokenAC5e},.${hideTokenNames} g .${token5e} .${tokenName5e},.${hideTokenConditions} g .${token5e} .${tokenConditions5e},.${hideSelectedHP} svg>.${token5e} .${tokenHP5e},.${hideSelectedAC} svg>.${token5e} .${tokenAC5e},.${hideSelectedNames} svg>.${token5e} .${tokenName5e},.${hideSelectedConditions} svg>.${token5e} .${tokenConditions5e}`]: {
+		"visibility": "hidden"
+	},
+	[`.${desaturateTokenConditions} g .${token5e} .${tokenConditions5e},.${desaturateSelectedConditions} svg>.${token5e} .${tokenConditions5e}`]: {
+		"filter": `url(#${saturate5E})`
+	},
+	[`.${tokenSelector5E},.${tokenSelector5E}>button,.${tokenSelector5E}>img`]: {
+		"width": "100px",
+		"height": "100px"
+	},
+	[`#${shapechangeSettings5E}`]: {
+		"border-collapse": "collapse",
+		" td": {
+			"text-align": "center",
+			"label": {
+				"font-size": "2em"
+			}
+		},
+		" th, td:not(:first-child)": {
+			"border": "1px solid currentColor"
+		}
+	},
+	[`.${tokenInitiative}:hover`]: {
+		"background-color": "#800",
 		"cursor": "pointer"
 	}
-});
-add(`.${conditionList}`, {
-	"padding-left": "1em",
-	"box-styling": "padding-box",
-	">menu-item": {
-		"display": "list-item",
-		"list-style": "none"
-	}
-});
-add(`.${hasCondition}`, {
-	"list-style": "square !important"
-});
-add(`.${hideTokenHP} g .${token5e} .${tokenHP5e},.${hideTokenAC} g .${token5e} .${tokenAC5e},.${hideTokenNames} g .${token5e} .${tokenName5e},.${hideTokenConditions} g .${token5e} .${tokenConditions5e},.${hideSelectedHP} svg>.${token5e} .${tokenHP5e},.${hideSelectedAC} svg>.${token5e} .${tokenAC5e},.${hideSelectedNames} svg>.${token5e} .${tokenName5e},.${hideSelectedConditions} svg>.${token5e} .${tokenConditions5e}`, {
-	"visibility": "hidden"
-});
-add(`.${desaturateTokenConditions} g .${token5e} .${tokenConditions5e},.${desaturateSelectedConditions} svg>.${token5e} .${tokenConditions5e}`, {
-	"filter": `url(#${saturate5E})`
-});
-
-add(`.${tokenSelector5E},.${tokenSelector5E}>button,.${tokenSelector5E}>img`, {
-	"width": "100px",
-	"height": "100px"
-});
-add(`#${shapechangeSettings5E}`, {
-	"border-collapse": "collapse",
-	" td": {
-		"text-align": "center",
-		"label": {
-			"font-size": "2em"
-		}
-	},
-	" th, td:not(:first-child)": {
-		"border": "1px solid currentColor"
-	}
-});
-add(`.${tokenInitiative}:hover`, {
-	"background-color": "#800",
-	"cursor": "pointer"
 });
 
 enableAnimation.wait(v => {
