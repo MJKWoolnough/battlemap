@@ -259,17 +259,19 @@ inited.then(() => {
 			setTimeout(genWalls);
 		}
 	      };
-	add(`.${wallID}`, {
-		"height": "10px",
-		"stroke-width": 2
-	});
-	add(`.${selectWallID} .${wallID}`, {
-		"cursor": "pointer"
-	});
-	add(`.${wallMarkerID}`, {
-		"fill": "#000",
-		"stroke": "#fff",
-		"cursor": "move"
+	add({
+		[`.${wallID}`]: {
+			"height": "10px",
+			"stroke-width": 2
+		},
+		[`.${selectWallID} .${wallID}`]: {
+			"cursor": "pointer"
+		},
+		[`.${wallMarkerID}`]: {
+			"fill": "#000",
+			"stroke": "#fff",
+			"cursor": "move"
+		}
 	});
 	addTool({
 		"name": lang["TOOL_WALL"],
