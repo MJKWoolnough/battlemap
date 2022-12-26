@@ -131,31 +131,33 @@ menuItems.push([6, () => isAdmin ? [
 		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+('),
 		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)'),
 		      [toolList, selectedID, miniToolsID] = ids(3);
-		add(`#${toolList}`, {
-			">ul": {
-				"list-style": "none",
-				"padding": 0,
-				"margin-top": 0,
-				">li": {
-					"cursor": "pointer",
-					"padding": "0.4em",
-					" :is(img, svg)": {
-						"width": "2em",
-						"height": "2em",
-						"padding-right": "3px",
-						"background-color": "transparent"
+		add({
+			[`#${toolList}`]: {
+				">ul": {
+					"list-style": "none",
+					"padding": 0,
+					"margin-top": 0,
+					">li": {
+						"cursor": "pointer",
+						"padding": "0.4em",
+						" :is(img, svg)": {
+							"width": "2em",
+							"height": "2em",
+							"padding-right": "3px",
+							"background-color": "transparent"
+						}
 					}
+				},
+				[` li.${selectedID}`]: {
+					"background-color": "#888"
 				}
 			},
-			[` li.${selectedID}`]: {
-				"background-color": "#888"
-			}
-		});
-		add(`.${miniToolsID} #${toolList}>ul`, {
-			"margin-bottom": 0,
-			"padding-bottom": 0,
-			" svg + span": {
-				"display": "none"
+			[`.${miniToolsID} #${toolList}>ul`]: {
+				"margin-bottom": 0,
+				"padding-bottom": 0,
+				" svg + span": {
+					"display": "none"
+				}
 			}
 		});
 
