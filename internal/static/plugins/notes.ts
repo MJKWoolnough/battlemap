@@ -401,23 +401,25 @@ if (isAdmin) {
 	      pluginNotesID = id(),
 	      pluginNotesClass = id(),
 	      pluginNotesEdit = id();
-	add(`#${pluginNotesID}`, {
-		" ul": {
-			"padding-left": "1em",
-			"list-style": "none"
+	add({
+		[`#${pluginNotesID}`]: {
+			" ul": {
+				"padding-left": "1em",
+				"list-style": "none"
+			},
+			">div>ul": {
+				"padding": 0
+			}
 		},
-		">div>ul": {
-			"padding": 0
+		[`.${pluginNotesEdit} textarea`]: {
+			"width": "calc(100% - 10em)",
+			"height": "calc(100% - 5em)"
+		},
+		[`.${pluginNotesClass}`]: {
+			"user-select": "text",
+			"white-space": "pre-wrap",
+			"font-family": "'Andale Mono',monospace"
 		}
-	});
-	add(`.${pluginNotesEdit} textarea`, {
-		"width": "calc(100% - 10em)",
-		"height": "calc(100% - 5em)"
-	});
-	add(`.${pluginNotesClass}`, {
-		"user-select": "text",
-		"white-space": "pre-wrap",
-		"font-family": "'Andale Mono',monospace"
 	});
 	root.windowIcon = icon;
 	addPlugin("notes", {
