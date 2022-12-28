@@ -23,7 +23,9 @@ if (isAdmin) {
 				dieNum = checkInt(parseInt(this.value), 1, 100, 6);
 			}})),
 			br(),
-			labels([lang["NUMBER"], ": "], input({"type": "number", "min": 1, "max": 100, "value": 1})),
+			labels([lang["NUMBER"], ": "], input({"type": "number", "min": 1, "max": 100, "value": 1, "onchange": function(this: HTMLInputElement) {
+				numDice = checkInt(parseInt(this.value), 1, 100, 1);
+			}})),
 			br(),
 			button(lang["ROLL"])
 		]),
