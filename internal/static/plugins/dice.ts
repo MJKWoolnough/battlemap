@@ -5,6 +5,7 @@ import {makeLangPack} from '../language.js';
 import {isAdmin} from '../rpc.js';
 import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
+import {shell} from '../windows.js';
 
 if (isAdmin) {
 	const lang = makeLangPack({
@@ -27,7 +28,7 @@ if (isAdmin) {
 				numDice = checkInt(parseInt(this.value), 1, 100, 1);
 			}})),
 			br(),
-			button(lang["ROLL"])
+			button({"onclick": () => shell.alert(lang["TITLE"], `${numDice}d${dieNum} = ${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`)}, lang["ROLL"])
 		]),
 	});
 }
