@@ -2,12 +2,11 @@ import type {Uint} from './types.js';
 import type {Bind} from './lib/dom.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
-import {keyEvent} from './lib/events.js';
 import {div, h2, li, span, ul} from './lib/html.js';
 import {mod} from './lib/misc.js';
 import {stringSort} from './lib/nodes.js';
 import {g, ns as svgNS, path, polygon, svg, title} from './lib/svg.js';
-import {registerKey} from './keys.js';
+import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import {isAdmin} from './rpc.js';
 import {miniTools} from './settings.js';
@@ -128,8 +127,6 @@ menuItems.push([6, () => isAdmin ? [
 			span(t.name)
 		      ])),
 		      fc = list[0],
-		      toolPrev = registerKey("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+('),
-		      toolNext = registerKey("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)'),
 		      [toolList, selectedID, miniToolsID] = ids(3);
 		add({
 			[`#${toolList}`]: {
@@ -200,8 +197,8 @@ menuItems.push([6, () => isAdmin ? [
 				}
 			}
 		});
-		keyEvent(toolPrev, () => list[mod(toolNum - 1, tools.length)].click())[0]();
-		keyEvent(toolNext, () => list[mod(toolNum + 1, tools.length)].click())[0]();
+		registerKeyEvent("toolPrev", lang["KEY_TOOL_PREV"], 'Shift+(', () => list[mod(toolNum - 1, tools.length)].click())[0]();
+		registerKeyEvent("toolNext", lang["KEY_TOOL_NEXT"], 'Shift+)', () => list[mod(toolNum + 1, tools.length)].click())[0]();
 		return base;
 	})(),
 	true,
