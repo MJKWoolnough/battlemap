@@ -8,7 +8,6 @@ import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {add, ids} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
-import {keyEvent} from '../lib/events.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {item, menu, submenu} from '../lib/menu.js';
 import {checkInt, isInt, queue} from '../lib/misc.js';
@@ -19,7 +18,7 @@ import {selectToken} from '../adminMap.js';
 import {tokenSelector} from '../characters.js';
 import {Colour, ColourSetting, makeColourPicker} from '../colours.js';
 import {itemControl} from '../folders.js';
-import {registerKey} from '../keys.js';
+import {registerKeyEvent} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
 import {centreOnGrid, getLayer, mapData, walkLayers, wallList} from '../map.js';
 import {doMapDataRemove, doMapDataSet, doTokenSet, getToken} from '../map_fns.js';
@@ -1016,7 +1015,7 @@ if (isAdmin) {
 			rpc.pluginSetting(importName, settings, []);
 		}}, mainLang["SAVE"])
 	      ])),
-	      [setupHealthButton, cancelHealthButton] = keyEvent(registerKey("5e-health-key", lang["KEY_HEALTH"], 'h'), undefined, () => {
+	      [setupHealthButton, cancelHealthButton] = registerKeyEvent("5e-health-key", lang["KEY_HEALTH"], 'h', undefined, () => {
 		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			const currHP = token.getData("5e-hp-current");
@@ -1033,7 +1032,7 @@ if (isAdmin) {
 			}
 		}
 	      }),
-	      [setupInitiativeButton, cancelInitiativeButton] = keyEvent(registerKey("5e-initiative-key", lang["KEY_INITIATIVE"], 'i'), undefined, () => {
+	      [setupInitiativeButton, cancelInitiativeButton] = registerKeyEvent("5e-initiative-key", lang["KEY_INITIATIVE"], 'i', undefined, () => {
 		const {token} = selected;
 		if (token instanceof SVGToken5E) {
 			if (mapData.data["5e-initiative"] && (mapData as MapData5E).data["5e-initiative"]!.some(ii => ii.id === token.id)) {
@@ -1051,7 +1050,7 @@ if (isAdmin) {
 			token[updateData]();
 		}
 	      },
-	      conditionKeys = conditions.map((condition, n) => keyEvent(registerKey("5e-" + condition, [lang["TOGGLE_CONDITION"], ": ", lang[condition]], ''), undefined, () => setCondition(selected.token, n)));
+	      conditionKeys = conditions.map((condition, n) => registerKeyEvent("5e-" + condition, [lang["TOGGLE_CONDITION"], ": ", lang[condition]], '', undefined, () => setCondition(selected.token, n)));
 
 	add(`.${adminHideLight} #${perspectives5e}`, {
 		"display": "none"
