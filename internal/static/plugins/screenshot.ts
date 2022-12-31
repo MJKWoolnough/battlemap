@@ -1,10 +1,9 @@
 import {amendNode} from '../lib/dom.js';
-import {keyEvent} from '../lib/events.js';
 import {a, br, button, canvas, div, img, input} from '../lib/html.js';
 import {node} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
-import {registerKey} from '../keys.js';
+import {registerKeyEvent} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
 import {hiddenLayer, layerGrid, layerLight, mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
@@ -148,7 +147,7 @@ addPlugin("screenshot", {
 	}
 });
 
-keyEvent(registerKey("screenshot-key", lang["KEY_SCREENSHOT"], "PrintScreen"), (e: KeyboardEvent) => {
+registerKeyEvent("screenshot-key", lang["KEY_SCREENSHOT"], "PrintScreen", (e: KeyboardEvent) => {
 	makeScreenshot();
 	e.preventDefault();
 })[0]();
