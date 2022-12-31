@@ -142,7 +142,6 @@ menuItems.push([7, () => [
 		pluginSettings(),
 		details([
 			summary(h1(lang["SETTINGS_KEYS"])),
-			div(lang["SETTINGS_KEYS_EXPLAIN"]),
 			ul(getKeyIDs().map(id => li(labels([getKeyName(id), ": "], button({"onclick": function(this: HTMLButtonElement) {
 				let mod = "";
 				const mods = span(),
