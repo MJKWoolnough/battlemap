@@ -165,7 +165,6 @@ export default makeLangPack({
 	"SETTINGS_HIDE_MENU": "Hide Menu Button?",
 	"SETTINGS_KEYS": "Key Bindings",
 	"SETTINGS_KEYS_DELETE": "Delete Key Binding",
-	"SETTINGS_KEYS_EXPLAIN": "NB: Bound keys will be changed on the next page load.",
 	"SETTINGS_KEYS_NEW": "Enter New Key",
 	"SETTINGS_LANGUAGE": "Language",
 	"SETTINGS_LANGUAGE_SELECT": "Select Language",
