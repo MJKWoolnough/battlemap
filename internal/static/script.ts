@@ -2,13 +2,13 @@ import type {Bind} from './lib/dom.js';
 import type {WindowData, WindowElement} from './windows.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
-import {keyEvent, mouseDragEvent} from './lib/events.js';
+import {mouseDragEvent} from './lib/events.js';
 import {div, img, input, label, span} from './lib/html.js';
 import {mod} from './lib/misc.js';
 import {BoolSetting, IntSetting, JSONSetting, StringSetting} from './lib/settings.js';
 import loadMap from './adminMap.js';
 import help from './help.js';
-import {registerKey} from './keys.js';
+import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import loadUserMap from './map.js';
 import {psuedoLink} from './messaging.js';
@@ -105,11 +105,11 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 		}
 	      };
 	hideMenu.wait(v => amendNode(m, {"class": {[menuHideID]: v}}));
-	keyEvent(registerKey("helpKey", lang["KEY_HELP"], "F1"), (e: KeyboardEvent) => {
+	registerKeyEvent("helpKey", lang["KEY_HELP"], "F1", (e: KeyboardEvent) => {
 		help();
 		e.preventDefault();
 	})[0]();
-	keyEvent(registerKey("togglePanel", lang["KEY_PANEL_TOGGLE"], "F9"), (e: KeyboardEvent) => {
+	registerKeyEvent("togglePanel", lang["KEY_PANEL_TOGGLE"], "F9", (e: KeyboardEvent) => {
 		panelShow.set(c.checked = !c.checked);
 		e.preventDefault();
 	})[0]();
