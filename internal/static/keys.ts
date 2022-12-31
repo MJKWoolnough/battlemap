@@ -13,9 +13,9 @@ const keys = new JSONSetting<Record<string, string>>("keys", {}, (v: any): v is 
       names: Record<string, [Children, (key: string) => void]> = {};
 
 export const registerKeyEvent = (id: string, name: Children, defaultKey: string, onkeydown?: (e: KeyboardEvent) => void, onkeyup?: (e: KeyboardEvent) => void, once = false) => {
-	const fns = keyEvent(keys.value[id] ??= defaultKey, onkeydown, onkeyup, once);
-	names[id] = [name, fns[2]];
-	return fns;
+	const [start, stop, reset] = keyEvent(keys.value[id] ??= defaultKey, onkeydown, onkeyup, once);
+	names[id] = [name, reset];
+	return [start, stop];
 },
 setKey = (id: string, key: string = "") => {
 	names[id]?.[1](key);
