@@ -3,7 +3,6 @@ import type {WindowElement} from '../windows.js';
 import {add, id} from '../lib/css.js';
 import {amendNode} from '../lib/dom.js';
 import {DragTransfer, setDragEffect} from '../lib/drag.js';
-import {keyEvent} from '../lib/events.js';
 import {button, div} from '../lib/html.js';
 import {Subscription} from '../lib/inter.js';
 import {isInt} from '../lib/misc.js';
@@ -12,7 +11,7 @@ import {polygon, rect, svg} from '../lib/svg.js';
 import {dragLighting} from '../adminMap.js';
 import {Colour} from '../colours.js';
 import {DragFolder, DraggableItem, Folder, Root} from '../folders.js';
-import {registerKey} from '../keys.js';
+import {registerKeyEvent} from '../keys.js';
 import {makeLangPack} from '../language.js';
 import {doTokenSet} from '../map_fns.js';
 import {Lighting, definitions, selected, tokenSelectedReceive} from '../map_tokens.js';
@@ -413,7 +412,7 @@ if (isAdmin) {
 		      this.blur();
 		      removeLightFn();
 	      }}, lang["REMOVE_LIGHT"]),
-	      [startRemoveLight, cancelRemoveLight] = keyEvent(registerKey("lights-remove", lang["REMOVE_LIGHT"], ''), removeLightFn),
+	      [startRemoveLight, cancelRemoveLight] = registerKeyEvent("lights-remove", lang["REMOVE_LIGHT"], '', removeLightFn),
 	      copyLightFn = () => {
 		const tk = selected.token;
 		if (tk) {
@@ -427,7 +426,7 @@ if (isAdmin) {
 		      this.blur();
 		      copyLightFn()
 	      }}, lang["COPY_LIGHT"]),
-	      [startCopyLight, cancelCopyLight] = keyEvent(registerKey("lights-copy", lang["COPY_LIGHT"], ''), undefined, copyLightFn),
+	      [startCopyLight, cancelCopyLight] = registerKeyEvent("lights-copy", lang["COPY_LIGHT"], '', undefined, copyLightFn),
 	      checkSelectedToken = () => {
 		const tk = selected.token;
 		let disabled = true;
