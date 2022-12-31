@@ -3,7 +3,7 @@ import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
 import {add, id, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
-import {keyEvent, mouseDragEvent} from './lib/events.js';
+import {mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
 import {div, progress} from './lib/html.js';
 import {WaitGroup} from './lib/inter.js';
@@ -11,7 +11,7 @@ import {checkInt, queue} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
-import {registerKey} from './keys.js';
+import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, gridPattern, lighting, mapMask, masks, tokens} from './map_tokens.js';
@@ -623,7 +623,7 @@ inited.then(() => {
 	combined.waitGridDiagonalChange().when(v => mapData.gridDiagonal = v);
 });
 
-keyEvent(registerKey("centreMap", lang["KEY_CENTRE_MAP"], 'c'), () => centreOnGrid(mapData.startX, mapData.startY))[0]();
+registerKeyEvent("centreMap", lang["KEY_CENTRE_MAP"], 'c', () => centreOnGrid(mapData.startX, mapData.startY))[0]();
 
 export default (base: HTMLElement) => {
 	rpc.waitCurrentUserMapData().when(mapData => {
