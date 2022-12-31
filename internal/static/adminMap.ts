@@ -17,7 +17,7 @@ import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {itemControl} from './folders.js';
-import {registerKey} from './keys.js';
+import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import {getLayer, hiddenLayer,  isSVGFolder, isSVGLayer, isTokenImage, layerLight, layerList, mapData, mapID, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doLockUnlockLayer, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doTokenSetMulti, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerLock, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitLayerUnlock, waitRemoved} from './map_fns.js';
@@ -317,7 +317,7 @@ export default (base: HTMLElement) => {
 			cancelTokenDrag();
 		}),
 		keyEvent("Delete", () => doTokenRemove(selected.token!.id)),
-		keyEvent(registerKey("tokenEdit", lang["CONTEXT_EDIT_TOKEN"], ''), () => {
+		registerKeyEvent("tokenEdit", lang["CONTEXT_EDIT_TOKEN"], '', () => {
 			const {token} = selected;
 			if (token instanceof SVGToken && tokens.has(token.id)) {
 				tokenEdit(token.id, lang["CONTEXT_EDIT_TOKEN"], token.tokenData, false);
@@ -331,7 +331,7 @@ export default (base: HTMLElement) => {
 		] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn))
 	      ],
 	      dragLightingOver = setDragEffect({"copy": [dragLighting]}),
-	      [startCycleTokens, stopCycleTokens] = keyEvent([registerKey("nextToken", lang["TOKEN_NEXT"], "Tab"), registerKey("prevToken", lang["TOKEN_PREV"], "Shift+Tab")], (e: KeyboardEvent) => {
+	      cycleTokens = (e: KeyboardEvent) => {
 		const {layer, token} = selected;
 		if (layer) {
 			const pos = layer.tokens.findIndex(t => t === token),
@@ -341,7 +341,9 @@ export default (base: HTMLElement) => {
 			}
 			e.preventDefault();
 		}
-	      }),
+	      },
+	      [startCycleTokensForwards, stopCycleTokensForwards] = registerKeyEvent("nextToken", lang["TOKEN_NEXT"], "Tab", cycleTokens),
+	      [startCycleTokensBackwards, stopCycleTokensBackwards] = registerKeyEvent("prevToken", lang["TOKEN_PREV"], "Shift+Tab", cycleTokens),
 	      outlineID = id();
 	add({
 		[`#${mapID}`]: {
@@ -731,10 +733,12 @@ export default (base: HTMLElement) => {
 		return false;
 	};
 	defaultTool.set = () => {
-		startCycleTokens();
+		startCycleTokensForwards();
+		startCycleTokensBackwards();
 	}
 	defaultTool.unset = () => {
-		stopCycleTokens();
+		stopCycleTokensForwards();
+		stopCycleTokensBackwards();
 		cancelMapMouseMove();
 		cancelControlOverride();
 		amendNode(document.body, {"style": {"--outline-cursor": undefined}});
