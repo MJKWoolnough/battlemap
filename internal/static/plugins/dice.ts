@@ -12,6 +12,8 @@ if (isAdmin) {
 		"CLEAR": "Clear Rolls",
 		"DICE": "Dice",
 		"DICE_ROLLED": "Rolled",
+		"MAX": "Max",
+		"MIN": "Min",
 		"NUMBER": "Number to Roll",
 		"RESULT": "Result",
 		"ROLL": "Roll!",
@@ -23,6 +25,8 @@ if (isAdmin) {
 	      rollTable = table({"style": "display: none"}, [
 		      thead(tr([
 			      th(lang["DICE_ROLLED"]),
+			      th(lang["MIN"]),
+			      th(lang["MAX"]),
 			      th(lang["RESULT"])
 		      ])),
 		      rolls
@@ -42,11 +46,14 @@ if (isAdmin) {
 			br(),
 			button({"onclick": () => {
 				const nD = checkInt(parseInt(numDice.value), 1, 100, 6),
-				      dN = checkInt(parseInt(dieNum.value), 1, 100, 1);
+				      dN = checkInt(parseInt(dieNum.value), 1, 100, 1),
+				      rolled = Array.from({"length": nD}, () => Math.ceil(Math.random() * dN));
 				amendNode(rollTable, {"style": {"display": undefined}});
 				amendNode(rolls, tr([
 					td(`${nD}d${dN}`),
-					td(`${Array.from({"length": nD}, () => Math.ceil(Math.random() * dN))}`)
+					td(Math.min(...rolled) + ""),
+					td(Math.max(...rolled) + ""),
+					td(rolled + "")
 				]));
 				amendNode(clearer, {"style": {"display": undefined}});
 			}}, lang["ROLL"]),
