@@ -17,7 +17,8 @@ if (isAdmin) {
 		"NUMBER": "Number to Roll",
 		"RESULT": "Result",
 		"ROLL": "Roll!",
-		"TITLE": "Dice Roller"
+		"TITLE": "Dice Roller",
+		"TOTAL": "Total"
 	      }),
 	      dieNum = input({"type": "number", "min": 1, "max": 100, "value": 6, "onkeypress": enterKey}),
 	      numDice = input({"type": "number", "min": 1, "max": 100, "value": 1, "onkeypress": enterKey}),
@@ -25,6 +26,7 @@ if (isAdmin) {
 	      rollTable = table({"style": "display: none"}, [
 		      thead(tr([
 			      th(lang["DICE_ROLLED"]),
+			      th(lang["TOTAL"]),
 			      th(lang["MIN"]),
 			      th(lang["MAX"]),
 			      th(lang["RESULT"])
@@ -51,6 +53,7 @@ if (isAdmin) {
 				amendNode(rollTable, {"style": {"display": undefined}});
 				amendNode(rolls, tr([
 					td(`${nD}d${dN}`),
+					td(rolled.reduce((a, b) => a + b) + ""),
 					td(Math.min(...rolled) + ""),
 					td(Math.max(...rolled) + ""),
 					td(rolled + "")
