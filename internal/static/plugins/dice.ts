@@ -17,6 +17,8 @@ if (isAdmin) {
 		"ROLL": "Roll!",
 		"TITLE": "Dice Roller"
 	      }),
+	      dieNum = input({"type": "number", "min": 1, "max": 100, "value": 6, "onkeypress": enterKey}),
+	      numDice = input({"type": "number", "min": 1, "max": 100, "value": 1, "onkeypress": enterKey}),
 	      rolls = tbody(),
 	      rollTable = table({"style": "display: none"}, [
 		      thead(tr([
@@ -30,25 +32,21 @@ if (isAdmin) {
 		clearNode(rolls);
 		amendNode(clearer, {"style": {"display": "none"}});
 	      }}, lang["CLEAR"]);
-	let dieNum = 6,
-	    numDice = 1;
 	addTool({
 		"name": lang["TITLE"],
 		"icon": svg({"viewBox": "0 0 50 58"}, path({"d": "M24,1 L0,13 0,42 7,38 0,13 24,8 48,13 41,38 49,42 48,13 24,1 24,8 7,38 41,38 24,8 M7,38 L24,57 0,42 M41,38 L24,57 49,42", "stroke": "currentColor", "fill": "none", "stroke-linecap": "round", "stroke-linejoin": "round"})),
 		"options": div([
-			labels([lang["DICE"], ": "], input({"type": "number", "min": 1, "max": 100, "value": 6, "onkeypress": enterKey, "onchange": function(this: HTMLInputElement) {
-				dieNum = checkInt(parseInt(this.value), 1, 100, 6);
-			}})),
+			labels([lang["DICE"], ": "], dieNum),
 			br(),
-			labels([lang["NUMBER"], ": "], input({"type": "number", "min": 1, "max": 100, "value": 1, "onkeyPress": enterKey, "onchange": function(this: HTMLInputElement) {
-				numDice = checkInt(parseInt(this.value), 1, 100, 1);
-			}})),
+			labels([lang["NUMBER"], ": "], numDice),
 			br(),
 			button({"onclick": () => {
+				const nD = checkInt(parseInt(numDice.value), 1, 100, 6),
+				      dN = checkInt(parseInt(dieNum.value), 1, 100, 1);
 				amendNode(rollTable, {"style": {"display": undefined}});
 				amendNode(rolls, tr([
-					td(`${numDice}d${dieNum}`),
-					td(`${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`)
+					td(`${nD}d${dN}`),
+					td(`${Array.from({"length": nD}, () => Math.ceil(Math.random() * dN))}`)
 				]));
 				amendNode(clearer, {"style": {"display": undefined}});
 			}}, lang["ROLL"]),
