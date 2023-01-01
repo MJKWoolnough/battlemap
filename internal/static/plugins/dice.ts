@@ -1,3 +1,4 @@
+import {amendNode, clearNode} from '../lib/dom.js';
 import {br, button, div, input} from '../lib/html.js';
 import {checkInt} from '../lib/misc.js';
 import {path, svg} from '../lib/svg.js';
@@ -5,15 +6,16 @@ import {makeLangPack} from '../language.js';
 import {isAdmin} from '../rpc.js';
 import {labels} from '../shared.js';
 import {addTool} from '../tools.js';
-import {shell} from '../windows.js';
 
 if (isAdmin) {
 	const lang = makeLangPack({
+		"CLEAR": "Clear Rolls",
 		"DICE": "Dice",
 		"NUMBER": "Number to Roll",
 		"ROLL": "Roll!",
 		"TITLE": "Dice Roller"
-	      });
+	      }),
+	      rolls = div();
 	let dieNum = 6,
 	    numDice = 1;
 	addTool({
@@ -28,7 +30,9 @@ if (isAdmin) {
 				numDice = checkInt(parseInt(this.value), 1, 100, 1);
 			}})),
 			br(),
-			button({"onclick": () => shell.alert(lang["TITLE"], `${numDice}d${dieNum} = ${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`)}, lang["ROLL"])
+			button({"onclick": () => amendNode(rolls, div(`${numDice}d${dieNum} = ${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`))}, lang["ROLL"]),
+			rolls,
+			button({"onclick": () => clearNode(rolls)}, lang["CLEAR"])
 		])
 	});
 }
