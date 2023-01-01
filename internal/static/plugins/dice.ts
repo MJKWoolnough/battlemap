@@ -1,3 +1,4 @@
+import {add, id} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
 import {br, button, div, input} from '../lib/html.js';
 import {checkInt} from '../lib/misc.js';
@@ -15,7 +16,11 @@ if (isAdmin) {
 		"ROLL": "Roll!",
 		"TITLE": "Dice Roller"
 	      }),
-	      rolls = div();
+	      rollsID = id(),
+	      rolls = div({"id": rollsID});
+	add(`#${rollsID}:empty + button`, {
+		"display": "none"
+	});
 	let dieNum = 6,
 	    numDice = 1;
 	addTool({
