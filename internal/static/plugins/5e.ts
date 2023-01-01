@@ -1224,7 +1224,7 @@ mapLoadedReceive(() => {
 				tk[updateData]();
 			}
 		}
-		clearNode(getLayer("/Light")![node], [
+		clearNode(getLayer("/Light")!.l, [
 			use({"href": `#${lighting}`, "style": "mix-blend-mode: saturation", "filter": `url(#${darksatID})`, "clip-path": `url(#${darkvisionID})`}),
 			g({"style": "mix-blend-mode: multiply"}, [
 				use({"href": `#${lighting}`}),
