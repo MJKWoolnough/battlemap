@@ -29,6 +29,6 @@ if (isAdmin) {
 			}})),
 			br(),
 			button({"onclick": () => shell.alert(lang["TITLE"], `${numDice}d${dieNum} = ${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`)}, lang["ROLL"])
-		]),
+		])
 	});
 }
