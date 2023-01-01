@@ -1,6 +1,5 @@
-import {add, id} from '../lib/css.js';
 import {amendNode, clearNode} from '../lib/dom.js';
-import {br, button, div, input} from '../lib/html.js';
+import {br, button, div, input, table, tbody, td, th, thead, tr} from '../lib/html.js';
 import {checkInt} from '../lib/misc.js';
 import {path, svg} from '../lib/svg.js';
 import {makeLangPack} from '../language.js';
@@ -12,15 +11,25 @@ if (isAdmin) {
 	const lang = makeLangPack({
 		"CLEAR": "Clear Rolls",
 		"DICE": "Dice",
+		"DICE_ROLLED": "Rolled",
 		"NUMBER": "Number to Roll",
+		"RESULT": "Result",
 		"ROLL": "Roll!",
 		"TITLE": "Dice Roller"
 	      }),
-	      rollsID = id(),
-	      rolls = div({"id": rollsID});
-	add(`#${rollsID}:empty + button`, {
-		"display": "none"
-	});
+	      rolls = tbody(),
+	      rollTable = table({"style": "display: none"}, [
+		      thead(tr([
+			      th(lang["DICE_ROLLED"]),
+			      th(lang["RESULT"])
+		      ])),
+		      rolls
+	      ]),
+	      clearer = button({"style": "display: none", "onclick": () => {
+		amendNode(rollTable, {"style": {"display": "none"}});
+		clearNode(rolls);
+		amendNode(clearer, {"style": {"display": "none"}});
+	      }}, lang["CLEAR"]);
 	let dieNum = 6,
 	    numDice = 1;
 	addTool({
@@ -35,9 +44,16 @@ if (isAdmin) {
 				numDice = checkInt(parseInt(this.value), 1, 100, 1);
 			}})),
 			br(),
-			button({"onclick": () => amendNode(rolls, div(`${numDice}d${dieNum} = ${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`))}, lang["ROLL"]),
-			rolls,
-			button({"onclick": () => clearNode(rolls)}, lang["CLEAR"])
+			button({"onclick": () => {
+				amendNode(rollTable, {"style": {"display": undefined}});
+				amendNode(rolls, tr([
+					td(`${numDice}d${dieNum}`),
+					td(`${Array.from({"length": numDice}, () => Math.ceil(Math.random() * dieNum))}`)
+				]));
+				amendNode(clearer, {"style": {"display": undefined}});
+			}}, lang["ROLL"]),
+			rollTable,
+			clearer
 		])
 	});
 }
