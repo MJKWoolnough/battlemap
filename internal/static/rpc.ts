@@ -38,7 +38,7 @@ addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => 
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
 handleError = (e: Error | string | Bind) => {
 	console.log(e);
-	shell.alert(lang["ERROR"], e instanceof Error ? e.message || lang["ERROR_UNKNOWN"] : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e);
+	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
 inited = pageLoad.then(() => WS("/socket").then(ws => {
 	const arpc = new RPC(ws),
