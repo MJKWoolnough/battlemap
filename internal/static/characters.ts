@@ -1,7 +1,7 @@
 import type {KeystoreData, Uint} from './types.js';
 import type {Bind} from './lib/dom.js';
 import type {Character} from './characterList.js';
-import {add, id, ids} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, img, input, label, li, ul} from './lib/html.js';
@@ -9,7 +9,7 @@ import {queue} from './lib/misc.js';
 import {NodeMap, node, noSort} from './lib/nodes.js';
 import {ns as svgNS} from './lib/svg.js';
 import {dragImage} from './assets.js';
-import {settingsTicker} from './ids.js';
+import {settingsTicker, tokenSelector} from './ids.js';
 import lang from './language.js';
 import {doTokenSet, getToken} from './map_fns.js';
 import {characterEdit} from './plugins.js';
@@ -135,8 +135,7 @@ edit = (id: Uint, title: string | Bind, d: Record<string, KeystoreData>, charact
 			amendNode(this, {"disabled": false});
 		}), w);
 	}}, lang["SAVE"])))));
-},
-tokenSelector = id();
+};
 
 const doCharacterModify = (id: Uint, changes: Record<string, KeystoreData>, removes: string[]) => {
 	let oldChanges: Record<string, KeystoreData> = {},
