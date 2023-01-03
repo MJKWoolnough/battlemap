@@ -17,7 +17,7 @@ import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {itemControl} from './folders.js';
-import {adminHideLight} from './ids.js';
+import {adminHideLight, selectedLayerID} from './ids.js';
 import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import {getLayer, hiddenLayer,  isSVGFolder, isSVGLayer, isTokenImage, layerLight, layerList, mapData, mapID, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
@@ -43,8 +43,7 @@ selectToken = (newToken: SVGToken | SVGShape | SVGDrawing) => {
 		tokenMousePos[k] = newToken[k];
 	}
 	tokenSelected();
-},
-selectedLayerID = id();
+};
 
 export default (base: HTMLElement) => {
 	let copiedToken: Token | null = null,
