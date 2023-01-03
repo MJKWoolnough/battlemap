@@ -6,7 +6,7 @@ import {amendNode, autoFocus, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {queue, setAndReturn} from './lib/misc.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
-import {invertID} from './ids.js';
+import {dragOver, folderDragging, folders, foldersItem, imageIcon, invertID, itemControl} from './ids.js';;
 import lang from './language.js';
 import {inited, isAdmin} from './rpc.js';
 import {invert} from './settings.js';
@@ -40,8 +40,6 @@ const stringSorter = (a: Item | Folder, b: Item | Folder) => stringSort(a.name, 
 	}
       },
       [item, folderIconID, foldersFolder, filter] = ids(4);
-
-export const [folderDragging, dragOver, folders, foldersItem, itemControl, imageIcon] = ids(6);
 
 invert.wait(i => amendNode(folderIcon, {"style": {"background-color": i ? "#000" : "#fff"}}));
 
