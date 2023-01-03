@@ -1,7 +1,7 @@
 import type {Int, LayerFolder, LayerTokens, MapData, MapDetails, Token, TokenDrawing, TokenImage, TokenSet, Uint, Wall} from './types.js';
 import type {LightWall} from './map_lighting.js';
 import type {SVGDrawing, SVGShape} from './map_tokens.js';
-import {add, id, ids} from './lib/css.js';
+import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
 import Fraction from './lib/fraction.js';
@@ -680,9 +680,7 @@ export default (base: HTMLElement) => {
 		token.updateNode();
 		return hasLight || token.hasLight();
 	      },
-	      dragging = id(),
-	      slidingID = id(),
-	      animations = id();
+	      [dragging, slidingID, animations] = ids(3);
 	enableAnimation.wait(e => amendNode(document.documentElement, {"class": {[animations]: e}}));
 	add(`#${mapID}`, {
 		"overflow": "hidden",
