@@ -9,10 +9,10 @@ import {amendNode, createDocumentFragment} from './lib/dom.js';
 import {br, button, details, fieldset, h1, input, legend, option, select, summary} from './lib/html.js';
 import {setAndReturn} from './lib/misc.js';
 import {stringSort} from './lib/nodes.js';
+import {settingsTicker} from './ids.js';
 import lang from './language.js';
 import {SVGDrawing, SVGShape, SVGToken} from './map_tokens.js';
 import {handleError, isAdmin, rpc} from './rpc.js';
-import {settingsTicker} from './settings.js';
 import {labels} from './shared.js';
 import {shell} from './windows.js';
 

@@ -7,13 +7,14 @@ import {br, div, fieldset, input, legend, option, select} from '../lib/html.js';
 import {checkInt, isInt, mod} from '../lib/misc.js';
 import {circle, g, path, rect, svg, title, use} from '../lib/svg.js';
 import {hex2Colour} from '../colours.js';
+import {settingsTicker} from '../ids.js';
 import {registerKeyEvent} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
 import {mapData, root, screen2Grid} from '../map.js';
 import {doTokenAdd} from '../map_fns.js';
 import {selected, tokenSelectedReceive} from '../map_tokens.js';
 import {combined, isAdmin, rpc} from '../rpc.js';
-import {autosnap, settingsTicker} from '../settings.js';
+import {autosnap} from '../settings.js';
 import {labels, mapLoadedReceive} from '../shared.js';
 import {addTool, ignore} from '../tools.js';
 

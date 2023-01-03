@@ -17,6 +17,7 @@ import {dragImage, dragImageFiles, uploadImages} from './assets.js';
 import {dragCharacter, edit as tokenEdit} from './characters.js';
 import {makeColourPicker, noColour} from './colours.js';
 import {itemControl} from './folders.js';
+import {adminHideLight} from './ids.js';
 import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
 import {getLayer, hiddenLayer,  isSVGFolder, isSVGLayer, isTokenImage, layerLight, layerList, mapData, mapID, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
@@ -24,7 +25,7 @@ import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRe
 import {SQRT3, SVGToken, cursors, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
 import {handleError, rpc} from './rpc.js';
-import {adminHideLight, autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
+import {autosnap, hiddenLayerOpacity, hiddenLayerSelectedOpacity, measureTokenMove} from './settings.js';
 import {characterData, cloneObject, getCharacterToken, mapLoadedSend} from './shared.js';
 import {lightGrid, lightOnOffStr, remove} from './symbols.js';
 import {defaultTool, toolTokenMouseDown, toolTokenMouseOver, toolTokenWheel} from './tools.js';

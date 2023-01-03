@@ -3,12 +3,12 @@ import {a, br, button, canvas, div, img, input} from '../lib/html.js';
 import {node} from '../lib/nodes.js';
 import {BoolSetting} from '../lib/settings.js';
 import {ns as svgNS} from '../lib/svg.js';
+import {settingsTicker} from '../ids.js';
 import {registerKeyEvent} from '../keys.js';
 import mainLang, {makeLangPack} from '../language.js';
 import {hiddenLayer, layerGrid, layerLight, mapData, panZoom, root} from '../map.js';
 import {definitions} from '../map_tokens.js';
 import {addPlugin} from '../plugins.js';
-import {settingsTicker} from '../settings.js';
 import {labels} from '../shared.js';
 import {shell, windows} from '../windows.js';
 

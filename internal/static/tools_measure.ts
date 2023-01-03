@@ -4,10 +4,11 @@ import {keyEvent, mouseDragEvent, mouseMoveEvent} from './lib/events.js';
 import {br, div, input} from './lib/html.js';
 import {checkInt, isInt} from './lib/misc.js';
 import {circle, g, path, polyline, svg, title} from './lib/svg.js';
+import {settingsTicker} from './ids.js';
 import lang from './language.js';
 import {mapData, panZoom, root, screen2Grid} from './map.js';
 import {inited, isAdmin, rpc} from './rpc.js';
-import {autosnap, settingsTicker} from './settings.js';
+import {autosnap} from './settings.js';
 import {labels, mapLoadedReceive} from './shared.js';
 import {addTool, ignore, marker} from './tools.js';
 

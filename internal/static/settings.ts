@@ -1,9 +1,10 @@
-import {add, id, ids} from './lib/css.js';
+import {add, id} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, form, h1, input, li, option, select, span, summary, ul} from './lib/html.js';
 import {BoolSetting, IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';
 import help from './help.js';
+import {settingsTicker} from './ids.js';
 import {getKey, getKeyIDs, getKeyName, setKey} from './keys.js';
 import lang, {language, languages} from './language.js';
 import {settings as pluginSettings} from './plugins.js';
@@ -15,8 +16,7 @@ import {shell, windows} from './windows.js';
 export const [autosnap, hideMenu, invert, miniTools, tabIcons, zoomSlider, panelOnTop, measureTokenMove, enableAnimation, musicSort] = ["autosnap", "menuHide", "invert", "miniTools", "tabIcons", "zoomSlider", "panelOnTop", "measureTokenMove", "enableAnimation", "musicSort"].map(n => new BoolSetting(n)),
 scrollAmount = new IntSetting("scrollAmount"),
 undoLimit = new IntSetting("undoLimit", 100, -1),
-[hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255)),
-[settingsTicker, invertID, adminHideLight] = ids(3);
+[hiddenLayerOpacity, hiddenLayerSelectedOpacity] = ["hiddenLayerOpacity", "hiddenLayerSelectedOpacity"].map(n => new IntSetting(n, 128, 0, 255));
 
 const settings = id();
 
