@@ -47,8 +47,8 @@ if (isAdmin) {
 			labels([lang["NUMBER"], ": "], numDice),
 			br(),
 			button({"onclick": () => {
-				const nD = checkInt(parseInt(numDice.value), 1, 100, 6),
-				      dN = checkInt(parseInt(dieNum.value), 1, 100, 1),
+				const nD = checkInt(parseInt(numDice.value), 1, Infinity, 6),
+				      dN = checkInt(parseInt(dieNum.value), 1, Infinity, 1),
 				      rolled = Array.from({"length": nD}, () => Math.ceil(Math.random() * dN));
 				amendNode(rollTable, {"style": {"display": undefined}});
 				amendNode(rolls, tr([
