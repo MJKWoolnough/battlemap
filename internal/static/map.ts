@@ -12,7 +12,7 @@ import {NodeArray, node} from './lib/nodes.js';
 import {animate, circle, g, rect, svg, use} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
 import {registerKeyEvent} from './keys.js';
-import {invertID} from './ids.js';
+import {hiddenLayer, hideZoomSlider, invertID, layerGrid, layerLight, mapID, zooming, zoomSliderID} from './ids.js';
 import lang from './language.js';
 import {intersection, makeLight} from './map_lighting.js';
 import {Lighting, SQRT3, SVGToken, definitions, gridPattern, lighting, mapMask, masks, tokens} from './map_tokens.js';
@@ -73,8 +73,7 @@ const idNames: Record<string, Int> = {
       lightList: Lighting[] = [],
       [mapBase, mapLoading] = ids(3);
 
-export const [layerLight, layerGrid, hiddenLayer, mapID, hideZoomSlider, zoomSliderID, zooming] = ids(7),
-splitAfterLastSlash = (path: string) => {
+export const splitAfterLastSlash = (path: string) => {
 	const pos = path.lastIndexOf("/");
 	return [path.slice(0, pos), path.slice(pos+1)];
 },
