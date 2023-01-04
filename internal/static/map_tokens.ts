@@ -1,13 +1,13 @@
 import type {Byte, Coords, GridDetails, Int, KeystoreData, Mask, Token, TokenDrawing, TokenImage, TokenShape, Uint} from './types.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {SVGLayer} from './map.js';
-import {ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {Pipe} from './lib/inter.js';
 import {setAndReturn} from './lib/misc.js';
 import {NodeArray, node} from './lib/nodes.js';
 import {animate, defs, ellipse, g, image, mask, path, pattern, polygon, radialGradient, rect, stop} from './lib/svg.js';
 import {Colour, noColour} from './colours.js';
+import {cursors, gridPattern, lighting, mapMask} from './ids.js';
 import {timeShift} from './rpc.js';
 import {characterData, cloneObject} from './shared.js';
 
@@ -253,8 +253,6 @@ selected = {
 	"token": null as SVGToken | SVGShape | SVGDrawing | null
 },
 outline = g(),
-cursors = ids(4),
-[lighting, mapMask, gridPattern]  = ids(3),
 outlineRotationClass = (rotation: Uint) => cursors[((rotation + 143) >> 5) % 4],
 deselectToken = () => {
 	selected.token = null;
