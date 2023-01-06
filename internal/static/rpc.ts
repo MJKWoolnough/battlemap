@@ -376,11 +376,11 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksIDName: checkers = [[checkID, ""], [checkString, "name"]],
       checkIDName = (data: any) => checker(data, "IDName", checksIDName),
       checkAdded = (data: any) => {
-	      checkArray(data, "added");
-	      for (const i of data) {
-		      checkIDName(i);
-	      }
-	      return data;
+	checkArray(data, "added");
+	for (const i of data) {
+		checkIDName(i);
+	}
+	return data;
       },
       checksIDPath: checkers = [[checkID, ""], [checkString, "path"]],
       checkIDPath = (data: any) => checker(data, "IDPath", checksIDPath),
