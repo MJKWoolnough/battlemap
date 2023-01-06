@@ -47,7 +47,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		"!": (args: unknown[]) => args[0],
 		"*": (args: unknown[], names: string[]) => Object.fromEntries(names.map((key, pos) => [key, args[pos]]))
 	      },
-	      waiters: Record<string, [string, number, (data: any) => any][]> = {
+	      waiters: Record<string, [string, number, (data: any) => data is any][]> = {
 		"": [
 			["waitCurrentUserMap",       broadcastCurrentUserMap,       checkUint],
 			["waitCurrentUserMapData",   broadcastCurrentUserMapData,   checkMapData],
@@ -138,7 +138,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 			["waitFolderRemoved", broadcastMapFolderRemove, checkString]
 		]
 	      },
-	      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => any, string, string][]> ={
+	      endpoints: Record<string, [string, string, keyof typeof argProcessors | string[], (data: any) => data is any, string, string][]> ={
 		"": [
 			["ready"      , "conn.ready"      , "", returnVoid, "", ""],
 
@@ -254,7 +254,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		for (const [name, endpoint, args, checker, internalWaiter, postKey] of endpoints[e]) {
 			const processArgs = argProcessors[typeof args === "string" ? args : "*"];
 			if (internalWaiter === "") {
-				rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[])).then(checker).catch(handleError);
+				rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[]), checker).catch(handleError);
 			} else {
 				const [iw, fn] = Subscription.bind(1);
 				ik[internalWaiter] = iw.splitCancel();
@@ -262,17 +262,17 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 					rk[name] = (...params: unknown[]) => {
 						const a = processArgs(params, args as string[]);
 						fn(a);
-						return arpc.request(endpoint, a).then(checker).catch(handleError);
+						return arpc.request(endpoint, a, checker).catch(handleError);
 					};
 				} else if (postKey === "*") {
-					rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[])).then(checker).catch(handleError).then(data => {
+					rk[name] = (...params: unknown[]) => arpc.request(endpoint, processArgs(params, args as string[]), checker).catch(handleError).then(data => {
 						fn(data);
 						return data;
 					});
 				} else if (postKey === "token/id") {
 					rk[name] = (...params: unknown[]) => {
 						const a = processArgs(params, args as string[]) as {token: {id: Uint}};
-						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
+						return arpc.request(endpoint, a, checker).catch(handleError).then(data => {
 							a.token.id = data;
 							fn(a);
 							return data;
@@ -296,7 +296,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 		      ck = (k === "" ? combined : combined[k as keyof InternalWaits]) as Record<string, Function>;
 		for (const [name, broadcastID, checker] of waiters[k]) {
 			const [waiter, fn] = Subscription.bind(1);
-			arpc.subscribe(broadcastID).when(checker).when(data => queue(async () => fn(data)));
+			arpc.subscribe(broadcastID, checker).when(data => queue(async () => fn(data)));
 			rk[name] = () => waiter;
 			if (ik[name]) {
 				ck[name] = Subscription.merge(rk[name](), ik[name]()).splitCancel();
@@ -308,55 +308,58 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 	}
 	arpc.await(-999).catch(handleError);
 	Object.freeze(rpc);
-	return arpc.await(broadcastIsAdmin).then(checkUint).then(userLevel => {
+	return arpc.await(broadcastIsAdmin, checkUint).then(userLevel => {
 		isAdmin = userLevel === 2;
 		isUser = userLevel === 1;
-		return arpc.request("conn.currentTime");
+		return arpc.request("conn.currentTime", (t: any): t is number => checkUint(t, "currentTime"));
 	}).then(t => {
-		timeShift = checkUint(t, "currentTime") - Date.now() / 1000;
+		timeShift = t - Date.now() / 1000;
 	});
 })).catch(handleError);
 
-type checkers = [(data: any, name: string, key?: string) => void, string][];
+type checkers = [(data: any, name: string, key?: string) => data is any, string][];
 
 const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       tokenDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
       characterDataCheckers: ((data: Record<string, KeystoreData>) => void)[] = [],
-      returnVoid = () => {},
+      returnVoid = (_?: any): _ is any => true,
       throwError = (err: string) => {throw new TypeError(err)},
-      checkInt = (data: any, name = "Int", key = "") => {
+      checkInt = (data: any, name = "Int", key = ""): data is number => {
 	if (!isInt(data)) {
 		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid Int: ${JSON.stringify(data)}` : `expecting Int type, got ${JSON.stringify(data)}`);
 	}
+	return true;
       },
-      checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER) => {
+      checkUint = (data: any, name = "Uint", key = "", max = Number.MAX_SAFE_INTEGER): data is number => {
 	if (!isInt(data, 0, max)) {
 		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid Uint: ${JSON.stringify(data)}` : `expecting Uint type, got ${JSON.stringify(data)}`);
 	}
-	return data;
+	return true;
       },
-      checkByte = (data: any, name = "Byte", key = "") => checkUint(data, name, key, 255),
-      checkObject = (data: any, name: string, key = "") => {
+      checkByte = (data: any, name = "Byte", key = ""): data is number => checkUint(data, name, key, 255),
+      checkObject = (data: any, name: string, key = ""): data is Object => {
 	if (typeof data !== "object") {
 		throwError(key ? `invalid ${name} object, key '${key}' contains invalid data: ${JSON.stringify(data)}` : `expecting ${name} object, got ${JSON.stringify(data)}`);
 	}
+	return true;
       },
-      checkString = (data: any, name = "String", key = "") => {
+      checkString = (data: any, name = "String", key = ""): data is string => {
 	if (typeof data !== "string") {
 		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid string: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
-	return data;
+	return true;
       },
-      checkBoolean = (data: any, name = "Boolean", key = "") => {
+      checkBoolean = (data: any, name = "Boolean", key = ""): data is boolean => {
 	if (typeof data !== "boolean") {
 		throwError(key ? `invalid ${name} object, key '${key}' contains an invalid boolean: ${JSON.stringify(data)}` : `expecting ${name} type, got ${JSON.stringify(data)}`);
 	}
-	return data;
+	return true;
       },
-      checkArray = (data: any, name: string, key = "") => {
+      checkArray = (data: any, name: string, key = ""): data is Array<any> => {
 	if (!(data instanceof Array)) {
 		throwError(`invalid ${name} object, key '${key}' contains an invalid Array: ${JSON.stringify(data)}`);
 	}
+	return true;
       },
       checker = (data: any, name: string, checkers: checkers) => {
 	for (let [fn, key] of checkers) {
@@ -365,35 +368,41 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 				continue;
 			}
 		}
-		fn(key ? data[key] : data, name, key);
+		if (!fn(key ? data[key] : data, name, key)) {
+			return false;
+		}
 	}
-	return data;
+	return true;
       },
       checksColour: checkers = [[checkObject, ""], [checkByte, "r"], [checkByte, "g"], [checkByte, "b"], [checkByte, "a"]],
-      checkColour = (data: any, name = "Colour") => Colour.from(checker(data, name, checksColour)),
+      checkColour = (data: any, name = "Colour"): data is any => {
+	checker(data, name, checksColour);
+	Colour.from(data);
+	return true;
+      },
       checksID: checkers = [[checkObject, ""], [checkUint, "id"]],
-      checkID = (data: any, name: string) => checker(data, name, checksID),
+      checkID = (data: any, name: string): data is Object => checker(data, name, checksID),
       checksIDName: checkers = [[checkID, ""], [checkString, "name"]],
-      checkIDName = (data: any) => checker(data, "IDName", checksIDName),
-      checkAdded = (data: any) => {
+      checkIDName = (data: any): data is any => checker(data, "IDName", checksIDName),
+      checkAdded = (data: any): data is any => {
 	checkArray(data, "added");
 	for (const i of data) {
 		checkIDName(i);
 	}
-	return data;
+	return true;
       },
       checksIDPath: checkers = [[checkID, ""], [checkString, "path"]],
-      checkIDPath = (data: any) => checker(data, "IDPath", checksIDPath),
+      checkIDPath = (data: any): data is any => checker(data, "IDPath", checksIDPath),
       checksFromTo: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"]],
-      checkFromTo = (data: any, name = "FromTo") => checker(data, name, checksFromTo),
+      checkFromTo = (data: any, name = "FromTo"): data is any => checker(data, name, checksFromTo),
       checksCopied: checkers = [[checkObject, ""], [checkUint, "oldID"], [checkUint, "newID"], [checkString, "path"]],
-      checkCopied = (data: any) => checker(data, "Copied", checksCopied),
+      checkCopied = (data: any): data is any => checker(data, "Copied", checksCopied),
       checksLayerMove: checkers = [[checkObject, ""], [checkString, "from"], [checkString, "to"], [checkUint, "position"]],
-      checkLayerMove = (data: any) => checker(data, "LayerMove", checksLayerMove),
+      checkLayerMove = (data: any): data is any => checker(data, "LayerMove", checksLayerMove),
       checksLayerRename: checkers = [[checkObject, ""], [checkString, "path"], [checkString, "name"]],
-      checkLayerRename = (data: any) => checker(data, "LayerRename", checksLayerRename),
+      checkLayerRename = (data: any): data is any => checker(data, "LayerRename", checksLayerRename),
       checksFolderLayers: checkers = [[checkObject, ""], [checkObject, "folders"], [checkObject, "items"]],
-      checkFolderItems = (data: any) => {
+      checkFolderItems = (data: any): data is any => {
 	checker(data, "FolderItems", checksFolderLayers);
 	for (const key in data["folders"]) {
 		checkFolderItems(data["folders"][key]);
@@ -401,22 +410,25 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (const key in data["items"]) {
 		checkUint(data["items"][key], "FolderItems", key);
 	}
-	return data;
+	return true;
       },
       checksMapKeyData: checkers = [[checkObject, ""], [checkString, "key"]],
-      checkMapKeyData = (data: any) => {
+      checkMapKeyData = (data: any): data is any => {
 	checker(data, "KeyData", checksMapKeyData);
 	const d = {[data.key]: data.data};
 	for (const c of mapDataCheckers) {
 		c(d);
 	}
 	if (!d[data.key]) {
-		return {"": ""};
+		for (const k of data) {
+			delete data[k];
+		}
+		data[""] = "";
 	}
-	return data;
+	return true;
       },
       checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
-      checkKeystoreData = (data: any, name = "KeystoreData") => {
+      checkKeystoreData = (data: any, name = "KeystoreData"): data is any => {
 	checkObject(data, name);
 	for (const key in data) {
 		checker(data[key], name, checksKeystoreData);
@@ -424,37 +436,37 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 			throwError(`invalid KeystoreData object, key '${key}' contains no data`);
 		}
 	}
-	return data;
+	return true;
       },
       checksKeystoreDataChange: checkers = [[checkObject, ""], [checkKeystoreData, "setting"], [checkArray, "removing"]],
-      checkKeystoreDataChange = (data: any, name: string) => {
+      checkKeystoreDataChange = (data: any, name: string): data is any => {
 	checker(data, name, checksKeystoreDataChange);
 	for (const r of data.removing) {
 		checkString(r, name, "removing");
 	}
-	return data;
+	return true;
       },
-      checkCharacter = (data: any) => {
+      checkCharacter = (data: any): data is any => {
 	checkKeystoreData(data, "Character");
 	for (const c of characterDataCheckers) {
 		c(data);
 	}
-	return data;
+	return true;
       },
       checksCharacterDataChange: checkers = [[checkKeystoreDataChange, ""], [checkUint, "id"]],
-      checkCharacterDataChange = (data: any) => {
+      checkCharacterDataChange = (data: any): data is any => {
 	checker(data, "CharacterDataChange", checksCharacterDataChange);
 	for (const c of characterDataCheckers) {
 		c(data.setting);
 	}
-	return data;
+	return true;
       },
       checksMapDetails: checkers = [[checkObject, ""], [checkByte, "gridType"], [checkUint, "gridSize"], [checkUint, "gridStroke"], [checkColour, "gridColour"]],
-      checkMapDetails = (data: any, name = "MapDetails") => checker(data, name, checksMapDetails),
+      checkMapDetails = (data: any, name = "MapDetails"): data is any => checker(data, name, checksMapDetails),
       checksTokenMoveLayerPos: checkers = [[checkID, ""], [checkString, "to"], [checkUint, "newPos"]],
-      checkTokenMoveLayerPos = (data: any) => checker(data, "TokenMoveLayer", checksTokenMoveLayerPos),
+      checkTokenMoveLayerPos = (data: any): data is any => checker(data, "TokenMoveLayer", checksTokenMoveLayerPos),
       checksTokenSet: checkers = [[checkID, ""], [checkInt, "?x"], [checkInt, "?y"], [checkUint, "?width"], [checkUint, "?height"], [checkByte, "?rotation"], [checkBoolean, "?snap"], [checkUint, "?src"], [checkUint, "?patternWidth"], [checkUint, "?patternHeight"], [checkBoolean, "?flip"], [checkBoolean, "?flop"], [checkKeystoreData, "?tokenData"], [checkArray, "?removeTokenData"], [checkColour, "?fill"], [checkColour, "?stroke"], [checkUint, "?strokeWidth"], [checkArray, "?points"], [checkArray, "?lightColours"], [checkArray, "?lightStages"], [checkArray, "?lightTimings"]],
-      checkTokenSet = (data: any, name = "TokenSet") => {
+      checkTokenSet = (data: any, name = "TokenSet"): data is any => {
 	checker(data, name, checksTokenSet);
 	if (data["lightColours"]) {
 		for (const cs of data["lightColours"]) {
@@ -484,20 +496,21 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 			checker(p, `${name}->Points`, checksCoords);
 		}
 	}
-	return data;
+	return true;
       },
-      checkTokenMultiSet = (data: any) => {
+      checkTokenMultiSet = (data: any): data is any => {
 	checkArray(data, "TokenSetMulti");
 	for (const tk of data) {
 		checkTokenSet(tk, "TokenSetMulti");
 	}
+	return true;
       },
       checksToken: checkers = [[checkID, ""], [checkInt, "x"], [checkInt, "y"], [checkUint, "width"], [checkUint, "height"], [checkByte, "rotation"], [checkBoolean, "snap"], [checkArray, "lightColours"], [checkArray, "lightStages"], [checkArray, "lightTimings"], [checkKeystoreData, "tokenData"]],
       checksTokenImage: checkers = [[checkUint, "src"], [checkUint, "patternWidth"], [checkUint, "patternHeight"], [checkBoolean, "flip"], [checkBoolean, "flop"]],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
-      checkToken = (data: any, name = "Token") => {
+      checkToken = (data: any, name = "Token"): data is any => {
 	checker(data, name, checksToken);
 	for (const cs of data["lightColours"]) {
 		checkArray(cs, "TokenSet", "lightColours");
@@ -536,14 +549,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (const c of tokenDataCheckers) {
 		c(data.tokenData);
 	}
-	return data;
+	return true;
       },
       checksTokenAdd: checkers = [[checkObject, ""], [checkString, "path"], [checkToken, "token"]],
-      checkTokenAdd = (data: any) => checker(data, "TokenAdd", checksTokenAdd),
+      checkTokenAdd = (data: any): data is any => checker(data, "TokenAdd", checksTokenAdd),
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkBoolean, "locked"], [checkArray, "tokens"], [checkArray, "walls"]],
       checksLayerGrid: checkers = [[checkBoolean, "hidden"]],
-      checkLayerFolder = (data: any, name = "LayerFolder") => {
+      checkLayerFolder = (data: any, name = "LayerFolder"): data is any => {
 	if (name !== "MapData") {
 		checker(data, name, checksLayerFolder);
 	}
@@ -563,38 +576,39 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 			}
 		}
 	}
+	return true;
       },
       checksMaskSet: checkers = [[checkObject, ""], [checkBoolean, "baseOpaque"], [checkArray, "masks"]],
-      checkMaskSet = (data: any) => {
+      checkMaskSet = (data: any): data is any => {
 	checker(data, "MaskSet", checksMaskSet);
 	for (const mask of data.masks) {
 		checkMask(mask);
 	}
-	return data;
+	return true;
       },
-      checkMapStart = (data: any) => {
+      checkMapStart = (data: any): data is any => {
 	checkArray(data, "MapStart");
 	if (data.length !== 2) {
 		throwError("invalid number of coords for MapStart");
 	}
 	checkUint(data[0], "MapStart->startX");
 	checkUint(data[1], "MapStart->startY");
-	return data;
+	return true;
       },
       checksMapData: checkers = [[checkMapDetails, ""], [checkUint, "startX"], [checkUint, "startY"], [checkUint, "gridDistance"], [checkBoolean, "gridDiagonal"], [checkColour, "lightColour"], [checkMaskSet, ""], [checkArray, "children"], [checkLayerFolder, ""], [checkObject, "data"]],
-      checkMapData = (data: any) => {
+      checkMapData = (data: any): data is any => {
 	checker(data, "MapData", checksMapData);
 	for (const c of mapDataCheckers) {
 		c(data.data);
 	}
-	return data;
+	return true;
       },
       checksLayerShift: checkers = [[checkObject, ""], [checkString, "path"], [checkInt, "dx"], [checkInt, "dy"]],
-      checkLayerShift = (data: any) => checker(data, "LayerShift", checksLayerShift),
+      checkLayerShift = (data: any): data is any => checker(data, "LayerShift", checksLayerShift),
       checksWall: checkers = [[checkObject, ""], [checkUint, "id"], [checkInt, "x1"], [checkInt, "y1"], [checkInt, "x2"], [checkInt, "y2"], [checkColour, "colour"], [checkByte, "scattering"]],
-      checkWall = (data: any, name = "Wall") => checker(data, name, checksWall),
+      checkWall = (data: any, name = "Wall"): data is any => checker(data, name, checksWall),
       checksWallPath: checkers = [[checkWall, ""], [checkString, "path"]],
-      checkWallPath = (data: any) => checker(data, "WallPath", checksWallPath),
+      checkWallPath = (data: any): data is any => checker(data, "WallPath", checksWallPath),
       checksMusicTrack: checkers = [[checkID, ""], [checkUint, "volume"], [checkInt, "repeat"]],
       checkMusicTrack = (data: any) => checker(data, "musicTrack", checksMusicTrack),
       checksMusicPack: checkers = [[checkIDName, ""], [checkArray, "tracks"], [checkUint, "volume"], [checkUint, "playTime"]],
@@ -603,49 +617,49 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (const t of data["tracks"]) {
 		checkMusicTrack(t);
 	}
-	return data;
+	return true;
       },
-      checkMusicPacks = (data: any) => {
+      checkMusicPacks = (data: any): data is any => {
 	checkArray(data, "musicPacks");
 	for (const pack of data) {
 		checkMusicPack(pack);
 	}
-	return data;
+	return true;
       },
       checksMusicPackVolume: checkers = [[checkID, ""], [checkUint, "volume"]],
-      checkMusicPackVolume = (data: any) => checker(data, "MusicPackVolume", checksMusicPackVolume),
+      checkMusicPackVolume = (data: any): data is any => checker(data, "MusicPackVolume", checksMusicPackVolume),
       checksMusicPackPlay: checkers = [[checkID, ""], [checkUint, "playTime"]],
-      checkMusicPackPlay = (data: any) => checker(data, "MusicPackPlay", checksMusicPackPlay),
+      checkMusicPackPlay = (data: any): data is any => checker(data, "MusicPackPlay", checksMusicPackPlay),
       checksMusicPackTrackAdd: checkers = [[checkID, ""], [checkArray, "tracks"]],
-      checkMusicPackTrackAdd = (data: any) => {
+      checkMusicPackTrackAdd = (data: any): data is any => {
 	checker(data, "MusicPackTrackAdd", checksMusicPackTrackAdd);
 	for (const t of data["tracks"]) {
 		checkUint(t, "MusicPackTrackAdd->Track");
 	}
-	return data;
+	return true;
       },
       checksMusicPackTrack: checkers = [[checkID, ""], [checkUint, "track"]],
-      checkMusicPackTrack = (data: any, name = "MusicPackTrackRemove") => checker(data, name, checksMusicPackTrack),
+      checkMusicPackTrack = (data: any, name = "MusicPackTrackRemove"): data is any => checker(data, name, checksMusicPackTrack),
       checksMusicPackTrackVolume: checkers = [[checkMusicPackTrack, ""], [checkUint, "volume"]],
-      checkMusicPackTrackVolume = (data: any) => checker(data, "MusicPackTrackVolume", checksMusicPackTrackVolume),
+      checkMusicPackTrackVolume = (data: any): data is any => checker(data, "MusicPackTrackVolume", checksMusicPackTrackVolume),
       checksMusicPackTrackRepeat: checkers = [[checkMusicPackTrack, ""], [checkInt, "repeat"]],
-      checkMusicPackTrackRepeat = (data: any) => checker(data, "MusicPackTrackRepeat", checksMusicPackTrackRepeat),
+      checkMusicPackTrackRepeat = (data: any): data is any => checker(data, "MusicPackTrackRepeat", checksMusicPackTrackRepeat),
       checksMusicPackCopy: checkers = [[checkIDName, ""], [checkUint, "newID"]],
-      checkMusicPackCopy = (data: any) => checker(checksMusicPackCopy, "MusicPackCopy", data),
-      checkPlugins = (data: any) => {
+      checkMusicPackCopy = (data: any): data is any => checker(checksMusicPackCopy, "MusicPackCopy", data),
+      checkPlugins = (data: any): data is any => {
 	checkObject(data, "plugins");
 	for (const p in data) {
 		checkObject(data, "plugins->plugin", p);
 		checkBoolean(data[p]["enabled"], "plugin->enabled", "enabled");
 		checkObject(data[p]["data"], "plugin->data", "data");
 	}
-	return data;
+	return true;
       },
       checksPluginSetting: checkers = [[checkKeystoreDataChange, ""], [checkString, "id"]],
-      checkPluginSetting = (data: any) => checker(data, "PluginSetting", checksPluginSetting),
-      checkSignalMeasure = (data: any) => {
+      checkPluginSetting = (data: any): data is any => checker(data, "PluginSetting", checksPluginSetting),
+      checkSignalMeasure = (data: any): data is any => {
 	if (data === null) {
-		return data;
+		return true;
 	}
 	checkArray(data, "SignalMeasure");
 	if (data.length < 4 || data.length % 2 == 1) {
@@ -654,18 +668,18 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (let i = 0; i < data.length; i++) {
 		checkUint(data[i], `SignalPosition.${i % 2 == 0 ? "x" : "y"}${(i >> 1) + 1}`);
 	}
-	return data;
+	return true;
       },
-      checkSignalPosition = (data: any) => {
+      checkSignalPosition = (data: any): data is any => {
 	checkArray(data, "SignalPosition");
 	if (data.length !== 2) {
 		throw new TypeError("invalid SignalPosition array, needs length 2");
 	}
 	checkUint(data[0], "SignalPosition.x");
 	checkUint(data[1], "SignalPosition.y");
-	return data;
+	return true;
       },
-      checkMask = (data: any) => {
+      checkMask = (data: any): data is any => {
 	checkArray(data, "Mask");
 	if (data.length === 0) {
 		throwError("invalid mask data");
@@ -694,13 +708,14 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	for (let i = 1; i < data.length; i++) {
 		checkUint(data[i], "Mask", i + "");
 	}
+	return true;
       },
       checksBroadcastWindow: checkers = [[checkID, ""], [checkString, "module"], [checkString, "contents"]],
-      checkBroadcastWindow = (data: any) => checker(data, "BroadcastWindow", checksBroadcastWindow),
-      checkBroadcast = (data: any) => {
+      checkBroadcastWindow = (data: any): data is any => checker(data, "BroadcastWindow", checksBroadcastWindow),
+      checkBroadcast = (data: any): data is any => {
 	checkObject(data, "Broadcast");
 	if (data["type"] === undefined) {
 		throwError("invalid Broadcast object, missing 'type' key");
 	}
-	return data;
+	return true;
       };
