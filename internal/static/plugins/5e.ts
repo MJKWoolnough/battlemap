@@ -105,7 +105,7 @@ class PerspectiveLighting extends Lighting {
 	wallInteraction(x: Int, y: Int, lightX: Int, lightY: Int, wallColour: Colour, cp: number, refraction = false): Lighting | null {
 		if (refraction && cp <= this.lightStages[0]) {
 			const {r, g, b, a} = wallColour,
-			      l = ((255 - a) / 255) * (r  + g + b) / (3 * 255),
+			      l = ((255 - a) / 255) * (r + g + b) / (3 * 255),
 			      c = 255 - Math.round((255 - this.lightColours[0][0].r) * l),
 			      colour = new Colour(c, c, c);
 			return new PerspectiveLighting(x, y, lightX, lightY, [[colour], [colour]], this.lightStages, this.lightTimings);
