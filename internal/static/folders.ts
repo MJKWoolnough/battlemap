@@ -241,7 +241,7 @@ export class Folder {
 					this.children[node]
 				])
 			]);
-		}  else {
+		} else {
 			this[node] = div();
 		}
 		for (const name in children.folders) {
