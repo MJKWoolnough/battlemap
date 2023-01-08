@@ -87,7 +87,7 @@ class MapFolder extends DragFolder<MapItem> {
 		super(root, parent, name, children, dragMap, dragMapFolder);
 	}
 	rename(e: Event) {
-		return this[node].classList.contains(hasMapCurrent) || this[node].classList.contains(hasMapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title":  lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
+		return this[node].classList.contains(hasMapCurrent) || this[node].classList.contains(hasMapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": lang["INVALID_ACTION"]}, h2(lang["INVALID_RENAME_CONTAIN"]))) : super.rename(e);
 	}
 	remove(e: Event) {
 		return this[node].classList.contains(hasMapCurrent) || this[node].classList.contains(hasMapUser) ? shell.appendChild(windows({"window-icon": mapIcon, "window-title": "Invalid Action"}, h2(lang["INVALID_REMOVE_CONTAIN"]))) : super.remove(e);
