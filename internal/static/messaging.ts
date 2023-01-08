@@ -16,12 +16,10 @@ registerTag = (tagName: string, fn: TagFn) => (tags[tagName] ??= fn) === fn,
 parseBBCode = (text: string) => bbcode(tags, text),
 bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode");
 
-inited.then(() => {
-	rpc.waitBroadcastWindow().when(d => {
-		const fn = modules.get(d.module);
-		if (fn) {
-			const [icon, title] = fn instanceof Array ? fn : fn(d.id);
-			amendNode(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}, parseBBCode(d.contents)));
-		}
-	});
-});
+inited.then(() => rpc.waitBroadcastWindow().when(d => {
+	const fn = modules.get(d.module);
+	if (fn) {
+		const [icon, title] = fn instanceof Array ? fn : fn(d.id);
+		amendNode(shell, windows({"window-title": title, "window-icon": icon, "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}, parseBBCode(d.contents)));
+	}
+}));
