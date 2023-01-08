@@ -494,7 +494,7 @@ export default (base: HTMLElement) => {
 					let newToken: SVGToken | SVGShape | SVGDrawing | null = null;
 					for (const tk of (e.ctrlKey ? allTokens() : layer.tokens) as Iterable<SVGToken | SVGShape | SVGDrawing>) {
 						if (tk === token) {
-							if (newToken)  {
+							if (newToken) {
 								break;
 							}
 						} else if (tk.at(e.clientX, e.clientY)) {
