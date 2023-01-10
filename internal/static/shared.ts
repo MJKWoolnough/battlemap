@@ -100,4 +100,4 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 })(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 loading = () => [h2(lang["LOADING"]), spinner({"style": "width: 64px"})],
-menuItems: [Uint, () => ([string | Bind, HTMLDivElement, boolean, string] | null)][] = [];
+menuItems: [Uint, () => ([Bind, HTMLDivElement, boolean, string] | null)][] = [];
