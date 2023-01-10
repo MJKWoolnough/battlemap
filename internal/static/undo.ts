@@ -19,7 +19,7 @@ type FnDesc = {
 const undos = new NodeArray<FnDesc>(ul()),
       redos = new NodeArray<FnDesc>(ul()),
       undoObj = {
-	"add": (fn: Fn, description: string | Bind) => {
+	"add": (fn: Fn, description: Bind) => {
 		queue(async () => {
 			redos.splice(0, redos.length);
 			if (undoLimit.value === 0) {
