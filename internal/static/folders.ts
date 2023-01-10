@@ -502,14 +502,14 @@ export abstract class DragFolder<T extends DraggableItem> extends Folder {
 }
 
 export class Root {
-	#fileType: string | Bind;
+	#fileType: Bind;
 	folder!: Folder;
 	rpcFuncs!: FolderRPC;
 	newItem: ItemConstructor;
 	newFolder: FolderConstructor;
 	windowIcon?: string;
 	[node]!: HTMLElement;
-	constructor (rootFolder: FolderItems, fileType: string | Bind, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
+	constructor (rootFolder: FolderItems, fileType: Bind, rpcFuncs: FolderRPC | null, newItem: ItemConstructor, newFolder: FolderConstructor = Folder) {
 		this.newItem = newItem;
 		this.newFolder = newFolder;
 		this.#fileType = fileType;
