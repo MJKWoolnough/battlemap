@@ -281,7 +281,7 @@ inited = pageLoad.then(() => WS("/socket").then(ws => {
 				} else {
 					rk[name] = (...params: unknown[]) => {
 						const a = processArgs(params, args as string[]) as object;
-						return arpc.request(endpoint, a).then(checker).catch(handleError).then(data => {
+						return arpc.request(endpoint, a, checker).catch(handleError).then(data => {
 							fn(Object.assign(a, {[postKey]: data}));
 							return data;
 						});
