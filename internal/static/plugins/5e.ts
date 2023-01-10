@@ -7,7 +7,7 @@ import type {LightWall} from '../map_lighting.js';
 import type {SVGDrawing, SVGShape, SVGToken} from '../map_tokens.js';
 import type {PluginType, SVGTokenConstructor} from '../plugins.js';
 import {add, ids} from '../lib/css.js';
-import {amendNode, clearNode} from '../lib/dom.js';
+import {amendNode, bind, clearNode} from '../lib/dom.js';
 import {br, button, div, h1, img, input, li, span, table, tbody, td, textarea, th, thead, tr, ul} from '../lib/html.js';
 import {item, menu, submenu} from '../lib/menu.js';
 import {checkInt, isInt, queue} from '../lib/misc.js';
@@ -1049,7 +1049,7 @@ if (isAdmin) {
 			token[updateData]();
 		}
 	      },
-	      conditionKeys = conditions.map((condition, n) => registerKeyEvent("5e-" + condition, [lang["TOGGLE_CONDITION"], ": ", lang[condition]], '', undefined, () => setCondition(selected.token, n)));
+	      conditionKeys = conditions.map((condition, n) => registerKeyEvent("5e-" + condition, bind`${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, '', undefined, () => setCondition(selected.token, n)));
 
 	add(`.${adminHideLight} #${perspectives5e}`, {
 		"display": "none"
