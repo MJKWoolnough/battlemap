@@ -168,7 +168,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		])
 	);
       },
-      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: string | Bind, types: DragFiles) => {
+      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: Bind, types: DragFiles) => {
 	const base = div(loading()),
 	      accept = types.mimes.join(", ");
 	rpcFuncs.list().then(folderList => {
