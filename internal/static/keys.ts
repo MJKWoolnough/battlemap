@@ -1,4 +1,4 @@
-import type {Children} from './lib/dom.js';
+import type {Binding, Children} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {JSONSetting} from './lib/settings.js';
 
@@ -12,7 +12,7 @@ const keys = new JSONSetting<Record<string, string>>("keys", {}, (v: any): v is 
       }),
       names: Record<string, [Children, (key: string) => void]> = {};
 
-export const registerKeyEvent = (id: string, name: Children, defaultKey: string, onkeydown?: (e: KeyboardEvent) => void, onkeyup?: (e: KeyboardEvent) => void, once = false) => {
+export const registerKeyEvent = (id: string, name: Binding, defaultKey: string, onkeydown?: (e: KeyboardEvent) => void, onkeyup?: (e: KeyboardEvent) => void, once = false) => {
 	const [start, stop, reset] = keyEvent(keys.value[id] ??= defaultKey, onkeydown, onkeyup, once);
 	names[id] = [name, reset];
 	return [start, stop];
