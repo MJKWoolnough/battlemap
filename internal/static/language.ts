@@ -90,7 +90,6 @@ export default makeLangPack({
 	"KEY_PANEL_TOGGLE": "Toggle Panel Key",
 	"KEY_TOOL_NEXT": "Next Tool Key",
 	"KEY_TOOL_PREV": "Previous Tool Key",
-	"LAYER": "Layer",
 	"LAYER_ADD": "Add Layer",
 	"LAYER_GRID": "Grid",
 	"LAYER_LIGHT": "Light",
