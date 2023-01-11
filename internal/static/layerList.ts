@@ -179,7 +179,7 @@ menuItems.push([5, () => isAdmin ? [
 
 		class LayerRoot extends Root {
 			constructor(layers: FolderItems) {
-				super(layers, lang["LAYER"], layersRPC, ItemLayer, FolderLayer);
+				super(layers, lang["TAB_LAYERS"], layersRPC, ItemLayer, FolderLayer);
 			}
 			get filter() { return false; }
 			getLayer(path: string) {
