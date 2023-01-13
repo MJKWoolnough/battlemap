@@ -1146,7 +1146,7 @@ if (isAdmin) {
 			}
 			ctxList.push(submenu([
 				item(lang["CONDITIONS"]),
-				menu({"class": conditionList}, conditions.map((c, n) => item({"onselect": () => setCondition(token, n), "class": {[hasCondition]: !!tokenConditions[n]}}, lang[c])))
+				menu({"class": conditionList}, conditions.map((c, n) => [c, n] as const).sort(([a], [b]) => stringSort(lang[a].value, lang[b].value)).map(([c, n]) => item({"onselect": () => setCondition(token, n), "class": {[hasCondition]: !!tokenConditions[n]}}, lang[c])))
 			]));
 			if (shapechangeCats && shapechangeCats.length) {
 				ctxList.push(submenu([
