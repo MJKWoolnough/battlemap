@@ -458,9 +458,7 @@ add({
 	}
 });
 
-amendNode(desktop, symbols);
-
-clearNode(document.body, shell);
+clearNode(document.body, [symbols, shell]);
 
 invert.wait(v => amendNode(document.documentElement, {"class": {[invertID]: v}}));
 tabIcons.wait(b => amendNode(document.documentElement, {"class": {[tabIconsID]: b}}));
