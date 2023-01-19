@@ -460,7 +460,7 @@ add({
 
 amendNode(desktop, symbols);
 
-clearNode(document.body, amendNode(shell, {"snap": 50}));
+clearNode(document.body, shell);
 
 invert.wait(v => amendNode(document.documentElement, {"class": {[invertID]: v}}));
 tabIcons.wait(b => amendNode(document.documentElement, {"class": {[tabIconsID]: b}}));
