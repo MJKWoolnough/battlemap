@@ -157,16 +157,22 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 	buf := append(append(data[:0], "{\"ID\":"...), m.ID...)
 	buf = append(buf, ",\"setting\":{"...)
 	var userRemoves []string
+	first := true
 	for key, val := range m.Setting {
 		if val.User {
-			buf = append(append(append(appendString(append(buf, ','), key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
+			if first {
+				first = false
+			} else {
+				buf = append(buf, ',')
+			}
+			buf = append(append(append(appendString(buf, key), ":{\"user\":true,\"data\":"...), val.Data...), '}')
 		} else if mv, ok := ms[key]; ok && mv.User {
 			userRemoves = append(userRemoves, key)
 		}
 		ms[key] = val
 	}
 	buf = append(buf, "},\"removing\":["...)
-	first := true
+	first = true
 	for _, key := range m.Removing {
 		val, ok := ms[key]
 		if !ok {
