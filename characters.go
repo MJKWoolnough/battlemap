@@ -154,7 +154,7 @@ func (c *charactersDir) modify(cd ConnData, data json.RawMessage) error {
 		return keystore.ErrUnknownKey
 	}
 	c.socket.broadcastAdminChange(broadcastCharacterDataChange, data, cd.ID)
-	buf := append(append(data[:0], "{\"ID\":"...), m.ID...)
+	buf := append(append(data[:0], "{\"id\":"...), m.ID...)
 	buf = append(buf, ",\"setting\":{"...)
 	var userRemoves []string
 	first := true
