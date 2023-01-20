@@ -65,7 +65,7 @@ func (p *plugin) WriteToUser(w io.Writer, isAdmin bool) {
 			} else {
 				w.Write(pluginComma)
 			}
-			fmt.Fprintf(w, "%q", key) // need to replace with JSON specific code
+			fmt.Fprintf(w, "%q", key) // TODO: need to replace with JSON specific code
 			w.Write(pluginDataStart)
 			if val.User {
 				w.Write(pluginTrue)
