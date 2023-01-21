@@ -1,4 +1,4 @@
-import type {Bind} from './lib/dom.js';
+import type {Bind, Binding} from './lib/dom.js';
 import {bind} from './lib/dom.js';
 import {StringSetting} from './lib/settings.js';
 
@@ -14,7 +14,7 @@ makeLangPack = <T extends Record<string, string>>(base: T, alternates: Record<st
 			pack[s].value = p?.[s] ?? base[s];
 		}
 	});
-	return Object.freeze(pack);
+	return Object.freeze(pack as Record<keyof T, Binding>);
 },
 languages = ["en-GB", "en-US"];
 
