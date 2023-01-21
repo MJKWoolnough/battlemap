@@ -1,9 +1,9 @@
 import type {FolderItems, Uint} from './types.js';
 import {add, id, ids} from './lib/css.js';
-import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer} from './lib/drag.js';
 import {br, button, div, h1, h2, input, option, select} from './lib/html.js';
-import {checkInt, queue} from './lib/misc.js';
+import {autoFocus, checkInt, queue} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {IntSetting} from './lib/settings.js';
 import {ns as svgNS} from './lib/svg.js';

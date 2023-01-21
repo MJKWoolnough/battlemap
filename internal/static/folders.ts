@@ -2,9 +2,9 @@ import type {FolderItems, FolderRPC, IDName, Uint, WidthHeight} from './types.js
 import type {Bind} from './lib/dom.js';
 import type {DragTransfer} from './lib/drag.js';
 import {add, ids} from './lib/css.js';
-import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, details, div, h1, img, input, li, option, select, span, summary, ul} from './lib/html.js';
-import {queue, setAndReturn} from './lib/misc.js';
+import {autoFocus, queue, setAndReturn} from './lib/misc.js';
 import {NodeMap, node, stringSort} from './lib/nodes.js';
 import {dragOver, folderDragging, folders, foldersItem, imageIcon, invertID, itemControl} from './ids.js';;
 import lang from './language.js';

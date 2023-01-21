@@ -1,10 +1,10 @@
 import type {FolderItems, Uint} from './types.js';
 import {add, id} from './lib/css.js';
-import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {DragTransfer, setDragEffect} from './lib/drag.js';
 import {br, button, div, h1, img, input, label} from './lib/html.js';
 import {Pipe} from './lib/inter.js';
-import {setAndReturn} from './lib/misc.js';
+import {autoFocus, setAndReturn} from './lib/misc.js';
 import {node} from './lib/nodes.js';
 import {dragImage} from './assets.js';
 import {characterIcon, dragCharacter, edit as characterEdit} from './characters.js';

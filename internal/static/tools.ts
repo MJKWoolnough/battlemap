@@ -1,9 +1,9 @@
 import type {Uint} from './types.js';
 import type {Bind} from './lib/dom.js';
 import {add, ids} from './lib/css.js';
-import {amendNode, autoFocus, clearNode} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {div, h2, li, span, ul} from './lib/html.js';
-import {mod} from './lib/misc.js';
+import {autoFocus, mod} from './lib/misc.js';
 import {stringSort} from './lib/nodes.js';
 import {g, ns as svgNS, path, polygon, svg, title} from './lib/svg.js';
 import {registerKeyEvent} from './keys.js';
