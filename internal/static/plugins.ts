@@ -1,5 +1,5 @@
 import type {KeystoreData, Plugin, TokenDrawing, TokenImage, TokenShape, Uint, Wall} from './types.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import type {WaitGroup} from './lib/inter.js';
 import type {MenuItems} from './lib/menu.js';
 import type {LightWall} from './map_lighting.js';
@@ -40,7 +40,7 @@ export type PluginType = {
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
 	drawingClass?: owp<(c: SVGDrawingConstructor) => SVGDrawingConstructor>;
-	menuItem?: owp<[string | Bind, HTMLDivElement, boolean, string]>;
+	menuItem?: owp<[string | Binding, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
 	addWalls?: owp<(layer: string) => Omit<Wall, "id">[]>;
 	addLights?: owp<(layer: string) => Lighting[]>;
