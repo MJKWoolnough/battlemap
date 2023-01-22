@@ -1,5 +1,5 @@
 import type {FolderItems, FolderRPC, IDName, Uint} from './types.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import type {ShellElement, WindowElement} from './windows.js';
 import {HTTPRequest} from './lib/conn.js';
 import {add, ids} from './lib/css.js';
@@ -168,7 +168,7 @@ const imageRoot = new Root({"folders": {}, "items": {}}, lang["TAB_IMAGES"], nul
 		])
 	);
       },
-      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: Bind, types: DragFiles) => {
+      createFolders = (rpcFuncs: FolderRPC, root: Root, icon: string, id: string, upload: Binding, types: DragFiles) => {
 	const base = div(loading()),
 	      accept = types.mimes.join(", ");
 	rpcFuncs.list().then(folderList => {
