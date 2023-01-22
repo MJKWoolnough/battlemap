@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {div, h2, li, span, ul} from './lib/html.js';
@@ -18,7 +18,7 @@ type MouseFn = (this: SVGElement, e: MouseEvent) => boolean;
 type WheelFn = (this: SVGElement, e: WheelEvent) => boolean;
 
 type Tool = {
-	name: string | Bind;
+	name: string | Binding;
 	icon: SVGElement;
 	set?: () => void;
 	unset?: () => void;
