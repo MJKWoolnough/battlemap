@@ -1,6 +1,6 @@
 import type {Uint} from './types.js';
 import type {Parsers, TagFn} from './lib/bbcode.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import bbcode from './lib/bbcode.js';
 import {all} from './lib/bbcode_tags.js';
 import {amendNode} from './lib/dom.js';
@@ -8,10 +8,10 @@ import {DragTransfer} from './lib/drag.js';
 import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
 
-const modules = new Map<string, [string, string | Bind] | ((id: Uint) => [string, string | Bind])>(),
+const modules = new Map<string, [string, string | Binding] | ((id: Uint) => [string, string | Binding])>(),
       tags: Parsers = Object.assign({}, all);
 
-export const register = (module: string, fn: [string, string | Bind] | ((id: Uint) => [string, string | Bind])) => modules.set(module, fn),
+export const register = (module: string, fn: [string, string | Binding] | ((id: Uint) => [string, string | Binding])) => modules.set(module, fn),
 registerTag = (tagName: string, fn: TagFn) => (tags[tagName] ??= fn) === fn,
 parseBBCode = (text: string) => bbcode(tags, text),
 bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode");
