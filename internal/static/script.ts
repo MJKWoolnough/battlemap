@@ -1,4 +1,4 @@
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import type {WindowData, WindowElement} from './windows.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
@@ -114,7 +114,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 		e.preventDefault();
 	})[0]();
 	return Object.freeze({
-		"add": ([title, base, pop, popIcon]: [string | Bind, HTMLDivElement, boolean, string]) => {
+		"add": ([title, base, pop, popIcon]: [string | Binding, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
 			      popper = pop ? popout({"class": popoutID, "title": `Popout ${title}`, "onclick": (e: Event) => {
