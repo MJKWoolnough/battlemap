@@ -1,5 +1,5 @@
 import type {KeystoreData, Uint} from './types.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import type {Character} from './characterList.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
@@ -24,7 +24,7 @@ let lastMapChanged = 0,
 
 export const dragCharacter = new DragTransfer<Character>("character"),
 characterIcon = `data:image/svg+xml,%3Csvg xmlns="${svgNS}" viewBox="0 0 100 100"%3E%3Cg stroke-width="2" stroke="%23000" fill="%23fff"%3E%3Cpath d="M99,89 A1,1 0,0,0 1,89 v10 H99 z" /%3E%3Ccircle cx="50" cy="31" r="30" /%3E%3C/g%3E%3C/svg%3E`,
-edit = (id: Uint, title: string | Bind, d: Record<string, KeystoreData>, character: boolean) => {
+edit = (id: Uint, title: string | Binding, d: Record<string, KeystoreData>, character: boolean) => {
 	const mapChanged = lastMapChanged,
 	      changes: Record<string, KeystoreData> = {},
 	      removes = new Set<string>(),
