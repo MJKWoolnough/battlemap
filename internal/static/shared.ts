@@ -1,5 +1,5 @@
 import type {CharacterToken, KeystoreData, Uint, Wall} from './types.js';
-import type {Bind, Children, PropsObject} from './lib/dom.js';
+import type {Binding, Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';
@@ -100,4 +100,4 @@ characterData = new Map<Uint, Record<string, KeystoreData>>(),
 })(),
 walls = new Map<Uint, {layer: SVGLayer, wall: Wall}>(),
 loading = () => [h2(lang["LOADING"]), spinner({"style": "width: 64px"})],
-menuItems: [Uint, () => ([Bind, HTMLDivElement, boolean, string] | null)][] = [];
+menuItems: [Uint, () => ([Binding, HTMLDivElement, boolean, string] | null)][] = [];
