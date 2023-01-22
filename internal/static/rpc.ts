@@ -1,5 +1,5 @@
 import type {InternalWaits, KeystoreData, RPC as RPCType, Uint} from './types.js';
-import type {Bind} from './lib/dom.js';
+import type {Binding} from './lib/dom.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';
@@ -36,7 +36,7 @@ rpc = {
 addMapDataChecker = (fn: (data: Record<string, any>) => void) => mapDataCheckers.push(fn),
 addCharacterDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => characterDataCheckers.push(fn),
 addTokenDataChecker = (fn: (data: Record<string, KeystoreData>) => void) => tokenDataCheckers.push(fn),
-handleError = (e: Error | string | Bind) => {
+handleError = (e: Error | string | Binding) => {
 	console.log(e);
 	shell.alert(lang["ERROR"], (e instanceof Error ? e.message : Object.getPrototypeOf(e) === Object.prototype ? JSON.stringify(e): e.toString()) || lang["ERROR_UNKNOWN"]);
 },
