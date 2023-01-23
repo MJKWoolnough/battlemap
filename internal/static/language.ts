@@ -1,4 +1,4 @@
-import type {Bound, Binding} from './lib/dom.js';
+import type {Binding, Bound} from './lib/dom.js';
 import {bind} from './lib/dom.js';
 import {StringSetting} from './lib/settings.js';
 
