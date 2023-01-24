@@ -62,8 +62,8 @@ colourPicker = (parent: WindowElement | ShellElement, title: string | Binding, c
 	      colourInput = input({"type": "color", "value": colour.toHexString(), "onchange": updatePreview}),
 	      alphaInput = input({"type": "range", "min": 0, "max": 255, "step": 1,"value": colour.a, "oninput": updatePreview}),
 	      w = windows({"window-icon": icon, "window-title": title, "onremove": () => {
-		      dragColour.deregister(dragKey);
-		      reject();
+		dragColour.deregister(dragKey);
+		reject();
 	      }}, [
 		h1(title),
 		div({"class": checkboard}, preview),
