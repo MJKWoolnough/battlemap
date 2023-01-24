@@ -17,7 +17,7 @@ export const registerKeyEvent = (id: string, name: Binding, defaultKey: string, 
 	names[id] = [name, reset];
 	return [start, stop];
 },
-setKey = (id: string, key: string = "") => {
+setKey = (id: string, key = "") => {
 	names[id]?.[1](key);
 	keys.value[id] = key;
 	keys.set(keys.value);
