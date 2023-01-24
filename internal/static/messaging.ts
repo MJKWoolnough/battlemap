@@ -8,10 +8,12 @@ import {DragTransfer} from './lib/drag.js';
 import {inited, rpc} from './rpc.js';
 import {shell, windows} from './windows.js';
 
-const modules = new Map<string, [string, Binding] | ((id: Uint) => [string, Binding])>(),
+type IconTitle = [string, Binding];
+
+const modules = new Map<string, IconTitle | ((id: Uint) => IconTitle)>(),
       tags: Parsers = Object.assign({}, all);
 
-export const register = (module: string, fn: [string, Binding] | ((id: Uint) => [string, Binding])) => modules.set(module, fn),
+export const register = (module: string, fn: IconTitle | ((id: Uint) => IconTitle)) => modules.set(module, fn),
 registerTag = (tagName: string, fn: TagFn) => (tags[tagName] ??= fn) === fn,
 parseBBCode = (text: string) => bbcode(tags, text),
 bbcodeDrag = new DragTransfer<(t: string) => string>("bbcode");
