@@ -15,7 +15,7 @@ interface Labeller {
 	<T extends Input>(input: T, name: Children, props?: PropsObject): [T, HTMLLabelElement];
 }
 
-export const enterKey = function(this: Node, e: KeyboardEvent) {
+export const enterKey = function(this: HTMLInputElement, e: KeyboardEvent) {
 	if (e.key === "Enter") {
 		for (let e = this.nextSibling; e; e = e.nextSibling) {
 			if (e instanceof HTMLButtonElement) {
