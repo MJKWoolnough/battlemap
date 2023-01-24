@@ -21,7 +21,9 @@ const defaultParams = {"hide-maximise": true, "hide-minimise": true, "tabindex":
 	if (e.key === "Escape" && !this.hasAttribute("hide-close") && !hasKeyEvent("Escape")) {
 		this.close();
 	}
-      }};
+      }},
+      hideWindow = {"style": {"visibility": "hidden"}},
+      showWindow = {"style": {"visibility": undefined}};
 
 export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement | WindowElement, title = lang["LOADING"], content?: Children) => {
 	const w = awindows({"window-title": title, "hide-minimise": true}, content || loading());
@@ -36,14 +38,14 @@ windows: DOMBind<WindowElement> = (props?: Props | Children, children?: Children
 		      save = () => settings.set(getWindowData(w));
 		amendNode(w, {"style": {"--window-left": settings.value[0] + "px", "--window-top": settings.value[1] + "px", "--window-width": settings.value[2] + "px", "--window-height": settings.value[3] + "px"}, "onmoved": save, "onresized": save});
 	} else if (!(w.style.getPropertyValue("--window-width") || w.style.getPropertyValue("--window-height"))) {
-		amendNode(w, {"style": {"visibility": "hidden"}});
+		amendNode(w, hideWindow);
 		setTimeout(() => {
 			if (w.parentNode === shell) {
 				const {offsetWidth: width, offsetHeight: height} = w,
 				      {offsetWidth: swidth, offsetHeight: sheight} = shell;
 				amendNode(w, {"style": {"--window-width": width + "px", "--window-height": height + "px", "--window-left": `${(swidth - width) / 2}px`, "--window-top": `${(sheight - height) / 2}px`}});
 			}
-			amendNode(w, {"style": {"visibility": undefined}});
+			amendNode(w, showWindow);
 			w.focus();
 		});
 	}
