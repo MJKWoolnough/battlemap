@@ -23,7 +23,7 @@ const defaultParams = {"hide-maximise": true, "hide-minimise": true, "tabindex":
 	}
       }};
 
-export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement|WindowElement, title = lang["LOADING"], content?: Children) => {
+export const loadingWindow = <T>(p: Promise<T>, parent: ShellElement | WindowElement, title = lang["LOADING"], content?: Children) => {
 	const w = awindows({"window-title": title, "hide-minimise": true}, content || loading());
 	parent.addWindow(w);
 	return p.finally(() => w.remove());
