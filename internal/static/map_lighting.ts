@@ -303,7 +303,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 		      next = collisions[j === collisions.length - 1 ? 0 : j + 1];
 		if (!isSameWall(prev.w, w, next.w)) {
 			if (prev.y.sub(y).mul(x.sub(next.x)).cmp(y.sub(next.y).mul(prev.x.sub(x)))) {
-				p += `${x},${y} `;
+				p += `${+x},${+y} `;
 			}
 			const sw = isSameWall(prev.w, w);
 			if (sw) {
