@@ -55,6 +55,7 @@ if (isAdmin) {
 		#popWindow: Window | null = null;
 		#share: (() => void) | null = null;
 		#bbcodeID: string;
+		#changes = false;
 		constructor(parent: Folder, id: Uint, name: string) {
 			super(parent, id, name, dragNote);
 			amendNode(this.image, {"src": icon});
@@ -97,40 +98,55 @@ if (isAdmin) {
 					}
 				}, lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
-					const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-					      contents = textarea({"ondragover": setDragEffect({"link": [bbcodeDrag]}), "ondrop": (e: DragEvent) => {
-						if (bbcodeDrag.is(e)) {
-							const {selectionStart, selectionEnd} = contents,
-							      fn = bbcodeDrag.get(e);
-							if (fn) {
-								contents.setRangeText(fn(contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd))));
+					if (this.#window?.firstChild === data) {
+						const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
+						      onchange = () => this.#changes = contents.value !== page.data.contents || share.checked !== page.data.share,
+						      contents = textarea({"ondragover": setDragEffect({"link": [bbcodeDrag]}), onchange, "ondrop": (e: DragEvent) => {
+							if (bbcodeDrag.is(e)) {
+								const {selectionStart, selectionEnd} = contents,
+								      fn = bbcodeDrag.get(e);
+								if (fn) {
+									contents.setRangeText(fn(contents.value.slice(Math.min(selectionStart, selectionEnd), Math.max(selectionStart, selectionEnd))));
+								}
 							}
-						}
-					      }}, page.data.contents),
-					      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share}),
-					      w = windows({"window-title": bind`${lang["NOTE_EDIT"]}: ${this.name}`, "window-icon": icon, "class": pluginNotesEdit, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => {
-						if (contents.value !== page.data.contents || share.checked !== page.data.share) {
-							e.preventDefault();
-							w.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
+						      }}, page.data.contents),
+						      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share, onchange}),
+						      sure = (e: Event) => {
+							if (this.#changes) {
+								e.preventDefault();
+								this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
+									if (t) {
+										this.#window?.remove();
+									}
+								});
+							}
+						       };
+						clearNode(this.#window, {"window-title": bind`${lang["NOTE_EDIT"]}: ${this.name}`, "class": pluginNotesEdit, "onclose": sure}, [
+							labels([lang["NOTE"], ": "], contents),
+							br(),
+							labels(share, [lang["NOTE_SHARE"], ": "]),
+							br(),
+							button({"onclick": () => {
+								page.data = {"contents": contents.value, "share": share.checked};
+								pages.set(this.id, page);
+								rpc.pluginSetting(importName, {[this.id+""]: page}, []);
+								clearNode(data, parseBBCode(contents.value));
+								this.#changes = false;
+								this.#setShareButton();
+							}}, lang["NOTE_SAVE"])
+						]);
+					} else {
+						if (this.#changes) {
+							this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
 								if (t) {
-									w.remove();
+									this.#changes = false;
+									clearNode(this.#window, {"window-title": this.name, "class": undefined}, data);
 								}
 							});
+						} else {
+							clearNode(this.#window, {"window-title": this.name, "class": undefined}, data);
 						}
-					      }}, [
-						labels([lang["NOTE"], ": "], contents),
-						br(),
-						labels(share, [lang["NOTE_SHARE"], ": "]),
-						br(),
-						button({"onclick": () => {
-							page.data = {"contents": contents.value, "share": share.checked};
-							pages.set(this.id, page);
-							rpc.pluginSetting(importName, {[this.id+""]: page}, []);
-							clearNode(data, parseBBCode(contents.value));
-							this.#setShareButton();
-						}}, lang["NOTE_SAVE"])
-					      ]);
-					this.#window!.addWindow(w);
+					}
 				}, lang["NOTE_EDIT"]);
 				this.#setShareButton();
 			}
