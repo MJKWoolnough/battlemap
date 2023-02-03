@@ -86,6 +86,17 @@ if (isAdmin) {
 			}
 			return false;
 		}
+		#sure(e: Event) {
+			if (this.#changes) {
+				e.preventDefault();
+				this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
+					if (t) {
+						this.#changes = false;
+						this.#window?.remove();
+					}
+				});
+			}
+		}
 		show() {
 			if (this.#window) {
 				this.#window.focus();
@@ -93,7 +104,7 @@ if (isAdmin) {
 				this.#popWindow.focus();
 			} else {
 				const data = div({"class": pluginNotesClass}, parseBBCode(pages.get(this.id)?.data.contents || ""));
-				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onremove": () => {
+				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => this.#sure(e), "onremove": () => {
 					this.#window = null;
 					this.#share = null;
 				}}, data));
@@ -121,19 +132,8 @@ if (isAdmin) {
 								}
 							}
 						      }}, page.data.contents),
-						      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share, onchange}),
-						      sure = (e: Event) => {
-							if (this.#changes) {
-								e.preventDefault();
-								this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
-									if (t) {
-										this.#changes = false;
-										this.#window?.remove();
-									}
-								});
-							}
-						       };
-						clearNode(this.#window, {"window-title": bind`${lang["NOTE_EDIT"]}${changes}: ${this.name}`, "class": pluginNotesEdit, "onclose": sure}, [
+						      share = input({"type": "checkbox", "class": settingsTicker, "checked": page.data.share, onchange});
+						clearNode(this.#window, {"window-title": bind`${lang["NOTE_EDIT"]}${changes}: ${this.name}`, "class": pluginNotesEdit}, [
 							labels([lang["NOTE"], ": "], contents),
 							br(),
 							labels(share, [lang["NOTE_SHARE"], ": "]),
