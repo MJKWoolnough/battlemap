@@ -51,6 +51,7 @@ register("plugin-notes", [icon, lang["NOTE"]]);
 
 if (isAdmin) {
 	class NoteItem extends DraggableItem {
+		static #editors = new Set<NoteItem>();
 		#window: WindowElement | null = null;
 		#popWindow: Window | null = null;
 		#share: (() => void) | null = null;
@@ -77,6 +78,14 @@ if (isAdmin) {
 				}
 			}});
 		}
+		static checkEditors() {
+			for (const e of NoteItem.#editors) {
+				if (e.#changes) {
+					return true;
+				}
+			}
+			return false;
+		}
 		show() {
 			if (this.#window) {
 				this.#window.focus();
@@ -99,6 +108,7 @@ if (isAdmin) {
 				}, lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
 					if (this.#window?.firstChild === data) {
+						NoteItem.#editors.add(this);
 						const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 						      changes = bind(""),
 						      onchange = () => changes.value = (this.#changes = contents.value !== page.data.contents || share.checked !== page.data.share) ? "*" : "",
@@ -143,10 +153,12 @@ if (isAdmin) {
 								if (t) {
 									this.#changes = false;
 									clearNode(this.#window, {"window-title": this.name, "class": undefined}, data);
+									NoteItem.#editors.delete(this);
 								}
 							});
 						} else {
 							clearNode(this.#window, {"window-title": this.name, "class": undefined}, data);
+							NoteItem.#editors.delete(this);
 						}
 					}
 				}, lang["NOTE_EDIT"]);
@@ -182,6 +194,12 @@ if (isAdmin) {
 			return super.filter(terms.every(term => text.includes(term)) ? [] : terms);
 		}
 	}
+
+	amendNode(window, {"onbeforeunload": (e: Event) => {
+		if (NoteItem.checkEditors()) {
+			e.preventDefault();
+		}
+	}});
 
 	class NoteFolder extends DragFolder<NoteItem> {
 		constructor(root: Root, parent: Folder | null, name: string, children: FolderItems) {
