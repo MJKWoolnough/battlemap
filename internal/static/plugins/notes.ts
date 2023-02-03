@@ -117,6 +117,7 @@ if (isAdmin) {
 								e.preventDefault();
 								this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon).then(t => {
 									if (t) {
+										this.#changes = false;
 										this.#window?.remove();
 									}
 								});
