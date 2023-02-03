@@ -459,6 +459,8 @@ centreOnGrid = (x: Uint, y: Uint) => {
 	amendNode(root, {"style": {"left": panZoom.x + "px", "top": panZoom.y + "px"}})
 },
 mapView = (mD: MapData, loadChars = false) => {
+	wallList = [];
+	lightList.splice(0, lightList.length);
 	mapData = mD;
 	tokens.clear();
 	walls.clear();
