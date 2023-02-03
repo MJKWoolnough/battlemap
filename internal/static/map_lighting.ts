@@ -200,8 +200,8 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 			      rdy2 = +dy2,
 			      a1 = angle(dx1, dy1),
 			      a2 = angle(dx2, dy2),
-			      p1 = `${x1},${y1}`,
-			      p2 = `${x2},${y2}`,
+			      p1 = `${+x1},${+y1}`,
+			      p2 = `${+x2},${+y2}`,
 			      points1 = points.get(p1) ?? setAndReturn(points, p1, []),
 			      points2 = points.get(p2) ?? setAndReturn(points, p2, []),
 			      [cx, cy, cl] = closestPoint(x1, y1, x2, y2, lightX, lightY),
@@ -271,7 +271,7 @@ makeLight = (l: Lighting, walls: LightWall[], scale: number, lens?: LightWall) =
 				const lpx = flx.sub(px),
 				      lpy = fly.sub(py),
 				      distance = Math.hypot(+lpx, +lpy),
-				      point = points.get(`${px},${py}`),
+				      point = points.get(`${+px},${+py}`),
 				      hasPoint = point?.some(({id: wid}) => id === wid);
 				if ((hasPoint ? hasDirection(px, py, point!, !cw) : px.cmp(Fraction.min(x1, x2)) > -1 && px.cmp(Fraction.max(x1, x2)) < 1 && py.cmp(Fraction.min(y1, y2)) > -1 && py.cmp(Fraction.max(y1, y2)) < 1) && distance < ed && distance > min && -dlx.sign() === lpx.sign() && -dly.sign() === lpy.sign()) {
 					ex = px;
