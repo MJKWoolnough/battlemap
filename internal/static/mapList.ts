@@ -53,21 +53,23 @@ class MapItem extends DraggableItem {
 		}}), this[node].firstChild);
 	}
 	show() {
-		let thisMap: MapItem = this,
-		    oldMap = selectedCurrent!;
-		const doIt = () => {
-			setMap(thisMap, oldMap, mapCurrent, hasMapCurrent);
-			selectedCurrent = thisMap;
-			const id = thisMap.id;
-			queue(() => rpc.setCurrentMap(id).then(() => mapLoadSend(id)));
-			selectedMap.set(id);
-			[thisMap, oldMap] = [oldMap, thisMap];
-			return doIt;
-		      };
-		if (selectedCurrent) {
-			undo.add(doIt(), lang["UNDO_MAP_LOAD"]);
-		} else {
-			doIt();
+		if (selectedCurrent !== this) {
+			let thisMap: MapItem = this,
+			    oldMap = selectedCurrent!;
+			const doIt = () => {
+				setMap(thisMap, oldMap, mapCurrent, hasMapCurrent);
+				selectedCurrent = thisMap;
+				const id = thisMap.id;
+				queue(() => rpc.setCurrentMap(id).then(() => mapLoadSend(id)));
+				selectedMap.set(id);
+				[thisMap, oldMap] = [oldMap, thisMap];
+				return doIt;
+			      };
+			if (selectedCurrent) {
+				undo.add(doIt(), lang["UNDO_MAP_LOAD"]);
+			} else {
+				doIt();
+			}
 		}
 	}
 	rename() {
