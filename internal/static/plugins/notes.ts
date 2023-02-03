@@ -100,8 +100,9 @@ if (isAdmin) {
 				this.#window.addControlButton(editIcon, () => {
 					if (this.#window?.firstChild === data) {
 						const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
-						      onchange = () => this.#changes = contents.value !== page.data.contents || share.checked !== page.data.share,
-						      contents = textarea({"ondragover": setDragEffect({"link": [bbcodeDrag]}), onchange, "ondrop": (e: DragEvent) => {
+						      changes = bind(""),
+						      onchange = () => changes.value = (this.#changes = contents.value !== page.data.contents || share.checked !== page.data.share) ? "*" : "",
+						      contents = textarea({"ondragover": setDragEffect({"link": [bbcodeDrag]}), "oninput": onchange, "ondrop": (e: DragEvent) => {
 							if (bbcodeDrag.is(e)) {
 								const {selectionStart, selectionEnd} = contents,
 								      fn = bbcodeDrag.get(e);
@@ -121,7 +122,7 @@ if (isAdmin) {
 								});
 							}
 						       };
-						clearNode(this.#window, {"window-title": bind`${lang["NOTE_EDIT"]}: ${this.name}`, "class": pluginNotesEdit, "onclose": sure}, [
+						clearNode(this.#window, {"window-title": bind`${lang["NOTE_EDIT"]}${changes}: ${this.name}`, "class": pluginNotesEdit, "onclose": sure}, [
 							labels([lang["NOTE"], ": "], contents),
 							br(),
 							labels(share, [lang["NOTE_SHARE"], ": "]),
@@ -131,7 +132,7 @@ if (isAdmin) {
 								pages.set(this.id, page);
 								rpc.pluginSetting(importName, {[this.id+""]: page}, []);
 								clearNode(data, parseBBCode(contents.value));
-								this.#changes = false;
+								onchange();
 								this.#setShareButton();
 							}}, lang["NOTE_SAVE"])
 						]);
