@@ -118,7 +118,7 @@ if (isAdmin) {
 					}
 				}, lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
-					if (this.#window?.firstChild === data) {
+					if (!NoteItem.#editors.has(this)) {
 						NoteItem.#editors.add(this);
 						const page = pages.get(this.id) || {"user": false, "data": {"contents": "", "share": false}},
 						      changes = bind(""),
