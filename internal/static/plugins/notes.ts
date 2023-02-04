@@ -66,14 +66,8 @@ if (isAdmin) {
 				if (e.button === 1) {
 					if (this.#popWindow) {
 						this.#popWindow.focus();
-					} else if (this.#window?.close() !== false) {
-						const wp = window.open("", "", "");
-						if (wp) {
-							(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-							wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
-							wp.document.body.classList.add(pluginNotesClass);
-							wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
-						}
+					} else {
+						this.#popout();
 					}
 				}
 			}});
@@ -97,6 +91,21 @@ if (isAdmin) {
 				});
 			}
 		}
+		#popout() {
+			(this.#changes ? this.#window?.confirm(mainLang["ARE_YOU_SURE"], mainLang["UNSAVED_CHANGES"], icon) ?? Promise.resolve(true) : Promise.resolve(true)).then(t => {
+				if (t) {
+					this.#changes = false;
+					const wp = window.open("", "", "");
+					if (wp) {
+						(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
+						wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
+						wp.document.body.classList.add(pluginNotesClass);
+						wp.document.body.append(parseBBCode(pages.get(this.id)?.data.contents || ""));
+						this.#window?.remove();
+					}
+				}
+			});
+		}
 		show() {
 			if (this.#window) {
 				this.#window.focus();
@@ -108,15 +117,7 @@ if (isAdmin) {
 					this.#window = null;
 					this.#share = null;
 				}}, data));
-				this.#window.addControlButton(popOutIcon, () => {
-					const wp = window.open("", "", "");
-					if (wp) {
-						(this.#popWindow = wp).addEventListener("unload", () => this.#popWindow = null);
-						wp.document.head.append(title(this.name), render(), link({"rel": "shortcut icon", "sizes": "any", "href": icon}));
-						wp.document.body.append(data);
-						this.#window?.remove();
-					}
-				}, lang["NOTE_POPOUT"]);
+				this.#window.addControlButton(popOutIcon, () => this.#popout(), lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
 					if (!NoteItem.#editors.has(this)) {
 						NoteItem.#editors.add(this);
