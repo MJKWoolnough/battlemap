@@ -116,6 +116,7 @@ if (isAdmin) {
 				amendNode(shell, this.#window = windows({"window-title": this.name, "window-icon": icon, "hide-minimise": false, "resizable": true, "style": "--window-width: 50%; --window-height: 50%", "onclose": (e: Event) => this.#sure(e), "onremove": () => {
 					this.#window = null;
 					this.#share = null;
+					NoteItem.#editors.delete(this);
 				}}, data));
 				this.#window.addControlButton(popOutIcon, () => this.#popout(), lang["NOTE_POPOUT"]);
 				this.#window.addControlButton(editIcon, () => {
