@@ -234,7 +234,7 @@ export class SVGDrawing extends SVGTransform {
 		this.#oHeight = oHeight;
 		const xr = token.width / oWidth,
 		      yr = token.height / oHeight;
-		this[node] = amendNode(path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth}), {"transform": this.transformString()});
+		this[node] = path({"class": "mapDrawing", "d": `M${token.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${token.fill.a === 0 ? "" : " Z"}`, "fill": token.fill, "stroke": token.stroke, "stroke-width": token.strokeWidth, "transform": this.transformString()});
 	}
 	get isPattern() { return false; }
 	updateNode() {
