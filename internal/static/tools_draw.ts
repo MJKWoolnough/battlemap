@@ -129,7 +129,7 @@ inited.then(() => {
 			br(),
 			labels([lang["TOOL_DRAW_STROKE_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_COLOUR"], () => stroke, (c: Colour) => stroke = c, iconStr)),
 			br(),
-			labels([lang["TOOL_DRAW_FILL_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_DRAW_STROKE_WIDTH"], () => fill, (c: Colour) => fill = c, iconStr))
+			labels([lang["TOOL_DRAW_FILL_COLOUR"], ": "], makeColourPicker(optionsWindow, lang["TOOL_DRAW_FILL_COLOUR"], () => fill, (c: Colour) => fill = c, iconStr))
 		]),
 		"mapMouseOver": () => {
 			startCursorMove();
