@@ -240,7 +240,7 @@ export class SVGDrawing extends SVGTransform {
 	updateNode() {
 		const xr = this.width / this.#oWidth,
 		      yr = this.height / this.#oHeight;
-		this[node] = path({"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
+		amendNode(this[node], {"d": `M${this.points.map(c => `${c.x * xr},${c.y * yr}`).join(" L")}${this.fill.a === 0 ? "" : " Z"}`, "transform": this.transformString()});
 	}
 }
 
