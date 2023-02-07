@@ -87,7 +87,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 	      ]),
 	      panelWidth = new IntSetting("panelWidth", 300, 0).wait(w => amendNode(h, {"style": `--panel-width: ${w}px`})),
 	      windowData: Record<string, savedWindow> = windowSettings.value,
-	      updateWindowData = () => windowSettings.set(windowData),
+	      updateWindowData = () => windowSettings.save(),
 	      updateWindowDims = function (this: WindowElement) {
 		windowData[this.getAttribute("window-title") || ""] = {
 			"out": true,
