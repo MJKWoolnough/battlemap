@@ -20,7 +20,7 @@ export const registerKeyEvent = (id: string, name: Binding, defaultKey: string, 
 setKey = (id: string, key = "") => {
 	names[id]?.[1](key);
 	keys.value[id] = key;
-	keys.set(keys.value);
+	keys.save();
 },
 getKey = (id: string) => keys.value[id],
 getKeyName = (id: string) => names[id][0],
