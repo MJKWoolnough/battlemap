@@ -281,12 +281,12 @@ export type LayerMove = FromTo & {
 	position: Uint;
 }
 
-type BroadcastWindow = ID & {
+export type BroadcastWindow = ID & {
 	module: string;
 	contents: string;
 }
 
-type Broadcast = {
+export type Broadcast = {
 	type: any;
 	data: any;
 }
@@ -300,17 +300,17 @@ export type ID = {
 	id: Uint;
 }
 
-type TokenAdd = {
+export type TokenAdd = {
 	path: string;
 	token: Token;
 }
 
-type TokenMoveLayerPos = ID & {
+export type TokenMoveLayerPos = ID & {
 	to: string;
 	newPos: Uint;
 }
 
-type LayerShift = {
+export type LayerShift = {
 	path: string;
 	dx: Int;
 	dy: Int;
@@ -321,7 +321,7 @@ export type KeystoreData<T = any> = {
 	data: T;
 }
 
-type CharacterDataChange = ID & {
+export type CharacterDataChange = ID & {
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
@@ -353,13 +353,13 @@ export type Plugin = {
 	data: Record<string, KeystoreData>;
 }
 
-type PluginDataChange = {
+export type PluginDataChange = {
 	id: string;
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
 
-type KeyData = {
+export type KeyData = {
 	key: string;
 	data: any;
 }
@@ -375,39 +375,39 @@ export type MusicPack = IDName & {
 	playTime: Uint;
 }
 
-type MusicPackVolume = ID & {
+export type MusicPackVolume = ID & {
 	volume: Uint;
 }
 
-type MusicPackPlay = ID & {
+export type MusicPackPlay = ID & {
 	playTime: Uint;
 }
 
-type MusicPackTrackAdd = ID & {
+export type MusicPackTrackAdd = ID & {
 	tracks: Uint[];
 }
 
-type MusicPackTrackRemove = ID & {
+export type MusicPackTrackRemove = ID & {
 	track: Uint;
 }
 
-type MusicPackTrackVolume = ID & {
+export type MusicPackTrackVolume = ID & {
 	track: Uint;
 	volume: Uint;
 }
 
-type MusicPackTrackRepeat = ID & {
+export type MusicPackTrackRepeat = ID & {
 	track: Uint;
 	repeat: Int;
 }
 
-type IDPath = ID & {
+export type IDPath = ID & {
 	path: string;
 }
 
-type MapStart = [Uint, Uint];
+export type MapStart = [Uint, Uint];
 
-type Copy = {
+export type Copy = {
 	oldID: Uint;
 	newID: Uint;
 	path: string;
