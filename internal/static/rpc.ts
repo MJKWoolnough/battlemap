@@ -1,4 +1,4 @@
-import type {Broadcast, BroadcastWindow, CharacterDataChange, Copy, FolderItems, FromTo, IDName, IDPath, InternalWaits, KeyData, KeystoreData, LayerMove, LayerRename, LayerShift, MapData, MapDetails, MapStart, Mask, MaskSet, MusicPack, MusicPackPlay, MusicPackTrackAdd, MusicPackTrackRemove, MusicPackTrackRepeat, MusicPackTrackVolume, MusicPackVolume, Plugin, PluginDataChange, RPC as RPCType, TokenAdd, TokenMoveLayerPos, TokenSet, Uint, Wall, WallPath} from './types.js';
+import type {Broadcast, BroadcastWindow, CharacterDataChange, Copy, FolderItems, FromTo, IDName, IDPath, InternalWaits, KeyData, KeystoreData, KeystoreDataChange, LayerFolder, LayerMove, LayerRename, LayerShift, MapData, MapDetails, MapStart, Mask, MaskSet, MusicPack, MusicPackPlay, MusicPackTrackAdd, MusicPackTrackRemove, MusicPackTrackRepeat, MusicPackTrackVolume, MusicPackVolume, Plugin, PluginDataChange, RPC as RPCType, TokenAdd, TokenMoveLayerPos, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
 import type {Binding} from './lib/dom.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
@@ -428,7 +428,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	return true;
       },
       checksKeystoreData: checkers = [[checkObject, ""], [checkBoolean, "user"]],
-      checkKeystoreData = (data: any, name = "KeystoreData"): data is any => {
+      checkKeystoreData = (data: any, name = "KeystoreData"): data is KeystoreData => {
 	checkObject(data, name);
 	for (const key in data) {
 		checker(data[key], name, checksKeystoreData);
@@ -439,7 +439,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
 	return true;
       },
       checksKeystoreDataChange: checkers = [[checkObject, ""], [checkKeystoreData, "setting"], [checkArray, "removing"]],
-      checkKeystoreDataChange = (data: any, name: string): data is any => {
+      checkKeystoreDataChange = (data: any, name: string): data is KeystoreDataChange => {
 	checker(data, name, checksKeystoreDataChange);
 	for (const r of data.removing) {
 		checkString(r, name, "removing");
@@ -510,7 +510,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksTokenShape: checkers = [[checkColour, "fill"], [checkColour, "stroke"], [checkUint, "strokeWidth"], [checkUint, "fillType"], [checkArray, "fills"]],
       checksCoords: checkers = [[checkObject, ""], [checkInt, "x"], [checkInt, "y"]],
       checksFills: checkers = [[checkObject, ""], [checkByte, "pos"], [checkColour, "colour"]],
-      checkToken = (data: any, name = "Token"): data is any => {
+      checkToken = (data: any, name = "Token"): data is Token => {
 	checker(data, name, checksToken);
 	for (const cs of data["lightColours"]) {
 		checkArray(cs, "TokenSet", "lightColours");
@@ -556,7 +556,7 @@ const mapDataCheckers: ((data: Record<string, any>) => void)[] = [],
       checksLayerFolder: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkArray, "children"]],
       checksLayerTokens: checkers = [[checkString, "name"], [checkBoolean, "hidden"], [checkBoolean, "locked"], [checkArray, "tokens"], [checkArray, "walls"]],
       checksLayerGrid: checkers = [[checkBoolean, "hidden"]],
-      checkLayerFolder = (data: any, name = "LayerFolder"): data is any => {
+      checkLayerFolder = (data: any, name = "LayerFolder"): data is LayerFolder => {
 	if (name !== "MapData") {
 		checker(data, name, checksLayerFolder);
 	}
