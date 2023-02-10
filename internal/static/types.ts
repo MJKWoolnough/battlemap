@@ -321,10 +321,12 @@ export type KeystoreData<T = any> = {
 	data: T;
 }
 
-export type CharacterDataChange = ID & {
+export type KeystoreDataChange = {
 	setting: Record<string, KeystoreData>;
 	removing: string[];
 }
+
+export type CharacterDataChange = ID & KeystoreDataChange;
 
 type WallData = {
 	x1: Int;
@@ -353,10 +355,8 @@ export type Plugin = {
 	data: Record<string, KeystoreData>;
 }
 
-export type PluginDataChange = {
+export type PluginDataChange = KeystoreDataChange & {
 	id: string;
-	setting: Record<string, KeystoreData>;
-	removing: string[];
 }
 
 export type KeyData = {
