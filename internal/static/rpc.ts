@@ -1,5 +1,5 @@
 import type {Broadcast, BroadcastWindow, CharacterDataChange, Copy, FolderItems, FromTo, IDName, IDPath, InternalWaits, KeyData, KeystoreData, KeystoreDataChange, LayerFolder, LayerMove, LayerRename, LayerShift, MapData, MapDetails, MapStart, Mask, MaskSet, MusicPack, MusicPackPlay, MusicPackTrackAdd, MusicPackTrackRemove, MusicPackTrackRepeat, MusicPackTrackVolume, MusicPackVolume, Plugin, PluginDataChange, RPC as RPCType, TokenAdd, TokenMoveLayerPos, Token, TokenSet, Uint, Wall, WallPath} from './types.js';
-import type {Binding} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
 import {WS} from './lib/conn.js';
 import {Subscription} from './lib/inter.js';
 import pageLoad from './lib/load.js';

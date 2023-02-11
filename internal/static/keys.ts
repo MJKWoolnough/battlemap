@@ -1,4 +1,5 @@
-import type {Binding, Children} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
+import type {Children} from './lib/dom.js';
 import {keyEvent} from './lib/events.js';
 import {JSONSetting} from './lib/settings.js';
 

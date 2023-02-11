@@ -1,5 +1,6 @@
 import type {CharacterToken, KeystoreData, Uint, Wall} from './types.js';
-import type {Binding, Children, PropsObject} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
+import type {Children, PropsObject} from './lib/dom.js';
 import type {SVGLayer} from './map.js';
 import {id} from './lib/css.js';
 import {amendNode} from './lib/dom.js';

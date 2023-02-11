@@ -1,4 +1,4 @@
-import type {Binding} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
 import type {WindowData, WindowElement} from './windows.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';

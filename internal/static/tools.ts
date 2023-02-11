@@ -1,5 +1,5 @@
 import type {Uint} from './types.js';
-import type {Binding} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {div, h2, li, span, ul} from './lib/html.js';

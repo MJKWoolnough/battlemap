@@ -1,5 +1,5 @@
-import type {Binding, Bound} from './lib/dom.js';
-import {bind} from './lib/dom.js';
+import type {Binding, Bound} from './lib/bind.js';
+import bind from './lib/bind.js';
 import {StringSetting} from './lib/settings.js';
 
 export const language = new StringSetting("language", navigator.language),

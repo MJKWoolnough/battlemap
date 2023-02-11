@@ -1,4 +1,4 @@
-import type {Binding} from './lib/dom.js';
+import type {Binding} from './lib/bind.js';
 import {amendNode} from './lib/dom.js';
 import {button, h1, li, ul} from './lib/html.js';
 import {queue} from './lib/misc.js';
