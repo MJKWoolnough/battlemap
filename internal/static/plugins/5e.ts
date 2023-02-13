@@ -1258,6 +1258,18 @@ combinedRPC.waitTokenSet().when(ts => {
 			}
 		}
 	}
+	if (removeTokenData) {
+		for (const key of removeTokenData) {
+			switch (key) {
+			case "5e-ac":
+			case "5e-hp-max":
+			case "5e-hp-current":
+			case "5e-conditions":
+				setTimeout(() => (tokens.get(ts.id)!.token as SVGToken5EType)[updateData](), 0);
+				return;
+			}
+		}
+	}
 });
 
 combinedRPC.waitMapDataSet().when(changed => {
