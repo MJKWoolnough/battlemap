@@ -1235,7 +1235,7 @@ mapLoadedReceive(() => {
 	});
 });
 
-rpc.waitTokenSet().when(ts => {
+combinedRPC.waitTokenSet().when(ts => {
 	const {tokenData, removeTokenData} = ts;
 	if (tokenData && (tokenData["5e-initiative"] || tokenData["name"] !== undefined) || removeTokenData && (removeTokenData.includes("5e-initiative") || removeTokenData.includes("name"))) {
 		setTimeout(() => {
