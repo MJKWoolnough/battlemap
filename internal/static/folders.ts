@@ -525,7 +525,7 @@ export class Root {
 				span({"style": "margin-right: 0.5em"}, this.#fileType),
 				f.newer,
 				this.filter ? [
-					input({"type": "search", "class": filter, "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
+					labels(input({"class": filter, "placeholder": lang["FILTER"], "oninput": function(this: HTMLInputElement) {
 						const terms = this.value.toLowerCase().split(" ");
 						for (let i = 0; i < terms.length; i++) {
 							if (terms[i].charAt(0) === '"') {
@@ -539,6 +539,8 @@ export class Root {
 							}
 						}
 						f.filter(terms);
+					}}), "", {"onclick": function(this: HTMLLabelElement) {
+						(this.control as HTMLInputElement).value = "";
 					}}),
 					br()
 				] : [],
@@ -677,8 +679,39 @@ inited.then(() => {
 			[`.${filter}`]: {
 				"float": "right",
 				"text-align": "right",
+				"border-width": "2px 2px 2px 0",
+				"border-color": "#000",
+				"border-style": "inset",
+				"background": "#fff",
+				"outline": "none",
+				"height": "1em",
 				"+br": {
+					"border-width": "1px",
 					"clear": "right"
+				},
+				":placeholder-shown": {
+					"padding-left": "calc(1em + 4px)",
+					"border-left-width": "2px",
+					"+label": {
+						"display": "none"
+					}
+				},
+				"+label": {
+					"float": "right",
+					":after": {
+						"content": "\"⌦\"",
+						"color": "#000",
+						"font-size": "0.83333333em",
+						"display": "inline-block",
+						"border-width": "2px 0px 2px 2px",
+						"border-color": "#000",
+						"border-style": "inset",
+						"height": "1em",
+						"width": "1em",
+						"padding": "1px",
+						"background": "#fff",
+						"cursor": "pointer"
+					}
 				}
 			},
 			[`.${dragOver}`]: {
