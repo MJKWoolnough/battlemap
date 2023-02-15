@@ -1025,7 +1025,6 @@ if (isAdmin) {
 						const newHP = Math.max(0, parseInt(hp) + (hp.startsWith("+") || hp.startsWith("-") ? currHP : 0));
 						if (!isNaN(newHP)) {
 							doTokenSet({"id": token.id, "tokenData": {"5e-hp-current": {"user": false, "data": Math.max(0, (parseInt(hp) || 0) + (hp.startsWith("+") || hp.startsWith("-") ? currHP : 0))}}});
-							token[updateData]();
 						}
 					}
 				});
@@ -1047,7 +1046,6 @@ if (isAdmin) {
 			const data = token.getData("5e-conditions")?.slice() ?? Array.from({"length": conditions.length}, _ => false);
 			data[n] = !data[n];
 			doTokenSet({"id": token.id, "tokenData": {"5e-conditions": {"user": true, data}}});
-			token[updateData]();
 		}
 	      },
 	      conditionKeys = conditions.map((condition, n) => registerKeyEvent("5e-" + condition, bind`${lang["TOGGLE_CONDITION"]}: ${lang[condition]}`, '', undefined, () => setCondition(selected.token, n)));
