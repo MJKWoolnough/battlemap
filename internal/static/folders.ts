@@ -539,7 +539,7 @@ export class Root {
 							}
 						}
 						f.filter(terms);
-					}}), "", {"onclick": function(this: HTMLLabelElement) {
+					}}), "", {"title": lang["FILTER_CLEAR"], "onclick": function(this: HTMLLabelElement) {
 						(this.control as HTMLInputElement).value = "";
 					}}),
 					br()
