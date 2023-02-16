@@ -540,7 +540,9 @@ export class Root {
 						}
 						f.filter(terms);
 					}}), clearRight(), {"title": lang["FILTER_CLEAR"], "onclick": function(this: HTMLLabelElement) {
-						(this.control as HTMLInputElement).value = "";
+						const c = this.control as HTMLInputElement;
+						c.value = "";
+						c.dispatchEvent(new Event("input"));
 					}}),
 					br()
 				] : [],
