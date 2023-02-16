@@ -11,7 +11,7 @@ import lang from './language.js';
 import {inited, isAdmin} from './rpc.js';
 import {invert} from './settings.js';
 import {enterKey, labels} from './shared.js';
-import {copy, folder, newFolder, remove, rename} from './symbols.js';
+import {clearRight, copy, folder, newFolder, remove, rename} from './symbols.js';
 import {loadingWindow, shell, windows} from './windows.js';
 
 interface ItemConstructor {
@@ -539,7 +539,7 @@ export class Root {
 							}
 						}
 						f.filter(terms);
-					}}), "", {"title": lang["FILTER_CLEAR"], "onclick": function(this: HTMLLabelElement) {
+					}}), clearRight(), {"title": lang["FILTER_CLEAR"], "onclick": function(this: HTMLLabelElement) {
 						(this.control as HTMLInputElement).value = "";
 					}}),
 					br()
@@ -698,19 +698,18 @@ inited.then(() => {
 				},
 				"+label": {
 					"float": "right",
-					":after": {
-						"content": "\"⌦\"",
-						"color": "#000",
-						"font-size": "0.83333333em",
-						"display": "inline-block",
-						"border-width": "2px 0px 2px 2px",
-						"border-color": "#000",
-						"border-style": "inset",
-						"height": "1em",
+					"display": "inline-block",
+					"font-size": "0.83333333em",
+					"border-width": "2px 0px 2px 2px",
+					"border-color": "#000",
+					"border-style": "inset",
+					"padding": "1px",
+					"background": "#fff",
+					"cursor": "pointer",
+					"height": "1em",
+					" svg": {
 						"width": "1em",
-						"padding": "1px",
-						"background": "#fff",
-						"cursor": "pointer"
+						"height": "1em"
 					}
 				}
 			},
