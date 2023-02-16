@@ -73,4 +73,8 @@ addSymbol = (s: SVGSymbolElement): [(props?: PropsObject) => SVGSVGElement, stri
 	path({"d": "M15,45 v-20 a1,1 0,0,1 40,0 v20 h-10 v-20 a1,1 0,0,0 -20,0 v20 z", "fill": "#ccc", "style": "display: var(--locked, none)"}),
 	rect({"x": 5, "y": 45, "width": 60, "height": 50, "fill": "#aaa", "stroke-width": 4, "rx": 10}),
 	path({"d": "M30,78 l2,-8 c-7,-12 13,-12 6,0 l2,8 z", "fill": "#666", "stroke": "#000", "stroke-linejoin": "round"})
+])),
+[clearRight, clearRightStr] = addSymbol(symbol({"viewBox": "0 0 73 50"}, [
+	path({"d": "M5,0 H45 s5,0 10,5 L70,20 s5,5 0,10 L55,45 s-5,5 -10,5 H5 s-5,0 -5,-5 V5 s0,-5 5,-5 z", "fill": "#000"}),
+	path({"d": "M15,10 l30,30 M15,40 l30,-30", "stroke": "#fff", "stroke-width": 8, "stroke-linecap": "round"})
 ]));
