@@ -202,6 +202,8 @@ inited.then(() => {
 		[`.${tokenSelector}`]: {
 			"overflow": "hidden",
 			"position": "relative",
+			"width": "200px",
+			"height": "200px",
 			">button": {
 				"position": "absolute",
 				"left": 0,
