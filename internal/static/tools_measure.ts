@@ -16,7 +16,7 @@ const grid2Screen = (x: Uint, y: Uint): [number, number] => {
 	const {width, height} = mapData;
 	return [panZoom.zoom * x - (panZoom.zoom - 1) * width / 2 + panZoom.x, panZoom.zoom * y - (panZoom.zoom - 1) * height / 2 + panZoom.y];
       },
-      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute"}),
+      info = div({"style": "border: 1px solid #000; padding: 5px; background-color: #fff; color: #000; position: absolute; pointer-events: none"}),
       spot = circle({"r": 8, "fill": "#000", "stroke": "#fff", "stroke-width": 2}),
       lone = polyline({"stroke": "#fff", "stroke-width": 8, "stroke-linecap": "square", "stroke-linejoin": "round", "fill": "none"}),
       ltwo = polyline({"stroke": "#000", "stroke-width": 6, "stroke-linejoin": "round", "fill": "none"}),
