@@ -181,7 +181,7 @@ inited.then(() => {
 		},
 		"mapMouse2": (e: MouseEvent) => {
 			const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-			rpc.signalMeasure([coords[0], coords[1], x, y]);
+			rpc.signalMeasure([...(coords as [Uint, Uint]), x, y]);
 			send = true;
 			setupMouse2();
 			return false;
