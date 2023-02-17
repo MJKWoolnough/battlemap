@@ -137,10 +137,14 @@ inited.then(() => {
 	      [setupEscape, cancelEscape] = keyEvent("Escape", () => {
 		if (coords.length === 2) {
 			stopMeasurement();
+			cancelMouse2();
 		} else {
 			const y = coords.pop()!,
 			      x = coords.pop()!;
 			measureDistance(x, y);
+			if (send) {
+				rpc.signalMeasure([...(coords as [Uint, Uint]), x, y]);
+			}
 		}
 	      });
 
