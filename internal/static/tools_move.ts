@@ -46,6 +46,7 @@ inited.then(() => {
 
 	addTool({
 		"name": lang["TOOL_MOVE"],
+		"id": "tool_move",
 		"icon": svg({"viewBox": "0 0 22 22", "style": "fill: currentColor"}, [
 			title(lang["TOOL_MOVE"]),
 			g({"stroke-width": 1, "style": "stroke: currentColor", "stroke-linecap": "round"}, [

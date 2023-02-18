@@ -65,6 +65,7 @@ inited.then(() => {
 
 	addTool({
 		"name": lang["TOOL_MULTIPLACE"],
+		"id": "tool_multiplace",
 		"icon": svg({"viewBox": "0 0 100 100", "stroke": "currentColor", "fill": "none"}, [
 			title(lang["TOOL_MULTIPLACE"]),
 			circle({"cx": 15, "cy": 15, "r": 10, "stroke-dasharray": "50 40", "stroke-dashoffset": 75}),

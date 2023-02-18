@@ -113,6 +113,7 @@ inited.then(() => {
 
 	addTool({
 		"name": lang["TOOL_DRAW"],
+		"id": "tool_draw",
 		icon,
 		"options": div([
 			fieldset([

@@ -276,6 +276,7 @@ inited.then(() => {
 	});
 	addTool({
 		"name": lang["TOOL_WALL"],
+		"id": "tool_wall",
 		icon,
 		"options": div([
 			fieldset([
