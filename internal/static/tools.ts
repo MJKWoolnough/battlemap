@@ -19,6 +19,7 @@ type WheelFn = (this: SVGElement, e: WheelEvent) => boolean;
 
 type Tool = {
 	name: string | Binding;
+	id?: string;
 	icon: SVGElement;
 	set?: () => void;
 	unset?: () => void;
