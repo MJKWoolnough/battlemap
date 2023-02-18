@@ -19,6 +19,7 @@ if (isAdmin) {
 	      home = input({"type": "checkbox", "class": settingsTicker, "disabled": true});
 	addTool({
 		"name": lang["TITLE"],
+		"id": "tool_signal",
 		"icon": svg({"viewBox": "0 0 100 100", "fill": "none", "stroke": "currentColor", "stroke-width": 3}, [
 			circle({"cx": 50, "cy": 50, "r": 48}),
 			circle({"cx": 50, "cy": 50, "r": 38})

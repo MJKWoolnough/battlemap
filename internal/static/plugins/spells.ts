@@ -157,6 +157,7 @@ if (isAdmin) {
 	      ]);
 	addTool(Object.freeze({
 		"name": lang["TITLE"],
+		"id": "tool_spells",
 		"icon": svg({"viewBox": "0 0 100 100"}, [
 			title(lang["TITLE"]),
 			g({"fill": "currentColor", "stroke": "currentColor"}, [

@@ -45,6 +45,7 @@ if (isAdmin) {
 	      }}, lang["CLEAR"]);
 	addTool({
 		"name": lang["TITLE"],
+		"id": "tool_dice",
 		icon,
 		"options": div([
 			labels([lang["DICE"], ": "], dieNum),
