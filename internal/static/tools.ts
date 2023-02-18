@@ -1,5 +1,6 @@
 import type {Uint} from './types.js';
 import type {Binding} from './lib/bind.js';
+import bind from './lib/bind.js';
 import {add, ids} from './lib/css.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {div, h2, li, span, ul} from './lib/html.js';
@@ -104,29 +105,35 @@ menuItems.push([6, () => isAdmin ? [
 		const base = div(),
 		      options = div(),
 		      toolOptions = div([h2(lang["TOOL_OPTIONS"]), options]),
-		      list: HTMLLIElement[] = tools.map((t, n) => li({"onclick": function(this: HTMLLIElement) {
-			selectedTool.unset?.();
-			t.set?.();
-			selectedTool = t;
-			toolNum = n;
-			if (t.options) {
-				clearNode(options, t.options);
-				if (windowed && miniTools.value) {
-					amendNode(shell, autoFocus(optionsWindow));
+		      list: HTMLLIElement[] = tools.map((t, n) => {
+			const tool = li({"onclick": function(this: HTMLLIElement) {
+				selectedTool.unset?.();
+				t.set?.();
+				selectedTool = t;
+				toolNum = n;
+				if (t.options) {
+					clearNode(options, t.options);
+					if (windowed && miniTools.value) {
+						amendNode(shell, autoFocus(optionsWindow));
+					} else {
+						amendNode(toolOptions, {"style": {"display": undefined}});
+					}
+				} else if (windowed && miniTools.value) {
+					optionsWindow.remove();
 				} else {
-					amendNode(toolOptions, {"style": {"display": undefined}});
+					amendNode(toolOptions, {"style": {"display": "none"}});
 				}
-			} else if (windowed && miniTools.value) {
-				optionsWindow.remove();
-			} else {
-				amendNode(toolOptions, {"style": {"display": "none"}});
+				amendNode(selected, {"class": {[selectedID]: false}});
+				amendNode(selected = this, {"class": [selectedID]});
+			      }}, [
+				t.icon,
+				span(t.name)
+			      ]);
+			if (t.id) {
+				registerKeyEvent(t.id, bind`${lang["TOOL"]}: ${t.name}`, '', () => tool.click())[0]();
 			}
-			amendNode(selected, {"class": {[selectedID]: false}});
-			amendNode(selected = this, {"class": [selectedID]});
-		      }}, [
-			t.icon,
-			span(t.name)
-		      ])),
+			return tool;
+		      }),
 		      fc = list[0],
 		      [toolList, selectedID, miniToolsID] = ids(3);
 		add({
