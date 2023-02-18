@@ -207,6 +207,7 @@ export default makeLangPack({
 	"TOKEN_REPLACE_CONFIRM": "Are you sure that you wish to replace the current token with the currently selected token?",
 	"TOKEN_SELECT": "Select Token",
 	"TOKEN_USE_SELECTED": "Use currently selected token",
+	"TOOL": "Tool",
 	"TOOL_DEFAULT": "Default",
 	"TOOL_DRAW": "Draw",
 	"TOOL_DRAW_ELLIPSE": "Ellipse",
