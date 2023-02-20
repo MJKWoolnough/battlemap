@@ -10,5 +10,5 @@ import (
 var (
 	//go:embed index.gz
 	indexData []byte
-	index     = httpembed.HandleBuffer(indexData, 252478, time.Unix(1676828052, 0))
+	index     = httpembed.HandleBuffer(indexData, 252686, time.Unix(1676915698, 0))
 )
