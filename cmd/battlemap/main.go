@@ -2,12 +2,15 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"flag"
 	"fmt"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"time"
 
@@ -112,5 +115,16 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("error creating Battlemap: %w", err)
 	}
-	return fmt.Errorf("error while running Battlemap: %w", http.ListenAndServe(fmt.Sprintf(":%d", *port), b))
+	l, err := net.ListenTCP("tcp", &net.TCPAddr{Port: *port})
+	if err != nil {
+		return fmt.Errorf("error opening port: %w", err)
+	}
+	server := http.Server{Handler: b}
+	go server.Serve(l)
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, os.Interrupt)
+	<-sc
+	signal.Stop(sc)
+	close(sc)
+	return server.Shutdown(context.Background())
 }
