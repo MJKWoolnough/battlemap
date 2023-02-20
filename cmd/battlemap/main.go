@@ -67,10 +67,8 @@ func (a *Auth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "logout":
 		a.store.Set(w, nil)
 	case "login":
-		username, password, ok := r.BasicAuth()
-		if ok {
-			ok = username == a.username && password == a.password
-		}
+		username, password, _ := r.BasicAuth()
+		ok := username == a.username && password == a.password
 		if !ok {
 			w.Header().Set("WWW-Authenticate", "Basic realm=\"Enter Credentials\"")
 			w.WriteHeader(http.StatusUnauthorized)
