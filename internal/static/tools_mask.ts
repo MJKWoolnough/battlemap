@@ -7,7 +7,7 @@ import {JSONSetting} from './lib/settings.js';
 import {ellipse, path, polygon, rect, svg, title} from './lib/svg.js';
 import {settingsTicker} from './ids.js';
 import lang from './language.js';
-import {root, screen2Grid} from './map.js';
+import {panZoom, root, screen2Grid} from './map.js';
 import {doMaskAdd, doMaskRemove, doMaskSet} from './map_fns.js';
 import {deselectToken, masks} from './map_tokens.js';
 import {inited, isAdmin} from './rpc.js';
@@ -109,7 +109,7 @@ inited.then(() => {
 	      },
 	      [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		amendNode(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+		amendNode(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 		if (remove.checked) {
 			highlightMask(x, y);
 		} else {
