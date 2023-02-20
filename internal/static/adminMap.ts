@@ -322,6 +322,12 @@ export default (base: HTMLElement) => {
 				tokenEdit(token.id, lang["CONTEXT_EDIT_TOKEN"], token.tokenData, false);
 			}
 		}),
+		registerKeyEvent("tokenLight", lang["CONTEXT_SET_LIGHTING"], '', () => {
+			const {token} = selected;
+			if (token && tokens.has(token.id)) {
+				setLighting(token);
+			}
+		}),
 		...([
 			["Up", (tk: Token, dy: Uint) => tk.y -= dy],
 			["Down", (tk: Token, dy: Uint) => tk.y += dy],
