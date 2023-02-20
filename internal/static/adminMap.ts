@@ -330,6 +330,120 @@ export default (base: HTMLElement) => {
 		] as const).map(([dir, fn], n) => keyMoveToken(n, dir, fn))
 	      ],
 	      dragLightingOver = setDragEffect({"copy": [dragLighting]}),
+	      setLighting = (currToken: Token) => {
+		type Timing = {
+			[node]: HTMLTableCellElement;
+			value: Uint;
+		}
+		type Stage = {
+			[node]: HTMLTableRowElement;
+			value: Uint;
+			colours: NodeArray<ColourCell>;
+		}
+		type ColourCell = {
+			[node]: HTMLTableCellElement;
+			value: Colour;
+		}
+		const {lightColours, lightStages, lightTimings} = currToken,
+		      makeChange = () => ({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages": stages.map(s => s.value), "lightTimings": timings.map(t => t.value)}),
+		      dragKey = dragLighting.register(makeChange),
+		      lColours = cloneObject(lightColours),
+		      lStages = lightStages.length ? cloneObject(lightStages) : [0],
+		      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
+		      w = windows({"window-icon": lightOnOffStr, "window-title": lang["CONTEXT_SET_LIGHTING"], "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}),
+		      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
+		      stagesHeader = th({"rowspan": lStages.length + 1, "style": "min-width:1em; writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
+		      addTiming = (t = 0) => {
+			const o = {
+				[node]: th([
+					input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
+						o.value = checkInt(parseInt(this.value), 0);
+					}}),
+					remove({"title": lang["LIGHTING_REMOVE_TIMING"], "class": itemControl, "onclick": () => {
+						const pos = timings.findIndex(t => Object.is(t, o));
+						timings.splice(pos, 1);
+						lTimings.pop();
+						for (const s of stages) {
+							s.colours.splice(pos, 1);
+						}
+						amendNode(timingHeader, {"colspan": timings.length});
+					}})
+				]),
+				value: t
+			      };
+			return o;
+		      },
+		      addColour = (n = -1, m = -1) => {
+			const o: ColourCell = {
+				[node]: td(),
+				value: lColours[n]?.[m] ?? noColour
+			      };
+			amendNode(o[node], makeColourPicker(w, lang["LIGHTING_SET_COLOUR"], () => o.value, c => o.value = c));
+			return o;
+		      },
+		      addStage = (s = 0, n = -1) => {
+			const p = tr(td([
+				input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
+					o.value = checkInt(parseInt(this.value), 0);
+				}}),
+				remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": itemControl, "onclick": () => {
+					stages.filterRemove(t => t === o);
+					amendNode(stagesHeader, {"rowspan": stages.length + 1});
+				}})
+			      ])),
+			      o = {
+				[node]: p,
+				value: s,
+				colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m)))
+			      };
+			return o;
+		      },
+		      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
+		      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), noSort, lStages.map(addStage));
+		amendNode(shell, amendNode(w, {"onremove": () => dragLighting.deregister(dragKey), "ondragover": dragLightingOver, "ondrop": (e: DragEvent) => {
+			if (dragLighting.is(e)) {
+				const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
+				if (id !== currToken.id) {
+					lColours.splice(0, lColours.length, ...lightColours);
+					lStages.splice(0, lStages.length, ...lightStages);
+					lTimings.splice(0, lTimings.length, ...lightTimings);
+					timings.splice(0, timings.length, ...lightTimings.map(addTiming));
+					stages.splice(0, stages.length, ...lightStages.map(addStage));
+					amendNode(timingHeader, {"colspan": timings.length});
+					amendNode(stagesHeader, {"rowspan": stages.length + 1});
+				}
+			}
+		}}, [
+			h1([
+				div({"draggable": "true", "style": "display: inline-block; cursor: grab", "ondragstart": (e: DragEvent) => dragLighting.set(e, dragKey)}, lightGrid({"title": lang["LIGHTING_DRAG"], "width": "1em", "height": "1em"})),
+				lang["CONTEXT_SET_LIGHTING"]
+			]),
+			button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage()) + 1})}, lang["LIGHTING_ADD_STAGE"]),
+			button({"onclick": () => {
+				amendNode(timingHeader, {"colspan": timings.push(addTiming())});
+				lTimings.push(0);
+				for (const s of stages) {
+					s.colours.push(addColour());
+				}
+			}}, lang["LIGHTING_ADD_TIMING"]),
+			table([
+				thead([
+					tr([
+						td({"colspan": 2}),
+						timingHeader
+					]),
+					timings[node]
+				]),
+				stages[node]
+			]),
+			button({"onclick": () => {
+				if (tokens.has(currToken.id)) {
+					doTokenSet(makeChange());
+				}
+				w.close();
+			}}, lang["SAVE"])
+		]));
+	      },
 	      cycleTokens = (e: KeyboardEvent) => {
 		const {layer, token} = selected;
 		if (layer) {
@@ -562,118 +676,7 @@ export default (base: HTMLElement) => {
 				}}, currToken.snap ? lang["CONTEXT_UNSNAP"] : lang["CONTEXT_SNAP"]),
 				item({"onselect": () => {
 					if (tokens.has(currToken.id)) {
-						type Timing = {
-							[node]: HTMLTableCellElement;
-							value: Uint;
-						}
-						type Stage = {
-							[node]: HTMLTableRowElement;
-							value: Uint;
-							colours: NodeArray<ColourCell>;
-						}
-						type ColourCell = {
-							[node]: HTMLTableCellElement;
-							value: Colour;
-						}
-						const {lightColours, lightStages, lightTimings} = currToken,
-						      makeChange = () => ({"id": currToken.id, "lightColours": stages.map(s => s.colours.map(c => c.value)), "lightStages": stages.map(s => s.value), "lightTimings": timings.map(t => t.value)}),
-						      dragKey = dragLighting.register(makeChange),
-						      lColours = cloneObject(lightColours),
-						      lStages = lightStages.length ? cloneObject(lightStages) : [0],
-						      lTimings = lightTimings.length ? cloneObject(lightTimings) : [0],
-						      w = windows({"window-icon": lightOnOffStr, "window-title": lang["CONTEXT_SET_LIGHTING"], "resizable": true, "style": "--window-width: 50%; --window-height: 50%"}),
-						      timingHeader = th({"colspan": lTimings.length}, lang["LIGHTING_TIMING"]),
-						      stagesHeader = th({"rowspan": lStages.length + 1, "style": "min-width:1em; writing-mode: vertical-rl; transform: scale(-1, -1)"}, lang["LIGHTING_STAGES"]),
-						      addTiming = (t = 0) => {
-							const o = {
-								[node]: th([
-									input({"type": "number", "value": t, "onchange": function(this: HTMLInputElement) {
-										o.value = checkInt(parseInt(this.value), 0);
-									}}),
-									remove({"title": lang["LIGHTING_REMOVE_TIMING"], "class": itemControl, "onclick": () => {
-										const pos = timings.findIndex(t => Object.is(t, o));
-										timings.splice(pos, 1);
-										lTimings.pop();
-										for (const s of stages) {
-											s.colours.splice(pos, 1);
-										}
-										amendNode(timingHeader, {"colspan": timings.length});
-									}})
-								]),
-								value: t
-							      };
-							return o;
-						      },
-						      addColour = (n = -1, m = -1) => {
-							const o: ColourCell = {
-								[node]: td(),
-								value: lColours[n]?.[m] ?? noColour
-							      };
-							amendNode(o[node], makeColourPicker(w, lang["LIGHTING_SET_COLOUR"], () => o.value, c => o.value = c));
-							return o;
-						      },
-						      addStage = (s = 0, n = -1) => {
-							const p = tr(td([
-								input({"type": "number", "value": s, "onchange": function(this: HTMLInputElement) {
-									o.value = checkInt(parseInt(this.value), 0);
-								}}),
-								remove({"title": lang["LIGHTING_REMOVE_STAGE"], "class": itemControl, "onclick": () => {
-									stages.filterRemove(t => t === o);
-									amendNode(stagesHeader, {"rowspan": stages.length + 1});
-								}})
-							      ])),
-							      o = {
-								[node]: p,
-								value: s,
-								colours: new NodeArray<ColourCell>(p, noSort, lTimings.map((_, m) => addColour(n, m)))
-							      };
-							return o;
-						      },
-						      timings = new NodeArray<Timing>(amendNode(tr(), td({"colspan": 2})), noSort, lTimings.map(addTiming)),
-						      stages = new NodeArray<Stage, HTMLTableSectionElement>(tbody(tr(stagesHeader)), noSort, lStages.map(addStage));
-						amendNode(shell, amendNode(w, {"onremove": () => dragLighting.deregister(dragKey), "ondragover": dragLightingOver, "ondrop": (e: DragEvent) => {
-							if (dragLighting.is(e)) {
-								const {id, lightColours, lightStages, lightTimings} = dragLighting.get(e);
-								if (id !== currToken.id) {
-									lColours.splice(0, lColours.length, ...lightColours);
-									lStages.splice(0, lStages.length, ...lightStages);
-									lTimings.splice(0, lTimings.length, ...lightTimings);
-									timings.splice(0, timings.length, ...lightTimings.map(addTiming));
-									stages.splice(0, stages.length, ...lightStages.map(addStage));
-									amendNode(timingHeader, {"colspan": timings.length});
-									amendNode(stagesHeader, {"rowspan": stages.length + 1});
-								}
-							}
-						}}, [
-							h1([
-								div({"draggable": "true", "style": "display: inline-block; cursor: grab", "ondragstart": (e: DragEvent) => dragLighting.set(e, dragKey)}, lightGrid({"title": lang["LIGHTING_DRAG"], "width": "1em", "height": "1em"})),
-								lang["CONTEXT_SET_LIGHTING"]
-							]),
-							button({"onclick": () => amendNode(stagesHeader, {"rowspan": stages.push(addStage()) + 1})}, lang["LIGHTING_ADD_STAGE"]),
-							button({"onclick": () => {
-								amendNode(timingHeader, {"colspan": timings.push(addTiming())});
-								lTimings.push(0);
-								for (const s of stages) {
-									s.colours.push(addColour());
-								}
-							}}, lang["LIGHTING_ADD_TIMING"]),
-							table([
-								thead([
-									tr([
-										td({"colspan": 2}),
-										timingHeader
-									]),
-									timings[node]
-								]),
-								stages[node]
-							]),
-							button({"onclick": () => {
-								if (tokens.has(currToken.id)) {
-									doTokenSet(makeChange());
-								}
-								w.close();
-							}}, lang["SAVE"])
-						]));
+						setLighting(currToken);
 					}
 				}}, lang["CONTEXT_SET_LIGHTING"]),
 				tokenPos < currLayer.tokens.length - 1 ? [
