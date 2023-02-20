@@ -15,7 +15,7 @@ import {defs, foreignObject, g, path, pattern, rect, svg, svgData, title} from '
 import {Colour, ColourSetting, dragColour, hex2Colour, makeColourPicker, noColour} from './colours.js';
 import {settingsTicker} from './ids.js';
 import lang from './language.js';
-import {isSVGFolder, layerList, root, screen2Grid} from './map.js';
+import {isSVGFolder, layerList, panZoom, root, screen2Grid} from './map.js';
 import {doWallAdd, doWallModify, doWallMove, doWallRemove} from './map_fns.js';
 import {deselectToken, selected} from './map_tokens.js';
 import {combined, inited, isAdmin} from './rpc.js';
@@ -64,7 +64,7 @@ inited.then(() => {
 	      [setupShiftSnap, cancelShiftSnap] = keyEvent("Shift", shiftSnap, shiftSnap),
 	      [startCursorMove, cancelCursorMove] = mouseMoveEvent((e: MouseEvent) => {
 		const [x, y] = screen2Grid(e.clientX, e.clientY, snap.checked);
-		amendNode(marker, {"transform": `translate(${x - 10}, ${y - 10})`});
+		amendNode(marker, {"transform": `translate(${x - 10 / panZoom.zoom}, ${y - 10 / panZoom.zoom}) scale(${1/panZoom.zoom})`});
 	      }, () => {
 		amendNode(root, {"style": {"cursor": undefined}});
 		marker.remove()
