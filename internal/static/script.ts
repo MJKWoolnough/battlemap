@@ -1,5 +1,6 @@
 import type {Binding} from './lib/bind.js';
 import type {WindowData, WindowElement} from './windows.js';
+import bind from './lib/bind.js';
 import {add, ids, render} from './lib/css.js';
 import {amendNode, clearNode, event, eventPassive} from './lib/dom.js';
 import {mouseDragEvent} from './lib/events.js';
@@ -117,7 +118,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 		"add": ([title, base, pop, popIcon]: [string | Binding, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
-			      popper = pop ? popout({"class": popoutID, "title": `Popout ${title}`, "onclick": (e: Event) => {
+			      popper = pop ? popout({"class": popoutID, "title": bind`${lang["POPOUT"]} ${title}`, "onclick": (e: Event) => {
 				e.preventDefault();
 				const replaced = div();
 				base.replaceWith(replaced);
