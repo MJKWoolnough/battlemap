@@ -156,6 +156,7 @@ export default makeLangPack({
 	"PLUGINS": "Plugins",
 	"PLUGIN_REFRESH": "Refresh Page?",
 	"PLUGIN_REFRESH_REQUEST": "Plugin settings have change and a page refresh is required to load changes. Refresh the page now?",
+	"POPOUT": "Popout",
 	"RESTORE": "Restore",
 	"SAVE": "Save",
 	"SETTINGS_AUTH": "Authentication",
