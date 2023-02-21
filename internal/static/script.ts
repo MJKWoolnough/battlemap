@@ -185,7 +185,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 					"cursor": "default !important"
 				},
 				[a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):before`).join(",")]: {
-					"box-shadow": "22px 2px 0 var(--c)"
+					"box-shadow": "2px 2px 0 var(--c)"
 				},
 				[a.map(n => `#${tabsID}>input:nth-child(${n}):checked~#${tabLabelsID}>label:nth-child(${n}):after`).join(",")]: {
 					"box-shadow": "-2px 2px 0 var(--c)"
