@@ -40,7 +40,7 @@ export type PluginType = {
 	tokenClass?: owp<(c: SVGTokenConstructor) => SVGTokenConstructor>;
 	shapeClass?: owp<(c: SVGShapeConstructor) => SVGShapeConstructor>;
 	drawingClass?: owp<(c: SVGDrawingConstructor) => SVGDrawingConstructor>;
-	menuItem?: owp<[string | Binding, HTMLDivElement, boolean, string]>;
+	menuItem?: owp<[Binding, HTMLDivElement, boolean, string]>;
 	tokenDataFilter?: owp<string[]>;
 	addWalls?: owp<(layer: string) => Omit<Wall, "id">[]>;
 	addLights?: owp<(layer: string) => Lighting[]>;
