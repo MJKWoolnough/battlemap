@@ -115,7 +115,7 @@ const [panelsID, tabsID, panelContainerID, panelOnTopID, tabLabelsID, panelHider
 		e.preventDefault();
 	})[0]();
 	return Object.freeze({
-		"add": ([title, base, pop, popIcon]: [string | Binding, HTMLDivElement, boolean, string]) => {
+		"add": ([title, base, pop, popIcon]: [Binding, HTMLDivElement, boolean, string]) => {
 			amendNode(p, base);
 			const pos = n++,
 			      popper = pop ? popout({"class": popoutID, "title": bind`${lang["POPOUT"]} ${title}`, "onclick": (e: Event) => {
