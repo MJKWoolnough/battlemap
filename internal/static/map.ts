@@ -845,4 +845,5 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().when(masks.add);
 	rpc.waitMaskRemove().when(masks.remove);
 	rpc.waitMaskSet().when(({baseOpaque, masks: ms}) => masks.set(baseOpaque, ms));
+	rpc.waitGridDistanceChange().when(updateLight);
 };
