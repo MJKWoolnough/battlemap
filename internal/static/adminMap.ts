@@ -19,7 +19,7 @@ import {makeColourPicker, noColour} from './colours.js';
 import {adminHideLight, cursors, hiddenLayer, itemControl, layerLight, mapID, selectedLayerID} from './ids.js';
 import {registerKeyEvent} from './keys.js';
 import lang from './language.js';
-import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal} from './map.js';
+import {getLayer, isSVGFolder, isSVGLayer, isTokenImage, layerList, mapData, mapView, panZoom, removeLayer, root, screen2Grid, showSignal, updateLight} from './map.js';
 import {checkSelectedLayer, doLayerAdd, doLayerFolderAdd, doLayerMove, doLayerRename, doLayerShift, doLockUnlockLayer, doMapChange, doMapDataRemove, doMapDataSet, doMaskAdd, doMaskRemove, doMaskSet, doSetLightColour, doShowHideLayer, doTokenAdd, doTokenMoveLayerPos, doTokenRemove, doTokenSet, doTokenSetMulti, doWallAdd, doWallModify, doWallMove, doWallRemove, setLayer, snapTokenToGrid, tokenMousePos, waitAdded, waitFolderAdded, waitFolderRemoved, waitLayerHide, waitLayerLock, waitLayerPositionChange, waitLayerRename, waitLayerShow, waitLayerUnlock, waitRemoved} from './map_fns.js';
 import {SQRT3, SVGToken, deselectToken, outline, outlineRotationClass, selected, tokens, tokenSelected, tokenSelectedReceive} from './map_tokens.js';
 import {tokenContext} from './plugins.js';
@@ -797,6 +797,7 @@ export default (base: HTMLElement) => {
 	rpc.waitMaskAdd().when(m => doMaskAdd(m, false));
 	rpc.waitMaskRemove().when(i => doMaskRemove(i, false));
 	rpc.waitMaskSet().when(ms => doMaskSet(ms, false));
+	rpc.waitGridDistanceChange().when(updateLight);
 	hiddenLayerOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 	hiddenLayerSelectedOpacity.wait(v => amendNode(document.body, {"style": {"--hiddenLayerSelectedOpacity": Math.max(Math.min(v, 255), 0) / 255}}));
 };
