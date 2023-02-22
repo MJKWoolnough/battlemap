@@ -29,3 +29,9 @@ This project is currently in a work-in-progess state, with frequent updates.
 | pass   | ""        | Password for admin login. |
 | path   | [ConfigDir](https://pkg.go.dev/os#UserConfigDir)/battlemap | Location to store Battlemap data. |
 | port   | 8080      | Port on which to run the webserver. |
+
+## Screenshot
+
+Simple screenshot showing lighting effect (will be made more graphical in the future).
+
+![Screenshot](/screenshots/screenshot.svg)
